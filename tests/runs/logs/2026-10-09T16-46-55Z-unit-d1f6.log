@@ -1,0 +1,24 @@
+# Модульные (unit) · 09.10.2026 21:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/market-redesign-comp32), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T16-46-55Z-unit-d1f6.json' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 5266ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1636ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 813ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 859ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 589ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 839ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 519ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  09:46:56
+   Duration  5.36s (tests 99%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T16-46-55Z-unit-d1f6.json
+
+# код выхода 0 · 6 с

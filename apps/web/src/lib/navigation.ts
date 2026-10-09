@@ -212,7 +212,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             // Фишка №1 (ADR-142): загрузка ближайших отелей рядом со своей; смотрят, кто видит отчёты
             href: '/market',
             requires: 'reports',
-            label: 'Загрузка конкурентов',
+            label: 'Анализ конкурентов',
             icon: 'analytics',
             description:
               'Ваша загрузка рядом с загрузкой ближайших отелей на каждую ночь и подсказки к цене.',

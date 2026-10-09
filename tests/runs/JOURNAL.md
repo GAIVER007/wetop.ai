@@ -7783,3 +7783,27 @@
 | 09.10.2026 19:03 | typecheck | ✅ без ошибок | 44 с | d94bc5e | [лог](logs/2026-10-09T14-03-11Z-typecheck-1648.log) |  |
 | 09.10.2026 19:03 | lint | ✅ без ошибок | 39 с | d94bc5e | [лог](logs/2026-10-09T14-03-56Z-lint-f816.log) |  |
 | 09.10.2026 19:04 | unit | ✅ 4169 из 4172, пропущено 3 | 2 мин 9 с | d94bc5e | [лог](logs/2026-10-09T14-04-36Z-unit-2bbf.log) |  |
+| 09.10.2026 20:30 | unit (частично: apps/web/src/app/market/derive.test.ts) | ❌ код выхода 1 | 1 с | 485145c +2 | [лог](logs/2026-10-09T15-30-03Z-unit-d8a9.log) | (файл не выполнился) |
+| 09.10.2026 20:30 | unit (частично: apps/web/src/app/market/derive.test.ts) | ✅ 4 из 4 | 1 с | 485145c +3 | [лог](logs/2026-10-09T15-30-25Z-unit-6d99.log) |  |
+| 09.10.2026 20:38 | typecheck | ❌ ошибок: 528 | 19 с | 485145c +15 | [лог](logs/2026-10-09T15-38-34Z-typecheck-1f1c.log) | TS2322 |
+| 09.10.2026 20:39 | typecheck | ❌ ошибок: 5 | 17 с | 485145c +15 | [лог](logs/2026-10-09T15-39-59Z-typecheck-3abc.log) | TS2307 |
+| 09.10.2026 20:40 | typecheck | ✅ без ошибок | 22 с | 485145c +15 | [лог](logs/2026-10-09T15-40-40Z-typecheck-eaaf.log) |  |
+| 09.10.2026 20:45 | unit (частично: apps/web/src/app/market/derive.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/lib/navigation.test.ts) | ✅ 23 из 23 | 7 с | 485145c +10 | [лог](logs/2026-10-09T15-45-31Z-unit-8579.log) |  |
+| 09.10.2026 20:46 | e2e (частично: tests/ui/market.spec.ts --workers=1) | ❌ код выхода 1 | 33 с | 485145c +15 | [лог](logs/2026-10-09T15-46-08Z-e2e-e244.log) | (ошибка вне тестов) |
+| 09.10.2026 20:48 | e2e (частично: --config tests/ui/playwright.config.ts market.spec.ts) | ❌ упало 2 из 8 | 5 мин 41 с | 485145c +15 | [лог](logs/2026-10-09T15-48-02Z-e2e-96bb.log) | плитки, календарь сигналов, график, рекомендация и таблица конкурентов; убрать из списка |
+| 09.10.2026 20:54 | e2e (частично: --config tests/ui/playwright.config.ts market.spec.ts -g плитки\|только чтение) | ❌ код выхода 1 | 43 с | 485145c +15 | [лог](logs/2026-10-09T15-54-16Z-e2e-cfa7.log) | (ошибка вне тестов) |
+| 09.10.2026 20:41 | lint | ❌ ошибок: 9007 | 14 мин 53 с | 485145c +15 | [лог](logs/2026-10-09T15-41-08Z-lint-43b4.log) | eslint |
+| 09.10.2026 20:56 | lint (частично: apps/web/src/app/market apps/web/src/lib/navigation.ts apps/web/src/app/reports/page.tsx tests/ui/market.spec.ts tests/ui/navigation.spec.ts tes | ❌ ошибок: 9007 | 1 мин 28 с | 485145c +15 | [лог](logs/2026-10-09T15-56-56Z-lint-6b4c.log) | eslint |
+| 09.10.2026 20:59 | e2e (частично: --config tests/ui/playwright.alt.config.ts market.spec.ts) | ✅ 8 из 8 | 3 мин 25 с | 485145c +15 | [лог](logs/2026-10-09T15-59-27Z-e2e-ec70.log) |  |
+| 09.10.2026 20:59 | lint | ✅ без ошибок | 3 мин 53 с | 485145c +16 | [лог](logs/2026-10-09T15-59-19Z-lint-8d92.log) |  |
+| 09.10.2026 21:03 | e2e (частично: --config tests/ui/playwright.alt.config.ts navigation.spec.ts top-menu.spec.ts workspace.spec.ts marketing.spec.ts) | ❌ упало 19 из 86 | 28 мин 17 с | 485145c +15 | [лог](logs/2026-10-09T16-03-19Z-e2e-6be3.log) | availability preserves exact unit and dates; responsive category design |
+| 09.10.2026 21:32 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/navigation.spec.ts tests/ui/top-menu.spec.ts tests/ui/workspace.spec.ts tests/ui/marketing.sp | ✅ 77 из 77 | 6 мин 10 с | 485145c +15 | [лог](logs/2026-10-09T16-32-58Z-e2e-dbdb.log) |  |
+| 09.10.2026 21:39 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts) | ✅ 8 из 8 | 28 с | 485145c +15 | [лог](logs/2026-10-09T16-39-28Z-e2e-4971.log) |  |
+| 09.10.2026 21:40 | unit | ❌ упало 9 из 4176, пропущено 4 | 1 мин 40 с | 485145c +10 | [лог](logs/2026-10-09T16-40-24Z-unit-e9fd.log) | scripts/ops/auto-deploy.sh --migrations-applied с номером вершины выкладывает ровно её, другую — нет |
+| 09.10.2026 21:44 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-guards.test.ts) | ❌ упало 1 из 33 | 1 с | 485145c +10 | [лог](logs/2026-10-09T16-44-10Z-unit-92cf.log) | design: сторож ИИ-слопа (DESIGN.md §15) orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a) |
+| 09.10.2026 21:44 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/db-backup-offsite.test.ts) | ✅ 27 из 28, пропущено 1 | 15 с | 485145c +10 | [лог](logs/2026-10-09T16-44-27Z-unit-c732.log) |  |
+| 09.10.2026 21:44 | unit | ❌ упало 2 из 4176, пропущено 4 | 1 мин 12 с | 485145c +10 | [лог](logs/2026-10-09T16-44-54Z-unit-50c5.log) | design: сторож ИИ-слопа (DESIGN.md §15) orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a) |
+| 09.10.2026 21:46 | typecheck | ✅ без ошибок | 19 с | 485145c +15 | [лог](logs/2026-10-09T16-46-07Z-typecheck-ad42.log) |  |
+| 09.10.2026 21:46 | unit (частично: tests/unit/guard-run.test.ts) | ✅ 8 из 8 | 6 с | 485145c +10 | [лог](logs/2026-10-09T16-46-55Z-unit-d1f6.log) |  |
+| 09.10.2026 21:47 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts) | ✅ 8 из 8 | 25 с | 485145c +15 | [лог](logs/2026-10-09T16-47-16Z-e2e-32e5.log) |  |
+| 09.10.2026 21:47 | lint | ✅ без ошибок | 26 с | 485145c +16 | [лог](logs/2026-10-09T16-47-42Z-lint-2465.log) |  |

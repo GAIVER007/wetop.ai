@@ -1,0 +1,560 @@
+# Типы (typecheck) · 09.10.2026 20:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/market-redesign-comp32), незакоммиченных файлов набора: 15
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/auth/auth.service.ts(386,69): error TS2322: Type '"BEAUTY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+apps/api/src/channels/channels.repository.ts(243,12): error TS2339: Property 'countryCode' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(243,30): error TS2339: Property 'city' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(243,41): error TS2339: Property 'channexPropertyType' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(265,20): error TS2339: Property 'countryCode' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(266,17): error TS2339: Property 'city' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(267,25): error TS2339: Property 'channexPropertyType' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/food-service/food.service.ts(26,29): error TS2305: Module '"@pms/database"' has no exported member 'DiningArea'.
+apps/api/src/food-service/food.service.ts(26,41): error TS2305: Module '"@pms/database"' has no exported member 'DiningTable'.
+apps/api/src/food-service/food.service.ts(26,54): error TS2305: Module '"@pms/database"' has no exported member 'ServicePeriod'.
+apps/api/src/food-service/food.service.ts(36,19): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'RestaurantReservationGetPayload'. Did you mean 'ReservationGetPayload'?
+apps/api/src/food-service/food.service.ts(148,30): error TS2339: Property 'diningArea' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(156,30): error TS2339: Property 'diningTable' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(164,30): error TS2339: Property 'servicePeriod' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(168,14): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/food-service/food.service.ts(177,24): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(187,22): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(192,24): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(202,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(231,30): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(234,24): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(243,30): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(251,21): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(259,24): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(269,30): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(284,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(334,39): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(347,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(366,28): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(374,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(393,28): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(424,26): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(441,18): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(457,18): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(469,24): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(512,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(548,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(570,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(575,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(597,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(598,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/scope.ts(36,46): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'EnumBusinessVerticalFilter<"Business"> | BusinessVertical | undefined'.
+apps/api/src/hotel/branches.ts(116,38): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+apps/api/src/hotel/branches.ts(126,33): error TS2551: Property 'business' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'. Did you mean 'businessId'?
+apps/api/src/hotel/onboarding.ts(288,32): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/asset-refs.ts(44,24): error TS2339: Property 'marketingSitePublication' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/asset-refs.ts(56,29): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/asset-refs.ts(61,25): error TS7006: Parameter 'v' implicitly has an 'any' type.
+apps/api/src/marketing-site/asset-storage.ts(8,8): error TS2307: Cannot find module '@aws-sdk/client-s3' or its corresponding type declarations.
+apps/api/src/marketing-site/asset-storage.ts(9,30): error TS2307: Cannot find module '@aws-sdk/s3-request-presigner' or its corresponding type declarations.
+apps/api/src/marketing-site/assistant-history.ts(25,8): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient | Db'.
+  Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant-history.ts(31,8): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient | Db'.
+  Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(59,24): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'SiteAiRunGetPayload'. Did you mean 'UserGetPayload'?
+apps/api/src/marketing-site/assistant.service.ts(82,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(110,33): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(113,20): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(143,30): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(150,28): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(180,17): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(198,17): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(232,12): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(233,12): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(235,45): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(235,75): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(237,24): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(258,23): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/generation.service.ts(59,22): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'GenerationRunGetPayload'. Did you mean 'ReservationGetPayload'?
+apps/api/src/marketing-site/generation.service.ts(113,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(186,17): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(206,30): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(220,22): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(232,28): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(271,26): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(287,17): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.worker.ts(175,29): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(182,20): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(189,31): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(196,20): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(254,35): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(255,32): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(293,33): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(294,30): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(348,22): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(371,39): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(378,41): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(421,41): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(490,32): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(498,16): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(514,26): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(533,27): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.worker.ts(555,32): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(560,29): error TS2339: Property 'marketingSite' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(567,20): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(576,32): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(591,16): error TS2339: Property 'marketingSite' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(593,16): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(632,39): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(652,30): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(658,41): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(699,29): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(714,28): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(729,32): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(737,16): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(747,26): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(759,27): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(46,23): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'MarketingSiteGetPayload'. Did you mean 'InviteGetPayload'?
+apps/api/src/marketing-site/marketing-site.service.ts(107,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(122,12): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(142,20): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(165,37): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(173,34): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(177,63): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/marketing-site.service.ts(178,33): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(197,29): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(215,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(230,32): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(231,33): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(234,20): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(235,20): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(252,29): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(281,34): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(295,18): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(320,29): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(327,30): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(332,40): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/marketing-site/marketing-site.service.ts(341,31): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/marketing-site/marketing-site.service.ts(402,34): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(416,18): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(436,30): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(49,23): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'MarketingSiteGetPayload'. Did you mean 'InviteGetPayload'?
+apps/api/src/marketing-site/publication.service.ts(96,32): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(135,19): error TS2353: Object literal may only specify known properties, and 'bookingTrackedSiteId' does not exist in type 'LocationSelect<DefaultArgs>'.
+apps/api/src/marketing-site/publication.service.ts(142,108): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(151,22): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(171,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(191,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(208,31): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(217,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(238,28): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(243,33): error TS2339: Property 'marketingSitePublication' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(257,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(273,16): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(287,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(302,29): error TS2339: Property 'marketingSitePublication' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(318,33): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/marketing-site/publication.service.ts(355,103): error TS2353: Object literal may only specify known properties, and 'bookingTrackedSiteId' does not exist in type 'LocationSelect<DefaultArgs>'.
+apps/api/src/marketing-site/publication.service.ts(356,18): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(365,45): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(375,103): error TS2353: Object literal may only specify known properties, and 'bookingTrackedSiteId' does not exist in type 'LocationSelect<DefaultArgs>'.
+apps/api/src/marketing-site/publication.service.ts(400,40): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(416,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(451,30): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(511,103): error TS2353: Object literal may only specify known properties, and 'bookingTrackedSiteId' does not exist in type 'LocationSelect<DefaultArgs>'.
+apps/api/src/marketing-site/publication.service.ts(512,75): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(517,27): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(524,30): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(526,25): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(532,16): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(566,27): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(571,90): error TS7006: Parameter 'd' implicitly has an 'any' type.
+apps/api/src/marketing-site/publication.service.ts(584,14): error TS2339: Property 'marketingSitePublication' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(599,27): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/scope.ts(53,24): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(65,27): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'SiteAssetGetPayload'. Did you mean 'BusinessGetPayload'?
+apps/api/src/marketing-site/site-assets.service.ts(126,10): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(136,33): error TS18046: 'rows' is of type 'unknown'.
+apps/api/src/marketing-site/site-assets.service.ts(136,43): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/marketing-site/site-assets.service.ts(167,30): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(172,32): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(203,28): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(306,10): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(322,34): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(417,10): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(422,24): error TS2339: Property 'latestVersion' does not exist on type '{}'.
+apps/api/src/onboarding/onboarding.module.ts(98,40): error TS2339: Property 'onboardingProgress' does not exist on type 'Db'.
+apps/api/src/onboarding/onboarding.module.ts(164,30): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/onboarding/onboarding.module.ts(260,16): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/platform/site-builder-licenses.ts(77,31): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/platform/site-builder-licenses.ts(82,16): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/beauty-ui/fixture-api.ts(178,26): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/branches-ui/analytics.spec.ts(96,31): error TS2339: Property 'restaurantReservation' does not exist on type 'PrismaClient'.
+tests/branches-ui/analytics.spec.ts(108,29): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/branches-ui/fixture-api.ts(153,21): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/branches-ui/fixture-api.ts(178,19): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/branches-ui/fixture-api.ts(185,19): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/branches-ui/fixture-api.ts(299,52): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'EnumBusinessVerticalFilter<"Business"> | BusinessVertical | undefined'.
+tests/branches-ui/fixture-api.ts(377,37): error TS2339: Property 'diningArea' does not exist on type 'PrismaClient'.
+tests/branches-ui/fixture-api.ts(380,39): error TS2339: Property 'diningArea' does not exist on type 'PrismaClient'.
+tests/branches-ui/fixture-api.ts(397,28): error TS2339: Property 'diningTable' does not exist on type 'PrismaClient'.
+tests/branches-ui/fixture-api.ts(401,39): error TS2339: Property 'servicePeriod' does not exist on type 'PrismaClient'.
+tests/branches-ui/fixture-api.ts(419,38): error TS2339: Property 'restaurantReservation' does not exist on type 'PrismaClient'.
+tests/branches-ui/fixture-api.ts(433,28): error TS2339: Property 'tableAssignment' does not exist on type 'PrismaClient'.
+tests/branches-ui/fixture-api.ts(438,28): error TS2339: Property 'restaurantReservation' does not exist on type 'PrismaClient'.
+tests/branches-ui/fixture-api.ts(461,24): error TS2339: Property 'diningTable' does not exist on type 'PrismaClient'.
+tests/branches-ui/fixture-api.ts(465,24): error TS2339: Property 'diningArea' does not exist on type 'PrismaClient'.
+tests/branches-ui/fixture-api.ts(484,26): error TS2339: Property 'tableAssignment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/branches-ui/fixture-api.ts(487,26): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/branches-ui/fixture-api.ts(488,26): error TS2339: Property 'diningTable' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/branches-ui/fixture-api.ts(489,26): error TS2339: Property 'diningArea' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/branches-ui/fixture-api.ts(490,26): error TS2339: Property 'servicePeriod' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/branches-ui/fixture-api.ts(503,26): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/food-ui/fixture-api.ts(144,19): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/food-ui/fixture-api.ts(151,19): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/food-ui/fixture-api.ts(201,26): error TS2339: Property 'tableAssignment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/food-ui/fixture-api.ts(204,26): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/food-ui/fixture-api.ts(205,26): error TS2339: Property 'diningTable' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/food-ui/fixture-api.ts(206,26): error TS2339: Property 'diningArea' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/food-ui/fixture-api.ts(207,26): error TS2339: Property 'servicePeriod' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/food-ui/fixture-api.ts(220,26): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/licensed-site-builder.test.ts(176,36): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(177,37): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(265,16): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(292,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(328,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(329,23): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(359,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(369,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(373,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(411,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(475,23): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(516,26): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(628,29): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(689,29): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(701,23): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(719,29): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(730,31): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(736,31): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(893,23): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(896,23): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+tests/integration/licensed-site-builder.test.ts(903,23): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(184,16): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(252,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(260,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(267,28): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(273,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(314,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(327,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(336,29): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(352,29): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(353,24): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/marketing-site.test.ts(354,29): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(355,52): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/marketing-site.test.ts(426,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(427,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(428,32): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(471,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(511,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(523,30): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(610,29): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(627,30): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(640,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(649,23): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(653,31): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/marketing-site.test.ts(658,23): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/mv1-vertical-boundary.test.ts(63,56): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/integration/mv3-onboarding.test.ts(47,73): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/integration/mv3-onboarding.test.ts(73,16): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv3-onboarding.test.ts(176,23): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv3-onboarding.test.ts(178,23): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv4-beauty.test.ts(344,67): error TS2322: Type '"HOSPITALITY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical | EnumBusinessVerticalFieldUpdateOperationsInput'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical | EnumBusinessVerticalFieldUpdateOperationsInput'.
+tests/integration/mv4-beauty.test.ts(534,69): error TS2322: Type '"HOSPITALITY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical | EnumBusinessVerticalFieldUpdateOperationsInput'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical | EnumBusinessVerticalFieldUpdateOperationsInput'.
+tests/integration/mv6-food.test.ts(100,7): error TS2322: Type '{ id: `${string}-${string}-${string}-${string}-${string}`; organizationId: `${string}-${string}-${string}-${string}-${string}`; name: string; vertical: "FOOD_SERVICE"; }[]' is not assignable to type 'BusinessCreateManyInput | BusinessCreateManyInput[]'.
+  Type '{ id: `${string}-${string}-${string}-${string}-${string}`; organizationId: `${string}-${string}-${string}-${string}-${string}`; name: string; vertical: "FOOD_SERVICE"; }[]' is not assignable to type 'BusinessCreateManyInput[]'.
+    Type '{ id: `${string}-${string}-${string}-${string}-${string}`; organizationId: `${string}-${string}-${string}-${string}-${string}`; name: string; vertical: "FOOD_SERVICE"; }' is not assignable to type 'BusinessCreateManyInput'.
+      Types of property 'vertical' are incompatible.
+        Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/integration/mv6-food.test.ts(128,33): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical | EnumBusinessVerticalFieldUpdateOperationsInput'.
+tests/integration/mv6-food.test.ts(133,16): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(137,16): error TS2339: Property 'tableAssignment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(140,16): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(167,16): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(168,16): error TS2339: Property 'tableAssignment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(169,16): error TS2339: Property 'restaurantReservation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(170,16): error TS2339: Property 'diningTable' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(171,16): error TS2339: Property 'diningArea' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(172,16): error TS2339: Property 'servicePeriod' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv6-food.test.ts(195,11): error TS2339: Property 'status' does not exist on type '{ id: string; }'.
+tests/integration/mv6-food.test.ts(207,21): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+tests/integration/mv6-food.test.ts(279,30): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+tests/integration/mv6-food.test.ts(299,18): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+tests/integration/mv6-food.test.ts(442,71): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical | EnumBusinessVerticalFieldUpdateOperationsInput'.
+tests/integration/mv6-food.test.ts(521,21): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+tests/integration/mv8-branches-contract.test.ts(31,64): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/integration/mv8-branches-contract.test.ts(101,11): error TS2322: Type '"HOSPITALITY" | "BEAUTY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/integration/mv8-branches-contract.test.ts(141,14): error TS2339: Property 'onboardingProgress' does not exist on type 'PrismaClient'.
+tests/integration/mv8-branches-contract.test.ts(233,14): error TS2339: Property 'onboardingProgress' does not exist on type 'PrismaClient'.
+tests/integration/scope-hardening.test.ts(300,64): error TS2322: Type '"BEAUTY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/integration/site-assets.test.ts(156,8): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(304,16): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(326,26): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(368,21): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(374,27): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(390,21): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(394,27): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(398,21): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(431,27): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(434,21): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(456,31): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(502,27): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(553,31): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(620,16): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+tests/integration/site-assets.test.ts(646,21): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-brief.test.ts(221,57): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/integration/site-editor.test.ts(131,14): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(149,33): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(150,34): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(231,16): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(294,21): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(320,25): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(359,22): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(409,25): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(429,21): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(448,31): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-editor.test.ts(449,26): error TS7006: Parameter 'v' implicitly has an 'any' type.
+tests/integration/site-editor.test.ts(477,25): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(154,16): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(170,34): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(266,27): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(267,30): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(308,21): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(314,21): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(367,26): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(373,27): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(375,21): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(402,21): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(428,21): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(444,14): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(456,14): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(479,14): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(500,31): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(558,14): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(569,30): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+tests/integration/site-generation.test.ts(571,25): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/site-generation.test.ts(572,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/site-publication.test.ts(136,15): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-publication.test.ts(143,77): error TS2353: Object literal may only specify known properties, and 'bookingTrackedSiteId' does not exist in type 'LocationSelect<DefaultArgs>'.
+tests/integration/site-publication.test.ts(143,110): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+tests/integration/site-publication.test.ts(146,8): error TS2339: Property 'marketingSitePublication' does not exist on type 'Db'.
+tests/integration/site-publication.test.ts(273,16): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-publication.test.ts(305,21): error TS2339: Property 'siteDomain' does not exist on type 'Db'.
+tests/integration/site-publication.test.ts(361,25): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/integration/site-publication.test.ts(451,28): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/integration/site-publication.test.ts(453,31): error TS7006: Parameter 'd' implicitly has an 'any' type.
+tests/integration/site-publication.test.ts(537,35): error TS7006: Parameter 'p' implicitly has an 'any' type.
+tests/integration/site-publication.test.ts(587,14): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/integration/site-publication.test.ts(627,21): error TS2339: Property 'marketingSitePublication' does not exist on type 'Db'.
+tests/integration/site-publication.test.ts(628,21): error TS2339: Property 'siteDomain' does not exist on type 'Db'.
+tests/integration/site-publication.test.ts(658,21): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+tests/onboarding/cleanup.ts(39,14): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/onboarding/fixture-api.ts(77,13): error TS2322: Type '"BEAUTY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/tools/site-assets.ts(13,12): error TS2339: Property 'siteAsset' does not exist on type 'Db'.
+tests/tools/site-builder.ts(16,14): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/auth/auth.service.ts(386,69): error TS2322: Type '"BEAUTY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+apps/api/src/channels/channels.repository.ts(243,12): error TS2339: Property 'countryCode' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(243,30): error TS2339: Property 'city' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(243,41): error TS2339: Property 'channexPropertyType' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(265,20): error TS2339: Property 'countryCode' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(266,17): error TS2339: Property 'city' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(267,25): error TS2339: Property 'channexPropertyType' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/food-service/food.service.ts(26,29): error TS2305: Module '"@pms/database"' has no exported member 'DiningArea'.
+apps/api/src/food-service/food.service.ts(26,41): error TS2305: Module '"@pms/database"' has no exported member 'DiningTable'.
+apps/api/src/food-service/food.service.ts(26,54): error TS2305: Module '"@pms/database"' has no exported member 'ServicePeriod'.
+apps/api/src/food-service/food.service.ts(36,19): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'RestaurantReservationGetPayload'. Did you mean 'ReservationGetPayload'?
+apps/api/src/food-service/food.service.ts(148,30): error TS2339: Property 'diningArea' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(156,30): error TS2339: Property 'diningTable' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(164,30): error TS2339: Property 'servicePeriod' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(168,14): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/food-service/food.service.ts(177,24): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(187,22): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(192,24): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(202,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(231,30): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(234,24): error TS2339: Property 'diningArea' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(243,30): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(251,21): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(259,24): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(269,30): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(284,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(334,39): error TS2339: Property 'restaurantReservation' does not exist on type 'Db'.
+apps/api/src/food-service/food.service.ts(347,24): error TS2339: Property 'servicePeriod' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(366,28): error TS2339: Property 'diningTable' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(374,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(393,28): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(424,26): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(441,18): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(457,18): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(469,24): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(512,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(548,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(570,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(575,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(597,16): error TS2339: Property 'tableAssignment' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/food.service.ts(598,31): error TS2339: Property 'restaurantReservation' does not exist on type 'TransactionClient'.
+apps/api/src/food-service/scope.ts(36,46): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'EnumBusinessVerticalFilter<"Business"> | BusinessVertical | undefined'.
+apps/api/src/hotel/branches.ts(116,38): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+apps/api/src/hotel/branches.ts(126,33): error TS2551: Property 'business' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'. Did you mean 'businessId'?
+apps/api/src/hotel/onboarding.ts(288,32): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/asset-refs.ts(44,24): error TS2339: Property 'marketingSitePublication' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/asset-refs.ts(56,29): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/asset-refs.ts(61,25): error TS7006: Parameter 'v' implicitly has an 'any' type.
+apps/api/src/marketing-site/asset-storage.test.ts(1,26): error TS2307: Cannot find module '@aws-sdk/client-s3' or its corresponding type declarations.
+apps/api/src/marketing-site/asset-storage.ts(8,8): error TS2307: Cannot find module '@aws-sdk/client-s3' or its corresponding type declarations.
+apps/api/src/marketing-site/asset-storage.ts(9,30): error TS2307: Cannot find module '@aws-sdk/s3-request-presigner' or its corresponding type declarations.
+apps/api/src/marketing-site/assistant-history.ts(25,8): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient | Db'.
+  Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant-history.ts(31,8): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient | Db'.
+  Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(59,24): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'SiteAiRunGetPayload'. Did you mean 'UserGetPayload'?
+apps/api/src/marketing-site/assistant.service.ts(82,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(110,33): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(113,20): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(143,30): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(150,28): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(180,17): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(198,17): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(232,12): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(233,12): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/assistant.service.ts(235,45): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(235,75): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(237,24): error TS7006: Parameter 'b' implicitly has an 'any' type.
+apps/api/src/marketing-site/assistant.service.ts(258,23): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/generation.service.ts(59,22): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'GenerationRunGetPayload'. Did you mean 'ReservationGetPayload'?
+apps/api/src/marketing-site/generation.service.ts(113,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(186,17): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(206,30): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(220,22): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(232,28): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(271,26): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.service.ts(287,17): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.worker.ts(175,29): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(182,20): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(189,31): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(196,20): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(254,35): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(255,32): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(293,33): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(294,30): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(348,22): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(371,39): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(378,41): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(421,41): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(490,32): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(498,16): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(514,26): error TS2339: Property 'generationRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(533,27): error TS2339: Property 'generationRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/generation.worker.ts(555,32): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(560,29): error TS2339: Property 'marketingSite' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(567,20): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(576,32): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(591,16): error TS2339: Property 'marketingSite' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(593,16): error TS2339: Property 'generationRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(632,39): error TS2339: Property 'marketingSite' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(652,30): error TS2339: Property 'marketingSiteVersion' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(658,41): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(699,29): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(714,28): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(729,32): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(737,16): error TS2339: Property 'siteAiRun' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/marketing-site/generation.worker.ts(747,26): error TS2339: Property 'siteAiRun' does not exist on type 'Db'.
+apps/api/src/marketing-site/generation.worker.ts(759,27): error TS2339: Property 'siteAiRun' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(46,23): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'MarketingSiteGetPayload'. Did you mean 'InviteGetPayload'?
+apps/api/src/marketing-site/marketing-site.service.ts(107,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(122,12): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(142,20): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(165,37): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(173,34): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(177,63): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/marketing-site/marketing-site.service.ts(178,33): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(197,29): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(215,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(230,32): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(231,33): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(234,20): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(235,20): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(252,29): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(281,34): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(295,18): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(320,29): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(327,30): error TS2339: Property 'marketingSiteVersionBookmark' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(332,40): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/marketing-site/marketing-site.service.ts(341,31): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/marketing-site/marketing-site.service.ts(402,34): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(416,18): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/marketing-site.service.ts(436,30): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(49,23): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'MarketingSiteGetPayload'. Did you mean 'InviteGetPayload'?
+apps/api/src/marketing-site/publication.service.ts(96,32): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(135,19): error TS2353: Object literal may only specify known properties, and 'bookingTrackedSiteId' does not exist in type 'LocationSelect<DefaultArgs>'.
+apps/api/src/marketing-site/publication.service.ts(142,108): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(151,22): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(171,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(191,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(208,31): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(217,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(238,28): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(243,33): error TS2339: Property 'marketingSitePublication' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(257,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(273,16): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(287,16): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(302,29): error TS2339: Property 'marketingSitePublication' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(318,33): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/marketing-site/publication.service.ts(355,103): error TS2353: Object literal may only specify known properties, and 'bookingTrackedSiteId' does not exist in type 'LocationSelect<DefaultArgs>'.
+apps/api/src/marketing-site/publication.service.ts(356,18): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(365,45): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(375,103): error TS2353: Object literal may only specify known properties, and 'bookingTrackedSiteId' does not exist in type 'LocationSelect<DefaultArgs>'.
+apps/api/src/marketing-site/publication.service.ts(400,40): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(416,15): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(451,30): error TS2339: Property 'marketingSiteVersion' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(511,103): error TS2353: Object literal may only specify known properties, and 'bookingTrackedSiteId' does not exist in type 'LocationSelect<DefaultArgs>'.
+apps/api/src/marketing-site/publication.service.ts(512,75): error TS2339: Property 'bookingTrackedSiteId' does not exist on type '{ id: string; name: string; address: string | null; phone: string | null; email: string | null; timezone: string; currency: string; createdAt: Date; updatedAt: Date; status: LocationStatus; businessId: string; }'.
+apps/api/src/marketing-site/publication.service.ts(517,27): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(524,30): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(526,25): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(532,16): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(566,27): error TS2339: Property 'siteDomain' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(571,90): error TS7006: Parameter 'd' implicitly has an 'any' type.
+apps/api/src/marketing-site/publication.service.ts(584,14): error TS2339: Property 'marketingSitePublication' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/publication.service.ts(599,27): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/scope.ts(53,24): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(65,27): error TS2724: '"/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/internal/prismaNamespace"' has no exported member named 'SiteAssetGetPayload'. Did you mean 'BusinessGetPayload'?
+apps/api/src/marketing-site/site-assets.service.ts(126,10): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(136,33): error TS18046: 'rows' is of type 'unknown'.
+apps/api/src/marketing-site/site-assets.service.ts(136,43): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/marketing-site/site-assets.service.ts(167,30): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(172,32): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(203,28): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(306,10): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(322,34): error TS2339: Property 'siteAsset' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(417,10): error TS2339: Property 'marketingSite' does not exist on type 'TransactionClient'.
+apps/api/src/marketing-site/site-assets.service.ts(422,24): error TS2339: Property 'latestVersion' does not exist on type '{}'.
+apps/api/src/onboarding/onboarding.module.ts(98,40): error TS2339: Property 'onboardingProgress' does not exist on type 'Db'.
+apps/api/src/onboarding/onboarding.module.ts(164,30): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/onboarding/onboarding.module.ts(260,16): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/platform/site-builder-licenses.ts(77,31): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/platform/site-builder-licenses.ts(82,16): error TS2339: Property 'siteBuilderEntitlement' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 19 с

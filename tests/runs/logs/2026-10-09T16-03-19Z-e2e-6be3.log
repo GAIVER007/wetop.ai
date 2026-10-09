@@ -1,0 +1,789 @@
+# Сквозные (e2e) · 09.10.2026 21:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/market-redesign-comp32), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'navigation.spec.ts' 'top-menu.spec.ts' 'workspace.spec.ts' 'marketing.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 86 tests using 2 workers
+
+  ✓   2 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (28.5s)
+  ✓   1 tests/ui/fund-workspace.spec.ts:4:1 › category creation, rename, room creation and reload (39.0s)
+  ✘   3 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (53.1s)
+  ✘   4 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (48.1s)
+  ✓   6 tests/ui/fund-workspace.spec.ts:90:1 › guests filter categories by capacity; toggle shows all; tab renamed (13.3s)
+  ✘   5 tests/ui/marketing.spec.ts:86:1 › хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных (14.2s)
+  ✓   7 tests/ui/fund-workspace.spec.ts:123:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (2.7s)
+  ✓   9 tests/ui/fund-workspace.spec.ts:144:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (31.7s)
+  ✓   8 tests/ui/marketing.spec.ts:141:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (31.7s)
+  ✓  10 tests/ui/fund-workspace.spec.ts:225:1 › AV4: a category without places stays on screen with the nearest availability (20.6s)
+  ✓  11 tests/ui/marketing.spec.ts:163:3 › хаб на компьютере и телефоне, доступность: light (58.4s)
+  ✘  12 tests/ui/fund-workspace.spec.ts:270:1 › dark categories and availability; invalid dates and empty onboarding (52.6s)
+  ✓  13 tests/ui/marketing.spec.ts:163:3 › хаб на компьютере и телефоне, доступность: dark (32.1s)
+  ✘  14 tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (28.3s)
+  ✘  15 tests/ui/marketing.spec.ts:204:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (50.0s)
+  ✘  16 tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (47.0s)
+  ✘  17 tests/ui/seller-workspace.spec.ts:5:1 › five steps, back navigation preserves instruction, desktop and mobile do not overflow (53.8s)
+  ✘  18 tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы (51.7s)
+  ✘  19 tests/ui/seller-workspace.spec.ts:38:1 › model key persists after reload and empty save cannot erase it (55.5s)
+  ✓  20 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: light (32.1s)
+  ✘  21 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (47.5s)
+  ✓  22 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: dark (31.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '912616482'
+[WebServer] }
+  ✘  24 tests/ui/navigation.spec.ts:223:1 › «Гости» открываются вкладкой раздела «Брони», меню подсвечивает «Брони» (36.5s)
+  ✘  23 tests/ui/top-menu.spec.ts:128:1 › вложенные адреса подсвечивают свою вкладку (56.5s)
+  ✓  26 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: light (1.2m)
+  ✓  27 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: dark (1.1m)
+  ✘  25 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (3.2m)
+  ✘  28 tests/ui/workspace.spec.ts:117:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (52.1s)
+  ✓  29 tests/ui/workspace.spec.ts:165:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (5.6s)
+  ✓  30 tests/ui/workspace.spec.ts:188:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (20.4s)
+  ✓  31 tests/ui/workspace.spec.ts:213:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (5.0s)
+  ✓  32 tests/ui/workspace.spec.ts:242:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (11.4s)
+  ✓  33 tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (5.0s)
+  ✓  34 tests/ui/workspace.spec.ts:327:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (2.0s)
+  ✓  35 tests/ui/workspace.spec.ts:350:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.1s)
+  ✓  36 tests/ui/workspace.spec.ts:387:1 › карточка: профиль гостя и заселение проходят через server actions (2.7s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:16:40)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:16:40)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  37 tests/ui/workspace.spec.ts:432:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (1.4s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:42:13)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  38 tests/ui/workspace.spec.ts:449:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (2.4s)
+  ✓  39 tests/ui/workspace.spec.ts:466:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.0s)
+  ✓  40 tests/ui/workspace.spec.ts:486:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (1.7s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:16:40)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  41 tests/ui/workspace.spec.ts:512:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.2s)
+  ✓  42 tests/ui/workspace.spec.ts:521:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (4.6s)
+  ✓  43 tests/ui/workspace.spec.ts:548:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (3.9s)
+  ✓  44 tests/ui/workspace.spec.ts:560:1 › неверная дата в ссылке оставляет доступную форму для исправления (5.8s)
+  ✓  45 tests/ui/workspace.spec.ts:569:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (15.8s)
+  ✓  46 tests/ui/workspace.spec.ts:578:1 › групповая бронь: разные категории сохраняются при конфликте (5.0s)
+  ✓  47 tests/ui/workspace.spec.ts:609:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.1s)
+  ✓  48 tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (2.4s)
+  ✓  49 tests/ui/workspace.spec.ts:668:1 › ошибка буфера обмена видна, код остаётся доступен (2.3s)
+  ✓  50 tests/ui/workspace.spec.ts:686:1 › финансы: неверные даты можно исправить без падения страницы (5.4s)
+  ✓  51 tests/ui/workspace.spec.ts:702:1 › ошибка загрузки тарифов не позволяет включить виджет (1.2s)
+  ✓  52 tests/ui/workspace.spec.ts:711:1 › номера: статус уборки, блокировка и снятие сохраняются (5.9s)
+  ✓  53 tests/ui/workspace.spec.ts:741:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (7.2s)
+  ✓  54 tests/ui/workspace.spec.ts:768:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (2.2s)
+  ✓  55 tests/ui/workspace.spec.ts:780:1 › групповая бронь: три места показывают трёх гостей в итогах (2.0s)
+  ✓  56 tests/ui/workspace.spec.ts:804:1 › неисправности: когда история обрезана, это написано (3.3s)
+  ✓  57 tests/ui/workspace.spec.ts:812:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (17.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '912616482'
+[WebServer] }
+  ✘  58 tests/ui/workspace.spec.ts:824:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (57.6s)
+  ✘  59 tests/ui/workspace.spec.ts:869:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (56.8s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  60 tests/ui/workspace.spec.ts:925:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (1.0m)
+  ✓  61 tests/ui/workspace.spec.ts:995:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (20.9s)
+  ✓  62 tests/ui/workspace.spec.ts:1024:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (21.4s)
+  ✘  63 tests/ui/workspace.spec.ts:1048:1 › гости на сегодня: в списке все, а не первые двадцать пять (8.7s)
+  ✓  64 tests/ui/workspace.spec.ts:1067:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (13.3s)
+  ✓  65 tests/ui/workspace.spec.ts:1080:1 › общие настройки показывают адрес PMS без дублирования контента Channex (15.5s)
+  ✓  66 tests/ui/workspace.spec.ts:1087:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (19.5s)
+  ✓  67 tests/ui/workspace.spec.ts:1119:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (11.0s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:28:28)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  68 tests/ui/workspace.spec.ts:1141:1 › фонд и категории открываются независимо от сбоя шахматки (40.6s)
+  ✓  69 tests/ui/workspace.spec.ts:1162:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (11.5s)
+  ✓  70 tests/ui/workspace.spec.ts:1178:1 › подключения каналов: время события — по Алматы, а не сырой UTC (16.3s)
+  ✓  71 tests/ui/workspace.spec.ts:1197:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (3.9s)
+  ✓  72 tests/ui/workspace.spec.ts:1212:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (22.9s)
+  ✓  73 tests/ui/workspace.spec.ts:1225:1 › счета: приём оплаты подтверждается суммой на экране (25.8s)
+  ✓  74 tests/ui/workspace.spec.ts:1242:1 › деньги за период: период длиннее года объясняется на странице (6.6s)
+  ✓  75 tests/ui/workspace.spec.ts:1261:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (8.2s)
+  ✓  76 tests/ui/workspace.spec.ts:1283:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (9.6s)
+  ✓  77 tests/ui/workspace.spec.ts:1310:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (11.4s)
+  ✓  78 tests/ui/workspace.spec.ts:1330:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (7.1s)
+  ✓  79 tests/ui/workspace.spec.ts:1346:1 › каналы: входящая бронь ведёт на карточку брони (15.7s)
+  ✓  80 tests/ui/workspace.spec.ts:1364:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (13.2s)
+  ✓  81 tests/ui/workspace.spec.ts:1382:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (5.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '912616482'
+[WebServer] }
+  ✓  82 tests/ui/workspace.spec.ts:1420:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (12.7s)
+  ✓  83 tests/ui/workspace.spec.ts:1487:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (33.8s)
+  ✓  84 tests/ui/workspace.spec.ts:1566:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (28.6s)
+  ✓  85 tests/ui/workspace.spec.ts:1620:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (37.4s)
+  ✓  86 tests/ui/workspace.spec.ts:1647:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (7.4s)
+
+
+  1) tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 45000ms exceeded.
+
+      74 |       page.getByRole('heading', { name: 'Категории номеров', exact: true }),
+      75 |     ).toBeVisible();
+    > 76 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+         |                       ^
+      77 |       true,
+      78 |     );
+      79 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fund-workspace.spec.ts:76:23
+
+    Error Context: test-results/fund-workspace-availabilit-7f64f--responsive-category-design/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/fund-workspace.spec.ts:270:1 › dark categories and availability; invalid dates and empty onboarding 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/fund-workspace-dark-catego-3d147--dates-and-empty-onboarding/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-dark-catego-3d147--dates-and-empty-onboarding/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-dark-catego-3d147--dates-and-empty-onboarding/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3108/website/settings", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:111:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/marketing.spec.ts:65:16
+
+    Error Context: test-results/marketing--website-подсвеч-0d915-нает-что-она-в-«Маркетинге»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing--website-подсвеч-0d915-нает-что-она-в-«Маркетинге»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing--website-подсвеч-0d915-нает-что-она-в-«Маркетинге»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/marketing.spec.ts:86:1 › хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных 
+
+    Error: хаб спросил данные: {"/auth/me":2,"/hotel/settings":2,"/system/freshness":2,"/inventory/summary":1,"/inventory/units":1,"/availability/offers":1,"/availability":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   "/inventory/summary",
+    +   "/inventory/units",
+    +   "/availability/offers",
+    +   "/availability",
+    + ]
+
+       95 |   };
+       96 |   const business = Object.keys(hits.byPath).filter((path) => !SHELL.has(path));
+    >  97 |   expect(business, `хаб спросил данные: ${JSON.stringify(hits.byPath)}`).toEqual([]);
+          |                                                                          ^
+       98 |
+       99 |   const hub = main(page);
+      100 |   await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/marketing.spec.ts:97:74
+
+    Error Context: test-results/marketing-хаб-главная-кноп-b0840-ок-ни-одного-запроса-данных/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-главная-кноп-b0840-ок-ни-одного-запроса-данных/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-главная-кноп-b0840-ок-ни-одного-запроса-данных/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/marketing.spec.ts:204:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().locator('.branches-grid section').filter({ hasText: 'Студия MKT3' }).getByRole('button', { name: 'Открыть салон', exact: true })
+
+
+      220 |     .filter({ hasText: 'Студия MKT3' })
+      221 |     .getByRole('button', { name: 'Открыть салон', exact: true })
+    > 222 |     .click();
+          |      ^
+      223 |   // MV8: стартовая страница всех направлений `/today`
+      224 |   await page.waitForURL('**/today');
+      225 |   await page.goto('/marketing');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/marketing.spec.ts:222:6
+
+    Error Context: test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/chessboard$/
+    Received string:  "http://127.0.0.1:3108/today"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        27 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3108/today"
+
+
+      68 |   await expect(board.locator('span')).toBeVisible();
+      69 |   await board.click();
+    > 70 |   await expect(page).toHaveURL(/\/chessboard$/);
+         |                      ^
+      71 |   await expect(menu).not.toBeVisible();
+      72 |   // группа: раскрывается с клавиатуры, открыт один раздел
+      73 |   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/navigation.spec.ts:70:22
+
+    Error Context: test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3108/hotel-settings/services", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:111:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/navigation.spec.ts:97:14
+
+    Error Context: test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations$/
+    Received string:  "http://127.0.0.1:3108/chessboard"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        17 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3108/chessboard"
+
+
+      141 |       }
+      142 |       await link.click();
+    > 143 |       await expect(page).toHaveURL(new RegExp(`${href}$`));
+          |                          ^
+      144 |       await expect(
+      145 |         page
+      146 |           .getByRole('main')
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/navigation.spec.ts:143:26
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/navigation.spec.ts:223:1 › «Гости» открываются вкладкой раздела «Брони», меню подсвечивает «Брони» 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/guests$/
+    Received string:  "http://127.0.0.1:3108/reservations"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        28 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3108/reservations"
+
+
+      232 |   );
+      233 |   await section.getByRole('link', { name: 'Гости', exact: true }).click();
+    > 234 |   await expect(page).toHaveURL(/\/guests$/);
+          |                      ^
+      235 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Гости');
+      236 |   await expect(section.getByRole('link', { name: 'Гости', exact: true })).toHaveAttribute(
+      237 |     'aria-current',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/navigation.spec.ts:234:22
+
+    Error Context: test-results/navigation-«Гости»-открыва-97033-»-меню-подсвечивает-«Брони»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-«Гости»-открыва-97033-»-меню-подсвечивает-«Брони»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-«Гости»-открыва-97033-»-меню-подсвечивает-«Брони»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/seller-workspace.spec.ts:5:1 › five steps, back navigation preserves instruction, desktop and mobile do not overflow 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3108/ai-seller", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:111:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/seller-workspace.spec.ts:12:18
+
+    Error Context: test-results/seller-workspace-five-step-17ed4--and-mobile-do-not-overflow/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/seller-workspace-five-step-17ed4--and-mobile-do-not-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/seller-workspace-five-step-17ed4--and-mobile-do-not-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/seller-workspace.spec.ts:38:1 › model key persists after reload and empty save cannot erase it 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.reload: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for navigation until "load"
+        - navigated to "http://127.0.0.1:3108/ai-seller/connections"
+
+
+       at fixtures.ts:117
+
+      115 |     const reload = page.reload.bind(page);
+      116 |     page.reload = async (options) => {
+    > 117 |       const response = await reload(options);
+          |                              ^
+      118 |       await settleStreaming(page);
+      119 |       return response;
+      120 |     };
+        at _Page.reload (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:117:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/seller-workspace.spec.ts:50:14
+
+    Error Context: test-results/seller-workspace-model-key-6aad9--empty-save-cannot-erase-it/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/seller-workspace-model-key-6aad9--empty-save-cannot-erase-it/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/seller-workspace-model-key-6aad9--empty-save-cannot-erase-it/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/market$/
+    Received string:  "http://127.0.0.1:3108/today"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        7 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3108/today"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      93 |   await expect(rates).toBeFocused();
+      94 |   await page.keyboard.press('Enter');
+    > 95 |   await expect(page).toHaveURL(/\/market$/);
+         |                      ^
+      96 |   // переход закрывает список, текущий пункт остаётся в разметке и подсвечивает вкладку группы
+      97 |   await expect(sales).toHaveAttribute('aria-expanded', 'false');
+      98 |   await expect(rates).toBeHidden();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/top-menu.spec.ts:95:22
+
+    Error Context: test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-строка-вкладок-в--2127a--список-группы-с-клавиатуры/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/top-menu.spec.ts:128:1 › вложенные адреса подсвечивают свою вкладку ─────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3108/connections", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:111:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/top-menu.spec.ts:155:14
+
+    Error Context: test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-вложенные-адреса-подсвечивают-свою-вкладку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3108/reservations/new?unit=M03", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:111:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/workspace.spec.ts:90:16
+
+    Error Context: test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/workspace.spec.ts:117:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Открыть меню' })
+
+
+      146 |   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Подключения');
+      147 |   await page.setViewportSize({ width: 390, height: 844 });
+    > 148 |   await page.getByRole('button', { name: 'Открыть меню' }).click();
+          |                                                            ^
+      149 |   const menu = page.getByRole('dialog', { name: 'Навигация' });
+      150 |   await expect(menu.getByRole('button', { name: 'Настройки', exact: true })).toHaveAttribute(
+      151 |     'aria-expanded',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/workspace.spec.ts:148:60
+
+    Error Context: test-results/workspace-вложенные-раздел-9af3f-ный-пункт-мобильный-переход/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-вложенные-раздел-9af3f-ный-пункт-мобильный-переход/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-вложенные-раздел-9af3f-ный-пункт-мобильный-переход/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/workspace.spec.ts:824:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('site-card-name')
+    Expected: "Новый тестовый сайт"
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('site-card-name') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('site-card-name')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      864 |   await main.getByTestId('site-hosts').fill('https://new.example.invalid/');
+      865 |   await main.getByTestId('site-create').click();
+    > 866 |   await expect(main.getByTestId('site-card-name')).toHaveText('Новый тестовый сайт');
+          |                                                    ^
+      867 | });
+      868 |
+      869 | test('кнопки Channex отправляют команды один раз и показывают результат; проверка только читает', async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/workspace.spec.ts:866:52
+
+    Error Context: test-results/workspace-сайты-проверка-д-11a56-и-создание-обновляют-данные/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сайты-проверка-д-11a56-и-создание-обновляют-данные/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сайты-проверка-д-11a56-и-создание-обновляют-данные/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/workspace.spec.ts:869:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+
+      900 |   // «Подключения» каналов переехали на /connections/channex (INT2)
+      901 |   await page.goto('/connections/channex');
+    > 902 |   await page.getByLabel('Тариф для продажи в каналах').selectOption({ index: 1 });
+          |                                                        ^
+      903 |   for (const id of ['channel-sync', 'channel-setup']) {
+      904 |     const button = page.getByTestId(id).filter({ visible: true });
+      905 |     await expect(button).toHaveCount(1);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/workspace.spec.ts:902:56
+
+    Error Context: test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/workspace.spec.ts:925:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Не удалось загрузить данные"
+    Received: ""
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      947 |   ]) {
+      948 |     await page.goto(route);
+    > 949 |     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
+          |                                                           ^
+      950 |     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
+      951 |     await expect(page.getByTestId('inventory-summary')).toHaveCount(0);
+      952 |     await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/workspace.spec.ts:949:59
+
+    Error Context: test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/workspace.spec.ts:1048:1 › гости на сегодня: в списке все, а не первые двадцать пять 
+
+    Error: apiRequestContext.post: read ECONNRESET
+    Call log:
+      - → POST http://127.0.0.1:4318/__test/crowd-seed?n=40
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      1047 |  */
+      1048 | test('гости на сегодня: в списке все, а не первые двадцать пять', async ({ page, request }) => {
+    > 1049 |   const seeded = await (await request.post(`${fixture}/__test/crowd-seed?n=40`)).json();
+           |                                       ^
+      1050 |   expect(seeded.stays).toBe(40);
+      1051 |   // Гости v2: полный дом (до 92 живущих) виден без листания — страница просит потолок API (ТЗ §44)
+      1052 |   await page.goto('/guests?state=inhouse');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/workspace.spec.ts:1049:39
+
+    Error Context: test-results/workspace-гости-на-сегодня-6f1d9-е-а-не-первые-двадцать-пять/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-гости-на-сегодня-6f1d9-е-а-не-первые-двадцать-пять/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-гости-на-сегодня-6f1d9-е-а-не-первые-двадцать-пять/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19 failed
+    tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design 
+    tests/ui/fund-workspace.spec.ts:270:1 › dark categories and availability; invalid dates and empty onboarding 
+    tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» 
+    tests/ui/marketing.spec.ts:86:1 › хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных 
+    tests/ui/marketing.spec.ts:204:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+    tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+    tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» 
+    tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы ────────────
+    tests/ui/navigation.spec.ts:223:1 › «Гости» открываются вкладкой раздела «Брони», меню подсвечивает «Брони» 
+    tests/ui/seller-workspace.spec.ts:5:1 › five steps, back navigation preserves instruction, desktop and mobile do not overflow 
+    tests/ui/seller-workspace.spec.ts:38:1 › model key persists after reload and empty save cannot erase it 
+    tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры 
+    tests/ui/top-menu.spec.ts:128:1 › вложенные адреса подсвечивают свою вкладку ───────────────────
+    tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+    tests/ui/workspace.spec.ts:117:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход 
+    tests/ui/workspace.spec.ts:824:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные 
+    tests/ui/workspace.spec.ts:869:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает 
+    tests/ui/workspace.spec.ts:925:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+    tests/ui/workspace.spec.ts:1048:1 › гости на сегодня: в списке все, а не первые двадцать пять ──
+  67 passed (28.2m)
+
+# код выхода 1 · 28 мин 17 с

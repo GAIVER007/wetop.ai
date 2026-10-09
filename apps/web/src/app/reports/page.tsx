@@ -210,7 +210,7 @@ export default async function ReportsHubPage({
             <ReportCard
               href="/market"
               testId="report-market"
-              title="Загрузка конкурентов"
+              title="Анализ конкурентов"
               hint="ваша загрузка рядом с ближайшими отелями на каждую ночь, подсказки к цене"
             />
             <ReportCard

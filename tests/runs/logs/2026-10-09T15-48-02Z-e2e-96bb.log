@@ -1,0 +1,92 @@
+# Сквозные (e2e) · 09.10.2026 20:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/market-redesign-comp32), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'market.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/market.spec.ts:61:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (10.5s)
+  ✘  2 tests/ui/market.spec.ts:113:1 › плитки, календарь сигналов, график, рекомендация и таблица конкурентов; убрать из списка (20.8s)
+  ✓  3 tests/ui/market.spec.ts:176:1 › календарь сигналов: дата открывает «Историю ночи» (11.3s)
+  ✘  4 tests/ui/market.spec.ts:184:1 › «только чтение»: показатели и таблицы видны, добавлять и вносить нельзя (51.6s)
+  ✓  5 tests/ui/market.spec.ts:201:3 › снимки и доступность: light (1.1m)
+  ✓  6 tests/ui/market.spec.ts:201:3 › снимки и доступность: dark (1.1m)
+  ✓  7 tests/ui/market.spec.ts:244:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (24.3s)
+  ✓  8 tests/ui/market.spec.ts:273:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (33.3s)
+
+
+  1) tests/ui/market.spec.ts:113:1 › плитки, календарь сигналов, график, рекомендация и таблица конкурентов; убрать из списка 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('market-calendar').locator('.market-day--shift')
+    Expected: 14
+    Received: 15
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('market-calendar').locator('.market-day--shift') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('market-calendar').locator('.market-day--shift')
+        32 × locator resolved to 15 elements
+           - unexpected value "15"
+
+
+      133 |   // рынок прыгнул к вчера на +12 п.п.: каждая дата окна — сигнал «резкое изменение»
+      134 |   await expect(main.getByTestId('market-tile-signals')).toHaveText('14');
+    > 135 |   await expect(main.getByTestId('market-calendar').locator('.market-day--shift')).toHaveCount(14);
+          |                                                                                   ^
+      136 |
+      137 |   // график: обе линии и значения по ночам без наведения
+      138 |   const chart = main.getByTestId('market-chart');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/market.spec.ts:135:83
+
+    Error Context: test-results/market-плитки-календарь-си-4639f-онкурентов-убрать-из-списка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-плитки-календарь-си-4639f-онкурентов-убрать-из-списка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-плитки-календарь-си-4639f-онкурентов-убрать-из-списка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/market.spec.ts:184:1 › «только чтение»: показатели и таблицы видны, добавлять и вносить нельзя 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      56 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      57 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 58 |   await page.waitForURL('**/today');
+         |              ^
+      59 | }
+      60 |
+      61 | test('пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку', async ({
+        at signIn (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/market.spec.ts:58:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/market.spec.ts:189:3
+
+    Error Context: test-results/market-«только-чтение»-пок-3d40e--добавлять-и-вносить-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«только-чтение»-пок-3d40e--добавлять-и-вносить-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«только-чтение»-пок-3d40e--добавлять-и-вносить-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/market.spec.ts:113:1 › плитки, календарь сигналов, график, рекомендация и таблица конкурентов; убрать из списка 
+    tests/ui/market.spec.ts:184:1 › «только чтение»: показатели и таблицы видны, добавлять и вносить нельзя 
+  6 passed (5.6m)
+
+# код выхода 1 · 5 мин 41 с

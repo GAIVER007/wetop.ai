@@ -22,6 +22,11 @@ export default tseslint.config(
       '.ds-sync/**',
       'ds-bundle/**',
       '.omx/**',
+      // Worktrees параллельных сессий (desktop-приложение кладёт их внутрь папки проекта): это чужие
+      // полные копии дерева, их линтит их собственный прогон. Без строки `eslint .` ходит в них и
+      // теряет tsconfigRootDir («multiple candidate TSConfigRootDirs», 9007 ошибок 09.10.2026).
+      '.claude/worktrees/**',
+      '.gstack/**',
     ],
   },
   js.configs.recommended,

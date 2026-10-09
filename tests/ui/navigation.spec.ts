@@ -77,16 +77,16 @@ test('меню телефона: работа смены прямыми ссыл
   await page.keyboard.press('Space');
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await expect(menu.locator('.sidebar-section-toggle[aria-expanded="true"]')).toHaveCount(1);
-  await expect(menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeVisible();
   await page.keyboard.press('Tab');
-  await expect(menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).toBeFocused();
+  await expect(menu.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/market$/);
   await expect(menu).not.toBeVisible();
   // открыли снова: раздел текущей страницы раскрыт сам, пункт помечен
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 

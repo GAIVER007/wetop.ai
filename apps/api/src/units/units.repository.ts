@@ -36,6 +36,9 @@ export interface UnitCard {
     guestLabel: string;
   }>;
   housekeepingHistory: Array<{ at: string; from: HousekeepingStatus; to: HousekeepingStatus }>;
+  /** Когда место заведено и когда менялось в последний раз (в том числе сменой уборки), UTC ISO */
+  createdAt: string;
+  updatedAt: string;
 }
 export interface UnitsRepository {
   /** Сегодня по часам объекта (С-13, ТЗ аудита 25.09.2026) */
@@ -179,6 +182,8 @@ export class PrismaUnitsRepository implements UnitsRepository {
           ? `${a.reservationItem.reservation.primaryGuest.firstName} ${a.reservationItem.reservation.primaryGuest.lastName}`.trim()
           : '',
       })),
+      createdAt: u.createdAt.toISOString(),
+      updatedAt: u.updatedAt.toISOString(),
       housekeepingHistory: u.housekeepingEvents.map((e) => ({
         at: e.createdAt.toISOString(),
         from: e.fromStatus,

@@ -83,7 +83,7 @@ test('/website/* подсвечивает «Маркетинг», а не «Пр
   }
 });
 
-test('хаб: главная кнопка карточки «Сайт и SEO» открывает конструктор сайта, будущие продукты без ссылок, ни одного запроса данных', async ({
+test('хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных', async ({
   page,
   request,
 }) => {
@@ -99,43 +99,123 @@ test('хаб: главная кнопка карточки «Сайт и SEO» �
   const hub = main(page);
   await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
   await expect(hub.locator('.page__subtitle')).toHaveText(
-    'Привлекайте гостей, развивайте сайт и управляйте продвижением из WETOP.',
+    'Привлекайте гостей, автоматизируйте рекламу и развивайте бренд с помощью ИИ.',
   );
+  // три модуля одного вида, по порядку
+  const modules = hub.getByTestId('marketing-module');
+  await expect(modules).toHaveCount(3);
+  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Реклама', 'Контент']);
+
+  // «Сайт и SEO»: рабочий модуль, главная кнопка ведёт в конструктор, остальное в меню «⋯»
   const site = hub.getByTestId('marketing-site');
-  await expect(site.getByRole('heading', { name: 'Сайт и SEO', exact: true })).toBeVisible();
   await expect(site.getByTestId('marketing-site-status')).toHaveText('Доступно');
-  // MKT9.2 выложен: конструктор больше не «скоро», он главное действие карточки
-  await expect(site).not.toContainText('скоро');
-  await expect(site.getByRole('listitem')).toContainText(['ИИ-конструктор']);
-  // ссылки по порядку: конструктор первым и главной кнопкой, затем публикация, изображения, бронирование и аналитика
-  const links = site.getByRole('link');
-  await expect(links).toHaveText(['Конструктор сайта', 'Публикация', 'Изображения', 'Бронирование и аналитика']);
-  const builder = site.getByRole('link', { name: 'Конструктор сайта', exact: true });
+  await expect(site.getByRole('listitem')).toHaveText(['ИИ-конструктор сайта', 'Онлайн-бронирование', 'SEO-оптимизация']);
+  const builder = site.getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true });
   await expect(builder).toHaveAttribute('href', '/marketing/site/editor');
   await expect(builder).toHaveClass(/^btn$/);
-  await expect(site.getByRole('link', { name: 'Публикация', exact: true })).toHaveAttribute('href', '/marketing/site');
-  await expect(site.getByRole('link', { name: 'Изображения', exact: true })).toHaveAttribute('href', '/marketing/site/assets');
-  await expect(site.getByRole('link', { name: 'Бронирование и аналитика', exact: true })).toHaveAttribute('href', '/website');
-  await expect(site.getByRole('button')).toHaveCount(0);
+  const more = site.getByRole('button', { name: 'Ещё действия: Сайт и SEO', exact: true });
+  await expect(more).toHaveAttribute('aria-expanded', 'false');
+  await more.click();
+  const menu = site.getByRole('menu');
+  await expect(menu.getByRole('menuitem')).toHaveText(['Публикация', 'Изображения', 'Бронирование и аналитика']);
+  await expect(menu.getByRole('menuitem', { name: 'Публикация' })).toHaveAttribute('href', '/marketing/site');
+  await expect(menu.getByRole('menuitem', { name: 'Изображения' })).toHaveAttribute('href', '/marketing/site/assets');
+  await expect(menu.getByRole('menuitem', { name: 'Бронирование и аналитика' })).toHaveAttribute('href', '/website');
+  await page.keyboard.press('Escape');
+  await expect(more).toBeFocused();
 
-  const soon = hub.getByTestId('marketing-soon');
-  await expect(soon.getByRole('heading', { level: 2 })).toHaveText('Скоро');
-  const cards = soon.getByTestId('marketing-soon-card');
-  await expect(cards).toHaveCount(3);
-  await expect(cards.getByRole('heading', { level: 3 })).toHaveText(['Реклама', 'Контент', 'Репутация']);
-  for (let i = 0; i < 3; i++) await expect(cards.nth(i).getByText('Скоро', { exact: true })).toBeVisible();
-  // никаких рабочих ссылок, кнопок и чисел у будущих продуктов
-  await expect(soon.locator('a, button, [tabindex]')).toHaveCount(0);
-  await expect(soon).not.toContainText(/\d/);
-
-  await site.getByRole('link', { name: 'Бронирование и аналитика', exact: true }).click();
-  await expect(page).toHaveURL(/\/website$/);
-  await expect(main(page).getByRole('heading', { level: 1 })).toHaveText(
-    'Сайт и онлайн-бронирование',
+  // реклама и контент ещё не построены: «Скоро», одна кнопка «Открыть» на свой экран, без «Подключено» и меню
+  for (const [testId, title, href] of [
+    ['marketing-ads', 'Реклама', '/marketing/ads'],
+    ['marketing-content', 'Контент', '/marketing/content'],
+  ] as const) {
+    const card = hub.getByTestId(testId);
+    await expect(card.getByTestId(`${testId}-status`)).toHaveText('Скоро');
+    await expect(card.locator('a, button')).toHaveCount(1);
+    await expect(card.getByRole('link', { name: `Открыть: ${title}`, exact: true })).toHaveAttribute('href', href);
+    await expect(card).not.toContainText('Подключено');
+    await expect(card.getByRole('listitem')).toHaveCount(3);
+  }
+  // подсказка справа ведёт к сайту, а не «подключает всё»
+  await expect(hub.getByRole('link', { name: 'Начать с сайта', exact: true })).toHaveAttribute(
+    'href',
+    '/marketing/site/editor',
   );
-  await expect(
-    menuOf(page).getByRole('button', { name: 'Маркетинг', exact: true }),
-  ).toHaveClass(/has-current-page/);
+
+  // результаты: источник есть только у сайта, и хаб его не читает; вместо нулей «Нет данных» с причиной
+  const results = hub.getByTestId('marketing-results');
+  await expect(results.getByRole('heading', { level: 2 })).toHaveText('Результаты за 30 дней');
+  const rows = results.getByTestId('marketing-result');
+  await expect(rows).toHaveCount(4);
+  await expect(rows.locator('dt')).toHaveText(['Переходы на сайт', 'Заявки на бронирование', 'Потрачено на рекламу', 'Доход с рекламы']);
+  await expect(rows.locator('dd')).toHaveText(Array(4).fill('Нет данных'));
+  await expect(results.locator('dl')).not.toContainText(/\d/);
+  await expect(results.getByRole('link', { name: 'Аналитика сайта', exact: true })).toHaveAttribute('href', '/website/analytics');
+
+  // вторичный путь в прежний раздел сайта работает и подсвечивает «Маркетинг»
+  await more.click();
+  await menu.getByRole('menuitem', { name: 'Бронирование и аналитика' }).click();
+  await expect(page).toHaveURL(/\/website$/);
+  await expect(main(page).getByRole('heading', { level: 1 })).toHaveText('Сайт и онлайн-бронирование');
+  await expect(menuOf(page).getByRole('button', { name: 'Маркетинг', exact: true })).toHaveClass(/has-current-page/);
+});
+
+test('экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/marketing');
+  await main(page).getByRole('link', { name: 'Открыть: Реклама', exact: true }).click();
+  await expect(page).toHaveURL(/\/marketing\/ads$/);
+  const ads = main(page);
+  await expect(ads.getByRole('heading', { level: 1 })).toHaveText('Реклама');
+  await expect(menuOf(page).getByRole('button', { name: 'Маркетинг', exact: true })).toHaveClass(/has-current-page/);
+  await expect(ads.getByTestId('marketing-ads-soon')).toContainText('Скоро');
+  await expect(ads.getByRole('tab')).toHaveText(['Кампании', 'Аудитории', 'Креативы', 'Аналитика', 'Настройки']);
+  const metrics = ads.getByTestId('marketing-ads-metrics');
+  await expect(metrics.locator('.stat__label')).toHaveText(['Потрачено', 'Заявки', 'Стоимость заявки', 'Доход с рекламы']);
+  await expect(metrics.locator('.stat__value')).toHaveText(Array(4).fill('Нет данных'));
+  await expect(metrics).not.toContainText(/\d/);
+  await expect(ads.getByTestId('marketing-ads-campaigns').locator('tbody')).toContainText('Кампаний пока нет');
+  for (const name of ['Подключить кабинет', 'Создать кампанию']) {
+    const button = ads.getByRole('button', { name, exact: true });
+    await expect(button).toBeDisabled();
+    await expect(button).toHaveAttribute('aria-describedby', 'marketing-ads-soon');
+  }
+  await ads.getByRole('tab', { name: 'Аудитории', exact: true }).click();
+  await expect(ads.getByRole('tabpanel')).toContainText('Пока пусто');
+  await ads.getByRole('link', { name: 'Назад к модулям', exact: true }).click();
+  await expect(page).toHaveURL(/\/marketing$/);
+
+  await main(page).getByRole('link', { name: 'Открыть: Контент', exact: true }).click();
+  await expect(page).toHaveURL(/\/marketing\/content$/);
+  const content = main(page);
+  await expect(content.getByRole('heading', { level: 1 })).toHaveText('Контент');
+  await expect(content.getByRole('tab')).toHaveText(['Идеи', 'Генерация', 'Медиатека', 'План публикаций', 'Статистика']);
+  await expect(content.getByRole('button', { name: 'Создать контент', exact: true })).toBeDisabled();
+  const formats = content.getByTestId('marketing-content-formats').getByRole('listitem');
+  await expect(formats).toHaveCount(8);
+  await expect(formats.first()).toContainText('Создать с ИИ');
+  const week = content.getByTestId('marketing-content-week').getByRole('listitem');
+  await expect(week).toHaveCount(7);
+  await expect(week).toContainText(Array(7).fill('Пусто'));
+  // медиатека живая: ведёт в изображения сайта (MKT8)
+  await content.getByRole('tab', { name: 'Медиатека', exact: true }).click();
+  await expect(content.getByRole('link', { name: 'Открыть изображения', exact: true })).toHaveAttribute(
+    'href',
+    '/marketing/site/assets',
+  );
+
+  // ни один экран не спрашивает данных, кроме запросов оболочки
+  await request.post(`${fixture}/__test/reset`);
+  for (const path of ['/marketing/ads', '/marketing/content']) {
+    await page.goto(path);
+    await page.waitForLoadState('networkidle');
+  }
+  const hits = (await (await request.get(`${fixture}/__test/hits`)).json()) as {
+    byPath: Record<string, number>;
+  };
+  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path))).toEqual([]);
 });
 
 test('администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({
@@ -152,7 +232,7 @@ test('администратор (без права settings): вкладки «
   const menu = menuOf(page);
   await expect(menu.getByRole('button', { name: 'Продажи', exact: true })).toBeVisible();
   await expect(menu.getByRole('button', { name: 'Маркетинг', exact: true })).toHaveCount(0);
-  for (const path of ['/marketing', '/website']) {
+  for (const path of ['/marketing', '/website', '/marketing/ads', '/marketing/content']) {
     await page.goto(path);
     await expect(main(page).getByTestId('no-access')).toBeVisible();
     await expect(main(page).getByTestId('marketing-site')).toHaveCount(0);
@@ -175,9 +255,9 @@ for (const theme of ['light', 'dark'] as const) {
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       ).toBe(true);
-      // главная кнопка «Конструктор сайта»: цель нажатия не меньше 44 px (DESIGN.md §11)
+      // главная кнопка сайта: цель нажатия не меньше 44 px (DESIGN.md §11)
       const open = await main(page)
-        .getByRole('link', { name: 'Конструктор сайта', exact: true })
+        .getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true })
         .boundingBox();
       expect(open!.height).toBeGreaterThanOrEqual(width === 390 ? 44 : 32);
       const audit = await new AxeBuilder({ page })
@@ -185,6 +265,20 @@ for (const theme of ['light', 'dark'] as const) {
         .analyze();
       expect(audit.violations).toEqual([]);
       await page.screenshot({ path: `${SHOTS}/hub-${theme}-${width}.png`, fullPage: true });
+      // экраны рекламы и контента: без горизонтальной прокрутки и нарушений доступности
+      for (const screen of ['ads', 'content'] as const) {
+        await page.goto(`/marketing/${screen}`);
+        await expect(main(page).getByTestId(`marketing-${screen}-screen`)).toBeVisible();
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        ).toBe(true);
+        const screenAudit = await new AxeBuilder({ page })
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+          .analyze();
+        expect(screenAudit.violations).toEqual([]);
+        await page.screenshot({ path: `${SHOTS}/${screen}-${theme}-${width}.png`, fullPage: true });
+      }
+      await page.goto('/marketing');
     }
     // телефон: тот же раздел в выдвижном меню, цели не ниже 44 px
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();

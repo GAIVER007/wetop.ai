@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, openBoardFilters, test, devNoise, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -275,7 +275,7 @@ test('показатели за период: готовые отрезки и �
   await page.getByLabel('Запрос', { exact: true }).fill('Тест');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
   await expect(page).toHaveURL(/\/guests\?q=/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
   await page.setViewportSize({ width: 390, height: 844 });
   const openMenu = page.getByRole('button', { name: 'Открыть меню' });
   await openMenu.click();
@@ -302,10 +302,11 @@ test('шахматка: фильтры, продолжение брони, вы�
   await page.goto(`/chessboard?from=${today}&to=${last}`);
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
+  // бронь, начавшаяся до окна, помечена значком «назад» и признаком data-continues
+  await expect(page.locator('.board-stay-caption[data-continues]').first()).toBeVisible();
   // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
   const board = page.getByRole('main');
-  await board.getByLabel('Категория в календаре').selectOption('MALE');
+  await boardFilter(page, { category: 'MALE' });
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
   await board.getByLabel('Поиск в календаре').fill('M03');
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
@@ -321,30 +322,28 @@ test('шахматка: фильтры, продолжение брони, вы�
 });
 
 /**
- * Подсказка над шахматкой выводится поверх планки, поэтому открытой она накрывает строку фильтров:
- * до 17.09.2026 по кнопке «Сбросить» под ней нельзя было попасть мышью (найдено обходом стойки).
+ * Подсказка «Как работать с календарём» с 09.10.2026 лежит внизу окошка «Фильтры» (значка «?» в полосе
+ * нет): открывается по слову, закрытое окошко Escape не держит кнопки под собой, «Сбросить» достаётся.
  */
-test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({
+test('шахматка: подсказка внутри окошка «Фильтры», Escape закрывает окошко целиком', async ({
   page,
 }) => {
   await page.goto('/chessboard');
-  const help = page.locator('details.board-help');
+  const pop = await openBoardFilters(page);
+  const help = pop.locator('details.board-filters-pop__help');
+  await expect(help).not.toHaveAttribute('open', '');
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
-  // щелчок по строке поиска под подсказкой закрывает её; «Сбросить» появляется, когда есть отбор
+  await expect(help).toContainText('Ночь выезда ячейку не занимает');
+  await page.keyboard.press('Escape');
+  await expect(pop).toBeHidden();
+  // «Сбросить» появляется, когда есть отбор, и до неё достаёт мышь
   const search = page.getByRole('main').getByLabel('Поиск в календаре');
-  await search.click();
-  await expect(help).not.toHaveAttribute('open', '');
   await search.fill('R0');
   const reset = page.getByRole('button', { name: 'Сбросить', exact: true });
   await expect(reset).toBeVisible();
   await reset.click({ timeout: 5000 });
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  // Escape закрывает её так же, как щелчок вне
-  await help.locator('summary').click();
-  await expect(help).toHaveAttribute('open', '');
-  await page.keyboard.press('Escape');
-  await expect(help).not.toHaveAttribute('open', '');
 });
 
 test('ошибка создания сохраняет ввод; повтор отправляет поля существующего API', async ({
@@ -932,7 +931,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0 ₸');
   // Номерной фонд с PR #66 — `/inventory`; `/rooms` уводит туда потоком, и переход в пути обрывал следующий goto
   await page.goto('/inventory');
-  for (const id of ['total-units', 'rooms', 'beds', 'max-guests', 'blocks'])
+  for (const id of ['total-units', 'rooms', 'beds', 'on-sale', 'blocks', 'needs-cleaning'])
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   // Без ответа авторизации новый контур филиалов закрывает рабочие экраны.
@@ -1048,9 +1047,9 @@ test('удаление документа гостя спрашивают: от�
 test('гости на сегодня: в списке все, а не первые двадцать пять', async ({ page, request }) => {
   const seeded = await (await request.post(`${fixture}/__test/crowd-seed?n=40`)).json();
   expect(seeded.stays).toBe(40);
-  // Гости v2: полный дом (до 92 живущих) виден без листания — страница просит потолок API (ТЗ §44)
-  await page.goto('/guests?state=inhouse');
-  const rows = page.locator('.dir-table tbody tr');
+  // «Гости и бронирования» листают по 10, 25 или 50: полный дом помещается на странице в 50 строк (ТЗ §44)
+  await page.goto('/guests?state=inhouse&size=50');
+  const rows = page.getByTestId('guest-row');
   const shown = await rows.count();
   expect(shown).toBeGreaterThan(40);
   await expect(page.getByTestId('guests-meta')).toContainText(`${shown} гост`);
@@ -1074,7 +1073,7 @@ test('настройки услуг: путь к начислению назва
   await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
   // Гости v2: раздел «Проживают» открывается адресом (ТЗ §31)
   await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
-  await expect(page.getByTestId('guests-meta')).toContainText('проживают');
+  await expect(page.getByTestId('guests-meta')).toContainText('проживает');
 });
 
 test('общие настройки показывают адрес PMS без дублирования контента Channex', async ({ page }) => {
@@ -1284,9 +1283,12 @@ test('шахматка: фильтр «Уборка» показывает гр�
   await page.goto('/chessboard');
   const all = await page.getByTestId('unit-row').count();
   // уборка со счётчиком: «Уборка 2» (21.09); с PR 7 «Шахматки v2» — пункт поля «Места»
-  const places = page.getByRole('main').getByLabel('Места в календаре');
-  await expect(places.locator('option[value="cleaning"]')).toHaveText(/^Уборка \d+$/);
-  await places.selectOption('cleaning');
+  const pop = await openBoardFilters(page);
+  await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
+    /^Уборка \d+$/,
+  );
+  await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
+  await boardFilter(page, { state: 'cleaning' });
   const dirty = await page.getByTestId('unit-row').count();
   expect(dirty).toBeGreaterThan(0);
   expect(dirty).toBeLessThan(all);

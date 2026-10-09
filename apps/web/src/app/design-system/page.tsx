@@ -4,7 +4,9 @@ import { Page } from '../../components/page';
 import { AmountChip } from '../../components/amount-chip';
 import { Icon, iconNames } from '../../components/icon';
 import { Tabs } from '../../components/tabs';
-import { Chip, ChipGroup } from '../../components/chip';
+import { CheckChip, Chip, ChipGroup } from '../../components/chip';
+import { IconField } from '../../components/icon-field';
+import { Switch } from '../../components/switch';
 import { Toolbar } from '../../components/toolbar';
 import { FormGrid } from '../../components/form-grid';
 import { PeriodPicker } from '../../components/period-picker';
@@ -849,6 +851,45 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
               Месяц
             </Chip>
           </ChipGroup>
+        </State>
+      </Component>
+
+      <Component
+        id="form-controls"
+        title="Выключатель, чип-флажок, поле со значком"
+        where="switch.tsx · Switch; chip.tsx · CheckChip; icon-field.tsx · IconField; родные флажки, значение уходит с формой; §8.3"
+      >
+        <State name="default" note="выключатель, чип-флажок, поле со значком">
+          <div className="kit-row">
+            <Switch name="kit-switch-off" label="Можно с питомцами" />
+            <CheckChip name="kit-chip" value="wifi" icon={<Icon name="wifi" width={16} height={16} />}>
+              Wi-Fi
+            </CheckChip>
+            <IconField icon="phone">
+              <Input aria-label="Телефон" defaultValue="+7 700 000 00 00" />
+            </IconField>
+          </div>
+        </State>
+        <State name="selected">
+          <div className="kit-row">
+            <Switch name="kit-switch-on" label="Можно с детьми" defaultChecked />
+            <CheckChip
+              name="kit-chip-on"
+              value="parking"
+              defaultChecked
+              icon={<Icon name="parking" width={16} height={16} />}
+            >
+              Парковка
+            </CheckChip>
+          </div>
+        </State>
+        <State name="disabled">
+          <div className="kit-row">
+            <Switch name="kit-switch-dis" label="Курение запрещено" defaultChecked disabled />
+            <CheckChip name="kit-chip-dis" value="kitchen" disabled>
+              Кухня
+            </CheckChip>
+          </div>
         </State>
       </Component>
 

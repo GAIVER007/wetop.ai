@@ -17,5 +17,5 @@ test('/staff ведёт на «Сотрудников»: старые ссылк
   await page.waitForURL('**/today');
   await page.goto('/staff');
   await expect(page).toHaveURL(/\/team$/);
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Сотрудники и доступ');
 });

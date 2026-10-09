@@ -248,6 +248,16 @@ export async function removeMemberAction(userId: string): Promise<TeamActionResu
   return teamAction(async (token) => authApi.removeMember(token, userId, await clientInfo()));
 }
 
+/** Приостановить или возобновить доступ сотрудника: он остаётся в команде, его сеансы гаснут (DATA_MODEL §30.2) */
+export async function setMemberSuspendedAction(
+  userId: string,
+  suspended: boolean,
+): Promise<TeamActionResult> {
+  return teamAction(async (token) =>
+    authApi.setMemberSuspended(token, userId, suspended, await clientInfo()),
+  );
+}
+
 /** Сменить роль между управляющим и администратором — только владелец */
 export async function setMemberRoleAction(userId: string, role: string): Promise<TeamActionResult> {
   const next = parseInviteRole(role);

@@ -208,6 +208,8 @@ test('«Сотрудники и доступ»: сводка по команде
   const main = page.getByRole('main');
   const stats = main.getByTestId('team-stats');
   await expect(stats.getByTestId('team-stat-total')).toHaveText('3');
+  await expect(stats.getByTestId('team-stat-active')).toHaveText('3');
+  await expect(stats.getByTestId('team-stat-suspended')).toHaveText('0');
   await expect(stats.getByTestId('team-stat-admins')).toHaveText('1');
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const position = page.getByRole('dialog').getByLabel('Должность', { exact: true });
@@ -263,4 +265,41 @@ test('приглашение: «Отправить заново» отзывае
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
     'администратор',
   );
+});
+
+test('приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/team');
+  const main = page.getByRole('main');
+  const yurij = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+  await yurij.getByRole('button', { name: 'Приостановить' }).click();
+  const confirm = page.getByRole('dialog');
+  await expect(confirm).toContainText('останется в команде');
+  await confirm.getByRole('button', { name: 'Приостановить' }).click();
+  await expect(yurij.getByTestId('member-suspended')).toHaveText('Приостановлен');
+  await expect(main.getByTestId('team-stat-suspended')).toHaveText('1');
+  await expect(main.getByTestId('team-stat-active')).toHaveText('2');
+  // из команды не ушёл
+  await expect(main.getByTestId('member-row')).toHaveCount(3);
+  await yurij.getByRole('button', { name: 'Возобновить' }).click();
+  await expect(yurij.getByTestId('member-suspended')).toHaveCount(0);
+  await expect(main.getByTestId('team-stat-suspended')).toHaveText('0');
+});
+
+test('приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  await asRole(request, 'MANAGER');
+  await page.goto('/team');
+  const rows = page.getByRole('main').getByTestId('member-row');
+  await expect(
+    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Приостановить' }),
+  ).toHaveCount(0);
+  await expect(
+    rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: 'Приостановить' }),
+  ).toHaveCount(1);
 });

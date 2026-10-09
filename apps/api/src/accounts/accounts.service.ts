@@ -74,6 +74,10 @@ export interface MemberView {
   position: string | null;
   /** Этот вошедший может поменять ему телефон и должность */
   detailsEditable: boolean;
+  /** Доступ приостановлен (DATA_MODEL §30.2): человек не входит, место в команде за ним остаётся */
+  suspended: boolean;
+  /** Этот вошедший может приостановить или возобновить его доступ: тот же круг, что у отключения */
+  suspendable: boolean;
 }
 
 /** Отказ в действии над сотрудником: сессии нет — `null` у вызова; остальное — здесь */
@@ -271,6 +275,7 @@ export class AccountsService {
         roleEditable:
           !you && canSetRoleAtDesk(who.role, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
         detailsEditable: canEditMemberDetails(who.role, m.role, you),
+        suspendable: !you && canRemoveMember(who.role, m.role),
       };
     });
   }
@@ -330,6 +335,35 @@ export class AccountsService {
     const write = await this.repo.removeMember({
       organizationId: who.organizationId,
       userId,
+      by: who.userId,
+      roles: invitableRoles(who.role),
+    });
+    if (write.outcome === 'missing') return 'missing';
+    if (write.outcome === 'role') return write.role === 'OWNER' ? 'owner-target' : 'manager-target';
+    return 'ok';
+  }
+
+  /**
+   * Приостановить или возобновить доступ (DATA_MODEL §30.2, Q-289): круг тот же, что у отключения (владелец: управляющих
+   * и администраторов, управляющий: администраторов); себя и владельца нельзя. Сессии приостановленного гаснут сразу.
+   */
+  async setMemberSuspended(
+    sessionToken: string | null,
+    userId: string,
+    suspended: boolean,
+  ): Promise<'ok' | MemberRefusal | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return 'staff';
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return 'missing';
+    if (target.userId === who.userId) return 'self';
+    if (target.role === 'OWNER') return 'owner-target';
+    if (!canRemoveMember(who.role, target.role)) return 'manager-target';
+    const write = await this.repo.setMemberSuspended({
+      organizationId: who.organizationId,
+      userId,
+      suspended,
       by: who.userId,
       roles: invitableRoles(who.role),
     });

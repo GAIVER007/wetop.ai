@@ -6,7 +6,17 @@ import {
   type InviteRole,
   type MembershipRole,
 } from '@pms/domain';
-import { Alert, Button, Field, Input, Select, Stat, Stats, Table } from '../../components/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Field,
+  Input,
+  Select,
+  Stat,
+  Stats,
+  Table,
+} from '../../components/ui';
 import { Overlay } from '../../components/overlay';
 import { Icon } from '../../components/icon';
 import { useConfirm } from '../../components/use-confirm';
@@ -19,6 +29,7 @@ import {
   revokeInviteAction,
   setMemberDetailsAction,
   setMemberRoleAction,
+  setMemberSuspendedAction,
   type TeamActionResult,
 } from '../login/actions';
 
@@ -146,16 +157,15 @@ function useTeamActions() {
 
 /** Сводка (STAFF2.2): считает только то, что API отдаёт; «доступ приостановлен» не показываем: данных нет */
 export function TeamStats({ members, invites }: { members: AuthMember[]; invites: AuthInvite[] }) {
-  const entered = members.filter((m) => m.lastLoginAt).length;
-  const managers = members.filter((m) => m.role === 'OWNER' || m.role === 'MANAGER').length;
+  const suspended = members.filter((m) => m.suspended).length;
   const admins = members.filter((m) => m.role === 'STAFF').length;
   return (
     <Stats min={160} data-testid="team-stats" aria-label="Сводка по команде">
       <Stat label="Сотрудников" value={members.length} testId="team-stat-total" />
-      <Stat label="Входили в систему" value={entered} testId="team-stat-entered" />
+      <Stat label="Активных" value={members.length - suspended} testId="team-stat-active" />
       <Stat label="Ожидают ответа" value={invites.length} testId="team-stat-invites" />
-      <Stat label="Владелец и управляющие" value={managers} testId="team-stat-managers" />
-      <Stat label="Администраторы" value={admins} testId="team-stat-admins" />
+      <Stat label="Доступ приостановлен" value={suspended} testId="team-stat-suspended" />
+      <Stat label="Администраторов" value={admins} testId="team-stat-admins" />
     </Stats>
   );
 }
@@ -186,6 +196,14 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
               <td>
                 <b>{who(m)}</b>
                 {m.you ? ' — это вы' : ''}
+                {m.suspended ? (
+                  <>
+                    {' '}
+                    <Badge tone="warning" data-testid="member-suspended">
+                      Приостановлен
+                    </Badge>
+                  </>
+                ) : null}
                 {m.position ? <span className="cell-sub">{m.position}</span> : null}
                 <span className="cell-sub team-member-sub">
                   {m.name ? <span>{m.email}</span> : null}
@@ -237,6 +255,25 @@ export function MembersTable({ members }: { members: AuthMember[] }) {
                     onClick={() => setEditing(m)}
                   >
                     Изменить
+                  </Button>
+                )}
+                {m.suspendable && (
+                  <Button
+                    type="button"
+                    tone="secondary"
+                    size="sm"
+                    disabled={pending}
+                    onClick={async () => {
+                      if (m.suspended) return run(() => setMemberSuspendedAction(m.userId, false));
+                      const ok = await ask({
+                        title: `Приостановить доступ: ${who(m)}?`,
+                        body: 'Человек останется в команде, но не сможет войти: его сеансы погаснут сразу. Вернуть доступ можно одним действием.',
+                        confirmLabel: 'Приостановить',
+                      });
+                      if (ok) run(() => setMemberSuspendedAction(m.userId, true));
+                    }}
+                  >
+                    {m.suspended ? 'Возобновить' : 'Приостановить'}
                   </Button>
                 )}
                 {m.removable && (

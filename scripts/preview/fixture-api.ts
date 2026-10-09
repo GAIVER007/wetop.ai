@@ -2078,6 +2078,8 @@ interface FixtureMember {
   /** Телефон и должность (TEAM2, Q-244): не указаны: null */
   phone: string | null;
   position: string | null;
+  /** Доступ приостановлен (DATA_MODEL §30.2) */
+  suspended?: boolean;
 }
 interface FixtureInvite {
   id: string;
@@ -2157,6 +2159,8 @@ function teamView(me: UiUser) {
       const you = m.userId === me.id;
       return {
         ...m,
+        suspended: m.suspended === true,
+        suspendable: !you && canRemoveMember(uiRole, m.role),
         you,
         removable: !you && canRemoveMember(uiRole, m.role),
         roleEditable:
@@ -5251,6 +5255,23 @@ createServer(async (req, res) => {
       if (target.you) uiMyDetails = next;
       else uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, ...next } : m));
       return send(200, { userId: target.userId, ...next });
+    }
+    // Приостановка и возобновление доступа (DATA_MODEL §30.2): круг тот же, что у отключения
+    const suspendMatch = /^\/auth\/members\/([^/]+)\/(suspend|resume)$/.exec(path);
+    if (suspendMatch && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const target = teamView(who).find((m) => m.userId === suspendMatch[1]);
+      if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+      if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+      if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+      if (!canRemoveMember(uiRole, target.role))
+        return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+      const suspended = suspendMatch[2] === 'suspend';
+      uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, suspended } : m));
+      return send(200, { ok: true });
     }
     // Сотрудники (ADR-107): список, отключение, смена роли — по тем же правилам, что у API
     const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);

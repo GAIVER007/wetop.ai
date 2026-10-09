@@ -130,7 +130,7 @@ export class FakeAccountsRepository implements AccountsRepository {
       revokedAt: s.revokedAt,
       role: membership?.role ?? 'STAFF',
       userStatus: this.blocked.has(a.userId) ? 'BLOCKED' : 'ACTIVE',
-      member: membership !== undefined,
+      member: membership !== undefined && !this.suspended.has(s.userId),
     };
   }
 
@@ -297,6 +297,7 @@ export class FakeAccountsRepository implements AccountsRepository {
         lastLoginAt: a.userId === 'u-admin2' ? null : new Date('2026-09-20T10:00:00.000Z'),
         phone: this.details.get(a.userId)?.phone ?? null,
         position: this.details.get(a.userId)?.position ?? null,
+        suspended: this.suspended.has(a.userId),
       }));
   }
 
@@ -353,6 +354,31 @@ export class FakeAccountsRepository implements AccountsRepository {
     const [gone] = this.accounts.splice(at, 1);
     this.gone.set(input.userId, gone!);
     this.removed.push({ organizationId: input.organizationId, userId: input.userId, by: input.by });
+    return { outcome: 'done', role };
+  }
+
+  /** Приостановленные (DATA_MODEL §30.2) и журнал приостановок для тестов */
+  readonly suspended = new Set<string>();
+  readonly suspensions: Array<{ userId: string; suspended: boolean; by: string }> = [];
+
+  async setMemberSuspended(input: {
+    organizationId: string;
+    userId: string;
+    suspended: boolean;
+    by: string;
+    roles: readonly MembershipRole[];
+  }): Promise<MemberWrite> {
+    const a = this.accounts.find(
+      (x) => x.userId === input.userId && x.organizationId === input.organizationId,
+    );
+    if (!a) return { outcome: 'missing', role: null };
+    const role = this.roleOverride.get(input.userId) ?? a.role;
+    if (!input.roles.includes(role)) return { outcome: 'role', role };
+    if (input.suspended) {
+      this.suspended.add(input.userId);
+      for (const s of this.sessions) if (s.userId === input.userId) s.revokedAt = new Date();
+    } else this.suspended.delete(input.userId);
+    this.suspensions.push({ userId: input.userId, suspended: input.suspended, by: input.by });
     return { outcome: 'done', role };
   }
 

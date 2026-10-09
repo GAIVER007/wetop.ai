@@ -70,6 +70,8 @@ beforeEach(() => {
   repo.sessions.length = 0;
   repo.invites.length = 0;
   repo.removed.length = 0;
+  repo.suspended.clear();
+  repo.suspensions.length = 0;
   repo.blocked.clear();
   repo.accounts = [
     person('u-owner', 'OWNER'),
@@ -383,7 +385,9 @@ describe('телефон и должность сотрудника', () => {
   });
 
   it('в списке: телефон и должность (пусто: null) и кому их можно править', async () => {
-    expect((await list('u-owner')).map((r) => [r.userId, r.phone, r.position, r.detailsEditable])).toEqual([
+    expect(
+      (await list('u-owner')).map((r) => [r.userId, r.phone, r.position, r.detailsEditable]),
+    ).toEqual([
       ['u-owner', null, null, true],
       ['u-manager', null, null, true],
       ['u-admin', null, null, true],
@@ -422,7 +426,10 @@ describe('телефон и должность сотрудника', () => {
   });
 
   it('не телефон: 400 словами, ничего не записано', async () => {
-    const res = await setDetails(await as('u-owner'), 'u-admin', { phone: '12-34', position: 'Кассир' });
+    const res = await setDetails(await as('u-owner'), 'u-admin', {
+      phone: '12-34',
+      position: 'Кассир',
+    });
     expect(res.status).toBe(400);
     expect(res.body.message).toBe(MEMBER_PHONE_MESSAGE);
     expect(repo.detailChanges).toEqual([]);
@@ -430,8 +437,12 @@ describe('телефон и должность сотрудника', () => {
 
   it('управляющий правит себя и администраторов, но не владельца; администратор: никого; чужой: 404', async () => {
     const manager = await as('u-manager');
-    await setDetails(manager, 'u-manager', { phone: '', position: 'Управляющий сменой' }).expect(200);
-    await setDetails(manager, 'u-admin', { phone: '', position: 'Ночной администратор' }).expect(200);
+    await setDetails(manager, 'u-manager', { phone: '', position: 'Управляющий сменой' }).expect(
+      200,
+    );
+    await setDetails(manager, 'u-admin', { phone: '', position: 'Ночной администратор' }).expect(
+      200,
+    );
     const owner = await setDetails(manager, 'u-owner', { phone: '', position: 'Директор' });
     expect(owner.status).toBe(403);
     expect(owner.body.message).toBe(MEMBER_DETAILS_FORBIDDEN_MESSAGE);
@@ -454,5 +465,65 @@ describe('телефон и должность сотрудника', () => {
 
   it('без сессии: 401', async () => {
     await http().patch('/auth/members/u-admin/details').send({ position: 'x' }).expect(401);
+  });
+});
+
+describe('приостановка доступа (DATA_MODEL §30.2, Q-289)', () => {
+  const suspend = (token: string, userId: string) =>
+    http().post(`/auth/members/${userId}/suspend`).set('Authorization', `Bearer ${token}`);
+  const resume = (token: string, userId: string) =>
+    http().post(`/auth/members/${userId}/resume`).set('Authorization', `Bearer ${token}`);
+  const list = async (token: string) =>
+    (await http().get('/auth/members').set('Authorization', `Bearer ${token}`)).body as Array<{
+      userId: string;
+      suspended: boolean;
+      suspendable: boolean;
+    }>;
+
+  it('владелец приостанавливает администратора: член остаётся, сессии гаснут, в журнал кто и кого', async () => {
+    const adminToken = await as('u-admin');
+    const owner = await as('u-owner');
+    await suspend(owner, 'u-admin').expect(200);
+    expect(repo.accounts.some((a) => a.userId === 'u-admin')).toBe(true);
+    expect(repo.suspensions).toEqual([{ userId: 'u-admin', suspended: true, by: 'u-owner' }]);
+    const row = (await list(owner)).find((m) => m.userId === 'u-admin');
+    expect(row?.suspended).toBe(true);
+    // его сессия больше не действует
+    expect(
+      (await http().get('/auth/members').set('Authorization', `Bearer ${adminToken}`)).status,
+    ).toBe(401);
+  });
+
+  it('возобновление возвращает вход одним действием', async () => {
+    const owner = await as('u-owner');
+    await suspend(owner, 'u-admin2').expect(200);
+    await resume(owner, 'u-admin2').expect(200);
+    expect((await list(owner)).find((m) => m.userId === 'u-admin2')?.suspended).toBe(false);
+    expect(repo.suspensions.map((x) => x.suspended)).toEqual([true, false]);
+  });
+
+  it('круг тот же, что у отключения: управляющий приостанавливает администратора, но не управляющего и не владельца', async () => {
+    const token = await as('u-manager');
+    await suspend(token, 'u-admin').expect(200);
+    expect((await suspend(token, 'u-owner')).status).toBe(403);
+    repo.accounts.push(person('u-manager2', 'MANAGER'));
+    expect((await suspend(token, 'u-manager2')).status).toBe(403);
+    expect(repo.suspended.has('u-manager2')).toBe(false);
+  });
+
+  it('себя нельзя, администратору нельзя, чужого и несуществующего нет', async () => {
+    const owner = await as('u-owner');
+    expect((await suspend(owner, 'u-owner')).status).toBe(403);
+    expect((await suspend(await as('u-admin'), 'u-admin2')).status).toBe(403);
+    expect((await suspend(owner, 'u-other')).status).toBe(404);
+    expect((await suspend(owner, 'nobody')).status).toBe(404);
+    expect(repo.suspensions).toEqual([]);
+  });
+
+  it('в списке «можно приостановить» только тем, кого вошедший вправе отключить', async () => {
+    const rows = await list(await as('u-manager'));
+    expect(rows.find((m) => m.userId === 'u-admin')?.suspendable).toBe(true);
+    expect(rows.find((m) => m.userId === 'u-owner')?.suspendable).toBe(false);
+    expect(rows.find((m) => m.userId === 'u-manager')?.suspendable).toBe(false);
   });
 });

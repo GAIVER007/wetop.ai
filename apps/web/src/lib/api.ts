@@ -646,6 +646,19 @@ export const authApi = {
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
+  /** Приостановить или возобновить доступ (DATA_MODEL §30.2): человек остаётся в команде, не входит; 403 словами */
+  setMemberSuspended: async (
+    token: string,
+    userId: string,
+    suspended: boolean,
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(
+      `/auth/members/${encodeURIComponent(userId)}/${suspended ? 'suspend' : 'resume'}`,
+      { method: 'POST', headers: authHeaders(info, token) },
+    );
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
   /** Роль между управляющим и администратором — только владелец */
   setMemberRole: async (
     token: string,
@@ -2960,6 +2973,10 @@ export interface AuthMember {
   phone: string | null;
   position: string | null;
   detailsEditable: boolean;
+  /** Доступ приостановлен (DATA_MODEL §30.2) */
+  suspended: boolean;
+  /** Этот вошедший может приостановить или возобновить его доступ */
+  suspendable: boolean;
 }
 
 export interface AuthInvitePreview {

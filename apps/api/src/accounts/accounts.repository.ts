@@ -70,6 +70,8 @@ export interface MemberRecord {
   /** Рабочий телефон и должность в этой организации (`memberships`, v2.10, Q-244): не указаны: null */
   phone: string | null;
   position: string | null;
+  /** Приостановлен ли доступ (DATA_MODEL §30.2, Q-289): приостановленный не входит и сессии не пускают */
+  suspended: boolean;
 }
 
 export interface AccountsRepository {
@@ -179,6 +181,18 @@ export interface AccountsRepository {
     position: string | null;
     by: string;
     roles: readonly MembershipRole[] | null;
+  }): Promise<MemberWrite>;
+  /**
+   * Приостановить или возобновить доступ (DATA_MODEL §30.2) и записать в журнал организации (`membership.suspended`,
+   * `membership.resumed`) одной транзакцией; при приостановке сессии человека в этой организации отзываются. Роль
+   * сверяется с `roles` под блокировкой строки, как у отключения.
+   */
+  setMemberSuspended(input: {
+    organizationId: string;
+    userId: string;
+    suspended: boolean;
+    by: string;
+    roles: readonly MembershipRole[];
   }): Promise<MemberWrite>;
   /**
    * Одноразовая ссылка «задайте пароль» для только что вступившего (ADR-053). Раньше принятие

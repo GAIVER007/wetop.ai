@@ -2149,7 +2149,7 @@ model MembershipScope {
   organization Organization @relation(fields: [organizationId], references: [id])
   user         User         @relation(fields: [userId], references: [id])
   business     Business     @relation(fields: [businessId], references: [id])
-  location     Location?    @relation(fields: [locationId], references: [id])
+  location     Location?    @relation(fields: [locationId], references: [id], onDelete: Restrict)
 
   @@index([organizationId, userId])
   @@index([businessId])

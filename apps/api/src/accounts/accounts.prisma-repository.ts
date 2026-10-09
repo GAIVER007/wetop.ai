@@ -34,6 +34,8 @@ export class PrismaAccountsRepository implements AccountsRepository {
         email: true,
         status: true,
         memberships: {
+          // приостановленный член в организацию не входит (§30.2)
+          where: { status: 'ACTIVE' },
           orderBy: { createdAt: 'asc' },
           take: 1,
           select: {
@@ -116,14 +118,15 @@ export class PrismaAccountsRepository implements AccountsRepository {
             email: true,
             status: true,
             // членств у человека одно-два: роль берём у организации этой сессии
-            memberships: { select: { organizationId: true, role: true } },
+            memberships: { select: { organizationId: true, role: true, status: true } },
           },
         },
         organization: { select: { id: true, name: true, status: true, trialEndsAt: true } },
       },
     });
     if (!row) return null;
-    const role = row.user.memberships.find((m) => m.organizationId === row.organization.id)?.role;
+    const membership = row.user.memberships.find((m) => m.organizationId === row.organization.id);
+    const role = membership?.role;
     return {
       userId: row.user.id,
       email: row.user.email,
@@ -136,7 +139,8 @@ export class PrismaAccountsRepository implements AccountsRepository {
       // членство сняли — прав владельца точно нет, а `member: false` сессию и вовсе не пустит
       role: role ?? 'STAFF',
       userStatus: row.user.status,
-      member: role !== undefined,
+      // приостановленного сессия не пускает так же, как отключённого (§30.2)
+      member: role !== undefined && membership?.status === 'ACTIVE',
     };
   }
 
@@ -368,6 +372,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
           createdAt: true,
           phone: true,
           position: true,
+          status: true,
           user: { select: { id: true, email: true, name: true, lastLoginAt: withLastLogin } },
         },
       });
@@ -376,6 +381,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
       createdAt: Date;
       phone: string | null;
       position: string | null;
+      status: 'ACTIVE' | 'SUSPENDED';
       user: { id: string; email: string; name: string | null; lastLoginAt?: Date | null };
     }>;
     try {
@@ -394,6 +400,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
       lastLoginAt: m.user.lastLoginAt ?? null,
       phone: m.phone,
       position: m.position,
+      suspended: m.status === 'SUSPENDED',
     }));
   }
 
@@ -495,6 +502,47 @@ export class PrismaAccountsRepository implements AccountsRepository {
             position: input.position,
             phoneChanged: before.phone !== input.phone,
           },
+        },
+      });
+      return { outcome: 'done', role };
+    });
+  }
+
+  async setMemberSuspended(input: {
+    organizationId: string;
+    userId: string;
+    suspended: boolean;
+    by: string;
+    roles: readonly MembershipRole[];
+  }): Promise<MemberWrite> {
+    if (!UUID.test(input.userId)) return { outcome: 'missing', role: null };
+    return this.prisma.db.$transaction(async (tx) => {
+      const role = await lockedRole(tx, input.organizationId, input.userId);
+      if (!role) return { outcome: 'missing', role: null };
+      if (!input.roles.includes(role)) return { outcome: 'role', role };
+      const at = new Date();
+      await tx.membership.update({
+        where: {
+          userId_organizationId: { userId: input.userId, organizationId: input.organizationId },
+        },
+        data: input.suspended
+          ? { status: 'SUSPENDED', suspendedAt: at, suspendedBy: input.by }
+          : { status: 'ACTIVE', suspendedAt: null, suspendedBy: null },
+      });
+      if (input.suspended)
+        await tx.session.updateMany({
+          where: { userId: input.userId, organizationId: input.organizationId, revokedAt: null },
+          data: { revokedAt: at },
+        });
+      await tx.auditLog.create({
+        data: {
+          organizationId: input.organizationId,
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: input.suspended ? 'membership.suspended' : 'membership.resumed',
+          before: { userId: input.userId, suspended: !input.suspended },
+          after: { userId: input.userId, suspended: input.suspended },
         },
       });
       return { outcome: 'done', role };

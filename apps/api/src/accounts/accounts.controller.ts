@@ -136,10 +136,12 @@ export class AccountsController {
     );
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     // приглашают владелец и управляющий; управляющих — только владелец (DATA_MODEL §16.5, ADR-107)
-    if (!outcome.ok && outcome.reason === 'owner') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
+    if (!outcome.ok && outcome.reason === 'owner')
+      throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
     if (!outcome.ok && outcome.reason === 'manager-role')
       throw new ForbiddenException(INVITE_MANAGER_OWNER_ONLY_MESSAGE);
-    if (!outcome.ok && outcome.reason === 'role') throw new BadRequestException(INVITE_ROLE_MESSAGE);
+    if (!outcome.ok && outcome.reason === 'role')
+      throw new BadRequestException(INVITE_ROLE_MESSAGE);
     if (!outcome.ok && outcome.reason === 'limit')
       throw new HttpException(INVITE_LIMIT_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
     if (!outcome.ok) {
@@ -212,6 +214,44 @@ export class AccountsController {
     return { ok: true };
   }
 
+  /** Приостановить доступ без удаления (DATA_MODEL §30.2): человек не входит, сессии гаснут сразу */
+  @Access('staff')
+  @Post('members/:userId/suspend')
+  @HttpCode(200)
+  async suspendMember(
+    @Param('userId') userId: string,
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ ok: true }> {
+    const outcome = await this.accounts.setMemberSuspended(
+      tokenFrom(cookie, authorization),
+      userId,
+      true,
+    );
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (outcome !== 'ok') throw memberRefusal(outcome);
+    return { ok: true };
+  }
+
+  /** Вернуть доступ приостановленному одним действием */
+  @Access('staff')
+  @Post('members/:userId/resume')
+  @HttpCode(200)
+  async resumeMember(
+    @Param('userId') userId: string,
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ ok: true }> {
+    const outcome = await this.accounts.setMemberSuspended(
+      tokenFrom(cookie, authorization),
+      userId,
+      false,
+    );
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (outcome !== 'ok') throw memberRefusal(outcome);
+    return { ok: true };
+  }
+
   /** Роль между управляющим и администратором — только владелец; владельца назначает команда на сервере */
   @Access('owner')
   @Patch('members/:userId')
@@ -221,7 +261,11 @@ export class AccountsController {
     @Headers('cookie') cookie?: string,
     @Headers('authorization') authorization?: string,
   ): Promise<{ userId: string; role: MembershipRole }> {
-    const outcome = await this.accounts.setMemberRole(tokenFrom(cookie, authorization), userId, body?.role);
+    const outcome = await this.accounts.setMemberRole(
+      tokenFrom(cookie, authorization),
+      userId,
+      body?.role,
+    );
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     if (!outcome.ok) throw memberRefusal(outcome.reason);
     return outcome.member;
@@ -236,7 +280,11 @@ export class AccountsController {
     @Headers('cookie') cookie?: string,
     @Headers('authorization') authorization?: string,
   ): Promise<{ userId: string; phone: string | null; position: string | null }> {
-    const outcome = await this.accounts.setMemberDetails(tokenFrom(cookie, authorization), userId, body);
+    const outcome = await this.accounts.setMemberDetails(
+      tokenFrom(cookie, authorization),
+      userId,
+      body,
+    );
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     if (!outcome.ok)
       throw 'message' in outcome
@@ -309,6 +357,8 @@ interface MemberJson {
   phone: string | null;
   position: string | null;
   detailsEditable: boolean;
+  suspended: boolean;
+  suspendable: boolean;
 }
 
 function memberJson(m: MemberView): MemberJson {
@@ -325,6 +375,8 @@ function memberJson(m: MemberView): MemberJson {
     phone: m.phone,
     position: m.position,
     detailsEditable: m.detailsEditable,
+    suspended: m.suspended,
+    suspendable: m.suspendable,
   };
 }
 

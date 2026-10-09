@@ -3878,6 +3878,8 @@ function read(path: string, q: URLSearchParams): unknown {
           })),
       ),
       housekeepingHistory: [],
+      createdAt: '2026-01-12T09:30:00.000Z',
+      updatedAt: '2026-03-20T05:24:00.000Z',
     } satisfies UnitCard;
   }
   if (path === '/rates/options') return { categories, ratePlans: plans };

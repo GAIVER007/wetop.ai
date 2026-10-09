@@ -12,7 +12,7 @@ test('ошибка стойки показывается сразу, даже е
   page,
   request,
 }) => {
-  await page.goto('/today');
+  await page.goto('/finance');
   await request.post(`${API}/__test/control`, {
     data: {
       failPath: '/desk/today',
@@ -20,18 +20,18 @@ test('ошибка стойки показывается сразу, даже е
       delayMs: 6000,
     },
   });
-  await page.goto('/today', { waitUntil: 'commit' });
+  await page.goto('/finance', { waitUntil: 'commit' });
   await expect(page.getByTestId('desk-error')).toBeVisible({ timeout: 2500 });
 });
 
-test('Главная показывает блоки, пока настройки гостиницы ещё загружаются', async ({
+test('«Финансы» показывают блоки, пока настройки гостиницы ещё загружаются', async ({
   page,
   request,
 }) => {
   await request.post(`${API}/__test/control`, { data: { holdHotel: true } });
   try {
-    await page.goto('/today', { waitUntil: 'commit' });
-    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible({
+    await page.goto('/finance', { waitUntil: 'commit' });
+    await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible({
       timeout: 5000,
     });
     await expect(page.getByTestId('owner-risks')).toBeVisible({ timeout: 5000 });
@@ -45,12 +45,12 @@ test('Главная показывает блоки, пока настройк�
 });
 
 test('стойка и её шахматка запрашиваются параллельно', async ({ page, request }) => {
-  await page.goto('/today'); // компиляция next dev не входит в бюджет
+  await page.goto('/finance'); // компиляция next dev не входит в бюджет
   await request.post(`${API}/__test/reset`);
   await request.post(`${API}/__test/control`, {
     data: { delayPath: '/desk/today', delayMs: 5000 },
   });
-  await page.goto('/today', { waitUntil: 'commit' });
+  await page.goto('/finance', { waitUntil: 'commit' });
   await expect
     .poll(async () => {
       const hits = await (await request.get(`${API}/__test/hits`)).json();
@@ -80,7 +80,7 @@ test('мобильное меню использует уже загруженн
       },
     });
   });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(page.locator('.workspace-header [data-testid="data-freshness"]')).toContainText(
     'очередь 7',
   );
@@ -93,20 +93,20 @@ test('мобильное меню использует уже загруженн
   expect(calls).toBe(before);
 });
 
-test('замер: блоки Главной при задержке настроек 2000 мс', async ({ page, request }, testInfo) => {
-  await page.goto('/today');
+test('замер: блоки «Финансов» при задержке настроек 2000 мс', async ({ page, request }, testInfo) => {
+  await page.goto('/finance');
   const samples: Array<Record<string, number>> = [];
   for (let pass = 0; pass < 3; pass++) {
     await request.post(`${API}/__test/control`, {
       data: { delayPath: '/hotel/settings', delayMs: 2000 },
     });
     const start = performance.now();
-    await page.goto('/today', { waitUntil: 'commit' });
+    await page.goto('/finance', { waitUntil: 'commit' });
     const sample: Record<string, number> = {};
     await Promise.all(
       [
-        ['heading', page.getByRole('heading', { name: 'Главная', exact: true })],
-        ['money', page.getByTestId('owner-paid')],
+        ['heading', page.getByRole('heading', { name: 'Финансы', exact: true })],
+        ['money', page.getByTestId('cash-period-income')],
         ['risks', page.getByTestId('owner-risks')],
       ].map(async ([key, locator]) => {
         await expect(locator as import('@playwright/test').Locator).toBeVisible();
@@ -150,7 +150,7 @@ test('фоновый опрос не перекрывается и восста�
           },
     });
   });
-  await page.goto('/today');
+  await page.goto('/finance');
   const status = page.locator('.workspace-header [data-testid="data-freshness"]');
   await expect(status).toContainText('очередь 0');
   await expect(status).not.toHaveClass(/freshness--warn/);

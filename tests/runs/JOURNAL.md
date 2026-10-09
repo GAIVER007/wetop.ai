@@ -7703,3 +7703,14 @@
 | 09.10.2026 16:51 | typecheck | ✅ без ошибок | 1 мин 5 с | a781c38 | [лог](logs/2026-10-09T11-51-34Z-typecheck-3413.log) |  |
 | 09.10.2026 16:52 | lint | ✅ без ошибок | 35 с | a781c38 | [лог](logs/2026-10-09T11-52-40Z-lint-7ada.log) |  |
 | 09.10.2026 16:53 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 38 с | a781c38 | [лог](logs/2026-10-09T11-53-19Z-unit-45b5.log) |  |
+| 09.10.2026 17:31 | e2e (частично: tests/ui/finance-home-merge.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 4 из 4 | 19 с | ce21ea3 +1 | [лог](logs/2026-10-09T12-31-02Z-e2e-e2c1.log) | red: finance-home merge contract before implementation |
+| 09.10.2026 17:31 | e2e (частично: tests/ui/finance-home-merge.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 3 из 4 | 1 мин 6 с | ce21ea3 +1 | [лог](logs/2026-10-09T12-31-30Z-e2e-efa5.log) | red: finance-home merge contract before implementation |
+| 09.10.2026 17:36 | typecheck | ✅ без ошибок | 41 с | ce21ea3 +18 | [лог](logs/2026-10-09T12-36-25Z-typecheck-397d.log) | finance-home merge wip |
+| 09.10.2026 17:37 | e2e (частично: tests/ui/finance-home-merge.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ✅ 4 из 4 | 17 с | ce21ea3 +18 | [лог](logs/2026-10-09T12-37-11Z-e2e-be8f.log) | green: finance-home merge contract after implementation |
+| 09.10.2026 17:37 | unit (частично: apps/web/src/lib/navigation-roles.test.ts apps/web/src/lib/navigation-food.test.ts apps/web/src/lib/navigation-beauty.test.ts apps/web/src/lib/w | ❌ упало 6 из 50 | 2 с | ce21ea3 +17 | [лог](logs/2026-10-09T12-37-40Z-unit-5d20.log) | finance-home merge: nav unit status |
+| 09.10.2026 17:38 | unit | ❌ упало 8 из 4150, пропущено 3 | 1 мин 41 с | ce21ea3 +21 | [лог](logs/2026-10-09T12-38-26Z-unit-4488.log) | finance-home merge: full unit after nav updates |
+| 09.10.2026 17:41 | unit | ❌ упало 1 из 4150, пропущено 3 | 1 мин 31 с | ce21ea3 +25 | [лог](logs/2026-10-09T12-41-04Z-unit-e884.log) | finance-home merge: full unit |
+| 09.10.2026 17:43 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 29 с | ce21ea3 +25 | [лог](logs/2026-10-09T12-43-01Z-unit-4d02.log) | finance-home merge: full unit |
+| 09.10.2026 17:57 | typecheck | ✅ без ошибок | 32 с | ce21ea3 +50 | [лог](logs/2026-10-09T12-57-50Z-typecheck-6c22.log) | finance-home merge |
+| 09.10.2026 17:58 | lint | ✅ без ошибок | 24 с | ce21ea3 +50 | [лог](logs/2026-10-09T12-58-23Z-lint-85fa.log) | finance-home merge |
+| 09.10.2026 17:58 | e2e (частично: tests/ui/finance-home-merge.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/owner-dashboard-interactions.spec.ts tests/ui/today-operations.spec | ❌ упало 4 из 97 | 3 мин 20 с | ce21ea3 +50 | [лог](logs/2026-10-09T12-58-58Z-e2e-4a28.log) | finance-home merge: batch 1 affected specs |

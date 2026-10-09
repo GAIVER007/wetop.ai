@@ -13,7 +13,7 @@ test('касса: простой вход, фильтры применяются
   request,
 }) => {
   await page.goto('/finance');
-  await expect(page.getByRole('heading', { name: 'Касса', exact: true, level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 })).toBeVisible();
   await expect(page.getByTestId('cash-summary')).toBeVisible();
   await expect(page.getByTestId('finance-operations')).not.toBeVisible();
   await expect(page.getByTestId('finance-kpis')).not.toBeVisible();
@@ -67,10 +67,11 @@ for (const width of [1440, 390, 360]) {
     );
     await expect(page.getByTestId('finance-operations')).not.toBeVisible();
     if (width < 600) {
-      expect(
-        await page.evaluate(() => document.documentElement.scrollHeight - innerHeight),
-      ).toBeLessThanOrEqual(1);
-      await expect(page.getByRole('button', { name: 'Показать', exact: true })).toBeInViewport();
+      // с 09.10 над кассой стоит сводка владельца (plans/finance-home-merge-2026-10-09.md):
+      // первый экран: сводка, «Показать» достижима прокруткой и остаётся целью не ниже 44 px
+      const show = page.getByRole('button', { name: 'Показать', exact: true });
+      await show.scrollIntoViewIfNeeded();
+      await expect(show).toBeInViewport();
     }
     const axe = await new AxeBuilder({ page }).include('main').analyze();
     expect(axe.violations).toEqual([]);
@@ -92,6 +93,7 @@ test('касса: первый экран без лишних кнопок, де
   await expect(page.getByRole('button', { name: 'Новая операция', exact: true })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Вчера', exact: true })).toBeVisible();
   const todayHref = await page
+    .getByRole('navigation', { name: 'Готовые периоды' })
     .getByRole('link', { name: 'Сегодня', exact: true })
     .getAttribute('href');
   const today = new URL(todayHref!, 'http://localhost').searchParams.get('from')!;
@@ -129,9 +131,6 @@ test('касса: тёмное оформление читается на тел
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
   await expect(page.getByTestId('cash-summary')).toBeVisible();
-  expect(
-    await page.evaluate(() => document.documentElement.scrollHeight - innerHeight),
-  ).toBeLessThanOrEqual(1);
   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
   await page.screenshot({ path: `${evidence}/390-dark.png`, fullPage: true });
 });

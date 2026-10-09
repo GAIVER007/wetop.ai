@@ -35,13 +35,13 @@ test('все разделы, карточки и печать открывают
     if (message.type() === 'error' && !devNoise.test(message.text())) errors.push(message.text());
   });
   const routes: Array<[string, string]> = [
-    ['/today', 'Главная'],
+    ['/today', 'Финансы'],
     ['/chessboard', 'Календарь'],
     ['/guests?q=Тест', 'Гости'],
     ['/guests/ui-guest', 'Гость'],
     [`/reservations/${booking}`, `Бронь ${booking}`],
     ['/reservations/new?unit=M03', 'Новая бронь'],
-    ['/finance', 'Касса'],
+    ['/finance', 'Финансы'],
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
@@ -77,6 +77,8 @@ test('все разделы, карточки и печать открывают
   // Старые адреса — redirect(): у экрана загрузки «Настроек объекта» тот же заголовок, что у цели (ADR-115), поэтому
   // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
   const redirects: Record<string, RegExp> = {
+    // гостиничный /today слился с «Финансами» (plans/finance-home-merge-2026-10-09.md)
+    '/today': /\/finance$/,
     '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
     '/hotel-settings/penalties': /\/hotel-settings$/,
     '/management/dashboard': /\/management\/analytics$/,
@@ -102,10 +104,10 @@ test('все разделы, карточки и печать открывают
     }
     await page.setViewportSize({ width: 390, height: 844 });
     await noPageOverflow(page);
-    if (route === '/today')
+    if (route === '/finance')
       await page.screenshot({
         caret: 'initial',
-        path: `${screenshots}/today-mobile.png`,
+        path: `${screenshots}/finance-mobile.png`,
       });
   }
   await page.goto(`/reservations/${booking}/print?lang=ru`);
@@ -115,7 +117,7 @@ test('все разделы, карточки и печать открывают
 });
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
-  await page.goto('/today');
+  await page.goto('/finance');
   // строка разделов в шапке (ADR-134): группа «Продажи» раскрывает список под вкладкой
   const sidebar = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
   const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
@@ -521,9 +523,9 @@ test('сбой API показывает ошибку, повтор восста�
 test('неисправности из обновлённого main: принятие и закрытие работают в новом каркасе', async ({
   page,
 }) => {
-  await page.goto('/today');
+  await page.goto('/finance');
   // «Неисправности» лежат в группе «Настройки» верхнего меню (ADR-134), и до раскрытия ссылка скрыта.
-  // Главная стримится, и клик по группе до гидрации теряется — жмём, пока ссылка не раскроется,
+  // Экран стримится, и клик по группе до гидрации теряется: жмём, пока ссылка не раскроется,
   // но только если группа свёрнута: иначе щелчок её закроет
   const control = page
     .locator('.workspace-header .topmenu__group')
@@ -637,8 +639,8 @@ test('обзор: очередь «Требуют внимания» ведёт 
   page,
 }) => {
   // компактный дашборд владельца (ea9dd3c): очередь A3 живёт за кнопкой «Требуют внимания» в панели,
-  // полосы «День стойки» и «Сегодня на стойке» с Главной сняты тем же срезом
-  await page.goto('/today');
+  // полосы «День стойки» и «Сегодня на стойке» сняты тем же срезом; с 09.10 блоки живут в «Финансах»
+  await page.goto('/finance');
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const tasks = page.getByRole('dialog', { name: 'Требуют внимания', exact: true });
   const departureDebt = tasks.locator('[data-event="departure-debt"] .attention-item').first();
@@ -685,7 +687,7 @@ test('ошибка буфера обмена видна, код остаётся
 
 test('финансы: неверные даты можно исправить без падения страницы', async ({ page }) => {
   await page.goto('/finance?from=2026-09-30&to=2026-09-01');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Касса');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Финансы');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Проверьте даты');
   await expect(page.getByTestId('charged')).toHaveCount(0);
   await page.locator('input[name="to"]').fill('2026-09-30');
@@ -959,7 +961,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
   await page.goto('/finance');
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Касса');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Финансы');
   await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/debts' } });
   await page.goto('/finance');

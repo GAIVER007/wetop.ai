@@ -19,7 +19,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет', async ({
@@ -31,7 +31,7 @@ test('пробный срок вышел — полоса «оплатите п�
   await expect(page.getByTestId('read-only-banner')).toHaveCount(0);
 
   await request.post(`${API}/__test/control`, { data: { orgTrialDays: 'ended' } });
-  for (const path of ['/today', '/chessboard', '/reservations', '/guests']) {
+  for (const path of ['/finance', '/chessboard', '/reservations', '/guests']) {
     await page.goto(path);
     const banner = page.getByTestId('read-only-banner');
     await expect(banner).toContainText('Пробный период закончился, оплатите подписку');
@@ -68,7 +68,7 @@ test('пробный срок вышел — полоса «оплатите п�
   await main.getByRole('tab', { name: 'Данные гостя', exact: true }).click();
   await expect(main.getByTestId('guest-form')).toBeVisible();
   await expect(main.getByRole('button', { name: 'Сохранить', exact: true })).toHaveCount(0);
-  await page.goto('/today');
+  await page.goto('/finance');
   await page.screenshot({ path: 'test-results/trial-read-only-banner.png' });
 });
 

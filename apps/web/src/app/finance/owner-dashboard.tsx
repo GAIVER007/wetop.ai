@@ -1,6 +1,5 @@
 import { cache, Suspense } from 'react';
 import Link from 'next/link';
-import type { ResolvedPeriod } from '@pms/domain';
 import { ApiError, dashboardApi, chessboardApi } from '../../lib/api';
 import { hotelApi } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
@@ -26,84 +25,6 @@ const loadBoard = cache((date: string) =>
     throw error;
   }),
 );
-
-export async function OwnerFinance({ period }: { period: ResolvedPeriod }) {
-  const [result, hotel] = await Promise.all([
-    loadPeriod(period.from, period.to),
-    hotelApi.settings().catch((error: unknown) => {
-      if (error instanceof ApiError) return null;
-      throw error;
-    }),
-  ]);
-  if (result instanceof ApiError || !hotel)
-    return (
-      <Alert boxed tone="warning">
-        Финансовая аналитика не загрузилась.
-        <div className="owner-error-actions">
-          <DashboardRefresh label="Повторить" />
-          <Link href="/finance">Открыть финансы</Link>
-        </div>
-      </Alert>
-    );
-  return (
-    <>
-      <div className="owner-money-main">
-        <div className="owner-income" data-testid="owner-paid">
-          <span>Поступления</span>
-          <strong>
-            <Link href={`/finance?from=${period.from}&to=${period.to}`}>
-              {formatMoney(result.current.payments.totalMinor, hotel.property.currency)}
-            </Link>
-          </strong>
-        </div>
-        <details className="owner-dates">
-          <summary aria-label="Свои даты">
-            <span>
-              {displayDate(period.from)} – {displayDate(period.to)}
-            </span>
-            <Icon name="down" width={16} height={16} />
-          </summary>
-          <form action="/today" key={`${period.from}|${period.to}`}>
-            <input type="hidden" name="period" value="custom" />
-            <label>
-              С
-              <input
-                type="date"
-                aria-label="Начало периода"
-                name="from"
-                defaultValue={period.from}
-                required
-              />
-            </label>
-            <label>
-              По
-              <input
-                type="date"
-                aria-label="Конец периода"
-                name="to"
-                defaultValue={period.to}
-                required
-              />
-            </label>
-            <button className="btn btn--secondary">Показать</button>
-          </form>
-        </details>
-      </div>
-      <div className="owner-money-secondary">
-        {[
-          ['Расходы', 'expenses'],
-          ['Касса', 'cash'],
-          ['Всего', 'total'],
-        ].map(([label, id]) => (
-          <div data-testid={`owner-${id}`} key={id}>
-            <span>{label}</span>
-            <strong className="owner-unavailable">Нет данных</strong>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
 
 export async function OwnerOutlook({ today }: { today: string }) {
   const end = new Date(`${today}T00:00:00Z`);

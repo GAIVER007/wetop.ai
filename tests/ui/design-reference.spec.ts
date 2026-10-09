@@ -45,8 +45,8 @@ for (const theme of ['light', 'dark'] as const) {
     await shot(page, 'chessboard-month-full', theme);
 
     // главная (в документе ментора — «служба приёма»)
-    await page.goto('/today');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Главная');
+    await page.goto('/finance');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Финансы');
     await shot(page, 'today', theme);
     await shot(page, 'today-full', theme, true);
 

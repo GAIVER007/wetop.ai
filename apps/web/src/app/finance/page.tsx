@@ -1,6 +1,6 @@
 import { requireVertical } from '../../lib/vertical-guard';
 import { FilterHistory } from './filter-history';
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
@@ -37,6 +37,11 @@ import {
 import { DateInput } from '../../components/date-field';
 import '../directory.css';
 import './finance.css';
+import './owner-dashboard.css';
+import './attention.css';
+import { OwnerLoad, OwnerOperations } from './owner-dashboard';
+import { DashboardRefresh } from './owner-controls';
+import { OwnerPlaceholder, AttentionPlaceholder } from './owner-loading';
 import { FinanceWorkspace } from './workspace';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { operationFilter } from './operation-filter';
@@ -70,10 +75,10 @@ const byAmount = <T extends { amountMinor: string }>(xs: T[]) =>
   });
 
 /**
- * «Финансы за период», срез F1 (ADR-113, план `plans/finance-f1-2026-09-27.md`). Экран отвечает на три вопроса
- * за секунды: сколько начислили, сколько получили, сколько ещё собрать и с кого. Сверху — период одной строкой и
- * четыре итога в ряд; под ними — что требует внимания; дальше — из чего сложились деньги; внизу — брони с
- * остатком, по которым можно работать. Числа итогов — прежние поля `/finance/report`; список долгов —
+ * «Финансы», единый раздел гостиницы (план `plans/finance-home-merge-2026-10-09.md`): сверху блоки
+ * прежней Главной (загрузка с прогнозом, события дня, «Требуют внимания») и сводка кассы на месте
+ * блока «Деньги»; ниже касса по ADR-113/§21: фильтры, лента операций по «Показать», свёрнутые
+ * отчёты и управление. Числа итогов: прежние поля `/finance/report`; список долгов из
  * `/finance/debts`. Отказ одного запроса не роняет другой и не выдаётся за нули.
  */
 export default async function FinanceReportPage({
@@ -168,8 +173,29 @@ export default async function FinanceReportPage({
   if (filter.method) exportQuery.set('method', filter.method);
   if (srcParam) exportQuery.set('src', srcParam);
   return (
-    <Page title="Касса">
-      <section className="cash-summary" aria-label="Итоги кассы" data-testid="cash-summary">
+    <Page
+      title="Финансы"
+      subtitle={displayDate(cal.today, 'full')}
+      width="full"
+      actions={<DashboardRefresh />}
+    >
+      {/* Блоки Главной (план finance-home-merge-2026-10-09): загрузка, события дня и внимание
+          в прежней сетке владельца; место блока «Деньги» занимает сводка кассы */}
+      <div className="owner-dashboard" data-testid="owner-dashboard">
+        <Suspense
+          fallback={
+            <div className="owner-load owner-surface">
+              <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
+            </div>
+          }
+        >
+          <OwnerLoad date={cal.today} />
+        </Suspense>
+        <section
+          className="cash-summary owner-finance"
+          aria-label="Итоги кассы"
+          data-testid="cash-summary"
+        >
         <div className="cash-summary__balance">
           <span className="cash-summary__label">
             Всего <small>за всё время</small>
@@ -225,7 +251,20 @@ export default async function FinanceReportPage({
             </dl>
           </details>
         )}
-      </section>
+        </section>
+        <Suspense
+          fallback={
+            <>
+              <div className="owner-today owner-surface">
+                <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
+              </div>
+              <AttentionPlaceholder />
+            </>
+          }
+        >
+          <OwnerOperations date={cal.today} />
+        </Suspense>
+      </div>
       {cashError !== null && (
         <LoadError testId="cash-summary-error" {...loadErrorProps(cashError)} />
       )}

@@ -37,7 +37,6 @@ async function hits(request: import('@playwright/test').APIRequestContext): Prom
 }
 
 for (const screen of [
-  '/today',
   '/chessboard',
   '/reservations',
   '/guests',
@@ -88,8 +87,11 @@ for (const screen of [
       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
     );
     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+    // «Финансы» с 09.10 единый раздел (plans/finance-home-merge-2026-10-09.md): к шести источникам
+    // кассы добавились четыре блока бывшей Главной (/chessboard, /desk/dashboard, /desk/today,
+    // /guard/status); каждый путь по-прежнему спрашивается один раз
     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
-      ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      screen === '/finance' ? 13 : ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
     );
   });
 }

@@ -10,7 +10,6 @@ import { mkdirSync } from 'node:fs';
  */
 const routes = [
   '/ai-agents',
-  '/today',
   '/chessboard',
   '/reservations',
   '/guests',
@@ -30,12 +29,12 @@ const routes = [
   '/incidents',
 ];
 
+// «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
 const TABS = [
-  'Главная',
+  'Финансы',
   'Календарь',
   'Брони',
   'Гости',
-  'Финансы',
   'Бар',
   'Продажи',
   'Маркетинг',
@@ -54,30 +53,23 @@ test.beforeEach(async ({ request }) => {
 });
 
 test('строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры', async ({ page }) => {
-  await page.goto('/today');
+  await page.goto('/finance');
   const header = page.locator('.workspace-header');
   const menu = menuOf(page);
   // бокового меню больше нет: все разделы в шапке
   await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
   await expect(menu.locator('.topmenu__tab')).toHaveText(TABS);
-  // Утверждённая owner Главная скрывает поиск; вкладки остаются под верхней строкой.
-  await expect(header.getByRole('button', { name: 'Найти гостя или бронь' })).toBeHidden();
-  const row = await header.locator('.workspace-header__row').boundingBox();
-  const homeTab = await menu.locator('.topmenu__tab').first().boundingBox();
-  expect(homeTab!.y).toBeGreaterThanOrEqual(row!.y + row!.height - 1);
-  // Прежняя проверка поиска сохраняется на Календаре, где поиск доступен.
-  await page.goto('/chessboard');
+  // Поиск доступен и на стартовых «Финансах» (слияние с Главной 09.10); вкладки под верхней строкой.
   const search = await header.getByRole('button', { name: 'Найти гостя или бронь' }).boundingBox();
   const first = await menu.locator('.topmenu__tab').first().boundingBox();
   expect(first!.y).toBeGreaterThanOrEqual(search!.y + search!.height - 1);
-  await page.goto('/today');
   // в разметке каждый раздел ровно один раз, включая пункты закрытых списков
   const links = await menu
     .locator('a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Главная');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Финансы');
 
   const sales = menu.getByRole('button', { name: 'Продажи', exact: true });
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
@@ -100,7 +92,7 @@ test('строка вкладок в шапке: порядок, одна акт
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
   await expect(sales).toHaveClass(/has-current-page/);
-  await expect(menu.getByRole('link', { name: 'Главная', exact: true })).not.toHaveAttribute(
+  await expect(menu.getByRole('link', { name: 'Финансы', exact: true })).not.toHaveAttribute(
     'aria-current',
     'page',
   );
@@ -170,7 +162,7 @@ for (const theme of ['light', 'dark'] as const) {
     page.on('pageerror', (error) => {
       if (!devNoise.test(error.message)) errors.push(error.message);
     });
-    await page.goto('/today');
+    await page.goto('/finance');
     const header = page.locator('.workspace-header');
     for (const width of [1024, 1280, 1440]) {
       await page.setViewportSize({ width, height: 900 });
@@ -211,7 +203,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.locator('.topmenu')).toBeHidden();
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-    for (const label of ['Главная', 'Календарь', 'Брони', 'Гости', 'Номерной фонд'])
+    for (const label of ['Финансы', 'Календарь', 'Брони', 'Гости', 'Номерной фонд'])
       await expect(drawer.getByRole('link', { name: label, exact: true })).toBeVisible();
     await drawer.getByRole('button', { name: 'Настройки', exact: true }).click();
     await expect(drawer.getByRole('link', { name: 'Объект', exact: true })).toBeVisible();
@@ -219,7 +211,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(drawer).not.toBeVisible();
     const bottom = page.locator('.bottom-navigation');
     await expect(bottom).toBeVisible();
-    await expect(bottom.locator('a')).toHaveText(['Главная', 'Календарь', 'Брони', 'Гости']);
+    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Гости']);
     await expect(bottom.getByRole('button', { name: 'Ещё разделы', exact: true })).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),

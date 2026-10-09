@@ -15,7 +15,7 @@ async function signIn(page: Page, request: APIRequestContext) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 /** Заводит салон формой филиалов и переключает стойку на него */
@@ -66,7 +66,7 @@ test('в салоне меню без гостиничных разделов: �
   await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
   await createAndOpenSalon(page, 'Студия Айна');
   await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
-  for (const label of ['Главная', 'Брони', 'Номерной фонд', 'Гости']) {
+  for (const label of ['Финансы', 'Брони', 'Номерной фонд', 'Гости']) {
     await expect(menu.getByRole('link', { name: label, exact: true })).toHaveCount(0);
   }
   // MV8: «Сегодня» салона на общем адресе

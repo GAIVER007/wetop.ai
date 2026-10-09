@@ -3,11 +3,11 @@ import { menuSections, phoneNavigation } from './navigation';
 // Строка вкладок (ADR-134): работа смены одним щелчком, группы только там, где экранов несколько
 it('organizes the menu by tasks: desk screens first, groups only for multi-screen areas', () => {
   expect(menuSections.map((s) => s.id)).toEqual([
-    'home',
+    // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
+    'finance',
     'chessboard',
     'reservations',
     'guests',
-    'finance',
     'bar',
     'sales',
     'marketing',
@@ -38,7 +38,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
 });
 it('phone bottom bar: the four desk screens, every one a direct tab', () => {
   expect(phoneNavigation.map((i) => i.href)).toEqual([
-    '/today',
+    '/finance',
     '/chessboard',
     '/reservations',
     '/guests',

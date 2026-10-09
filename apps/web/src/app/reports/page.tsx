@@ -229,11 +229,11 @@ export default async function ReportsHubPage({
           </Group>
           <Group title="День">
             <ReportCard
-              href="/today"
+              href="/finance"
               testId="report-day"
               title="Сводка дня"
               value={day && `${day.counts.arrivals} / ${day.counts.departures}`}
-              hint="заезды / выезды сегодня, на Главной"
+              hint="заезды / выезды сегодня, в «Финансах»"
             />
             <ReportCard
               href="/reservations?view=inhouse"

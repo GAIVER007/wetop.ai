@@ -34,13 +34,13 @@ test('период выбирается: «этот месяц» открыва�
   await expect(page.getByTestId('pa-error')).toHaveCount(0);
 });
 
-test('Главная открывается и с упавшими показателями периода: риски остаются доступны', async ({
+test('«Финансы» открываются и с упавшими показателями периода: риски остаются доступны', async ({
   page,
   request,
 }) => {
   await request.post(`${API}/__test/control`, { data: { failPath: '/desk/dashboard' } });
-  await page.goto('/today');
-  await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+  await page.goto('/finance');
+  await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
   await expect(page.getByTestId('owner-risks')).toBeVisible();
   await expect(page.getByTestId('pa-error')).toHaveCount(0);
 });

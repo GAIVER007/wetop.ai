@@ -3,7 +3,7 @@ export function OwnerPlaceholder({
   variant,
 }: {
   label: string;
-  variant: 'load' | 'finance' | 'today' | 'outlook';
+  variant: 'load' | 'today' | 'outlook';
 }) {
   return (
     <div

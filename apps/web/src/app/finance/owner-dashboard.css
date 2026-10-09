@@ -1,4 +1,6 @@
-/* Approved owner concept: one load card, one money card, compact daily overview. */
+/* Approved owner concept: one load card, one money card, compact daily overview.
+   Since 09.10.2026 the owner blocks live on /finance (plans/finance-home-merge-2026-10-09.md):
+   the cash summary takes the money cell, header search stays available as on other screens. */
 @layer sections {
   .page:has(.owner-dashboard) {
     max-width: 1200px;
@@ -25,12 +27,6 @@
   .page:has(.owner-dashboard) .page__actions {
     flex: 0 0 auto;
     width: auto;
-  }
-  body:has(.owner-dashboard) .workspace-search {
-    display: none;
-  }
-  body:has(.owner-dashboard) .header-tools {
-    margin-left: auto;
   }
   .owner-dashboard {
     display: grid;
@@ -209,128 +205,12 @@
   .owner-finance {
     grid-area: finance;
   }
-  .owner-period {
-    display: flex;
-    padding: 4px;
-    border-radius: var(--radius-control);
-    background: var(--surface-muted);
-  }
-  .owner-period a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 8px;
-    min-height: 36px;
-    color: var(--muted);
-    font-size: var(--text-xs);
-    white-space: nowrap;
-    border-radius: var(--radius-sm);
-  }
-  .owner-period a[aria-current] {
-    background: var(--primary);
-    color: var(--on-primary);
-  }
-  .owner-money-main {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-  }
-  .owner-income {
-    min-width: 0;
-  }
-  .owner-income > span {
-    color: var(--muted);
-    font-size: var(--text-sm);
-  }
-  .owner-income strong {
-    display: block;
-    margin-top: 4px;
-    font-size: var(--text-4xl);
-    line-height: 1.2;
-    letter-spacing: -0.6px;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-  }
-  .owner-income a {
-    color: var(--text);
-  }
-  .owner-money-secondary {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    border-top: 1px solid var(--border);
-    margin-top: 16px;
-    padding-top: 8px;
-  }
-  .owner-money-secondary > div {
-    min-width: 0;
-  }
-  .owner-money-secondary > div + div {
-    border-left: 1px solid var(--border);
-    padding-left: 8px;
-  }
-  .owner-money-secondary span {
-    display: block;
-    color: var(--muted);
-    font-size: var(--text-xs);
-  }
-  .owner-money-secondary strong {
-    display: block;
-    margin-top: 4px;
-    font-size: var(--text-lg);
-    font-variant-numeric: tabular-nums;
-  }
-  .owner-money-secondary .owner-unavailable {
-    font-size: var(--text-xs);
-    font-weight: 400;
-    color: var(--muted);
-  }
-  .owner-dates {
-    position: relative;
-    max-width: 132px;
-    flex: 0 0 auto;
-    font-size: var(--text-xs);
-  }
-  .owner-dates summary {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    min-height: 44px;
-    cursor: pointer;
-    color: var(--muted);
-    list-style: none;
-  }
-  .owner-dates summary::-webkit-details-marker {
-    display: none;
-  }
-  .owner-dates form {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    width: 280px;
-    z-index: var(--layer-sticky);
-    display: grid;
-    gap: 8px;
+  /* Сводка кассы на месте блока «Деньги»: в сетке владельца столбцом и без нижнего зазора панели */
+  .owner-dashboard .cash-summary {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    margin: 0;
     padding: 16px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
-    box-shadow: var(--shadow-floating);
-  }
-  .owner-dates label {
-    display: grid;
-    gap: 4px;
-  }
-  .owner-dates input {
-    width: 100%;
-    min-height: 44px;
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius-control);
-    padding: 8px;
-    background: var(--surface);
-    color: var(--text);
-    font-size: var(--text-lg);
   }
   .owner-today {
     grid-area: today;
@@ -452,10 +332,6 @@
     .page:has(.owner-dashboard) .page__subtitle {
       font-size: var(--text-xs);
     }
-    body:has(.owner-dashboard) .workspace-brand .brand-name {
-      display: inline;
-      font-size: var(--text-lg);
-    }
     .owner-dashboard {
       gap: 8px;
     }
@@ -502,24 +378,6 @@
     .owner-week span {
       margin-top: 4px;
     }
-    .owner-period {
-      padding: 0;
-    }
-    .owner-period a {
-      padding-inline: 8px;
-      min-height: 44px;
-    }
-    .owner-money-secondary {
-      margin-top: 8px;
-      padding-top: 8px;
-      gap: 8px;
-    }
-    .owner-money-secondary > div + div {
-      padding-left: 8px;
-    }
-    .owner-dates {
-      max-width: 120px;
-    }
     .owner-attention-button {
       min-height: 44px;
       padding: 8px 8px;
@@ -536,17 +394,8 @@
     }
   }
   @media (max-width: 360px) {
-    .owner-period a {
-      padding-inline: 4px;
-    }
     .owner-week {
       gap: 4px;
-    }
-    .owner-money-main {
-      gap: 8px;
-    }
-    .owner-dates {
-      max-width: 100px;
     }
     .owner-load-counts {
       gap: 8px;
@@ -576,9 +425,6 @@
     }
     .owner-load-counts dt,
     .owner-load-counts dd,
-    .owner-money-secondary span,
-    .owner-money-secondary strong,
-    .owner-income > span,
     .owner-today-values span {
       line-height: 1.2;
     }
@@ -593,14 +439,8 @@
       margin-top: 8px;
       padding-top: 8px;
     }
-    .owner-finance .owner-section-head {
-      margin-bottom: 4px;
-    }
     .owner-today .owner-section-head {
       margin-bottom: 0;
-    }
-    .owner-money-secondary {
-      margin-top: 8px;
     }
   }
   .owner-outlook-open {
@@ -696,9 +536,6 @@
   }
   .owner-placeholder--load {
     min-height: 408px;
-  }
-  .owner-placeholder--finance {
-    min-height: 120px;
   }
   .owner-placeholder--today {
     min-height: 70px;

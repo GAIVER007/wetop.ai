@@ -244,9 +244,10 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
     expect(await scopeCookie(page)).toBe(f.food);
     await choose(page, 'Тестовый отель');
-    await expect(page).toHaveURL(/\/today$/);
+    // гостиница с 09.10 живёт единым разделом «Финансы»: /today уводит туда (finance-home-merge)
+    await expect(page).toHaveURL(/\/finance$/);
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
     await expect(page.getByTestId('food-today')).toHaveCount(0);
     await choose(page, 'Тестовый салон');
     await expect(page.getByTestId('beauty-today')).toBeVisible();
@@ -388,13 +389,13 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await request.post(`${api}/__test/control`, { data: {} });
   });
 
-  test('гостиница: прежняя Главная, без запросов салона и ресторана', async ({ page, request }) => {
+  test('гостиница: блоки владельца в «Финансах», без запросов салона и ресторана', async ({ page, request }) => {
     const f = await prepare(request);
     await setScope(page, f.hotelScope);
     const from = await callCount(request);
     await page.goto('/today');
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|food-service)\b/.test(c))).toBe(false);

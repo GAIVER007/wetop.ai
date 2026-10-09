@@ -1,7 +1,8 @@
 import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
- * Главная, PR A3 (ТЗ `plans/tz-today-2026-09-27.md` §5, §12.1; план `plans/today-a3-2026-09-28.md`): «Требуют внимания» —
+ * Очередь «Требуют внимания» (PR A3, ТЗ `plans/tz-today-2026-09-27.md` §5, §12.1; план `plans/today-a3-2026-09-28.md`),
+ * с 09.10.2026 живёт на едином экране «Финансы» (plans/finance-home-merge-2026-10-09.md):
  * одна очередь Critical → Warning → Info, у каждой строки одно действие. Числа берутся из того же подставного API, что
  * рисует экран: тест сверяет очередь с данными, а не с заученными числами.
  */
@@ -78,7 +79,7 @@ test('очередь: каждое событие дня с числом, важ
   request,
 }) => {
   const events = await expected(request);
-  await page.goto('/today');
+  await page.goto('/finance');
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   for (const [key, e] of Object.entries(events)) {
@@ -119,7 +120,7 @@ test('незаезд ведёт в бронь, долг — в счёт; бро�
   request,
 }) => {
   const day: Day = await (await request.get(`${fixture}/desk/today`, asClient)).json();
-  await page.goto('/today');
+  await page.goto('/finance');
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   const noShow = block.locator('[data-event="no-show"]');
@@ -138,7 +139,7 @@ test('сторож не ответил — строк инцидентов не�
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/guard/status' } });
-  await page.goto('/today');
+  await page.goto('/finance');
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(
@@ -148,7 +149,7 @@ test('сторож не ответил — строк инцидентов не�
 });
 
 test('финансовый период в будущем не скрывает текущие задачи гостиницы', async ({ page }) => {
-  await page.goto('/today?date=2027-06-01');
+  await page.goto('/finance?from=2027-06-01&to=2027-06-30');
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(block).not.toContainText('Всё в порядке');
@@ -160,18 +161,18 @@ test('финансовый период в будущем не скрывает 
  * отдельно в натуральную величину. Высокое окно вместо склейки: закреплённые меню и шапка на склейке «плывут».
  * Данные — подставного API; на реальных данных Luxx снимает владелец на своём стенде (ADR-018).
  */
-test('снимки панелей Главной после редизайна', async ({ page }) => {
-  const dir = 'reports/owner-dashboard-2026-09-30';
+test('снимки панелей единых «Финансов»', async ({ page }) => {
+  const dir = 'reports/finance-home-merge-2026-10-09';
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   for (const width of [1440, 390]) {
     for (const theme of ['light', 'dark'] as const) {
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
-      await page.goto('/today');
+      await page.goto('/finance');
       await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
       const block = page.getByRole('region', { name: 'Требуют внимания' });
       await expect(block.getByTestId('attention-event').first()).toBeVisible();

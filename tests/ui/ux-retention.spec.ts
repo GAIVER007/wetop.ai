@@ -19,7 +19,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7)', async ({
@@ -32,13 +32,13 @@ test('пробный период виден в меню на рабочих э�
   await expect(line).toHaveCount(0);
 
   await control(request, { orgTrialDays: 7 });
-  for (const path of ['/today', '/chessboard', '/reservations']) {
+  for (const path of ['/finance', '/chessboard', '/reservations']) {
     await page.goto(path);
     await expect(line).toHaveText('Пробный период: ещё 7 дн.');
   }
 
   await control(request, { orgTrialDays: 'ended' });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(line).toHaveText('Пробный период закончился');
 });
 
@@ -72,17 +72,17 @@ test('новая бронь: источник по умолчанию «стой
 
 test('нижняя панель телефона — в порядке бокового меню (п. 1.6)', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(
     page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link'),
-  ).toHaveText(['Главная', 'Календарь', 'Брони', 'Гости']);
+  ).toHaveText(['Финансы', 'Календарь', 'Брони', 'Гости']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
   });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(page.locator('.workspace-search kbd')).toHaveText('Ctrl K');
 });
 

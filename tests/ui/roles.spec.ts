@@ -19,7 +19,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF') =>
@@ -39,15 +39,14 @@ test('администратор: в меню — работа с гостями
 }) => {
   await signIn(page);
   await asRole(request, 'STAFF');
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect
     .poll(() => menuLinks(page))
     .toEqual([
-      '/today',
+      '/finance',
       '/chessboard',
       '/reservations',
       '/guests',
-      '/finance',
       '/bar',
       '/market',
       '/ai-agents',
@@ -220,7 +219,7 @@ test('управляющий: журнал и платформа закрыты;
 }) => {
   await signIn(page);
   await asRole(request, 'MANAGER');
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect.poll(() => menuLinks(page)).toContain('/market');
   const links = await menuLinks(page);
   for (const href of ['/channels', '/hotel-settings', '/team', '/connections'])

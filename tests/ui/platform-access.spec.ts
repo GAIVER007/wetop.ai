@@ -18,7 +18,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 const control = (
@@ -40,7 +40,7 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   request,
 }) => {
   // без входа стойка не знает организацию: продавец виден для знакомства (ADR-090), «Платформы» нет
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect.poll(() => menuLinks(page)).toContain('/ai-agents');
   expect(await menuLinks(page)).not.toContain('/platform');
 
@@ -53,16 +53,15 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   await expect(footer).toContainText('Владелец');
 
   await control(request, { sellerExtension: 'off', platformAdmin: true });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect.poll(() => menuLinks(page)).toContain('/platform');
   // расширение выключено, а пункт остаётся (ADR-090): закрытый доступ объясняет сам раздел
   expect(await menuLinks(page)).toContain('/ai-agents');
   await expect(page.locator('.workspace-header .topmenu__tab')).toHaveText([
-    'Главная',
+    'Финансы',
     'Календарь',
     'Брони',
     'Гости',
-    'Финансы',
     'Бар',
     'Продажи',
     'Маркетинг',

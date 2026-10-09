@@ -7,7 +7,6 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 // tests/ui/settings-simplification.spec.ts. Аудит на них ломался: докрутка к якорю после перехода
 // сносила контекст страницы посреди axe (разбор 21.09.2026).
 const routes = [
-  '/today',
   '/chessboard',
   '/reservations',
   '/reservations/new?unit=M03',
@@ -66,7 +65,7 @@ for (const width of [1440, 390]) {
       await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
       await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
       await page.getByRole('button', { name: 'Войти', exact: true }).click();
-      await page.waitForURL('**/today');
+      await page.waitForURL('**/finance');
       await page.setViewportSize({ width, height: 1000 });
       const errors: string[] = [];
       page.on('pageerror', (e) => {
@@ -101,7 +100,7 @@ for (const width of [1440, 390]) {
         expect
           .soft(layout.content, `${route}: page overflow`)
           .toBeLessThanOrEqual(layout.viewport + 1);
-        if (['/today', '/chessboard', '/guests', '/inventory'].includes(route))
+        if (['/finance', '/chessboard', '/guests', '/inventory'].includes(route))
           await page.screenshot({
             path: `reports/ui-quality/${route.slice(1)}-${theme}-${width}.png`,
           });

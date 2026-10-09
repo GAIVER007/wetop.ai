@@ -9,7 +9,7 @@ const FUND_PATHS = [
   '/rooms/availability',
   '/chessboard',
   '/reservations/new',
-  '/today',
+  '/finance',
 ];
 const failure = (e: unknown) =>
   e instanceof ApiError ? e.message : 'Не удалось сохранить. Проверьте результат перед повтором.';

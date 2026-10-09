@@ -5956,6 +5956,22 @@
 | 04.10.2026 13:03 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/owner-dashboard.spec.ts tests/ui/today-operations.spec.ts tests/ui/today-attentio | ✅ 26 из 26 | 4 мин 30 с | 046a3ed +14 | [лог](logs/2026-10-04T08-03-31Z-e2e-174f.log) |  |
 | 04.10.2026 13:10 | typecheck | ❌ ошибок: 95 | 17 с | 5b4c4de | [лог](logs/2026-10-04T08-10-33Z-typecheck-2c64.log) | TS1002 |
 | 04.10.2026 13:11 | typecheck | ✅ без ошибок | 1 мин 14 с | 50ed25e | [лог](logs/2026-10-04T08-11-14Z-typecheck-96a6.log) | повтор после удаления оборванного кэша стенда .next-ui |
+| 04.10.2026 13:15 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 1 с | 207d04f | [лог](logs/2026-10-04T08-15-50Z-unit-bcd1.log) |  |
+| 04.10.2026 14:00 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/ai-se | ❌ упало 4 из 188 | 20 мин 50 с | 4ecee69 | [лог](logs/2026-10-04T09-00-45Z-e2e-c8ad.log) | доступность всех разделов: light, 1440px |
+| 04.10.2026 14:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts tests/ui/chessboard-blocks.spec.ts tests/ui/chessboard-calendar.spec.ts t | ❌ упало 2 из 139 | 6 мин 52 с | 4ecee69 | [лог](logs/2026-10-04T09-21-55Z-e2e-508b.log) | axe и эталонные снимки секций: light |
+| 04.10.2026 14:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/empty-base.spec.ts tests/ui/finance-cash.spec.ts tests/ui/finance-compact.spec.ts tests/ui/financ | ❌ упало 2 из 185 | 6 мин 6 с | 4ecee69 | [лог](logs/2026-10-04T09-29-27Z-e2e-4976.log) | финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям |
+| 04.10.2026 20:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/onboarding.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/password-reset.spec.ts tests/ui/paym | ❌ упало 1 из 185 | 11 мин 54 с | 4ecee69 | [лог](logs/2026-10-04T15-49-23Z-e2e-1fde.log) | казахская форма и переключение форм без потери даты |
+| 04.10.2026 21:01 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservations-states.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2-r3.spec. | ⏹ прерван | 2 ч 11 мин | 4ecee69 | [лог](logs/2026-10-04T16-01-31Z-e2e-a02e.log) |  |
+| 09.10.2026 12:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservations-states.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2-r3.spec. | ✅ 76 из 76 | 7 мин 25 с | 4ecee69 | [лог](logs/2026-10-09T07-22-42Z-e2e-e103.log) |  |
+| 09.10.2026 12:30 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/system-screens.spec.ts tests/ui/team.spec.ts tests/ui/theme-transition.spec.ts tests/ui/today-att | ✅ 128 из 128 | 4 мин 42 с | 4ecee69 | [лог](logs/2026-10-09T07-30-43Z-e2e-3c64.log) |  |
+| 09.10.2026 12:36 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts tests/ui/booking-widget-turnstile.spec.ts tests/ui/branches.spec.ts tests/u | ❌ упало 3 из 28 | 5 мин 59 с | 4ecee69 | [лог](logs/2026-10-09T07-36-08Z-e2e-8ce0.log) | токен истёк, пока гость заполнял форму, — кнопка снова ждёт проверки |
+| 09.10.2026 12:45 | typecheck | ❌ ошибок: 1 | 14 с | 4ecee69 +2 | [лог](logs/2026-10-09T07-45-30Z-typecheck-b0c6.log) | TS2532 |
+| 09.10.2026 12:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts tests/ui/booking-widget-turnstile.spec.ts tests/ui/branches.spec.ts --workers=1 -- | ❌ упало 2 из 15 | 3 мин 2 с | 4ecee69 +2 | [лог](logs/2026-10-09T07-45-44Z-e2e-1018.log) | филиалы: создание, сохранение после reload и обзор |
+| 09.10.2026 12:49 | typecheck | ✅ без ошибок | 10 с | 4ecee69 +2 | [лог](logs/2026-10-09T07-49-40Z-typecheck-760f.log) |  |
+| 09.10.2026 12:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts tests/ui/branches.spec.ts --workers=1 --timeout=150000) | ❌ упало 2 из 10 | 3 мин | 4ecee69 +2 | [лог](logs/2026-10-09T07-49-58Z-e2e-089f.log) | филиалы: создание, сохранение после reload и обзор |
+| 09.10.2026 12:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts tests/ui/branches.spec.ts tests/ui/booking-widget-turnstile.spec.ts --workers=1 -- | ✅ 15 из 15 | 34 с | 4ecee69 +3 | [лог](logs/2026-10-09T07-53-45Z-e2e-2eeb.log) |  |
+| 09.10.2026 12:54 | typecheck | ✅ без ошибок | 9 с | 4ecee69 +3 | [лог](logs/2026-10-09T07-54-53Z-typecheck-04f7.log) |  |
+| 09.10.2026 12:55 | lint | ✅ без ошибок | 9 с | 4ecee69 +3 | [лог](logs/2026-10-09T07-55-02Z-lint-fe2c.log) |  |
 | 04.10.2026 14:04 | e2e (частично: tests/e2e/desk-day.spec.ts --workers=1) | ✅ 2 из 2 | 1 мин 17 с | 207d04f +1 | [лог](logs/2026-10-04T09-04-08Z-e2e-d2ef.log) |  |
 | 04.10.2026 14:08 | typecheck | ✅ без ошибок | 30 с | 4c705dc | [лог](logs/2026-10-04T09-08-02Z-typecheck-04c7.log) | после третьего слияния с main |
 | 04.10.2026 14:08 | lint | ✅ без ошибок | 16 с | 4c705dc | [лог](logs/2026-10-04T09-08-33Z-lint-047a.log) | после третьего слияния с main |
@@ -7664,3 +7680,9 @@
 | 09.10.2026 13:32 | lint | ✅ без ошибок | 47 с | 7409c12 | [лог](logs/2026-10-09T08-32-20Z-lint-874c.log) |  |
 | 09.10.2026 13:33 | unit | ✅ 4146 из 4149, пропущено 3 | 2 мин 27 с | 7409c12 | [лог](logs/2026-10-09T08-33-13Z-unit-319f.log) |  |
 | 09.10.2026 13:35 | integration | ✅ 961 из 961 | 3 мин 10 с | 7409c12 | [лог](logs/2026-10-09T08-35-58Z-integration-9fa9.log) |  |
+| 09.10.2026 13:00 | unit | ❌ код выхода 1 | 2 мин 32 с | b795d88 | [лог](logs/2026-10-09T08-00-13Z-unit-12a1.log) | (файл не выполнился) |
+| 09.10.2026 13:06 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 58 с | b795d88 +3 | [лог](logs/2026-10-09T08-06-34Z-unit-ef9b.log) |  |
+| 09.10.2026 12:57 | typecheck | ❌ ошибок: 5 | 19 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-16Z-typecheck-8c97.log) | TS2307 |
+| 09.10.2026 12:57 | lint | ✅ без ошибок | 14 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-57-35Z-lint-c556.log) |  |
+| 09.10.2026 12:58 | typecheck | ✅ без ошибок | 18 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-58-04Z-typecheck-5114.log) |  |
+| 09.10.2026 13:40 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 56 с | c51035b | [лог](logs/2026-10-09T08-40-23Z-unit-4d76.log) |  |

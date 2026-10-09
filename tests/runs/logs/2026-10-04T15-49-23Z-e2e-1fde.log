@@ -1,0 +1,457 @@
+# Сквозные (e2e) · 04.10.2026 20:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4ecee69 (claude/laughing-roentgen-24fee8)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/onboarding.spec.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/password-reset.spec.ts' 'tests/ui/payment-draft.spec.ts' 'tests/ui/payment-requests.spec.ts' 'tests/ui/pii-storage.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/product-tour.spec.ts' 'tests/ui/property-settings-set2-set3.spec.ts' 'tests/ui/property-settings.spec.ts' 'tests/ui/quality.spec.ts' 'tests/ui/rate-plans.spec.ts' 'tests/ui/rates-derived.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/rates-range.spec.ts' 'tests/ui/real-data.spec.ts' 'tests/ui/record-tabs.spec.ts' 'tests/ui/registration-closed.spec.ts' 'tests/ui/reports-hub.spec.ts' 'tests/ui/reports-print.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/reservation-promo-field.spec.ts' 'tests/ui/reservation-tariff.spec.ts' 'tests/ui/reservations-compact.spec.ts' 'tests/ui/reservations-design.spec.ts' 'tests/ui/reservations-export.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 185 tests using 1 worker
+
+  ✓    1 tests/ui/onboarding.spec.ts:20:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (2.7s)
+  ✓    2 tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) (1.8s)
+  ✓    3 tests/ui/onboarding.spec.ts:67:1 › пустая категория без цены — форма просит добавить, отель не создаётся (944ms)
+  ✓    4 tests/ui/onboarding.spec.ts:79:1 › после запуска отеля Главная без «Первых шагов» и без кнопки брони (969ms)
+  ✓    5 tests/ui/onboarding.spec.ts:100:1 › у работающего отеля с бронями «Первых шагов» нет (673ms)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="onboarding/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/onboarding" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="onboarding...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OnboardingPage>
+[WebServer]                   <OnboardingForm hotelName="Luxx Aparts" currency="KZT">
+[WebServer]                     <main className="onboarding" id="main-content">
+[WebServer]                       <header>
+[WebServer]                       <section className="onboarding..." aria-label="Отель">
+[WebServer]                         <h2>
+[WebServer]                         <div className="onboarding...">
+[WebServer]                           <Field label="Название">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input value="Luxx Aparts" readOnly={true} aria-readonly="true">
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="Luxx Aparts"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           <Field label="Валюта">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input value="KZT" readOnly={true} aria-readonly="true">
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="KZT"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                         ...
+[WebServer]                       <section className="onboarding..." aria-label="Номера и цены">
+[WebServer]                         <h2>
+[WebServer]                         <div className="onboarding..." role="list">
+[WebServer]                           <div className="onboarding..." role="listitem">
+[WebServer]                             <Field label="Название к...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input value="" placeholder="Двухместны..." maxLength={100} onChange={function onChange}>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="Двухместный номер"
+[WebServer]                                     maxLength={100}
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Гостей на ...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="number" min={1} max={20} value="2" onChange={function onChange}>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={20}
+[WebServer]                                     value="2"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Сколько мест">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="number" min={1} max={500} value="1" onChange={function onChange}>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={500}
+[WebServer]                                     value="1"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Цена за но...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="number" min={0} value="" placeholder="21000" onChange={function onChange}>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={0}
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="21000"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓    6 tests/ui/onboarding.spec.ts:111:1 › «Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу (2.1s)
+  ✓    7 tests/ui/owner-dashboard.spec.ts:13:1 › owner dashboard: today widgets and money, no desk buttons, no expenses tile (860ms)
+  ✓    8 tests/ui/owner-dashboard.spec.ts:34:1 › dashboard period changes and mobile retains content (900ms)
+  ✓    9 tests/ui/owner-dashboard.spec.ts:45:1 › owner dashboard keeps operations visible when finance fails (720ms)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="today/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/today?per..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="today/page...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <TodayPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                           <header>
+[WebServer]                           <div className="owner-dash..." data-testid="owner-dash...">
+[WebServer]                             <Suspense>
+[WebServer]                             <div className="owner-toolbar">
+[WebServer]                               <h2>
+[WebServer]                               <nav>
+[WebServer]                               <form action="/today">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <input
+[WebServer]                                   aria-label="Начало периода"
+[WebServer]                                   type="date"
+[WebServer]                                   name="from"
+[WebServer]                                   defaultValue="2026-09-28"
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <span>
+[WebServer]                                 <input
+[WebServer]                                   aria-label="Конец периода"
+[WebServer]                                   type="date"
+[WebServer]                                   name="to"
+[WebServer]                                   defaultValue="2026-10-04"
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓   10 tests/ui/owner-dashboard.spec.ts:57:1 › owner dashboard dark desktop and mobile remain usable (1.7s)
+  ✓   11 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (787ms)
+  ✓   12 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (2.0s)
+  ✓   13 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (1.2s)
+  ✓   14 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (629ms)
+  ✓   15 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (550ms)
+  ✓   16 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (565ms)
+  ✓   17 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (416ms)
+  ✓   18 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (736ms)
+  ✓   19 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (533ms)
+  ✓   20 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание (1.8s)
+  ✓   21 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта обновляет сумму, если её ещё не вводили (1.1s)
+  ✓   22 tests/ui/payment-draft.spec.ts:62:1 › оплата D3: строка сути называет сумму, способ, счёт и бронь; не число не уходит (1.0s)
+  ✓   23 tests/ui/payment-requests.spec.ts:21:1 › Kaspi: запрос с остатком по умолчанию, текст гостю, «Оплачено» даёт платёж на счёт (1.1s)
+  ✓   24 tests/ui/payment-requests.spec.ts:47:1 › ссылка банка не https — отказ словами, ссылка и сумма остаются в форме (1.1s)
+  ✓   25 tests/ui/payment-requests.spec.ts:60:1 › отмена ожидающего запроса с подтверждением; ссылка банка попадает в текст (1.5s)
+  ✓   26 tests/ui/payment-requests.spec.ts:78:5 › доступность блока: light, 1440 px (2.1s)
+  ✓   27 tests/ui/payment-requests.spec.ts:78:5 › доступность блока: light, 390 px (2.1s)
+  ✓   28 tests/ui/payment-requests.spec.ts:78:5 › доступность блока: dark, 1440 px (2.0s)
+  ✓   29 tests/ui/payment-requests.spec.ts:78:5 › доступность блока: dark, 390 px (2.1s)
+  ✓   30 tests/ui/pii-storage.spec.ts:18:1 › новая бронь без имени и контактов: компактная форма, бронь создаётся (1.5s)
+  ✓   31 tests/ui/pii-storage.spec.ts:43:1 › бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет (1.5s)
+  ✓   32 tests/ui/pii-storage.spec.ts:66:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (1.4s)
+  ✓   33 tests/ui/pii-storage.spec.ts:106:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (1.4s)
+  ✓   34 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (2.0s)
+  ✓   35 tests/ui/platform-access.spec.ts:80:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (1.9s)
+  ✓   36 tests/ui/platform-access.spec.ts:102:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (2.6s)
+  ✓   37 tests/ui/platform-access.spec.ts:141:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (2.2s)
+  ✓   38 tests/ui/platform-access.spec.ts:169:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (2.1s)
+  ✓   39 tests/ui/platform-access.spec.ts:189:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (2.4s)
+  ✓   40 tests/ui/platform-access.spec.ts:212:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (3.6s)
+  ✓   41 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, light, 1440px (6.8s)
+  ✓   42 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, dark, 1440px (6.6s)
+  ✓   43 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, light, 390px (6.5s)
+  ✓   44 tests/ui/platform-access.spec.ts:270:5 › доступность: «Организации» и состояния расширения, dark, 390px (6.4s)
+  ✓   45 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (2.3s)
+  ✓   46 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (3.7s)
+  ✓   47 tests/ui/platform-support.spec.ts:100:1 › знания помощника: список и загрузка документа (2.0s)
+  ✓   48 tests/ui/platform-support.spec.ts:120:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (3.6s)
+  ✓   49 tests/ui/platform-support.spec.ts:172:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (1.1s)
+  ✓   50 tests/ui/platform-support.spec.ts:189:1 › помощник не подключён — раздел говорит, что вписать владельцу (1.3s)
+  ✓   51 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 1440px (7.5s)
+  ✓   52 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 1440px (7.8s)
+  ✓   53 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 390px (9.8s)
+  ✓   54 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 390px (7.6s)
+  ✓   55 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (2.7s)
+  ✓   56 tests/ui/premium.spec.ts:27:1 › shell: панель, меню профиля, поиск (1.4s)
+  ✓   57 tests/ui/premium.spec.ts:44:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (4.1s)
+  ✓   58 tests/ui/premium.spec.ts:77:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (5.7s)
+  ✓   59 tests/ui/premium.spec.ts:119:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (2.6m)
+  ✓   60 tests/ui/premium.spec.ts:177:1 › вход не пускает с чужой почтой и чужим паролем (1.3s)
+  ✓   61 tests/ui/premium.spec.ts:194:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (3.8s)
+  ✓   62 tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается (5.9s)
+  ✓   63 tests/ui/product-tour.spec.ts:75:1 › последний шаг — профиль, «Начать работу» закрывает обучение (9.0s)
+  ✓   64 tests/ui/product-tour.spec.ts:91:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край (7.0s)
+  ✓   65 tests/ui/product-tour.spec.ts:106:1 › меню содержит только обучение, личность и выход; темы можно выбирать (10.5s)
+  ✓   66 tests/ui/product-tour.spec.ts:128:1 › администратор на телефоне видит рабочие темы без настроек владельца (7.7s)
+  ✓   67 tests/ui/property-settings-set2-set3.spec.ts:31:1 › «Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00 (8.7s)
+  ✓   68 tests/ui/property-settings-set2-set3.spec.ts:63:1 › «Услуги»: активные по умолчанию, отбор по группе и статусу, коды не видны (5.8s)
+  ✓   69 tests/ui/property-settings-set2-set3.spec.ts:92:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте (14.6s)
+  ✓   70 tests/ui/property-settings-set2-set3.spec.ts:145:1 › «только чтение»: каталог виден, добавить и править нельзя (14.1s)
+  ✓   71 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: light (42.6s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="hotel-sett...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <HotelSettingsPage>
+[WebServer]         <SettingsSave>
+[WebServer]           ...
+[WebServer]             <Page>
+[WebServer]               <main id="main-content" tabIndex={-1} className="page objec...">
+[WebServer]                 <header>
+[WebServer]                 <nav>
+[WebServer]                 <Suspense fallback={<section>}>
+[WebServer]                   <p>
+[WebServer]                   <ServicesCatalog services={[...]} currency="KZT" editable={false}>
+[WebServer]                     <section className="settings-c..." aria-label="Каталог услуг">
+[WebServer]                       <div className="settings-t...">
+[WebServer]                         <Field label="Найти услугу">
+[WebServer]                           <label className="field">
+[WebServer]                             <Input type="search" placeholder="Название и..." value="" onChange={function onChange}>
+[WebServer]                               <input
+[WebServer]                                 className="inp"
+[WebServer]                                 type="search"
+[WebServer]                                 placeholder="Название или группа"
+[WebServer]                                 value=""
+[WebServer]                                 onChange={function onChange}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]                   ...
+[WebServer]  
+  ✓   72 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: dark (19.3s)
+  ✓   73 tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов (14.8s)
+  ✓   74 tests/ui/property-settings.spec.ts:66:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy (40.4s)
+  ✓   75 tests/ui/property-settings.spec.ts:85:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (16.5s)
+  ✓   76 tests/ui/property-settings.spec.ts:138:1 › администратор и «только чтение» видят сведения без формы и без кнопки сохранения (5.1s)
+  ✓   77 tests/ui/property-settings.spec.ts:163:3 › снимки SET1 и доступность: light (7.1s)
+  ✓   78 tests/ui/property-settings.spec.ts:163:3 › снимки SET1 и доступность: dark (7.2s)
+  ✓   79 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (2.0s)
+  ✓   80 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (778ms)
+  ✓   81 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (973ms)
+  ✓   82 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (1.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2019516460'
+[WebServer] }
+  ✓   83 tests/ui/quality.spec.ts:57:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (2.0s)
+  ✓   84 tests/ui/quality.spec.ts:78:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (1.4s)
+  ✓   85 tests/ui/quality.spec.ts:95:1 › список гостей и вторая бронь открывают собственные карточки (3.3s)
+  ✓   86 tests/ui/quality.spec.ts:111:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (862ms)
+  ✓   87 tests/ui/quality.spec.ts:134:1 › изменение уборки относится только к выбранному номеру (1.2s)
+  ✓   88 tests/ui/quality.spec.ts:148:1 › неподключённые внешние демо не ведут на несуществующие страницы (1.1s)
+  ✓   89 tests/ui/quality.spec.ts:191:3 › отказ API сохраняет поля: профиль гостя (1.3s)
+  ✓   90 tests/ui/quality.spec.ts:191:3 › отказ API сохраняет поля: документ гостя (952ms)
+  ✓   91 tests/ui/quality.spec.ts:191:3 › отказ API сохраняет поля: блокировка номера (962ms)
+  ✓   92 tests/ui/quality.spec.ts:191:3 › отказ API сохраняет поля: сайт аналитики (810ms)
+  ✓   93 tests/ui/rate-plans.spec.ts:34:1 › вкладки «Цены | Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет (1.7s)
+  ✓   94 tests/ui/rate-plans.spec.ts:57:1 › правка правила: панель называет затронутые брони, «Сохранить» ждёт другого выбора, правило сохраняется (2.0s)
+  ✓   95 tests/ui/rate-plans.spec.ts:87:1 › тариф без будущих броней: панель говорит, что правило коснётся новых (1.1s)
+  ✓   96 tests/ui/rate-plans.spec.ts:105:1 › «только чтение»: тарифы и правила видны, править нельзя (972ms)
+  ✓   97 tests/ui/rate-plans.spec.ts:116:3 › снимки SET4 и доступность: light (3.5s)
+  ✓   98 tests/ui/rate-plans.spec.ts:116:3 › снимки SET4 и доступность: dark (3.2s)
+  ✓   99 tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента (2.4s)
+  ✓  100 tests/ui/rates-derived.spec.ts:65:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить (4.5s)
+  ✓  101 tests/ui/rates-derived.spec.ts:103:1 › «только чтение»: производные тарифы и промокоды видны, кнопок правки нет (1.8s)
+  ✓  102 tests/ui/rates-derived.spec.ts:117:3 › снимки D4 и доступность: light (4.4s)
+  ✓  103 tests/ui/rates-derived.spec.ts:117:3 › снимки D4 и доступность: dark (4.2s)
+  ✓  104 tests/ui/rates-design.spec.ts:19:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (615ms)
+  ✓  105 tests/ui/rates-design.spec.ts:65:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (1.0s)
+  ✓  106 tests/ui/rates-design.spec.ts:95:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (1.2s)
+  ✓  107 tests/ui/rates-design.spec.ts:111:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» (1.1s)
+  ✓  108 tests/ui/rates-design.spec.ts:132:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (784ms)
+  ✓  109 tests/ui/rates-design.spec.ts:163:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь (833ms)
+  ✓  110 tests/ui/rates-design.spec.ts:193:1 › нет цены в воскресенье: подсказка не расширяет страницу (655ms)
+  ✓  111 tests/ui/rates-range.spec.ts:36:1 › один день: выбор, панель с фактами, предпросмотр, одна отправка, календарь обновлён и выбор сброшен (1.1s)
+  ✓  112 tests/ui/rates-range.spec.ts:89:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор (1.5s)
+  ✓  113 tests/ui/rates-range.spec.ts:146:1 › разные исходные цены: «отличаются» с наименьшей и наибольшей, в предпросмотре — только новая цена (1.5s)
+  ✓  114 tests/ui/rates-range.spec.ts:192:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает (1.4s)
+  ✓  115 tests/ui/rates-range.spec.ts:211:1 › отказ API: причина в панели, панель, введённая цена и выбор остаются (1.1s)
+  ✓  116 tests/ui/rates-range.spec.ts:237:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет (1.4s)
+  ✓  117 tests/ui/real-data.spec.ts:21:1 › источник и агрегаты проекта видны главному администратору в «Платформе», а не на «Интеграциях» (1.9s)
+  ✓  118 tests/ui/real-data.spec.ts:40:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (1.3s)
+  ✓  119 tests/ui/real-data.spec.ts:59:1 › название гостиницы в каркасе и обзоре поступает из backend (734ms)
+  ✓  120 tests/ui/real-data.spec.ts:68:1 › недоступный API не скрывается за демо или выдуманным объектом (610ms)
+  ✓  121 tests/ui/real-data.spec.ts:82:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (3.3s)
+  ✓  122 tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера (1.1s)
+  ✓  123 tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони (1.0s)
+  ✓  124 tests/ui/record-tabs.spec.ts:93:1 › якорь внутри карточки переключает вкладку: «Продлить или переселить» → «Действия» (979ms)
+  ✓  125 tests/ui/record-tabs.spec.ts:108:1 › переход между бронями без перезагрузки открывает вкладку из адреса — и из карточки, и внутри панели (2.2s)
+  ✓  126 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback оставляет вход сотрудников (189ms)
+  ✓  127 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register оставляет вход сотрудников (282ms)
+  ✓  128 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register&next=%2Ftoday оставляет вход сотрудников (202ms)
+  ✓  129 tests/ui/registration-closed.spec.ts:31:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (261ms)
+  ✓  130 tests/ui/registration-closed.spec.ts:43:1 › ранее открытая форма получает отказ через сервер без новой сессии (420ms)
+  ✓  131 tests/ui/reports-hub.spec.ts:41:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (781ms)
+  ✓  132 tests/ui/reports-hub.spec.ts:109:1 › карточки ведут в готовые экраны с тем же периодом (848ms)
+  ✓  133 tests/ui/reports-hub.spec.ts:154:1 › пресет «Сегодня» и свой период меняют адрес и числа (1.4s)
+  ✓  134 tests/ui/reports-hub.spec.ts:173:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (636ms)
+  ✓  135 tests/ui/reports-hub.spec.ts:188:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (1.0s)
+  ✓  136 tests/ui/reports-hub.spec.ts:208:1 › телефон: карточки без горизонтальной прокрутки (692ms)
+  ✓  137 tests/ui/reports-hub.spec.ts:218:3 › доступность и снимки, light (1.7s)
+  ✓  138 tests/ui/reports-hub.spec.ts:218:3 › доступность и снимки, dark (1.7s)
+  ✓  139 tests/ui/reports-print.spec.ts:23:1 › хаб ведёт на лист; «Сводка дня» — числа дня и таблицы, как в /desk/today (3.2s)
+  ✓  140 tests/ui/reports-print.spec.ts:43:1 › «Список проживающих»: строка на каждое проживание; телефонов и документов на листе нет (1.6s)
+  ✘  141 tests/ui/reports-print.spec.ts:62:1 › казахская форма и переключение форм без потери даты (938ms)
+  ✓  142 tests/ui/reports-print.spec.ts:75:3 › снимки листов, light (1.7s)
+  ✓  143 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (1.6s)
+  ✓  144 tests/ui/requests.spec.ts:80:3 › экран /chessboard: данные берутся одним запросом на путь (1.4s)
+  ✓  145 tests/ui/requests.spec.ts:80:3 › экран /reservations: данные берутся одним запросом на путь (1.3s)
+  ✓  146 tests/ui/requests.spec.ts:80:3 › экран /guests: данные берутся одним запросом на путь (1.2s)
+  ✓  147 tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь (1.3s)
+  ✓  148 tests/ui/requests.spec.ts:80:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.1s)
+  ✓  149 tests/ui/requests.spec.ts:80:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.1s)
+  ✓  150 tests/ui/requests.spec.ts:80:3 › экран /rates: данные берутся одним запросом на путь (1.1s)
+  ✓  151 tests/ui/requests.spec.ts:80:3 › экран /management/analytics: данные берутся одним запросом на путь (1.2s)
+  ✓  152 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.2s)
+  ✓  153 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/units: данные берутся одним запросом на путь (1.4s)
+  ✓  154 tests/ui/requests.spec.ts:80:3 › экран /finance: данные берутся одним запросом на путь (1.5s)
+  ✓  155 tests/ui/requests.spec.ts:80:3 › экран /reports: данные берутся одним запросом на путь (1.1s)
+  ✓  156 tests/ui/requests.spec.ts:80:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (948ms)
+  ✓  157 tests/ui/requests.spec.ts:80:3 › экран /channels: данные берутся одним запросом на путь (1.2s)
+  ✓  158 tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь (1.2s)
+  ✓  159 tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.1s)
+  ✓  160 tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь (1.2s)
+  ✓  161 tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь (1.1s)
+  ✓  162 tests/ui/requests.spec.ts:80:3 › экран /website: данные берутся одним запросом на путь (1.1s)
+  ✓  163 tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь (1.1s)
+  ✓  164 tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь (1.1s)
+  ✓  165 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.1s)
+  ✓  166 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.0s)
+  ✓  167 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.1s)
+  ✓  168 tests/ui/requests.spec.ts:80:3 › экран /team: данные берутся одним запросом на путь (1.1s)
+  ✓  169 tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь (1.2s)
+  ✓  170 tests/ui/requests.spec.ts:80:3 › экран /ai-agents: данные берутся одним запросом на путь (1.1s)
+  ✓  171 tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь (1.1s)
+  ✓  172 tests/ui/requests.spec.ts:80:3 › экран /incidents: данные берутся одним запросом на путь (1.1s)
+  ✓  173 tests/ui/requests.spec.ts:80:3 › экран /journal: данные берутся одним запросом на путь (1.1s)
+  ✓  174 tests/ui/requests.spec.ts:80:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.5s)
+  ✓  175 tests/ui/reservation-promo-field.spec.ts:34:1 › промокод из формы уходит в запрос брони (1.4s)
+  ✓  176 tests/ui/reservation-promo-field.spec.ts:39:1 › пустой промокод в запрос не попадает (1.2s)
+  ✓  177 tests/ui/reservation-tariff.spec.ts:23:1 › смена дат по умолчанию сохраняет текущий тариф брони (900ms)
+  ✓  178 tests/ui/reservation-tariff.spec.ts:44:1 › у брони без тарифа смена дат и «+1 ночь» просят выбрать тариф (967ms)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2019516460'
+[WebServer] }
+  ✓  179 tests/ui/reservation-tariff.spec.ts:64:1 › справочник тарифов не загрузился — карточка брони остаётся с предупреждением, а не экран ошибки (882ms)
+  ✓  180 tests/ui/reservations-compact.spec.ts:3:1 › compact reservations: filters disclose, submit and persist (1.9s)
+  ✓  181 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (1.2s)
+  ✓  182 tests/ui/reservations-design.spec.ts:31:1 › мобильный статус и поиск сохраняются в URL, карточка открывается из списка (1.8s)
+  ✓  183 tests/ui/reservations-design.spec.ts:53:3 › Брони: light, читаемый список на пяти ширинах (4.0s)
+  ✓  184 tests/ui/reservations-design.spec.ts:53:3 › Брони: dark, читаемый список на пяти ширинах (4.3s)
+  ✓  185 tests/ui/reservations-export.spec.ts:12:1 › отбор экрана уходит в CSV: номер брони есть, имени гостя нет (3.4s)
+
+
+  1) tests/ui/reports-print.spec.ts:62:1 › казахская форма и переключение форм без потери даты ─────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('print-inhouse')
+    Expected: visible
+    Error: strict mode violation: getByTestId('print-inhouse') resolved to 2 elements:
+        1) <main data-testid="print-inhouse">…</main> aka getByRole('main')
+        2) <main data-testid="print-inhouse">…</main> aka getByTestId('print-inhouse').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('print-inhouse') with timeout 15000ms
+      - waiting for getByTestId('print-inhouse')
+        - locator resolved to <main data-testid="print-inhouse">…</main>
+        - unexpected value "hidden"
+
+
+      69 |   // нагрузкой раннера скрытый серверный сегмент остаётся в DOM и testid находится дважды
+      70 |   await settleStreaming(page);
+    > 71 |   await expect(page.getByTestId('print-inhouse')).toBeVisible();
+         |                                                   ^
+      72 | });
+      73 |
+      74 | for (const theme of ['light'] as const) {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/laughing-roentgen-24fee8/tests/ui/reports-print.spec.ts:71:51
+
+    Error Context: test-results/reports-print-казахская-фо-70b38-ючение-форм-без-потери-даты/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-print-казахская-фо-70b38-ючение-форм-без-потери-даты/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-print-казахская-фо-70b38-ючение-форм-без-потери-даты/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/reports-print.spec.ts:62:1 › казахская форма и переключение форм без потери даты ──────
+  184 passed (11.9m)
+
+# код выхода 1 · 11 мин 54 с

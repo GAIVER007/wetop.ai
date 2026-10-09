@@ -1609,6 +1609,27 @@ export interface PeriodDebts {
   }>;
   truncated: boolean;
 }
+/** Деньги за период по дням (RPT2.4a, ADR-155): поступления, возвраты, расходы и поток раздельно */
+export interface PeriodCashFlow {
+  from: string;
+  to: string;
+  currency: string;
+  truncated: boolean;
+  days: Array<{ date: string } & PeriodCashFlowSums>;
+  totals: PeriodCashFlowSums;
+  expensesByCategory: Array<{ category: string; amountMinor: string }>;
+}
+export interface PeriodCashFlowSums {
+  receiptsMinor: string;
+  receiptsCashMinor: string;
+  receiptsOffCashMinor: string;
+  refundsMinor: string;
+  refundsCashMinor: string;
+  netReceiptsMinor: string;
+  incomeMinor: string;
+  expenseMinor: string;
+  cashFlowMinor: string;
+}
 /** Оплаты и возвраты за период (ADR-113, F2) — раздел «Оплаты и возвраты» и выгрузка CSV */
 export type OperationKind = 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
 export interface PeriodOperations {
@@ -1702,6 +1723,8 @@ export const financeApi = {
     if (filter.limit) qs.set('limit', String(filter.limit));
     return getJson<PeriodOperations>(`/finance/operations?${qs}`);
   },
+  cashflow: (from: string, to: string) =>
+    getJson<PeriodCashFlow>(`/finance/cashflow?${new URLSearchParams({ from, to })}`),
   // касса (DATA_MODEL §21)
   cash: () => getJson<CashBalances>('/finance/cash'),
   createCashCategory: (body: unknown) =>

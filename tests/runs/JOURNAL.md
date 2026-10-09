@@ -7687,3 +7687,16 @@
 | 09.10.2026 12:58 | typecheck | ✅ без ошибок | 18 с | 6b123a9 +50 | [лог](logs/2026-10-09T07-58-04Z-typecheck-5114.log) |  |
 | 09.10.2026 13:40 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 56 с | c51035b | [лог](logs/2026-10-09T08-40-23Z-unit-4d76.log) |  |
 | 09.10.2026 14:34 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/beauty-branch.spec.ts --workers=1) | ✅ 6 из 6 | 48 с | 7fe00b8 +1 | [лог](logs/2026-10-09T09-34-55Z-e2e-a29d.log) |  |
+| 07.10.2026 17:38 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ❌ упало 8 из 8 | 1 мин 41 с | 867a391 | [лог](logs/2026-10-07T12-38-50Z-e2e-180f.log) | public intro: dark, 320 |
+| 07.10.2026 17:42 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ⏹ прерван | 45 с | 867a391 +10 | [лог](logs/2026-10-07T12-42-45Z-e2e-c115.log) |  |
+| 07.10.2026 17:44 | e2e (частично: --config tests/site/playwright.config.ts tests/site/public-intro.spec.ts) | ❌ упало 2 из 8 | 14 с | 867a391 +10 | [лог](logs/2026-10-07T12-44-20Z-e2e-0c60.log) | public intro: dark, 1440 |
+| 07.10.2026 17:45 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 61 | 27 с | 867a391 +10 | [лог](logs/2026-10-07T12-45-24Z-e2e-8b44.log) | в текстах главной нет длинного тире и разделителя « · » |
+| 07.10.2026 17:46 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 61 из 61 | 1 мин | 867a391 +10 | [лог](logs/2026-10-07T12-46-18Z-e2e-00fc.log) |  |
+| 07.10.2026 17:47 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 4 с | 867a391 +10 | [лог](logs/2026-10-07T12-47-32Z-unit-a482.log) |  |
+| 07.10.2026 17:47 | e2e (частично: --config tests/ui/playwright.auth.config.ts) | ❌ упало 4 из 7 | 1 мин 57 с | 867a391 +10 | [лог](logs/2026-10-07T12-47-47Z-e2e-b781.log) | защищённая /today: главная → реальная cookie → исходный экран |
+| 07.10.2026 17:50 | e2e (частично: --config tests/ui/playwright.auth.config.ts --grep защищённая /today) | ❌ упало 1 из 1 | 24 с | 867a391 +1 | [лог](logs/2026-10-07T12-50-01Z-e2e-68ef.log) | защищённая /today: главная → реальная cookie → исходный экран |
+| 07.10.2026 17:51 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 63 из 63 | 24 с | 867a391 +10 | [лог](logs/2026-10-07T12-51-42Z-e2e-6e4f.log) |  |
+| 07.10.2026 17:52 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 2 с | 867a391 +10 | [лог](logs/2026-10-07T12-52-59Z-unit-51c5.log) |  |
+| 07.10.2026 18:02 | e2e (частично: --config tests/site/playwright.config.ts --grep business positioning) | ❌ упало 1 из 1 | 31 с | dcb9e53 | [лог](logs/2026-10-07T13-02-27Z-e2e-a0a0.log) | business positioning and centered mobile cards without maturity labels |
+| 07.10.2026 18:04 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 64 из 64 | 1 мин 22 с | dcb9e53 +7 | [лог](logs/2026-10-07T13-04-10Z-e2e-cad0.log) |  |
+| 07.10.2026 18:06 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 5 с | dcb9e53 +7 | [лог](logs/2026-10-07T13-06-11Z-unit-7f41.log) |  |

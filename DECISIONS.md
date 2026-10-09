@@ -6096,3 +6096,17 @@ Options: replace merged MV8 with the old parallel implementation, or apply minim
 Pending selection uses the existing branch switch events. Shell hides old content and property metadata, closes overlays and stops old Hospitality freshness polling while selection is pending. A keyed Today client boundary independently hides old streamed page content until the new Business/Location page arrives; failed selection restores the previous view. Pending content has a unique landmark target and the skip link follows the visible target. No second scope resolver or selection flow is added.
 
 Reason: fulfill already approved MV8 scope isolation requirements without replacing newer main decisions. Consequences: no backend, API, schema, migration, finance or status changes; Hospitality component unchanged; new RED/GREEN real API regressions and shell unit cases.
+
+## ADR-PUBLIC2-INTRO (2026-10-07)
+
+Проблема: главная описывает только гостиницу и скрывает текущие пилоты Beauty и Food Service. Владелец принял аудит PUBLIC-1 (PR #278) и утвердил Hero A и визуальное направление Quiet Intelligence.
+
+Варианты: полный редизайн сразу; первый визуальный этап с отдельной проверкой владельцем. Решение: сначала шапка, Hero, демонстрационный Today, статусы и три карточки направлений, в светлой и тёмной темах. Основная кнопка сплошная синяя, поверхности спокойные, состояния доступны с клавиатуры. Макет Today статический, явно подписан как вымышленный пример, без интерактивных имитаций.
+
+Причина: владелец отдельно запросил четыре прототипа (1440 и 390, обе темы) и STOP до следующих секций. Статусы берутся из существующего реестра направлений. Пилот ведёт на настроенную почту и существующий AuthDialog с vertical query. Правила регистрации и серверная проверка приглашения сохраняются.
+
+Последствия: первый PR является визуальным этапом, нижние секции остаются для следующего этапа. Публичный деплой запрещён до отдельного подтверждения владельца. apps/web, apps/api, apps/sites, схема, trial и pricing вне scope. CSS новых блоков зарегистрирован в DESIGN.md; существующие проверки дизайна сохраняют силу.
+
+### PUBLIC-2: корректировка подачи владельцем (2026-10-07)
+
+Владелец принял визуальное направление первого этапа и уточнил публичную подачу: описывать существующие функции для гостиничного и ресторанного бизнеса и салонов красоты, без ярлыка «Пилот» в Hero и карточках. На телефоне заголовки, тексты, списки и CTA направлений центрировать. Это заменяет ранее согласованную публичную маркировку, но не меняет canonical availability, правила регистрации и допуск по приглашению. В форме регистрации ограничение формулируется «По приглашению». Не обещать POS, кухню, доставку или гостиничный финансовый контур салонам.

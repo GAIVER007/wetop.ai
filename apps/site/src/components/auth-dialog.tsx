@@ -542,7 +542,7 @@ export function AuthDialog({ texts, urls }: Props) {
                         />
                         <span>
                           {verticalDefinition(id).label}
-                          <small>{id === 'HOSPITALITY' ? 'Доступно' : 'Пилот'}</small>
+                          <small>{id === 'HOSPITALITY' ? 'Доступно' : 'По приглашению'}</small>
                         </span>
                       </label>
                     ))}

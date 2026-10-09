@@ -80,9 +80,7 @@ test('в sitemap.xml только живые адреса, robots.txt на не�
 });
 
 /** Публичная страница предлагает регистрацию без обещаний trial или оплаты. */
-test('главная: регистрация открыта, маркетинговых обещаний trial нет', async ({
-  page,
-}) => {
+test('главная: регистрация открыта, маркетинговых обещаний trial нет', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const body = await page.locator('body').innerText();
@@ -98,25 +96,25 @@ test('главная: регистрация открыта, маркетинг�
   await expect(start).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
   await expect(start).not.toContainText(/7\sдней|подключаем партнёров вручную|заведём аккаунт/i);
   await expect(start).not.toContainText(/код из письма/);
-  // «Получить доступ» (27.09.2026, ADR-100, ADR-102) без JavaScript — прямо на форму стойки, «Войти» — на экран входа;
+  // «Регистрация» (27.09.2026, ADR-100, ADR-102) без JavaScript , прямо на форму стойки, «Войти» , на экран входа;
   // с JavaScript обе открывают окно поверх главной (tests/site/auth-dialog.spec.ts)
   const header = page.locator('.site-header');
   await expect(header.getByRole('link', { name: 'Войти', exact: true })).toHaveAttribute(
     'href',
     'https://wetop.ai/#login',
   );
-  await expect(header.getByRole('link', { name: 'Получить доступ', exact: true })).toHaveAttribute(
+  await expect(header.getByRole('link', { name: 'Регистрация', exact: true })).toHaveAttribute(
     'href',
     'https://wetop.ai/#register',
   );
-  const hero = page.locator('.hero');
-  await expect(hero.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
+  const hero = page.locator('.public-intro');
+  await expect(hero.getByRole('link', { name: /Регистрация/ })).toHaveAttribute(
     'href',
     'https://wetop.ai/#register',
   );
   await expect(hero.getByRole('link', { name: /Смотреть возможности/ })).toBeVisible();
   await expect(hero).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
-  await expect(start.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
+  await expect(start.getByRole('link', { name: /Регистрация/ })).toHaveAttribute(
     'href',
     'https://wetop.ai/#register',
   );
@@ -132,57 +130,24 @@ test('главная: регистрация открыта, маркетинг�
   ).toHaveCount(0);
   expect((await page.request.get('/blog/')).status()).toBe(200);
   // Карта разделов на первом экране (01.10.2026): схема продукта, а не снимок системы и не выдуманные показатели
-  await expect(hero.locator('.product-map')).toBeVisible();
-  await expect(hero).toContainText(/Схема разделов/);
+  await expect(hero.locator('.today-preview')).toBeVisible();
+  await expect(hero).toContainText(/Пример интерфейса/);
   await expect(hero).not.toContainText(/248[\s\u00a0]?500|\+12%|Алина|Марат/);
 });
 
-/**
- * Позиционирование 29.09.2026 (решение владельца, ADR-104: WETOP, платформа для сервисного бизнеса) плюс правка
- * 03.10.2026: заголовок остаётся про платформу, а лид говорит прямо, что это онлайн-система для отеля, хостела
- * и апартаментов, и что салоны и студии подключаем. Дорожной карты направлений («Первое направление»,
- * «Следующее направление», «подключить пока нельзя») на странице нет.
- */
-test('первый экран говорит, что это за система и для кого; дорожной карты направлений нет', async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
+test('первый экран объясняет платформу, направления и зрелость', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle(/управляйте отелем из одного окна/i);
-  const hero = page.locator('.hero');
-  await expect(hero.getByRole('heading', { level: 1 })).toContainText(
-    /Управляйте отелем из одного окна/,
+  const hero = page.locator('.public-intro');
+  await expect(hero.getByRole('heading', { level: 1 })).toHaveText(
+    'Управляйте бизнесом из одного окна',
   );
-  // 03.10.2026: лид говорит прямо, что это онлайн-система и для кого, и зовёт салоны (решение владельца)
-  await expect(hero).toContainText(/Шахматка,\sброни,\sгости,\sцены,\sоплаты/);
-  // Первый экран 29.09.2026, вечер (владелец: «сделай лучше, профессиональней, понятней»): главная фраза — заголовок,
-  // одна плашка, без круглой печати. С 01.10.2026 справа карта разделов: шесть областей платформы ссылками на блоки
-  // страницы (plans/site-home-clear-blocks-2026-10-01.md), без вымышленных имён и сумм.
-  await expect(hero.locator('.hero__seal')).toHaveCount(0);
-  await expect(hero.locator('.hero__word')).toHaveCount(0);
-  await expect(hero.locator('.hero__status')).toHaveText(/Система для отелей/);
-  const map = hero.getByRole('list', { name: /Разделы WETOP/ });
-  await expect(map).toBeVisible();
-  await expect(hero.locator('.vertical-status'), 'состояние направлений на первом экране').toHaveCount(
-    0,
-  );
-  for (const section of ['Операции', 'Продажи', 'Команда', 'Финансы', 'Аналитика', 'ИИ-продавцы']) {
-    await expect(map).toContainText(section);
-  }
-
+  await expect(hero).toContainText('Клиенты, бронирования и записи');
+  await expect(hero).not.toContainText(/пилот/i);
   const audience = page.locator('#audience');
-  await expect(audience.getByRole('heading', { level: 2 })).toContainText(
-    /Отели, хостелы и апартаменты/,
+  await expect(audience.getByRole('heading', { level: 2 })).toHaveText(
+    'Разный бизнес. Свои инструменты',
   );
-  await expect(audience).toContainText(/Хостелы/);
-  // 03.10.2026: вместо карточки «Beauty, подключить пока нельзя» приглашение салонам написать
-  const invite = audience.locator('.invite');
-  await expect(invite).toContainText(/Салоны и студии/);
-  await expect(invite).toContainText(/подключаем/i);
-  // Первый экран идёт раньше разделов про гостиницу
-  const order = await page
-    .locator('main section')
-    .evaluateAll((els) => els.map((el) => el.getAttribute('id') ?? el.className));
-  expect(order.indexOf('audience')).toBeLessThan(order.indexOf('features'));
-  expect(order.indexOf('features')).toBeLessThan(order.indexOf('sales'));
+  await expect(audience).toContainText('Хостелы');
+  await expect(audience).toContainText('Салоны красоты');
+  await expect(audience).toContainText('Ресторанный бизнес');
 });

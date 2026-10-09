@@ -96,4 +96,12 @@ describe('фильтр по категории в сводке периода (R
     const d = buildDashboard(base(), 'all', { category: 'LUX' });
     expect(d.payments.totalMinor).toBe('50000');
   });
+
+  it('список категорий для выбора не сужается самим фильтром, но следует за типом фонда', () => {
+    const all = buildDashboard(base(), 'all', { category: 'LUX' });
+    expect(all.categoryOptions.map((c) => c.code)).toEqual(['ROOM', 'LUX', 'DORM']);
+    const rooms = buildDashboard(base(), 'rooms', { category: 'LUX' });
+    expect(rooms.categoryOptions.map((c) => c.code)).toEqual(['ROOM', 'LUX']);
+    expect(rooms.categoryOptions[0]).toEqual({ code: 'ROOM', name: 'Двухместная', kind: 'ROOM' });
+  });
 });

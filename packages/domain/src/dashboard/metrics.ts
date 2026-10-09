@@ -169,6 +169,8 @@ export interface DashboardPeriod {
   bookings: DashboardBookings;
   sources: DashboardSource[];
   categories: DashboardCategory[];
+  /** Категории типа фонда для выбора в отчёте: фильтр по категории список не сужает */
+  categoryOptions: Array<{ code: string; name: string; kind: DashboardUnitKind }>;
   daily: DashboardDailyPoint[];
 }
 
@@ -413,6 +415,7 @@ export function buildDashboard(
     },
     sources,
     categories,
+    categoryOptions: byFund.categories.map(({ code, name, kind }) => ({ code, name, kind })),
     daily,
   };
 }

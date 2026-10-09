@@ -42,6 +42,10 @@ export interface AnalyticsQuery {
   compare: boolean;
   /** Оболочка «Отчёты» (RPT2.2c): вкладки те же, адреса от этой базы: `/reports/overview`, `/reports/occupancy`, `/reports/units` */
   basePath?: string;
+  /** Код категории: сводка считается по ней одной (`GET /desk/dashboard?category=`) */
+  category?: string | undefined;
+  /** Детализация графиков: день по умолчанию в адрес не пишется */
+  granularity?: 'week' | 'month' | undefined;
 }
 
 /**
@@ -60,11 +64,20 @@ export function analyticsHref(q: AnalyticsQuery, patch: Partial<AnalyticsQuery> 
   } else if (p.preset !== TAB_DEFAULT[next.tab]) sp.set('period', p.preset);
   if (next.fund !== 'all') sp.set('fund', next.fund);
   if (!next.compare) sp.set('compare', '0');
+  if (next.category) sp.set('category', next.category);
+  if (next.granularity) sp.set('by', next.granularity);
   const s = sp.toString();
   const path = next.basePath
     ? `${next.basePath}/${next.tab === 'overview' ? 'overview' : next.tab}`
     : TAB_PATH[next.tab];
   return s ? `${path}?${s}` : path;
+}
+
+/** Код категории из адреса: коротко и без управляющих символов, иначе его просто нет */
+function cleanCategory(v: string | undefined): string | undefined {
+  const t = v?.trim();
+  // eslint-disable-next-line no-control-regex
+  return t && t.length <= 64 && !/[\u0000-\u001f\u007f]/.test(t) ? t : undefined;
 }
 
 const addDays = (date: string, n: number) =>
@@ -90,7 +103,17 @@ export function parseAnalyticsQuery(
   const fund = DASHBOARD_FUNDS.includes(sp.fund as DashboardFund)
     ? (sp.fund as DashboardFund)
     : 'all';
-  const base = { tab, fund, compare: sp.compare !== '0', ...(basePath ? { basePath } : {}) };
+  const category = cleanCategory(sp.category);
+  const granularity: 'week' | 'month' | undefined =
+    sp.by === 'week' ? 'week' : sp.by === 'month' ? 'month' : undefined;
+  const base = {
+    tab,
+    fund,
+    compare: sp.compare !== '0',
+    ...(basePath ? { basePath } : {}),
+    ...(category ? { category } : {}),
+    ...(granularity ? { granularity } : {}),
+  };
   const legacyDate = !sp.period && !sp.from && !sp.to && sp.date !== undefined;
   if (legacyDate && !isDate(sp.date!))
     return {

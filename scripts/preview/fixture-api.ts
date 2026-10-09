@@ -1714,7 +1714,12 @@ function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardSt
     previous: cf && ct ? buildChannelEfficiency(stays, cf, ct, opts) : null,
   };
 }
-function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
+function dashboardPeriod(
+  from: string,
+  to: string,
+  fund: DashboardFund = 'all',
+  category?: string,
+): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
   const unassignedByCategory: Record<string, number> = {};
@@ -1755,13 +1760,14 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
       refundsMinor: 0n,
     },
     fund,
+    category ? { category } : {},
   );
 }
-function dashboard(from: string, to: string, fund: DashboardFund = 'all') {
+function dashboard(from: string, to: string, fund: DashboardFund = 'all', category?: string) {
   const prev = previousPeriod(from, to);
   return {
-    current: dashboardPeriod(from, to, fund),
-    previous: dashboardPeriod(prev.from, prev.to, fund),
+    current: dashboardPeriod(from, to, fund, category),
+    previous: dashboardPeriod(prev.from, prev.to, fund, category),
   };
 }
 /** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
@@ -3150,7 +3156,12 @@ function read(path: string, q: URLSearchParams): unknown {
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
     if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
       throw new Error('fund — all, rooms или beds');
-    return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
+    return dashboard(
+      q.get('from') || today,
+      q.get('to') || today,
+      fund as DashboardFund,
+      q.get('category') || undefined,
+    );
   }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return ratePlanList();

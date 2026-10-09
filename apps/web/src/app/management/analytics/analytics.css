@@ -392,6 +392,10 @@
     font-size: var(--text-lg);
     font-weight: var(--weight-semibold);
   }
+  /* категория и детализация отчёта (RPT2.2c-3): отдельная строка над плитками */
+  .pa-filters {
+    margin-bottom: var(--space-4);
+  }
   .pa-toolbar__row {
     display: flex;
     flex-wrap: wrap;

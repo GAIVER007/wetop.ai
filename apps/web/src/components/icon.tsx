@@ -45,6 +45,10 @@ import {
   ClipboardCheck,
   MessagesSquare,
   CircleHelp,
+  Scissors,
+  UtensilsCrossed,
+  Download,
+  Copy,
 } from 'lucide-react';
 const icons = {
   arrival: LogIn,
@@ -94,6 +98,11 @@ const icons = {
   // переписка: раздел «ИИ-продавец» (DESIGN.md §7, «добавить при первом использовании»; ТЗ ред. 1 П6)
   chat: MessagesSquare,
   help: CircleHelp,
+  // направления организации и экспорт: «Платформа → Организации» (DESIGN.md §7, добавлены при первом использовании)
+  salon: Scissors,
+  restaurant: UtensilsCrossed,
+  download: Download,
+  copy: Copy,
 };
 export type IconName = keyof typeof icons;
 /** Все имена набора — для таблицы на странице /design-system (DESIGN.md §7). */

@@ -6,7 +6,7 @@ import {
   createPropertyInChain,
 } from '@pms/database';
 import type { OrganizationCreate, OverviewVertical } from '@pms/domain';
-import { REGISTRATION_NAME_TAKEN_MESSAGE } from '@pms/domain';
+import { REGISTRATION_NAME_TAKEN_MESSAGE, visibleStatus } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 
 /** Дерево платформы: организации, их бизнесы и действующие филиалы. Броней, гостей и счетов здесь нет по построению */
@@ -47,6 +47,11 @@ export interface CreatedOrganization {
   replay: boolean;
   /** Почта владельца без учётной записи: ей уходит письмо, где задаётся пароль */
   newOwner: { email: string } | null;
+  /**
+   * Сколько других организаций уже у учётной записи владельца. Вход открывает первую по времени (переключателя
+   * организаций пока нет), и главный администратор должен знать, что новая организация откроется не сразу.
+   */
+  ownerOtherOrganizations: number;
 }
 
 export interface AuditRow {
@@ -83,6 +88,7 @@ export class OrganizationsRepository {
         id: true,
         name: true,
         status: true,
+        trialEndsAt: true,
         createdAt: true,
         memberships: {
           where: { role: 'OWNER' },
@@ -112,10 +118,11 @@ export class OrganizationsRepository {
         },
       },
     });
+    const now = new Date();
     return rows.map((o) => ({
       id: o.id,
       name: o.name,
-      status: o.status,
+      status: visibleStatus(o.status, o.trialEndsAt, now),
       createdAt: o.createdAt,
       owners: o.memberships.map((m) => m.user.email),
       businesses: o.businesses.map((b) => ({ id: b.id, name: b.name, vertical: b.vertical })),
@@ -224,7 +231,7 @@ export class OrganizationsRepository {
       });
       if (existing) {
         if (existing.name !== input.name) throw new ConflictException(ID_TAKEN);
-        return { organizationId: existing.id, replay: true, newOwner: null };
+        return { organizationId: existing.id, replay: true, newOwner: null, ownerOtherOrganizations: 0 };
       }
       const namesake = await tx.organization.findFirst({
         where: { name: { equals: input.name, mode: 'insensitive' } },
@@ -240,7 +247,7 @@ export class OrganizationsRepository {
       }
       const owner = await tx.user.findUnique({
         where: { email: input.owner.email },
-        select: { id: true, status: true },
+        select: { id: true, status: true, _count: { select: { memberships: true } } },
       });
       if (owner?.status === 'BLOCKED') throw new ConflictException(OWNER_BLOCKED);
 
@@ -309,7 +316,12 @@ export class OrganizationsRepository {
           },
         },
       });
-      return { organizationId: org.id, replay: false, newOwner: owner ? null : { email: input.owner.email } };
+      return {
+        organizationId: org.id,
+        replay: false,
+        newOwner: owner ? null : { email: input.owner.email },
+        ownerOtherOrganizations: owner?._count.memberships ?? 0,
+      };
     });
   }
 }

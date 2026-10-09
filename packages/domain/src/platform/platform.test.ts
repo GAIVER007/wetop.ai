@@ -9,6 +9,7 @@ import {
   revenueByCurrency,
   sumMetric,
   timezoneLabel,
+  visibleStatus,
   EMPTY_METRICS,
 } from './index';
 
@@ -26,7 +27,7 @@ const valid = {
   city: 'Алматы',
   timezone: 'Asia/Almaty',
   currency: 'KZT',
-  bin: '123456789012',
+  bin: '1234567890',
   website: 'luxx.example.kz',
   createFirstBranch: true,
   branchName: '',
@@ -130,6 +131,18 @@ describe('периоды', () => {
   });
   it('последние месяцы идут от старого к новому и переходят через год', () => {
     expect(lastMonths('2026-02', 4)).toEqual(['2025-11', '2025-12', '2026-01', '2026-02']);
+  });
+});
+
+describe('состояние организации на экране платформы', () => {
+  const now = new Date('2026-10-09T00:00:00Z');
+  it('пробной слова «пробный» не достаётся: работает до срока, потом только чтение', () => {
+    expect(visibleStatus('TRIAL', new Date('2026-10-20T00:00:00Z'), now)).toBe('ACTIVE');
+    expect(visibleStatus('TRIAL', null, now)).toBe('ACTIVE');
+    expect(visibleStatus('TRIAL', new Date('2026-10-01T00:00:00Z'), now)).toBe('READ_ONLY');
+  });
+  it('остальные состояния как есть', () => {
+    for (const s of ['ACTIVE', 'READ_ONLY', 'SUSPENDED']) expect(visibleStatus(s, null, now)).toBe(s);
   });
 });
 

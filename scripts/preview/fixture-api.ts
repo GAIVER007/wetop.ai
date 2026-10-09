@@ -54,6 +54,12 @@ import {
   parseInviteRole,
   parseMemberDetails,
   parseHotelSettingsPatch,
+  parseOrganizationCreate,
+  type OverviewBranch,
+  type OverviewOrganization,
+  type PlatformOverview,
+  type OverviewSeriesPoint,
+  EMPTY_METRICS,
   parseServiceInput,
   type ExtensionStatus,
   type InviteRole,
@@ -2199,6 +2205,8 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
 /** Пробный период своей организации (ТЗ ux-retention п. 2.7): число — осталось дней, 'ended' — срок вышел, иначе оплачена */
 // Подписка, подтверждённая руками главного администратора (ADR-102): статус поверх начального
 const platformStatuses = new Map<string, string>();
+/** Организации, созданные окном «Создать организацию» на стенде: сбрасываются вместе с остальным */
+const platformCreated: OverviewOrganization[] = [];
 function setOrgTrial(days: unknown) {
   const now = Date.now();
   uiUser.organization =
@@ -2223,6 +2231,7 @@ function resetAccess() {
   uiPlatformAdmin = false;
   platformExtensions.clear();
   platformStatuses.clear();
+  platformCreated.length = 0;
   setSellerExtension('active', null, false);
 }
 resetAccess();
@@ -2244,7 +2253,6 @@ const platformOrganizations = () => [
     id: 'ui-org',
     name: uiUser.organization.name,
     status: platformStatuses.get('ui-org') ?? 'ACTIVE',
-    trialEndsAt: null,
     createdAt: '2026-09-01T04:00:00.000Z',
     members: uiMembers.size,
     owners: ['admin@wetop.test'],
@@ -2252,12 +2260,19 @@ const platformOrganizations = () => [
   {
     id: 'ui-org-2',
     name: 'Хостел «Пример»',
-    status: platformStatuses.get('ui-org-2') ?? 'TRIAL',
-    trialEndsAt: new Date(Date.now() + 5 * DAY_MS).toISOString(),
+    status: platformStatuses.get('ui-org-2') ?? 'ACTIVE',
     createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     members: 1,
     owners: ['owner@example.com'],
   },
+  ...platformCreated.map((o) => ({
+    id: o.id,
+    name: o.name,
+    status: platformStatuses.get(o.id) ?? o.status,
+    createdAt: o.createdAt,
+    members: 1,
+    owners: o.owners,
+  })),
 ];
 // ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
 const SUPPORT_DIALOG_A = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
@@ -2541,6 +2556,155 @@ const platformOrganizationJson = (o: ReturnType<typeof platformOrganizations>[nu
       updatedAt: row?.updatedAt.toISOString() ?? null,
     },
   };
+};
+
+/**
+ * Сквозной обзор платформы на стенде («Платформа → Организации»): цифры вымышленные (ADR-010), но считаются теми же
+ * формами, что у API. Своя организация стенда с её филиалами, «Хостел» с одним отелем, салон и ресторан для покрытия
+ * трёх направлений (у ресторана денег в модели нет: null) и организации, созданные окном «Создать организацию».
+ */
+const fixtureMetrics = (over: Partial<OverviewBranch['metrics']>) => ({ ...EMPTY_METRICS, ...over });
+function platformOverviewFixture(month: string): PlatformOverview {
+  const own = [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches] as Array<typeof DEFAULT_FIXTURE_BRANCH>;
+  const branch = (b: Partial<OverviewBranch> & Pick<OverviewBranch, 'id' | 'name' | 'vertical'>): OverviewBranch => ({
+    address: null,
+    currency: 'KZT',
+    timezone: 'Asia/Almaty',
+    businessId: `business-${b.id}`,
+    metrics: EMPTY_METRICS,
+    previous: EMPTY_METRICS,
+    ...b,
+  });
+  const organizations: OverviewOrganization[] = [
+    {
+      id: 'ui-org',
+      name: uiUser.organization.name,
+      status: platformStatuses.get('ui-org') ?? 'ACTIVE',
+      createdAt: '2026-09-01T04:00:00.000Z',
+      owners: ['admin@wetop.test'],
+      businesses: [{ id: 'ui-business', name: uiUser.organization.name, vertical: 'HOSPITALITY' }],
+      branches: own.map((b, i) =>
+        branch({
+          id: b.locationId,
+          name: b.name,
+          address: i === 0 ? 'Алматы, ул. Пример, 1' : (b.address as string | null),
+          vertical: b.vertical === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY',
+          metrics:
+            b.vertical === 'BEAUTY'
+              ? fixtureMetrics({ revenueMinor: 150_000_000, guests: 420, bookings: 510 })
+              : fixtureMetrics({ revenueMinor: 432_000_000, occupiedNights: 680, unitNights: 1000, guests: 90, bookings: 61 }),
+          previous: fixtureMetrics({ revenueMinor: 385_000_000, occupiedNights: 600, unitNights: 1000, guests: 80, bookings: 55 }),
+        }),
+      ),
+    },
+    {
+      id: 'ui-org-2',
+      name: 'Хостел «Пример»',
+      status: platformStatuses.get('ui-org-2') ?? 'ACTIVE',
+      createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
+      owners: ['owner@example.com'],
+      businesses: [{ id: 'ui-business-2', name: 'Хостел «Пример»', vertical: 'HOSPITALITY' }],
+      branches: [
+        branch({
+          id: 'ui-location-2',
+          name: 'Хостел «Пример»',
+          address: 'Астана, пр. Образцовый, 5',
+          vertical: 'HOSPITALITY',
+          metrics: fixtureMetrics({ revenueMinor: 98_000_000, occupiedNights: 210, unitNights: 600, guests: 44, bookings: 30 }),
+          previous: fixtureMetrics({ revenueMinor: 90_000_000, occupiedNights: 200, unitNights: 600, guests: 40, bookings: 28 }),
+        }),
+      ],
+    },
+    {
+      id: 'ui-org-salon',
+      name: 'Салон «Пример»',
+      status: 'ACTIVE',
+      createdAt: '2026-09-10T04:00:00.000Z',
+      owners: ['salon@example.com'],
+      businesses: [{ id: 'ui-business-salon', name: 'Салон «Пример»', vertical: 'BEAUTY' }],
+      branches: [
+        branch({
+          id: 'ui-location-salon',
+          name: 'Салон «Пример» Центр',
+          address: 'Алматы, ул. Образцовая, 10',
+          vertical: 'BEAUTY',
+          metrics: fixtureMetrics({ revenueMinor: 398_000_000, guests: 1240, bookings: 1500 }),
+          previous: fixtureMetrics({ revenueMinor: 320_000_000, guests: 1100, bookings: 1300 }),
+        }),
+      ],
+    },
+    {
+      id: 'ui-org-food',
+      name: 'Ресторан «Пример»',
+      status: 'ACTIVE',
+      createdAt: '2026-09-15T04:00:00.000Z',
+      owners: ['food@example.com'],
+      businesses: [{ id: 'ui-business-food', name: 'Ресторан «Пример»', vertical: 'FOOD_SERVICE' }],
+      branches: [
+        branch({
+          id: 'ui-location-food',
+          name: 'Ресторан «Пример»',
+          address: 'Алматы, пр. Вымышленный, 3',
+          currency: 'KZT',
+          vertical: 'FOOD_SERVICE',
+          // у ресторана денег в модели нет: null, а не ноль
+          metrics: fixtureMetrics({ guests: 640, bookings: 210 }),
+          previous: fixtureMetrics({ guests: 600, bookings: 190 }),
+        }),
+      ],
+    },
+    ...platformCreated,
+  ];
+  const [y, m] = month.split('-').map(Number) as [number, number];
+  const today = new Date().toISOString().slice(0, 10);
+  const first = new Date(Date.UTC(y, m - 1, 1)).toISOString().slice(0, 10);
+  const last = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
+  const to = today >= first && today < last ? today : last;
+  return {
+    period: { from: first, to, previousFrom: first, previousTo: first, month },
+    organizations,
+    series: [],
+    activity: [
+      ...platformCreated.map((o, i) => ({
+        id: `created-${i}`,
+        at: new Date(Date.now() - 60_000).toISOString(),
+        label: 'Новая организация',
+        detail: o.name,
+        organizationId: o.id,
+        organizationName: o.name,
+      })),
+      {
+        id: 'seed-1',
+        at: new Date(Date.now() - 3 * 3_600_000).toISOString(),
+        label: 'Новый филиал',
+        detail: 'Салон «Пример» Центр',
+        organizationId: 'ui-org-salon',
+        organizationName: 'Салон «Пример»',
+      },
+      {
+        id: 'seed-2',
+        at: new Date(Date.now() - 30 * 3_600_000).toISOString(),
+        label: 'Оплата получена',
+        detail: null,
+        organizationId: 'ui-org-2',
+        organizationName: 'Хостел «Пример»',
+      },
+    ],
+    newOrganizations: organizations.filter((o) => Date.now() - Date.parse(o.createdAt) < 30 * DAY_MS).length,
+  };
+}
+const platformSeriesFixture = (month: string): OverviewSeriesPoint[] => {
+  const [y, m] = month.split('-').map(Number) as [number, number];
+  return Array.from({ length: 6 }, (_, i) => {
+    const key = new Date(Date.UTC(y, m - 1 - (5 - i), 1)).toISOString().slice(0, 7);
+    return {
+      month: key,
+      revenue: { KZT: (400 + i * 35) * 1_000_000 },
+      occupiedNights: 500 + i * 30,
+      unitNights: 1000,
+      guests: 800 + i * 60,
+    };
+  });
 };
 
 /** Секрет подписи помощника на стенде (ТЗ П1): вымышленный, как и всё в фикстуре */
@@ -5736,7 +5900,7 @@ createServer(async (req, res) => {
       }
       const items = [branch, ...fixtureBranches];
       if (path.endsWith('/overview')) return send(200, { rows: items.map((b) => ({ branch: b, stats: dashboard(url.searchParams.get('from') || today, url.searchParams.get('to') || today).current })) });
-      return send(200, { organization: { id: '44444444-4444-4444-8444-444444444444', name: 'Тестовая сеть', status: 'ACTIVE' }, items, canCreate: true });
+      return send(200, { organization: { id: 'ui-org', name: 'Тестовая сеть', status: 'ACTIVE' }, items, canCreate: true });
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {
@@ -5748,6 +5912,49 @@ createServer(async (req, res) => {
         });
       if (path === '/platform/organizations' && req.method === 'GET')
         return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
+      if (path === '/platform/overview' && req.method === 'GET') {
+        const month = url.searchParams.get('month') || new Date().toISOString().slice(0, 7);
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) return send(400, { message: 'Месяц: ожидается ГГГГ-ММ' });
+        return send(200, platformOverviewFixture(month));
+      }
+      if (path === '/platform/overview/series' && req.method === 'GET') {
+        const month = url.searchParams.get('month') || new Date().toISOString().slice(0, 7);
+        return send(200, { items: platformSeriesFixture(month) });
+      }
+      // Создать организацию: те же правила ввода, что у API (parseOrganizationCreate), повтор по id не плодит дубль
+      if (path === '/platform/organizations' && req.method === 'POST') {
+        const parsed = parseOrganizationCreate(body);
+        if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
+        const input = parsed.value;
+        const same = platformOrganizations().find((o) => o.id === input.id);
+        if (same) return send(same.name === input.name ? 201 : 409, same.name === input.name ? { organizationId: same.id, replay: true, mailSent: null } : { message: 'Этот запрос уже сохранён с другими данными. Обновите страницу перед повтором.' });
+        if (platformOrganizations().some((o) => o.name.toLowerCase() === input.name.toLowerCase()))
+          return send(409, { message: 'Организация с таким названием уже есть' });
+        platformCreated.push({
+          id: input.id,
+          name: input.name,
+          status: 'ACTIVE',
+          createdAt: new Date().toISOString(),
+          owners: [input.owner.email],
+          businesses: [{ id: `business-${input.id}`, name: input.brand, vertical: input.vertical }],
+          branches: input.firstBranch
+            ? [
+                {
+                  id: `location-${input.id}`,
+                  name: input.firstBranch.name,
+                  address: input.firstBranch.address || null,
+                  currency: input.currency,
+                  timezone: input.timezone,
+                  vertical: input.vertical,
+                  businessId: `business-${input.id}`,
+                  metrics: EMPTY_METRICS,
+                  previous: EMPTY_METRICS,
+                },
+              ]
+            : [],
+        });
+        return send(201, { organizationId: input.id, replay: false, mailSent: true });
+      }
       // MKT9.2: лицензии конструктора сайта по филиалам
       const siteBuilder = platformSiteBuilderFixture(path, req.method ?? 'GET', body);
       if (siteBuilder) return send(siteBuilder.status, siteBuilder.data);

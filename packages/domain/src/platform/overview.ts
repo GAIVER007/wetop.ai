@@ -88,6 +88,15 @@ export interface PlatformOverview {
   newOrganizations: number;
 }
 
+/**
+ * Состояние организации для экрана платформы без слов про пробный период: пробная работает до своего срока и затем
+ * только читает, как и считает замок записи; остальные состояния как есть.
+ */
+export function visibleStatus(status: string, trialEndsAt: Date | null, now: Date): string {
+  if (status !== 'TRIAL') return status;
+  return trialEndsAt && trialEndsAt.getTime() <= now.getTime() ? 'READ_ONLY' : 'ACTIVE';
+}
+
 /** Рубеж периода: календарный месяц `ГГГГ-ММ`, текущий считается по сегодняшний день включительно */
 export function platformMonthPeriod(month: string, today: string) {
   const [y, m] = month.split('-').map(Number) as [number, number];

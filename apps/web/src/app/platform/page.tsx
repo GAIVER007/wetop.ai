@@ -1,22 +1,14 @@
-import { BranchWorkspace } from '../branches/workspace';
 import Link from 'next/link';
+import { randomUUID } from 'node:crypto';
 import { Suspense } from 'react';
+import { unstable_rethrow } from 'next/navigation';
+import { isMonth } from '@pms/domain';
 import { Page } from '../../components/page';
-import { LoadError } from '../../components/load-error';
 import { RefreshButton } from '../../components/refresh-button';
-import {
-  Badge,
-  EmptyState,
-  Fact,
-  Grid,
-  LoadingState,
-  Panel,
-  SectionTitle,
-  Stack,
-  Table,
-} from '../../components/ui';
+import { LoadError } from '../../components/load-error';
 import { Icon } from '../../components/icon';
-import { ApiError, platformApi, type PlatformOrganization } from '../../lib/api';
+import { Badge, Fact, Grid, LoadingState, Panel, SectionTitle, Stack, Table } from '../../components/ui';
+import { branchesApi, platformApi, type PlatformOrganization } from '../../lib/api';
 import { loadErrorProps } from '../../lib/load-error';
 import {
   extensionFormDefaults,
@@ -24,46 +16,102 @@ import {
   organizationSince,
   organizationStatusLine,
 } from '../../lib/platform';
-import { ExtensionForm, StatusForm } from './forms';
-import { SiteBuilderLicense } from './site-builder';
-import { DataConnectionPanel } from './data-connection';
+import { parseSort, parseVerticalFilter, parseView } from '../../lib/platform-overview';
 import { hotelApi } from '../../lib/hotel-api';
-import { unstable_rethrow } from 'next/navigation';
+import { BranchForm } from '../branches/form';
+import { CreateOrganization } from './create-organization';
+import { DataConnectionPanel } from './data-connection';
+import { ExtensionForm, StatusForm } from './forms';
+import { OrganizationsOverview, type OrganizationsQuery } from './organizations-view';
+import { SiteBuilderLicense } from './site-builder';
+import '../branches/branches.css';
+import './organizations.css';
 
 /**
- * «Платформа → Организации» (DATA_MODEL §16, ADR-083): гостиницы платформы и расширение «ИИ-продавец». Только главному
- * администратору — остальным API отвечает 403, и страница так и говорит. Брони, гости, счета и переписка чужих
- * гостиниц здесь не видны: в ответе API их нет по построению.
+ * «Платформа → Организации и филиалы» (DATA_MODEL §16, §18, ADR-083): организации платформы с бизнесами и филиалами,
+ * цифры за месяц, создание организации, подписки и расширения. Только главному администратору: остальным API отвечает
+ * 403, и страница так и говорит. Брони, гости, счета и переписка чужих организаций здесь не видны: в ответе API их нет
+ * по построению.
  */
 export default async function PlatformPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const query = await searchParams;
-  const selected = typeof query.org === 'string' ? query.org : '';
+  const raw = await searchParams;
+  const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : undefined);
+  const month = one(raw.month);
+  const query: OrganizationsQuery = {
+    vertical: parseVerticalFilter(one(raw.vertical)),
+    sort: parseSort(one(raw.sort)),
+    view: parseView(one(raw.view)),
+    q: (one(raw.q) ?? '').slice(0, 100),
+    month: month && isMonth(month) ? month : undefined,
+  };
+  const selected = one(raw.org) ?? '';
   return (
     <Page
-      className="branches-page"
+      className="platform-page"
       width="full"
-      title="Организации"
-      subtitle="Ваши объекты и филиалы: добавление, управление и общая статистика."
-      actions={<RefreshButton />}
+      title="Организации и филиалы"
+      subtitle="Управляйте бизнесами, филиалами и объектами в одном месте."
+      actions={
+        <>
+          <Link
+            href={`/platform/export${query.month ? `?month=${query.month}` : ''}`}
+            prefetch={false}
+            className="btn btn--secondary"
+            data-testid="platform-export"
+          >
+            <Icon name="download" width={16} height={16} /> Экспорт
+          </Link>
+          <RefreshButton />
+          <CreateOrganization />
+        </>
+      }
     >
       <Suspense fallback={<LoadingState label="Загружаем организации…" />}>
-        <Organizations selected={selected} query={query} />
+        <OrganizationsOverview
+          query={query}
+          footer={
+            <>
+              <Suspense fallback={null}>
+                <AddBranch />
+              </Suspense>
+              <Suspense fallback={<LoadingState label="Загружаем подписки…" />}>
+                <Administration selected={selected} />
+              </Suspense>
+              <details className="panel">
+                <summary>Состояние системы</summary>
+                <Suspense fallback={<LoadingState label="Проверяем базу…" />}>
+                  <SystemState />
+                </Suspense>
+              </details>
+            </>
+          }
+        />
       </Suspense>
     </Page>
   );
 }
 
-async function Organizations({
-  selected,
-  query,
-}: {
-  selected: string;
-  query: Record<string, string | string[] | undefined>;
-}) {
+/** Добавить филиал в организацию, в которую вошёл человек (API добавляет только в неё) */
+async function AddBranch() {
+  const loaded = await branchesApi.list().catch((error: unknown) => {
+    unstable_rethrow(error);
+    return null;
+  });
+  if (!loaded?.canCreate) return null;
+  return (
+    <details className="panel platform-add-branch" id="add-branch">
+      <summary>Добавить филиал в «{loaded.organization.name}»</summary>
+      <BranchForm id={randomUUID()} />
+    </details>
+  );
+}
+
+/** Подписки и расширения: выбранная организация, форма оплаты, «ИИ-продавец», лицензии конструктора сайта */
+async function Administration({ selected }: { selected: string }) {
   const loaded = await platformApi.organizations().then(
     (value) => ({ ok: true as const, value }),
     (error: unknown) => {
@@ -71,87 +119,56 @@ async function Organizations({
       return { ok: false as const, error };
     },
   );
-  if (!loaded.ok) {
-    if (loaded.error instanceof ApiError && loaded.error.status === 403)
-      return (
-        <EmptyState
-          icon={<Icon name="shield" width={32} height={32} />}
-          title="Раздел главного администратора платформы"
-          data-testid="platform-forbidden"
-        >
-          Организации и их расширения видит только главный администратор. Отметку ставит команда на
-          сервере.
-        </EmptyState>
-      );
-    return <LoadError testId="platform-error" {...loadErrorProps(loaded.error)} />;
-  }
-  const items = loaded.value.items;
-  const card = items.find((o) => o.id === selected);
+  // 403 и сбой загрузки уже показал обзор выше: здесь второго сообщения не нужно
+  if (!loaded.ok) return null;
+  const card = loaded.value.items.find((o) => o.id === selected);
   return (
-    <Stack>
-      <Suspense fallback={<LoadingState label="Загружаем филиалы…" />}>
-        <BranchWorkspace query={query} createLabel="Добавить объект / филиал" />
-      </Suspense>
-      <details open={Boolean(card)} className="panel">
-        <summary>Подписки и администрирование</summary>
+    <details open={Boolean(card)} className="panel" id="org-admin">
+      <summary>Подписки и администрирование</summary>
+      <div className="org-admin">
         <p className="muted">
-          Доступ организаций платформы и расширения. Выбор организации здесь не переключает рабочий
-          филиал.
+          Доступ организаций платформы и расширения. Выбор организации здесь не переключает рабочий филиал. Открыть
+          организацию: «⋯» на её карточке, «Подписка и расширения».
         </p>
         {card && <OrganizationCard organization={card} />}
-        {items.length === 0 ? (
-          <EmptyState
-            icon={<Icon name="inventory" width={32} height={32} />}
-            title="Организаций нет"
-          >
-            Здесь появятся гостиницы, зарегистрированные на платформе.
-          </EmptyState>
-        ) : (
-          <Table aria-label="Организации платформы" data-testid="platform-organizations">
-            <thead>
-              <tr>
-                <th>Организация</th>
-                <th>Состояние</th>
-                <th>Людей</th>
-                <th>Владелец</th>
-                <th>ИИ-продавец</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((o) => {
-                const status = organizationStatusLine(o);
-                const seller = extensionLine(o.aiSeller);
-                return (
-                  <tr key={o.id} aria-current={o.id === selected ? 'true' : undefined}>
-                    <td>
-                      <Link href={`/platform?org=${o.id}`} prefetch={false}>
-                        {o.name}
-                      </Link>
-                      <span className="sub">, с {organizationSince(o.createdAt)}</span>
-                    </td>
-                    <td>
-                      <Badge tone={status.tone}>{status.label}</Badge>
-                    </td>
-                    <td>{o.members}</td>
-                    <td>{o.owners.length > 0 ? o.owners.join(', ') : 'Не указан'}</td>
-                    <td>
-                      <Badge tone={seller.tone}>{seller.label}</Badge>
-                      <span className="sub"> {seller.detail}</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-        )}
-      </details>
-      <details className="panel">
-        <summary>Состояние системы</summary>
-        <Suspense fallback={<LoadingState label="Проверяем базу…" />}>
-          <SystemState />
-        </Suspense>
-      </details>
-    </Stack>
+        <Table aria-label="Организации платформы" data-testid="platform-organizations">
+          <thead>
+            <tr>
+              <th>Организация</th>
+              <th>Состояние</th>
+              <th>Людей</th>
+              <th>Владелец</th>
+              <th>ИИ-продавец</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loaded.value.items.map((o) => {
+              const status = organizationStatusLine(o);
+              const seller = extensionLine(o.aiSeller);
+              return (
+                <tr key={o.id} aria-current={o.id === selected ? 'true' : undefined}>
+                  <td>
+                    <Link href={`/platform?org=${o.id}#org-admin`} prefetch={false}>
+                      {o.name}
+                    </Link>
+                    <span className="sub">, с {organizationSince(o.createdAt)}</span>
+                  </td>
+                  <td>
+                    <Badge tone={status.tone}>{status.label}</Badge>
+                  </td>
+                  <td>{o.members}</td>
+                  <td>{o.owners.length > 0 ? o.owners.join(', ') : 'Не указан'}</td>
+                  <td>
+                    <Badge tone={seller.tone}>{seller.label}</Badge>
+                    <span className="sub"> {seller.detail}</span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+      </div>
+    </details>
   );
 }
 

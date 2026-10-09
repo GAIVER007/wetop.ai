@@ -183,7 +183,7 @@ describe('раздел «Платформа» — только главный а
       {
         id: ORG,
         name: 'Хостел «Пример»',
-        status: 'TRIAL',
+        status: 'ACTIVE',
         createdAt: '2026-09-25T00:00:00.000Z',
         members: 2,
         owners: ['vladelec@example.invalid'],

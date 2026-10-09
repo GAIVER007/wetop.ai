@@ -2648,7 +2648,6 @@ export interface PlatformOrganization {
   id: string;
   name: string;
   status: SignedInOrganization['status'];
-  trialEndsAt: string | null;
   createdAt: string;
   members: number;
   owners: string[];
@@ -2673,8 +2672,24 @@ export interface PlatformSiteBuilderLocation {
   license: { access: 'active' | 'expired' | 'off'; status: 'TRIAL' | 'ACTIVE' | 'OFF' | null; activeUntil: string | null; note: string | null; updatedAt: string | null };
 }
 
+/** Ответ на «Создать организацию»: письмо владельцу уходит, только если его учётной записи ещё не было */
+export interface CreatedOrganizationResult {
+  organizationId: string;
+  replay: boolean;
+  mailSent: boolean | null;
+}
+
 export const platformApi = {
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
+  /** Сквозной обзор платформы за месяц `ГГГГ-ММ` (текущий, если не задан) */
+  overview: (month?: string) =>
+    getJson<import('@pms/domain').PlatformOverview>(`/platform/overview${month ? `?month=${encodeURIComponent(month)}` : ''}`),
+  overviewSeries: (month?: string) =>
+    getJson<{ items: import('@pms/domain').OverviewSeriesPoint[] }>(
+      `/platform/overview/series${month ? `?month=${encodeURIComponent(month)}` : ''}`,
+    ),
+  createOrganization: (body: Record<string, unknown>) =>
+    sendJson<CreatedOrganizationResult>('POST', '/platform/organizations', body),
   siteBuilder: (organizationId: string) =>
     getJson<{ items: PlatformSiteBuilderLocation[] }>(`/platform/organizations/${encodeURIComponent(organizationId)}/site-builder`),
   changeSiteBuilder: (organizationId: string, locationId: string, body: ExtensionChangeBody) =>

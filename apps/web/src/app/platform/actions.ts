@@ -129,3 +129,29 @@ export async function changeSiteBuilderAction(
     return { error: e instanceof ApiError || e instanceof Error ? e.message : 'Не удалось сохранить', message: null, attempt };
   }
 }
+
+/**
+ * Окно «Создать организацию» («Платформа → Организации»): сохраняется сразу и целиком, черновиков нет. Проверку полей
+ * ведёт API; его слова возвращаются в окно, введённое остаётся на месте.
+ */
+export type CreateOrganizationResult =
+  | { ok: true; organizationId: string; replay: boolean; mailSent: boolean | null }
+  | { ok: false; error: string };
+
+export async function createOrganizationAction(
+  payload: Record<string, unknown>,
+): Promise<CreateOrganizationResult> {
+  try {
+    const created = await platformApi.createOrganization(payload);
+    revalidatePath('/platform');
+    return { ok: true, ...created };
+  } catch (e) {
+    return {
+      ok: false,
+      error:
+        e instanceof ApiError
+          ? e.message
+          : 'Не удалось сохранить. Проверьте связь и обновите страницу перед повтором.',
+    };
+  }
+}

@@ -51,7 +51,7 @@ const tree: TreeOrganization[] = [
 
 class FakeRepo {
   created: unknown[] = [];
-  next: CreatedOrganization = { organizationId: ORG, replay: false, newOwner: { email: 'owner@example.invalid' } };
+  next: CreatedOrganization = { organizationId: ORG, replay: false, newOwner: { email: 'owner@example.invalid' }, ownerOtherOrganizations: 0 };
   salonCalls: Array<{ from: string; to: string }> = [];
   async create(input: unknown) {
     this.created.push(input);
@@ -108,20 +108,22 @@ beforeEach(() => {
 describe('создание организации', () => {
   it('новому владельцу уходит письмо со ссылкой, организация создаётся без пробного периода', async () => {
     const out = await asAdmin(() => service().create(body));
-    expect(out).toEqual({ organizationId: ORG, replay: false, mailSent: true });
+    expect(out).toEqual({ organizationId: ORG, replay: false, mailSent: true, ownerOtherOrganizations: 0 });
     expect(access.sendAccess).toHaveBeenCalledWith('owner@example.invalid', 'Вячеслав Пример');
     expect(JSON.stringify(repo.created)).not.toMatch(/trial/i);
   });
 
   it('учётная запись уже есть: письма нет, доступ открыт членством', async () => {
-    repo.next = { organizationId: ORG, replay: false, newOwner: null };
+    repo.next = { organizationId: ORG, replay: false, newOwner: null, ownerOtherOrganizations: 1 };
     const out = await asAdmin(() => service().create(body));
     expect(out.mailSent).toBeNull();
+    // главный администратор узнаёт, что у этой почты уже есть другая организация
+    expect(out.ownerOtherOrganizations).toBe(1);
     expect(access.sendAccess).not.toHaveBeenCalled();
   });
 
   it('повтор запроса письмо второй раз не шлёт', async () => {
-    repo.next = { organizationId: ORG, replay: true, newOwner: null };
+    repo.next = { organizationId: ORG, replay: true, newOwner: null, ownerOtherOrganizations: 0 };
     expect((await asAdmin(() => service().create(body))).replay).toBe(true);
     expect(access.sendAccess).not.toHaveBeenCalled();
   });

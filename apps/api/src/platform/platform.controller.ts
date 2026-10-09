@@ -14,7 +14,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
-import { isMonth, parseExtensionChange } from '@pms/domain';
+import { isMonth, parseExtensionChange, visibleStatus } from '@pms/domain';
 import { currentUserId } from '../auth/request-context';
 import { requirePlatformAdmin } from './admin';
 import {
@@ -160,7 +160,8 @@ function organizationJson(o: OrganizationSummary, now: Date) {
   return {
     id: o.id,
     name: o.name,
-    status: o.status,
+    // пробного периода для экрана платформы нет: пробная работает до срока, затем только читает
+    status: visibleStatus(o.status, o.trialEndsAt, now),
     createdAt: o.createdAt.toISOString(),
     members: o.members,
     owners: o.owners,

@@ -10,18 +10,14 @@ import { displayDay } from './display-date';
  * сервера — ими пользуются и страница, и форма.
  */
 
-/** Состояние организации словами (срез 13, ADR-046): пробный — с последним днём по Алматы */
-export function organizationStatusLine(o: Pick<PlatformOrganization, 'status' | 'trialEndsAt'>): {
+/**
+ * Состояние организации словами. Пробного периода в разделе нет: API отдаёт «работает» или «только чтение»
+ * (`visibleStatus` в домене), здесь только слова и тон.
+ */
+export function organizationStatusLine(o: Pick<PlatformOrganization, 'status'>): {
   label: string;
   tone: BadgeTone;
 } {
-  if (o.status === 'TRIAL')
-    return {
-      label: o.trialEndsAt
-        ? `пробный по ${displayDay(extensionLastDay(o.trialEndsAt))}`
-        : 'пробный',
-      tone: 'info',
-    };
   if (o.status === 'ACTIVE') return { label: 'работает', tone: 'ok' };
   if (o.status === 'READ_ONLY') return { label: 'только чтение', tone: 'warn' };
   if (o.status === 'SUSPENDED') return { label: 'приостановлена', tone: 'danger' };

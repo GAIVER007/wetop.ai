@@ -66,6 +66,12 @@ export const REGION_TIMEZONES: readonly string[] = [
   ...new Set(REGION_COUNTRIES.flatMap((c) => c.cities.map((city) => city.timezone))),
 ];
 
+/** Пояса справочника с русским названием города: «Asia/Almaty» → «Алматы» (первый город пояса) */
+export const REGION_TIMEZONE_OPTIONS: ReadonlyArray<{ timezone: string; city: string }> = REGION_TIMEZONES.map((tz) => ({
+  timezone: tz,
+  city: REGION_COUNTRIES.flatMap((c) => c.cities).find((c) => c.timezone === tz)!.name,
+}));
+
 /** «(GMT+5) Алматы»: смещение на заданный момент и название города */
 export function timezoneLabel(timezone: string, city: string, now: Date = new Date()): string {
   const raw = new Intl.DateTimeFormat('en-US', { timeZone: timezone, timeZoneName: 'longOffset' })

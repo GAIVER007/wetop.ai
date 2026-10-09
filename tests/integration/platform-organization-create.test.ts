@@ -57,7 +57,7 @@ describe.skipIf(!url)('создание организации платформ�
       city: 'Алматы',
       timezone: 'Asia/Almaty',
       currency: 'KZT',
-      bin: '123456789012',
+      bin: '1234567890',
       website: 'example.kz',
       createFirstBranch: true,
       branchName: `Филиал ${mark}`,
@@ -91,7 +91,7 @@ describe.skipIf(!url)('создание организации платформ�
       expect(org.memberships[0]!.user).toMatchObject({ email: data.owner.email, passwordHash: '', emailVerifiedAt: null });
       const log = await tx.auditLog.findFirstOrThrow({ where: { entityId: data.id, action: 'organization.created' } });
       expect(log.organizationId).toBe(data.id);
-      expect(log.after).toMatchObject({ bin: '123456789012', website: 'https://example.kz', vertical: 'HOSPITALITY' });
+      expect(log.after).toMatchObject({ bin: '1234567890', website: 'https://example.kz', vertical: 'HOSPITALITY' });
     });
   });
 
@@ -140,8 +140,12 @@ describe.skipIf(!url)('создание организации платформ�
         data: { email: data.owner.email, name: 'Уже есть', passwordHash: 'x' },
         select: { id: true },
       });
+      const other = await tx.organization.create({ data: { name: `Прежняя ${randomUUID().slice(0, 8)}` } });
+      await tx.membership.create({ data: { userId: user.id, organizationId: other.id, role: 'OWNER' } });
       const out = await repo.create(data, null);
       expect(out.newOwner).toBeNull();
+      // у этой почты уже есть организация: так сказано главному администратору, вход откроет первую по времени
+      expect(out.ownerOtherOrganizations).toBe(1);
       expect(await tx.user.count({ where: { email: data.owner.email } })).toBe(1);
       expect(await tx.membership.findUniqueOrThrow({ where: { userId_organizationId: { userId: user.id, organizationId: data.id } } })).toMatchObject({ role: 'OWNER' });
     });

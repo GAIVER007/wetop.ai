@@ -42,22 +42,21 @@ test('организации: филиал создаётся прямо в ра
   await page.waitForURL('**/today');
   await page.goto('/platform');
   await expect(page.getByTestId('platform-forbidden')).toBeVisible();
-  await expect(page.locator('summary').filter({ hasText: 'Добавить объект / филиал' })).toHaveCount(
-    0,
-  );
+  await expect(page.locator('summary').filter({ hasText: 'Добавить филиал' })).toHaveCount(0);
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
   await page.reload();
   const main = page.getByRole('main');
-  await main.locator('summary').filter({ hasText: 'Добавить объект / филиал' }).click();
+  await main.locator('summary').filter({ hasText: 'Добавить филиал в' }).click();
   await main.getByLabel('Название филиала').fill('Тестовый объект Север');
   await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
   await expect(main.getByRole('status')).toContainText('Филиал создан');
   await page.reload();
+  // филиал виден строкой в карточке своей организации
   await expect(
-    main.getByRole('heading', { name: 'Тестовый объект Север', exact: true }),
-  ).toBeVisible();
-  await expect(
-    main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+    page
+      .getByTestId('platform-organization-card')
+      .filter({ hasText: 'Luxx Aparts' })
+      .getByText('Тестовый объект Север', { exact: true }),
   ).toBeVisible();
   await expect(main.getByTestId('platform-organizations')).not.toBeVisible();
   await main.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
@@ -75,7 +74,11 @@ test('организации: филиал создаётся прямо в ра
     path: 'reports/branches-2026-10-01/platform-branches.png',
     fullPage: true,
   });
-  await main.getByRole('button', { name: 'Открыть филиал', exact: true }).click();
+  await page
+    .getByTestId('platform-organization-card')
+    .filter({ hasText: 'Luxx Aparts' })
+    .getByRole('button', { name: 'Открыть', exact: true })
+    .click();
   await page.waitForURL('**/today');
 });
 

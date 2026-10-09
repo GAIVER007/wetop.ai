@@ -23,7 +23,7 @@ import {
   organizationSince,
   organizationStatusLine,
 } from '../../lib/platform';
-import { ArchiveForm, ExtensionForm, RenameForm, StatusForm } from './forms';
+import { ArchiveForm, CreateOrganizationForm, ExtensionForm, OwnerLinkForm, RenameForm, StatusForm } from './forms';
 import { OwnOrganization } from './own-organization';
 import { SiteBuilderLicense } from './site-builder';
 import { DataConnectionPanel } from './data-connection';
@@ -123,15 +123,13 @@ async function Organizations({
         <details className="org-add">
           <summary className="btn">Добавить организацию</summary>
           <div className="stack" data-testid="platform-add-organization">
-            <p>
-              Организация регистрируется сама: отправьте её владельцу ссылку. Он заводит аккаунт, выбирает
-              направление и подтверждает почту, после этого организация появится в этой таблице с пробным
-              периодом.
-            </p>
-            <p>
+            <CreateOrganizationForm />
+            <p className="settings-note">
+              Организация может зарегистрироваться и сама:{' '}
               <Link href={publicAuthUrl('register')} prefetch={false}>
-                Страница регистрации
+                страница регистрации
               </Link>
+              . После регистрации она появится в этой таблице с пробным периодом.
             </p>
           </div>
         </details>
@@ -174,6 +172,12 @@ async function Organizations({
                         <>
                           {' '}
                           <Badge tone="info">Ваша</Badge>
+                        </>
+                      )}
+                      {o.ownerPending && (
+                        <>
+                          {' '}
+                          <Badge tone="warn">ждёт пароля</Badge>
                         </>
                       )}
                       <span className="sub">, с {organizationSince(o.createdAt)}</span>
@@ -238,6 +242,12 @@ function OrganizationCard({
         <Fact label="Людей" value={String(o.members)} />
         <Fact label="ИИ-продавец" value={`${seller.label}, ${seller.detail}`} />
       </Grid>
+      {o.ownerPending && !archived && (
+        <>
+          <SectionTitle>Доступ владельца</SectionTitle>
+          <OwnerLinkForm key={`owner-${o.id}`} organizationId={o.id} owner={o.owners[0] ?? 'организации'} />
+        </>
+      )}
       <SectionTitle>Название</SectionTitle>
       <RenameForm key={o.id} organizationId={o.id} organizationName={o.name} />
       {!archived && (

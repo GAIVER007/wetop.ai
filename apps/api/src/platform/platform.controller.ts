@@ -15,7 +15,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
-import { isOrganizationNameShaped, normalizeOrganizationName, parseExtensionChange } from '@pms/domain';
+import {
+  isOrganizationNameShaped,
+  normalizeOrganizationName,
+  parseBusinessVertical,
+  parseExtensionChange,
+  validEmail,
+  type BusinessVertical,
+} from '@pms/domain';
 import { currentOrganizationId, currentUserId } from '../auth/request-context';
 import { requirePlatformAdmin } from './admin';
 import {
@@ -24,12 +31,14 @@ import {
   type OrganizationSummary,
 } from './extensions.repository';
 import { ExtensionsService, aiSellerView } from './extensions.service';
+import { OrganizationCreation } from './organization-creation';
 import { SiteBuilderLicenses, licenseLocationView } from './site-builder-licenses';
 import { Access } from '../auth/access.decorator';
 
 export { PLATFORM_ADMIN_ONLY } from './admin';
 export const PLATFORM_NO_ORGANIZATION = 'Такой организации нет';
 export const PLATFORM_NAME_MESSAGE = 'Название организации: от 1 до 200 знаков';
+export const PLATFORM_OWNER_EMAIL_MESSAGE = 'Почта владельца: введите адрес вида имя@домен';
 export const PLATFORM_OWN_ORGANIZATION = 'Свою организацию в архив убрать нельзя: вы потеряли бы доступ к платформе';
 export const PLATFORM_ALREADY_ARCHIVED = 'Организация уже в архиве';
 export const PLATFORM_NOT_ARCHIVED = 'Организация не в архиве';
@@ -49,6 +58,7 @@ export class PlatformController {
     @Inject(EXTENSIONS_REPOSITORY) private readonly repo: ExtensionsRepository,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
     @Inject(SiteBuilderLicenses) private readonly licenses: SiteBuilderLicenses,
+    @Inject(OrganizationCreation) private readonly creation: OrganizationCreation,
   ) {}
 
   @Get('organizations')
@@ -57,6 +67,32 @@ export class PlatformController {
     requirePlatformAdmin();
     const now = new Date();
     return { items: (await this.repo.organizations()).map((o) => organizationJson(o, now)) };
+  }
+
+  /**
+   * Создание организации главным администратором (ORG2, ADR-ORG2, Q-283): организация, первый филиал и владелец без
+   * пароля, владельцу уходит ссылка «задайте пароль». Письмо не ушло: организация создана, `ownerLinkSent: false`.
+   */
+  @Post('organizations')
+  async create(@Body() body: unknown) {
+    requirePlatformAdmin();
+    const parsed = parseCreate(body);
+    if (!parsed.ok) throw new BadRequestException(parsed.message);
+    const now = new Date();
+    const made = await this.creation.create({ ...parsed.value, by: currentUserId() }, now);
+    const saved = await this.repo.organization(made.organizationId);
+    return { organization: organizationJson(saved!, now), ownerLinkSent: made.ownerLinkSent };
+  }
+
+  /** Ссылка «задайте пароль» ещё раз: только владельцу без пароля, прежняя ссылка гаснет */
+  @Post('organizations/:id/owner-link')
+  async ownerLink(@Param('id') id: string) {
+    requirePlatformAdmin();
+    if (!UUID.test(id)) throw new BadRequestException('Организация: ожидается идентификатор');
+    if (!(await this.repo.organization(id))) throw new NotFoundException(PLATFORM_NO_ORGANIZATION);
+    const now = new Date();
+    const sent = await this.creation.resendOwnerLink(id, now);
+    return { organization: organizationJson((await this.repo.organization(id))!, now), ownerLinkSent: sent.ownerLinkSent };
   }
 
   /** Название организации (ORG1, ADR-ORG1): пробелы сжимаются, то же название ничего не пишет в журнал */
@@ -170,6 +206,18 @@ export class PlatformController {
   }
 }
 
+function parseCreate(
+  body: unknown,
+): { ok: true; value: { name: string; ownerEmail: string; vertical: BusinessVertical } } | { ok: false; message: string } {
+  const input = (body ?? {}) as { name?: unknown; ownerEmail?: unknown; vertical?: unknown };
+  if (typeof input.name !== 'string' || !isOrganizationNameShaped(input.name)) return { ok: false, message: PLATFORM_NAME_MESSAGE };
+  const ownerEmail = typeof input.ownerEmail === 'string' ? validEmail(input.ownerEmail) : null;
+  if (!ownerEmail) return { ok: false, message: PLATFORM_OWNER_EMAIL_MESSAGE };
+  const vertical = input.vertical === undefined ? 'HOSPITALITY' : parseBusinessVertical(input.vertical);
+  if (!vertical) return { ok: false, message: 'Выберите направление бизнеса' };
+  return { ok: true, value: { name: normalizeOrganizationName(input.name), ownerEmail, vertical } };
+}
+
 function organizationJson(o: OrganizationSummary, now: Date) {
   return {
     id: o.id,
@@ -179,6 +227,7 @@ function organizationJson(o: OrganizationSummary, now: Date) {
     createdAt: o.createdAt.toISOString(),
     members: o.members,
     owners: o.owners,
+    ownerPending: o.ownerPending,
     aiSeller: {
       ...aiSellerView(o.aiSeller, now),
       note: o.aiSeller?.note ?? null,

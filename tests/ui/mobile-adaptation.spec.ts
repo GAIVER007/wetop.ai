@@ -101,7 +101,9 @@ test('телефон: сводка и управление оставляют с
   expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(700);
   const navigation = await page.locator('.bottom-navigation').boundingBox();
   expect(navigation!.y - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
-  await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
+  // готовые периоды с 09.10 живут в раскрывашке периода: строка управления короче, сетка выше
+  await page.getByTestId('board-period-button').click();
+  await expect(page.getByRole('navigation', { name: 'Готовые периоды' })).toBeVisible();
 });
 
 test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {

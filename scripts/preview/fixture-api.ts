@@ -3,7 +3,7 @@ import { registrationBusiness } from '../../apps/api/src/auth/registration-contr
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { barFixture, resetBarFixture } from './bar-fixture';
 import { marketingSiteFixture, platformSiteBuilderFixture, resetMarketingSiteFixture } from './fixture-marketing-site';
-import { resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
+import { fixtureAssetById, resetSiteAssetsFixture, siteAssetsFixture } from './fixture-site-assets';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -30,6 +30,7 @@ import {
   isOrganizationNameShaped,
   normalizeOrganizationName,
   parseExtensionChange,
+  validEmail,
   INVITE_STAFF_ONLY_MESSAGE,
   INVITE_MANAGER_OWNER_ONLY_MESSAGE,
   INVITE_ROLE_MESSAGE,
@@ -2205,6 +2206,16 @@ const platformStatuses = new Map<string, string>();
 // ORG1 (ADR-ORG1): название, правленное главным администратором, и организации в архиве (прежний статус для возврата)
 const platformNames = new Map<string, string>();
 const platformArchived = new Map<string, string>();
+// ORG2 (ADR-ORG2): организации, созданные главным администратором; письмо владельцу и время последней ссылки
+interface FixtureCreatedOrg {
+  id: string;
+  name: string;
+  ownerEmail: string;
+  createdAt: string;
+}
+const platformCreated: FixtureCreatedOrg[] = [];
+const platformLinkAt = new Map<string, number>();
+let platformMailOn = true;
 function setOrgTrial(days: unknown) {
   const now = Date.now();
   uiUser.organization =
@@ -2231,6 +2242,9 @@ function resetAccess() {
   platformStatuses.clear();
   platformNames.clear();
   platformArchived.clear();
+  platformCreated.length = 0;
+  platformLinkAt.clear();
+  platformMailOn = true;
   setSellerExtension('active', null, false);
 }
 resetAccess();
@@ -2256,6 +2270,7 @@ const platformOrganizations = () => [
     createdAt: '2026-09-01T04:00:00.000Z',
     members: uiMembers.size,
     owners: ['admin@wetop.test'],
+    ownerPending: false,
   },
   {
     id: 'ui-org-2',
@@ -2265,7 +2280,18 @@ const platformOrganizations = () => [
     createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     members: 1,
     owners: ['owner@example.com'],
+    ownerPending: false,
   },
+  ...platformCreated.map((c) => ({
+    id: c.id,
+    name: platformNames.get(c.id) ?? c.name,
+    status: platformArchived.has(c.id) ? 'SUSPENDED' : (platformStatuses.get(c.id) ?? 'TRIAL'),
+    trialEndsAt: new Date(Date.now() + 14 * DAY_MS).toISOString(),
+    createdAt: c.createdAt,
+    members: 1,
+    owners: [c.ownerEmail],
+    ownerPending: true,
+  })),
 ];
 // ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
 const SUPPORT_DIALOG_A = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
@@ -3093,6 +3119,17 @@ function read(path: string, q: URLSearchParams): unknown {
       ratePlanNames: c.rateNames ?? [plans[0]!.name],
       ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
     }));
+  if (path === '/inventory/photos') {
+    const out: Record<string, unknown[]> = {};
+    for (const [code, ids] of categoryPhotos) {
+      const list = ids.flatMap((id) => {
+        const a = fixtureAssetById(id);
+        return a ? [{ assetId: a.id, url: a.previewUrl, alt: a.defaultAlt?.ru ?? null, width: a.width, height: a.height }] : [];
+      });
+      if (list.length) out[code] = list;
+    }
+    return out;
+  }
   if (path === '/inventory/summary')
     return {
       property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -4462,6 +4499,8 @@ function marketRoute(
   }
 }
 
+/** Фото категорий (DATA_MODEL §30): код категории → порядок id картинок библиотеки */
+const categoryPhotos = new Map<string, string[]>();
 const fixtureBranches: Array<Record<string, unknown>> = [];
 /**
  * Филиал по умолчанию: его отдаёт `GET /branches`, и его же должен подтверждать `/auth/me`, как настоящий `scopeView`.
@@ -4625,6 +4664,7 @@ createServer(async (req, res) => {
       return send(200, { ok: true, today });
     }
     if (path === '/__test/reset') {
+      categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBeautyServices.length = 0;
       fixtureBeautyEmployees.length = 0;
@@ -4851,6 +4891,7 @@ createServer(async (req, res) => {
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
+      if ('platformMail' in body) platformMailOn = body['platformMail'] !== 'off';
       if (body['branchWithInventory'] === true) for (const branch of fixtureBranches) branch._count = { inventoryUnits: 3, accommodationTypes: 1 };
       setSellerExtension(
         body['sellerExtension'],
@@ -5784,6 +5825,39 @@ createServer(async (req, res) => {
           200,
           platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),
         );
+      }
+      // ORG2 (ADR-ORG2, Q-283): создание организации и ссылка владельцу, те же слова отказа, что у API
+      if (path === '/platform/organizations' && req.method === 'POST') {
+        const name = body['name'];
+        if (typeof name !== 'string' || !isOrganizationNameShaped(name))
+          return send(400, { message: 'Название организации: от 1 до 200 знаков' });
+        const rawEmail = body['ownerEmail'];
+        const ownerEmail = typeof rawEmail === 'string' ? validEmail(rawEmail) : null;
+        if (!ownerEmail) return send(400, { message: 'Почта владельца: введите адрес вида имя@домен' });
+        const vertical = body['vertical'] ?? 'HOSPITALITY';
+        if (vertical !== 'HOSPITALITY' && vertical !== 'BEAUTY' && vertical !== 'FOOD_SERVICE')
+          return send(400, { message: 'Выберите направление бизнеса' });
+        if (vertical !== 'HOSPITALITY')
+          return send(403, { message: 'Направление пока доступно только участникам пилота' });
+        const taken = ['admin@wetop.test', 'owner@example.com', ...platformCreated.map((c) => c.ownerEmail)];
+        if (taken.includes(ownerEmail)) return send(409, { message: 'Эта почта уже зарегистрирована' });
+        const id = `ui-org-new-${platformCreated.length + 1}`;
+        platformCreated.push({ id, name: normalizeOrganizationName(name), ownerEmail, createdAt: new Date().toISOString() });
+        if (platformMailOn) platformLinkAt.set(id, Date.now());
+        return send(201, {
+          organization: platformOrganizationJson(platformOrganizations().find((o) => o.id === id)!),
+          ownerLinkSent: platformMailOn,
+        });
+      }
+      const ownerLink = /^\/platform\/organizations\/([^/]+)\/owner-link$/.exec(path);
+      if (ownerLink && req.method === 'POST') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(ownerLink[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        if (!org.ownerPending) return send(409, { message: 'Владелец уже задал пароль: ссылка не нужна' });
+        if (platformLinkAt.has(org.id))
+          return send(429, { message: 'Письмо уже отправляли: повторить можно через несколько минут' });
+        if (platformMailOn) platformLinkAt.set(org.id, Date.now());
+        return send(201, { organization: platformOrganizationJson(org), ownerLinkSent: platformMailOn });
       }
       // ORG1 (ADR-ORG1): название, архив и возврат организации, те же слова отказа, что у API
       const rename = /^\/platform\/organizations\/([^/]+)$/.exec(path);
@@ -6877,6 +6951,16 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (token) uiSessions.delete(token);
       return send(200, { ok: true });
+    }
+
+    if (path.startsWith('/inventory/categories/') && path.endsWith('/photos') && req.method === 'PUT') {
+      const ids = (body as { assetIds?: unknown }).assetIds;
+      if (!Array.isArray(ids) || ids.length > 10 || new Set(ids).size !== ids.length)
+        return send(400, { message: 'assetIds: до десяти разных изображений' });
+      if (ids.some((id) => typeof id !== 'string' || fixtureAssetById(id)?.kind !== 'IMAGE'))
+        return send(400, { message: 'Фото нет в библиотеке филиала или оно не готово.' });
+      categoryPhotos.set(decodeURIComponent(path.split('/')[3]!), ids as string[]);
+      return send(200, { count: ids.length });
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {

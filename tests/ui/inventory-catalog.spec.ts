@@ -62,11 +62,15 @@ test('таблица показывает расположение, состоя
     main
       .getByTestId('unit-row')
       .filter({ has: page.getByRole('link', { name: `Открыть номер ${code}`, exact: true }) });
-  await expect(row('R09')).toContainText('заблокирована');
-  await expect(row('R09')).toContainText('ремонт: кондиционер');
+  await expect(row('R09')).toContainText('Недоступно');
+  // причина и срок блокировки в подсказке значка, в строке только слово «Недоступно»
+  await expect(row('R09').getByText('Недоступно', { exact: true })).toHaveAttribute(
+    'title',
+    /ремонт: кондиционер/,
+  );
   await expect(row('R01')).toContainText('Требует уборки');
   await expect(row('R01')).toContainText('Корпус Основной');
-  await expect(row('R02')).toContainText('в продаже');
+  await expect(row('R02')).toContainText('В продаже');
   await expect(row('R02')).toContainText('Проверено');
   // категории — заголовками групп с числом мест и вместимостью (как список категорий),
   // а не колонкой, где имя повторяется в каждой из 88 строк (упрощение фонда 02.10)

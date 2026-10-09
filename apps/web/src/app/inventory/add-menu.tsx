@@ -15,7 +15,7 @@ export function AddMenu({ categories }: { categories: InventoryCategory[] }) {
   return (
     <>
       <ActionMenu
-        text="+ Добавить"
+        text="Добавить номер"
         tone="primary"
         label="Добавить в номерной фонд"
         items={[

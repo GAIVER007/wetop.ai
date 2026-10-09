@@ -2,13 +2,20 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import type { CategorySummary, InventoryUnit, InventoryCategory } from '../../lib/api';
+import type {
+  CategorySummary,
+  InventoryUnit,
+  InventoryCategory,
+  UnitOccupancy,
+} from '../../lib/api';
 import { Badge, Button, EmptyState, Input, Select, Table, cx } from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
 import { pluralRu } from '../../lib/plural';
 import { FundEditorDialog } from './fund-editor';
-import { HousekeepingBadge, UnitStateBadge, floorRoomText } from './unit-state';
+import { HousekeepingBadge, floorRoomText } from './unit-state';
+import { displayDate } from '../../lib/display-date';
+import { blockTypeLabel } from '../../lib/block-types';
 
 /**
  * Каталог фонда (ADR-108, срез I1): toolbar с фильтрами вместо постоянной левой панели,
@@ -23,14 +30,53 @@ function PlaceCell({ unit }: { unit: InventoryUnit }) {
   return <span className="inventory-place">{text || '—'}</span>;
 }
 
+type ChannelMark = { key: string; title: string; mark: string };
+
+/** Проживание или бронь на сегодня одной ячейкой: точка статуса, слово, гость */
+function OccupancyCell({ unit, occ }: { unit: InventoryUnit; occ: UnitOccupancy | undefined }) {
+  if (!unit.active || unit.block) return <span className="inventory-state-note">—</span>;
+  if (!occ || occ.state === 'FREE')
+    return (
+      <span className="inv-occ">
+        <i className="inv-dot inv-dot--free" aria-hidden="true" />
+        Свободно
+      </span>
+    );
+  return (
+    <span className="inv-occ">
+      <i
+        className={cx('inv-dot', occ.state === 'STAYING' ? 'inv-dot--stay' : 'inv-dot--arrive')}
+        aria-hidden="true"
+      />
+      <span className="inv-occ-text">
+        <strong>{occ.state === 'STAYING' ? 'Проживает' : 'Заезд сегодня'}</strong>
+        {occ.guest && <span>{occ.guest}</span>}
+      </span>
+    </span>
+  );
+}
+
+/** «Свободно» только для места в продаже без блокировки и без гостя на сегодня */
+function matchOccupancy(unit: InventoryUnit, o: UnitOccupancy | undefined, filter: string) {
+  if (!unit.active || unit.block) return false;
+  const state = o?.state ?? 'FREE';
+  return state === filter.toUpperCase();
+}
+
 export function InventoryCatalog({
   units,
   categories,
   editorCategories,
+  occupancy = [],
+  channels = [],
+  channelCategories = [],
 }: {
   units: InventoryUnit[];
   categories: CategorySummary[];
   editorCategories: InventoryCategory[];
+  occupancy?: UnitOccupancy[];
+  channels?: ChannelMark[];
+  channelCategories?: string[];
 }) {
   // Пока открыта панель места (адрес `/units/<код>`), список под ней держит фильтры фонда, а не пустые
   // параметры адреса панели — иначе он перерисовывался бы целиком и терял место прокрутки (ADR-108, I2)
@@ -41,6 +87,9 @@ export function InventoryCatalog({
   const search = kept.current;
   const router = useRouter();
   const [editRoom, setEditRoom] = useState<InventoryUnit | null>(null);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const occ = new Map(occupancy.map((o) => [o.code, o]));
+  const mapped = new Set(channelCategories);
   const category = search.get('category') ?? '';
   const kind = ['ROOM', 'BED'].includes(search.get('kind') ?? '') ? search.get('kind')! : '';
   const q = search.get('q') ?? '';
@@ -49,6 +98,9 @@ export function InventoryCatalog({
   const floor = search.get('floor') ?? '';
   const state = search.get('state') ?? '';
   const housekeeping = search.get('housekeeping') ?? '';
+  const occupancyFilter = ['free', 'staying', 'arriving'].includes(search.get('occupancy') ?? '')
+    ? search.get('occupancy')!
+    : '';
   const query = q.trim().toLocaleLowerCase('ru');
   const filtered = units
     .filter(
@@ -58,6 +110,7 @@ export function InventoryCatalog({
         (!building || unit.buildingName === building) &&
         (!floor || unit.floorName === floor) &&
         (!housekeeping || unit.housekeepingStatus === housekeeping) &&
+        (!occupancyFilter || matchOccupancy(unit, occ.get(unit.code), occupancyFilter)) &&
         (!state ||
           (state === 'blocked'
             ? Boolean(unit.block)
@@ -97,9 +150,60 @@ export function InventoryCatalog({
     const cap = capacity.get(code);
     return cap ? `${count}, ${pluralRu(cap, ['гость', 'гостя', 'гостей'])}` : count;
   };
+  const places = [
+    ...new Map(
+      units
+        .filter((u) => u.buildingName || u.floorName)
+        .map(
+          (u) =>
+            [
+              `${u.buildingName ?? ''}|${u.floorName ?? ''}`,
+              [u.buildingName ?? '', u.floorName ?? ''],
+            ] as const,
+        ),
+    ).values(),
+  ].sort(
+    (x, y) => x[0].localeCompare(y[0], 'ru') || x[1].localeCompare(y[1], 'ru', { numeric: true }),
+  );
+  const isFree = (u: InventoryUnit) => matchOccupancy(u, occ.get(u.code), 'free');
+  const tab = kind
+    ? kind
+    : state === 'blocked' && !housekeeping && !occupancyFilter
+      ? 'blocked'
+      : housekeeping === 'DIRTY' && !state && !occupancyFilter
+        ? 'dirty'
+        : occupancyFilter === 'free' && !state && !housekeeping
+          ? 'free'
+          : !state && !housekeeping && !occupancyFilter
+            ? ''
+            : 'custom';
+  const tabs: Array<[string, string, number]> = [
+    ['', 'Все', units.length],
+    ['ROOM', 'Номера', units.filter((u) => u.kind === 'ROOM').length],
+    ['BED', 'Койко-места', units.filter((u) => u.kind === 'BED').length],
+    ['blocked', 'Недоступные', units.filter((u) => u.active && u.block).length],
+    [
+      'dirty',
+      'Требуют уборки',
+      units.filter((u) => u.active && u.housekeepingStatus === 'DIRTY').length,
+    ],
+    ['free', 'Свободные', units.filter(isFree).length],
+  ];
+  /** Вкладка задаёт ровно свой фильтр и снимает остальные фильтры вкладок */
+  function pickTab(id: string) {
+    const params = new URLSearchParams(search.toString());
+    for (const key of ['kind', 'state', 'housekeeping', 'occupancy']) params.delete(key);
+    if (id === 'ROOM' || id === 'BED') params.set('kind', id);
+    if (id === 'blocked') params.set('state', 'blocked');
+    if (id === 'dirty') params.set('housekeeping', 'DIRTY');
+    if (id === 'free') params.set('occupancy', 'free');
+    window.history.pushState(null, '', `/inventory${params.size ? `?${params}` : ''}`);
+  }
   const label = (unit: InventoryUnit) =>
     `Открыть ${unit.kind === 'BED' ? 'койко-место' : 'номер'} ${unit.code}`;
-  const isFiltered = Boolean(category || kind || q || building || floor || state || housekeeping);
+  const isFiltered = Boolean(
+    category || kind || q || building || floor || state || housekeeping || occupancyFilter,
+  );
   function update(key: string, value: string, replace = false) {
     const params = new URLSearchParams(search.toString());
     if (value) params.set(key, value);
@@ -124,14 +228,14 @@ export function InventoryCatalog({
           <Input
             type="search"
             aria-label="Поиск по номерному фонду"
-            placeholder="Номер, койка, комната, категория"
+            placeholder="Поиск по номеру, койке, категории, корпусу..."
             value={q}
             onChange={(e) => update('q', e.target.value, true)}
           />
         </div>
         <Select
           aria-label="Категория размещения"
-          className="inventory-category-filter"
+          className="inventory-filter"
           value={category}
           onChange={(e) => update('category', e.target.value)}
         >
@@ -145,6 +249,85 @@ export function InventoryCatalog({
             <option value={category}>Неизвестная категория</option>
           )}
         </Select>
+        <Select
+          aria-label="Фильтр по состоянию"
+          className="inventory-filter"
+          value={state}
+          onChange={(e) => update('state', e.target.value)}
+        >
+          <option value="">Любой статус</option>
+          <option value="sale">В продаже</option>
+          <option value="blocked">Недоступны</option>
+          <option value="archived">В архиве</option>
+        </Select>
+        <Select
+          aria-label="Фильтр по корпусу и этажу"
+          className="inventory-filter"
+          value={`${building}|${floor}`}
+          onChange={(e) => {
+            const [b = '', f = ''] = e.target.value.split('|');
+            const params = new URLSearchParams(search.toString());
+            for (const [key, value] of [
+              ['building', b],
+              ['floor', f],
+            ] as const) {
+              if (value) params.set(key, value);
+              else params.delete(key);
+            }
+            window.history.pushState(null, '', `/inventory${params.size ? `?${params}` : ''}`);
+          }}
+        >
+          <option value="|">Все корпуса / этажи</option>
+          {places.map(([b, f]) => (
+            <option key={`${b}|${f}`} value={`${b}|${f}`}>
+              {[b && `Корпус ${b}`, f && `этаж ${f}`].filter(Boolean).join(', ')}
+            </option>
+          ))}
+        </Select>
+        <Select
+          aria-label="Фильтр по уборке"
+          className="inventory-filter"
+          value={housekeeping}
+          onChange={(e) => update('housekeeping', e.target.value)}
+        >
+          <option value="">Любая уборка</option>
+          <option value="DIRTY">Требует уборки</option>
+          <option value="CLEAN">Убрано</option>
+          <option value="INSPECTED">Проверено</option>
+        </Select>
+        <Select
+          aria-label="Фильтр по занятости"
+          className="inventory-filter"
+          value={occupancyFilter}
+          onChange={(e) => update('occupancy', e.target.value)}
+        >
+          <option value="">Любая занятость</option>
+          <option value="free">Свободно</option>
+          <option value="staying">Проживает</option>
+          <option value="arriving">Заезд сегодня</option>
+        </Select>
+      </div>
+      <div className="inventory-filters">
+        <div className="inventory-kind" role="group" aria-label="Тип размещения">
+          {tabs.map(([id, text, count]) => (
+            <button
+              type="button"
+              key={id}
+              aria-label={text}
+              aria-pressed={tab === id}
+              className={cx(tab === id && 'is-selected')}
+              onClick={() => pickTab(id)}
+            >
+              {text}
+              <span aria-hidden="true">{count}</span>
+            </button>
+          ))}
+        </div>
+        {isFiltered && (
+          <Button tone="ghost" size="sm" onClick={reset}>
+            Сбросить фильтры
+          </Button>
+        )}
         <div className="seg" role="group" aria-label="Вид каталога">
           {(['list', 'cards'] as const).map((v) => (
             <button
@@ -159,105 +342,6 @@ export function InventoryCatalog({
             </button>
           ))}
         </div>
-      </div>
-      <div className="inventory-filters">
-        <div className="inventory-kind" role="group" aria-label="Тип размещения">
-          {[
-            ['', 'Все'],
-            ['ROOM', 'Номера'],
-            ['BED', 'Койко-места'],
-          ].map(([value, text]) => (
-            <button
-              type="button"
-              key={value}
-              aria-label={text}
-              aria-pressed={kind === value}
-              className={cx(kind === value && 'is-selected')}
-              onClick={() => update('kind', value!)}
-            >
-              {text}
-              <span aria-hidden="true">
-                {units.filter((u) => !value || u.kind === value).length}
-              </span>
-            </button>
-          ))}
-        </div>
-        {isFiltered && (
-          <Button tone="ghost" size="sm" onClick={reset}>
-            Сбросить фильтры
-          </Button>
-        )}
-        <details
-          className="inventory-extra"
-          open={Boolean(building || floor || state || housekeeping) || undefined}
-        >
-          <summary>
-            Расположение и состояние
-            {building || floor || state || housekeeping ? ' применены' : ''}
-          </summary>
-          <div className="inventory-extra-fields">
-            <label>
-              Корпус
-              <Select
-                aria-label="Фильтр по корпусу"
-                value={building}
-                onChange={(e) => update('building', e.target.value)}
-              >
-                <option value="">Все корпуса</option>
-                {[...new Set(units.map((u) => u.buildingName).filter(Boolean))]
-                  .sort()
-                  .map((value) => (
-                    <option key={value} value={value!}>
-                      {value}
-                    </option>
-                  ))}
-              </Select>
-            </label>
-            <label>
-              Этаж
-              <Select
-                aria-label="Фильтр по этажу"
-                value={floor}
-                onChange={(e) => update('floor', e.target.value)}
-              >
-                <option value="">Все этажи</option>
-                {[...new Set(units.map((u) => u.floorName).filter(Boolean))]
-                  .sort((a, b) => a!.localeCompare(b!, 'ru', { numeric: true }))
-                  .map((value) => (
-                    <option key={value} value={value!}>
-                      {value}
-                    </option>
-                  ))}
-              </Select>
-            </label>
-            <label>
-              Состояние
-              <Select
-                aria-label="Фильтр по состоянию"
-                value={state}
-                onChange={(e) => update('state', e.target.value)}
-              >
-                <option value="">Все состояния</option>
-                <option value="sale">В продаже</option>
-                <option value="blocked">Заблокированы</option>
-                <option value="archived">В архиве</option>
-              </Select>
-            </label>
-            <label>
-              Уборка
-              <Select
-                aria-label="Фильтр по уборке"
-                value={housekeeping}
-                onChange={(e) => update('housekeeping', e.target.value)}
-              >
-                <option value="">Любая уборка</option>
-                <option value="DIRTY">Требует уборки</option>
-                <option value="CLEAN">Убрано</option>
-                <option value="INSPECTED">Проверено</option>
-              </Select>
-            </label>
-          </div>
-        </details>
       </div>
       <div className="inventory-results" role="status" aria-live="polite">
         Показано {filtered.length} из {units.length}
@@ -324,81 +408,132 @@ export function InventoryCatalog({
           <thead>
             <tr>
               <th>Место</th>
+              <th>Тип</th>
               <th>Расположение</th>
-              <th>Состояние</th>
+              <th>Вместимость</th>
+              <th>Статус продажи</th>
+              <th>Проживание / бронь</th>
               <th>Уборка</th>
+              <th>Каналы</th>
               <th>
                 <span className="sr-only">Действия</span>
               </th>
             </tr>
           </thead>
-          {/* Категория — заголовком группы с числом мест и вместимостью, как список категорий:
-              имя один раз вместо колонки с повторами в каждой из 88 строк */}
+          {/* Категория заголовком группы с числом мест и вместимостью; группу можно свернуть */}
           {[...groups]
             .filter(([, group]) => group.units.length > 0)
             .map(([code, group]) => (
               <tbody key={code}>
                 <tr className="inventory-group-row" data-testid="category-group">
-                  <th scope="colgroup" colSpan={5}>
-                    {group.name}
+                  <th scope="colgroup" colSpan={9}>
+                    <button
+                      type="button"
+                      className="inv-group-toggle"
+                      aria-expanded={!collapsed.has(code)}
+                      onClick={() =>
+                        setCollapsed((prev) => {
+                          const next = new Set(prev);
+                          if (!next.delete(code)) next.add(code);
+                          return next;
+                        })
+                      }
+                    >
+                      <Icon name="down" width={16} height={16} className="inv-group-chevron" />
+                      <Icon
+                        name={group.units[0]!.kind === 'BED' ? 'bed' : 'inventory'}
+                        width={16}
+                        height={16}
+                      />
+                      {group.name}
+                    </button>
                     <span>{groupMeta(code, group.units)}</span>
                   </th>
                 </tr>
-                {group.units.map((unit) => (
-                  <tr
-                    key={unit.code}
-                    data-testid="unit-row"
-                    className="inventory-row"
-                    onClick={(e) => rowClick(e, unit)}
-                  >
-                    <td>
-                      <Link
-                        prefetch={false}
-                        href={`/units/${encodeURIComponent(unit.code)}`}
-                        aria-label={label(unit)}
-                        className="inventory-unit-link"
-                      >
-                        <Icon
-                          name={unit.kind === 'ROOM' ? 'inventory' : 'bed'}
-                          width={16}
-                          height={16}
+                {!collapsed.has(code) &&
+                  group.units.map((unit) => (
+                    <tr
+                      key={unit.code}
+                      data-testid="unit-row"
+                      className="inventory-row"
+                      onClick={(e) => rowClick(e, unit)}
+                    >
+                      <td>
+                        <Link
+                          prefetch={false}
+                          href={`/units/${encodeURIComponent(unit.code)}`}
+                          aria-label={label(unit)}
+                          className="inventory-unit-link"
+                        >
+                          <strong>{unit.code}</strong>
+                        </Link>
+                      </td>
+                      <td>
+                        <span className="inv-type">
+                          <Icon
+                            name={unit.kind === 'ROOM' ? 'inventory' : 'bed'}
+                            width={16}
+                            height={16}
+                          />
+                          {unit.kind === 'ROOM' ? 'Номер' : 'Койко-место'}
+                        </span>
+                      </td>
+                      <td>
+                        <PlaceCell unit={unit} />
+                      </td>
+                      <td className="inv-num">{unit.kind === 'BED' ? 1 : unit.roomCapacity}</td>
+                      <td>
+                        {!unit.active ? (
+                          <Badge>В архиве</Badge>
+                        ) : unit.block ? (
+                          <Badge
+                            tone="danger"
+                            title={`До ${displayDate(unit.block.dateTo, 'numeric')}, ${unit.block.reason || blockTypeLabel(unit.block.type)}`}
+                          >
+                            Недоступно
+                          </Badge>
+                        ) : (
+                          <Badge tone="ok">В продаже</Badge>
+                        )}
+                      </td>
+                      <td>
+                        <OccupancyCell unit={unit} occ={occ.get(unit.code)} />
+                      </td>
+                      <td>
+                        <HousekeepingBadge status={unit.housekeepingStatus} />
+                      </td>
+                      <td>
+                        <span className="inv-channels">
+                          {mapped.has(unit.accommodationTypeCode) && channels.length ? (
+                            channels.map((c) => (
+                              <span key={c.key} className="inv-channel" title={c.title}>
+                                {c.mark}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="inventory-state-note">—</span>
+                          )}
+                        </span>
+                      </td>
+                      <td className="inventory-actions">
+                        <ActionMenu
+                          size="sm"
+                          label={`Действия: ${unit.code}`}
+                          items={[
+                            {
+                              label: 'Полная карточка',
+                              href: `/units/${encodeURIComponent(unit.code)}`,
+                            },
+                            {
+                              label: 'Показать в календаре',
+                              href: `/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`,
+                            },
+                            { label: 'Переименовать комнату', onSelect: () => setEditRoom(unit) },
+                          ]}
                         />
-                        <strong>{unit.code}</strong>
-                      </Link>
-                    </td>
-                    <td>
-                      <PlaceCell unit={unit} />
-                    </td>
-                    <td>
-                      {unit.active && !unit.block ? (
-                        <span className="inventory-state-note">в продаже</span>
-                      ) : (
-                        <UnitStateBadge active={unit.active} block={unit.block} />
-                      )}
-                    </td>
-                    <td>
-                      <HousekeepingBadge status={unit.housekeepingStatus} />
-                    </td>
-                    <td className="inventory-actions">
-                      <ActionMenu
-                        size="sm"
-                        label={`Действия: ${unit.code}`}
-                        items={[
-                          // строка и ссылка открывают панель места; меню ведёт на полную карточку (ADR-108, I2)
-                          {
-                            label: 'Полная карточка',
-                            href: `/units/${encodeURIComponent(unit.code)}`,
-                          },
-                          {
-                            label: 'Показать в календаре',
-                            href: `/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`,
-                          },
-                          { label: 'Переименовать комнату', onSelect: () => setEditRoom(unit) },
-                        ]}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             ))}
         </Table>

@@ -471,4 +471,230 @@
   .inventory-extra[open] {
     flex-basis: 100%;
   }
+  /* Экран по снимку владельца 09.10: плитки с динамикой, фильтры в одну строку, новые колонки */
+  .inv-summary-wrap {
+    margin: 0 0 var(--space-4);
+  }
+  .inv-summary-head {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: var(--space-2);
+  }
+  .inv-period {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .inv-summary {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+  }
+  .inv-tile {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    column-gap: var(--space-4);
+    min-width: 0;
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .inv-tile dt {
+    display: contents;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .inv-tile-icon {
+    grid-row: 1 / span 2;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .inv-tile-icon--ok {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .inv-tile-icon--bad {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .inv-tile-icon--warn {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .inv-tile dd {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: var(--text-2xl);
+    line-height: var(--leading-tight);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+  .inv-tile-of {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+  }
+  .inv-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-control);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .inv-delta--good {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .inv-delta--bad {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .inv-delta--flat {
+    background: var(--row-hover);
+    color: var(--text-2);
+  }
+  .inventory-toolbar {
+    flex-wrap: wrap;
+  }
+  .inventory-toolbar .inventory-search {
+    flex: 2 1 260px;
+  }
+  .inventory-toolbar .inventory-filter {
+    flex: 1 1 150px;
+    min-width: 0;
+    max-width: 220px;
+  }
+  .inventory-filters {
+    justify-content: flex-start;
+  }
+  .inventory-filters .seg {
+    margin-left: auto;
+  }
+  .inv-type,
+  .inv-occ {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    white-space: nowrap;
+  }
+  .inv-num {
+    font-variant-numeric: tabular-nums;
+  }
+  .inv-occ-text {
+    display: grid;
+    line-height: var(--leading-tight);
+  }
+  .inv-occ-text > span {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .inv-dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-2);
+  }
+  .inv-dot--stay {
+    background: var(--success);
+  }
+  .inv-dot--arrive {
+    background: var(--warning);
+  }
+  .inv-channels {
+    display: inline-flex;
+    gap: var(--space-1);
+  }
+  .inv-channel {
+    display: inline-grid;
+    place-items: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-control);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .inv-group-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+  }
+  .inv-group-toggle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .inv-group-toggle[aria-expanded='true'] .inv-group-chevron {
+    transform: none;
+  }
+  .inv-group-toggle[aria-expanded='false'] .inv-group-chevron {
+    transform: rotate(-90deg);
+  }
+  @media (max-width: 1100px) {
+    .inv-summary {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .inv-summary {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2);
+    }
+    .inv-tile {
+      padding: var(--space-2);
+      gap: var(--space-2);
+    }
+    .inventory-toolbar .inventory-filter {
+      max-width: none;
+      flex-basis: 45%;
+    }
+  }
+  /* вкладки-счётчики и переключатель вида, как на снимке */
+  .inventory-filters .inventory-kind button {
+    border-color: var(--border);
+    background: var(--surface);
+  }
+  .inventory-filters .inventory-kind button span {
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--row-hover);
+    color: var(--text-2);
+  }
+  .inventory-filters .inventory-kind button.is-selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--on-primary);
+  }
+  .inventory-filters .inventory-kind button.is-selected span {
+    background: var(--surface);
+    color: var(--primary);
+  }
+  .inventory-filters .segment-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
 }

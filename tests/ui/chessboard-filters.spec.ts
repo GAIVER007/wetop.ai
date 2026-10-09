@@ -65,10 +65,11 @@ test('§8–9: основная строка и окошко «Фильтры» 
   await page.goto(week(today));
   const main = page.getByRole('main');
   await expect(rows(page)).toHaveCount(88);
-  // в строке: поиск, категория, места на первую дату, «Фильтры»; тип места и вид ушли в окошко (вид 09.10)
+  // в полосе: поиск и «Фильтры» (образец владельца 09.10): категория, места на первую дату, тип места
+  // и вид строк живут в окошке
   await expect(main.getByLabel('Поиск в календаре')).toBeVisible();
-  await expect(main.getByLabel('Категория в календаре')).toBeVisible();
-  await expect(main.getByLabel('Места в календаре')).toBeVisible();
+  await expect(main.locator('.board-toolbar').getByLabel('Категория в календаре')).toHaveCount(0);
+  await expect(main.locator('.board-toolbar').getByLabel('Места в календаре')).toHaveCount(0);
   await expect(main.locator('.board-toolbar').getByLabel('Вид строк календаря')).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Номера', exact: true })).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Свободные', exact: true })).toHaveCount(0);
@@ -78,7 +79,9 @@ test('§8–9: основная строка и окошко «Фильтры» 
   await open.click();
   const pop = page.getByRole('dialog', { name: 'Фильтры календаря' });
   await expect(pop).toBeVisible();
-  // вид строк переехал в окошко (09.10): переключатель на месте
+  // категория, места на первую дату и вид строк в окошке (09.10): подписи на месте
+  await expect(pop.getByLabel('Категория в календаре')).toBeVisible();
+  await expect(pop.getByText('Места на', { exact: false }).first()).toBeVisible();
   await expect(pop.getByRole('group', { name: 'Вид строк календаря' })).toBeVisible();
   // источники и статусы — только те, что есть на сетке
   const sources = pop.getByRole('group', { name: 'Источник' });
@@ -303,15 +306,15 @@ test('телефон: категория и места — в окошке, ок
   await page.goto(week(hotelToday()));
   const main = page.getByRole('main');
   await expect(rows(page)).toHaveCount(88);
-  await expect(main.getByLabel('Категория в календаре')).toBeHidden();
+  await expect(main.locator('.board-toolbar').getByLabel('Категория в календаре')).toHaveCount(0);
   await main.getByRole('button', { name: 'Фильтры', exact: true }).click();
   const pop = page.getByRole('dialog', { name: 'Фильтры календаря' });
   const box = (await pop.boundingBox())!;
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(390);
-  await pop.getByRole('combobox', { name: 'Категория', exact: true }).selectOption('ROOM');
+  await pop.getByLabel('Категория в календаре').selectOption('ROOM');
   for (const control of [
-    pop.getByRole('combobox', { name: 'Категория', exact: true }),
+    pop.getByLabel('Категория в календаре'),
     pop.getByRole('button', { name: 'Койки', exact: true }),
     pop.getByRole('button', { name: 'Применить', exact: true }),
   ]) {

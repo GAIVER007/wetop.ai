@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Icon } from '../../components/icon';
 import { Segmented, type SegmentOption } from '../../components/segmented';
 import { Button, Select } from '../../components/ui';
@@ -57,6 +57,7 @@ export function BoardFiltersPopover({
   unassigned,
   view,
   onView,
+  help,
   onApply,
   onClose,
 }: {
@@ -71,6 +72,8 @@ export function BoardFiltersPopover({
   unassigned: number;
   view: BoardView;
   onView: (view: BoardView) => void;
+  /** подсказка «Как работать с календарём» внизу окошка */
+  help?: ReactNode;
   onApply: (next: BoardFilters) => void;
   /** restoreFocus — вернуть курсор на «Фильтры» (клавиатура, крестик), но не при щелчке мимо */
   onClose: (restoreFocus: boolean) => void;
@@ -200,6 +203,7 @@ export function BoardFiltersPopover({
           <label className="field">
             <span>Категория</span>
             <Select
+              aria-label="Категория в календаре"
               value={draft.category}
               onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))}
             >
@@ -214,6 +218,7 @@ export function BoardFiltersPopover({
           <label className="field">
             <span>{stateLabel}</span>
             <Select
+              aria-label="Места в календаре"
               value={draft.state}
               onChange={(e) => setDraft((d) => ({ ...d, state: e.target.value as UnitState }))}
             >
@@ -267,6 +272,12 @@ export function BoardFiltersPopover({
             onChange={onView}
           />
         </div>
+        {help && (
+          <details className="board-filters-pop__help">
+            <summary>Как работать с календарём</summary>
+            {help}
+          </details>
+        )}
         {unassigned > 0 && (
           // ящик PR 6 слушает якорь: окошко закрывается, ящик открывается
           <a

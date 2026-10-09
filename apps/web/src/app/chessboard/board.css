@@ -149,117 +149,11 @@
  *  — название категории обрезалось многоточием, выходные красились «зелёным» (цвет свободного).
  */
 
-  /* C1: короткая планка периода, подписанные фильтры, инструкции по запросу. */
   .page:has(> .board-wrap) > .page__head {
     margin-bottom: 8px;
   }
-  .board-bar {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px 16px;
-    margin: 0 0 10px;
-  }
-  .board-bar .legend {
-    margin: 0;
-    gap: 10px;
-    font-size: var(--text-xs);
-  }
-  .board-bar .legend__swatch {
-    width: 10px;
-    height: 10px;
-  }
-  .board-bar .board-help {
-    margin: 0 0 0 auto;
-  }
-  .board-bar .board-help summary {
-    color: var(--primary);
-  }
-  /* Раскрытая подсказка занимает свою строку планки. Поверх соседей (`position: absolute`) она
-   накрывала переключатель «Номера / Койки» и фильтры: щелчок по ним уходил в подсказку, а не в
-   кнопку (17.09 и 20.09.2026). */
-  .board-bar .board-help[open] {
-    flex: 1 1 100%;
-    margin-left: 0;
-  }
-  .board-bar .board-help-content {
-    width: 100%;
-    margin-top: 8px;
-    padding: 12px 14px;
-    background: var(--surface-elevated, var(--surface));
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text-2);
-  }
-  .board-help-content .note {
-    margin-bottom: 0;
-  }
-  .board-bar .board-help summary {
-    display: flex;
-    align-items: center;
-    min-height: var(--control-h);
-  }
-  .board-bar .board-help summary::before {
-    content: '?';
-    margin-right: 6px;
-  }
 
-  /* 20.09: период отделён от действий страницы; строка дат не отнимает экран телефона. */
-  .board-controls {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-4);
-    flex: none;
-    margin-bottom: var(--space-2);
-  }
-  .board-controls .board-period {
-    display: contents;
-  }
-  .board-controls .board-date-nav {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-  }
-  .board-period-label {
-    color: var(--text);
-    font-size: var(--text-lg);
-    font-weight: var(--weight-semibold);
-    text-align: center;
-    padding: 0 var(--space-2);
-    font-variant-numeric: tabular-nums;
-  }
-  .board-period-short {
-    display: none;
-  }
-  .board-controls .board-bar {
-    margin-bottom: 0;
-    margin-left: auto;
-  }
-  .board-period-menu .board-period-label {
-    padding: 0;
-  }
-  /* Период — раскрывашка на самой подписи (09.10.2026): готовые отрезки чипами и поля «С» / «По» */
-  .board-period-menu {
-    position: relative;
-  }
-  .board-period-menu > summary {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-    min-height: var(--control-h);
-    padding: 0 var(--space-2);
-    border-radius: var(--radius-control);
-    cursor: pointer;
-    list-style: none;
-    user-select: none;
-  }
-  .board-period-menu > summary::-webkit-details-marker {
-    display: none;
-  }
-  .board-period-menu > summary:hover {
-    background: var(--row-hover);
-  }
+  /* Раскрывашки полосы (период, длина окна): выбор дат «С» / «По» и семь, 14, 30 дней */
   .board-period-caret {
     width: 16px;
     height: 16px;
@@ -279,7 +173,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-    width: min(440px, calc(100vw - var(--space-8, 32px)));
+    width: min(500px, calc(100vw - var(--space-8, 32px)));
     padding: var(--space-4);
     background: var(--surface-solid, var(--surface));
     color: var(--text);
@@ -292,6 +186,18 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2) var(--space-4);
+    min-width: 0;
+  }
+  .board-period-pop .period-picker {
+    flex-wrap: nowrap;
+    gap: var(--space-4);
+  }
+  .board-period-pop .period-picker .field {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .board-period-pop .date-field {
+    min-width: 0;
   }
   .board-period-form .period-picker {
     flex: 1 1 auto;
@@ -299,13 +205,7 @@
   .board-period-form .field {
     margin: 0;
   }
-  .board-controls .board-help summary {
-    font-size: var(--text-xs);
-    color: var(--muted);
-  }
-  .board-controls .board-help-content {
-    padding: var(--space-4);
-  }
+
   .board-footer {
     display: flex;
     flex: none;
@@ -323,9 +223,6 @@
   .board-footer .legend__swatch {
     width: var(--space-4);
     height: var(--space-4);
-  }
-  .board-bar .board-help[open] summary::before {
-    content: '−';
   }
 
   /* Брони без ячейки — одна строка (ТЗ «Шахматка v2» §11): «⚠ 2 брони без назначенного места» и
@@ -370,12 +267,7 @@
   .board-search {
     flex: 1 1 220px;
   }
-  .board-category {
-    flex: 0 1 260px;
-  }
-  .board-state {
-    flex: 0 1 240px;
-  }
+
   /* Неверный период: полоса «С / По / Показать» над объявлением */
   .board-invalid-period {
     margin-bottom: var(--space-4);
@@ -630,114 +522,9 @@
     line-height: var(--board-stay-h);
     margin: 0;
   }
-  /* Сводка дня (06.10.2026, владелец показал образец Lite PMS и сказал «сделай как был, именно про
-   расположение»): карточка «Сегодня, 6 октября, 17:37:58», две колонки через черту: слева движение
-   гостей ссылками (заезды, выезды, проживания, дни рождения, задачи), справа фонд (всего, свободно,
-   занято, загрузка), значения жирно столбцом. На компьютере карточка справа, управление календарём
-   слева (владелец 06.10: «с компа сделай это справа»); до 1199 px карточка на всю ширину, управление под ней. */
-  .board-top {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-4);
-    margin-bottom: 0;
-  }
-  .board-top > .board-controls {
-    flex: 1 1 auto;
-    min-width: 0;
-    justify-content: flex-start;
-    margin-bottom: 0;
-  }
-  .board-top > .board-controls .board-bar {
-    margin-left: 0;
-  }
-  .board-day-panel {
-    order: 1;
-    flex: 0 1 560px;
-    min-width: 0;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-control);
-    background: var(--surface);
-    /* сетка должна начинаться до 384 px на 1440 (контракт C1), а цели ссылок — от 24 px (axe):
-     строки 24 px, заголовок без отступа, рамка вплотную */
-    padding: 0 var(--space-4);
-  }
-  .board-day-panel__title {
-    margin: 0;
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-    font-variant-numeric: tabular-nums;
-  }
-  .board-day-panel__columns {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-    gap: 0 var(--space-4);
-  }
-  .board-day-panel__col + .board-day-panel__col {
-    border-left: 1px solid var(--border-soft);
-    padding-left: var(--space-4);
-  }
-  .board-day-panel__row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-    min-height: 24px;
-    font-size: var(--text-sm);
-  }
-  .board-day-panel__row > a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 24px;
-    color: var(--text);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-  .board-day-panel__row > a:hover {
-    color: var(--primary);
-  }
-  .board-day-panel__row > span {
-    color: var(--text-2);
-  }
-  .board-day-panel__row > b {
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .board-day-panel__row--occupancy > b {
-    color: var(--primary);
-  }
-  @media (max-width: 1199px) {
-    .board-top {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .board-day-panel {
-      order: 0;
-      flex: none;
-    }
-  }
-  @media (max-width: 600px) {
-    .board-day-panel {
-      padding: var(--space-2);
-    }
-    .board-day-panel__title {
-      font-size: var(--text-sm);
-    }
-    .board-day-panel__columns {
-      gap: 0 var(--space-2);
-    }
-    .board-day-panel__col + .board-day-panel__col {
-      padding-left: var(--space-2);
-    }
-    .board-day-panel__row {
-      font-size: var(--text-xs);
-      min-height: 24px;
-    }
-    /* «81 (13 + 68 коек)» на 360 px не влезает в колонку — разбивка переносится, страница вбок не едет */
-    .board-day-panel__row > b {
-      white-space: normal;
-      text-align: right;
-    }
-  }
+
+  /* колонки только группируют строки для телефона; на компьютере строки стоят рядом, как в HotelPMS */
+
   .board-stay-caption {
     top: 0;
     font-size: var(--text-sm);
@@ -915,16 +702,7 @@
     text-overflow: ellipsis;
   }
   @media (max-width: 600px) {
-    /* Одна строка управления вместо двух: период, сегмент, «Даты» и «Помощь» — элементы одного
-   * переносящегося ряда (у .board-period и .board-bar на телефоне своей рамки нет). */
-    .board-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-    }
-    .board-controls .board-period {
-      display: contents;
-    }
+
     /* Заголовок — своей строкой, действия под ним: в nowrap-ряду с тремя кнопками
    * «Календарь» сжимался в колонку по буквам (замер 02.10: h1 ~100 px на 375 px). */
     .page:has(> .board-wrap) > .page__head {
@@ -942,35 +720,8 @@
       width: auto;
       margin-left: auto;
     }
-    /* «Помощь» встаёт в ряд к стрелкам дат, а не отдельной строкой: своей рамки
-   * у .board-bar на телефоне нет. */
-    .board-controls .board-bar {
-      display: contents;
-    }
-    .board-controls .board-date-nav {
-      display: grid;
-      grid-template-columns: var(--touch-target) minmax(0, 1fr) var(--touch-target);
-      flex: 1 1 auto;
-      min-width: 0;
-      /* раскрывашка периода на телефоне считается от всей строки дат, а не от узкой подписи */
-      position: relative;
-    }
-    .board-period-menu {
-      justify-self: center;
-      min-width: 0;
-      position: static;
-    }
-    .board-period-label {
-      font-size: var(--text-sm);
-      padding: 0;
-    }
-    .board-period-full {
-      display: none;
-    }
-    .board-period-short {
-      display: inline;
-    }
-    /* раскрывашка периода во всю строку дат: на телефоне так ничего не уезжает за экран */
+
+    /* раскрывашка периода во всю ширину полосы: на телефоне так ничего не уезжает за экран */
     .board-period-pop {
       left: 0;
       right: 0;
@@ -979,14 +730,7 @@
     .board-period-pop .inp {
       min-height: var(--touch-target);
     }
-    .board-controls .board-bar > .board-help {
-      width: auto;
-      margin-left: auto;
-    }
-    .board-controls .board-bar > .board-help[open] {
-      flex-basis: 100%;
-      order: 3;
-    }
+
     .board-toolbar {
       padding: var(--space-2);
       gap: var(--space-2);
@@ -1031,10 +775,7 @@
       min-height: 60dvh;
       scroll-margin-top: calc(var(--header-h) + 16px);
     }
-    .board-bar .board-help {
-      width: 100%;
-      margin-left: 0;
-    }
+
   }
 
   @media (max-width: 600px) {
@@ -1058,22 +799,15 @@
     .board-period-pop .inp {
       width: 100%;
     }
-    .board-date-nav .icon-button {
-      width: var(--touch-target);
-      height: var(--touch-target);
-    }
+
     /* телефон (§45): в строке поиск и «Фильтры»; категория, места и вид в окошке */
     .board-search {
       flex: 1 1 100%;
     }
-    .board-toolbar .board-category,
-    .board-toolbar .board-state {
-      display: none;
-    }
+
     .board-toolbar .inp,
     .board-toolbar .btn,
-    .board-chip,
-    .board-bar .board-help summary {
+    .board-chip{
       min-height: var(--touch-target);
       min-width: var(--touch-target);
     }
@@ -1389,9 +1123,7 @@
     font-size: var(--text-xs);
   }
   @media (min-width: 1024px) {
-    .board-controls .board-period-label {
-      font-size: var(--text-md);
-    }
+
     .board-toolbar {
       padding: var(--space-2) var(--space-2);
       gap: var(--space-2);
@@ -1401,9 +1133,7 @@
       min-height: 36px;
       height: 36px;
     }
-    .board-controls .board-period > .seg a {
-      padding: var(--space-2) var(--space-2);
-    }
+
     .board-stay-menu {
       top: 9px;
     }
@@ -1860,9 +1590,7 @@
     font-size: var(--text-xs);
   }
   @media (min-width: 1024px) {
-    .board-controls {
-      gap: var(--space-2);
-    }
+
     .page:has(> .board-wrap) .page__actions .btn {
       min-height: var(--space-8);
       padding: var(--space-2) var(--space-4);
@@ -1871,12 +1599,7 @@
     .board-toolbar .board-search {
       flex: 1 1 160px;
     }
-    .board-toolbar .board-category {
-      flex: 0 1 200px;
-    }
-    .board-toolbar .board-state {
-      flex: 0 1 200px;
-    }
+
     .board-toolbar .field--inline {
       flex-direction: column;
       align-items: stretch;
@@ -1895,12 +1618,7 @@
       margin-top: var(--space-1);
       flex: none;
     }
-    .board-controls .board-period-full {
-      display: none;
-    }
-    .board-controls .board-period-short {
-      display: inline;
-    }
+
   }
   @media (max-width: 600px) {
     .page:has(> .board-wrap) {
@@ -2125,10 +1843,7 @@
       white-space: nowrap;
     }
     /* отборы шириной по содержимому, чтобы «Все категории» не обрезалось; тянется только поиск */
-    .board-toolbar .board-category,
-    .board-toolbar .board-state {
-      flex: 0 0 auto;
-    }
+
     .board th.board__unit-head {
       padding: var(--space-1) var(--space-2);
     }
@@ -2161,6 +1876,360 @@
     }
     .page:has(> .board-wrap) {
       padding-bottom: var(--space-1);
+    }
+  }
+
+  /*
+   * Календарь по образцу владельца (09.10.2026, картинка «Шахматка»): одна полоса «Сегодня ‹ ›
+   * Октябрь 2026 ▾ День / Неделя / Месяц 14 дней ▾ поиск Фильтры Новая бронь», под ней шесть
+   * карточек показателей, затем сетка. Блок стоит последним и перекрывает прежние правила полосы.
+   */
+  .page--board > .page__head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+  .board-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 0 var(--space-2);
+    background: none;
+    border: 0;
+    border-radius: 0;
+    flex: none;
+  }
+  .board-nav {
+    display: flex;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .board-nav > .btn {
+    min-height: var(--control-h);
+    background: var(--surface-solid);
+  }
+  .board-nav-arrows {
+    display: inline-flex;
+    align-items: stretch;
+    min-height: var(--control-h);
+    background: var(--surface-solid);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    overflow: hidden;
+  }
+  .board-nav-arrows .icon-button {
+    width: var(--control-h);
+    height: auto;
+    border: 0;
+    border-radius: 0;
+  }
+  .board-nav-arrows .icon-button + .icon-button {
+    border-left: 1px solid var(--border-soft);
+  }
+  .board-period-menu,
+  .board-length-menu {
+    position: relative;
+  }
+  .board-period-menu > summary,
+  .board-length-menu > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h);
+    padding: 0 var(--space-2) 0 var(--space-4);
+    background: var(--surface-solid);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    color: var(--text);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .board-period-menu > summary::-webkit-details-marker,
+  .board-length-menu > summary::-webkit-details-marker {
+    display: none;
+  }
+  .board-period-menu > summary:hover,
+  .board-length-menu > summary:hover {
+    background: var(--row-hover);
+  }
+  .board-period-menu[open] > summary,
+  .board-length-menu[open] > summary {
+    border-color: var(--primary);
+  }
+  .board-period-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--text-2);
+  }
+  .board-nav .board-period-label {
+    padding: 0;
+    color: var(--text);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    text-align: left;
+  }
+  .board-period-menu > summary:hover {
+    background: var(--row-hover);
+  }
+  .board-length-pop {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    left: 0;
+    z-index: calc(var(--layer-header) - 1);
+    display: flex;
+    flex-direction: column;
+    min-width: 100%;
+    padding: var(--space-1);
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-floating);
+  }
+  .board-length-pop a {
+    display: flex;
+    align-items: center;
+    min-height: var(--control-h);
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .board-length-pop a:hover {
+    background: var(--row-hover);
+  }
+  .board-length-pop a.is-on {
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  .board-scale {
+    min-height: var(--control-h);
+    background: var(--surface-solid);
+    border-color: var(--border-input);
+  }
+  .board-scale a {
+    padding: 0 var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .board-scale a.is-on {
+    background: var(--primary-soft);
+    border-color: transparent;
+    color: var(--primary);
+  }
+  /* подсказка «Как работать с календарём» внизу окошка «Фильтры» */
+  .board-filters-pop__help > summary {
+    color: var(--primary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .board-filters-pop__help .note {
+    margin: var(--space-2) 0 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .board-toolbar .board-search {
+    flex: 1 1 160px;
+    min-width: 160px;
+  }
+  .board-toolbar .board-search > .board-search-label {
+    display: none;
+  }
+  .board-toolbar .board-search .inp {
+    min-height: var(--control-h);
+    height: var(--control-h);
+    background: var(--surface-solid);
+  }
+  .board-toolbar .board-filters-open,
+  .board-toolbar .board-new {
+    min-height: var(--control-h);
+    white-space: nowrap;
+  }
+  .board-toolbar .board-filters-open {
+    background: var(--surface-solid);
+  }
+  /* категория и места живут в окошке «Фильтры» на всех экранах, поэтому и их чипы видны всегда */
+  .board-chip--narrow {
+    display: inline-flex;
+  }
+  .board-filters-pop__narrow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  /* Шесть карточек показателей: загрузка, заезды, выезды, свободно, уборка, требует внимания */
+  .board-kpis {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-2);
+    flex: none;
+    margin: 0 0 var(--space-2);
+  }
+  .board-kpi {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    min-height: 64px;
+    padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+    background: var(--surface-solid);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+  }
+  .board-kpi__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 9999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .board-kpi__icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .board-kpi--arrivals .board-kpi__icon {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .board-kpi--departures .board-kpi__icon,
+  .board-kpi--attention .board-kpi__icon {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .board-kpi--dirty .board-kpi__icon {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .board-kpi__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .board-kpi__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .board-kpi__value {
+    color: var(--text);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  .board-kpi--occupancy .board-kpi__value {
+    font-size: calc(var(--text-xl) + 4px);
+  }
+  .board-kpi__label,
+  .board-kpi__note {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+  .board-kpi__more {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 24px;
+    color: var(--primary);
+    font-size: var(--text-xs);
+    text-decoration: none;
+  }
+  .board-kpi__more:hover {
+    text-decoration: underline;
+  }
+  .board-kpi__more svg {
+    width: 12px;
+    height: 12px;
+  }
+  .board-wrap {
+    border-radius: var(--radius-lg);
+  }
+  .board-empty {
+    border-top: 1px solid var(--border);
+  }
+  @media (max-width: 1199px) {
+    .board-kpis {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .board-nav {
+      width: 100%;
+    }
+    .board-nav-arrows .icon-button {
+      width: var(--touch-target);
+    }
+    .board-nav .btn,
+    .board-nav-arrows,
+    .board-period-menu > summary,
+    .board-length-menu > summary,
+    .board-scale a,
+    .board-length-pop a {
+      min-height: var(--touch-target);
+    }
+    .board-nav {
+      position: relative;
+    }
+    .board-period-menu {
+      position: static;
+      flex: 1 1 150px;
+      min-width: 150px;
+    }
+    .board-period-menu > summary {
+      width: 100%;
+      justify-content: space-between;
+    }
+    /* «Новая бронь» на телефоне, значок «+» в строке поиска: имя для читалки остаётся текстом */
+    .board-toolbar .board-new {
+      flex: none;
+      justify-content: center;
+      width: var(--touch-target);
+      padding: 0;
+      font-size: 0;
+      gap: 0;
+    }
+    .board-toolbar .board-new svg {
+      width: 20px;
+      height: 20px;
+    }
+    .board-kpis {
+      gap: var(--space-1);
+    }
+    .board-kpi {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-1);
+      min-height: 0;
+      padding: var(--space-2);
+    }
+    .board-kpi__icon {
+      display: none;
+    }
+    .board-kpi--occupancy .board-kpi__value {
+      font-size: var(--text-xl);
     }
   }
 }

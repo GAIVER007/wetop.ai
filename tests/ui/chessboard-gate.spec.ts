@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -39,17 +39,22 @@ test('гейт: светлая тема — полный экран, верх, �
   });
   // заголовок и главное действие
   await page.locator('.page__head').screenshot({ path: `${DIR}/header.png` });
-  // строка дат (09.10.2026): стрелки, период-кнопка, «? Помощь»
-  await page.locator('.board-controls').screenshot({ path: `${DIR}/controls.png` });
-  // раскрытый период: чипы «Сегодня», 7/14/30, «Месяц», поля С / По и «Применить»
+  // полоса календаря (образец владельца 09.10.2026): «Сегодня», стрелки, «Октябрь 2026 ▾»,
+  // «День / Неделя / Месяц», «7 дней ▾», поиск, «Фильтры», «Новая бронь»
+  await page.locator('.board-toolbar').screenshot({ path: `${DIR}/controls.png` });
+  // раскрытый период: поля С / По и «Применить»
   await page.getByTestId('board-period-button').click();
-  await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Применить', exact: true })).toBeVisible();
   await page.screenshot({
     caret: 'initial',
     path: `${DIR}/controls-dates-open.png`,
     clip: { x: 0, y: 0, width: 900, height: 560 },
   });
   await page.getByTestId('board-period-button').click();
+  // длина окна: 7, 14, 30 дней
+  await page.getByTestId('board-length-button').click();
+  await expect(page.getByRole('link', { name: '14 дней', exact: true })).toBeVisible();
+  await page.getByTestId('board-length-button').click();
   // строка поиска и фильтров: поиск, категория, тип места, статусы
   await page.locator('.board-toolbar').screenshot({ path: `${DIR}/toolbar.png` });
 
@@ -129,7 +134,7 @@ test('гейт: овербукинг (critical), режим 30 дней и вк�
   // (с PR 7 тип места — в окошке «Фильтры», в строке остались категория и места)
   await page.getByRole('link', { name: '7 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(7);
-  await page.getByLabel('Категория в календаре').selectOption('ROOM');
+  await boardFilter(page, { category: 'ROOM' });
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await page.screenshot({ caret: 'initial', path: `${DIR}/filters-applied.png` });
 });

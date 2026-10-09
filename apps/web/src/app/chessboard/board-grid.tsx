@@ -9,9 +9,10 @@ import {
   useState,
   useTransition,
   type CSSProperties,
+  type ReactNode,
 } from 'react';
 import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../lib/api';
-import { Alert, Button, EmptyState, Input, Select, cx } from '../../components/ui';
+import { Alert, Button, EmptyState, Input, cx } from '../../components/ui';
 import { messengerLinks } from '../../lib/format';
 import { guestNames, isGuestPseudonym, sourceBadge, stayLabels } from './stay-labels';
 import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
@@ -154,12 +155,24 @@ export function ChessboardGrid({
   today,
   fitMonth = false,
   readOnly = false,
+  lead,
+  actions,
+  kpis,
+  help,
 }: {
   board: Chessboard;
   today: string;
   fitMonth?: boolean;
   /** «Только чтение» (ADR-102): предпросмотр показывает брони, но не предлагает изменений (ТЗ §47) */
   readOnly?: boolean;
+  /** Образец владельца 09.10.2026: период, масштаб и «Сегодня» стоят в одной полосе с поиском */
+  lead?: ReactNode;
+  /** Кнопки справа в той же полосе («Новая бронь») */
+  actions?: ReactNode;
+  /** Карточки показателей между полосой и сеткой */
+  kpis?: ReactNode;
+  /** Текст «Как работать с календарём»: раскрывашка внизу окошка «Фильтры» (в полосе значка «?» нет) */
+  help?: ReactNode;
 }) {
   const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
@@ -834,6 +847,7 @@ export function ChessboardGrid({
   return (
     <>
       <div className="board-toolbar">
+        {lead}
         <label className="board-search field field--inline">
           <span className="board-search-label">Поиск</span>
           <Input
@@ -853,38 +867,6 @@ export function ChessboardGrid({
             }}
           />
         </label>
-        <label className="board-category field field--inline">
-          <span>Категория</span>
-          <Select
-            aria-label="Категория в календаре"
-            value={filters.category}
-            onChange={(e) => patchFilters({ category: e.target.value })}
-          >
-            <option value="">Все категории</option>
-            {allGroups.map((g) => (
-              <option key={g.code} value={g.code}>
-                {g.name}
-              </option>
-            ))}
-          </Select>
-        </label>
-        <label
-          className="board-state field field--inline"
-          title={`Состояние места считается на первую дату периода — ${displayDate(board.from)}`}
-        >
-          <span>{stateLabel}</span>
-          <Select
-            aria-label="Места в календаре"
-            value={filters.state}
-            onChange={(e) => patchFilters({ state: e.target.value as UnitState })}
-          >
-            {stateOptions.map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </Select>
-        </label>
         <button
           ref={filtersButton}
           type="button"
@@ -897,6 +879,7 @@ export function ChessboardGrid({
           Фильтры{' '}
           {activeFilters > 0 && <span className="board-filters-count">{activeFilters}</span>}
         </button>
+        {actions}
         {/*
           Вторая строка — только когда что-то отобрано: снятые условия чипами, «Показано N из M» и
           «Сбросить». Без отбора строка схлопнута, но остаётся в дереве доступности: живая область
@@ -934,6 +917,7 @@ export function ChessboardGrid({
           )}
         </div>
       </div>
+      {kpis}
       {filtersAnchor && (
         <BoardFiltersPopover
           anchor={filtersAnchor}
@@ -947,6 +931,7 @@ export function ChessboardGrid({
           unassigned={unassignedCount}
           view={view}
           onView={pickView}
+          help={help}
           onApply={(next) => {
             setFilters(next);
             closeFilters(true);

@@ -12,15 +12,13 @@ import { expect, test } from './fixtures';
 test('календарь: заголовок, сводка дня и быстрые действия', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
-  // Сводка по образцу Lite PMS (владелец 06.10): слева движение гостей, справа фонд.
+  // Шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание.
   const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(stats).toBeVisible();
-  await expect(
-    stats.getByRole('heading', { name: /^Сегодня, \d+ \S+, \d\d:\d\d:\d\d$/ }),
-  ).toBeVisible();
-  for (const id of ['arrivals', 'departures', 'inhouse', 'free', 'occupied', 'occupancy'])
+  for (const id of ['occupancy', 'arrivals', 'departures', 'free', 'dirty', 'attention'])
     await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
-  await expect(stats.getByRole('link', { name: 'Проживания' })).toBeVisible();
+  // часов в сводке больше нет: образец их не показывает
+  await expect(stats.getByRole('heading')).toHaveCount(0);
   // владелец 06.10: «лишнее убери, в скобках убери» — дней рождения, задач, блокировок и разбивки нет
   await expect(stats.getByText('Дни рождения')).toHaveCount(0);
   await expect(stats.getByText('Задачи')).toHaveCount(0);

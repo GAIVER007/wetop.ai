@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, openBoardFilters, test, devNoise, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -305,7 +305,7 @@ test('шахматка: фильтры, продолжение брони, вы�
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
   // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
   const board = page.getByRole('main');
-  await board.getByLabel('Категория в календаре').selectOption('MALE');
+  await boardFilter(page, { category: 'MALE' });
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
   await board.getByLabel('Поиск в календаре').fill('M03');
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
@@ -321,30 +321,28 @@ test('шахматка: фильтры, продолжение брони, вы�
 });
 
 /**
- * Подсказка над шахматкой выводится поверх планки, поэтому открытой она накрывает строку фильтров:
- * до 17.09.2026 по кнопке «Сбросить» под ней нельзя было попасть мышью (найдено обходом стойки).
+ * Подсказка «Как работать с календарём» с 09.10.2026 лежит внизу окошка «Фильтры» (значка «?» в полосе
+ * нет): открывается по слову, закрытое окошко Escape не держит кнопки под собой, «Сбросить» достаётся.
  */
-test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({
+test('шахматка: подсказка внутри окошка «Фильтры», Escape закрывает окошко целиком', async ({
   page,
 }) => {
   await page.goto('/chessboard');
-  const help = page.locator('details.board-help');
+  const pop = await openBoardFilters(page);
+  const help = pop.locator('details.board-filters-pop__help');
+  await expect(help).not.toHaveAttribute('open', '');
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
-  // щелчок по строке поиска под подсказкой закрывает её; «Сбросить» появляется, когда есть отбор
+  await expect(help).toContainText('Ночь выезда ячейку не занимает');
+  await page.keyboard.press('Escape');
+  await expect(pop).toBeHidden();
+  // «Сбросить» появляется, когда есть отбор, и до неё достаёт мышь
   const search = page.getByRole('main').getByLabel('Поиск в календаре');
-  await search.click();
-  await expect(help).not.toHaveAttribute('open', '');
   await search.fill('R0');
   const reset = page.getByRole('button', { name: 'Сбросить', exact: true });
   await expect(reset).toBeVisible();
   await reset.click({ timeout: 5000 });
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  // Escape закрывает её так же, как щелчок вне
-  await help.locator('summary').click();
-  await expect(help).toHaveAttribute('open', '');
-  await page.keyboard.press('Escape');
-  await expect(help).not.toHaveAttribute('open', '');
 });
 
 test('ошибка создания сохраняет ввод; повтор отправляет поля существующего API', async ({
@@ -1280,9 +1278,12 @@ test('шахматка: фильтр «Уборка» показывает гр�
   await page.goto('/chessboard');
   const all = await page.getByTestId('unit-row').count();
   // уборка со счётчиком: «Уборка 2» (21.09); с PR 7 «Шахматки v2» — пункт поля «Места»
-  const places = page.getByRole('main').getByLabel('Места в календаре');
-  await expect(places.locator('option[value="cleaning"]')).toHaveText(/^Уборка \d+$/);
-  await places.selectOption('cleaning');
+  const pop = await openBoardFilters(page);
+  await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
+    /^Уборка \d+$/,
+  );
+  await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
+  await boardFilter(page, { state: 'cleaning' });
   const dirty = await page.getByTestId('unit-row').count();
   expect(dirty).toBeGreaterThan(0);
   expect(dirty).toBeLessThan(all);

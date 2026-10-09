@@ -2,12 +2,12 @@
 import Link from 'next/link';
 import { RESET_BOARD_POSITION } from './board-position';
 
-/** Чип «Сегодня» в раскрывашке периода (09.10.2026): возврат к текущей неделе со сбросом прокрутки */
+/** Кнопка «Сегодня» в полосе календаря (образец владельца 09.10.2026): возврат к текущей неделе со сбросом прокрутки */
 export function BoardTodayLink() {
   return (
     <Link
       href="/chessboard"
-      className="chip chip--sm"
+      className="btn btn--secondary"
       onClick={() => {
         // Reset the current grid and the default week before navigation.
         try {

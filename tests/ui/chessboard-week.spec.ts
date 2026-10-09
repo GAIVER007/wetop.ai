@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, openBoardFilters, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -16,8 +16,11 @@ test('C1: сетка начинается до 384 px (350 до панели «�
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   const box = await page.locator('.board-wrap').boundingBox();
   expect(box!.y).toBeLessThanOrEqual(384);
-  // состояние мест считается на первую дату окна — подпись поля это говорит (PR 7 «Шахматки v2»)
-  await expect(page.getByText('Места на 14 сент.', { exact: true })).toBeVisible();
+  // состояние мест считается на первую дату окна, подпись поля в окошке «Фильтры» это говорит
+  // (PR 7 «Шахматки v2», с 09.10 поле в окошке)
+  const pop = await openBoardFilters(page);
+  await expect(pop.getByText('Места на 14 сент.', { exact: true })).toBeVisible();
+  await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
   await page.getByLabel('Поиск в календаре').fill('Несуществующее место');
   await expect(page.getByTestId('unit-row')).toHaveCount(0);
   await expect(page.getByTestId('board-empty')).toContainText('Ничего не найдено');
@@ -34,7 +37,7 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
     // PR 7 «Шахматки v2»: на телефоне категория и места — в окошке «Фильтры», в строке их нет
     const toggle = main.getByRole('button', { name: 'Фильтры', exact: true });
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    await expect(main.getByLabel('Категория в календаре')).toBeHidden();
+    await expect(main.locator('.board-toolbar').getByLabel('Категория в календаре')).toHaveCount(0);
     await page.getByTestId('board-period-button').click();
     // готовые периоды (7/14/30, месяц) с 09.10 живут в раскрывашке периода
     for (const control of [
@@ -42,7 +45,7 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       main.getByLabel('Период: по', { exact: true }),
       main.getByRole('button', { name: 'Применить', exact: true }),
       main.getByRole('link', { name: 'Предыдущая неделя', exact: true }),
-      main.getByRole('link', { name: '7 дней', exact: true }),
+      main.getByRole('link', { name: 'Неделя', exact: true }),
       toggle,
     ]) {
       await expect(control).toBeVisible();
@@ -83,18 +86,18 @@ test('C1: подсказка не выходит за экран, последн
   page,
 }) => {
   await page.goto('/chessboard');
-  // Помощь свёрнута в короткую кнопку «Помощь» (ТЗ «Шахматка v2» §5), инструкция внутри
-  await page.getByText('Помощь', { exact: true }).click();
-  const help = page.locator('.board-help-content');
+  // Подсказка с 09.10 лежит внизу окошка «Фильтры» (ТЗ «Шахматка v2» §5), инструкция внутри
+  const pop = await openBoardFilters(page);
+  await pop.locator('details.board-filters-pop__help > summary').click();
+  const help = pop.locator('.board-filters-pop__help');
   await expect(help).toContainText('Как работать с календарём');
-  await expect(help).toBeVisible();
   for (const width of [1440, 1024, 768, 390]) {
     await page.setViewportSize({ width, height: 1000 });
-    const helpBox = await help.boundingBox();
-    expect(helpBox!.x).toBeGreaterThanOrEqual(0);
-    expect(helpBox!.x + helpBox!.width).toBeLessThanOrEqual(width);
+    const popBox = await pop.boundingBox();
+    expect(popBox!.x).toBeGreaterThanOrEqual(0);
+    expect(popBox!.x + popBox!.width).toBeLessThanOrEqual(width);
   }
-  await page.getByText('Помощь', { exact: true }).click();
+  await page.keyboard.press('Escape');
   await page.setViewportSize({ width: 320, height: 844 });
   // Scroll the grid to its bottom, then the page as a touch user would.
   // scrollIntoView alone would conceal overflow:hidden by scrolling it programmatically.
@@ -113,17 +116,17 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
 ] as const) {
   test(`переход календарной недели: ${from} → ${expectedFrom}`, async ({ page }) => {
     await page.goto(`/chessboard?from=${from}&to=${to}`);
-    await page.getByRole('button', { name: 'Даты', exact: true }).click();
-    await page.getByLabel('Календарь: с', { exact: true }).fill('2020-01-01');
+    await page.getByTestId('board-period-button').click();
+    await page.getByLabel('Период: с', { exact: true }).fill('2020-01-01');
     await page.getByRole('link', { name: direction, exact: true }).click();
-    await expect(page.getByLabel('Календарь: с', { exact: true })).toHaveValue(expectedFrom);
-    await expect(page.getByLabel('Календарь: по', { exact: true })).toHaveValue(expectedTo);
+    await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue(expectedFrom);
+    await expect(page.getByLabel('Период: по', { exact: true })).toHaveValue(expectedTo);
     await expect(page.getByTestId('date-col')).toHaveCount(7);
     await expect(page).toHaveURL(`/chessboard?from=${expectedFrom}&to=${expectedTo}`);
     await page.reload();
     await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', expectedFrom);
     // SSR dates arrive before hydration. Exercise a client filter before testing popstate.
-    await page.getByLabel('Категория в календаре').selectOption('ROOM');
+    await boardFilter(page, { category: 'ROOM' });
     await expect(page.getByTestId('unit-row')).toHaveCount(16);
     await page.goBack();
     await expect(page).toHaveURL(`/chessboard?from=${from}&to=${to}`);
@@ -141,7 +144,7 @@ test('в неделе работают бронь, категории и соз�
   await expect(drawer.getByRole('heading', { level: 1 })).toContainText(number!);
   await page.keyboard.press('Escape');
   await expect(drawer).toBeHidden();
-  await page.getByLabel('Категория в календаре').selectOption('ROOM');
+  await boardFilter(page, { category: 'ROOM' });
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   const group = page.getByTestId('category-row').first().getByRole('button');
   await group.click();

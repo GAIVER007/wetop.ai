@@ -6,17 +6,15 @@ import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
-import { Alert, Button, Legend } from '../../components/ui';
+import { Alert, Button, Legend, cx } from '../../components/ui';
 import { Toolbar } from '../../components/toolbar';
-import { Chip, ChipGroup } from '../../components/chip';
 import { DateInput } from '../../components/date-field';
 import { PeriodPicker } from '../../components/period-picker';
 import { ChessboardGrid } from './board-grid';
 import { BoardTodayLink } from './board-today-link';
-import { BoardHelp } from './board-help';
+import { BoardMenu } from './board-menu';
 import { displayDate } from '../../lib/display-date';
 import { hotelClock, validDate } from '../../lib/hotel-api';
-import { BoardClock } from './board-clock';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
@@ -136,127 +134,187 @@ export default async function ChessboardPage({
     return `/chessboard?from=${f.toISOString().slice(0, 10)}&to=${t.toISOString().slice(0, 10)}`;
   };
 
-  return (
-    <Page
-      width="full"
-      title="Календарь"
-      actions={
-        <>
-          <Link
-            className="btn btn--secondary"
-            href={`/rooms/availability?${new URLSearchParams({
-              arrival: board.from,
-              departure: new Date(Date.parse(`${board.to}T12:00:00Z`) + 86400000)
-                .toISOString()
-                .slice(0, 10),
-              ...(query.category ? { category: query.category } : {}),
-            })}`}
-          >
-            Поиск свободных номеров
-          </Link>
-          {/* существующий фильтр «С долгом» (PR 7) — ссылкой, сетка читает stays= из адреса */}
-          <Link className="btn btn--secondary" href="/chessboard?stays=debt">
-            Неоплаченные
-          </Link>
-          <Link className="btn" href="/reservations/new">
-            <Icon name="plus" />
-            Новая бронь
-          </Link>
-        </>
-      }
-    >
-      <div className="board-top">
-        {/* Полоса дня на всю ширину, под ней строка управления (замечание владельца 06.10:
-            два столбика рядом с управлением читались плохо) */}
-        {day && (
-          <DayPanel
-            day={day}
-            board={from <= today && today <= to ? board : todayBoard}
-            today={today}
-            timeZone={clock.timezone}
-          />
-        )}
-        <div className="board-controls">
-          <div className="board-period">
-            <span className="board-date-nav">
-              <Link
-                href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
-                className="icon-button"
-                aria-label={
-                  isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
-                }
-              >
-                <Icon name="chevron" className="rotate-left" />
-              </Link>
-              {/* Период сам раскрывается в выбор дат (поручение владельца 09.10.2026: отдельные
-                «Сегодня» и «Даты» из строки убраны, всё в одном месте): готовые отрезки чипами
-                (rolling 7/14/30, ТЗ «Шахматка v2» §6–7, и месяц) и поля «С» / «По».
-                «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды.
-                Ключ по периоду: после перехода раскрывашка закрыта, поля с новыми датами. */}
-              <details className="board-period-menu" key={`${board.from}-${board.to}`}>
-                <summary data-testid="board-period-button" title={periodLabel}>
-                  <span className="board-period-label">
-                    <span className="board-period-full">{periodLabel}</span>
-                    <span className="board-period-short">{shortPeriodLabel}</span>
-                  </span>
-                  <Icon name="chevron" className="board-period-caret" />
-                </summary>
-                <div className="board-period-pop">
-                  <ChipGroup as="nav" label="Готовые периоды" className="board-period-presets">
-                    <BoardTodayLink />
-                    <Chip size="sm" href={weekHref()} selected={isWeek}>
-                      7 дней
-                    </Chip>
-                    <Chip size="sm" href={window(14)} selected={board.dates.length === 14}>
-                      14 дней
-                    </Chip>
-                    <Chip
-                      size="sm"
-                      href={window(30)}
-                      selected={board.dates.length === 30 && !isMonth}
-                    >
-                      30 дней
-                    </Chip>
-                    <Chip size="sm" href={monthHref()} selected={isMonth}>
-                      Месяц
-                    </Chip>
-                  </ChipGroup>
-                  <form method="get" className="board-period-form">
-                    <PeriodPicker from={board.from} to={board.to} fromName="from" toName="to" />
-                    <Button tone="secondary" type="submit">
-                      Применить
-                    </Button>
-                  </form>
-                </div>
-              </details>
-              <Link
-                href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
-                className="icon-button"
-                aria-label={
-                  isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
-                }
-              >
-                <Icon name="chevron" />
-              </Link>
-            </span>
-          </div>
-          <div className="board-bar">
-            <BoardHelp title="Помощь">
-              <div className="board-help-content">
-                <p className="note">
-                  <b>Как работать с календарём.</b> В строке категории указано, сколько мест
-                  свободно на эту ночь. Ночь выезда ячейку не занимает. Клик по занятой клетке
-                  открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на
-                  другую строку — бронь переселится в ту ячейку с даты взятой клетки (в другую
-                  категорию — только на всё проживание). Фильтры статусов считаются на{' '}
-                  {displayDate(board.from)}. Брони без ячейки на сетке не видны — они в строке над
-                  сеткой: «Разместить» показывает свободные места и назначает.
-                </p>
-              </div>
-            </BoardHelp>
-          </div>
+  const sameMonth = from.slice(0, 7) === to.slice(0, 7);
+  const monthTitle = (() => {
+    const parts = new Intl.DateTimeFormat('ru-RU', {
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    }).formatToParts(new Date(`${from}T00:00:00Z`));
+    const m = parts.find((x) => x.type === 'month')?.value ?? '';
+    const y = parts.find((x) => x.type === 'year')?.value ?? '';
+    return `${m.charAt(0).toUpperCase()}${m.slice(1)} ${y}`;
+  })();
+  /** Подпись кнопки периода: «Октябрь 2026» в пределах месяца, иначе короткий отрезок («28 сент. – 4 окт.») */
+  const rangeTitle = sameMonth ? monthTitle : shortPeriodLabel;
+  const lengthLabel = pluralRu(board.dates.length, ['день', 'дня', 'дней']);
+  const isDay = board.dates.length === 1;
+  const dayDate = from <= today && today <= to ? today : from;
+  const dayHref = `/chessboard?from=${dayDate}&to=${dayDate}`;
+  const current = from <= today && today <= to ? board : todayBoard;
+  const todaySummary = current?.summary[today];
+  const units = todaySummary
+    ? todaySummary.occupied + todaySummary.free + todaySummary.blocked
+    : null;
+  const occupancy =
+    todaySummary && units ? Math.round((todaySummary.occupied / units) * 100) : units === 0 ? 0 : null;
+  const dirtyUnits = board.rows.filter((r) => r.unit.housekeepingStatus === 'DIRTY').length;
+  const debtStays = new Set(
+    board.rows.flatMap((r) =>
+      r.cells.flatMap((c) =>
+        c.confirmationNumber && c.balanceMinor && /^[1-9]\d*$/.test(c.balanceMinor)
+          ? [c.confirmationNumber]
+          : [],
+      ),
+    ),
+  ).size;
+  const attention = debtStays + (board.unassigned?.length ?? 0);
+  const availabilityHref = `/rooms/availability?${new URLSearchParams({
+    arrival: board.from,
+    departure: new Date(Date.parse(`${board.to}T12:00:00Z`) + 86400000).toISOString().slice(0, 10),
+    ...(query.category ? { category: query.category } : {}),
+  })}`;
+
+  const help = (
+    <p className="note">
+      <b>Как работать с календарём.</b> В строке категории указано, сколько мест свободно на эту
+      ночь. Ночь выезда ячейку не занимает. Клик по занятой клетке открывает бронь, клик по пустой
+      открывает форму новой брони на эту дату. Перетащите клетку на другую строку: бронь переселится
+      в ту ячейку с даты взятой клетки (в другую категорию только на всё проживание). Фильтры
+      статусов считаются на {displayDate(board.from)}. Брони без ячейки на сетке не видны, они в
+      строке над сеткой: «Разместить» показывает свободные места и назначает.
+    </p>
+  );
+
+  const lead = (
+    <div className="board-nav" role="group" aria-label="Период календаря">
+      <BoardTodayLink />
+      <span className="board-nav-arrows">
+        <Link
+          href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
+          className="icon-button"
+          aria-label={
+            isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
+          }
+        >
+          <Icon name="chevron" className="rotate-left" />
+        </Link>
+        <Link
+          href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
+          className="icon-button"
+          aria-label={isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'}
+        >
+          <Icon name="chevron" />
+        </Link>
+      </span>
+      {/* Образец владельца 09.10.2026: «Октябрь 2026 ▾» раскрывает выбор дат («С» / «По»); ключ по
+          периоду: после перехода раскрывашка закрыта, поля несут новые даты. */}
+      <BoardMenu
+        key={`p-${board.from}-${board.to}`}
+        className="board-period-menu"
+        testId="board-period-button"
+        title={periodLabel}
+        summary={
+          <>
+            <Icon name="board" className="board-period-icon" />
+            <span className="board-period-label">{rangeTitle}</span>
+            <Icon name="chevron" className="board-period-caret" />
+          </>
+        }
+      >
+        <div className="board-period-pop">
+          <form method="get" className="board-period-form">
+            <PeriodPicker from={board.from} to={board.to} fromName="from" toName="to" />
+            <Button tone="secondary" type="submit">
+              Применить
+            </Button>
+          </form>
         </div>
-      </div>
+      </BoardMenu>
+      <nav className="seg board-scale" aria-label="Масштаб календаря">
+        <Link
+          href={dayHref}
+          className={cx(isDay && 'is-on')}
+          aria-current={isDay ? 'page' : undefined}
+        >
+          День
+        </Link>
+        <Link
+          href={weekHref()}
+          className={cx(isWeek && 'is-on')}
+          aria-current={isWeek ? 'page' : undefined}
+        >
+          Неделя
+        </Link>
+        <Link
+          href={monthHref()}
+          className={cx(isMonth && 'is-on')}
+          aria-current={isMonth ? 'page' : undefined}
+        >
+          Месяц
+        </Link>
+      </nav>
+      {/* Длина окна: 7 дней, календарная неделя, 14 и 30, от сегодня (ТЗ «Шахматка v2» §6–7).
+          «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
+      <BoardMenu
+        key={`l-${board.from}-${board.to}`}
+        className="board-length-menu"
+        testId="board-length-button"
+        summary={
+          <>
+            <span>{lengthLabel}</span>
+            <Icon name="chevron" className="board-period-caret" />
+          </>
+        }
+      >
+        <nav className="board-length-pop" aria-label="Длина периода">
+          <Link
+            href={weekHref()}
+            className={cx(isWeek && 'is-on')}
+            aria-current={isWeek ? 'page' : undefined}
+          >
+            7 дней
+          </Link>
+          <Link
+            href={window(14)}
+            className={cx(board.dates.length === 14 && 'is-on')}
+            aria-current={board.dates.length === 14 ? 'page' : undefined}
+          >
+            14 дней
+          </Link>
+          <Link
+            href={window(30)}
+            className={cx(board.dates.length === 30 && !isMonth && 'is-on')}
+            aria-current={board.dates.length === 30 && !isMonth ? 'page' : undefined}
+          >
+            30 дней
+          </Link>
+        </nav>
+      </BoardMenu>
+    </div>
+  );
+  const actions = (
+    <Link className="btn board-new" href="/reservations/new">
+      <Icon name="plus" />
+      Новая бронь
+    </Link>
+  );
+  const kpis = day ? (
+    <DayStats
+      day={day}
+      today={today}
+      occupancy={occupancy}
+      occupied={todaySummary?.occupied ?? null}
+      units={units}
+      free={todaySummary?.free ?? null}
+      dirty={dirtyUnits}
+      attention={attention}
+      availabilityHref={availabilityHref}
+    />
+  ) : null;
+
+  return (
+    <Page width="full" title="Календарь" className="page--board">
       {overbooked.length > 0 && (
         <Alert boxed data-testid="overbooked-callout">
           Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
@@ -281,6 +339,10 @@ export default async function ChessboardPage({
         today={today}
         fitMonth={isMonth}
         readOnly={shell?.readOnly ?? false}
+        lead={lead}
+        actions={actions}
+        kpis={kpis}
+        help={help}
       />
       <div className="board-footer">
         <details className="board-legend-details">
@@ -343,63 +405,123 @@ function categoriesOf(
   return [...seen].map(([code, name]) => ({ code, name }));
 }
 
-function DayPanel({
+function DayStats({
   day,
-  board,
   today,
-  timeZone,
+  occupancy,
+  occupied,
+  units,
+  free,
+  dirty,
+  attention,
+  availabilityHref,
 }: {
   day: import('../../lib/api').DeskDay;
-  board: import('../../lib/api').Chessboard | null;
   today: string;
-  timeZone: string;
+  occupancy: number | null;
+  occupied: number | null;
+  units: number | null;
+  free: number | null;
+  dirty: number;
+  attention: number;
+  availabilityHref: string;
 }) {
-  const s = board?.summary[today];
-  const units = s ? s.occupied + s.free + s.blocked : null;
-  const occupancy = s && units ? Math.round((s.occupied / units) * 100) : units === 0 ? 0 : null;
-  const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
   const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
   const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
-  const title = new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    timeZone,
-  }).format(new Date(`${today}T12:00:00Z`));
-  const initialTime = new Intl.DateTimeFormat('ru-RU', {
-    timeZone,
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(new Date());
   const c = day.counts;
-  const row = (id: string, label: string, value: React.ReactNode, href?: string) => (
-    <div className={`board-day-panel__row board-day-panel__row--${id}`}>
-      {href ? <Link href={href}>{label}</Link> : <span>{label}</span>}
-      <b data-testid={`day-${id}`}>{value}</b>
-    </div>
-  );
   return (
-    <section className="board-day-panel" role="group" aria-label="Сегодня на объекте">
-      <h2 className="board-day-panel__title">
-        Сегодня, {title}, <BoardClock timeZone={timeZone} initial={initialTime} />
-      </h2>
-      <div className="board-day-panel__columns">
-        <div className="board-day-panel__col">
-          {row('arrivals', 'Заезды', c.arrivals, dayHref('arrival'))}
-          {row('departures', 'Выезды', c.departures, dayHref('departure'))}
-          {row('inhouse', 'Проживания', c.inHouse, '/reservations?view=inhouse')}
+    <section className="board-kpis" role="group" aria-label="Сегодня на объекте">
+      <div className="board-kpi board-kpi--occupancy">
+        <span className="board-kpi__icon" aria-hidden="true">
+          <Icon name="bed" />
+        </span>
+        <div className="board-kpi__body">
+          <b className="board-kpi__value" data-testid="day-occupancy">
+            {occupancy === null ? 'н/д' : `${occupancy}%`}
+          </b>
+          <span className="board-kpi__label">
+            <span className="sr-only">Загрузка: </span>
+            <span data-testid="day-occupied">{n(occupied)}</span>
+            {units !== null && <> из {units}</>} мест занято
+          </span>
         </div>
-        <div className="board-day-panel__col">
-          {/* Без разбивки на номера и койки, без дней рождения, задач, блокировок и «Всего номеров»:
-              владелец 06.10 «лишнее убери, в скобках убери», «всего номеров незачем видеть постоянно» */}
-          {row(
-            'free',
-            'Свободно номеров',
-            n(s?.free),
-            `/rooms/availability?arrival=${today}&departure=${tomorrow}`,
-          )}
-          {row('occupied', 'Занято номеров', n(s?.occupied))}
-          {row('occupancy', 'Загрузка', occupancy === null ? 'н/д' : `${occupancy}%`)}
+      </div>
+      <div className="board-kpi board-kpi--arrivals">
+        <span className="board-kpi__icon" aria-hidden="true">
+          <Icon name="arrival" />
+        </span>
+        <div className="board-kpi__body">
+          <span className="board-kpi__row">
+            <b className="board-kpi__value" data-testid="day-arrivals">
+              {c.arrivals}
+            </b>
+            <span className="board-kpi__label">Заезды сегодня</span>
+          </span>
+          <Link className="board-kpi__more" href={dayHref('arrival')}>
+            Подробнее <Icon name="arrow" />
+          </Link>
+        </div>
+      </div>
+      <div className="board-kpi board-kpi--departures">
+        <span className="board-kpi__icon" aria-hidden="true">
+          <Icon name="departure" />
+        </span>
+        <div className="board-kpi__body">
+          <span className="board-kpi__row">
+            <b className="board-kpi__value" data-testid="day-departures">
+              {c.departures}
+            </b>
+            <span className="board-kpi__label">Выезды сегодня</span>
+          </span>
+          <Link className="board-kpi__more" href={dayHref('departure')}>
+            Подробнее <Icon name="arrow" />
+          </Link>
+        </div>
+      </div>
+      <div className="board-kpi board-kpi--free">
+        <span className="board-kpi__icon" aria-hidden="true">
+          <Icon name="inventory" />
+        </span>
+        <div className="board-kpi__body">
+          <span className="board-kpi__row">
+            <b className="board-kpi__value" data-testid="day-free">
+              {n(free)}
+            </b>
+            <span className="board-kpi__label">Свободно номеров</span>
+          </span>
+          <Link className="board-kpi__more" href={availabilityHref} aria-label="Поиск свободных номеров">
+            Найти номера <Icon name="arrow" />
+          </Link>
+        </div>
+      </div>
+      <div className="board-kpi board-kpi--dirty">
+        <span className="board-kpi__icon" aria-hidden="true">
+          <Icon name="dirty" />
+        </span>
+        <div className="board-kpi__body">
+          <span className="board-kpi__row">
+            <b className="board-kpi__value" data-testid="day-dirty">
+              {dirty}
+            </b>
+            <span className="board-kpi__label">Уборка</span>
+          </span>
+          <span className="board-kpi__note">мест ждут уборки</span>
+        </div>
+      </div>
+      <div className="board-kpi board-kpi--attention">
+        <span className="board-kpi__icon" aria-hidden="true">
+          <Icon name="incidents" />
+        </span>
+        <div className="board-kpi__body">
+          <span className="board-kpi__row">
+            <b className="board-kpi__value" data-testid="day-attention">
+              {attention}
+            </b>
+            <span className="board-kpi__label">Требует внимания</span>
+          </span>
+          <Link className="board-kpi__more" href="/chessboard?stays=debt" aria-label="Неоплаченные">
+            Неоплаченные <Icon name="arrow" />
+          </Link>
         </div>
       </div>
     </section>

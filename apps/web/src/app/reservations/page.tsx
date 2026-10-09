@@ -170,7 +170,7 @@ export default async function ReservationsPage({
       actions={
         <>
           <Link href="/guests" className="btn btn--secondary">
-            Гости и бронирования
+            Гости
           </Link>
           {!readOnly && (
             <Link href="/reservations/new" className="btn">

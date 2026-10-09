@@ -317,7 +317,7 @@ export default async function GuestsPage({
                 )}
               </ChipGroup>
             </div>
-            {f.q.length === 0 && rawQ.trim().length === 1 && (
+            {f.q.length === 1 && (
               <p className="hint" role="status">
                 Введите не менее 2 символов для поиска.
               </p>
@@ -325,8 +325,14 @@ export default async function GuestsPage({
             {result && (
               // итог выдачи меняют автопоиск и отборы: читалка узнаёт его без перехода фокуса
               <p className="sr-only" data-testid="guests-meta" role="status">
-                {pluralRu(result.total, ['гость', 'гостя', 'гостей'])}
-                {f.q.length >= 2 ? `, по запросу «${f.q}»` : ''}
+                {[
+                  pluralRu(result.total, ['гость', 'гостя', 'гостей']),
+                  ...(f.view !== 'all' ? [VIEWS.find((v) => v.id === f.view)?.label.toLowerCase()] : []),
+                  ...(f.state !== 'ALL' ? [STATES.find(([value]) => value === f.state)?.[1].toLowerCase()] : []),
+                  ...(f.q.length >= 2 ? [`по запросу «${f.q}»`] : []),
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
               </p>
             )}
             {result && result.rows.length > 0 && (

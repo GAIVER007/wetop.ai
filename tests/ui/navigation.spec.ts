@@ -232,7 +232,7 @@ test('«Гости и бронирования»: один пункт меню, 
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Брони');
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
   // обратно: кнопка на списке броней ведёт на экран гостей
-  await main.getByRole('link', { name: 'Гости и бронирования', exact: true }).click();
+  await main.getByRole('link', { name: 'Гости', exact: true }).click();
   await expect(page).toHaveURL(/\/guests$/);
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
 });

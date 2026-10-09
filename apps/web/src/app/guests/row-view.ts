@@ -29,7 +29,8 @@ export interface GuestRowView {
   whatsapp: string | null;
   booking: { number: string; href: string } | null;
   status: { word: string; tone: 'neutral' | 'info' | 'ok' | 'warn' | 'danger'; note: string | null } | null;
-  dates: { range: string; nights: string } | null;
+  /** даты проживания: машиночитаемые (`<time dateTime>`) и подписанные */
+  dates: { from: { iso: string; text: string }; to: { iso: string; text: string }; nights: string } | null;
   unit: { code: string | null; category: string } | null;
   guests: string | null;
   payment: { state: PaymentState; amount: string } | null;
@@ -42,11 +43,14 @@ export interface GuestRowView {
   actions: StayActions;
 }
 
-/** «7 окт. → 12 окт.», с годом, когда проживание не в текущем году: даты в таблице без года вводили бы в заблуждение */
-function stayRange(from: string, to: string, today: string): string {
+/** «7 окт.» и «12 окт.», с годом, когда проживание не в текущем году: даты в таблице без года вводили бы в заблуждение */
+function stayRange(from: string, to: string, today: string) {
   const year = today.slice(0, 4);
   const style = from.slice(0, 4) === year && to.slice(0, 4) === year ? 'short' : 'numeric';
-  return `${displayDate(from, style)} → ${displayDate(to, style)}`;
+  return {
+    from: { iso: from, text: displayDate(from, style) },
+    to: { iso: to, text: displayDate(to, style) },
+  };
 }
 
 export function buildRowView(
@@ -73,7 +77,7 @@ export function buildRowView(
     status: stayStatus(row, ctx.today),
     dates: stay
       ? {
-          range: stayRange(stay.arrivalDate, stay.departureDate, ctx.today),
+          ...stayRange(stay.arrivalDate, stay.departureDate, ctx.today),
           nights: pluralRu(stay.nights, ['ночь', 'ночи', 'ночей']),
         }
       : null,

@@ -153,7 +153,11 @@ export function GuestsTable({
                 <td>
                   {r.dates ? (
                     <div className="gb-stack">
-                      <span>{r.dates.range}</span>
+                      <span>
+                        <time dateTime={r.dates.from.iso}>{r.dates.from.text}</time>
+                        {' → '}
+                        <time dateTime={r.dates.to.iso}>{r.dates.to.text}</time>
+                      </span>
                       <small>{r.dates.nights}</small>
                     </div>
                   ) : (

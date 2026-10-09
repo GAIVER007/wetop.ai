@@ -22,7 +22,7 @@ export function guessRegional(siteUrl: string, browserTimezone: string | undefin
   } catch {
     host = '';
   }
-  if (host.endsWith('.kz')) return BY_TIMEZONE['Asia/Almaty'] ?? null;
+  if (host.endsWith('.kz')) return BY_TIMEZONE['Asia/Almaty'] ?? null; // tz-allow: ключ справочника поясов мастера для домена .kz
   if (host.endsWith('.ru')) return BY_TIMEZONE['Europe/Moscow'] ?? null;
   return (browserTimezone && BY_TIMEZONE[browserTimezone]) || null;
 }

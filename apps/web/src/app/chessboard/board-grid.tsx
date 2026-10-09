@@ -306,6 +306,11 @@ export function ChessboardGrid({
     setPreview(null);
     router.push(href);
   };
+  // другой период или фильтр: показанной брони в новой сетке может не быть, панель закрываем
+  const periodKey = `${board.dates[0]}..${board.dates[board.dates.length - 1]}`;
+  useEffect(() => {
+    setPreview(null);
+  }, [periodKey]);
   const closePreview = useCallback((restoreFocus: boolean) => {
     setPreview((current) => {
       if (restoreFocus) current?.anchor.focus({ preventScroll: true });

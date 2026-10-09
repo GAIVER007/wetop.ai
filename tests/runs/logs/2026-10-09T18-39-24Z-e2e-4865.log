@@ -1,0 +1,1235 @@
+# Сквозные (e2e) · 09.10.2026 23:39 Алматы · vm
+# коммит d070118 (claude/mv8-5-ds2a-navigation-registry)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+  ✓   1 tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (3.2s)
+  ✓   2 tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (2.6s)
+  ✓   3 tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (5.9s)
+  ✓   4 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (2.7s)
+  ✓   5 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (2.5s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (2.5s)
+  ✓   7 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (2.5s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (2.4s)
+  ✓   9 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 390 light: accessibility, keyboard and screenshot (2.4s)
+  ✓  10 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (2.4s)
+  ✓  11 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (2.4s)
+  ✓  12 tests/branches-ui/branches.spec.ts:46:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (1.9s)
+  ✓  13 tests/branches-ui/branches.spec.ts:62:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (1.8s)
+  ✓  14 tests/branches-ui/branches.spec.ts:74:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (2.0s)
+  ✓  15 tests/branches-ui/branches.spec.ts:86:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (3.7s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:40:18 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "04b02f71-4bc9-496f-9e74-f6eeea25c66a",
+[WebServer]     location: {
+[WebServer]       businessId: "e80d40ea-4c9c-4a35-a161-98f2c1aba368",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] [Nest] 10102  - 10/09/2026, 6:40:22 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "04b02f71-4bc9-496f-9e74-f6eeea25c66a",
+[WebServer]     location: {
+[WebServer]       businessId: "e80d40ea-4c9c-4a35-a161-98f2c1aba368",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✘  16 tests/branches-ui/branches.spec.ts:114:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (8.8s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:40:33 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "0804c222-94e4-4d05-94ed-5ddcd9bbbe52",
+[WebServer]     location: {
+[WebServer]       businessId: "f812987e-658c-4c63-9904-4dd14bfcbd49",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] [Nest] 10102  - 10/09/2026, 6:40:34 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "0804c222-94e4-4d05-94ed-5ddcd9bbbe52",
+[WebServer]     location: {
+[WebServer]       businessId: "f812987e-658c-4c63-9904-4dd14bfcbd49",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  17 tests/branches-ui/branches.spec.ts:150:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (6.4s)
+  ✓  18 tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (1.6s)
+  ✓  19 tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (1.5s)
+  ✓  20 tests/branches-ui/today.spec.ts:216:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (1.4s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:40:42 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "381dce46-28b6-4b2b-b030-30a5c6b67d08",
+[WebServer]     location: {
+[WebServer]       businessId: "83a7f4bf-fda9-4247-ade7-dd12b90837b1",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  21 tests/branches-ui/today.spec.ts:233:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (6.9s)
+  ✓  22 tests/branches-ui/today.spec.ts:272:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action (2.7s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:40:49 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "fd81e229-0676-4c10-866c-78bc07beb749",
+[WebServer]     location: {
+[WebServer]       businessId: "06615759-0b98-4c6b-9444-265ea2e60a48",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  23 tests/branches-ui/today.spec.ts:322:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling (3.6s)
+  ✓  24 tests/branches-ui/today.spec.ts:371:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (2.5s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:40:55 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "d2c0a412-0f4c-4612-bbce-ec30e09832f4",
+[WebServer]     location: {
+[WebServer]       businessId: "53a32f54-cebe-4999-8308-f3b1ae9f238d",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  25 tests/branches-ui/today.spec.ts:393:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана (1.4s)
+  ✓  26 tests/branches-ui/today.spec.ts:405:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (3.4s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:41:00 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "4e6055dc-1250-4039-9729-bf79a0906da2",
+[WebServer]     location: {
+[WebServer]       businessId: "218bb797-9f54-4963-91e9-e6bdcd77d6b9",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  27 tests/branches-ui/today.spec.ts:437:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (6.8s)
+  ✓  28 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (2.6s)
+  ✓  29 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (2.6s)
+  ✓  30 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (2.3s)
+  ✓  31 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (2.3s)
+  ✓  32 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (2.7s)
+  ✓  33 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (2.9s)
+  ✓  34 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (2.5s)
+  ✓  35 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (2.7s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:41:28 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "3b471787-0fb2-4add-b48d-c2c719edd43d",
+[WebServer]     location: {
+[WebServer]       businessId: "9536902e-525a-44e1-bac1-756ea995ea05",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  36 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (2.8s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:41:31 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "9e670944-c2bf-4153-8423-c3216ea692a6",
+[WebServer]     location: {
+[WebServer]       businessId: "971631b4-c2a4-49c4-9ab5-f02079e61113",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  37 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (2.8s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:41:33 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "f8deb22f-7068-4d17-ab06-e7583d83a46e",
+[WebServer]     location: {
+[WebServer]       businessId: "4bfa266e-08a8-4455-85d6-82db764402d6",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  38 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (2.8s)
+[WebServer] [Nest] 10102  - 10/09/2026, 6:41:36 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.property.findFirst()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     organizationId: "232af447-29fa-4929-bde4-524c2e547993",
+[WebServer]     locationId: "ea4f080b-62bc-40cf-b1a8-30e470c9a597",
+[WebServer]     location: {
+[WebServer]       businessId: "69291f49-5118-46d9-be2c-b725018c8f04",
+[WebServer]       business: {
+[WebServer]         organizationId: "232af447-29fa-4929-bde4-524c2e547993"
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   select: {
+[WebServer]     id: true,
+[WebServer]     name: true,
+[WebServer]     legalName: true,
+[WebServer]     bin: true,
+[WebServer]     address: true,
+[WebServer]     phone: true,
+[WebServer]     email: true,
+[WebServer]     countryCode: true,
+[WebServer]     city: true,
+[WebServer]     channexPropertyType: true,
+[WebServer]     timezone: true,
+[WebServer]     currency: true,
+[WebServer]     checkInTime: true,
+[WebServer]     checkOutTime: true,
+[WebServer]     description: true,
+[WebServer]     ~~~~~~~~~~~
+[WebServer]     website: true,
+[WebServer]     publicName: true,
+[WebServer]     earlyCheckIn: true,
+[WebServer]     lateCheckOut: true,
+[WebServer]     childrenAllowed: true,
+[WebServer]     petsAllowed: true,
+[WebServer]     smokingAllowed: true,
+[WebServer]     onsitePayment: true,
+[WebServer]     cancellationRule: true,
+[WebServer]     depositRule: true,
+[WebServer]     minGuestAge: true,
+[WebServer]     quietHoursFrom: true,
+[WebServer]     quietHoursTo: true,
+[WebServer]     houseRulesNote: true,
+[WebServer]     amenities: true,
+[WebServer] ?   organizationId?: true,
+[WebServer] ?   locationId?: true,
+[WebServer] ?   createdAt?: true,
+[WebServer] ?   updatedAt?: true,
+[WebServer] ?   organization?: true,
+[WebServer] ?   location?: true,
+[WebServer] ?   buildings?: true,
+[WebServer] ?   accommodationTypes?: true,
+[WebServer] ?   reservations?: true,
+[WebServer] ?   ratePlans?: true,
+[WebServer] ?   promoCodes?: true,
+[WebServer] ?   channelMappings?: true,
+[WebServer] ?   payments?: true,
+[WebServer] ?   cashCategories?: true,
+[WebServer] ?   cashOperations?: true,
+[WebServer] ?   cashReconciliations?: true,
+[WebServer] ?   barCategories?: true,
+[WebServer] ?   barProducts?: true,
+[WebServer] ?   barSuppliers?: true,
+[WebServer] ?   barReceipts?: true,
+[WebServer] ?   barStockLots?: true,
+[WebServer] ?   barStockMovements?: true,
+[WebServer] ?   barSales?: true,
+[WebServer] ?   deskTasks?: true,
+[WebServer] ?   paymentRequests?: true,
+[WebServer] ?   fiscalReceipts?: true,
+[WebServer] ?   competitors?: true,
+[WebServer] ?   competitorOccupancy?: true,
+[WebServer] ?   services?: true,
+[WebServer] ?   trackedSites?: true,
+[WebServer] ?   inventoryUnits?: true,
+[WebServer] ?   externalEvents?: true,
+[WebServer] ?   channelOutbox?: true,
+[WebServer] ?   sellerBookingIntents?: true,
+[WebServer] ?   _count?: true
+[WebServer]   }
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `description` for select statement on model `Property`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async HotelService.property (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:102:22)
+[WebServer]     at async HotelService.readSettings (/home/user/wetop.ai/apps/api/src/hotel/hotel.module.ts:171:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  39 tests/branches-ui/today.spec.ts:467:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (2.6s)
+
+
+  1) tests/branches-ui/branches.spec.ts:114:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('button', { name: 'Выбрать филиал', exact: true })
+    Expected substring: "Тестовый отель"
+    Received string:    "Объект не загруженНастройки объекта"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('button', { name: 'Выбрать филиал', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Выбрать филиал', exact: true })
+        3 × locator resolved to <button disabled type="button" aria-expanded="false" class="workspace-property" aria-controls="_R_1l5elb_" aria-label="Выбрать филиал">…</button>
+          - unexpected value "Тестовый филиал ПаркРесторан"
+        11 × locator resolved to <button type="button" aria-expanded="false" class="workspace-property" aria-controls="_R_1l5elb_" aria-label="Выбрать филиал">…</button>
+           - unexpected value "Объект не загруженНастройки объекта"
+
+
+      135 |     await expect(page).toHaveURL(/\/today$/);
+      136 |     // The shared URL is already /today: wait for the actual selected branch before opening its switcher.
+    > 137 |     await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText('Тестовый отель');
+          |                                                                                     ^
+      138 |     await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toBeEnabled();
+      139 |     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+      140 |     await choose(page, 'Гостиница Б');
+        at /home/user/wetop.ai/tests/branches-ui/branches.spec.ts:137:85
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-10553--→-Food-→-Hospitality-A-→-B/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/branches.spec.ts:114:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B 
+  38 passed (2.2m)
+
+# код выхода 1 · 2 мин 14 с

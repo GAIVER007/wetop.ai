@@ -1,0 +1,11 @@
+# Линтер (lint) · 09.10.2026 22:41 Алматы · vm
+# коммит d070118 (claude/mv8-5-ds2a-navigation-registry)
+# npx eslint .
+
+/home/user/wetop.ai/tests/ui/reports-finance.spec.ts
+  16:34  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 44 с

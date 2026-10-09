@@ -7700,3 +7700,6 @@
 | 07.10.2026 18:02 | e2e (частично: --config tests/site/playwright.config.ts --grep business positioning) | ❌ упало 1 из 1 | 31 с | dcb9e53 | [лог](logs/2026-10-07T13-02-27Z-e2e-a0a0.log) | business positioning and centered mobile cards without maturity labels |
 | 07.10.2026 18:04 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 64 из 64 | 1 мин 22 с | dcb9e53 +7 | [лог](logs/2026-10-07T13-04-10Z-e2e-cad0.log) |  |
 | 07.10.2026 18:06 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 5 с | dcb9e53 +7 | [лог](logs/2026-10-07T13-06-11Z-unit-7f41.log) |  |
+| 09.10.2026 16:51 | typecheck | ✅ без ошибок | 1 мин 5 с | a781c38 | [лог](logs/2026-10-09T11-51-34Z-typecheck-3413.log) |  |
+| 09.10.2026 16:52 | lint | ✅ без ошибок | 35 с | a781c38 | [лог](logs/2026-10-09T11-52-40Z-lint-7ada.log) |  |
+| 09.10.2026 16:53 | unit | ✅ 4147 из 4150, пропущено 3 | 2 мин 38 с | a781c38 | [лог](logs/2026-10-09T11-53-19Z-unit-45b5.log) |  |

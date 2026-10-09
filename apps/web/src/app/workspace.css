@@ -477,7 +477,6 @@
   @media (min-width: 961px) {
     .workspace .page:has(> .reservations-results),
     .workspace .page:has(> .inventory-content),
-    .workspace .page:has(> .guests-bar),
     .workspace .page:has(> .fund-availability) {
       display: flex;
       flex-direction: column;
@@ -487,7 +486,6 @@
     /* остаток высоты — последнему блоку, и он передаёт его своей таблице */
     .workspace .page > .reservations-results,
     .workspace .page > .inventory-content,
-    .workspace .page:has(> .guests-bar) > section:last-of-type,
     .workspace .page > .fund-availability {
       flex: 1 1 0;
       min-height: 0;
@@ -501,8 +499,7 @@
       flex-direction: column;
     }
     .workspace .page .reservations-results .table-scroll,
-    .workspace .page .inventory-content .table-scroll,
-    .workspace .page:has(> .guests-bar) > section:last-of-type .table-scroll {
+    .workspace .page .inventory-content .table-scroll {
       flex: 1 1 0;
       min-height: 0;
       max-height: none;

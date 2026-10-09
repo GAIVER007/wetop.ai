@@ -7655,3 +7655,5 @@
 | 09.10.2026 12:45 | typecheck | ✅ без ошибок | 42 с | fe8459d | [лог](logs/2026-10-09T07-45-53Z-typecheck-557d.log) |  |
 | 09.10.2026 12:46 | lint | ✅ без ошибок | 35 с | fe8459d | [лог](logs/2026-10-09T07-46-36Z-lint-7e20.log) |  |
 | 09.10.2026 12:47 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/design-system.spec.ts tests/ui/team.spec.ts tests/ui/finance-card-acti | ✅ 42 из 42 | 3 мин 13 с | fe8459d | [лог](logs/2026-10-09T07-47-24Z-e2e-2c9e.log) |  |
+| 09.10.2026 13:00 | unit | ❌ код выхода 1 | 2 мин 32 с | b795d88 | [лог](logs/2026-10-09T08-00-13Z-unit-12a1.log) | (файл не выполнился) |
+| 09.10.2026 13:06 | unit | ✅ 4147 из 4150, пропущено 3 | 1 мин 58 с | b795d88 +3 | [лог](logs/2026-10-09T08-06-34Z-unit-ef9b.log) |  |

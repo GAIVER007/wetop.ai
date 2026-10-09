@@ -12,17 +12,18 @@ test.beforeEach(async ({ page, request }) => {
   await page.waitForURL('**/finance');
 });
 
-test('настройки: основные поля и сохранение помещаются на ноутбуке', async ({ page }) => {
+test('настройки: основные поля и сохранение видны на ноутбуке сразу, вбок не прокручивается', async ({
+  page,
+}) => {
   await page.goto('/hotel-settings');
-  await expect(page.getByLabel('Название объекта')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Сохранить изменения' })).toBeVisible();
-  // До 09.10.2026 здесь мерилась высота всей формы (бюджет 01.10 плюс HEADER_GROWTH_PX). Вёрстка владельца (PR #340,
-  // ADR-158) раскладывает настройки карточками в три колонки, и целиком форма в 1366×768 не помещается по замыслу.
-  // Проверяется то, ради чего бюджет вводился: название объекта и кнопка сохранения видны без прокрутки.
-  const inFirstScreen = async (box: { y: number; height: number } | null) =>
-    box !== null && box.y >= 0 && box.y + box.height <= (await page.evaluate(() => innerHeight));
-  expect(await inFirstScreen(await page.getByLabel('Название объекта').boundingBox())).toBe(true);
-  expect(await inFirstScreen(await page.getByRole('button', { name: 'Сохранить изменения' }).boundingBox())).toBe(true);
+  // С 09.10 «Настройки объекта» это три колонки карточек на пяти вкладках (ADR-158): страница
+  // прокручивается вниз намеренно, как «Отчёты»; одним экраном остаются ключевые поля и сохранение
+  await expect(page.getByLabel('Название объекта')).toBeInViewport();
+  await expect(page.getByRole('button', { name: 'Сохранить изменения' })).toBeInViewport();
+  const overflowX = await page.evaluate(
+    () => document.documentElement.scrollWidth - innerWidth,
+  );
+  expect(overflowX).toBeLessThanOrEqual(1);
 });
 
 test('интеграции: незавершённая настройка не называется подключением', async ({ page }) => {

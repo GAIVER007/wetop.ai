@@ -146,6 +146,11 @@
     border: 0;
     text-align: left;
   }
+  /* до оживления React (top-nav.tsx) видно, что меню ещё не готово: курсор «ожидание», приглушённый цвет */
+  .profile-trigger:disabled {
+    cursor: progress;
+    opacity: 0.6;
+  }
   .profile-caption strong,
   .profile-caption small {
     display: block;

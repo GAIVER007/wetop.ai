@@ -71,6 +71,14 @@ export function TopNav({
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
+  // Шапку рисует сервер, а обработчик меню профиля навешивает React после загрузки скриптов стойки: на
+  // медленной сети между ними секунды, кнопка в это время выглядит рабочей, а клик по ней пропадает
+  // (release-checks #7, спек profile-menu-readiness). До первого рендера на клиенте кнопка недоступна и
+  // помечена занятой; разметка сервера и первого клиентского рендера одна, расхождения гидрации нет
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(true);
+  }, []);
   // Сочетание поиска словами той ОС, на которой человек сидит: ⌘ бывает только у Apple
   const [searchKey, setSearchKey] = useState('⌘ K');
   const { setTheme } = useTheme();
@@ -199,6 +207,8 @@ export function TopNav({
                   aria-label="Меню администратора"
                   aria-expanded={profile}
                   aria-controls="profile-dropdown"
+                  aria-busy={!ready}
+                  disabled={!ready}
                   onClick={() => setProfile(!profile)}
                 >
                   <Suspense fallback={<HeaderPerson person={null} />}>

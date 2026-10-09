@@ -11,11 +11,17 @@ import { describe, expect, it } from 'vitest';
  */
 const UI = resolve(import.meta.dirname, '../ui');
 const MENU = 'Меню администратора';
+/**
+ * Единственное исключение: спек готовности смотрит на саму кнопку (недоступна до оживления, `top-nav.tsx`) и
+ * нарочно не ждёт служебных свойств React, иначе он не проверял бы то, ради чего написан. Любой другой спек
+ * берёт помощник.
+ */
+const READINESS_SPEC = 'profile-menu-readiness.spec.ts';
 
 describe('меню профиля в спеках UI открывается после оживления кнопки', () => {
   it('название кнопки встречается только в помощнике openProfileMenu, не в спеках', () => {
     const hits = readdirSync(UI)
-      .filter((file) => file.endsWith('.spec.ts'))
+      .filter((file) => file.endsWith('.spec.ts') && file !== READINESS_SPEC)
       .flatMap((file) =>
         readFileSync(resolve(UI, file), 'utf8')
           .split('\n')
@@ -24,6 +30,25 @@ describe('меню профиля в спеках UI открывается по
     expect(hits, 'меню профиля открывает openProfileMenu(page) из tests/ui/fixtures.ts').toEqual(
       [],
     );
+  });
+
+  it('спек готовности на месте: смотрит на кнопку, а не на служебные свойства React', () => {
+    const spec = readFileSync(resolve(UI, READINESS_SPEC), 'utf8');
+    expect(spec).toContain(`name: '${MENU}'`);
+    expect(spec).not.toContain('openProfileMenu(');
+    expect(spec).not.toContain('__reactProps');
+    expect(spec).toContain('toBeDisabled()');
+    expect(spec).toContain('toBeEnabled()');
+    expect(spec).toContain("keyboard.press('Enter')");
+  });
+
+  it('кнопка профиля до оживления недоступна: disabled и aria-busy в top-nav.tsx', () => {
+    const nav = readFileSync(
+      resolve(import.meta.dirname, '../../apps/web/src/components/top-nav.tsx'),
+      'utf8',
+    );
+    expect(nav).toContain('aria-busy={!ready}');
+    expect(nav).toContain('disabled={!ready}');
   });
 
   it('помощник на месте: ждёт оживления и раскрытия меню', () => {

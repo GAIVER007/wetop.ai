@@ -7651,3 +7651,7 @@
 | 09.10.2026 12:30 | unit | ❌ код выхода 1 | 2 мин 58 с | 9b24111 +4 | [лог](logs/2026-10-09T07-30-59Z-unit-aa6c.log) | (файл не выполнился) |
 | 09.10.2026 12:34 | unit (частично: tests/unit/server-bootstrap.test.ts) | ✅ 3 из 3 | 50 с | 9b24111 +4 | [лог](logs/2026-10-09T07-34-46Z-unit-0882.log) |  |
 | 09.10.2026 12:35 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/design-system.spec.ts tests/ui/team.spec.ts tests/ui/finance-card-acti | ✅ 42 из 42 | 3 мин 26 с | 9b24111 +4 | [лог](logs/2026-10-09T07-35-44Z-e2e-8c11.log) |  |
+| 09.10.2026 12:45 | unit (частично: apps/web/src/components/primitives-ds1c.test.ts apps/web/src/components/primitives.test.ts scripts/design/build-tokens.test.ts tests/unit/build- | ✅ 111 из 111 | 4 с | fe8459d | [лог](logs/2026-10-09T07-45-49Z-unit-cd02.log) |  |
+| 09.10.2026 12:45 | typecheck | ✅ без ошибок | 42 с | fe8459d | [лог](logs/2026-10-09T07-45-53Z-typecheck-557d.log) |  |
+| 09.10.2026 12:46 | lint | ✅ без ошибок | 35 с | fe8459d | [лог](logs/2026-10-09T07-46-36Z-lint-7e20.log) |  |
+| 09.10.2026 12:47 | e2e (частично: -c tests/ui/playwright.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/design-system.spec.ts tests/ui/team.spec.ts tests/ui/finance-card-acti | ✅ 42 из 42 | 3 мин 13 с | fe8459d | [лог](logs/2026-10-09T07-47-24Z-e2e-2c9e.log) |  |

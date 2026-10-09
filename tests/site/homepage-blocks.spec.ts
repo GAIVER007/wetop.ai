@@ -112,7 +112,7 @@ test('«Продажи и ИИ»: примеры подписаны вымышл
 }) => {
   await page.goto('/');
   const market = page.locator('#market');
-  await expect(market).toContainText('Загрузка конкурентов');
+  await expect(market).toContainText('Анализ конкурентов');
   await expect(market).toContainText('Средняя цена на 17 октября');
   await expect(market).toContainText('Пример сравнения цен. Данные вымышленные.');
   await expect(market.getByRole('link', { name: /Открыть продажи/ })).toHaveAttribute(

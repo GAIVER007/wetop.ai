@@ -886,7 +886,22 @@ function seedAnalyticsHistory() {
  */
 let noBookings = false;
 /** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
-let hotelOverrides: Record<string, string | null> = {};
+let hotelOverrides: Record<string, unknown> = {};
+// фото и договор объекта (ADR-156): файлы не хранятся, у фото картинка-заглушка, имя договора берётся из multipart
+interface FixtureMedia {
+  id: string;
+  kind: 'PHOTO' | 'CONTRACT';
+  fileName: string | null;
+  byteSize: number;
+}
+let hotelMedia: FixtureMedia[] = [];
+let mediaStorageOff = false;
+let mediaSeq = 0;
+const PHOTO_PLACEHOLDER =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"><rect width="160" height="120" fill="#cfd8e6"/></svg>',
+  );
 /**
  * Каталог услуг «Настроек объекта» (SET3): как `GET /hotel/services` — весь, с архивными. Выбор услуги в счёте
  * (`/finance/services`) видит только активные и в том же порядке — «Стирка» первой, как было до каталога.
@@ -3046,6 +3061,11 @@ function read(path: string, q: URLSearchParams): unknown {
       },
       ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
+      // номера и места по единицам продажи (ADR-156): как считает API
+      capacity: {
+        rooms: units.filter((u) => u.kind === 'ROOM').length,
+        beds: units.filter((u) => u.kind === 'BED').length,
+      },
     };
   if (path === '/hotel/onboarding')
     return { needed: onboardingNeeded, name: propertyName, currency: 'KZT' };
@@ -4509,7 +4529,7 @@ function marketRoute(
   }
 }
 
-/** Фото категорий (DATA_MODEL §30): код категории → порядок id картинок библиотеки */
+/** Фото категорий (DATA_MODEL §31): код категории → порядок id картинок библиотеки */
 const categoryPhotos = new Map<string, string[]>();
 const fixtureBranches: Array<Record<string, unknown>> = [];
 /**
@@ -4734,6 +4754,8 @@ createServer(async (req, res) => {
       noBookings = false;
       createdReservation = false;
       hotelOverrides = {};
+      hotelMedia = [];
+      mediaStorageOff = false;
       serviceCatalog = structuredClone(serviceSeed);
       onboardingNeeded = false;
       housekeeping.clear();
@@ -4802,6 +4824,7 @@ createServer(async (req, res) => {
       channelCatalog =
         body['channelCatalog'] === 'empty' || body['channelCatalog'] === 'down' ? body['channelCatalog'] : '';
       failPath = String(body['failPath'] || '');
+      if ('mediaStorageOff' in body) mediaStorageOff = body['mediaStorageOff'] === true;
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
       // состояния модуля «Каналы продаж» (ADR-112) для снимков и проверок: поля поверх ответов
@@ -6847,12 +6870,64 @@ createServer(async (req, res) => {
       if (v.active !== undefined) row.active = v.active;
       return send(200, row);
     }
+    if (path === '/hotel/media' && req.method === 'GET') {
+      const view = (m: FixtureMedia, position: number) => ({
+        id: m.id,
+        kind: m.kind,
+        position,
+        fileName: m.fileName,
+        byteSize: m.byteSize,
+        width: m.kind === 'PHOTO' ? 160 : null,
+        height: m.kind === 'PHOTO' ? 120 : null,
+        alt: null,
+        url: m.kind === 'PHOTO' ? PHOTO_PLACEHOLDER : 'https://files.example.invalid/contract.pdf',
+      });
+      const contract = hotelMedia.find((m) => m.kind === 'CONTRACT');
+      return send(200, {
+        storage: mediaStorageOff ? 'OFF' : 'READY',
+        limits: { maxBytes: 10 * 1024 * 1024, maxPhotos: 20 },
+        photos: hotelMedia.filter((m) => m.kind === 'PHOTO').map(view),
+        contract: contract && can(uiRole, 'settings') ? view(contract, 0) : null,
+      });
+    }
+    if (path.startsWith('/hotel/media/')) {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      if (mediaStorageOff)
+        return send(503, { message: 'Хранилище файлов не включено. Обратитесь в поддержку WETOP.' });
+      if (req.method === 'POST' && (path === '/hotel/media/photos' || path === '/hotel/media/contract')) {
+        const kind = path.endsWith('contract') ? 'CONTRACT' : 'PHOTO';
+        const text = raw.toString('latin1');
+        const name = /filename="([^"]*)"/.exec(text)?.[1] ?? null;
+        if (kind === 'CONTRACT' && !text.includes('%PDF-'))
+          return send(415, { message: 'Договор принимается только в формате PDF' });
+        if (kind === 'PHOTO' && hotelMedia.filter((m) => m.kind === 'PHOTO').length >= 20)
+          return send(400, { message: 'Не больше 20 фото на объект. Удалите лишние.' });
+        if (kind === 'CONTRACT') hotelMedia = hotelMedia.filter((m) => m.kind !== 'CONTRACT');
+        hotelMedia.push({
+          id: `00000000-0000-4000-8000-${String(++mediaSeq).padStart(12, '0')}`,
+          kind,
+          fileName: name ? Buffer.from(name, 'latin1').toString('utf8') : null,
+          byteSize: raw.length,
+        });
+        return send(201, {});
+      }
+      if (req.method === 'DELETE') {
+        const id = path.split('/')[4] ?? '';
+        const before = hotelMedia.length;
+        hotelMedia = hotelMedia.filter((m) =>
+          path.endsWith('/contract') ? m.kind !== 'CONTRACT' : m.id !== id,
+        );
+        return hotelMedia.length === before
+          ? send(404, { message: 'Файл не найден' })
+          : send(200, { deleted: true });
+      }
+    }
     if (path === '/hotel/settings' && req.method === 'PATCH') {
       // как API: право `settings` — владелец и управляющий (ADR-107)
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       const parsed = parseHotelSettingsPatch(body);
       if (!parsed.ok) return send(400, { message: parsed.reason });
-      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, string | null>) };
+      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, unknown>) };
       return send(200, {});
     }
     if (path === '/hotel/onboarding' && req.method === 'POST') {

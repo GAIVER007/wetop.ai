@@ -233,9 +233,40 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
+/** Фото и договор объекта (ADR-156, DATA_MODEL §31.3): файл идёт в API стойки, оттуда в закрытое хранилище */
+export interface PropertyMediaItem {
+  id: string;
+  kind: 'PHOTO' | 'CONTRACT';
+  position: number;
+  fileName: string | null;
+  byteSize: number;
+  width: number | null;
+  height: number | null;
+  alt: string | null;
+  url: string | null;
+}
+export interface PropertyMediaList {
+  storage: 'READY' | 'OFF';
+  limits: { maxBytes: number; maxPhotos: number };
+  photos: PropertyMediaItem[];
+  contract: PropertyMediaItem | null;
+}
+export const propertyMediaApi = {
+  list: () => getJson<PropertyMediaList>('/hotel/media'),
+  upload: async (kind: 'photos' | 'contract', file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/hotel/media/${kind}`, { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  removePhoto: (id: string) =>
+    sendJson<unknown>('DELETE', `/hotel/media/photos/${encodeURIComponent(id)}`, {}),
+  removeContract: () => sendJson<unknown>('DELETE', '/hotel/media/contract', {}),
+};
+
 /** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
 export const hotelSettingsApi = {
-  update: (patch: Record<string, string | null>) =>
+  update: (patch: Record<string, unknown>) =>
     sendJson<unknown>('PATCH', '/hotel/settings', patch),
 };
 
@@ -3035,7 +3066,7 @@ export interface InventoryCategory {
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
-  /** Выбор фото категории целиком, порядок как в списке (DATA_MODEL §30) */
+  /** Выбор фото категории целиком, порядок как в списке (DATA_MODEL §31) */
   setPhotos: (code: string, assetIds: string[]) =>
     sendJson<{ count: number }>('PUT', `/inventory/categories/${encodeURIComponent(code)}/photos`, {
       assetIds,

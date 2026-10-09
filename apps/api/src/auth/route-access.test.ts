@@ -168,6 +168,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',
   'GET /hotel/settings': 'desk',
+  // фото и договор объекта (ADR-156): читают все с доступом к стойке, договор отдаётся только с правом `settings`
+  'GET /hotel/media': 'desk',
   'GET /hotel/first-steps': 'desk',
   'GET /hotel/onboarding': 'desk',
   'GET /rate-plans': 'desk',
@@ -314,6 +316,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── настройки, интеграции, сайт, журнал ─────────────────────────────────────────────────
   'POST /hotel/onboarding': 'settings',
   'PATCH /hotel/settings': 'settings',
+  'POST /hotel/media/photos': 'settings',
+  'DELETE /hotel/media/photos/:id': 'settings',
+  'POST /hotel/media/contract': 'settings',
+  'DELETE /hotel/media/contract': 'settings',
   // каталог услуг «Настроек объекта» (SET3): право `settings` включает «услуги»
   'GET /hotel/services': 'settings',
   'POST /hotel/services': 'settings',

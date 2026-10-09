@@ -2742,7 +2742,7 @@
     display: inline-grid;
     place-items: center;
     width: 36px;
-    height: 32px;
+    height: 24px;
     border: 0;
     background: transparent;
     color: var(--text);
@@ -2771,6 +2771,40 @@
   }
   @media (max-width: 600px) {
     .board-zoom {
+      display: none;
+    }
+  }
+
+  /* точка состояния места: зелёная проверено и доступно, оранжевая требует уборки, синяя ждёт проверки,
+     красная ремонт или неисправность, серая закрыто */
+  .board td.board__unit {
+    position: sticky;
+    padding-right: var(--space-6);
+  }
+  .board-unit-dot {
+    position: absolute;
+    top: 50%;
+    right: var(--space-2);
+    width: 8px;
+    height: 8px;
+    margin-top: -4px;
+    border-radius: 9999px;
+    background: var(--success);
+  }
+  .board-unit-dot[data-state='dirty'] {
+    background: var(--warning);
+  }
+  .board-unit-dot[data-state='clean'] {
+    background: var(--primary);
+  }
+  .board-unit-dot[data-state='repair'] {
+    background: var(--danger);
+  }
+  .board-unit-dot[data-state='blocked'] {
+    background: var(--muted);
+  }
+  @media (max-width: 600px) {
+    .board-unit-dot {
       display: none;
     }
   }

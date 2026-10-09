@@ -22,12 +22,15 @@ test('одинарный клик — предпросмотр без ухода
   const preview = page.getByTestId('stay-preview');
   await expect(preview).toBeVisible();
   await expect(page).toHaveURL('/chessboard');
-  // состав по ТЗ §23: гость → даты → размещение → источник → суммы; технических ID нет
+  // состав по образцу владельца (09.10.2026): статус, гость, «Бронь №…», заезд и выезд, размещение,
+  // гости, оплачено, источник; номер брони теперь показан, как на образце
   await expect(preview.getByTestId('preview-guest')).not.toBeEmpty();
-  await expect(preview.getByTestId('preview-dates')).toContainText('→');
+  await expect(preview).toContainText(`Бронь №${number}`);
+  await expect(preview.getByTestId('preview-dates')).toContainText('Заезд');
+  await expect(preview.getByTestId('preview-dates')).toContainText('Выезд');
+  await expect(preview.getByTestId('preview-dates')).toContainText(/ноч/);
   await expect(preview.getByTestId('preview-place')).not.toBeEmpty();
   await expect(preview.getByTestId('preview-sums')).toContainText('₸');
-  await expect(preview).not.toContainText(number!);
   await expect(preview.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
     'href',
     `/reservations/${number}`,
@@ -90,8 +93,7 @@ test('подпись подстраивается под ширину: полн�
 }) => {
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
-  // подпись в две строки (имя, затем долг) живёт в «Обычном» виде; «Компактный» по умолчанию прячет вторую строку
-  await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
+  // подпись в две строки (имя, затем даты и долг) живёт в «Обычном» виде, он с 09.10 по умолчанию
   await page.goto('/chessboard');
   // неделя: широкая плашка — полное имя и плашка суммы долга
   await expect(
@@ -99,6 +101,7 @@ test('подпись подстраивается под ширину: полн�
   ).toBeVisible();
   await expect(page.getByTestId('cell-due').filter({ visible: true }).first()).toContainText('₸');
   // 30 дней: одна ночь — «Имя Ф.», полное имя спрятано; долг на узкой — точкой
+  await page.getByTestId('board-length-button').click();
   await page.getByRole('link', { name: '30 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   // M04: однодневная «Гость Букинг»; в той же строке с 1-го числа — длинная бронь следующего месяца
@@ -154,6 +157,7 @@ test('узкая плашка: вторая строка (источник, но
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
   await page.goto('/chessboard');
+  await page.getByTestId('board-length-button').click();
   await page.getByRole('link', { name: '30 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   const oneNight = page.locator('[data-number="20260916-DSG-BDC"] .board-stay-caption');

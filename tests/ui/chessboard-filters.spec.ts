@@ -265,13 +265,15 @@ test('§38: вид «Компактный / Обычный / Подробный�
     .getByRole('dialog', { name: 'Фильтры календаря' })
     .getByRole('group', { name: 'Вид строк календаря' });
   const pick = (name: string) => view.getByRole('button', { name, exact: true });
-  // без сохранённого выбора «Компактный» (решение владельца 07.10.2026, baseline B)
-  await expect(pick('Компактный')).toHaveAttribute('aria-pressed', 'true');
+  // без сохранённого выбора «Обычный» (образец владельца 09.10.2026; с 07.10 был «Компактный»)
+  await expect(pick('Обычный')).toHaveAttribute('aria-pressed', 'true');
   const height = async () =>
     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
+  const normal = await height();
+  await pick('Компактный').click();
   const compact = await height();
   await pick('Обычный').click();
-  const normal = await height();
+  expect(await height()).toBe(normal);
   await pick('Подробный').click();
   const detailed = await height();
   expect(compact).toBeLessThan(normal);

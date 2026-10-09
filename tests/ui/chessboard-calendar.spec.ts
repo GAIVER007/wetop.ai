@@ -21,7 +21,7 @@ test('календарь: заголовок, сводка дня и быстр�
   await expect(stats.getByRole('heading')).toHaveCount(0);
   // владелец 06.10: «лишнее убери, в скобках убери» — дней рождения, задач, блокировок и разбивки нет
   await expect(stats.getByText('Дни рождения')).toHaveCount(0);
-  await expect(stats.getByText('Задачи')).toHaveCount(0);
+  // задачи входят в «Требует внимания» (образец владельца 09.10): отдельной карточки задач нет
   await expect(stats.getByText('Заблокировано')).toHaveCount(0);
   await expect(stats.getByText('Всего номеров')).toHaveCount(0);
   await expect(stats.getByText('(')).toHaveCount(0);

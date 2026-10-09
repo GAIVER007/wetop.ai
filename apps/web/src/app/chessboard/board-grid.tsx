@@ -860,7 +860,8 @@ export function ChessboardGrid({
   return (
     <>
       <div className="board-toolbar">
-        {lead}
+        {/* блоки с сервера кладём под ключ: без него React в разработке ругается на безключевых соседей */}
+        <Fragment key="lead">{lead}</Fragment>
         <label className="board-search field field--inline">
           <span className="board-search-label">Поиск</span>
           <Input
@@ -892,7 +893,7 @@ export function ChessboardGrid({
           Фильтры{' '}
           {activeFilters > 0 && <span className="board-filters-count">{activeFilters}</span>}
         </button>
-        {actions}
+        <Fragment key="actions">{actions}</Fragment>
         {/*
           Вторая строка — только когда что-то отобрано: снятые условия чипами, «Показано N из M» и
           «Сбросить». Без отбора строка схлопнута, но остаётся в дереве доступности: живая область
@@ -930,7 +931,7 @@ export function ChessboardGrid({
           )}
         </div>
       </div>
-      {kpis}
+      <Fragment key="kpis">{kpis}</Fragment>
       {filtersAnchor && (
         <BoardFiltersPopover
           anchor={filtersAnchor}
@@ -1153,6 +1154,14 @@ export function ChessboardGrid({
                               status={row.unit.housekeepingStatus}
                             />
                           )}
+                          {/* Точка состояния места справа, как на образце владельца (09.10.2026) */}
+                          <span
+                            className="board-unit-dot"
+                            data-testid="unit-dot"
+                            data-state={unitDot(row, loadDate).state}
+                            title={unitDot(row, loadDate).title}
+                            aria-hidden="true"
+                          />
                         </td>
                         {row.cells.map((c, index) => (
                           <Cell
@@ -1647,6 +1656,23 @@ function MoveBody({ question: q }: { question: MoveQuestion }) {
       <p className="move-question__note">{q.note}</p>
     </div>
   );
+}
+
+/**
+ * Состояние места на дату сверки: закрыто (ремонт или другое), требует уборки, убрано и ждёт проверки,
+ * иначе проверено и доступно. Только показ уже загруженных данных: правил тут нет.
+ */
+function unitDot(row: ChessboardRow, date: string): { state: string; title: string } {
+  const cell = row.cells.find((c) => c.date === date);
+  if (cell?.state === 'BLOCKED')
+    return {
+      state: blockKind(cell.blockType) === 'other' ? 'blocked' : 'repair',
+      title: `${blockTypeLabel(cell.blockType)}${cell.blockReason ? `: ${cell.blockReason}` : ''}`,
+    };
+  const hk = row.unit.housekeepingStatus;
+  if (hk === 'DIRTY') return { state: 'dirty', title: 'Требует уборки' };
+  if (hk === 'CLEAN') return { state: 'clean', title: 'Убрано, ждёт проверки' };
+  return { state: 'ok', title: 'Проверено, доступно' };
 }
 
 /** Ширина, с которой карточка брони встаёт панелью справа от сетки; ниже — окно у плашки */

@@ -26,7 +26,7 @@ test('статусы шахматки понятны без открытия и�
     });
     await page.setViewportSize({ width: 1440, height: 1000 });
   }
-  await page.getByText('Обозначения', { exact: true }).click();
+  await page.getByTestId('board-legend-button').click();
   await expect(page.getByTestId('board-legend')).toBeVisible();
   await expect(page.getByTestId('board-legend')).toContainText('подтверждена');
   await expect(page.getByTestId('board-legend')).toContainText('проживает');

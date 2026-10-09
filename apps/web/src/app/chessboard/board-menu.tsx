@@ -11,15 +11,21 @@ export function BoardMenu({
   summary,
   testId,
   title,
+  resetKey,
   children,
 }: {
   className: string;
   summary: ReactNode;
   testId?: string;
   title?: string;
+  /** меняется с периодом календаря: раскрывашка закрывается, поля несут новые даты */
+  resetKey?: string;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (ref.current) ref.current.open = false;
+  }, [resetKey]);
   useEffect(() => {
     const close = (event: Event) => {
       const el = ref.current;

@@ -194,7 +194,7 @@ function StayPanel({
             <Icon name="chat" />
           </a>
         )}
-        <Link className="stay-panel__round" href={card} aria-label="Открыть бронь" title="Открыть бронь">
+        <Link className="stay-panel__round" href={card} aria-label="Подробнее о брони" title="Подробнее о брони">
           <Icon name="more" />
         </Link>
       </div>

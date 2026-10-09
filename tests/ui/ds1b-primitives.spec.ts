@@ -73,11 +73,12 @@ test('переключатель шахматки: ровно один выбр�
   const group = page.getByRole('group', { name: 'Вид строк календаря' });
   const pressed = group.locator('[aria-pressed="true"]');
   await expect(pressed).toHaveCount(1);
-  await expect(pressed).toHaveText('Компактный');
+  // по умолчанию «Обычный» (образец владельца 09.10.2026)
+  await expect(pressed).toHaveText('Обычный');
   await pressed.focus();
   await page.keyboard.press('ArrowRight');
-  await expect(group.locator('[aria-pressed="true"]')).toHaveText('Обычный');
-  expect(await focused(page)).toBe('Обычный');
+  await expect(group.locator('[aria-pressed="true"]')).toHaveText('Подробный');
+  expect(await focused(page)).toBe('Подробный');
   await page.keyboard.press('End');
   await expect(group.locator('[aria-pressed="true"]')).toHaveText('Подробный');
   await page.keyboard.press('ArrowRight');

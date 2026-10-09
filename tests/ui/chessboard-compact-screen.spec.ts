@@ -71,14 +71,14 @@ test('свёрнутые категории переживают перезаг�
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
 });
 
-test('без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются', async ({
+test('без сохранённого выбора вид «Обычный» (образец владельца 09.10), сохранённые «Компактный» и «Подробный» восстанавливаются', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/chessboard?from=2026-09-14&to=2026-09-20');
   const wrap = page.locator('.board-wrap');
-  await expect(wrap).toHaveAttribute('data-density', 'compact');
-  for (const view of ['normal', 'detailed'] as const) {
+  await expect(wrap).toHaveAttribute('data-density', 'normal');
+  for (const view of ['compact', 'detailed'] as const) {
     await page.evaluate(([key, value]) => localStorage.setItem(key!, value!), [VIEW_KEY, view]);
     await page.reload();
     await expect(wrap).toHaveAttribute('data-density', view);
@@ -92,4 +92,13 @@ test('без сохранённого выбора вид «Компактный
   await expect(wrap).toHaveAttribute('data-density', 'compact');
   await page.reload();
   await expect(wrap).toHaveAttribute('data-density', 'compact');
+  // «Обычный» возвращается тем же переключателем и тоже помнится
+  await page.getByRole('button', { name: 'Фильтры', exact: true }).click();
+  await page
+    .getByRole('group', { name: 'Вид строк календаря' })
+    .getByRole('button', { name: 'Обычный', exact: true })
+    .click();
+  await expect(wrap).toHaveAttribute('data-density', 'normal');
+  await page.reload();
+  await expect(wrap).toHaveAttribute('data-density', 'normal');
 });

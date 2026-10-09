@@ -224,7 +224,7 @@ export default async function ChessboardPage({
       {/* Образец владельца 09.10.2026: «Октябрь 2026 ▾» раскрывает выбор дат («С» / «По»); ключ по
           периоду: после перехода раскрывашка закрыта, поля несут новые даты. */}
       <BoardMenu
-        key={`p-${board.from}-${board.to}`}
+        resetKey={`${board.from}-${board.to}`}
         className="board-period-menu"
         testId="board-period-button"
         title={periodLabel}
@@ -271,7 +271,7 @@ export default async function ChessboardPage({
       {/* Длина окна: 7 дней, календарная неделя, 14 и 30, от сегодня (ТЗ «Шахматка v2» §6–7).
           «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
       <BoardMenu
-        key={`l-${board.from}-${board.to}`}
+        resetKey={`${board.from}-${board.to}`}
         className="board-length-menu"
         testId="board-length-button"
         summary={
@@ -424,7 +424,7 @@ export default async function ChessboardPage({
                   label: `${statusText(housekeepingStatus, 'CLEAN')}, ждёт проверки`,
                   icon: 'clean',
                 },
-                { label: 'без значка: проверена, доступна' },
+                { color: 'var(--success)', label: 'зелёная точка у места: проверено, доступно' },
               ]}
             />
             <p className="board-gesture-hint">

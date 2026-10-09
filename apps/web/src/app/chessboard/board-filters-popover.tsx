@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Icon } from '../../components/icon';
 import { Segmented, type SegmentOption } from '../../components/segmented';
 import { Button, Select } from '../../components/ui';
@@ -275,7 +275,7 @@ export function BoardFiltersPopover({
         {help && (
           <details className="board-filters-pop__help">
             <summary>Как работать с календарём</summary>
-            {help}
+            <Fragment key="help">{help}</Fragment>
           </details>
         )}
         {unassigned > 0 && (

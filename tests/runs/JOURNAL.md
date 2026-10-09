@@ -7807,3 +7807,4 @@
 | 09.10.2026 21:46 | unit (частично: tests/unit/guard-run.test.ts) | ✅ 8 из 8 | 6 с | 485145c +10 | [лог](logs/2026-10-09T16-46-55Z-unit-d1f6.log) |  |
 | 09.10.2026 21:47 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/market.spec.ts) | ✅ 8 из 8 | 25 с | 485145c +15 | [лог](logs/2026-10-09T16-47-16Z-e2e-32e5.log) |  |
 | 09.10.2026 21:47 | lint | ✅ без ошибок | 26 с | 485145c +16 | [лог](logs/2026-10-09T16-47-42Z-lint-2465.log) |  |
+| 09.10.2026 22:02 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/ds1c-primitives.spec.ts tests/ui/reports-hub.spec.ts) | ✅ 18 из 18 | 2 мин 2 с | b3a09d3 +1 | [лог](logs/2026-10-09T17-02-08Z-e2e-db27.log) |  |

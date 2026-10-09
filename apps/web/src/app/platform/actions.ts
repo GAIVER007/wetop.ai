@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, platformApi, type ExtensionChangeBody } from '../../lib/api';
+import { organizationStatusLine } from '../../lib/platform';
 
 /**
  * «Платформа → Организации» (ADR-083): главный администратор включает, продлевает и выключает «ИИ-продавца»
@@ -93,5 +94,162 @@ export async function changeStatusAction(
       message: null,
       attempt,
     };
+  }
+}
+
+/**
+ * MKT9.2: лицензия конструктора сайта одного гостиничного филиала: «Пробный» (нужен срок), «Активировать» (пустой срок:
+ * бессрочно), «Продлить» (тот же статус, новый срок), «Выключить». Только главный администратор; проверяет API
+ */
+export interface SiteBuilderFormResult {
+  error: string | null;
+  message: string | null;
+  attempt: number;
+}
+
+export async function changeSiteBuilderAction(
+  organizationId: string,
+  locationId: string,
+  current: 'TRIAL' | 'ACTIVE' | 'OFF' | null,
+  prev: SiteBuilderFormResult | null,
+  form: FormData,
+): Promise<SiteBuilderFormResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const action = String(form.get('action') ?? '');
+  const status = action === 'trial' ? 'TRIAL' : action === 'off' ? 'OFF' : action === 'extend' && current === 'TRIAL' ? 'TRIAL' : 'ACTIVE';
+  try {
+    const saved = await platformApi.changeSiteBuilder(organizationId, locationId, {
+      status,
+      activeUntil: status === 'OFF' ? '' : String(form.get('activeUntil') ?? '').trim(),
+      note: String(form.get('note') ?? '').trim(),
+    });
+    revalidatePath('/platform');
+    const word = saved.license.access === 'active' ? 'действует' : saved.license.access === 'expired' ? 'срок вышел' : 'выключен';
+    return { error: null, message: `Сохранено: конструктор сайта филиала «${saved.name}» ${word}`, attempt };
+  } catch (e) {
+    return { error: e instanceof ApiError || e instanceof Error ? e.message : 'Не удалось сохранить', message: null, attempt };
+  }
+}
+
+/**
+ * Название, архив и возврат организации (ORG1, ADR-ORG1, Q-282): «удалить» заменено архивом, данные не удаляются.
+ * Проверяет API, отказ его словами.
+ */
+export interface OrganizationActionResult {
+  error: string | null;
+  message: string | null;
+  attempt: number;
+}
+
+const failed = (e: unknown, attempt: number): OrganizationActionResult => ({
+  error: e instanceof ApiError || e instanceof Error ? e.message : String(e),
+  message: null,
+  attempt,
+});
+
+export async function renameOrganizationAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+  form: FormData,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    await platformApi.rename(organizationId, String(form.get('name') ?? ''));
+    revalidatePath('/platform');
+    return { error: null, message: 'Название сохранено.', attempt };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+export async function archiveOrganizationAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    await platformApi.archive(organizationId);
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message: 'Организация в архиве: люди не входят, данные сохранены. Вернуть можно в любой момент.',
+      attempt,
+    };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+export async function restoreOrganizationAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    const saved = await platformApi.restore(organizationId);
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message: `Организация возвращена, состояние: ${organizationStatusLine(saved).label}.`,
+      attempt,
+    };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+/**
+ * Создание организации и ссылка владельцу ещё раз (ORG2, ADR-ORG2, Q-283). Владелец сам задаёт пароль по ссылке из
+ * письма; токен наружу не идёт. Письмо не ушло: организация создана, на карточке можно отправить ссылку ещё раз.
+ */
+export interface CreateOrganizationResult extends OrganizationActionResult {
+  /** id созданной организации: форма ведёт на её карточку */
+  organizationId?: string;
+}
+
+export async function createOrganizationAction(
+  prev: CreateOrganizationResult | null,
+  form: FormData,
+): Promise<CreateOrganizationResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const vertical = form.get('vertical') === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
+  try {
+    const made = await platformApi.create({
+      name: String(form.get('name') ?? ''),
+      ownerEmail: String(form.get('ownerEmail') ?? ''),
+      vertical,
+    });
+    revalidatePath('/platform');
+    const owner = made.organization.owners[0] ?? 'владельцу';
+    return {
+      error: null,
+      message: made.ownerLinkSent
+        ? `Организация «${made.organization.name}» создана. Ссылка для пароля отправлена на ${owner}.`
+        : `Организация «${made.organization.name}» создана, но письмо не ушло. Откройте её карточку и отправьте ссылку ещё раз.`,
+      attempt,
+      organizationId: made.organization.id,
+    };
+  } catch (e) {
+    return failed(e, attempt);
+  }
+}
+
+export async function sendOwnerLinkAction(
+  organizationId: string,
+  prev: OrganizationActionResult | null,
+): Promise<OrganizationActionResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    const sent = await platformApi.ownerLink(organizationId);
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message: sent.ownerLinkSent
+        ? `Ссылка отправлена на ${sent.organization.owners[0] ?? 'почту владельца'}.`
+        : 'Письмо не ушло: почтовая служба не отвечает. Попробуйте позже.',
+      attempt,
+    };
+  } catch (e) {
+    return failed(e, attempt);
   }
 }

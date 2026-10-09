@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 08.10.2026 20:51 Алматы · vm
+# коммит 1e27513 (claude/mv8-5-ds1b-primitives)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/ds1b-primitives.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/ds1b-primitives.spec.ts:20:1 › вкладки на странице: стрелки по кругу, Home, End, выбор сразу и фокус на вкладке (10.0s)
+  ✓   2 tests/ui/ds1b-primitives.spec.ts:48:1 › вкладки маршрутами: ссылки с aria-current, стрелки не перехватываются (4.4s)
+  ✓   3 tests/ui/ds1b-primitives.spec.ts:67:1 › переключатель шахматки: ровно один выбран, стрелки и Home/End, выбор помнится (12.3s)
+  ✓   4 tests/ui/ds1b-primitives.spec.ts:96:1 › брони: чипы видов ссылками, полоса инструментов по порядку поиск, отбор, период, действия (3.7s)
+  ✓   5 tests/ui/ds1b-primitives.spec.ts:135:1 › чип: кнопка переключает aria-pressed, число читается в имени (5.6s)
+  ✓   6 tests/ui/ds1b-primitives.spec.ts:154:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (light) (12.8s)
+  ✓   7 tests/ui/ds1b-primitives.spec.ts:154:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (dark) (13.4s)
+  ✓   8 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (28.7s)
+  ✓   9 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.9s)
+  ✓  10 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (3.1s)
+  ✓  11 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (4.0s)
+  ✓  12 tests/ui/mobile-adaptation.spec.ts:107:1 › узкий телефон: плитки финансов встают в одну колонку (2.7s)
+  ✓  13 tests/ui/mobile-adaptation.spec.ts:118:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (14.8s)
+  ✓  14 tests/ui/mobile-adaptation.spec.ts:152:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (20.4s)
+
+  14 passed (3.2m)
+
+# код выхода 0 · 3 мин 12 с

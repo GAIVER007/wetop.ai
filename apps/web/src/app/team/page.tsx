@@ -5,10 +5,17 @@ import { TeamNavigation } from '../../components/team-navigation';
 import { Page } from '../../components/page';
 import { Notice } from '../../components/ui';
 import { currentMe } from '../../lib/desk-shell';
-import { InviteButton, MembersTable, PendingInvites, TeamProvider } from './team-board';
+import {
+  InviteButton,
+  MembersTable,
+  PendingInvites,
+  TeamProvider,
+  TeamStats,
+} from './team-board';
+import './team.css';
 
 /**
- * «Сотрудники» (TEAM1): люди организации с ролями, датой входа в организацию и «Был в системе»;
+ * «Сотрудники и доступ» (TEAM1, STAFF2.2): люди организации с ролями, датой входа в организацию и «Был в системе»;
  * приглашения — панелью из шапки, ожидающие — ниже списком. Данные и права — прежние API команды
  * (ADR-107, ADR-131): раздел виден владельцу и управляющему (право `staff`, гейт — по реестру меню).
  * На вход страница не уводит (ADR-107: роль не узнали — страница открыта, решает API; в стойке с
@@ -28,13 +35,18 @@ export default async function TeamPage() {
   return (
     <TeamProvider role={team && role ? role : null}>
       <Page
-        title="Сотрудники"
-        subtitle={me.user?.organization?.name}
+        title="Сотрудники и доступ"
+        subtitle={
+          me.user?.organization?.name
+            ? `${me.user.organization.name}: команда, должности и приглашения`
+            : 'Команда, должности и приглашения'
+        }
         actions={team ? <InviteButton /> : undefined}
       >
         {team ? (
           <>
             <TeamNavigation current="team" owner={role === 'OWNER'} />
+            <TeamStats members={members} invites={invites} />
             <MembersTable members={members} />
             <PendingInvites invites={invites} />
           </>

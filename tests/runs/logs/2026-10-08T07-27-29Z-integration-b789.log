@@ -1,0 +1,64 @@
+# Интеграционные (integration) · 08.10.2026 12:27 Алматы · vm
+# коммит 9ae75aa (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 25
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T07-27-29Z-integration-b789.json' 'tests/integration/licensed-site-builder.test.ts' 'tests/integration/site-publication.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:6627) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/licensed-site-builder.test.ts (17 tests) 4716ms
+   ❯ MKT9.2 licensed site builder (17)
+     ✓ лицензия закрывает запись и ИИ, чтение открыто (3)
+       ✓ без лицензии: заведение сайта 403 SITE_BUILDER_NOT_ENABLED, сайт не появляется; чтение отвечает 156ms
+       ✓ лицензия выключена или срок вышел: каждая запись и каждый ИИ 403, чтение 200, пауза и архив не закрыты 873ms
+       ✓ лицензия другого филиала той же организации не открывает этот филиал 49ms
+     ✓ заведение сайта и знания проекта (2)
+       ✓ bootstrap: 201 новый с именем филиала, 200 тот же, архив 409 SITE_ARCHIVED; второго сайта нет 90ms
+       ✓ знания проекта: чтение, правка, предел 5000, в журнале только длина 91ms
+     ✓ разговор с ИИ: Чат, План, Оформление (5)
+       ✓ Чат: задача без версии, повтор ключа та же задача; боту уходят знания проекта и голова; разговор хранится на сервере 242ms
+       ✓ ответ, не прошедший проверку платформы, не сохраняется: повтор, затем FAILED SCHEMA_INVALID 228ms
+       ✓ План: вопросы, ответы, план; «Собрать по плану» ставит ровно одну сборку PATCH, повтор отдаёт её же 286ms
+       ✓ план устарел: голова сменилась после плана, сборка по нему 409 BASE_VERSION_CHANGED 192ms
+       ✓ Оформление: три направления; первая сборка с выбранным ставит тему платформой, модели уходит описание 244ms
+     ✓ общие правила ИИ сайта по обеим таблицам (4)
+       ✓ одна активная задача ИИ на сайт: пока ждёт чат, сборка 409 AI_BUSY, и наоборот 139ms
+       ✓ предел часа общий: 10 запросов к ИИ сайта любым режимом, одиннадцатый 429 421ms
+       ✓ общий дневной пул: токены разговора уменьшают остаток сборки 181ms
+       ✓ воркер: лицензию выключили, пока задача ждала, и сборка, и разговор падают LICENSE_UNAVAILABLE без вызова модели 192ms
+     ✓ закладки версий (1)
+       ✓ поставить, переименовать, снять; в истории отдельным списком; чужая версия 404; не больше 20 978ms
+     ✓ платформа: лицензию выдаёт только главный администратор (2)
+       ✓ список гостиничных филиалов со статусом; пробный, активировать, продлить, выключить; журнал было и стало 84ms
+       ✓ партнёр (владелец организации) лицензию не видит через платформу и не выдаёт 21ms
+(node:6643) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-publication.test.ts (15 tests) 2859ms
+   ✓ MKT7 публикация управляемого сайта (15)
+     ✓ §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 642ms
+     ✓ §44–§47: публикуется только голова черновика, документ перепроверяется: картинки (MKT8) и неактивная категория 322ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder
+error: marketing_site_publications: журнал только дописывается, DELETE запрещён
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/licensed-site-builder.test.ts:240:7
+    238|       await sql.query('ALTER TABLE marketing_site_versions DISABLE TRI…
+    239|       await sql.query('ALTER TABLE generation_runs DISABLE TRIGGER gen…
+    240|       await sql.query(`DELETE FROM marketing_site_publications WHERE s…
+       |       ^
+    241|       await sql.query(`DELETE FROM site_domains WHERE site_id IN (${si…
+    242|       await sql.query(`UPDATE marketing_sites SET latest_version_id = …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  32 passed (32)
+   Start at  07:27:30
+   Duration  12.87s (tests 69%, transform 16%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-08T07-27-29Z-integration-b789.json
+
+# код выхода 1 · 14 с

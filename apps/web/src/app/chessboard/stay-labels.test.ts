@@ -63,8 +63,8 @@ describe('бейдж источника (ТЗ v2 §21): коротко на пл
     expect(sourceBadge('OTA', 'Какой-то канал')).toEqual({ code: 'К', name: 'Какой-то канал' });
   });
   it('прямые — коротким словом', () => {
-    expect(sourceBadge('DESK', null)).toEqual({ code: 'Стойка', name: 'стойка' });
-    expect(sourceBadge('WEBSITE', null)).toEqual({ code: 'Сайт', name: 'сайт' });
+    expect(sourceBadge('DESK', null)).toEqual({ code: 'Стойка', name: 'Стойка' });
+    expect(sourceBadge('WEBSITE', null)).toEqual({ code: 'Сайт', name: 'Сайт' });
     expect(sourceBadge('WHATSAPP', null)).toEqual({ code: 'WA', name: 'WhatsApp' });
   });
   it('без источника — без бейджа', () => {

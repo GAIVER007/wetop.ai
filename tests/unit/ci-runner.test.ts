@@ -63,23 +63,30 @@ describe('свой раннер CI', () => {
     expect(run).toMatch(/cpus:/);
   });
 
-  it('ни одна проверка не идёт на боевой сервер и ни одна не запускается на каждый пуш (ADR-139)', () => {
+  it('ни одна проверка не идёт на боевой сервер; пуш в main гоняет только гейт, и только на код (ADR-139, ADR-152)', () => {
     for (const [file, text] of Object.entries(WORKFLOWS)) {
       const run = withoutComments(text);
       // свой раннер на боевом сервере 03.10.2026 поднимал нагрузку до 85 и ронял стойку
       expect(run, file).not.toContain('self-hosted');
-      // на каждый пуш и PR бесплатных минут GitHub хватало на неделю (21.09.2026)
       const on = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
       expect(on, file).not.toMatch(/pull_request/);
-      expect(on, file).not.toMatch(/branches: \[[^\]]*\bmain\b/);
+      // автовыкладка (ADR-152, решение владельца 09.10.2026): пуш в main гонит ровно один workflow, гейт;
+      // остальным на каждый пуш нельзя, бесплатных минут GitHub хватало на неделю (21.09.2026)
+      if (file !== 'release-checks.yml') expect(on, file).not.toMatch(/branches: \[[^\]]*\bmain\b/);
     }
+    // документы и отчёты гейт не гоняют: они выкладки не требуют, а минуты тратят
+    const on = withoutComments(/\non:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '');
+    expect(on).toContain('paths-ignore:');
+    for (const path of ["'*.md'", "'docs/**'", "'plans/**'", "'reports/**'", "'tests/runs/**'"])
+      expect(on, path).toContain(path);
   });
 
   it('перед выкладкой: lint, typecheck, unit, главная, бот, база и весь UI; по кнопке или пушем в release-candidate', () => {
     expect(RELEASE, '.github/workflows/release-checks.yml').not.toBe('');
     const triggers = withoutComments(/\non:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '');
     expect(triggers).toContain('workflow_dispatch:');
-    expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate\]/);
+    // c 09.10.2026 (ADR-152) гейт идёт и на пуш кода в main: зелёный гейт перематывает release сам
+    expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate, main\]/);
     for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui'])
       expect(job(name), name).toMatch(/runs-on: ubuntu-24\.04/);
     const fast = withoutComments(job('fast'));
@@ -97,6 +104,19 @@ describe('свой раннер CI', () => {
 
   it('база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся', () => {
     for (const name of ['db', 'ui-shard']) expect(withoutComments(job(name)), name).toMatch(/needs: fast/);
+  });
+
+  it('наборы салона, ресторана и филиалов входят в гейт выкладки параллельно, на своей базе (MV8.5 DS0a)', () => {
+    const vertical = withoutComments(job('ui-vertical'));
+    expect(vertical).toMatch(/runs-on: ubuntu-24\.04/);
+    expect(vertical).toMatch(/needs: fast/);
+    expect(vertical).toMatch(/suite: \[beauty-ui, food-ui, branches-ui\]/);
+    expect(vertical).toMatch(/fail-fast: false/);
+    expect(vertical).toMatch(/timeout-minutes: \d+/);
+    // подставные API трёх наборов читают схему pms_test локальной базы
+    expect(vertical).toMatch(/image: postgres:16/);
+    expect(vertical).toContain('npm run test:schema');
+    expect(vertical).toContain('npx playwright test --config tests/${{ matrix.suite }}/playwright.config.ts');
   });
 
   it('сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026)', () => {
@@ -152,6 +172,39 @@ describe('свой раннер CI', () => {
     expect(db).toMatch(/runs-on: ubuntu-24\.04/);
     expect(db).toContain('services:');
     expect(db).toContain('postgres');
+  });
+
+  describe('автоперемотка release (auto-release.yml, ADR-152, решение владельца 09.10.2026)', () => {
+    const AUTO = WORKFLOWS['auto-release.yml'] ?? '';
+
+    it('слушает только итог гейта и кнопку; права ровно contents: write и actions: read', () => {
+      expect(AUTO, '.github/workflows/auto-release.yml').not.toBe('');
+      const run = withoutComments(AUTO);
+      const on = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
+      expect(on).toContain('workflow_run:');
+      expect(on).toMatch(/workflows: \[release-checks\]/);
+      expect(on).toContain('workflow_dispatch:');
+      expect(on).not.toMatch(/push:|schedule/);
+      expect(run).toMatch(/permissions:\n\s+contents: write\n\s+actions: read/);
+    });
+
+    it('перематывает только зелёный main, только вперёд и без --force; по кнопке сверяет гейт через API (ADR-139)', () => {
+      const run = withoutComments(AUTO);
+      expect(run).toContain("github.event.workflow_run.conclusion == 'success'");
+      expect(run).toContain("github.event.workflow_run.head_branch == 'main'");
+      expect(run).toContain('release-checks.yml/runs?head_sha=');
+      expect(run).toContain('merge-base --is-ancestor "$target" origin/main');
+      expect(run).toContain('merge-base --is-ancestor "$release" "$target"');
+      const pushes = [...run.matchAll(/git push[^\n]*/g)].map((m) => m[0]);
+      expect(pushes).toEqual(['git push origin "${target}:refs/heads/release"']);
+      expect(run).not.toMatch(/--force|\+refs/);
+    });
+
+    it('новые миграции перемотку не останавливают: сервер откажет сам и позовёт владельца (ADR-080, AGENTS.md §15)', () => {
+      const run = withoutComments(AUTO);
+      expect(run).toContain('packages/database/prisma/migrations');
+      expect(run).toContain('--migrations-applied');
+    });
   });
 
   it('эталоны -linux снимает раннер GitHub по кнопке и кладёт отдельной веткой, не в main и не в release', () => {

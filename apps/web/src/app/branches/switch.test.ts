@@ -72,3 +72,24 @@ it.each([
     expect(state.set).toHaveBeenCalledOnce();
   },
 );
+
+it.each(['BEAUTY', 'FOOD_SERVICE'])(
+  'MV9 shared analytics survives %s branch switch without old filters',
+  async (vertical) => {
+    state.list.mockResolvedValue({
+      items: [
+        {
+          id: 'own',
+          vertical,
+          locationId: 'location',
+          location: { businessId: 'business' },
+          _count: { inventoryUnits: 0 },
+        },
+      ],
+    });
+    const form = new FormData();
+    form.set('id', 'own');
+    form.set('returnTo', '/management/analytics?from=2026-10-01&scope=organization');
+    await expect(selectBranch(form)).rejects.toThrow('redirect:/management/analytics');
+  },
+);

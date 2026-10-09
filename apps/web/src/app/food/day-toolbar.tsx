@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { Button, Field, Input, Select } from '../../components/ui';
+import { DateBar } from '../../components/date-bar';
+import { Field, Input, Select } from '../../components/ui';
 import { shiftDate } from '../../lib/food-data';
 import type { FoodWorkspace } from '../../lib/food-types';
 export function DayToolbar({
@@ -23,28 +24,13 @@ export function DayToolbar({
   }
   return (
     <div className="food-toolbar">
-      <div className="food-date">
-        <Button
-          tone="secondary"
-          aria-label="Предыдущий день"
-          onClick={() => go(shiftDate(data.date, -1))}
-        >
-          ←
-        </Button>
-        <Input
-          type="date"
-          aria-label="Дата плана"
-          value={data.date}
-          onChange={(e) => e.target.value && go(e.target.value)}
-        />
-        <Button
-          tone="secondary"
-          aria-label="Следующий день"
-          onClick={() => go(shiftDate(data.date, 1))}
-        >
-          {'→'}
-        </Button>
-      </div>
+      {/* день: общий DateBar (MV8.5 DS1c); переход сразу при смене даты, как было (уход с поля и Enter: DS6) */}
+      <DateBar
+        date={data.date}
+        onPrevious={() => go(shiftDate(data.date, -1))}
+        onNext={() => go(shiftDate(data.date, 1))}
+        onDateChange={(next) => go(next)}
+      />
       <Field label="Период">
         <Select value={period} onChange={(e) => setPeriod(e.target.value)}>
           <option value="">Все</option>

@@ -245,6 +245,16 @@ test('«История ночи»: дата в шапке открывает п�
   await expect(table.locator('tbody tr').nth(1)).toContainText('80 %');
   // рынок вчера 80 %, сегодня 93,5 %: темп +13,5 п.п., целыми +14
   await expect(page.getByTestId('market-night-pickup')).toContainText('+14 п.п.');
+  // панель выезжает анимацией 180 мс (`drawer-in`, premium.css) и всё это время полупрозрачна: axe
+  // мерит контраст сквозь неё и видит `--muted` как #6c7b8f (4,23 вместо 4,5). Ждём конца анимации,
+  // а не «видно ли панель»: тот же приём, что в графике мастера (B4, 03.10)
+  // на странице три `Overlay`, нужен тот, в котором лежит таблица истории
+  await page
+    .locator('.ui-overlay')
+    .filter({ has: page.getByTestId('market-night-table') })
+    .evaluate(async (el) => {
+      await Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished));
+    });
   const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(audit.violations).toEqual([]);
   mkdirSync(SHOTS, { recursive: true });

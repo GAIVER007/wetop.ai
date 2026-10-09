@@ -1,169 +1,167 @@
 /* Строка разделов в шапке (ADR-134, DESIGN.md §8 «Верхнее меню»): вкладки, активная подчёркнута,
    группы раскрывают список под вкладкой. До 960 px строки нет: меню телефона в окне «Навигация». */
-.topmenu {
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-4);
-  min-height: var(--header-menu-h);
-  padding: 0 var(--space-6);
-}
-/* без overflow: список группы стоит абсолютом под вкладкой, и прокрутка строки его обрезала бы;
-   десять вкладок помещаются на 1024 px, до 1100 px отступы вкладок уже */
-.topmenu__tabs {
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-1);
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.topmenu__group {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-}
-.topmenu__tab {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: var(--header-menu-h);
-  padding: 0 var(--space-2);
-  border: 0;
-  border-radius: var(--radius-control) var(--radius-control) 0 0;
-  background: transparent;
-  color: var(--text-2);
-  font: inherit;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-base);
-  white-space: nowrap;
-  cursor: pointer;
-}
-.topmenu__tab:hover,
-.topmenu__tab[aria-expanded='true'] {
-  background: var(--row-hover);
-  color: var(--text);
-  text-decoration: none;
-}
-/* активная вкладка: текст и полоса 2 px тоном --primary по нижнему краю строки */
-.topmenu__tab.has-current-page {
-  color: var(--text);
-  font-weight: var(--weight-semibold);
-}
-.topmenu__tab.has-current-page::after {
-  content: '';
-  position: absolute;
-  left: var(--space-2);
-  right: var(--space-2);
-  bottom: 0;
-  height: 2px;
-  border-radius: var(--radius-full);
-  background: var(--primary);
-}
-.topmenu__chevron {
-  color: var(--muted);
-  transition: transform var(--ease);
-}
-.topmenu__tab[aria-expanded='true'] .topmenu__chevron {
-  transform: rotate(180deg);
-}
-/* список группы: слой над страницей, плотная заливка и тень слоя (DESIGN.md §20.3) */
-.topmenu__list {
-  position: absolute;
-  top: calc(100% + var(--space-1));
-  left: 0;
-  z-index: var(--layer-base);
-  min-width: 240px;
-  padding: var(--space-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  background: var(--surface);
-  box-shadow: var(--shadow-floating);
-}
-.topmenu__list[hidden] {
-  display: none;
-}
-.topmenu__link {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--control-h);
-  padding: var(--space-2);
-  border-radius: var(--radius-control);
-  color: var(--text-2);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-base);
-  white-space: nowrap;
-}
-.topmenu__link svg {
-  width: var(--space-4);
-  height: var(--space-4);
-  color: var(--muted);
-}
-.topmenu__link:hover {
-  background: var(--row-hover);
-  color: var(--text);
-  text-decoration: none;
-}
-.topmenu__link.is-active {
-  background: var(--primary-soft);
-  color: var(--primary);
-  font-weight: var(--weight-semibold);
-}
-.topmenu__link.is-active svg {
-  color: currentColor;
-}
-/* справа: пробный срок и свежесть Channex, бывшие низ бокового меню */
-.topmenu__aside {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  flex: none;
-  margin-left: auto;
-  color: var(--muted);
-  font-size: var(--text-xs);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.topmenu__trial {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  color: var(--text);
-}
-.topmenu__trial .icon {
-  color: var(--primary);
-}
-.topmenu__freshness .freshness--warn {
-  color: var(--warning);
-}
-@media (max-width: 1279px) {
+@layer sections {
   .topmenu {
-    padding: 0 var(--space-4);
-  }
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-4);
+    min-height: var(--header-menu-h);
+    padding: 0 var(--space-6);
+  } /* без overflow: список группы стоит абсолютом под вкладкой, и прокрутка строки его обрезала бы;
+   десять вкладок помещаются на 1024 px, до 1100 px отступы вкладок уже */
   .topmenu__tabs {
-    gap: 0;
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-1);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .topmenu__group {
+    position: relative;
+    display: flex;
+    align-items: stretch;
   }
   .topmenu__tab {
-    padding: 0 var(--space-1);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: var(--header-menu-h);
+    padding: 0 var(--space-2);
+    border: 0;
+    border-radius: var(--radius-control) var(--radius-control) 0 0;
+    background: transparent;
+    color: var(--text-2);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-base);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .topmenu__tab:hover,
+  .topmenu__tab[aria-expanded='true'] {
+    background: var(--row-hover);
+    color: var(--text);
+    text-decoration: none;
+  } /* активная вкладка: текст и полоса 2 px тоном --primary по нижнему краю строки */
+  .topmenu__tab.has-current-page {
+    color: var(--text);
+    font-weight: var(--weight-semibold);
   }
   .topmenu__tab.has-current-page::after {
-    left: var(--space-1);
-    right: var(--space-1);
+    content: '';
+    position: absolute;
+    left: var(--space-2);
+    right: var(--space-2);
+    bottom: 0;
+    height: 2px;
+    border-radius: var(--radius-full);
+    background: var(--primary);
   }
-  /* на 1024 px ширину отдаём вкладкам; свежесть остаётся в меню телефона и в «Системах» Главной */
-  .topmenu__freshness {
-    display: none;
-  }
-}
-@media (max-width: 960px) {
-  .topmenu {
-    display: none;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
   .topmenu__chevron {
-    transition: none;
+    color: var(--muted);
+    transition: transform var(--ease);
+  }
+  .topmenu__tab[aria-expanded='true'] .topmenu__chevron {
+    transform: rotate(180deg);
+  } /* список группы: слой над страницей, плотная заливка и тень слоя (DESIGN.md §20.3) */
+  .topmenu__list {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    left: 0;
+    z-index: var(--layer-base);
+    min-width: 240px;
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    box-shadow: var(--shadow-floating);
+  }
+  .topmenu__list[hidden] {
+    display: none;
+  }
+  .topmenu__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h);
+    padding: var(--space-2);
+    border-radius: var(--radius-control);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-base);
+    white-space: nowrap;
+  }
+  .topmenu__link svg {
+    width: var(--space-4);
+    height: var(--space-4);
+    color: var(--muted);
+  }
+  .topmenu__link:hover {
+    background: var(--row-hover);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .topmenu__link.is-active {
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  .topmenu__link.is-active svg {
+    color: currentColor;
+  } /* справа: пробный срок и свежесть Channex, бывшие низ бокового меню */
+  .topmenu__aside {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex: none;
+    margin-left: auto;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .topmenu__trial {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--text);
+  }
+  .topmenu__trial .icon {
+    color: var(--primary);
+  }
+  .topmenu__freshness .freshness--warn {
+    color: var(--warning);
+  }
+  @media (max-width: 1279px) {
+    .topmenu {
+      padding: 0 var(--space-4);
+    }
+    .topmenu__tabs {
+      gap: 0;
+    }
+    .topmenu__tab {
+      padding: 0 var(--space-1);
+    }
+    .topmenu__tab.has-current-page::after {
+      left: var(--space-1);
+      right: var(--space-1);
+    }
+    /* на 1024 px ширину отдаём вкладкам; свежесть остаётся в меню телефона и в «Системах» Главной */
+    .topmenu__freshness {
+      display: none;
+    }
+  }
+  @media (max-width: 960px) {
+    .topmenu {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .topmenu__chevron {
+      transition: none;
+    }
   }
 }

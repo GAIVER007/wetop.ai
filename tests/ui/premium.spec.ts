@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, test, devNoise } from './fixtures';
 import { mkdirSync } from 'node:fs';
 const fixture = FIXTURE_API;
 const screenshotDir = 'reports/premium-ui';
@@ -97,7 +97,7 @@ test('новые фильтры шахматки, список броней и �
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await kind('Койки');
   await expect(page.getByTestId('unit-row')).toHaveCount(72);
-  await main.getByLabel('Места в календаре').selectOption('FREE');
+  await boardFilter(page, { state: 'FREE' });
   const count = await page.getByTestId('unit-row').count();
   expect(count).toBeGreaterThan(0);
   expect(count).toBeLessThan(72);
@@ -237,8 +237,8 @@ test('список броней: выборка названа, пустой р�
   expect(overflow).toBeLessThanOrEqual(1);
   const row = table.locator('tbody tr').first();
   await expect(row).toContainText(/\d{1,2} [а-яё]+\.?/);
-  // слово о брони в единственном числе (ADR-106, Q-135); «Подтверждены» осталось именем фильтра
-  await expect(row).toContainText('подтверждена');
+  // слово статуса из реестра (DS1a); группа «Подтверждённые» осталась именем отбора
+  await expect(row).toContainText('Подтверждена');
   await expect(row).toContainText('к оплате');
   await expect(row.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
   const chip = await main.getByLabel('Статус брони', { exact: true }).boundingBox();

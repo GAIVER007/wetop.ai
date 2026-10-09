@@ -1,0 +1,128 @@
+# Сквозные (e2e) · 07.10.2026 17:42 Алматы · MacBook-Air-Urij.local
+# коммит 867a391 (codex/public-2-visual-slice-1), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/public-intro.spec.ts'
+[WebServer] (node:86656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86703) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86701) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:86707) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (10.6s)
+(node:86787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (11.1s)
+(node:86875) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (9.3s)
+
+
+  1) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ─────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте бизнесомиз одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        24 × locator resolved to <h1 id="hero-title">…</h1>
+           - unexpected value "Управляйте бизнесомиз одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+         |                                                             ^
+      11 |         'Управляйте бизнесом из одного окна',
+      12 |       );
+      13 |       const header = page.locator('header');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-dark-320/error-context.md
+
+  2) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ─────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте бизнесомиз одного окна"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        23 × locator resolved to <h1 id="hero-title">…</h1>
+           - unexpected value "Управляйте бизнесомиз одного окна"
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+         |                                                             ^
+      11 |         'Управляйте бизнесом из одного окна',
+      12 |       );
+      13 |       const header = page.locator('header');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-dark-390/error-context.md
+
+  3) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 ─────────────────────────────────
+
+    Test was interrupted.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Управляйте бизнесом из одного окна"
+    Received: "Управляйте бизнесомиз одного окна"
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+        19 × locator resolved to <h1 id="hero-title">…</h1>
+           - unexpected value "Управляйте бизнесомиз одного окна"
+      - Test ended.
+
+
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+       9 |       await page.goto('/');
+    > 10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+         |                                                             ^
+      11 |         'Управляйте бизнесом из одного окна',
+      12 |       );
+      13 |       const header = page.locator('header');
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:10:61
+
+    Error Context: test-results/public-intro-public-intro-dark-768/error-context.md
+
+  2 failed
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ──────────────────────────────────
+  1 interrupted
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 ──────────────────────────────────
+  5 did not run
+
+# код выхода 130 · 45 с

@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, openBoardFilters, test, devNoise, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -305,7 +305,7 @@ test('шахматка: фильтры, продолжение брони, вы�
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
   // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
   const board = page.getByRole('main');
-  await board.getByLabel('Категория в календаре').selectOption('MALE');
+  await boardFilter(page, { category: 'MALE' });
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
   await board.getByLabel('Поиск в календаре').fill('M03');
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
@@ -321,30 +321,28 @@ test('шахматка: фильтры, продолжение брони, вы�
 });
 
 /**
- * Подсказка над шахматкой выводится поверх планки, поэтому открытой она накрывает строку фильтров:
- * до 17.09.2026 по кнопке «Сбросить» под ней нельзя было попасть мышью (найдено обходом стойки).
+ * Подсказка «Как работать с календарём» с 09.10.2026 лежит внизу окошка «Фильтры» (значка «?» в полосе
+ * нет): открывается по слову, закрытое окошко Escape не держит кнопки под собой, «Сбросить» достаётся.
  */
-test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({
+test('шахматка: подсказка внутри окошка «Фильтры», Escape закрывает окошко целиком', async ({
   page,
 }) => {
   await page.goto('/chessboard');
-  const help = page.locator('details.board-help');
+  const pop = await openBoardFilters(page);
+  const help = pop.locator('details.board-filters-pop__help');
+  await expect(help).not.toHaveAttribute('open', '');
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
-  // щелчок по строке поиска под подсказкой закрывает её; «Сбросить» появляется, когда есть отбор
+  await expect(help).toContainText('Ночь выезда ячейку не занимает');
+  await page.keyboard.press('Escape');
+  await expect(pop).toBeHidden();
+  // «Сбросить» появляется, когда есть отбор, и до неё достаёт мышь
   const search = page.getByRole('main').getByLabel('Поиск в календаре');
-  await search.click();
-  await expect(help).not.toHaveAttribute('open', '');
   await search.fill('R0');
   const reset = page.getByRole('button', { name: 'Сбросить', exact: true });
   await expect(reset).toBeVisible();
   await reset.click({ timeout: 5000 });
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  // Escape закрывает её так же, как щелчок вне
-  await help.locator('summary').click();
-  await expect(help).toHaveAttribute('open', '');
-  await page.keyboard.press('Escape');
-  await expect(help).not.toHaveAttribute('open', '');
 });
 
 test('ошибка создания сохраняет ввод; повтор отправляет поля существующего API', async ({
@@ -420,7 +418,7 @@ test('карточка: профиль гостя и заселение прох
   // §8 «сделал — и что?»: карточка перерисовывается молча, итог называет уведомление (срез 7.4)
   await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
-  await expect(page.getByTestId('stay-row')).toContainText('заселён');
+  await expect(page.getByTestId('stay-row')).toContainText('Проживает');
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands.map((c: { path: string }) => c.path)).toContain(
     `/reservations/${booking}/items/ui-item/check-in`,
@@ -692,7 +690,11 @@ test('финансы: неверные даты можно исправить б
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   // Во время перехода Next держит в DOM уходящую страницу: смотрим ту, что видит человек
   await expect(page.getByRole('main').getByTestId('cash-summary')).toBeVisible();
-  await expect(page.getByTestId('cash-period-income')).not.toHaveText('Нет данных');
+  // та же область, что строкой выше: без неё уходящая страница даёт второй `cash-period-income`,
+  // и строгий режим отказывается выбирать
+  await expect(page.getByRole('main').getByTestId('cash-period-income')).not.toHaveText(
+    'Нет данных',
+  );
 });
 
 test('ошибка загрузки тарифов не позволяет включить виджет', async ({ page, request }) => {
@@ -928,17 +930,26 @@ test('пустые ответы дают нули; сбой API не выдаё�
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0 ₸');
   // Номерной фонд с PR #66 — `/inventory`; `/rooms` уводит туда потоком, и переход в пути обрывал следующий goto
   await page.goto('/inventory');
-  for (const id of ['total-units', 'rooms', 'beds', 'max-guests', 'blocks'])
+  for (const id of ['total-units', 'rooms', 'beds', 'on-sale', 'blocks', 'needs-cleaning'])
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   // Без ответа авторизации новый контур филиалов закрывает рабочие экраны.
-  for (const route of ['/chessboard', '/inventory', '/channels', '/finance', '/today']) {
+  for (const route of [
+    '/chessboard',
+    '/inventory',
+    '/channels',
+    '/finance',
+    '/today',
+    '/management/analytics',
+    '/management/analytics/occupancy',
+  ]) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
     await expect(page.getByTestId('inventory-summary')).toHaveCount(0);
     await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
     await expect(page.getByTestId('owner-paid')).toHaveCount(0);
+    await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
   }
   // Частичные сбои данных при доступной авторизации сохраняют экран и явную ошибку отчёта.
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
@@ -958,14 +969,15 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('debt-row')).toHaveCount(0);
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
-  // показатели за период — «Аналитика» (A1 → ADR-114): отказ называется на обеих вкладках
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/desk/dashboard' } });
+  // Авторизация доступна, отказ данных отчёта называется на обеих вкладках аналитики.
   await page.goto('/management/analytics');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
   await expect(page.getByTestId('pa-error')).toBeVisible();
   await page.goto('/management/analytics/occupancy');
   await expect(page.getByTestId('statistics-error')).toBeVisible();
   await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   await page.goto('/connections');
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
   await expect(page.getByTestId('integration-health')).not.toHaveText('Работает');
@@ -1270,9 +1282,12 @@ test('шахматка: фильтр «Уборка» показывает гр�
   await page.goto('/chessboard');
   const all = await page.getByTestId('unit-row').count();
   // уборка со счётчиком: «Уборка 2» (21.09); с PR 7 «Шахматки v2» — пункт поля «Места»
-  const places = page.getByRole('main').getByLabel('Места в календаре');
-  await expect(places.locator('option[value="cleaning"]')).toHaveText(/^Уборка \d+$/);
-  await places.selectOption('cleaning');
+  const pop = await openBoardFilters(page);
+  await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
+    /^Уборка \d+$/,
+  );
+  await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
+  await boardFilter(page, { state: 'cleaning' });
   const dirty = await page.getByTestId('unit-row').count();
   expect(dirty).toBeGreaterThan(0);
   expect(dirty).toBeLessThan(all);
@@ -1431,7 +1446,7 @@ test('новая бронь: резюме выбора обновляется п
   await expect(summary).toContainText(`ячейка ${unitCode}`);
   await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
-  await expect(summary).toContainText('телефон');
+  await expect(summary).toContainText('Телефон');
   await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тестовая');
   // §14: «Фамилия Имя»

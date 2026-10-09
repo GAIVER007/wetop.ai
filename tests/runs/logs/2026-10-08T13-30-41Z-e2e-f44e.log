@@ -1,0 +1,376 @@
+# Сквозные (e2e) · 08.10.2026 18:30 Алматы · vm
+# коммит aec176c (claude/mv8-5-ds1b-primitives)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/ds1b-primitives.spec.ts' 'tests/ui/reservations-compact.spec.ts' 'tests/ui/reservations-design.spec.ts' 'tests/ui/reservations-export.spec.ts' 'tests/ui/reservations-states.spec.ts' 'tests/ui/reservations-v2-r2.spec.ts' 'tests/ui/reservations-v2-r3.spec.ts' 'tests/ui/reservations-v2.spec.ts' 'tests/ui/chessboard-blocks.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/chessboard-extend.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-focus.spec.ts' 'tests/ui/chessboard-gate-pr3.spec.ts' 'tests/ui/chessboard-gate-pr4.spec.ts' 'tests/ui/chessboard-gate-pr5.spec.ts' 'tests/ui/chessboard-gate-pr6.spec.ts' 'tests/ui/chessboard-gate-pr7.spec.ts' 'tests/ui/chessboard-gate.spec.ts' 'tests/ui/chessboard-grid.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-range.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-unassigned.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/record-tabs.spec.ts' 'tests/ui/property-settings-set2-set3.spec.ts' 'tests/ui/property-settings.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 170 tests using 1 worker
+
+  ✓    1 tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом (4.5s)
+  ✓    2 tests/ui/chessboard-blocks.spec.ts:46:1 › блокировка «с X до X+1» закрывает одну ночь X, как API; пустой период стенд отклоняет (1.6s)
+  ✓    3 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (2.4s)
+  ✓    4 tests/ui/chessboard-calendar.spec.ts:49:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (1.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_d3pbn5r..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-08" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓    5 tests/ui/chessboard-calendar.spec.ts:62:3 › гейт «Календарь»: light (2.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_d3pbn5r..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-05" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-05"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-11"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-08" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓    6 tests/ui/chessboard-calendar.spec.ts:62:3 › гейт «Календарь»: dark (2.7s)
+  ✓    7 tests/ui/chessboard-calendar.spec.ts:75:1 › пустая клетка не дублирует дату из шапки календаря (1.8s)
+  ✓    8 tests/ui/chessboard-calendar.spec.ts:83:1 › даты в шапке не повторяют свободные и занятые места (1.9s)
+  ✓    9 tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (2.8s)
+  ✓   10 tests/ui/chessboard-card.spec.ts:40:1 › двойной клик открывает полную карточку брони (5.3s)
+  ✓   11 tests/ui/chessboard-card.spec.ts:46:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить (2.7s)
+  ✓   12 tests/ui/chessboard-card.spec.ts:68:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (3.4s)
+  ✓   13 tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (7.5s)
+  ✓   14 tests/ui/chessboard-card.spec.ts:122:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (4.9s)
+  ✓   15 tests/ui/chessboard-card.spec.ts:150:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (3.4s)
+  ✓   16 tests/ui/chessboard-card.spec.ts:165:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (7.1s)
+  ✓   17 tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (2.0s)
+  ✓   18 tests/ui/chessboard-compact-screen.spec.ts:62:1 › свёрнутые категории переживают перезагрузку и разворачиваются (3.8s)
+  ✓   19 tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются (7.7s)
+  ✓   20 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (2.2s)
+  ✓   21 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (5.0s)
+  ✓   22 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (19.0s)
+  ✓   23 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (18.0s)
+  ✓   24 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (5.4s)
+  ✓   25 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (4.1s)
+  ✓   26 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (3.4s)
+  ✓   27 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (5.6s)
+  ✓   28 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (3.9s)
+  ✓   29 tests/ui/chessboard-extend.spec.ts:24:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (3.0s)
+  ✓   30 tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (6.2s)
+  ✓   31 tests/ui/chessboard-extend.spec.ts:79:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (4.5s)
+  ✓   32 tests/ui/chessboard-extend.spec.ts:112:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (3.6s)
+  ✓   33 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (6.4s)
+  ✓   34 tests/ui/chessboard-filters.spec.ts:142:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (4.4s)
+  ✓   35 tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (7.8s)
+  ✓   36 tests/ui/chessboard-filters.spec.ts:238:1 › §37: ничего не найдено — «Сбросить фильтры» (2.4s)
+  ✓   37 tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (5.8s)
+  ✓   38 tests/ui/chessboard-filters.spec.ts:276:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (2.5s)
+  ✓   39 tests/ui/chessboard-filters.spec.ts:294:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (3.0s)
+  ✓   40 tests/ui/chessboard-filters.spec.ts:321:1 › доступность: окошко «Фильтры» открыто (3.4s)
+  ✓   41 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling (2.6s)
+  ✓   42 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling (2.3s)
+  ✓   43 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling (2.2s)
+  ✓   44 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling (2.4s)
+  ✓   45 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling (2.3s)
+  ✓   46 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling (2.2s)
+  ✓   47 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling (2.5s)
+  ✓   48 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling (2.4s)
+  ✓   49 tests/ui/chessboard-focus.spec.ts:64:1 › free panel outside click leaves focus on the selected control (2.3s)
+  ✓   50 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: light (7.4s)
+  ✓   51 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark (7.2s)
+  ✓   52 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light (14.7s)
+  ✓   53 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: dark (15.3s)
+  ✓   54 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light (11.7s)
+  ✓   55 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: dark (9.2s)
+  ✓   56 tests/ui/chessboard-gate-pr6.spec.ts:47:3 › гейт PR 6: light (9.6s)
+  ✓   57 tests/ui/chessboard-gate-pr6.spec.ts:47:3 › гейт PR 6: dark (9.1s)
+  ✓   58 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: light (8.3s)
+  ✓   59 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: dark (8.1s)
+  ✓   60 tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (4.4s)
+  ✓   61 tests/ui/chessboard-gate.spec.ts:72:1 › гейт: тёмная тема — полный экран и верх (4.3s)
+  ✓   62 tests/ui/chessboard-gate.spec.ts:95:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (7.2s)
+  ✓   63 tests/ui/chessboard-grid.spec.ts:12:1 › колонка места объясняет себя подсказкой: вид, код и состояние уборки (1.9s)
+  ✓   64 tests/ui/chessboard-grid.spec.ts:23:1 › свёрнутая категория переживает перезагрузку страницы (5.3s)
+  ✓   65 tests/ui/chessboard-grid.spec.ts:39:1 › строка категории прилипает под шапкой дат при вертикальной прокрутке (1.9s)
+  ✓   66 tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (2.9s)
+  ✓   67 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (4.4s)
+  ✓   68 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (4.2s)
+  ✓   69 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (4.3s)
+  ✓   70 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (2.0s)
+  ✓   71 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (4.3s)
+  ✓   72 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (4.2s)
+  ✓   73 tests/ui/chessboard-mobile.spec.ts:160:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (2.1s)
+  ✓   74 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (3.3s)
+  ✓   75 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (3.2s)
+  ✓   76 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (3.2s)
+  ✓   77 tests/ui/chessboard-mobile.spec.ts:222:1 › мобильная панель меняет заезд без закрытия и показывает выезд (2.4s)
+  ✓   78 tests/ui/chessboard-mobile.spec.ts:242:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (4.9s)
+  ✓   79 tests/ui/chessboard-mobile.spec.ts:271:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (1.6s)
+  ✓   80 tests/ui/chessboard-mobile.spec.ts:294:3 › телефон light: длинное имя и бронь на 28 ночей (3.8s)
+  ✓   81 tests/ui/chessboard-mobile.spec.ts:294:3 › телефон dark: длинное имя и бронь на 28 ночей (3.3s)
+  ✓   82 tests/ui/chessboard-mobile.spec.ts:327:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (6.4s)
+  ✓   83 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (4.4s)
+  ✓   84 tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна (4.7s)
+  ✓   85 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (6.7s)
+  ✓   86 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (6.4s)
+  ✓   87 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (6.4s)
+  ✓   88 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (6.5s)
+  ✓   89 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (6.4s)
+  ✓   90 tests/ui/chessboard-month.spec.ts:99:1 › 30 дней: окно от сегодня, «Месяц» ушёл из сегмента в «Даты» (5.9s)
+  ✓   91 tests/ui/chessboard-month.spec.ts:123:1 › в месяце открываются брони, свободные даты и группы номеров (12.0s)
+  ✓   92 tests/ui/chessboard-month.spec.ts:167:3 › месячная сетка: light, читаемость и адаптивность (35.1s)
+  ✓   93 tests/ui/chessboard-month.spec.ts:167:3 › месячная сетка: dark, читаемость и адаптивность (33.4s)
+  ✓   94 tests/ui/chessboard-range.spec.ts:51:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (3.9s)
+  ✓   95 tests/ui/chessboard-range.spec.ts:85:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево (4.5s)
+  ✓   96 tests/ui/chessboard-range.spec.ts:127:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом (3.4s)
+  ✓   97 tests/ui/chessboard-range.spec.ts:150:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает (4.4s)
+  ✓   98 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (2.8s)
+  ✓   99 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (2.9s)
+  ✓  100 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (2.7s)
+  ✓  101 tests/ui/chessboard-statistics.spec.ts:54:1 › today statistics stay available when the calendar shows another month (6.0s)
+  ✓  102 tests/ui/chessboard-statistics.spec.ts:68:1 › empty booking base shows zero occupancy and no urgent bookings (2.0s)
+  ✓  103 tests/ui/chessboard-statistics.spec.ts:82:3 › daily widgets light: accessible labels and contrasts (3.8s)
+  ✓  104 tests/ui/chessboard-statistics.spec.ts:82:3 › daily widgets dark: accessible labels and contrasts (3.7s)
+  ✓  105 tests/ui/chessboard-statistics.spec.ts:99:3 › desktop daily widgets light: accessible pointer targets (3.1s)
+  ✓  106 tests/ui/chessboard-statistics.spec.ts:99:3 › desktop daily widgets dark: accessible pointer targets (3.4s)
+  ✓  107 tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) (4.6s)
+  ✓  108 tests/ui/chessboard-unassigned.spec.ts:116:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом (4.8s)
+  ✓  109 tests/ui/chessboard-unassigned.spec.ts:157:1 › «Разрешить» у «Продано сверх мест» и ссылка с Главной открывают ящик; тон critical (3.0s)
+  ✓  110 tests/ui/chessboard-unassigned.spec.ts:175:1 › «только чтение» (ADR-102): места видны, назначить нельзя, бронь открывается (4.4s)
+  ✓  111 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (2.2s)
+  ✓  112 tests/ui/chessboard-week.spec.ts:28:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (8.5s)
+  ✓  113 tests/ui/chessboard-week.spec.ts:74:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (3.0s)
+  ✓  114 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (4.7s)
+  ✓  115 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (5.2s)
+  ✓  116 tests/ui/chessboard-week.spec.ts:106:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (4.8s)
+  ✓  117 tests/ui/chessboard-week.spec.ts:126:1 › в неделе работают бронь, категории и создание на воскресенье (6.9s)
+  ✓  118 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: light, обе панели и телефон (20.2s)
+  ✓  119 tests/ui/chessboard-week.spec.ts:166:3 › неделя помещается на экране: dark, обе панели и телефон (19.8s)
+  ✓  120 tests/ui/chessboard-week.spec.ts:205:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.0s)
+  ✓  121 tests/ui/ds1b-primitives.spec.ts:20:1 › вкладки на странице: стрелки по кругу, Home, End, выбор сразу и фокус на вкладке (2.2s)
+  ✓  122 tests/ui/ds1b-primitives.spec.ts:48:1 › вкладки маршрутами: ссылки с aria-current, стрелки не перехватываются (3.2s)
+  ✓  123 tests/ui/ds1b-primitives.spec.ts:67:1 › переключатель шахматки: ровно один выбран, стрелки и Home/End, выбор помнится (5.5s)
+  ✓  124 tests/ui/ds1b-primitives.spec.ts:96:1 › брони: чипы видов ссылками, полоса инструментов по порядку поиск, отбор, период, действия (2.2s)
+  ✓  125 tests/ui/ds1b-primitives.spec.ts:135:1 › чип: кнопка переключает aria-pressed, число читается в имени (3.9s)
+  ✓  126 tests/ui/ds1b-primitives.spec.ts:154:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (light) (10.1s)
+  ✓  127 tests/ui/ds1b-primitives.spec.ts:154:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (dark) (10.3s)
+  ✓  128 tests/ui/property-settings-set2-set3.spec.ts:31:1 › «Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00 (3.9s)
+  ✓  129 tests/ui/property-settings-set2-set3.spec.ts:63:1 › «Услуги»: активные по умолчанию, отбор по группе и статусу, коды не видны (2.8s)
+  ✓  130 tests/ui/property-settings-set2-set3.spec.ts:92:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте (5.8s)
+  ✓  131 tests/ui/property-settings-set2-set3.spec.ts:145:1 › «только чтение»: каталог виден, добавить и править нельзя (3.9s)
+  ✓  132 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: light (9.8s)
+  ✓  133 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: dark (9.7s)
+  ✓  134 tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов (2.7s)
+  ✓  135 tests/ui/property-settings.spec.ts:68:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy (4.3s)
+  ✓  136 tests/ui/property-settings.spec.ts:83:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (7.1s)
+  ✓  137 tests/ui/property-settings.spec.ts:142:1 › администратор и «только чтение» видят сведения без формы и без кнопки сохранения (4.9s)
+  ✓  138 tests/ui/property-settings.spec.ts:166:1 › данные объекта и каналов помещаются на экране ноутбука (3.1s)
+  ✓  139 tests/ui/property-settings.spec.ts:179:3 › снимки SET1 и доступность: light (11.2s)
+  ✓  140 tests/ui/property-settings.spec.ts:179:3 › снимки SET1 и доступность: dark (10.7s)
+  ✓  141 tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера (2.6s)
+  ✓  142 tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони (3.6s)
+  ✓  143 tests/ui/record-tabs.spec.ts:93:1 › якорь внутри карточки переключает вкладку: «Продлить или переселить» → «Действия» (1.8s)
+  ✓  144 tests/ui/record-tabs.spec.ts:108:1 › переход между бронями без перезагрузки открывает вкладку из адреса — и из карточки, и внутри панели (2.7s)
+  ✓  145 tests/ui/reservations-compact.spec.ts:3:1 › compact reservations: filters disclose, submit and persist (3.5s)
+  ✓  146 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (2.6s)
+  ✓  147 tests/ui/reservations-design.spec.ts:31:1 › мобильный статус и поиск сохраняются в URL, карточка открывается из списка (4.7s)
+  ✓  148 tests/ui/reservations-design.spec.ts:53:3 › Брони: light, читаемый список на пяти ширинах (8.7s)
+  ✓  149 tests/ui/reservations-design.spec.ts:53:3 › Брони: dark, читаемый список на пяти ширинах (8.9s)
+  ✓  150 tests/ui/reservations-export.spec.ts:12:1 › отбор экрана уходит в CSV: номер брони есть, имени гостя нет (3.7s)
+  ✓  151 tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями (1.9s)
+  ✓  152 tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения (1.2s)
+  ✓  153 tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица (3.6s)
+  ✓  154 tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе (3.3s)
+  ✓  155 tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса (5.9s)
+  ✓  156 tests/ui/reservations-v2-r2.spec.ts:139:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день (5.1s)
+  ✓  157 tests/ui/reservations-v2-r2.spec.ts:172:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка (3.0s)
+  ✓  158 tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране (3.2s)
+  ✓  159 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, light (14.0s)
+  ✓  160 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, dark (12.6s)
+  ✓  161 tests/ui/reservations-v2-r3.spec.ts:58:1 › R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список (4.7s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  162 tests/ui/reservations-v2-r3.spec.ts:101:1 › R3: двойной щелчок — полная страница; ссылка первой ячейки и Esc работают как раньше (5.0s)
+  ✓  163 tests/ui/reservations-v2-r3.spec.ts:123:1 › R3: отменённая — «к возврату» и «возвращено», а не «оплачено»; группа — «⚠ 1 без размещения» (6.0s)
+  ✓  164 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, light (14.6s)
+  ✓  165 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, dark (15.6s)
+  ✓  166 tests/ui/reservations-v2.spec.ts:71:1 › R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони (2.2s)
+  ✓  167 tests/ui/reservations-v2.spec.ts:130:1 › R1: плотность строк переключается и переживает перезагрузку (3.4s)
+  ✓  168 tests/ui/reservations-v2.spec.ts:155:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте (6.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  169 tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, light (5.5s)
+  ✓  170 tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, dark (5.2s)
+
+  170 passed (16.3m)
+
+# код выхода 0 · 16 мин 22 с

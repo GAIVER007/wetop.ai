@@ -1,0 +1,46 @@
+# Интеграционные (integration) · 07.10.2026 18:03 Алматы · vm
+# коммит 8b734d0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 19
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T13-03-36Z-integration-e71f.json' 'tests/integration/site-publication.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:17510) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-publication.test.ts (11 tests) 2693ms
+   ❯ MKT7 публикация управляемого сайта (11)
+     ✓ §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 837ms
+     ✓ §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает 79ms
+     ✓ §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается 49ms
+     ✓ §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим 84ms
+     ✓ §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит 116ms
+     ✓ §84: тариф брони только явный, связанный или канонический; первый активный не берётся 344ms
+     ✓ §44–§47: публикуется только голова черновика, документ перепроверяется: медиа и неактивная категория 259ms
+     ✓ §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика 90ms
+     ✓ §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400 31ms
+     ✓ §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет 47ms
+     ✓ §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503 96ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта
+error: new row for relation "marketing_sites" violates check constraint "marketing_sites_published_version"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/site-publication.test.ts:240:7
+    238|       await sql.query(`DELETE FROM marketing_site_publications WHERE s…
+    239|       await sql.query(`DELETE FROM site_domains WHERE site_id IN (${si…
+    240|       await sql.query(
+       |       ^
+    241|         `UPDATE marketing_sites SET latest_version_id = NULL, publishe…
+    242|         [orgs],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 passed (11)
+   Start at  13:03:37
+   Duration  8.47s (tests 45%, transform 38%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-07T13-03-36Z-integration-e71f.json
+
+# код выхода 1 · 10 с

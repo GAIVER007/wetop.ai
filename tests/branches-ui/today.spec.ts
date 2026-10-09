@@ -14,7 +14,7 @@ import { instantOf } from '../../apps/web/src/app/beauty/time';
  * изолированная PostgreSQL. Синтетические только вход и строки базы; ответы домена не подменяются. Ожидаемые числа
  * тест считает из ответа того же API за тот же день филиала.
  */
-const api = 'http://127.0.0.1:55864';
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
 const shots = 'reports/mv8-vertical-today-2026-10-06/screenshots';
 type Fixture = {
   business: string;
@@ -381,7 +381,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
       ] as const) {
         await setScope(page, scope);
         await page.goto('/today');
-        await expect(page.getByTestId(testId), JSON.stringify(control)).toBeVisible();
+        // Экран дня ищем в <main>: на медленном раннере `next dev` оставляет вне <main> скрытую копию потокового
+        // фрагмента той же страницы (release-checks #188 и #189), и строгий поиск по всей странице находил два элемента
+        await expect(page.getByRole('main').getByTestId(testId), JSON.stringify(control)).toBeVisible();
         await expect(page.getByTestId('today-error')).toHaveCount(0);
       }
     }

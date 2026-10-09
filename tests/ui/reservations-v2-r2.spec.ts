@@ -80,7 +80,7 @@ test('R2: быстрые виды отбирают на сервере и жив
   await expect(page).toHaveURL(/view=inhouse/);
   const statuses = await rows(page).locator('.badge').allTextContents();
   expect(statuses.length).toBeGreaterThan(0);
-  expect(new Set(statuses.map((s) => s.trim()))).toEqual(new Set(['проживает']));
+  expect(new Set(statuses.map((s) => s.trim()))).toEqual(new Set(['Проживает']));
 
   await views.getByRole('link', { name: 'Требуют внимания', exact: true }).click();
   await expect(page).toHaveURL(/view=attention/);

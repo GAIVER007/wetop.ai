@@ -7,18 +7,20 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   useTransition,
   type CSSProperties,
+  type ReactNode,
 } from 'react';
 import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../lib/api';
-import { Alert, Button, EmptyState, Input, Select, cx } from '../../components/ui';
+import { Alert, Button, EmptyState, Input, cx } from '../../components/ui';
 import { messengerLinks } from '../../lib/format';
 import { guestNames, isGuestPseudonym, sourceBadge, stayLabels } from './stay-labels';
 import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
 import { StayResize } from './stay-resize';
 import { FreeMenuPopover } from './free-menu';
 import { useBoardPosition, type BoardSelection } from './board-position';
-import { BoardFiltersPopover, KIND_OPTIONS } from './board-filters-popover';
+import { BoardFiltersPopover, KIND_OPTIONS, type BoardView } from './board-filters-popover';
 import {
   NO_FILTERS,
   STAY_FLAGS,
@@ -63,31 +65,22 @@ import {
   type DropVerdict,
   type MoveQuestion,
 } from './drag-plan';
-import { Icon } from '../../components/icon';
+import { Icon, type IconName } from '../../components/icon';
 import { AmountChip } from '../../components/amount-chip';
 import { useConfirm } from '../../components/use-confirm';
 import { useToast } from '../../components/toast';
 import { blockTypeLabel } from '../../lib/block-types';
 import { displayDate } from '../../lib/display-date';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusText } from '../../lib/status/types';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'не подтверждена',
-  CONFIRMED: 'подтверждена, ждём',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-};
 /** Свёрнутые категории помнятся на пользователя браузера (ТЗ v2 §15); ключ localStorage */
 const COLLAPSED_KEY = 'chessboard.collapsed-categories';
-/** Вид строк (ТЗ v2 §38): «Компактный / Обычный / Подробный», выбор помнится в браузере */
+/** Вид строк (ТЗ v2 §38): «Компактный / Обычный / Подробный», выбор помнится в браузере.
+ * Переключатель живёт в окошке «Фильтры» (поручение владельца 09.10.2026: шапку разгрузить). */
 const VIEW_KEY = 'wetop.chessboard.view';
-type BoardView = 'compact' | 'normal' | 'detailed';
-const VIEWS: ReadonlyArray<readonly [BoardView, string]> = [
-  ['compact', 'Компактный'],
-  ['normal', 'Обычный'],
-  ['detailed', 'Подробный'],
-];
 /** Совпадение плашки с поиском и условиями по броням (ТЗ v2 §41): подсвечена, приглушена или как есть */
 type Match = 'hit' | 'dim' | undefined;
 function stayMatch(
@@ -163,12 +156,24 @@ export function ChessboardGrid({
   today,
   fitMonth = false,
   readOnly = false,
+  lead,
+  actions,
+  kpis,
+  help,
 }: {
   board: Chessboard;
   today: string;
   fitMonth?: boolean;
   /** «Только чтение» (ADR-102): предпросмотр показывает брони, но не предлагает изменений (ТЗ §47) */
   readOnly?: boolean;
+  /** Образец владельца 09.10.2026: период, масштаб и «Сегодня» стоят в одной полосе с поиском */
+  lead?: ReactNode;
+  /** Кнопки справа в той же полосе («Новая бронь») */
+  actions?: ReactNode;
+  /** Карточки показателей между полосой и сеткой */
+  kpis?: ReactNode;
+  /** Текст «Как работать с календарём»: раскрывашка внизу окошка «Фильтры» (в полосе значка «?» нет) */
+  help?: ReactNode;
 }) {
   const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
@@ -193,9 +198,10 @@ export function ChessboardGrid({
     if (restoreFocus) filtersButton.current?.focus({ preventScroll: true });
   }, []);
   const activeFilters = activeFilterCount(filters);
-  // «Компактный» по умолчанию (решение владельца 07.10.2026, baseline B): на ноутбуке 1366×768 так видно
-  // не меньше восьми строк мест. Сохранённый выбор восстанавливается, «Обычный» и «Подробный» на месте.
-  const [view, setView] = useState<BoardView>('compact');
+  // «Обычный» по умолчанию (образец владельца 09.10.2026: плашка в две строки, имя и даты); до этого с
+  // 07.10.2026 по умолчанию был «Компактный» (на ноутбуке 1366×768 видно не меньше восьми строк мест
+  // и сейчас). Сохранённый выбор восстанавливается, «Компактный» и «Подробный» на месте.
+  const [view, setView] = useState<BoardView>('normal');
   useEffect(() => {
     try {
       const saved = localStorage.getItem(VIEW_KEY);
@@ -277,8 +283,12 @@ export function ChessboardGrid({
     const unitHead = wrap?.querySelector('th.board__unit-head');
     if (!wrap || !head || !unitHead) return;
     const apply = () => {
-      wrap.style.setProperty('--board-head-real', `${head.getBoundingClientRect().height}px`);
-      wrap.style.setProperty('--board-unit-real', `${unitHead.getBoundingClientRect().width}px`);
+      // масштаб «− 100% +» (`zoom` на таблице) умножает и значения, записанные в эти переменные:
+      // замер в экранных пикселях делим на него, чтобы липкие отступы остались верными
+      const table = wrap.querySelector('table');
+      const zoom = (table && Number.parseFloat(getComputedStyle(table).zoom)) || 1;
+      wrap.style.setProperty('--board-head-real', `${head.getBoundingClientRect().height / zoom}px`);
+      wrap.style.setProperty('--board-unit-real', `${unitHead.getBoundingClientRect().width / zoom}px`);
     };
     apply();
     const observer = new ResizeObserver(apply);
@@ -289,10 +299,18 @@ export function ChessboardGrid({
 
   // Быстрый предпросмотр (ТЗ §23–25): одинарный клик — окно, двойной — полная карточка
   const [preview, setPreview] = useState<PreviewTarget | null>(null);
+  // на широком экране карточка брони стоит панелью справа от сетки (образец владельца 09.10.2026),
+  // на узком остаётся окном у плашки
+  const docked = useDockedPreview();
   const openCard = (href: string) => {
     setPreview(null);
     router.push(href);
   };
+  // другой период или фильтр: показанной брони в новой сетке может не быть, панель закрываем
+  const periodKey = `${board.dates[0]}..${board.dates[board.dates.length - 1]}`;
+  useEffect(() => {
+    setPreview(null);
+  }, [periodKey]);
   const closePreview = useCallback((restoreFocus: boolean) => {
     setPreview((current) => {
       if (restoreFocus) current?.anchor.focus({ preventScroll: true });
@@ -600,6 +618,7 @@ export function ChessboardGrid({
       status: t.status,
     };
     if (command === 'extend') return extendStay(stay);
+    if (command === 'cancel') return cancelStay(stay);
     if (busy.current) return;
     busy.current = true;
     setError(null);
@@ -837,12 +856,21 @@ export function ChessboardGrid({
     if (!v || v.kind === 'noop') return null;
     return place(v.fromDate, v.toDate, v.kind, v.kind === 'ok' ? drag.source.guest : v.reason);
   };
+  /** Дата, на которую считается «занято/всего» в строке категории: сегодня, если она в окне, иначе первая */
+  const loadDate = board.dates.includes(today) ? today : (board.dates[0] ?? today);
+  const groupLoad = (code: string) => board.byCategory[loadDate]?.[code];
+  const loadPct = (code: string) => {
+    const load = groupLoad(code);
+    return `${load ? Math.round((load.occupied / Math.max(load.units, 1)) * 100) : 0}%`;
+  };
   // 30 дней: день не уже 72 px — читаемость ценой горизонтальной прокрутки внутри сетки
   // (условие владельца к PR 2; ТЗ §44). Календарный месяц вписывается в окно отдельным режимом.
   const dayWidth = board.dates.length > 14 ? 72 : 104;
   return (
     <>
       <div className="board-toolbar">
+        {/* блоки с сервера кладём под ключ: без него React в разработке ругается на безключевых соседей */}
+        <Fragment key="lead">{lead}</Fragment>
         <label className="board-search field field--inline">
           <span className="board-search-label">Поиск</span>
           <Input
@@ -862,38 +890,6 @@ export function ChessboardGrid({
             }}
           />
         </label>
-        <label className="board-category field field--inline">
-          <span>Категория</span>
-          <Select
-            aria-label="Категория в календаре"
-            value={filters.category}
-            onChange={(e) => patchFilters({ category: e.target.value })}
-          >
-            <option value="">Все категории</option>
-            {allGroups.map((g) => (
-              <option key={g.code} value={g.code}>
-                {g.name}
-              </option>
-            ))}
-          </Select>
-        </label>
-        <label
-          className="board-state field field--inline"
-          title={`Состояние места считается на первую дату периода — ${displayDate(board.from)}`}
-        >
-          <span>{stateLabel}</span>
-          <Select
-            aria-label="Места в календаре"
-            value={filters.state}
-            onChange={(e) => patchFilters({ state: e.target.value as UnitState })}
-          >
-            {stateOptions.map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </Select>
-        </label>
         <button
           ref={filtersButton}
           type="button"
@@ -906,20 +902,7 @@ export function ChessboardGrid({
           Фильтры{' '}
           {activeFilters > 0 && <span className="board-filters-count">{activeFilters}</span>}
         </button>
-        <label className="board-view field field--inline">
-          <span>Вид</span>
-          <Select
-            aria-label="Вид строк календаря"
-            value={view}
-            onChange={(e) => pickView(e.target.value as BoardView)}
-          >
-            {VIEWS.map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </Select>
-        </label>
+        <Fragment key="actions">{actions}</Fragment>
         {/*
           Вторая строка — только когда что-то отобрано: снятые условия чипами, «Показано N из M» и
           «Сбросить». Без отбора строка схлопнута, но остаётся в дереве доступности: живая область
@@ -957,6 +940,7 @@ export function ChessboardGrid({
           )}
         </div>
       </div>
+      <Fragment key="kpis">{kpis}</Fragment>
       {filtersAnchor && (
         <BoardFiltersPopover
           anchor={filtersAnchor}
@@ -968,6 +952,9 @@ export function ChessboardGrid({
           stateOptions={stateOptions}
           stateLabel={stateLabel}
           unassigned={unassignedCount}
+          view={view}
+          onView={pickView}
+          help={help}
           onApply={(next) => {
             setFilters(next);
             closeFilters(true);
@@ -989,6 +976,7 @@ export function ChessboardGrid({
           Попробуйте изменить фильтры
         </EmptyState>
       )}
+      <div className="board-stage" data-docked={docked && preview ? 'true' : undefined}>
       <div
         ref={wrapRef}
         className="tbl-wrap board-wrap"
@@ -1091,7 +1079,26 @@ export function ChessboardGrid({
                       <span className="board-group-name-text" title={g.name}>
                         {g.name}
                       </span>
-                      <span className="muted">{g.rows.length}</span>
+                      {/* Полоска загрузки категории и «занято/всего» на сегодня (или на первую дату окна):
+                          образец владельца 09.10.2026 */}
+                      <span
+                        className="board-group-load"
+                        data-testid="category-load"
+                        title={
+                          groupLoad(g.code)
+                            ? `Занято ${groupLoad(g.code)!.occupied} из ${groupLoad(g.code)!.units} на ${displayDate(loadDate)}`
+                            : undefined
+                        }
+                      >
+                        <span className="board-group-bar" aria-hidden="true">
+                          <span style={{ width: loadPct(g.code) }} /* slop-allow: inline-style доля занятых мест категории из данных */ />
+                        </span>
+                        <span className="board-group-ratio">
+                          {groupLoad(g.code)
+                            ? `${groupLoad(g.code)!.occupied}/${groupLoad(g.code)!.units}`
+                            : g.rows.length}
+                        </span>
+                      </span>
                     </button>
                   </td>
                   {board.dates.map((d) => {
@@ -1152,6 +1159,14 @@ export function ChessboardGrid({
                               status={row.unit.housekeepingStatus}
                             />
                           )}
+                          {/* Точка состояния места справа, как на образце владельца (09.10.2026) */}
+                          <span
+                            className="board-unit-dot"
+                            data-testid="unit-dot"
+                            data-state={unitDot(row, loadDate).state}
+                            title={unitDot(row, loadDate).title}
+                            aria-hidden="true"
+                          />
                         </td>
                         {row.cells.map((c, index) => (
                           <Cell
@@ -1172,7 +1187,15 @@ export function ChessboardGrid({
                               drag.source.unitCode === row.unit.code &&
                               drag.source.itemId === c.itemId
                             }
-                            onPreview={setPreview}
+                            selected={!!preview && preview.number === c.confirmationNumber}
+                            onPreview={(target) =>
+                              // на широком экране повторный щелчок по той же брони закрывает панель
+                              setPreview((cur) =>
+                                docked && cur?.number === target.number && cur.itemId === target.itemId
+                                  ? null
+                                  : target,
+                              )
+                            }
                             onOpen={openCard}
                             onDragStart={onDragStart}
                             onDragEnd={clearDrag}
@@ -1190,13 +1213,24 @@ export function ChessboardGrid({
           </tbody>
         </table>
       </div>
+      {docked && preview && (
+        <StayPreview
+          key={`${preview.number}:${preview.itemId}`}
+          target={preview}
+          readOnly={readOnly}
+          docked
+          onClose={closePreview}
+          onCommand={(command, t) => void runCommand(command, t)}
+        />
+      )}
+      </div>
       {pending && (
         <p className="hint" data-testid="drag-pending">
           Сохраняем изменения…
         </p>
       )}
       {error && <Alert data-testid="drag-error">{error}</Alert>}
-      {preview && (
+      {!docked && preview && (
         <StayPreview
           key={`${preview.number}:${preview.itemId}`}
           target={preview}
@@ -1259,6 +1293,7 @@ function Cell({
   match,
   free,
   lifted,
+  selected,
   onPreview,
   onOpen,
   onDragStart,
@@ -1282,6 +1317,8 @@ function Cell({
   free: FreeCellHandlers | undefined;
   /** Эту бронь сейчас тянут: плашка на старом месте бледнеет */
   lifted: boolean;
+  /** Бронь открыта в правой панели: плашка обведена */
+  selected: boolean;
   onPreview: (target: PreviewTarget) => void;
   onOpen: (href: string) => void;
   onDragStart: (source: DragSource) => (e: React.DragEvent) => void;
@@ -1294,15 +1331,20 @@ function Cell({
   // цвет клетки зависит от данных — единственный инлайн-стиль сетки; значения из токенов globals.css
   const bg =
     cell.state === 'BLOCKED'
-      ? 'var(--st-blocked)'
+      ? blockKind(cell.blockType) === 'other'
+        ? 'var(--plate-block)'
+        : 'var(--plate-repair)'
       : cell.state === 'FREE'
         ? 'var(--surface)'
-        : (STATUS_BG[cell.itemStatus ?? ''] ?? 'var(--st-confirmed)');
+        : (STATUS_BG[cell.itemStatus ?? ''] ?? 'var(--plate-booked)');
   const names = guestNames(cell.guestLabel ?? '', cell.source, cell.channel);
   const title =
     cell.state === 'OCCUPIED'
-      ? `${names.full || 'Бронь без имени'} · ${cell.confirmationNumber} · ${
-          STATUS_RU[cell.itemStatus ?? ''] ?? cell.itemStatus
+      ? `${names.full || 'Бронь без имени'} · ${cell.confirmationNumber} · ${statusText(
+          hospitalityStatus,
+          cell.itemStatus ?? '',
+        )}${
+          cell.itemStatus === 'CONFIRMED' ? ', ждём' : ''
         }${cell.channel ? ` · ${cell.channel}` : ''}${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
       : cell.state === 'BLOCKED'
         ? `${blockTypeLabel(cell.blockType)}${cell.blockReason ? `: ${cell.blockReason}` : ''}`
@@ -1338,10 +1380,13 @@ function Cell({
       categoryName: unit.accommodationTypeName,
       housekeeping: unit.housekeepingStatus,
       sourceName: badge?.name ?? null,
+      phone: cell.guestPhone ?? null,
       arrivalToday,
       departureToday,
       anchor,
     });
+  // Блокировка тянется отрезком из одинаковых ночей: подпись ставим на первой видимой клетке отрезка
+  const blockRun = blockRunAt(rowCells, cell);
   return (
     <td
       className={cx(
@@ -1376,6 +1421,7 @@ function Cell({
             data-date={cell.date}
             data-unit-code={unitCode}
             data-match={match}
+            data-selected={selected ? '' : undefined}
             // края видимого отрезка плашки: рамка найденной брони — одна на всю плашку, а не на ночь
             data-plate-start={plate?.firstDate === cell.date ? '' : undefined}
             data-plate-end={plate?.lastDate === cell.date ? '' : undefined}
@@ -1439,7 +1485,17 @@ function Cell({
               >
                 <span className="board-stay-line">
                   <b className="board-stay-glyph" aria-hidden="true">
-                    {label.continues ? '←' : (STATUS_GLYPH[cell.itemStatus ?? ''] ?? '')}
+                    <Icon
+                      name={
+                        label.continues
+                          ? 'back'
+                          : arrivalToday && cell.itemStatus === 'CONFIRMED'
+                            ? 'arrival'
+                            : (STATUS_ICON[cell.itemStatus ?? ''] ?? 'booking')
+                      }
+                      width={14}
+                      height={14}
+                    />
                   </b>
                   <span className="board-stay-name">{names.full || cell.confirmationNumber}</span>
                   <span className="board-stay-name-short">
@@ -1455,6 +1511,10 @@ function Cell({
                   )}
                 </span>
                 <span className="board-stay-line board-stay-line--meta">
+                  {/* Даты проживания, как на образце владельца (09.10.2026): «5 окт – 9 окт» */}
+                  <span className="board-stay-dates" data-testid="cell-dates">
+                    {plateDates(label)}
+                  </span>
                   {/* Источник — маленьким бейджем: цвет плашки уже занят статусом брони (DESIGN.md §9) */}
                   {badge && !isGuestPseudonym(cell.guestLabel ?? '') && (
                     <span className="board-stay-source" data-testid="cell-channel">
@@ -1562,9 +1622,30 @@ function Cell({
         <Link
           href={`/units/${encodeURIComponent(unitCode)}`}
           className="board__free board-block"
+          data-block={blockKind(cell.blockType)}
           style={{ backgroundColor: bg }}
           aria-label={`${title} · ${unitCode}`}
-        />
+        >
+          {blockRun && (
+            /* Подпись блокировки по образцу владельца: значок, слово («Ремонт»), даты; одна на отрезок */
+            <span
+              className="board-stay-caption board-block-caption"
+              data-span={blockRun.span}
+              style={{ width: `calc(${blockRun.span * 100}% - var(--space-2))` }} // slop-allow: inline-style ширина подписи по числу суток из данных
+            >
+              <span className="board-stay-line">
+                <b className="board-stay-glyph" aria-hidden="true">
+                  <Icon name={BLOCK_ICON[blockKind(cell.blockType)]} width={14} height={14} />
+                </b>
+                <span className="board-stay-name">{blockTitle(cell.blockType)}</span>
+                <span className="board-stay-name-short">{blockTitle(cell.blockType)}</span>
+              </span>
+              <span className="board-stay-line board-stay-line--meta">
+                <span className="board-stay-dates">{plateDates(blockRun)}</span>
+              </span>
+            </span>
+          )}
+        </Link>
       )}
     </td>
   );
@@ -1586,6 +1667,37 @@ function MoveBody({ question: q }: { question: MoveQuestion }) {
       </p>
       <p className="move-question__note">{q.note}</p>
     </div>
+  );
+}
+
+/**
+ * Состояние места на дату сверки: закрыто (ремонт или другое), требует уборки, убрано и ждёт проверки,
+ * иначе проверено и доступно. Только показ уже загруженных данных: правил тут нет.
+ */
+function unitDot(row: ChessboardRow, date: string): { state: string; title: string } {
+  const cell = row.cells.find((c) => c.date === date);
+  if (cell?.state === 'BLOCKED')
+    return {
+      state: blockKind(cell.blockType) === 'other' ? 'blocked' : 'repair',
+      title: `${blockTypeLabel(cell.blockType)}${cell.blockReason ? `: ${cell.blockReason}` : ''}`,
+    };
+  const hk = row.unit.housekeepingStatus;
+  if (hk === 'DIRTY') return { state: 'dirty', title: 'Требует уборки' };
+  if (hk === 'CLEAN') return { state: 'clean', title: 'Убрано, ждёт проверки' };
+  return { state: 'ok', title: 'Проверено, доступно' };
+}
+
+/** Ширина, с которой карточка брони встаёт панелью справа от сетки; ниже — окно у плашки */
+const DOCK_QUERY = '(min-width: 1280px)';
+function useDockedPreview() {
+  return useSyncExternalStore(
+    (notify) => {
+      const mq = window.matchMedia(DOCK_QUERY);
+      mq.addEventListener('change', notify);
+      return () => mq.removeEventListener('change', notify);
+    },
+    () => window.matchMedia(DOCK_QUERY).matches,
+    () => false,
   );
 }
 
@@ -1617,13 +1729,53 @@ const nextDay = (d: string) => {
   x.setUTCDate(x.getUTCDate() + 1);
   return x.toISOString().slice(0, 10);
 };
-/** Статус видно и без легенды: ✓ заселён, • ждём, ? предварительная, ✕ выселен */
-const STATUS_GLYPH: Record<string, string> = {
-  CONFIRMED: '•',
-  CHECKED_IN: '✓',
-  CHECKED_OUT: '✕',
-  TENTATIVE: '?',
+/** Значок статуса на плашке (образец владельца 09.10.2026); смысл не только цветом: форма значка своя */
+const STATUS_ICON: Record<string, IconName> = {
+  CONFIRMED: 'booking',
+  CHECKED_IN: 'guests',
+  CHECKED_OUT: 'departure',
+  TENTATIVE: 'help',
 };
+type BlockKind = 'repair' | 'broken' | 'other';
+const blockKind = (type: string | null | undefined): BlockKind =>
+  type === 'MAINTENANCE' ? 'repair' : type === 'OUT_OF_ORDER' ? 'broken' : 'other';
+const BLOCK_ICON: Record<BlockKind, IconName> = {
+  repair: 'settings',
+  broken: 'incidents',
+  other: 'shield',
+};
+const blockTitle = (type: string | null | undefined) => {
+  const word = blockTypeLabel(type);
+  return word.charAt(0).toUpperCase() + word.slice(1);
+};
+const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+const shortDate = (d: string) => `${Number(d.slice(8))} ${MONTHS_SHORT[Number(d.slice(5, 7)) - 1]}`;
+/** «5 окт – 9 окт» по видимому отрезку; обрезанный окном край называется словом («до 9 окт», «с 5 окт») */
+function plateDates(l: { continues: boolean; firstDate: string; lastDate: string; ends: boolean }) {
+  const from = l.continues ? null : shortDate(l.firstDate);
+  const to = l.ends ? shortDate(nextDay(l.lastDate)) : null;
+  if (from && to) return `${from} – ${to}`;
+  if (to) return `до ${to}`;
+  if (from) return `с ${from}`;
+  return '';
+}
+/** Отрезок блокировки, который начинается на этой клетке (или обрезан левым краем окна) */
+function blockRunAt(rowCells: ChessboardCell[], cell: ChessboardCell) {
+  if (cell.state !== 'BLOCKED') return null;
+  const i = rowCells.findIndex((c) => c.date === cell.date);
+  const same = (c: ChessboardCell | undefined) => c?.state === 'BLOCKED' && c.blockType === cell.blockType;
+  if (i < 0 || (i > 0 && same(rowCells[i - 1]))) return null;
+  let span = 1;
+  while (same(rowCells[i + span])) span++;
+  const last = rowCells[i + span - 1]!;
+  return {
+    span,
+    continues: false,
+    firstDate: cell.date,
+    lastDate: last.date,
+    ends: i + span < rowCells.length,
+  };
+}
 /** «3 ночи» по видимому отрезку; отрезок, начавшийся до окна, помечен «+» — ночей больше */
 function nights(span: number, continues: boolean): string {
   const d = span % 10;
@@ -1632,9 +1784,10 @@ function nights(span: number, continues: boolean): string {
     h >= 11 && h <= 14 ? 'ночей' : d === 1 ? 'ночь' : d >= 2 && d <= 4 ? 'ночи' : 'ночей';
   return `${span}${continues ? '+' : ''} ${word}`;
 }
+/** Цвета плашек по образцу владельца (09.10.2026): значения в `board.css` на `.page--board`, свои для тем */
 const STATUS_BG: Record<string, string> = {
-  CONFIRMED: 'var(--st-confirmed)',
-  CHECKED_IN: 'var(--st-checked-in)',
-  CHECKED_OUT: 'var(--st-checked-out)',
-  TENTATIVE: 'var(--st-tentative)',
+  CONFIRMED: 'var(--plate-booked)',
+  CHECKED_IN: 'var(--plate-living)',
+  CHECKED_OUT: 'var(--plate-left)',
+  TENTATIVE: 'var(--plate-tentative)',
 };

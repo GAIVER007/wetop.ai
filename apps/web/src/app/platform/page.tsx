@@ -1,4 +1,3 @@
-import { BranchWorkspace } from '../branches/workspace';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { Page } from '../../components/page';
@@ -16,7 +15,7 @@ import {
   Table,
 } from '../../components/ui';
 import { Icon } from '../../components/icon';
-import { ApiError, platformApi, type PlatformOrganization } from '../../lib/api';
+import { ApiError, branchesApi, platformApi, type PlatformOrganization } from '../../lib/api';
 import { loadErrorProps } from '../../lib/load-error';
 import {
   extensionFormDefaults,
@@ -24,15 +23,19 @@ import {
   organizationSince,
   organizationStatusLine,
 } from '../../lib/platform';
-import { ExtensionForm, StatusForm } from './forms';
+import { ArchiveForm, CreateOrganizationForm, ExtensionForm, OwnerLinkForm, RenameForm, StatusForm } from './forms';
+import { OwnOrganization } from './own-organization';
+import { SiteBuilderLicense } from './site-builder';
 import { DataConnectionPanel } from './data-connection';
 import { hotelApi } from '../../lib/hotel-api';
+import { publicAuthUrl } from '../../lib/auth-entry';
 import { unstable_rethrow } from 'next/navigation';
 
 /**
- * «Платформа → Организации» (DATA_MODEL §16, ADR-083): гостиницы платформы и расширение «ИИ-продавец». Только главному
- * администратору — остальным API отвечает 403, и страница так и говорит. Брони, гости, счета и переписка чужих
- * гостиниц здесь не видны: в ответе API их нет по построению.
+ * «Настройки → Организации» (DATA_MODEL §16, ADR-083): своя организация с филиалами и их показателями, ниже все
+ * организации платформы с подпиской и расширением «ИИ-продавец». Только главному администратору: остальным API
+ * отвечает 403, и страница так и говорит. Брони, гости, счета и переписка чужих гостиниц здесь не видны: в ответе API
+ * их нет по построению.
  */
 export default async function PlatformPage({
   searchParams,
@@ -41,37 +44,47 @@ export default async function PlatformPage({
 }) {
   const query = await searchParams;
   const selected = typeof query.org === 'string' ? query.org : '';
+  const showArchived = query.archived === '1';
   return (
     <Page
       className="branches-page"
       width="full"
       title="Организации"
-      subtitle="Ваши объекты и филиалы: добавление, управление и общая статистика."
+      subtitle="Ваша организация с филиалами и показателями, а ниже все организации платформы."
       actions={<RefreshButton />}
     >
       <Suspense fallback={<LoadingState label="Загружаем организации…" />}>
-        <Organizations selected={selected} query={query} />
+        <Organizations selected={selected} showArchived={showArchived} query={query} />
       </Suspense>
     </Page>
   );
 }
 
-async function Organizations({
-  selected,
-  query,
-}: {
-  selected: string;
-  query: Record<string, string | string[] | undefined>;
-}) {
-  const loaded = await platformApi.organizations().then(
+async function settle<T>(promise: Promise<T>) {
+  return promise.then(
     (value) => ({ ok: true as const, value }),
     (error: unknown) => {
       unstable_rethrow(error);
       return { ok: false as const, error };
     },
   );
-  if (!loaded.ok) {
-    if (loaded.error instanceof ApiError && loaded.error.status === 403)
+}
+
+async function Organizations({
+  selected,
+  showArchived,
+  query,
+}: {
+  selected: string;
+  showArchived: boolean;
+  query: Record<string, string | string[] | undefined>;
+}) {
+  const [organizations, branches] = await Promise.all([
+    settle(platformApi.organizations()),
+    settle(branchesApi.list()),
+  ]);
+  if (!organizations.ok) {
+    if (organizations.error instanceof ApiError && organizations.error.status === 403)
       return (
         <EmptyState
           icon={<Icon name="shield" width={32} height={32} />}
@@ -82,23 +95,52 @@ async function Organizations({
           сервере.
         </EmptyState>
       );
-    return <LoadError testId="platform-error" {...loadErrorProps(loaded.error)} />;
+    return <LoadError testId="platform-error" {...loadErrorProps(organizations.error)} />;
   }
-  const items = loaded.value.items;
+  const items = organizations.value.items;
   const card = items.find((o) => o.id === selected);
+  const ownId = branches.ok ? branches.value.organization.id : '';
+  // архив вместо удаления (ORG1, ADR-ORG1): организации в архиве скрыты, пока их не попросили показать
+  const archivedCount = items.filter((o) => o.status === 'SUSPENDED').length;
+  const visible = items.filter((o) => showArchived || o.status !== 'SUSPENDED' || o.id === selected);
+  const archivedParam = showArchived ? '&archived=1' : '';
+  const toggleHref = `/platform?${[selected && `org=${selected}`, !showArchived && 'archived=1']
+    .filter(Boolean)
+    .join('&')}`;
   return (
     <Stack>
-      <Suspense fallback={<LoadingState label="Загружаем филиалы…" />}>
-        <BranchWorkspace query={query} createLabel="Добавить объект / филиал" />
-      </Suspense>
-      <details open={Boolean(card)} className="panel">
-        <summary>Подписки и администрирование</summary>
-        <p className="muted">
-          Доступ организаций платформы и расширения. Выбор организации здесь не переключает рабочий
-          филиал.
-        </p>
-        {card && <OrganizationCard organization={card} />}
-        {items.length === 0 ? (
+      {branches.ok ? (
+        <Suspense fallback={<LoadingState label="Считаем показатели филиалов…" />}>
+          <OwnOrganization data={branches.value} query={query} selected={selected} />
+        </Suspense>
+      ) : (
+        <LoadError testId="branches-load-error" {...loadErrorProps(branches.error)} />
+      )}
+      <Panel aria-labelledby="all-organizations-title">
+        <SectionTitle first id="all-organizations-title">
+          Все организации платформы
+        </SectionTitle>
+        <details className="org-add">
+          <summary className="btn">Добавить организацию</summary>
+          <div className="stack" data-testid="platform-add-organization">
+            <CreateOrganizationForm />
+            <p className="settings-note">
+              Организация может зарегистрироваться и сама:{' '}
+              <Link href={publicAuthUrl('register')} prefetch={false}>
+                страница регистрации
+              </Link>
+              . После регистрации она появится в этой таблице с пробным периодом.
+            </p>
+          </div>
+        </details>
+        {archivedCount > 0 && (
+          <p>
+            <Link href={toggleHref} prefetch={false}>
+              {showArchived ? 'Скрыть архивные' : `Показать архивные (${archivedCount})`}
+            </Link>
+          </p>
+        )}
+        {visible.length === 0 ? (
           <EmptyState
             icon={<Icon name="inventory" width={32} height={32} />}
             title="Организаций нет"
@@ -117,15 +159,27 @@ async function Organizations({
               </tr>
             </thead>
             <tbody>
-              {items.map((o) => {
+              {visible.map((o) => {
                 const status = organizationStatusLine(o);
                 const seller = extensionLine(o.aiSeller);
                 return (
                   <tr key={o.id} aria-current={o.id === selected ? 'true' : undefined}>
                     <td>
-                      <Link href={`/platform?org=${o.id}`} prefetch={false}>
+                      <Link href={`/platform?org=${o.id}${archivedParam}#organization`} prefetch={false}>
                         {o.name}
                       </Link>
+                      {o.id === ownId && (
+                        <>
+                          {' '}
+                          <Badge tone="info">Ваша</Badge>
+                        </>
+                      )}
+                      {o.ownerPending && (
+                        <>
+                          {' '}
+                          <Badge tone="warn">ждёт пароля</Badge>
+                        </>
+                      )}
                       <span className="sub">, с {organizationSince(o.createdAt)}</span>
                     </td>
                     <td>
@@ -143,7 +197,8 @@ async function Organizations({
             </tbody>
           </Table>
         )}
-      </details>
+        {card && <OrganizationCard organization={card} own={card.id === ownId} />}
+      </Panel>
       <details className="panel">
         <summary>Состояние системы</summary>
         <Suspense fallback={<LoadingState label="Проверяем базу…" />}>
@@ -169,10 +224,17 @@ async function SystemState() {
 }
 
 /** Выбранная организация: кто она и форма расширения «ИИ-продавец» */
-function OrganizationCard({ organization: o }: { organization: PlatformOrganization }) {
+function OrganizationCard({
+  organization: o,
+  own,
+}: {
+  organization: PlatformOrganization;
+  own: boolean;
+}) {
   const seller = extensionLine(o.aiSeller);
+  const archived = o.status === 'SUSPENDED';
   return (
-    <Panel data-testid="platform-organization">
+    <Panel id="organization" data-testid="platform-organization">
       <SectionTitle first>{o.name}</SectionTitle>
       <Grid min={180}>
         <Fact label="Состояние" value={organizationStatusLine(o).label} />
@@ -180,21 +242,70 @@ function OrganizationCard({ organization: o }: { organization: PlatformOrganizat
         <Fact label="Людей" value={String(o.members)} />
         <Fact label="ИИ-продавец" value={`${seller.label}, ${seller.detail}`} />
       </Grid>
-      <SectionTitle>Подписка</SectionTitle>
-      <StatusForm
-        key={`status-${o.id}`}
+      {o.ownerPending && !archived && (
+        <>
+          <SectionTitle>Доступ владельца</SectionTitle>
+          <OwnerLinkForm key={`owner-${o.id}`} organizationId={o.id} owner={o.owners[0] ?? 'организации'} />
+        </>
+      )}
+      <SectionTitle>Название</SectionTitle>
+      <RenameForm key={o.id} organizationId={o.id} organizationName={o.name} />
+      {!archived && (
+        <>
+          <SectionTitle>Подписка</SectionTitle>
+          <StatusForm
+            key={`status-${o.id}`}
+            organizationId={o.id}
+            organizationName={o.name}
+            status={o.status}
+          />
+          <SectionTitle>ИИ-продавец</SectionTitle>
+          {o.aiSeller.note && <p className="settings-note">Заметка: {o.aiSeller.note}</p>}
+          <ExtensionForm
+            key={o.id}
+            organizationId={o.id}
+            organizationName={o.name}
+            initial={extensionFormDefaults(o.aiSeller)}
+          />
+          <SectionTitle>Конструктор сайта</SectionTitle>
+          <p className="settings-note">
+            Лицензия на каждый гостиничный филиал. Без неё сайт филиала доступен только для чтения: менять его, просить ИИ и
+            публиковать нельзя, опубликованный сайт продолжает работать. Пробному доступу нужен срок, у «Активировать»
+            пустой срок значит бессрочно.
+          </p>
+          <Suspense fallback={<LoadingState label="Загружаем филиалы…" />}>
+            <SiteBuilderLicenses organizationId={o.id} />
+          </Suspense>
+        </>
+      )}
+      <SectionTitle>Архив</SectionTitle>
+      <ArchiveForm
+        key={`archive-${o.id}`}
         organizationId={o.id}
         organizationName={o.name}
-        status={o.status}
-      />
-      <SectionTitle>ИИ-продавец</SectionTitle>
-      {o.aiSeller.note && <p className="settings-note">Заметка: {o.aiSeller.note}</p>}
-      <ExtensionForm
-        key={o.id}
-        organizationId={o.id}
-        organizationName={o.name}
-        initial={extensionFormDefaults(o.aiSeller)}
+        archived={archived}
+        own={own}
       />
     </Panel>
+  );
+}
+
+/** MKT9.2: гостиничные филиалы организации с лицензией конструктора сайта */
+async function SiteBuilderLicenses({ organizationId }: { organizationId: string }) {
+  const loaded = await platformApi.siteBuilder(organizationId).then(
+    (value) => ({ ok: true as const, value }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
+  );
+  if (!loaded.ok) return <LoadError testId="platform-site-builder-load-error" {...loadErrorProps(loaded.error)} />;
+  if (loaded.value.items.length === 0) return <p className="muted">У организации нет гостиничных филиалов.</p>;
+  return (
+    <Stack data-testid="platform-site-builder">
+      {loaded.value.items.map((l) => (
+        <SiteBuilderLicense key={l.id} organizationId={organizationId} location={l} />
+      ))}
+    </Stack>
   );
 }

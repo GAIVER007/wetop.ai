@@ -3,7 +3,12 @@ import type { ReactNode } from 'react';
 import { Page } from '../../components/page';
 import { AmountChip } from '../../components/amount-chip';
 import { Icon, iconNames } from '../../components/icon';
-import { RecordTabs } from '../../components/record-tabs';
+import { Tabs } from '../../components/tabs';
+import { Chip, ChipGroup } from '../../components/chip';
+import { Toolbar } from '../../components/toolbar';
+import { FormGrid } from '../../components/form-grid';
+import { PeriodPicker } from '../../components/period-picker';
+import { ShareBar } from '../../components/share-bar';
 import {
   Alert,
   Badge,
@@ -24,16 +29,21 @@ import {
 } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
 import {
+  ChipDemo,
   ConfirmDemo,
+  DateBarDemo,
   DisabledTooltipDemo,
   ErrorDemo,
   MenuDemo,
+  SegmentedDemo,
   ThemeSwitcher,
   ToastDemo,
   ToastStatic,
   TooltipDemo,
 } from './demos';
 import './kit.css';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusText } from '../../lib/status/types';
 
 /**
  * Страница компонентов (DESIGN.md, план шаг 4). Только при разработке: в production-сборке — 404.
@@ -80,10 +90,10 @@ const COLOR_TOKENS = [
   ['focus', 'кольцо фокуса'],
 ] as const;
 const STATUS_TOKENS = [
-  ['st-confirmed', 'подтверждена', '•'],
-  ['st-checked-in', 'заселён', '✓'],
-  ['st-checked-out', 'выселен', '✕'],
-  ['st-tentative', 'предварительная', '?'],
+  ['st-confirmed', statusText(hospitalityStatus, 'CONFIRMED'), '•'],
+  ['st-checked-in', statusText(hospitalityStatus, 'CHECKED_IN'), '✓'],
+  ['st-checked-out', statusText(hospitalityStatus, 'CHECKED_OUT'), '✕'],
+  ['st-tentative', statusText(hospitalityStatus, 'TENTATIVE'), '?'],
   ['st-blocked', 'блокировка', '▨'],
 ] as const;
 
@@ -339,12 +349,12 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
       >
         <State name="default">
           <div className="row">
-            <StatusBadge status="TENTATIVE" label="предварительная" />
-            <StatusBadge status="CONFIRMED" label="подтверждена" />
-            <StatusBadge status="CHECKED_IN" label="заселён" />
-            <StatusBadge status="CHECKED_OUT" label="выселен" />
-            <StatusBadge status="CANCELLED" label="отменена" />
-            <StatusBadge status="NO_SHOW" label="незаезд" />
+            <StatusBadge kind="hospitality" value="TENTATIVE" />
+            <StatusBadge kind="hospitality" value="CONFIRMED" />
+            <StatusBadge kind="hospitality" value="CHECKED_IN" />
+            <StatusBadge kind="hospitality" value="CHECKED_OUT" />
+            <StatusBadge kind="hospitality" value="CANCELLED" />
+            <StatusBadge kind="hospitality" value="NO_SHOW" />
             <Badge>стойка</Badge>
             <Badge tone="info">Booking.com</Badge>
           </div>
@@ -372,13 +382,168 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
         title="Плитка показателя"
         where="ui.tsx · Stat; белая, цвет только у значения, когда нужно действие"
       >
-        <State name="default">
+        <State name="default" note="тон чертой слева, плитка не заливается (DS1c)">
           <Stats min={150}>
             <Stat label="Заезды" value="20" hint="10 ожидают заселения" />
-            <Stat label="Свободно" value="19" hint="номеров и коек" />
-            <Stat label="Не заселены" value="4" tone="warn" hint="после 18:00 — незаезд" />
+            <Stat label="Загрузка" value="72 %" tone="info" hint="по календарю" />
+            <Stat label="Оплачено" value="1 240 000 ₸" tone="success" hint="за неделю" />
+            <Stat label="Не заселены" value="4" tone="warning" hint="после 18:00 незаезд" />
+            <Stat label="Долг уезжающих" value="155 357 ₸" tone="danger" hint="проверьте расчёт" />
+          </Stats>
+        </State>
+        <State name="selected" note="с изменением к прошлому периоду, размеры sm, md, lg">
+          <Stats min={150}>
+            <Stat
+              label="Загрузка"
+              value="72 %"
+              size="sm"
+              delta={{ direction: 'up', text: '+3,2 п.п.' }}
+            />
+            <Stat
+              label="Средняя цена ночи"
+              value="12 400 ₸"
+              delta={{ direction: 'down', text: '−4 %' }}
+            />
+            <Stat
+              label="Получено оплат"
+              value="3 180 000 ₸"
+              size="lg"
+              delta={{ direction: null, text: 'нет базы для сравнения' }}
+            />
+          </Stats>
+        </State>
+        <State name="hover" note="плитка-ссылка целиком: наведите или нажмите Tab">
+          <Stats min={150}>
+            <Stat label="Заезды сегодня" value="4" href="#kit-stat" hint="открыть список" />
+          </Stats>
+        </State>
+        <State name="disabled" note="прежний вид alarm и warn до DS4–DS7">
+          <Stats min={150}>
+            <Stat label="Не заселены" value="4" tone="warn" hint="после 18:00 незаезд" />
             <Stat label="Долг уезжающих" value="155 357 ₸" tone="alarm" hint="проверьте расчёт" />
           </Stats>
+        </State>
+      </Component>
+
+      <Component
+        id="sharebar"
+        title="Доля"
+        where="share-bar.tsx · ShareBar; родной progress с именем, число рядом; §8.2"
+      >
+        <State name="default">
+          <div className="stack">
+            <ShareBar label="Доля: Booking.com" value={0} max={100} showValue />
+            <ShareBar label="Доля: Сайт" value={37} max={100} showValue />
+            <ShareBar label="Доля: Стойка" value={100} max={100} showValue />
+            <ShareBar label="Доля: Звонки" value={50} max={100} showValue />
+          </div>
+        </State>
+        <State name="selected" note="тон по общей шкале; смысл держат имя и число, не цвет">
+          <div className="stack">
+            <ShareBar label="Доля: успех" value={64} tone="success" showValue />
+            <ShareBar label="Доля: внимание" value={48} tone="warning" showValue />
+            <ShareBar label="Доля: отказ" value={12} tone="danger" showValue />
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="form-grid"
+        title="Сетка формы и обязательность поля"
+        where="form-grid.tsx · FormGrid; ui.tsx · Field required; на телефоне одна колонка; §8.2"
+      >
+        <State name="default" note="required: знак и родное required; false: «необязательно»">
+          <FormGrid columns={2}>
+            <Field label="Имя" required controlId={`kit-${theme}-first-name`}>
+              <Input />
+            </Field>
+            <Field label="Отчество" required={false} controlId={`kit-${theme}-middle-name`}>
+              <Input />
+            </Field>
+          </FormGrid>
+        </State>
+        <State name="disabled" note="required не задан: прежний вид, пока форма не переведена; плотность compact">
+          <FormGrid columns={3} density="compact">
+            <Field label="Телефон">
+              <Input />
+            </Field>
+            <Field label="Email">
+              <Input />
+            </Field>
+            <Field label="Комментарий">
+              <Input />
+            </Field>
+          </FormGrid>
+        </State>
+      </Component>
+
+      <Component
+        id="period-picker"
+        title="Период"
+        where="period-picker.tsx · PeriodPicker; готовые отрезки ссылками, поля «С» и «По»; применяет экран; §8.2"
+      >
+        <State name="default">
+          <form className="kit-form-inline" action="#">
+            <PeriodPicker
+              from="2026-09-10"
+              to="2026-09-16"
+              fromName={`${theme}-from`}
+              toName={`${theme}-to`}
+              presets={[
+                { label: 'Сегодня', href: '#today', selected: false },
+                { label: '7 дней', href: '#week', selected: true },
+                { label: '30 дней', href: '#month', selected: false },
+              ]}
+            />
+          </form>
+        </State>
+        <State name="error" note="ошибку называет экран: у поля (errors.to) или у отрезка (errors.period)">
+          <form className="kit-form-inline" action="#">
+            <PeriodPicker
+              from="2026-09-24"
+              to="2026-09-10"
+              fromName={`${theme}-from-err`}
+              toName={`${theme}-to-err`}
+              errors={{ to: 'Дата «по» раньше даты «с»' }}
+            />
+          </form>
+        </State>
+      </Component>
+
+      <Component
+        id="date-bar"
+        title="День"
+        where="date-bar.tsx · DateBar; предыдущий и следующий день, поле «Дата», «Сегодня» по желанию; §8.2"
+      >
+        <State name="default" note="салон: с «Сегодня»">
+          <DateBarDemo withToday />
+        </State>
+        <State name="selected" note="ресторан: без «Сегодня»">
+          <DateBarDemo />
+        </State>
+      </Component>
+
+      <Component
+        id="overlay-size"
+        title="Размер окна и панели"
+        where="overlay.tsx · Overlay size; route-drawer.tsx · RouteDrawer size; md прежняя ширина; §8.2"
+      >
+        <State name="default" note="окно: sm 400, md 560, lg 760; панель: sm 400, md 480, lg 760">
+          <div className="stack">
+            {(['sm', 'md', 'lg'] as const).map((size) => (
+              <div
+                key={size}
+                className={`ui-overlay kit-overlay-static${size === 'md' ? '' : ` ui-overlay--${size}`}`}
+              >
+                <div className="overlay-heading">
+                  <b>Окно {size}</b>
+                </div>
+                <div className="overlay-content">
+                  <p className="hint">Поведение окна общее: Escape, щелчок мимо, возврат фокуса.</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </State>
       </Component>
 
@@ -425,7 +590,7 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                 </td>
                 <td>17 сент. → 20 сент. · 3 ночи</td>
                 <td>
-                  <StatusBadge status="TENTATIVE" label="предварительная" />
+                  <StatusBadge kind="hospitality" value="TENTATIVE" />
                 </td>
                 <td className="num">
                   <AmountChip minor="3600000" tone="due" />
@@ -437,7 +602,7 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                 </td>
                 <td>15 сент. → 17 сент. · 2 ночи</td>
                 <td>
-                  <StatusBadge status="CHECKED_IN" label="заселён" />
+                  <StatusBadge kind="hospitality" value="CHECKED_IN" />
                 </td>
                 <td className="num">
                   <AmountChip minor="0" tone="paid" label="оплачено" />
@@ -449,9 +614,42 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
                 </td>
                 <td>16 сент. → 18 сент. · 2 ночи</td>
                 <td>
-                  <StatusBadge status="CANCELLED" label="отменена" />
+                  <StatusBadge kind="hospitality" value="CANCELLED" />
                 </td>
                 <td className="num">—</td>
+              </tr>
+            </tbody>
+          </Table>
+        </State>
+        <State name="default" note="новый вход: плотная, липкие шапка и колонка, скрытая подпись (DS1c)">
+          <Table
+            size="sm"
+            density="compact"
+            sticky="both"
+            caption="Загрузка по ночам: вы и конкуренты"
+            captionHidden
+          >
+            <thead>
+              <tr>
+                <th scope="col">Отель</th>
+                <th scope="col" className="num">
+                  12 окт.
+                </th>
+                <th scope="col" className="num">
+                  13 окт.
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Вы</th>
+                <td className="num">72 %</td>
+                <td className="num">80 %</td>
+              </tr>
+              <tr>
+                <th scope="row">Рынок</th>
+                <td className="num">65 %</td>
+                <td className="num">70 %</td>
               </tr>
             </tbody>
           </Table>
@@ -520,79 +718,233 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
       <Component
         id="tabs"
         title="Вкладки"
-        where="record-tabs.tsx · RecordTabs; стрелки, Home/End; счётчик в подписи"
+        where="tabs.tsx · Tabs; маршрутами (nav, aria-current) и на странице (tablist, стрелки, Home/End); §8.1"
         interactive
       >
-        <State name="default">
-          <RecordTabs
-            label="Разделы карточки"
-            tabs={[
+        <State name="default" note="на странице, счётчик и длинная подпись; стрелки">
+          <Tabs
+            label={`Разделы карточки (${theme})`}
+            panels={[
               {
-                id: 'overview',
+                id: `${theme}-overview`,
                 label: 'Обзор',
                 content: <p className="hint">Даты, гости, заказчик.</p>,
               },
               {
-                id: 'folio',
-                label: 'Счета · 2',
+                id: `${theme}-folio`,
+                label: 'Счета',
+                count: 2,
                 content: <p className="hint">Два счёта, долг 12 500 ₸.</p>,
               },
               {
-                id: 'actions',
-                label: 'Действия',
-                content: <p className="hint">Заселить, продлить, переселить.</p>,
+                id: `${theme}-history`,
+                label: 'История изменений и журнал действий',
+                content: <p className="hint">Кто и когда менял бронь.</p>,
               },
             ]}
           />
         </State>
         <State name="hover" note="наведите">
-          <div className="record-tab-list" role="presentation">
-            <button type="button" data-live="hover">
+          <div className="tabs" role="presentation">
+            <button type="button" className="tabs__item" data-live="hover">
               Обзор
             </button>
           </div>
         </State>
         <State name="focus" note="Tab">
-          <div className="record-tab-list" role="presentation">
-            <button type="button" data-live="focus">
+          <div className="tabs" role="presentation">
+            <button type="button" className="tabs__item" data-live="focus">
               Обзор
             </button>
           </div>
         </State>
         <State name="active" note="нажатие">
-          <div className="record-tab-list" role="presentation">
-            <button type="button" data-live="active">
+          <div className="tabs" role="presentation">
+            <button type="button" className="tabs__item" data-live="active">
               Обзор
             </button>
           </div>
         </State>
         <State name="disabled">
-          <div className="record-tab-list" role="presentation">
-            <button type="button" disabled>
+          <div className="tabs" role="presentation">
+            <button type="button" className="tabs__item" disabled>
               История
             </button>
           </div>
         </State>
         <State name="loading">
-          <div className="record-tab-list" role="presentation">
-            <button type="button" aria-busy="true">
+          <div className="tabs" role="presentation">
+            <button type="button" className="tabs__item" aria-busy="true">
               Счета · …
             </button>
           </div>
         </State>
         <State name="error">
-          <div className="record-tab-list" role="presentation">
-            <button type="button">
+          <div className="tabs" role="presentation">
+            <button type="button" className="tabs__item">
               Счета · <span className="danger-text">ошибка</span>
             </button>
           </div>
         </State>
-        <State name="selected">
-          <div className="record-tab-list" role="tablist" aria-label="Выбранная вкладка">
-            <button type="button" aria-selected="true" role="tab">
-              Счета · 2
+        <State name="selected" note="маршрутами: текущая страница">
+          <Tabs
+            label={`Настройки объекта (${theme})`}
+            items={[
+              { href: '#kit-tabs', label: 'Основное', current: true },
+              { href: '#kit-tabs-stay', label: 'Проживание', current: false },
+              { href: '#kit-tabs-services', label: 'Услуги', current: false, count: 14 },
+            ]}
+          />
+        </State>
+      </Component>
+
+      <Component
+        id="chip"
+        title="Чипы отбора"
+        where="chip.tsx · Chip, ChipGroup; кнопка aria-pressed или ссылка aria-current; md 38, sm 30; §8.1"
+        interactive
+      >
+        <State name="default" note="группа с именем, щёлкните">
+          <ChipDemo label={`Отбор броней (${theme})`} />
+        </State>
+        <State name="hover" note="наведите">
+          <Chip selected={false} data-live="hover">
+            Выезды сегодня
+          </Chip>
+        </State>
+        <State name="focus" note="Tab">
+          <Chip selected={false} data-live="focus">
+            Выезды сегодня
+          </Chip>
+        </State>
+        <State name="active" note="нажатие">
+          <Chip selected={false} data-live="active">
+            Выезды сегодня
+          </Chip>
+        </State>
+        <State name="disabled">
+          <Chip selected={false} disabled count={0}>
+            Незаезды
+          </Chip>
+        </State>
+        <State name="loading">
+          <Chip selected={false} aria-busy="true">
+            С долгом …
+          </Chip>
+        </State>
+        <State name="error">
+          <Chip selected={false}>
+            С долгом <span className="danger-text">не загрузилось</span>
+          </Chip>
+        </State>
+        <State name="selected" note="маленький, ссылками">
+          <ChipGroup as="nav" label={`Готовые периоды (${theme})`}>
+            <Chip size="sm" href="#kit-chip" selected>
+              Сегодня
+            </Chip>
+            <Chip size="sm" href="#kit-chip-week" selected={false}>
+              Неделя
+            </Chip>
+            <Chip size="sm" href="#kit-chip-month" selected={false} count={31}>
+              Месяц
+            </Chip>
+          </ChipGroup>
+        </State>
+      </Component>
+
+      <Component
+        id="segmented"
+        title="Переключатель"
+        where="segmented.tsx · Segmented; aria-pressed, ровно один выбран, стрелки и Home/End; §8.1"
+        interactive
+      >
+        <State name="default" note="стрелки, Home, End">
+          <SegmentedDemo label={`Вид строк (${theme})`} />
+        </State>
+        <State name="hover" note="наведите">
+          <span className="seg" role="presentation">
+            <button type="button" className="seg__item" data-live="hover">
+              Неделя
             </button>
-          </div>
+          </span>
+        </State>
+        <State name="focus" note="Tab">
+          <span className="seg" role="presentation">
+            <button type="button" className="seg__item" data-live="focus">
+              Неделя
+            </button>
+          </span>
+        </State>
+        <State name="active" note="нажатие">
+          <span className="seg" role="presentation">
+            <button type="button" className="seg__item" data-live="active">
+              Неделя
+            </button>
+          </span>
+        </State>
+        <State name="disabled">
+          <SegmentedDemo label={`Вид строк, отключён (${theme})`} disabled />
+        </State>
+        <State name="loading">
+          <span className="seg" role="presentation">
+            <button type="button" className="seg__item" aria-busy="true">
+              Обычный …
+            </button>
+          </span>
+        </State>
+        <State name="error">
+          <span className="seg" role="presentation">
+            <button type="button" className="seg__item">
+              Обычный <span className="danger-text">не сохранилось</span>
+            </button>
+          </span>
+        </State>
+        <State name="selected" note="маленький">
+          <span className="seg seg--sm" role="presentation">
+            <button type="button" className="seg__item" aria-pressed="true">
+              Обычно
+            </button>
+            <button type="button" className="seg__item" aria-pressed="false">
+              Компактно
+            </button>
+          </span>
+        </State>
+      </Component>
+
+      <Component
+        id="toolbar"
+        title="Полоса инструментов"
+        where="toolbar.tsx · Toolbar; слоты поиск → отбор → период → действия, без order; §8.1"
+      >
+        <State name="default" note="все слоты">
+          <Toolbar
+            label={`Поиск и отбор (${theme})`}
+            search={
+              <Input aria-label={`Поиск броней (${theme})`} placeholder="Гость или номер брони" />
+            }
+            filters={
+              <Select aria-label={`Статус брони (${theme})`} defaultValue="">
+                <option value="">Все статусы</option>
+              </Select>
+            }
+            period={
+              <Button type="button" tone="secondary">
+                Даты
+              </Button>
+            }
+            actions={
+              <Button type="button" tone="secondary">
+                Показать
+              </Button>
+            }
+          />
+        </State>
+        <State name="selected" note="только поиск и действие">
+          <Toolbar
+            label={`Поиск гостей (${theme})`}
+            search={<Input aria-label={`Поиск гостей (${theme})`} placeholder="Имя или телефон" />}
+            actions={<Button type="button">Новая бронь</Button>}
+          />
         </State>
       </Component>
 
@@ -958,10 +1310,13 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
         <State name="default">
           <Legend
             items={[
-              { color: 'var(--st-confirmed)', label: 'подтверждена' },
-              { color: 'var(--st-checked-in)', label: 'заселён' },
-              { color: 'var(--st-checked-out)', label: 'выселен' },
-              { color: 'var(--st-tentative)', label: 'предварительная' },
+              { color: 'var(--st-confirmed)', label: statusText(hospitalityStatus, 'CONFIRMED') },
+              { color: 'var(--st-checked-in)', label: statusText(hospitalityStatus, 'CHECKED_IN') },
+              {
+                color: 'var(--st-checked-out)',
+                label: statusText(hospitalityStatus, 'CHECKED_OUT'),
+              },
+              { color: 'var(--st-tentative)', label: statusText(hospitalityStatus, 'TENTATIVE') },
               { color: 'var(--st-blocked)', label: 'блокировка' },
             ]}
           />

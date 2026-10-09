@@ -1,14 +1,18 @@
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
+import { mail } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { EXTENSIONS_REPOSITORY, PrismaExtensionsRepository } from './extensions.repository';
 import { ExtensionsService } from './extensions.service';
+import { OrganizationCreation, PLATFORM_APP_URL, PLATFORM_MAILER } from './organization-creation';
+import type { Mailer } from '../auth/password-reset.service';
 import { PlatformController } from './platform.controller';
 import { PrismaSupportAudit, SUPPORT_AUDIT } from './support.audit';
 import { EnvSupportConnection, SUPPORT_CONNECTION } from './support.connection';
 import { SupportController } from './support.controller';
 import { SupportKnowledgeService } from './support-kb.service';
 import { SupportService } from './support.service';
+import { SiteBuilderLicenses } from './site-builder-licenses';
 
 /** Раздел «Платформа»: организации и их расширения, техподдержка — панель ИИ-помощника (DATA_MODEL §16, ADR-083) */
 @Module({
@@ -21,6 +25,20 @@ import { SupportService } from './support.service';
     { provide: SUPPORT_AUDIT, useClass: PrismaSupportAudit },
     SupportService,
     SupportKnowledgeService,
+    SiteBuilderLicenses,
+    // создание организации (ORG2): письмо владельцу уходит тем же отправителем и на тот же адрес стойки, что сброс пароля
+    OrganizationCreation,
+    {
+      provide: PLATFORM_MAILER,
+      useFactory: (): Mailer | null => {
+        const config = mail.mailConfigFromEnv(process.env);
+        return config ? new mail.ResendMailSender({ config }) : null;
+      },
+    },
+    {
+      provide: PLATFORM_APP_URL,
+      useFactory: (): string => process.env.PUBLIC_APP_URL?.trim() || 'https://app.wetop.ai',
+    },
   ],
   exports: [ExtensionsService],
 })

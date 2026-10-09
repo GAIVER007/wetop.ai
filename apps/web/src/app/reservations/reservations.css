@@ -1,610 +1,498 @@
 /* Список броней v2, срез R1 (ADR-106): компактная панель в две строки, иерархия таблицы,
    единая колонка «Финансы», плотность строк, липкая шапка. Общие словари и деньги — как раньше. */
-.page:has(> .reservations-controls) > .page__head {
-  margin-bottom: var(--space-4);
-}
-.reservations-controls {
-  padding: var(--space-2) var(--space-4);
-  margin-bottom: var(--space-2);
-  background: var(--glass-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-/* Строка 1: поиск, готовые отрезки, «Даты», статус (телефон), «Показать» — одной гибкой строкой */
-.reservations-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  margin: 0;
-}
-.reservations-toolbar .search-field {
-  flex: 1 1 240px;
-  min-width: 0;
-}
-.reservations-toolbar .field {
-  margin: 0;
-  gap: var(--space-2);
-  min-width: 0;
-}
-.reservations-toolbar .inp {
-  font-size: var(--text-sm);
-}
-/* Ручной период за кнопкой «Даты» (ТЗ §62): поля остаются в форме и свёрнутыми — GET уносит период */
-.reservations-dates {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-}
-.reservations-dates__fields {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-}
-.reservations-dates__fields[hidden] {
-  display: none;
-}
-.reservations-dates__fields .field--inline .inp {
-  width: 148px;
-}
-/* Чипы — компактные (30 px): панель занимает две строки, таблица начинается в первом экране (§62) */
-.reservations-controls .directory-filters {
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin: 0;
-  border: 0;
-  overflow: visible;
-}
-.reservations-controls .directory-filters a {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h-sm);
-  padding: var(--space-1) var(--space-2);
-  border: 0;
-  border-radius: var(--radius-control);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--text-2);
-}
-.reservations-controls .directory-filters a:hover {
-  background: var(--surface-muted);
-  color: var(--text);
-  text-decoration: none;
-}
-.reservations-controls .directory-filters a.is-active {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-/* Строка 2: статусы с числами. Статус, которого в периоде нет, остаётся на месте, но не зовёт нажать */
-.reservations-statuses {
-  margin-top: var(--space-1);
-}
-.reservations-controls .directory-filters a.reservations-chip--zero {
-  color: var(--muted);
-}
-.reservations-count {
-  margin-left: var(--space-2);
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-}
-.reservations-controls .directory-filters a.is-active .reservations-count {
-  color: inherit;
-}
-.reservations-reset {
-  margin-left: var(--space-2);
-  white-space: nowrap;
-}
-.reservations-controls .reservations-status-mobile {
-  display: none;
-}
-/* Срез R2: ряд быстрых видов над панелью — те же чипы, что статусы; отбор видом, а не периодом */
-.reservations-views {
-  margin-bottom: var(--space-1);
-}
-/* Вторая строка формы — списки отбора и «Показать»; перенос явный, а не по ширине экрана */
-.reservations-break {
-  flex-basis: 100%;
-  height: 0;
-}
-.reservations-selects,
-.reservations-selects__fields {
-  display: contents;
-}
-.reservations-selects__toggle {
-  display: none;
-}
-.reservations-selects__fields .inp {
-  width: auto;
-  max-width: 220px;
-  min-height: var(--control-h-sm);
-  font-size: var(--text-sm);
-}
-.reservations-results {
-  min-width: 0;
-}
-/* R3: строка открывает быстрый просмотр щелчком по любой ячейке — курсор это обещает */
-.reservations-results .dir-table--reservations tbody tr {
-  cursor: pointer;
-}
-/* Выборка словами слева, плотность строк справа — одна строка над таблицей */
-.reservations-meta-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin: 0 0 var(--space-4);
-}
-.reservations-meta-row .directory-meta {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--text-2);
-  overflow-wrap: anywhere;
-}
-.reservations-density {
-  flex: none;
-}
-.reservations-density button {
-  padding: var(--space-1) var(--space-2);
-  border: 0;
-  background: none;
-  color: var(--text-2);
-  font-size: var(--text-sm);
-  border-left: 1px solid var(--border-input);
-  cursor: pointer;
-}
-.reservations-density button:first-child {
-  border-left: 0;
-}
-.reservations-density button:hover {
-  background: var(--surface-muted);
-}
-.reservations-density button.is-on {
-  background: var(--surface-elevated);
-  color: var(--primary);
-}
-.reservations-results .table-scroll {
-  box-shadow: none;
-  border-radius: var(--radius-lg);
-}
-.reservations-results .dir-table td {
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-  vertical-align: top;
-}
-.reservations-results .dir-table th {
-  padding: var(--space-2) var(--space-4);
-  color: var(--muted);
-  font-weight: var(--weight-medium);
-}
-/* «Компактно»: те же две строки в ячейке, теснее по вертикали (~44–48 px строка) */
-.reservations-list[data-density='compact'] .dir-table td {
-  padding: var(--space-1) var(--space-4);
-}
-.reservations-list[data-density='compact'] .dir-guest {
-  min-height: 0;
-  padding: 0;
-}
-.reservations-results .dir-guest {
-  gap: var(--space-1);
-  font-size: var(--text-md);
-  white-space: normal;
-  overflow-wrap: anywhere;
-  min-width: 0;
-}
-.reservations-results .dir-guest strong {
-  font-weight: var(--weight-semibold);
-}
-.reservations-results .dir-guest:hover strong {
-  color: var(--primary);
-}
-.reservations-results .dir-number {
-  font-size: var(--text-xs);
-}
-.reservations-results .source-tag {
-  display: inline-block;
-  max-width: 100%;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  padding: var(--space-1) var(--space-2);
-  border: 0;
-  border-radius: var(--radius-control);
-}
-.reservations-results .dir-unit {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  font-size: var(--text-sm);
-}
-/* Проживание: даты строкой, ночи и вычисляемые пометки дня — строками под ними */
-.reservations-stay-dates {
-  display: block;
-  white-space: nowrap;
-  color: var(--text);
-}
-.reservations-results .dir-stay small {
-  display: block;
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-xs);
-}
-.reservations-results .dir-stay small.reservations-flag {
-  color: var(--primary);
-  font-weight: var(--weight-medium);
-}
-/* Размещение: «⚠ без ячейки» — слово DESIGN.md §9, своей строкой под «N размещений» у группы */
-.reservations-results .reservations-unassigned {
-  display: block;
-  font-size: var(--text-xs);
-  white-space: nowrap;
-}
-.reservations-results .dir-unit + .reservations-unassigned {
-  margin-top: var(--space-1);
-}
-/* Финансы: стоимость первой строкой, состояние по счетам — второй */
-.reservations-results .reservations-total {
-  display: block;
-  color: var(--text);
-}
-/* слово состояния — второй строкой под стоимостью; сама плашка остаётся inline-flex со своим зазором */
-.reservations-results .reservations-fin {
-  margin-top: var(--space-1);
-  font-size: var(--text-xs);
-}
-.reservations-results span.reservations-fin:not(.amount-chip) {
-  display: inline-block;
-}
-.reservations-results .num {
-  font-variant-numeric: tabular-nums;
-}
-.reservations-results .pagination {
-  margin-top: var(--space-4);
-}
-.reservations-results .empty-state {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-/* Липкая шапка (§34): на широком экране шесть колонок помещаются без прокрутки вбок,
-   а шапка остаётся видимой под верхней панелью; фон непрозрачный (DESIGN.md §20.3).
-   Рамка и радиус переезжают с обёртки на таблицу: обёртке нужен overflow: visible,
-   а он перестаёт прятать прямые углы таблицы под скруглением обёртки. */
-@media (min-width: 1201px) {
-  .reservations-results .table-scroll {
-    overflow: visible;
-    background: transparent;
-    border: 0;
-    border-radius: 0;
+@layer sections {
+  .page:has(> .reservations-controls) > .page__head {
+    margin-bottom: var(--space-4);
   }
-  .reservations-results .dir-table--reservations {
+  .reservations-controls {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-2);
+    background: var(--glass-panel);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-  }
-  .reservations-results .dir-table--reservations thead th {
-    position: sticky;
-    top: var(--header-h);
-    z-index: var(--layer-sticky);
-    background: var(--surface-solid);
-  }
-  .reservations-results .dir-table--reservations thead th:first-child {
-    border-top-left-radius: var(--radius-lg);
-  }
-  .reservations-results .dir-table--reservations thead th:last-child {
-    border-top-right-radius: var(--radius-lg);
-  }
-  .reservations-results .dir-table--reservations tbody tr:last-child td:first-child {
-    border-bottom-left-radius: var(--radius-lg);
-  }
-  .reservations-results .dir-table--reservations tbody tr:last-child td:last-child {
-    border-bottom-right-radius: var(--radius-lg);
-  }
-}
-/* Карточки на планшете сохраняют все шесть полей, без боковой прокрутки таблицы:
-   гость и статус → проживание → размещение и источник → финансы */
-@media (max-width: 1200px) {
-  .reservations-meta-row .reservations-density {
-    display: none;
-  }
-  .reservations-results .table-scroll {
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-  }
-  .reservations-results .dir-table--reservations {
-    display: block;
-    background: transparent;
-    width: 100%;
+  } /* Строка 1: поиск, готовые отрезки, «Даты», статус (телефон), «Показать» — одной гибкой строкой */
+  .reservations-toolbar .field {
+    margin: 0;
+    gap: var(--space-2);
     min-width: 0;
   }
-  .reservations-results .dir-table--reservations thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
+  .reservations-toolbar .inp {
+    font-size: var(--text-sm);
+  } /* Ручной период за кнопкой «Даты» (ТЗ §62): поля остаются в форме и свёрнутыми — GET уносит период */
+  .reservations-dates {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
   }
-  .reservations-results .dir-table--reservations tbody {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-4);
-    width: 100%;
+  .reservations-dates__fields {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
   }
+  .reservations-dates__fields[hidden] {
+    display: none;
+  }
+  /* общий PeriodPicker (MV8.5 DS1c) занимает всю строку раскрытых дат, раскладка прежняя */
+  .reservations-dates__fields > .period-picker {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .reservations-dates__fields .field--inline .inp {
+    width: 148px;
+  } /* Чипы — компактные (30 px): панель занимает две строки, таблица начинается в первом экране (§62) */
+  .reservations-reset {
+    margin-left: var(--space-2);
+    white-space: nowrap;
+  }
+  .reservations-controls .reservations-status-mobile {
+    display: none;
+  } /* Срез R2: ряд быстрых видов над панелью — те же чипы, что статусы; отбор видом, а не периодом */
+  .reservations-views {
+    margin-bottom: var(--space-1);
+  } /* Вторая строка формы — списки отбора и «Показать»; перенос явный, а не по ширине экрана */
+  .reservations-selects,
+  .reservations-selects__fields {
+    display: contents;
+  }
+  .reservations-selects__toggle {
+    display: none;
+  }
+  .reservations-selects__fields .inp {
+    width: auto;
+    max-width: 220px;
+    min-height: var(--control-h-sm);
+    font-size: var(--text-sm);
+  }
+  .reservations-results {
+    min-width: 0;
+  } /* R3: строка открывает быстрый просмотр щелчком по любой ячейке — курсор это обещает */
   .reservations-results .dir-table--reservations tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: start;
-    gap: var(--space-2) var(--space-4);
-    padding: var(--space-4);
+    cursor: pointer;
+  } /* Выборка словами слева, плотность строк справа — одна строка над таблицей */
+  .reservations-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-4);
+  }
+  .reservations-meta-row .directory-meta {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+  .reservations-density {
+    flex: none;
+  }
+  .reservations-results .table-scroll {
+    box-shadow: none;
+    border-radius: var(--radius-lg);
+  }
+  .reservations-results .dir-table td {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    vertical-align: top;
+  }
+  .reservations-results .dir-table th {
+    padding: var(--space-2) var(--space-4);
+    color: var(--muted);
+    font-weight: var(--weight-medium);
+  } /* «Компактно»: те же две строки в ячейке, теснее по вертикали (~44–48 px строка) */
+  .reservations-list[data-density='compact'] .dir-table td {
+    padding: var(--space-1) var(--space-4);
+  }
+  .reservations-list[data-density='compact'] .dir-guest {
+    min-height: 0;
+    padding: 0;
+  }
+  .reservations-results .dir-guest {
+    gap: var(--space-1);
+    font-size: var(--text-md);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .reservations-results .dir-guest strong {
+    font-weight: var(--weight-semibold);
+  }
+  .reservations-results .dir-guest:hover strong {
+    color: var(--primary);
+  }
+  .reservations-results .dir-number {
+    font-size: var(--text-xs);
+  }
+  .reservations-results .source-tag {
+    display: inline-block;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding: var(--space-1) var(--space-2);
+    border: 0;
+    border-radius: var(--radius-control);
+  }
+  .reservations-results .dir-unit {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: var(--text-sm);
+  } /* Проживание: даты строкой, ночи и вычисляемые пометки дня — строками под ними */
+  .reservations-stay-dates {
+    display: block;
+    white-space: nowrap;
+    color: var(--text);
+  }
+  .reservations-results .dir-stay small {
+    display: block;
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-xs);
+  }
+  .reservations-results .dir-stay small.reservations-flag {
+    color: var(--primary);
+    font-weight: var(--weight-medium);
+  } /* Размещение: «⚠ без ячейки» — слово DESIGN.md §9, своей строкой под «N размещений» у группы */
+  .reservations-results .reservations-unassigned {
+    display: block;
+    font-size: var(--text-xs);
+    white-space: nowrap;
+  }
+  .reservations-results .dir-unit + .reservations-unassigned {
+    margin-top: var(--space-1);
+  } /* Финансы: стоимость первой строкой, состояние по счетам — второй */
+  .reservations-results .reservations-total {
+    display: block;
+    color: var(--text);
+  } /* слово состояния — второй строкой под стоимостью; сама плашка остаётся inline-flex со своим зазором */
+  .reservations-results .reservations-fin {
+    margin-top: var(--space-1);
+    font-size: var(--text-xs);
+  }
+  .reservations-results span.reservations-fin:not(.amount-chip) {
+    display: inline-block;
+  }
+  .reservations-results .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .reservations-results .pagination {
+    margin-top: var(--space-4);
+  }
+  .reservations-results .empty-state {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    min-width: 0;
+  } /* Липкая шапка (§34): на широком экране шесть колонок помещаются без прокрутки вбок,
+   а шапка остаётся видимой под верхней панелью; фон непрозрачный (DESIGN.md §20.3).
+   Рамка и радиус переезжают с обёртки на таблицу: обёртке нужен overflow: visible,
+   а он перестаёт прятать прямые углы таблицы под скруглением обёртки. */
+  @media (min-width: 1201px) {
+    .reservations-results .table-scroll {
+      overflow: visible;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
+    .reservations-results .dir-table--reservations {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+    .reservations-results .dir-table--reservations thead th {
+      position: sticky;
+      top: var(--header-h);
+      z-index: var(--layer-sticky);
+      background: var(--surface-solid);
+    }
+    .reservations-results .dir-table--reservations thead th:first-child {
+      border-top-left-radius: var(--radius-lg);
+    }
+    .reservations-results .dir-table--reservations thead th:last-child {
+      border-top-right-radius: var(--radius-lg);
+    }
+    .reservations-results .dir-table--reservations tbody tr:last-child td:first-child {
+      border-bottom-left-radius: var(--radius-lg);
+    }
+    .reservations-results .dir-table--reservations tbody tr:last-child td:last-child {
+      border-bottom-right-radius: var(--radius-lg);
+    }
+  } /* Карточки на планшете сохраняют все шесть полей, без боковой прокрутки таблицы:
+   гость и статус → проживание → размещение и источник → финансы */
+  @media (max-width: 1200px) {
+    .reservations-meta-row .reservations-density {
+      display: none;
+    }
+    .reservations-results .table-scroll {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
+    .reservations-results .dir-table--reservations {
+      display: block;
+      background: transparent;
+      width: 100%;
+      min-width: 0;
+    }
+    .reservations-results .dir-table--reservations thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .reservations-results .dir-table--reservations tbody {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+      width: 100%;
+    }
+    .reservations-results .dir-table--reservations tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: var(--space-2) var(--space-4);
+      padding: var(--space-4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      min-width: 0;
+    }
+    .reservations-results .dir-table--reservations tbody td,
+    .tbl--nowrap.dir-table--reservations tbody td {
+      display: block;
+      min-width: 0;
+      border: 0;
+      padding: 0;
+      white-space: normal;
+    }
+    .reservations-results .dir-table--reservations tbody tr:hover {
+      background: var(--row-hover);
+    }
+    .reservations-results .dir-table--reservations tbody tr:hover td {
+      background: transparent;
+    }
+    .reservations-results .dir-table--reservations td:nth-child(1) {
+      grid-area: 1 / 1;
+    }
+    .reservations-results .dir-table--reservations td:nth-child(6) {
+      grid-area: 1 / 2;
+      justify-self: end;
+    }
+    .reservations-results .dir-table--reservations td:nth-child(2) {
+      grid-area: 2 / 1 / auto / -1;
+      padding-top: var(--space-2);
+    }
+    .reservations-results .dir-table--reservations td:nth-child(3) {
+      grid-area: 3 / 1;
+      align-self: center;
+    }
+    .reservations-results .dir-table--reservations td:nth-child(4) {
+      grid-area: 3 / 2;
+      justify-self: end;
+      text-align: right;
+    }
+    .reservations-results .dir-table--reservations td:nth-child(5) {
+      grid-area: 4 / 1 / auto / -1;
+      text-align: left;
+      align-self: center;
+    }
+    /* в карточке стоимость и состояние — одной строкой, а не столбиком */
+    .reservations-results .dir-table--reservations td:nth-child(5) .reservations-total {
+      display: inline-block;
+      margin-right: var(--space-2);
+    }
+    .reservations-results .dir-table--reservations td:nth-child(5) .reservations-fin {
+      margin-top: 0;
+    }
   }
-  .reservations-results .dir-table--reservations tbody td,
-  .tbl--nowrap.dir-table--reservations tbody td {
-    display: block;
-    min-width: 0;
-    border: 0;
-    padding: 0;
-    white-space: normal;
+  @media (max-width: 760px) {
+    .reservations-results .dir-table--reservations tbody {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
-  .reservations-results .dir-table--reservations tbody tr:hover {
-    background: var(--row-hover);
+  @media (max-width: 600px) {
+    /* 17 px, иначе iOS зумит страницу при фокусе поиска и выбора статуса и не возвращает (DESIGN.md) */
+    .reservations-toolbar .inp {
+      font-size: var(--text-lg);
+    }
+    .page:has(> .reservations-controls) > .page__head {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+    }
+    .page:has(> .reservations-controls) > .page__head .page__actions {
+      width: auto;
+    }
+    .reservations-controls {
+      padding: var(--space-2);
+      margin-bottom: var(--space-4);
+    }
+    .reservations-dates {
+      flex-wrap: wrap;
+      flex-basis: 100%;
+    }
+    .reservations-dates__fields {
+      flex-basis: 100%;
+      flex-wrap: wrap;
+    }
+    .reservations-dates__fields .field--inline {
+      flex: 1 1 40%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-1);
+    }
+    .reservations-dates__fields .field--inline .inp {
+      width: 100%;
+      min-height: var(--touch-target);
+    }
+    .reservations-controls .reservations-status-mobile {
+      display: flex;
+      flex: 1 1 40%;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    /* Виды — одной строкой с прокруткой вбок: страница вбок не едет, таблица остаётся в первом экране */
+    .reservations-controls .reservations-views {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    /* Свёрнутые «Даты» делят строку со статусом: раскрытые — во всю ширину, как в R1 */
+    .reservations-dates[data-open='false'] {
+      flex: 1 1 40%;
+      align-self: end;
+    }
+    .reservations-dates[data-open='false'] .reservations-dates__toggle {
+      width: 100%;
+    }
+    .reservations-selects__toggle {
+      display: inline-flex;
+      flex: 1 1 40%;
+      align-self: end;
+      min-height: var(--touch-target);
+    }
+    .reservations-selects[data-open='true'] .reservations-selects__fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      flex-basis: 100%;
+      gap: var(--space-2);
+    }
+    .reservations-selects[data-open='false'] .reservations-selects__fields {
+      display: none;
+    }
+    .reservations-selects__fields .inp {
+      width: 100%;
+      max-width: none;
+      min-height: var(--touch-target);
+    }
+    /* Телефон: ряды чипов убраны, как и было. Период и статус задают «Даты» и выпадающий список,
+     первая строка списка остаётся видимой без прокрутки (reservations-design.spec, 450 px). */
+    .reservations-presets {
+      display: none;
+    }
+    .reservations-results .dir-guest {
+      min-height: var(--touch-target);
+    }
+    .reservations-results .dir-table--reservations tbody tr {
+      gap: var(--space-2);
+    }
+  } /* Единая компактная панель: дополнительные условия раскрываются на любом экране. */
+  .page:has(> .reservations-controls) {
+    padding: var(--space-4);
   }
-  .reservations-results .dir-table--reservations tbody tr:hover td {
-    background: transparent;
-  }
-  .reservations-results .dir-table--reservations td:nth-child(1) {
-    grid-area: 1 / 1;
-  }
-  .reservations-results .dir-table--reservations td:nth-child(6) {
-    grid-area: 1 / 2;
-    justify-self: end;
-  }
-  .reservations-results .dir-table--reservations td:nth-child(2) {
-    grid-area: 2 / 1 / auto / -1;
-    padding-top: var(--space-2);
-  }
-  .reservations-results .dir-table--reservations td:nth-child(3) {
-    grid-area: 3 / 1;
-    align-self: center;
-  }
-  .reservations-results .dir-table--reservations td:nth-child(4) {
-    grid-area: 3 / 2;
-    justify-self: end;
-    text-align: right;
-  }
-  .reservations-results .dir-table--reservations td:nth-child(5) {
-    grid-area: 4 / 1 / auto / -1;
-    text-align: left;
-    align-self: center;
-  }
-  /* в карточке стоимость и состояние — одной строкой, а не столбиком */
-  .reservations-results .dir-table--reservations td:nth-child(5) .reservations-total {
-    display: inline-block;
-    margin-right: var(--space-2);
-  }
-  .reservations-results .dir-table--reservations td:nth-child(5) .reservations-fin {
-    margin-top: 0;
-  }
-}
-@media (max-width: 760px) {
-  .reservations-results .dir-table--reservations tbody {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (max-width: 600px) {
-  /* 17 px, иначе iOS зумит страницу при фокусе поиска и выбора статуса и не возвращает (DESIGN.md) */
-  .reservations-toolbar .inp {
-    font-size: var(--text-lg);
-  }
-  .page:has(> .reservations-controls) > .page__head {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-4);
-  }
-  .page:has(> .reservations-controls) > .page__head .page__actions {
-    width: auto;
+  .page:has(> .reservations-controls) .page__title {
+    font-size: var(--text-2xl);
   }
   .reservations-controls {
-    padding: var(--space-2);
-    margin-bottom: var(--space-4);
+    padding: var(--space-4);
+    border: 0;
+    box-shadow: none;
+    background: var(--surface);
   }
-  .reservations-toolbar .search-field {
-    flex-basis: 100%;
-  }
-  .reservations-dates {
-    flex-wrap: wrap;
-    flex-basis: 100%;
-  }
-  .reservations-dates__fields {
-    flex-basis: 100%;
-    flex-wrap: wrap;
-  }
-  .reservations-dates__fields .field--inline {
-    flex: 1 1 40%;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-1);
-  }
-  .reservations-dates__fields .field--inline .inp {
-    width: 100%;
-    min-height: var(--touch-target);
-  }
-  .reservations-controls .reservations-status-mobile {
-    display: flex;
-    flex: 1 1 40%;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-  .reservations-toolbar > .btn {
-    flex: 1 1 auto;
-    align-self: end;
-    min-height: var(--touch-target);
-  }
-  /* Виды — одной строкой с прокруткой вбок: страница вбок не едет, таблица остаётся в первом экране */
   .reservations-controls .reservations-views {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .reservations-views a {
-    flex: 0 0 auto;
-  }
-  /* Чипы видов и статусов — цели не ниже 44 px (DESIGN.md, правка 19.09): базовые 30 px — для desktop */
-  .reservations-controls .directory-filters a {
-    min-height: var(--touch-target);
-  }
-  .reservations-break {
-    display: none;
-  }
-  /* Свёрнутые «Даты» делят строку со статусом: раскрытые — во всю ширину, как в R1 */
-  .reservations-dates[data-open='false'] {
-    flex: 1 1 40%;
-    align-self: end;
-  }
-  .reservations-dates[data-open='false'] .reservations-dates__toggle {
-    width: 100%;
+    margin-bottom: var(--space-4);
   }
   .reservations-selects__toggle {
     display: inline-flex;
-    flex: 1 1 40%;
-    align-self: end;
-    min-height: var(--touch-target);
-  }
-  .reservations-selects[data-open='true'] .reservations-selects__fields {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    flex-basis: 100%;
-    gap: var(--space-2);
   }
   .reservations-selects[data-open='false'] .reservations-selects__fields {
     display: none;
   }
+  .reservations-selects[data-open='true'] .reservations-selects__fields {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    flex: 1 1 100%;
+    gap: var(--space-2);
+    padding-top: var(--space-2);
+  }
   .reservations-selects__fields .inp {
     width: 100%;
     max-width: none;
-    min-height: var(--touch-target);
   }
-  /* Телефон: ряды чипов убраны, как и было. Период и статус задают «Даты» и выпадающий список,
-     первая строка списка остаётся видимой без прокрутки (reservations-design.spec, 450 px). */
-  .reservations-presets,
-  .reservations-statuses {
-    display: none;
-  }
-  .reservations-results .dir-guest {
-    min-height: var(--touch-target);
-  }
-  .reservations-results .dir-table--reservations tbody tr {
-    gap: var(--space-2);
-  }
-}
-
-/* Единая компактная панель: дополнительные условия раскрываются на любом экране. */
-.page:has(> .reservations-controls) {
-  padding: var(--space-4);
-}
-.page:has(> .reservations-controls) .page__title {
-  font-size: var(--text-2xl);
-}
-.reservations-controls {
-  padding: var(--space-4);
-  border: 0;
-  box-shadow: none;
-  background: var(--surface);
-}
-.reservations-controls .reservations-views {
-  margin-bottom: var(--space-4);
-}
-.reservations-break {
-  display: none;
-}
-.reservations-selects__toggle {
-  display: inline-flex;
-}
-.reservations-selects[data-open='false'] .reservations-selects__fields {
-  display: none;
-}
-.reservations-selects[data-open='true'] .reservations-selects__fields {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  flex: 1 1 100%;
-  order: 2;
-  gap: var(--space-2);
-  padding-top: var(--space-2);
-}
-.reservations-selects__fields .inp {
-  width: 100%;
-  max-width: none;
-}
-.reservations-controls .reservations-status-mobile {
-  display: flex;
-}
-.reservations-status-mobile > .field__label {
-  font-size: var(--text-xs);
-}
-.reservations-dates[data-open='true'] {
-  flex: 1 1 100%;
-  flex-wrap: wrap;
-  order: 1;
-}
-.reservations-dates__fields {
-  flex-wrap: wrap;
-}
-.reservations-dates .reservations-presets {
-  display: flex;
-  flex-basis: 100%;
-}
-.reservations-results .tbl-wrap {
-  border: 0;
-  box-shadow: none;
-}
-.reservations-results .dir-table--reservations td {
-  border-bottom-color: var(--border-soft);
-}
-.reservations-density button {
-  border: 0;
-}
-.reservations-meta-row {
-  margin: var(--space-4) 0;
-}
-.reservations-results .empty-state {
-  padding: var(--space-8) var(--space-4);
-  border: 0;
-  box-shadow: none;
-  min-height: 0;
-}
-.reservations-results .empty-state > svg {
-  width: var(--space-8);
-  height: var(--space-8);
-}
-.reservations-results .empty-state p {
-  font-size: var(--text-sm);
-  margin: var(--space-2) 0 var(--space-4);
-}
-@media (min-width: 601px) {
   .reservations-controls .reservations-status-mobile {
-    flex-direction: row;
-    align-items: center;
+    display: flex;
   }
-}
-@media (max-width: 800px) {
-  .reservations-selects[data-open='true'] .reservations-selects__fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .reservations-dates[data-open='true'] {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  } /* Раскрытый отбор или период занимает слот полосы на всю строку: порядок в разметке не меняется (DS1b) */
+  .reservations-toolbar .toolbar__filters:has(.reservations-selects[data-open='true']),
+  .reservations-toolbar .toolbar__period:has(.reservations-dates[data-open='true']) {
+    flex: 1 1 100%;
   }
-}
-@media (max-width: 600px) {
-  .page:has(> .reservations-controls) {
-    padding: var(--space-2) var(--space-2) calc(96px + env(safe-area-inset-bottom));
+  .reservations-dates__fields {
+    flex-wrap: wrap;
   }
-  .reservations-controls {
-    padding: var(--space-2);
+  .reservations-dates .reservations-presets {
+    display: flex;
+    flex-basis: 100%;
   }
-}
-
-/* H11: файл для Excel на телефоне не нужен, а кнопка в отдельной строке опускает таблицу ниже первого экрана */
-@media (max-width: 600px) {
-  .reservations-export {
-    display: none;
+  .reservations-results .tbl-wrap {
+    border: 0;
+    box-shadow: none;
   }
+  .reservations-results .dir-table--reservations td {
+    border-bottom-color: var(--border-soft);
+  }
+  .reservations-meta-row {
+    margin: var(--space-4) 0;
+  }
+  .reservations-results .empty-state {
+    padding: var(--space-8) var(--space-4);
+    border: 0;
+    box-shadow: none;
+    min-height: 0;
+  }
+  .reservations-results .empty-state > svg {
+    width: var(--space-8);
+    height: var(--space-8);
+  }
+  .reservations-results .empty-state p {
+    font-size: var(--text-sm);
+    margin: var(--space-2) 0 var(--space-4);
+  }
+  @media (min-width: 601px) {
+    .reservations-controls .reservations-status-mobile {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+  @media (max-width: 800px) {
+    .reservations-selects[data-open='true'] .reservations-selects__fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .page:has(> .reservations-controls) {
+      padding: var(--space-2) var(--space-2) calc(96px + env(safe-area-inset-bottom));
+    }
+    .reservations-controls {
+      padding: var(--space-2);
+    }
+    .reservations-export {
+      display: none;
+    }
+  } /* H11: файл для Excel на телефоне не нужен, а кнопка в отдельной строке опускает таблицу ниже первого экрана */
 }

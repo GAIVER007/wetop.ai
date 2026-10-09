@@ -25,7 +25,7 @@ test('выбранный статус броней доступен с клав�
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/status=CONFIRMED/);
   await expect(statuses).toHaveValue('CONFIRMED');
-  await expect(page.getByTestId('directory-meta')).toContainText('Подтверждены');
+  await expect(page.getByTestId('directory-meta')).toContainText('Подтверждённые');
 });
 
 test('мобильный статус и поиск сохраняются в URL, карточка открывается из списка', async ({
@@ -79,7 +79,9 @@ for (const theme of ['light', 'dark'] as const) {
         await table.locator('..').evaluate((el) => el.scrollWidth - el.clientWidth),
       ).toBeLessThanOrEqual(1);
       if (width <= 390) {
-        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(450);
+        // 450 был замером до вкладок раздела «Брони | Гости» (09.10.2026): ряд с целями касания
+        // 44 px и отступом прибавил ~60 px хрома, замер после него 509, бюджет 515
+        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(515);
         const dates = page.getByRole('button', { name: 'Даты', exact: true });
         for (const control of [
           page.getByLabel('Статус брони', { exact: true }),

@@ -96,6 +96,15 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'marketing_site_versions',
   // MKT6: задачи генерации ИИ, через свой сайт (DATA_MODEL §29.7, миграция 20261007000062_generation_run_core)
   'generation_runs',
+  // MKT7: журнал публикаций и домены сайта, через свой сайт (DATA_MODEL §29.4, §29.6, миграция …064)
+  'marketing_site_publications',
+  'site_domains',
+  // MKT8: библиотека изображений сайта, через Location → Business (DATA_MODEL §29.5, миграция …066)
+  'site_assets',
+  // MKT9.2: лицензия конструктора (через Location → Business), разговор ИИ и закладки (через свой сайт), миграция …068
+  'site_builder_entitlements',
+  'site_ai_runs',
+  'marketing_site_version_bookmarks',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

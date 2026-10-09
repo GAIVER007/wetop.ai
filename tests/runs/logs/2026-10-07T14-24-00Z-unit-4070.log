@@ -1,0 +1,29 @@
+# Модульные (unit) · 07.10.2026 19:24 Алматы · MacBook-Air-Urij.local
+# коммит 0c33362 (codex/mv9-acceptance-20261007)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-24-00Z-unit-4070.json' 'apps/api/src/channels/inbound.controller.test.ts' 'apps/api/src/web-booking/web-booking.controller.test.ts' '--pool=threads' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv9-acceptance-20261007
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 759ms
+[Nest] 36651  - 10/07/2026, 6:24:06 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 36651  - 10/07/2026, 6:24:06 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 36651  - 10/07/2026, 6:24:06 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 36651  - 10/07/2026, 6:24:06 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 36651  - 10/07/2026, 6:24:06 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 36651  - 10/07/2026, 6:24:06 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 288ms
+
+ Test Files  2 passed (2)
+      Tests  65 passed (65)
+   Start at  18:24:02
+   Duration  4.14s (import 37%, transform 36%, tests 27%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-24-00Z-unit-4070.json
+
+# код выхода 0 · 6 с

@@ -1,12 +1,16 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ActionMenu, type ActionMenuItem } from '../../components/action-menu';
 import { Button } from '../../components/ui';
-import { Icon } from '../../components/icon';
+import { Icon, type IconName } from '../../components/icon';
+import { messengerLinks } from '../../lib/format';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import { stayPreviewAction, type StayPreviewData } from './actions';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusLabel } from '../../lib/status/types';
 
 /** Что предпросмотр знает из клетки сетки ещё до ответа сервера */
 export interface PreviewTarget {
@@ -19,18 +23,14 @@ export interface PreviewTarget {
   categoryName: string;
   housekeeping?: string | undefined;
   sourceName: string | null;
+  /** телефон гостя с плашки: кнопки «Позвонить» и «WhatsApp» правой панели */
+  phone?: string | null | undefined;
   arrivalToday: boolean;
   departureToday: boolean;
   anchor: HTMLElement;
 }
-export type PreviewCommand = 'check-in' | 'check-out' | 'extend';
+export type PreviewCommand = 'check-in' | 'check-out' | 'extend' | 'cancel';
 
-const STATUS_WORD: Record<string, string> = {
-  TENTATIVE: 'Не подтверждена',
-  CONFIRMED: 'Подтверждена',
-  CHECKED_IN: 'Заселён',
-  CHECKED_OUT: 'Выселен',
-};
 const EXPECTED = new Set(['TENTATIVE', 'CONFIRMED']);
 const GAP = 6;
 const EDGE = 8;
@@ -45,7 +45,276 @@ const EDGE = 8;
  * fixed` внутри неё считался бы от неё, а не от окна (TESTING.md §4, 21.09). Закрывается Escape
  * (фокус возвращается на плашку), щелчком мимо, прокруткой сетки и сменой размера окна.
  */
-export function StayPreview({
+export function StayPreview(props: {
+  target: PreviewTarget;
+  readOnly: boolean;
+  /** панель справа от сетки вместо окна у плашки (широкий экран) */
+  docked?: boolean;
+  onClose: (restoreFocus: boolean) => void;
+  onCommand: (command: PreviewCommand, target: PreviewTarget) => void;
+}) {
+  return props.docked ? <StayPanel {...props} /> : <StayWindow {...props} />;
+}
+
+/** Данные предпросмотра по выбранной брони: грузятся при выборе, не для каждой плашки */
+function useStayData(target: PreviewTarget) {
+  const [data, setData] = useState<StayPreviewData | null | undefined>(undefined);
+  useEffect(() => {
+    let alive = true;
+    setData(undefined);
+    void stayPreviewAction(target.number, target.itemId).then((d) => {
+      if (alive) setData(d);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [target.number, target.itemId]);
+  return data;
+}
+
+const PANEL_STATUS_ICON: Record<string, IconName> = {
+  CONFIRMED: 'booking',
+  CHECKED_IN: 'guests',
+  CHECKED_OUT: 'departure',
+  TENTATIVE: 'help',
+};
+
+/**
+ * Правая панель брони (образец владельца 09.10.2026): статус, гость, номер брони, кнопки связи, факты с
+ * значками (заезд, выезд, номер, гости, оплачено, источник, заметки) и действия по статусу. Стоит рядом
+ * с сеткой и не закрывается щелчком мимо: её закрывают крестик, Escape или выбор другой брони. Команды
+ * те же, что в окне у плашки и в карточке брони; своих правил нет.
+ */
+function StayPanel({
+  target,
+  readOnly,
+  onClose,
+  onCommand,
+}: {
+  target: PreviewTarget;
+  readOnly: boolean;
+  onClose: (restoreFocus: boolean) => void;
+  onCommand: (command: PreviewCommand, target: PreviewTarget) => void;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const data = useStayData(target);
+  useEffect(() => {
+    ref.current?.focus({ preventScroll: true });
+  }, []);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      // Escape, который уже закрыл меню «…», панель не закрывает
+      if (event.key === 'Escape' && !event.defaultPrevented) {
+        event.preventDefault();
+        onClose(true);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  // Щелчок мимо закрывает панель, как закрывало прежнее окно: она показывает одну бронь, а не висит всегда.
+  // Плашка переключает панель сама, окна и меню поверх страницы щелчком мимо не считаются.
+  useEffect(() => {
+    const onDown = (event: PointerEvent) => {
+      const hit = event.target instanceof Element ? event.target : null;
+      if (!hit || hit === document.documentElement || ref.current?.contains(hit)) return;
+      if (
+        hit.closest(
+          '[data-testid="stay-cell"], dialog, [role="dialog"], [role="alertdialog"], [role="menu"], [popover]',
+        )
+      )
+        return;
+      onClose(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [onClose]);
+
+  const card = `/reservations/${encodeURIComponent(target.number)}`;
+  const expected = EXPECTED.has(target.status);
+  const live = expected || target.status === 'CHECKED_IN';
+  const balance = data?.money ? BigInt(data.money.balanceMinor) : 0n;
+  const money = (minor: string) => formatMoney(minor, data?.currency);
+  const unready =
+    expected && target.housekeeping !== undefined && target.housekeeping !== 'INSPECTED';
+  const today = target.arrivalToday
+    ? 'заезд сегодня'
+    : target.departureToday
+      ? 'выезд сегодня'
+      : '';
+  const places = target.unitKind === 'BED' ? 'Койка' : 'Номер';
+  // Меню «…» по образцу владельца: остальные переходы в карточку брони, гостя и счёт
+  const moreItems: ActionMenuItem[] = [
+    ...(!readOnly && live ? [{ label: 'Принять оплату', href: `${card}#booking-finance` }] : []),
+    ...(target.status === 'CHECKED_OUT' ? [{ label: 'Счёт', href: `${card}#booking-finance` }] : []),
+    ...(!readOnly && live ? [{ label: 'Изменить даты', href: `${card}#booking-actions` }] : []),
+    ...(data?.guestHref ? [{ label: 'Открыть гостя', href: data.guestHref }] : []),
+    { label: 'Открыть бронь', href: card },
+  ];
+  const nights = data ? nightsBetween(data.arrivalDate, data.departureDate) : 0;
+  const messenger = messengerLinks(target.phone);
+  const guests = data
+    ? [
+        data.adults > 0 ? pluralRu(data.adults, ['взрослый', 'взрослых', 'взрослых']) : '',
+        data.children > 0 ? pluralRu(data.children, ['ребёнок', 'ребёнка', 'детей']) : '',
+      ]
+        .filter(Boolean)
+        .join(', ')
+    : '';
+  const row = (icon: IconName, label: string, children: React.ReactNode, testId?: string) => (
+    <div className="stay-panel__row" data-testid={testId}>
+      <span className="stay-panel__icon" aria-hidden="true">
+        <Icon name={icon} />
+      </span>
+      <dt>{label}</dt>
+      <dd>{children}</dd>
+    </div>
+  );
+  return (
+    <aside
+      ref={ref}
+      role="dialog"
+      aria-label={`Бронь: ${target.guest}`}
+      tabIndex={-1}
+      className="stay-panel"
+      data-testid="stay-preview"
+    >
+      <div className="stay-panel__top">
+        <span className="stay-panel__status" data-status={target.status}>
+          <Icon name={PANEL_STATUS_ICON[target.status] ?? 'booking'} width={14} height={14} />
+          {statusLabel(hospitalityStatus, target.status)}
+          {today && `, ${today}`}
+        </span>
+        <button
+          type="button"
+          className="icon-button stay-panel__close"
+          aria-label="Закрыть предпросмотр"
+          onClick={() => onClose(true)}
+        >
+          <Icon name="close" />
+        </button>
+      </div>
+      <h2 className="stay-panel__guest" data-testid="preview-guest">
+        {target.guest}
+      </h2>
+      <p className="stay-panel__number">Бронь №{target.number}</p>
+      <div className="stay-panel__contacts">
+        {target.phone && (
+          <a
+            className="stay-panel__round"
+            href={`tel:${target.phone.replace(/[^\d+]/g, '')}`}
+            aria-label="Позвонить гостю"
+            title="Позвонить гостю"
+          >
+            <Icon name="phone" />
+          </a>
+        )}
+        {messenger && (
+          <a
+            className="stay-panel__round"
+            href={messenger.whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Написать гостю в WhatsApp"
+            title="Написать гостю в WhatsApp"
+          >
+            <Icon name="chat" />
+          </a>
+        )}
+        <ActionMenu className="stay-panel__more" label="Подробнее о брони" items={moreItems} />
+      </div>
+      <dl className="stay-panel__facts">
+        <div data-testid="preview-dates" className="stay-panel__group">
+          {row(
+            'arrival',
+            'Заезд',
+            data === undefined ? 'Загружаю…' : data ? displayDate(data.arrivalDate, 'full') : 'в карточке брони',
+          )}
+          {row(
+            'departure',
+            'Выезд',
+            data === undefined ? (
+              'Загружаю…'
+            ) : data ? (
+              <>
+                {displayDate(data.departureDate, 'full')}
+                <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>
+              </>
+            ) : (
+              'в карточке брони'
+            ),
+          )}
+        </div>
+        {row(
+          'bed',
+          places,
+          `${target.unitCode} (${target.categoryName})`,
+          'preview-place',
+        )}
+        {data && guests && row('guests', 'Гости', guests)}
+        <div data-testid="preview-sums" aria-live="polite" className="stay-panel__group">
+          {data === undefined ? (
+            row('money', 'Оплачено', 'Загружаю…')
+          ) : data?.money ? (
+            row(
+              'money',
+              'Оплачено',
+              <>
+                {money(data.money.paidMinor)}
+                <span className="stay-panel__pill" data-tone={balance > 0n ? 'due' : 'paid'}>
+                  {balance > 0n
+                    ? `Долг ${money(balance.toString())}`
+                    : balance < 0n
+                      ? `К возврату ${money((-balance).toString())}`
+                      : 'Оплачен'}
+                </span>
+                <small>Итого {money(data.money.chargedMinor)}</small>
+              </>,
+            )
+          ) : (
+            row('money', 'Суммы', 'не загрузились, откройте бронь')
+          )}
+        </div>
+        {target.sourceName && row('channels', 'Источник', target.sourceName)}
+        {data?.notes && row('journal', 'Заметки', data.notes)}
+      </dl>
+      {unready && (
+        <p className="stay-panel__warn" data-testid="preview-unready">
+          {places} не проверен после уборки
+        </p>
+      )}
+      <div className="stay-panel__actions">
+        {!readOnly && expected && (
+          <Button type="button" className="stay-panel__primary" onClick={() => onCommand('check-in', target)}>
+            Заселить
+          </Button>
+        )}
+        {!readOnly && target.status === 'CHECKED_IN' && (
+          <Button type="button" className="stay-panel__primary" onClick={() => onCommand('check-out', target)}>
+            Выселить
+          </Button>
+        )}
+        {!readOnly && live && (
+          <div className="stay-panel__pair">
+            <Button type="button" tone="secondary" onClick={() => onCommand('extend', target)}>
+              <Icon name="clock" /> Продлить
+            </Button>
+            <Link className="btn btn--secondary" href={`${card}#booking-actions`}>
+              <Icon name="refresh" /> Переселить
+            </Link>
+          </div>
+        )}
+        {!readOnly && live && (
+          <Button type="button" tone="danger" className="stay-panel__cancel" onClick={() => onCommand('cancel', target)}>
+            <Icon name="close" /> Отменить бронь
+          </Button>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+function StayWindow({
   target,
   readOnly,
   onClose,
@@ -59,18 +328,7 @@ export function StayPreview({
   const ref = useRef<HTMLDivElement>(null);
   // где стояла плашка, когда окно встало на место: закрываемся по её сдвигу, а не по факту scroll
   const placed = useRef<{ top: number; left: number } | null>(null);
-  const [data, setData] = useState<StayPreviewData | null | undefined>(undefined);
-
-  useEffect(() => {
-    let alive = true;
-    setData(undefined);
-    void stayPreviewAction(target.number, target.itemId).then((d) => {
-      if (alive) setData(d);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [target.number, target.itemId]);
+  const data = useStayData(target);
 
   // Место окна: под плашкой, а если снизу не хватает — над ней; по ширине не выходит за край окна
   useLayoutEffect(() => {
@@ -163,7 +421,7 @@ export function StayPreview({
         </button>
       </div>
       <p className="stay-preview__status">
-        {STATUS_WORD[target.status] ?? target.status}
+        {statusLabel(hospitalityStatus, target.status)}
         {today && `, ${today}`}
       </p>
       <dl className="stay-preview__facts">

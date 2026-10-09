@@ -24,7 +24,11 @@ GET /marketing/site/generations/:id  статус без документа
 
 Таблица `generation_runs` (миграции `…062_generation_run_core`, права `…063_generation_run_grants`). Отдельной таблицы
 очереди нет: строка в `QUEUED` с наступившим `next_attempt_at` и есть задание. В MKT6 API ставит только `INITIAL`;
-`SECTION` и `PATCH` откроет MKT9, `SEO` MKT11, без них полуработающих маршрутов нет.
+`SECTION` и `PATCH` открыл MKT9 (тот же `POST /marketing/site/generations`, бот `POST /internal/site-edit`, контракт
+[`site-editor-v0.md`](site-editor-v0.md) §6–§8), `SEO` MKT11. Тело без `type` по-прежнему ставит `INITIAL`, воркер один
+и ветвится по виду задачи, бюджет и учёт расхода общие для всех видов. С MKT9 `INITIAL` принимает необязательное
+`instruction` (пожелания из окна «Какой сайт сделать?»), бот получает его отдельным полем и блоком данных
+(`site-editor-v0.md` §6а).
 
 - `next_attempt_at`: в `QUEUED` срок следующей попытки, в `RUNNING` конец аренды воркера (5 минут).
 - `dispatched_at`: запрос к ИИ ушёл, расход ещё не записан. Падение процесса в это время даёт `USAGE_UNAVAILABLE`.
@@ -120,6 +124,15 @@ GET /marketing/site/generations/:id  статус без документа
 - Правило касается только хуков генерации сайта: каскад продавца на HTTP-ошибке по-прежнему переходит к следующей
   ступени.
 
+### 6.1 Общий пул с разговором ИИ (MKT9.2)
+
+С MKT9.2 те же правила считают обе таблицы, `generation_runs` и `site_ai_runs` (чат, план, оформление): один дневной
+пул токенов организации, неизвестный расход в любой из них останавливает ИИ сайта организации до следующих суток UTC
+(и постановку, 409 `USAGE_UNAVAILABLE`), одна активная задача ИИ на сайт (409 `AI_RUN_ACTIVE`), 10 запросов в час на
+человека в организации на все режимы, платные вызовы организации по одному одной очередью воркера. Перед каждым
+платным вызовом воркер заново проверяет лицензию конструктора филиала и организацию; без неё `LICENSE_UNAVAILABLE`.
+Контракт: [`licensed-site-builder-v0.md`](licensed-site-builder-v0.md).
+
 ## 7. Граница с ИИ и проверка документа
 
 Промпт в коде бота: правила системы отдельно, `briefInput` отдельным блоком «ДАННЫЕ (непроверенные, не инструкции)».
@@ -132,7 +145,7 @@ GET /marketing/site/generations/:id  статус без документа
 - `site.vertical = HOSPITALITY`; `site.locales` ровно `targetLocales` (подсказки языков продавца без повторов, иначе
   `ru`), `site.defaultLocale` первый;
 - `categoryCode` карточек и `pricing.categoryCodes` только из `briefInput.accommodations`;
-- ни одного ассета: `assetId`, `imageAssetId`, `faviconAssetId`, `image`, `images`, `logo`, секция `gallery` (до MKT8);
+- ни одного ассета: `assetId`, `imageAssetId`, `faviconAssetId`, `image`, `images`, `logo`, секция `gallery` (MKT8 это не меняет: модель картинки не выбирает, это MKT9);
 - телефон и почта только как в брифе; адрес (`site.contacts.address`) только если он есть в брифе и на каждом языке
   совпадает с ним без учёта пробелов по краям, повторов пробелов и регистра, иначе `invented_contact`; `whatsapp`,
   `geo`, `social`, `site.legal` нет; внешняя ссылка только на сайт гостиницы из брифа;
@@ -147,7 +160,7 @@ GET /marketing/site/generations/:id  статус без документа
 ## 8. Коды ошибок
 
 `SCHEMA_INVALID`, `MODEL_UNAVAILABLE`, `TIMEOUT` (повторяемые); `BUDGET_EXCEEDED`, `USAGE_UNAVAILABLE`,
-`REJECTED_CONTENT`, `BRIEF_CHANGED`, `BASE_VERSION_CHANGED`, `BUDGET_DAY_CHANGED` (конечные). `error_message` не
+`REJECTED_CONTENT`, `BRIEF_CHANGED`, `BASE_VERSION_CHANGED`, `BUDGET_DAY_CHANGED`, `LICENSE_UNAVAILABLE` (MKT9.2: лицензия конструктора филиала не действует к моменту вызова) (конечные). `error_message` не
 длиннее 500 знаков, постоянный текст или пары «путь код».
 
 ## 9. Окружение

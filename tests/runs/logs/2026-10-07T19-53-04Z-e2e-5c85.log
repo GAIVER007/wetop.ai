@@ -1,0 +1,84 @@
+# Сквозные (e2e) · 08.10.2026 00:53 Алматы · vm
+# коммит 5423299 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '--workers=1' '-g' 'открыть голову|ИИ одного блока'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами (18.8s)
+  ✘  2 tests/ui/site-editor.spec.ts:265:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна (45.2s)
+
+
+  1) tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('main').visible().getByRole('tab', { name: 'Блоки', exact: true })
+    Expected: "true"
+    Received: "false"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').visible().getByRole('tab', { name: 'Блоки', exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('tab', { name: 'Блоки', exact: true })
+        33 × locator resolved to <button role="tab" type="button" class="ed-tab" id="ed-tab-blocks" aria-selected="false" aria-controls="ed-pane-blocks">Блоки</button>
+           - unexpected value "false"
+
+
+      47 |   await expect(frame(page).locator('#sec-hero')).toContainText('Версия 2');
+      48 |   await pick(page, 'sec-hero');
+    > 49 |   await expect(tab(page, 'Блоки')).toHaveAttribute('aria-selected', 'true');
+         |                                    ^
+      50 |   await expect(heroHeading(page)).toHaveValue('Версия 2');
+      51 |   await expect(frame(page).locator('#sec-hero')).toHaveAttribute('data-ed-selected', '');
+      52 |   // JSON-редактора нет: только поля форм
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:49:36
+
+    Error Context: test-results/site-editor-открыть-голову-b87d0-ь-история-и-разница-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-открыть-голову-b87d0-ь-история-и-разница-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-открыть-голову-b87d0-ь-история-и-разница-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/site-editor.spec.ts:265:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByTestId('ed-ai-section')
+
+
+      267 |   const m = main(page);
+      268 |   await pick(page, 'sec-about');
+    > 269 |   await m.getByTestId('ed-ai-section').click();
+          |                                        ^
+      270 |   await expect(tab(page, 'ИИ')).toHaveAttribute('aria-selected', 'true');
+      271 |   const ai = m.getByTestId('ed-ai');
+      272 |   await expect(ai.getByTestId('ed-ai-target')).toContainText('Блок «О гостинице: О нас»');
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:269:40
+
+    Error Context: test-results/site-editor-ИИ-одного-блок-72a3e-блока-команда-необязательна/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-ИИ-одного-блок-72a3e-блока-команда-необязательна/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-ИИ-одного-блок-72a3e-блока-команда-необязательна/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами 
+    tests/ui/site-editor.spec.ts:265:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна 
+
+# код выхода 1 · 1 мин 22 с

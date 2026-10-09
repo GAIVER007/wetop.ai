@@ -2,7 +2,9 @@
  * СГЕНЕРИРОВАНО из design/tokens.json командой `npm run design:tokens` — руками не править.
  * Правила и смысл каждого токена — DESIGN.md. Тест scripts/design/build-tokens.test.ts
  * сверяет этот файл с генератором: ручная правка делает его красным.
+ * Слой `tokens` (DESIGN.md §20.6): порядок слоёв объявлен первым в globals.css.
  */
+@layer tokens {
 :root, [data-theme='light'] {
   color-scheme: light;
   --bg: #e9f0f8;
@@ -28,7 +30,7 @@
   --muted: #596a80;
   --muted-2: #596a80;
   --primary: #085fba;
-  --primary-hover: #0966c8;
+  --primary-hover: #064a92;
   --primary-soft: #eaf4ff;
   --on-primary: #ffffff;
   --success: #06735e;
@@ -77,6 +79,12 @@
   --target-min: 24px;
   --icon-size: 20px;
   --icon-size-sm: 16px;
+  --overlay-w-sm: 400px;
+  --overlay-w-md: 560px;
+  --overlay-w-lg: 760px;
+  --drawer-w-sm: 400px;
+  --drawer-w-md: 480px;
+  --drawer-w-lg: 760px;
   --space-1: 4px;
   --space-2: 8px;
   --space-4: 16px;
@@ -269,6 +277,12 @@
   --target-min: 24px;
   --icon-size: 20px;
   --icon-size-sm: 16px;
+  --overlay-w-sm: 400px;
+  --overlay-w-md: 560px;
+  --overlay-w-lg: 760px;
+  --drawer-w-sm: 400px;
+  --drawer-w-md: 480px;
+  --drawer-w-lg: 760px;
   --space-1: 4px;
   --space-2: 8px;
   --space-4: 16px;
@@ -349,4 +363,5 @@
     --axis-line: #e5eaf2;
     --focus: #085fba;
   }
+}
 }

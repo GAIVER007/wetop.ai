@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 07.10.2026 18:21 Алматы · vm
+# коммит fc4c3de (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing-site.spec.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (2.1s)
+  ✓   2 tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (2.9s)
+  ✓   3 tests/ui/marketing-site.spec.ts:51:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (5.9s)
+  ✓   4 tests/ui/marketing-site.spec.ts:87:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (2.6s)
+  ✓   5 tests/ui/marketing-site.spec.ts:99:1 › источник брони выбирается явно; архив с вопросом (2.9s)
+  ✓   6 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: light (8.7s)
+  ✓   7 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: dark (7.7s)
+  ✓   8 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (3.5s)
+  ✓   9 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (6.0s)
+  ✓  10 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (2.7s)
+  ✓  11 tests/ui/marketing.spec.ts:134:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.3s)
+  ✓  12 tests/ui/marketing.spec.ts:156:3 › хаб на компьютере и телефоне, доступность: light (6.0s)
+  ✓  13 tests/ui/marketing.spec.ts:156:3 › хаб на компьютере и телефоне, доступность: dark (6.7s)
+  ✓  14 tests/ui/marketing.spec.ts:197:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (9.2s)
+
+  14 passed (1.4m)
+
+# код выхода 0 · 1 мин 25 с

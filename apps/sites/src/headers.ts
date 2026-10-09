@@ -12,6 +12,11 @@ export interface PolicyInput {
   booking: boolean;
   /** Скрипт цены «от» (Q-276): свой файл с того же хоста и запрос к API за ценой */
   prices?: boolean;
+  /**
+   * MKT8: origin-ы хранилища, с которых реально грузятся картинки страницы (подписанные GET). Только в `img-src`, ни в
+   * скрипты, ни в соединения, ни во фреймы; ни `https:`, ни `*`
+   */
+  imageOrigins?: string[];
 }
 
 export function contentSecurityPolicy(input: PolicyInput): string {
@@ -30,7 +35,7 @@ export function contentSecurityPolicy(input: PolicyInput): string {
     "default-src 'none'",
     `script-src ${scripts.length ? scripts.join(' ') : "'none'"}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data:",
+    ["img-src 'self' data:", ...(input.imageOrigins ?? [])].join(' '),
     `connect-src ${connect.length ? connect.join(' ') : "'none'"}`,
     `frame-src ${input.apiOrigin && input.booking ? TURNSTILE_ORIGIN : "'none'"}`,
     "base-uri 'none'",
@@ -56,6 +61,8 @@ export const CACHE = {
   notFound: 'public, max-age=30',
   /** 503: не кэшировать */
   none: 'no-store',
+  /** Превью (MKT7): только браузер просмотрщика, ни прокси, ни CDN */
+  preview: 'private, no-store',
 } as const;
 
 /** Origin адреса API или null: адрес только `https:`, а `http:` лишь на 127.0.0.1 и localhost для dev */
@@ -69,4 +76,23 @@ export function apiOriginOf(raw: unknown): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Адрес картинки из контракта рантайма (MKT8): только `https:`, с именем хоста, без логина, не localhost и не IP.
+ * Иначе null: такую картинку Worker не выводит и origin в CSP не добавляет
+ */
+export function safeAssetUrl(raw: unknown): URL | null {
+  if (typeof raw !== 'string') return null;
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    return null;
+  }
+  const host = url.hostname;
+  if (url.protocol !== 'https:' || !host || url.username || url.password) return null;
+  if (host === 'localhost' || host.endsWith('.localhost') || !host.includes('.')) return null;
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(host) || host.startsWith('[')) return null;
+  return url;
 }

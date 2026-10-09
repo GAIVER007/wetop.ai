@@ -1,0 +1,16 @@
+# Модульные (unit) · 07.10.2026 18:06 Алматы · MacBook-Air-Urij.local
+# коммит dcb9e53 (codex/public-2-visual-slice-1), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-06-11Z-unit-7f41.json' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-public1-20261007
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 46ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  17:06:15
+   Duration  1.06s (transform 51%, tests 24%, import 21%, worker 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-06-11Z-unit-7f41.json
+
+# код выхода 0 · 5 с

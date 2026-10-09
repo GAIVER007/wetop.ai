@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 08.10.2026 23:36 Алматы · vm
+# коммит e6dbd02 (claude/mv8-5-ds1c-primitives)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--shard=3/3' '--workers=1'
+Error: http://127.0.0.1:4311/__test/health is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 2 с

@@ -1,0 +1,30 @@
+channel-event-1440-dark.png                         0 / 1296000 px    0.000 %
+channel-event-1440-light.png                        0 / 1296000 px    0.000 %
+channel-event-390-dark.png                          0 / 329160 px    0.000 %
+channel-event-390-light.png                         0 / 329160 px    0.000 %
+chessboard-1440-dark.png                          257 / 1296000 px    0.020 %  область x 1035–1071, y 166–177
+chessboard-1440-light.png                         255 / 1296000 px    0.020 %  область x 1035–1072, y 166–177
+chessboard-390-dark.png                           256 / 329160 px    0.078 %  область x 171–207, y 132–143
+chessboard-390-light.png                          256 / 329160 px    0.078 %  область x 171–207, y 132–143
+inventory-1440-dark.png                         15211 / 1296000 px    1.174 %  область x 220–1152, y 474–865
+inventory-1440-light.png                        15110 / 1296000 px    1.166 %  область x 220–1152, y 474–865
+inventory-390-dark.png                              0 / 329160 px    0.000 %
+inventory-390-light.png                             0 / 329160 px    0.000 %
+reservation-card-1440-dark.png                   5825 / 1296000 px    0.449 %  область x 115–1239, y 198–720
+reservation-card-1440-light.png                  5780 / 1296000 px    0.446 %  область x 114–1239, y 203–720
+reservation-card-390-dark.png                    2095 / 329160 px    0.636 %  область x 39–352, y 159–184
+reservation-card-390-light.png                   2043 / 329160 px    0.621 %  область x 38–352, y 164–179
+reservations-1440-dark.png                      25606 / 1296000 px    1.976 %  область x 296–1304, y 233–899
+reservations-1440-light.png                     25270 / 1296000 px    1.950 %  область x 296–1304, y 233–899
+reservations-390-dark.png                         332 / 329160 px    0.101 %  область x 238–268, y 448–725
+reservations-390-light.png                        316 / 329160 px    0.096 %  область x 238–268, y 449–724
+stay-preview-1440-dark.png                       1522 / 1296000 px    0.117 %  область x 386–1071, y 88–177
+stay-preview-1440-light.png                      1437 / 1296000 px    0.111 %  область x 386–1063, y 88–177
+stay-preview-390-dark.png                        1272 / 329160 px    0.386 %  область x 26–209, y 272–285
+stay-preview-390-light.png                       1263 / 329160 px    0.384 %  область x 26–209, y 272–285
+unit-card-1440-dark.png                           713 / 1296000 px    0.055 %  область x 851–960, y 287–312
+unit-card-1440-light.png                          714 / 1296000 px    0.055 %  область x 851–960, y 288–311
+unit-card-390-dark.png                            713 / 329160 px    0.217 %  область x 79–188, y 536–561
+unit-card-390-light.png                           714 / 329160 px    0.217 %  область x 79–188, y 537–560
+
+снимков: 28, с отличиями: 22

@@ -30,7 +30,7 @@ export default async function BeautyMastersPage() {
   );
   if (!loaded.ok)
     return (
-      <Page title="Сотрудники">
+      <Page title="Мастера">
         <LoadError testId="beauty-masters-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -39,7 +39,7 @@ export default async function BeautyMastersPage() {
   return (
     <Page
       className="beauty-page"
-      title="Сотрудники"
+      title="Мастера"
       subtitle="Мастер работает в сети: его можно поставить в несколько филиалов."
     >
       <MastersBoard

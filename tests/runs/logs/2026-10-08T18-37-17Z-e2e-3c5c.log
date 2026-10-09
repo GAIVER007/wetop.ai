@@ -1,0 +1,508 @@
+# Сквозные (e2e) · 08.10.2026 23:37 Алматы · vm
+# коммит e6dbd02 (claude/mv8-5-ds1c-primitives)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--shard=2/3' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 352 tests using 1 worker, shard 2 of 3
+
+  ✓    1 tests/ui/desk-tasks.spec.ts:29:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря (9.4s)
+  ✓    2 tests/ui/desk-tasks.spec.ts:77:1 › ошибка словами у формы, введённое не теряется (2.6s)
+  ✓    3 tests/ui/desk-tasks.spec.ts:88:1 › «только чтение»: список виден, создавать и закрывать нельзя (4.5s)
+  ✓    4 tests/ui/desk-tasks.spec.ts:108:3 › снимки и доступность: light (4.3s)
+  ✓    5 tests/ui/desk-tasks.spec.ts:108:3 › снимки и доступность: dark (4.2s)
+  ✓    6 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (24.3s)
+  ✓    7 tests/ui/desktop-compact.spec.ts:52:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (3.1s)
+  ✓    8 tests/ui/desktop-compact.spec.ts:69:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (7.5s)
+  -    9 tests/ui/ds0b-capture.spec.ts:108:5 › снимки гостиницы light 1440
+  -   10 tests/ui/ds0b-capture.spec.ts:108:5 › снимки гостиницы light 390
+  -   11 tests/ui/ds0b-capture.spec.ts:108:5 › снимки гостиницы dark 1440
+  -   12 tests/ui/ds0b-capture.spec.ts:108:5 › снимки гостиницы dark 390
+  -   13 tests/ui/ds0b-capture.spec.ts:131:3 › вычисленные стили маршрутов гостиницы, 1440 light
+  -   14 tests/ui/ds0b-capture.spec.ts:131:3 › вычисленные стили маршрутов гостиницы, 390 light
+  -   15 tests/ui/ds0b-capture.spec.ts:131:3 › вычисленные стили маршрутов гостиницы, 1440 dark
+  -   16 tests/ui/ds0b-capture.spec.ts:202:1 › наведение на примитивы маршрутов гостиницы, 1440 светлая
+  -   17 tests/ui/ds1a-capture.spec.ts:34:5 › статусы гостиницы light 1440
+  -   18 tests/ui/ds1a-capture.spec.ts:34:5 › статусы гостиницы light 390
+  -   19 tests/ui/ds1a-capture.spec.ts:34:5 › статусы гостиницы dark 1440
+  -   20 tests/ui/ds1a-capture.spec.ts:34:5 › статусы гостиницы dark 390
+  -   21 tests/ui/ds1b-capture.spec.ts:29:5 › примитивы DS1b light 1440
+  -   22 tests/ui/ds1b-capture.spec.ts:29:5 › примитивы DS1b light 390
+  -   23 tests/ui/ds1b-capture.spec.ts:29:5 › примитивы DS1b dark 1440
+  -   24 tests/ui/ds1b-capture.spec.ts:29:5 › примитивы DS1b dark 390
+  ✓   25 tests/ui/ds1b-primitives.spec.ts:20:1 › вкладки на странице: стрелки по кругу, Home, End, выбор сразу и фокус на вкладке (5.9s)
+  ✓   26 tests/ui/ds1b-primitives.spec.ts:48:1 › вкладки маршрутами: ссылки с aria-current, стрелки не перехватываются (4.9s)
+  ✓   27 tests/ui/ds1b-primitives.spec.ts:67:1 › переключатель шахматки: ровно один выбран, стрелки и Home/End, выбор помнится (9.9s)
+  ✓   28 tests/ui/ds1b-primitives.spec.ts:96:1 › брони: чипы видов ссылками, полоса инструментов по порядку поиск, отбор, период, действия (2.4s)
+  ✓   29 tests/ui/ds1b-primitives.spec.ts:135:1 › чип: кнопка переключает aria-pressed, число читается в имени (5.7s)
+  ✓   30 tests/ui/ds1b-primitives.spec.ts:154:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (light) (14.3s)
+  ✓   31 tests/ui/ds1b-primitives.spec.ts:154:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (dark) (14.4s)
+  -   32 tests/ui/ds1c-capture.spec.ts:59:5 › представители DS1c light 1440
+  -   33 tests/ui/ds1c-capture.spec.ts:59:5 › представители DS1c light 390
+  -   34 tests/ui/ds1c-capture.spec.ts:59:5 › представители DS1c dark 1440
+  -   35 tests/ui/ds1c-capture.spec.ts:59:5 › представители DS1c dark 390
+  ✓   36 tests/ui/ds1c-primitives.spec.ts:16:1 › доля на «Сайт → Аналитика»: родной progress с именем и числом, без ширины строкой стиля (2.9s)
+  ✓   37 tests/ui/ds1c-primitives.spec.ts:33:1 › плитка: тон чертой слева, изменение словами, плитка-ссылка с фокусом (4.8s)
+  ✓   38 tests/ui/ds1c-primitives.spec.ts:51:1 › день: предыдущий, следующий, «Сегодня» и поле «Дата» с подписью (6.0s)
+  ✓   39 tests/ui/ds1c-primitives.spec.ts:69:1 › период «Броней»: готовые отрезки ссылками, поля «С» и «По», применяет «Показать», адрес прежний (4.0s)
+  ✓   40 tests/ui/ds1c-primitives.spec.ts:84:1 › размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус (5.3s)
+  ✓   41 tests/ui/ds1c-primitives.spec.ts:105:1 › поле: обязательное с родным required и знаком, необязательное словом (4.6s)
+  ✓   42 tests/ui/ds1c-primitives.spec.ts:122:1 › таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки (3.2s)
+  ✓   43 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (5.3s)
+  ✓   44 tests/ui/ds1c-primitives.spec.ts:171:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (light) (17.2s)
+  ✓   45 tests/ui/ds1c-primitives.spec.ts:171:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (dark) (17.2s)
+  ✓   46 tests/ui/empty-base.spec.ts:40:3 › пустая база: /today открывается и объясняет пустоту (1.9s)
+  ✓   47 tests/ui/empty-base.spec.ts:40:3 › пустая база: /chessboard открывается и объясняет пустоту (3.1s)
+  ✓   48 tests/ui/empty-base.spec.ts:40:3 › пустая база: /reservations открывается и объясняет пустоту (2.0s)
+  ✓   49 tests/ui/empty-base.spec.ts:40:3 › пустая база: /guests открывается и объясняет пустоту (2.0s)
+  ✓   50 tests/ui/empty-base.spec.ts:40:3 › пустая база: /rooms открывается и объясняет пустоту (1.9s)
+  ✓   51 tests/ui/empty-base.spec.ts:40:3 › пустая база: /rooms/categories открывается и объясняет пустоту (2.0s)
+  ✓   52 tests/ui/empty-base.spec.ts:40:3 › пустая база: /rooms/availability открывается и объясняет пустоту (2.1s)
+  ✓   53 tests/ui/empty-base.spec.ts:40:3 › пустая база: /finance открывается и объясняет пустоту (1.7s)
+  ✓   54 tests/ui/empty-base.spec.ts:40:3 › пустая база: /management/analytics открывается и объясняет пустоту (1.5s)
+  ✓   55 tests/ui/empty-base.spec.ts:40:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту (2.5s)
+  ✓   56 tests/ui/empty-base.spec.ts:40:3 › пустая база: /journal открывается и объясняет пустоту (2.7s)
+  ✓   57 tests/ui/empty-base.spec.ts:40:3 › пустая база: /incidents открывается и объясняет пустоту (1.5s)
+  ✓   58 tests/ui/empty-base.spec.ts:40:3 › пустая база: /channels открывается и объясняет пустоту (2.2s)
+  ✓   59 tests/ui/empty-base.spec.ts:40:3 › пустая база: /connections открывается и объясняет пустоту (2.2s)
+  ✓   60 tests/ui/empty-base.spec.ts:40:3 › пустая база: /website открывается и объясняет пустоту (2.3s)
+  ✓   61 tests/ui/empty-base.spec.ts:40:3 › пустая база: /website/analytics открывается и объясняет пустоту (2.0s)
+  ✓   62 tests/ui/empty-base.spec.ts:40:3 › пустая база: /hotel-settings открывается и объясняет пустоту (2.0s)
+  ✓   63 tests/ui/empty-base.spec.ts:40:3 › пустая база: /channels/mapping открывается и объясняет пустоту (1.9s)
+  ✓   64 tests/ui/empty-base.spec.ts:50:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (2.4s)
+  ✓   65 tests/ui/empty-base.spec.ts:61:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (2.4s)
+  ✓   66 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (3.3s)
+  ✓   67 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (4.1s)
+  ✓   68 tests/ui/finance-card-actions.spec.ts:81:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (4.4s)
+  ✓   69 tests/ui/finance-card-actions.spec.ts:105:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (4.3s)
+  ✓   70 tests/ui/finance-card-actions.spec.ts:128:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (5.5s)
+  ✓   71 tests/ui/finance-card-actions.spec.ts:154:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (3.9s)
+  ✓   72 tests/ui/finance-card-actions.spec.ts:169:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (7.2s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   73 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (7.9s)
+  ✓   74 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (7.1s)
+  ✓   75 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (7.1s)
+  ✓   76 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (6.2s)
+  ✓   77 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (6.1s)
+  ✓   78 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 1440 (4.1s)
+  ✓   79 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 (4.6s)
+  ✓   80 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 (4.4s)
+  ✓   81 tests/ui/finance-cash-first.spec.ts:90:1 › касса: первый экран без лишних кнопок, действия внутри управления (3.6s)
+  ✓   82 tests/ui/finance-cash-first.spec.ts:109:1 › касса: визуальная иерархия итогов и спокойный сброс (2.8s)
+  ✓   83 tests/ui/finance-cash-first.spec.ts:127:1 › касса: тёмное оформление читается на телефоне (4.4s)
+  ✓   84 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (4.0s)
+  ✓   85 tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (6.9s)
+  ✓   86 tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (6.8s)
+  ✓   87 tests/ui/finance-cash.spec.ts:112:1 › статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода (5.3s)
+  ✓   88 tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны (4.6s)
+  ✓   89 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, light (4.5s)
+  ✓   90 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, dark (4.5s)
+  ✓   91 tests/ui/finance-cash.spec.ts:174:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (4.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   92 tests/ui/finance-cash.spec.ts:202:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (4.4s)
+  ✓   93 tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (5.7s)
+  ✓   94 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (3.2s)
+  ✓   95 tests/ui/finance-f1.spec.ts:96:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (4.5s)
+  ✓   96 tests/ui/finance-f1.spec.ts:146:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (3.1s)
+  ✓   97 tests/ui/finance-f1.spec.ts:177:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (6.3s)
+  ✓   98 tests/ui/finance-f1.spec.ts:219:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (5.7s)
+  ✓   99 tests/ui/finance-f1.spec.ts:235:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (4.8s)
+  ✓  100 tests/ui/finance-f1.spec.ts:256:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (2.9s)
+  ✓  101 tests/ui/finance-f1.spec.ts:276:3 › F1, стоп-гейт: снимки для владельца, light (4.2s)
+  ✓  102 tests/ui/finance-f1.spec.ts:276:3 › F1, стоп-гейт: снимки для владельца, dark (4.1s)
+  ✓  103 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (7.4s)
+  ✓  104 tests/ui/finance-f2.spec.ts:67:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (6.9s)
+  ✓  105 tests/ui/finance-f2.spec.ts:86:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (6.2s)
+  ✓  106 tests/ui/finance-f2.spec.ts:106:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (2.7s)
+  ✓  107 tests/ui/finance-f2.spec.ts:133:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (3.4s)
+  ✓  108 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (9.0s)
+  ✓  109 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (10.4s)
+  ✓  110 tests/ui/finance-f2.spec.ts:186:1 › F2: «Аннулировать» у платежа в ленте — вопрос с суммой, статус «аннулирована», сумма ушла из «Оплачено» (4.5s)
+  ✓  111 tests/ui/finance-services.spec.ts:53:1 › вкладка «Услуги»: строки из API, «вручную» словами, «Итого» равно строке «Услуги» обзора (3.0s)
+  ✓  112 tests/ui/finance-services.spec.ts:100:1 › CSV услуг: кнопка на вкладке, файл со сводом и строкой «вручную» (2.8s)
+  ✓  113 tests/ui/finance-services.spec.ts:115:1 › хаб «Отчёты»: карточка услуг с суммой из сводки ведёт на вкладку (2.9s)
+  ✓  114 tests/ui/finance-services.spec.ts:131:1 › пустая база: вкладка честно говорит, что начислений нет (1.7s)
+  ✓  115 tests/ui/finance-services.spec.ts:139:3 › доступность и снимки, light (5.8s)
+  ✓  116 tests/ui/finance-services.spec.ts:139:3 › доступность и снимки, dark (5.9s)
+  ✓  117 tests/ui/finance-units-design.spec.ts:23:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (1440) (3.2s)
+  ✓  118 tests/ui/finance-units-design.spec.ts:23:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (телефон) (3.0s)
+  ✓  119 tests/ui/finance-units-design.spec.ts:67:1 › карточка ячейки: подзаголовок словами, даты проживаний в <time>, заголовок без скобок (3.9s)
+  ✓  120 tests/ui/fiscal-receipt.spec.ts:29:1 › гость попросил чек: номер из кассы ложится к платежу (6.0s)
+  ✓  121 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 1440px (7.4s)
+  ✓  122 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: light, 390px (6.7s)
+  ✓  123 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: dark, 1440px (7.8s)
+  ✓  124 tests/ui/fiscal-receipt.spec.ts:40:5 › доступность «Счетов» с колонкой чека: dark, 390px (6.5s)
+  ✓  125 tests/ui/fixture-isolation.spec.ts:7:1 › сброс после дизайн-сценария восстанавливает названия категорий и ячеек (43ms)
+  ✓  126 tests/ui/fixture-isolation.spec.ts:19:1 › сумма продления в подтверждении совпадает с подсказкой и записанным проживанием (38ms)
+  ✓  127 tests/ui/flat-surfaces.spec.ts:2:1 › flat shared surfaces across application routes in both themes (30.9s)
+  ✓  128 tests/ui/form910.spec.ts:13:1 › хаб ведёт на полугодие; шесть месяцев и итог (5.1s)
+  ✓  129 tests/ui/form910.spec.ts:26:5 › доступность: light, 1440px (3.3s)
+  ✓  130 tests/ui/form910.spec.ts:26:5 › доступность: light, 390px (3.7s)
+  ✓  131 tests/ui/form910.spec.ts:26:5 › доступность: dark, 1440px (3.4s)
+  ✓  132 tests/ui/form910.spec.ts:26:5 › доступность: dark, 390px (3.4s)
+  ✓  133 tests/ui/fund-workspace.spec.ts:4:1 › category creation, rename, room creation and reload (8.7s)
+  ✓  134 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (16.7s)
+  ✓  135 tests/ui/fund-workspace.spec.ts:90:1 › guests filter categories by capacity; toggle shows all; tab renamed (2.9s)
+  ✓  136 tests/ui/fund-workspace.spec.ts:123:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (2.5s)
+  ✓  137 tests/ui/fund-workspace.spec.ts:144:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (8.9s)
+  ✓  138 tests/ui/fund-workspace.spec.ts:225:1 › AV4: a category without places stays on screen with the nearest availability (4.7s)
+  ✓  139 tests/ui/fund-workspace.spec.ts:270:1 › dark categories and availability; invalid dates and empty onboarding (11.2s)
+  ✓  140 tests/ui/guest-wizard.spec.ts:3:1 › гостевой мастер: ручной ввод, живое превью, восстановление после перезагрузки (3.2s)
+  ✓  141 tests/ui/guest-wizard.spec.ts:54:1 › отказ сохранения не теряет ввод и не показывает успешный результат (1.3s)
+  ✓  142 tests/ui/guest-wizard.spec.ts:79:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (1.3s)
+  ✓  143 tests/ui/guests-birthdays.spec.ts:15:1 › календарь исключает дни рождения, отдельная страница раскрывает детали (7.0s)
+  ✓  144 tests/ui/guests-birthdays.spec.ts:55:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто (4.5s)
+  ✓  145 tests/ui/guests-design.spec.ts:23:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (5.7s)
+  ✓  146 tests/ui/guests-design.spec.ts:68:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (2.5s)
+  ✓  147 tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (15.4s)
+  ✓  148 tests/ui/guests-design.spec.ts:167:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (7.5s)
+  ✓  149 tests/ui/guests-design.spec.ts:239:1 › гости: документы и финансовый свод гостя (G5) (9.2s)
+  ✓  150 tests/ui/guests-design.spec.ts:291:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (5.8s)
+  ✓  151 tests/ui/guests-design.spec.ts:337:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (16.3s)
+  ✓  152 tests/ui/guests-design.spec.ts:420:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (15.5s)
+  ✓  153 tests/ui/guests-design.spec.ts:494:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (4.3s)
+  ✓  154 tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (6.6s)
+  ✓  155 tests/ui/housekeeping.spec.ts:80:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (4.6s)
+  ✓  156 tests/ui/housekeeping.spec.ts:111:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (2.2s)
+  ✓  157 tests/ui/housekeeping.spec.ts:119:1 › карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку (6.4s)
+  ✓  158 tests/ui/housekeeping.spec.ts:159:1 › карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156) (4.0s)
+  ✓  159 tests/ui/housekeeping.spec.ts:186:1 › выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155) (11.8s)
+  ✓  160 tests/ui/incidents-design.spec.ts:20:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами (2.2s)
+  ✓  161 tests/ui/incidents-design.spec.ts:61:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс (2.3s)
+  ✓  162 tests/ui/incidents-design.spec.ts:85:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку (2.1s)
+  ✓  163 tests/ui/incidents-design.spec.ts:100:1 › неисправности: телефон — карточка, цели 44 px, без прокрутки вбок, доступность (9.7s)
+  ✓  164 tests/ui/integrations-channex.spec.ts:36:1 › работает: соединение, сопоставление и webhook словами, ключей нет, вкладки модуля на месте (5.4s)
+  ✓  165 tests/ui/integrations-channex.spec.ts:77:1 › webhook не отвечает: причина словами и тот же вывод на карточке «Подключений» (2.5s)
+  ✓  166 tests/ui/integrations-channex.spec.ts:94:1 › устарело: очередь стоит, карточка «Подключений» зовёт в очередь (1.6s)
+  ✓  167 tests/ui/integrations-channex.spec.ts:107:1 › интеграция у другой организации: проверить нельзя, это сказано словами (1.7s)
+  ✓  168 tests/ui/integrations-channex.spec.ts:118:1 › ключ не задан: так и сказано, кнопки настройки без ключа не работают (3.6s)
+  ✓  169 tests/ui/integrations-channex.spec.ts:130:1 › телефон: страница без прокрутки вбок (1.5s)
+  ✓  170 tests/ui/integrations-channex.spec.ts:151:3 › /connections: пока соединение проверяется, заголовок тот же, что у страницы (1.7s)
+  ✓  171 tests/ui/integrations-channex.spec.ts:151:3 › /connections/channex: пока соединение проверяется, заголовок тот же, что у страницы (1.4s)
+  ✓  172 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, light (12.4s)
+  ✓  173 tests/ui/integrations-channex.spec.ts:163:3 › снимки страницы настройки Channex для владельца, dark (11.8s)
+  ✓  174 tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек (4.1s)
+  ✓  175 tests/ui/integrations.spec.ts:79:1 › требует внимания: причины словами и ссылки прямо к месту исправления (1.9s)
+  ✓  176 tests/ui/integrations.spec.ts:97:1 › интеграция у другой организации: «Подключённые» пусты, Channex — в «Доступных» без ложной кнопки (2.3s)
+  ✓  177 tests/ui/integrations.spec.ts:118:1 › ключ Channex не задан — не подключено, а не «работает» (1.6s)
+  ✓  178 tests/ui/integrations.spec.ts:126:1 › только чтение: список и состояние видны, подключение — после оплаты (4.2s)
+  ✓  179 tests/ui/integrations.spec.ts:136:1 › не владелец технических деталей не видит; администратору раздел закрыт (5.0s)
+  ✓  180 tests/ui/integrations.spec.ts:151:1 › телефон: карточка без прокрутки вбок (1.8s)
+  ✓  181 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, light (14.3s)
+  ✓  182 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, dark (15.0s)
+  ✓  183 tests/ui/integrations.spec.ts:195:1 › подключения различают два тарифных плана и десять сопоставлений (5.1s)
+  ✓  184 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (6.5s)
+  ✓  185 tests/ui/inventory-catalog.spec.ts:32:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (7.7s)
+  ✓  186 tests/ui/inventory-catalog.spec.ts:53:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (7.1s)
+  ✓  187 tests/ui/inventory-catalog.spec.ts:96:1 › пустой поиск объясняется, сброс возвращает фонд (2.8s)
+  ✓  188 tests/ui/inventory-catalog.spec.ts:107:3 › каталог адаптивен и доступен: light (22.5s)
+  ✓  189 tests/ui/inventory-catalog.spec.ts:107:3 › каталог адаптивен и доступен: dark (22.8s)
+  ✓  190 tests/ui/inventory-catalog.spec.ts:140:1 › пустой фонд отличается от пустого поиска (1.4s)
+  ✓  191 tests/ui/inventory-catalog.spec.ts:148:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (4.6s)
+  ✓  192 tests/ui/inventory-catalog.spec.ts:170:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами (7.4s)
+  ✓  193 tests/ui/inventory-catalog.spec.ts:218:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат (7.1s)
+  ✓  194 tests/ui/inventory-catalog.spec.ts:243:3 › панель места доступна: light (9.1s)
+  ✓  195 tests/ui/inventory-catalog.spec.ts:243:3 › панель места доступна: dark (9.5s)
+  ✓  196 tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu (6.3s)
+  ✓  197 tests/ui/inventory-onboarding.spec.ts:37:1 › location and operational filters intersect and survive reload (5.7s)
+  ✓  198 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (4.9s)
+  ✓  199 tests/ui/invites.spec.ts:49:1 › без сессии формы приглашения нет (298ms)
+  ✓  200 tests/ui/invites.spec.ts:56:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (6.5s)
+  ✓  201 tests/ui/invites.spec.ts:75:1 › мёртвая ссылка — один текст и путь на форму входа (2.5s)
+  ✓  202 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (2.9s)
+  ✓  203 tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (3.0s)
+  ✓  204 tests/ui/loading-performance.spec.ts:47:1 › стойка и её шахматка запрашиваются параллельно (7.8s)
+  ✓  205 tests/ui/loading-performance.spec.ts:72:1 › мобильное меню использует уже загруженную свежесть без второго опроса (3.0s)
+TODAY_LOADING_MS [{"heading":1652,"risks":1671,"money":2890},{"heading":1595,"risks":1614,"money":2843},{"heading":2034,"risks":2050,"money":2455}]
+  ✓  206 tests/ui/loading-performance.spec.ts:96:1 › замер: блоки Главной при задержке настроек 2000 мс (9.7s)
+  ✓  207 tests/ui/loading-performance.spec.ts:126:1 › фоновый опрос не перекрывается и восстанавливается после отказа (3.1s)
+  ✓  208 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (4.0s)
+  ✓  209 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (6.3s)
+  ✓  210 tests/ui/login-access.spec.ts:55:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (3.2s)
+  ✓  211 tests/ui/login-access.spec.ts:62:1 › сбой API сохраняет поля, повтор после восстановления работает (4.1s)
+  ✓  212 tests/ui/login-access.spec.ts:73:1 › клавиатура, показ пароля и блокировка повторной отправки (5.5s)
+  ✓  213 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — light (13.7s)
+  ✓  214 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — dark (12.6s)
+  ✓  215 tests/ui/login-access.spec.ts:124:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (2.5s)
+  ✓  216 tests/ui/login-access.spec.ts:135:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (6.9s)
+  ✓  217 tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение (3.6s)
+  ✓  218 tests/ui/login-access.spec.ts:160:1 › старая ссылка mode=register открывает регистрацию на главной (2.6s)
+  ✓  219 tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (7.3s)
+  ✓  220 tests/ui/login-access.spec.ts:178:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (1.0s)
+  ✓  221 tests/ui/login-access.spec.ts:183:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (5.3s)
+  ✓  222 tests/ui/login-access.spec.ts:194:1 › занятая почта и короткий пароль не создают сессию (6.1s)
+  ✓  223 tests/ui/manager-actions.spec.ts:32:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (6.4s)
+  ✓  224 tests/ui/manager-actions.spec.ts:74:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (8.7s)
+  ✓  225 tests/ui/manager-actions.spec.ts:138:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (16.4s)
+  ✓  226 tests/ui/manager-actions.spec.ts:204:1 › карточка: предварительная бронь названа словом, место за ней держится (2.3s)
+  ✓  227 tests/ui/manager-actions.spec.ts:223:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (3.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  228 tests/ui/manager-actions.spec.ts:239:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» открывает ящик броней без места (7.3s)
+  ✓  229 tests/ui/manager-actions.spec.ts:283:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (6.4s)
+  ✓  230 tests/ui/manager-actions.spec.ts:343:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (2.8s)
+  ✓  231 tests/ui/manager-actions.spec.ts:366:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (8.0s)
+  ✓  232 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (6.4s)
+  ✓  233 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (7.6s)
+  ✓  234 tests/ui/market.spec.ts:149:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (4.1s)
+  ✓  235 tests/ui/market.spec.ts:165:3 › снимки и доступность: light (8.9s)
+  ✓  236 tests/ui/market.spec.ts:165:3 › снимки и доступность: dark (9.0s)
+  ✓  237 tests/ui/market.spec.ts:205:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (4.1s)
+  ✓  238 tests/ui/market.spec.ts:233:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (5.8s)
+  ✓  239 tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (2.5s)
+  ✓  240 tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (1.9s)
+  ✓  241 tests/ui/marketing-site.spec.ts:51:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (5.2s)
+  ✓  242 tests/ui/marketing-site.spec.ts:87:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (2.1s)
+  ✓  243 tests/ui/marketing-site.spec.ts:99:1 › источник брони выбирается явно; архив с вопросом (2.6s)
+  ✓  244 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: light (8.8s)
+  ✓  245 tests/ui/marketing-site.spec.ts:112:3 › страница на компьютере и телефоне, доступность: dark (7.5s)
+  ✓  246 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (3.8s)
+  ✓  247 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (7.0s)
+  ✓  248 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (2.3s)
+  ✓  249 tests/ui/marketing.spec.ts:137:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.9s)
+  ✓  250 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: light (6.7s)
+  ✓  251 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: dark (6.0s)
+  ✓  252 tests/ui/marketing.spec.ts:200:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (8.6s)
+  ✓  253 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (21.1s)
+  ✓  254 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (2.0s)
+  ✓  255 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (3.6s)
+  ✓  256 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (4.0s)
+  ✓  257 tests/ui/mobile-adaptation.spec.ts:107:1 › узкий телефон: плитки финансов встают в одну колонку (2.8s)
+  ✓  258 tests/ui/mobile-adaptation.spec.ts:118:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (16.3s)
+  ✓  259 tests/ui/mobile-adaptation.spec.ts:152:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (19.6s)
+  ✓  260 tests/ui/navigation.spec.ts:53:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (5.8s)
+  ✓  261 tests/ui/navigation.spec.ts:94:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (4.4s)
+  ✓  262 tests/ui/navigation.spec.ts:121:1 › все пункты меню открывают существующие страницы (21.1s)
+  ✓  263 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: light (6.2s)
+  ✓  264 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: dark (6.5s)
+  ✓  265 tests/ui/onboarding.spec.ts:20:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (4.4s)
+  ✓  266 tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) (4.2s)
+  ✓  267 tests/ui/onboarding.spec.ts:67:1 › пустая категория без цены — форма просит добавить, отель не создаётся (1.8s)
+  ✓  268 tests/ui/onboarding.spec.ts:79:1 › после запуска отеля Главная без «Первых шагов» и без кнопки брони (4.2s)
+  ✓  269 tests/ui/onboarding.spec.ts:100:1 › у работающего отеля с бронями «Первых шагов» нет (2.0s)
+  ✓  270 tests/ui/onboarding.spec.ts:111:1 › «Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу (6.1s)
+  ✓  271 tests/ui/owner-dashboard-interactions.spec.ts:8:1 › forecast details expose availability and open the selected calendar day (4.0s)
+  ✓  272 tests/ui/owner-dashboard-interactions.spec.ts:35:1 › finance can recover in place after a temporary API failure (2.7s)
+  ✓  273 tests/ui/owner-dashboard-interactions.spec.ts:48:1 › unavailable inventory stays explicit and can be retried (3.9s)
+  ✓  274 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.6s)
+  ✓  275 tests/ui/owner-dashboard-interactions.spec.ts:83:3 › forecast drawer stays accessible at 320 px in light theme (4.5s)
+  ✓  276 tests/ui/owner-dashboard-interactions.spec.ts:83:3 › forecast drawer stays accessible at 320 px in dark theme (4.3s)
+  ✓  277 tests/ui/owner-dashboard-interactions.spec.ts:107:1 › weekly dashboard opens a calendar day directly (2.8s)
+  ✓  278 tests/ui/owner-dashboard-interactions.spec.ts:120:1 › compact owner overview fits a 360 by 800 phone (2.5s)
+  ✓  279 tests/ui/owner-dashboard.spec.ts:9:1 › owner dashboard: compact owner metrics and operational widgets (2.7s)
+  ✓  280 tests/ui/owner-dashboard.spec.ts:34:1 › dashboard period changes and mobile retains content (3.2s)
+  ✓  281 tests/ui/owner-dashboard.spec.ts:45:1 › owner dashboard keeps attention available when finance fails (1.9s)
+  ✓  282 tests/ui/owner-dashboard.spec.ts:57:1 › owner dashboard dark desktop and mobile remain usable (6.7s)
+  ✓  283 tests/ui/owner-dashboard.spec.ts:88:1 › owner mobile overview fits above navigation and omits refund metrics (2.8s)
+  ✓  284 tests/ui/owner-dashboard.spec.ts:115:1 › owner overview stays usable at narrow widths and custom dates remain accessible (3.9s)
+  ✓  285 tests/ui/owner-dashboard.spec.ts:135:1 › approved owner concept groups forecast with occupancy and matches attention count (2.6s)
+  ✓  286 tests/ui/owner-journal.spec.ts:14:1 › владелец: вкладка, суммы, было/стало, фильтры и вся история (10.1s)
+  ✓  287 tests/ui/owner-journal.spec.ts:60:3 › MANAGER: журнал скрыт и прямой адрес закрыт (4.1s)
+  ✓  288 tests/ui/owner-journal.spec.ts:60:3 › STAFF: журнал скрыт и прямой адрес закрыт (4.3s)
+  ✓  289 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (2.8s)
+  ✓  290 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (4.4s)
+  ✓  291 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (2.5s)
+  ✓  292 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (1.2s)
+  ✓  293 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (1.2s)
+  ✓  294 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (1.2s)
+  ✓  295 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (1.1s)
+  ✓  296 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (1.8s)
+  ✓  297 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (1.4s)
+  ✓  298 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание (5.2s)
+  ✓  299 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта обновляет сумму, если её ещё не вводили (3.8s)
+  ✓  300 tests/ui/payment-draft.spec.ts:62:1 › оплата D3: строка сути называет сумму, способ, счёт и бронь; не число не уходит (3.6s)
+  ✓  301 tests/ui/payment-requests.spec.ts:25:1 › Kaspi: запрос с остатком по умолчанию, текст гостю, «Оплачено» даёт платёж на счёт (5.3s)
+  ✓  302 tests/ui/payment-requests.spec.ts:51:1 › ссылка банка не https — отказ словами, ссылка и сумма остаются в форме (5.5s)
+  ✓  303 tests/ui/payment-requests.spec.ts:64:1 › отмена ожидающего запроса с подтверждением; ссылка банка попадает в текст (6.1s)
+  ✓  304 tests/ui/payment-requests.spec.ts:82:5 › доступность блока: light, 1440 px (5.7s)
+  ✓  305 tests/ui/payment-requests.spec.ts:82:5 › доступность блока: light, 390 px (5.5s)
+  ✓  306 tests/ui/payment-requests.spec.ts:82:5 › доступность блока: dark, 1440 px (5.8s)
+  ✓  307 tests/ui/payment-requests.spec.ts:82:5 › доступность блока: dark, 390 px (5.7s)
+  ✓  308 tests/ui/pii-storage.spec.ts:18:1 › новая бронь без имени и контактов: компактная форма, бронь создаётся (3.8s)
+  ✓  309 tests/ui/pii-storage.spec.ts:43:1 › бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет (4.8s)
+  ✓  310 tests/ui/pii-storage.spec.ts:66:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (4.2s)
+  ✓  311 tests/ui/pii-storage.spec.ts:106:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (5.8s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  312 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (7.5s)
+  ✓  313 tests/ui/platform-access.spec.ts:82:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (7.2s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✓  314 tests/ui/platform-access.spec.ts:104:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (10.0s)
+  ✓  315 tests/ui/platform-access.spec.ts:143:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (9.3s)
+  ✓  316 tests/ui/platform-access.spec.ts:171:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (5.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     ...
+[WebServer]                       <h2>
+[WebServer]                       <p>
+[WebServer]                       <KnowledgeUploadForm>
+[WebServer]                         <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                           <Field label="Документ: ...">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="file"
+[WebServer]                                   name="file"
+[WebServer]                                   accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                   required={true}
+[WebServer]                                   data-testid="knowledge-file"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  317 tests/ui/platform-access.spec.ts:191:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (8.7s)
+  ✓  318 tests/ui/platform-access.spec.ts:214:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (12.6s)
+  ✓  319 tests/ui/platform-access.spec.ts:272:5 › доступность: «Организации» и состояния расширения, light, 1440px (23.1s)
+  ✓  320 tests/ui/platform-access.spec.ts:272:5 › доступность: «Организации» и состояния расширения, dark, 1440px (22.9s)
+  ✓  321 tests/ui/platform-access.spec.ts:272:5 › доступность: «Организации» и состояния расширения, light, 390px (21.1s)
+  ✓  322 tests/ui/platform-access.spec.ts:272:5 › доступность: «Организации» и состояния расширения, dark, 390px (20.4s)
+  ✓  323 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (10.1s)
+  ✓  324 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (12.4s)
+  ✓  325 tests/ui/platform-support.spec.ts:100:1 › знания помощника: список и загрузка документа (9.8s)
+  ✓  326 tests/ui/platform-support.spec.ts:120:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (19.2s)
+  ✓  327 tests/ui/platform-support.spec.ts:172:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (4.6s)
+  ✓  328 tests/ui/platform-support.spec.ts:189:1 › помощник не подключён — раздел говорит, что вписать владельцу (4.6s)
+  ✓  329 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 1440px (27.7s)
+  ✓  330 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 1440px (27.3s)
+  ✓  331 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 390px (27.3s)
+  ✓  332 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 390px (25.6s)
+  ✓  333 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (6.1s)
+  ✓  334 tests/ui/premium.spec.ts:27:1 › shell: панель, меню профиля, поиск (4.5s)
+  ✓  335 tests/ui/premium.spec.ts:45:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (12.8s)
+  ✓  336 tests/ui/premium.spec.ts:78:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (15.4s)
+  ✘  337 tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (3.1m)
+  ✓  338 tests/ui/premium.spec.ts:179:1 › вход не пускает с чужой почтой и чужим паролем (1.3s)
+  ✓  339 tests/ui/premium.spec.ts:196:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (6.9s)
+  ✓  340 tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается (7.9s)
+  ✓  341 tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии (10.5s)
+  ✓  342 tests/ui/product-tour.spec.ts:91:1 › последний шаг — профиль, «Начать работу» закрывает обучение (7.1s)
+  ✓  343 tests/ui/product-tour.spec.ts:107:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край (4.8s)
+  ✓  344 tests/ui/product-tour.spec.ts:122:1 › меню содержит только обучение, личность и выход; темы можно выбирать (4.7s)
+  ✓  345 tests/ui/product-tour.spec.ts:144:1 › администратор на телефоне видит рабочие темы без настроек владельца (4.4s)
+  ✓  346 tests/ui/product-tour.spec.ts:164:1 › обучение подсвечивает поиск в разделе гостей (6.7s)
+  ✓  347 tests/ui/property-settings-set2-set3.spec.ts:31:1 › «Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00 (6.9s)
+  ✓  348 tests/ui/property-settings-set2-set3.spec.ts:63:1 › «Услуги»: активные по умолчанию, отбор по группе и статусу, коды не видны (5.0s)
+  ✓  349 tests/ui/property-settings-set2-set3.spec.ts:92:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте (9.0s)
+  ✓  350 tests/ui/property-settings-set2-set3.spec.ts:145:1 › «только чтение»: каталог виден, добавить и править нельзя (5.8s)
+  ✓  351 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: light (17.5s)
+  ✓  352 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: dark (16.5s)
+
+
+  1) tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('html')
+    Expected: "dark"
+    Received: ""
+
+    Call log:
+      - Expect "toHaveAttribute" locator('html') with timeout 15000ms
+      - waiting for locator('html')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      172 |     await page.goto(route);
+      173 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    > 174 |     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+          |                                        ^
+      175 |   }
+      176 |   expect(errors).toEqual([]);
+      177 | });
+        at /home/user/wetop.ai/tests/ui/premium.spec.ts:174:40
+
+    Error Context: test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+  20 skipped
+  331 passed (38.4m)
+
+# код выхода 1 · 38 мин 27 с

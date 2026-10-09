@@ -47,7 +47,7 @@ test('прямая ссылка на категорию сохраняется, 
   // место открывается панелью справа поверх фонда (ADR-108, I2), адрес — карточки места
   await main.getByRole('link', { name: 'Открыть номер R01', exact: true }).click();
   await expect(page).toHaveURL(/\/units\/R01/);
-  await expect(page.getByRole('dialog', { name: 'Номер R01' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Номер R01' })).toBeVisible();
 });
 
 test('таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают', async ({
@@ -62,12 +62,16 @@ test('таблица показывает расположение, состоя
     main
       .getByTestId('unit-row')
       .filter({ has: page.getByRole('link', { name: `Открыть номер ${code}`, exact: true }) });
-  await expect(row('R09')).toContainText('заблокирована');
-  await expect(row('R09')).toContainText('ремонт: кондиционер');
-  await expect(row('R01')).toContainText('требует уборки');
+  await expect(row('R09')).toContainText('Недоступно');
+  // причина и срок блокировки в подсказке значка, в строке только слово «Недоступно»
+  await expect(row('R09').getByText('Недоступно', { exact: true })).toHaveAttribute(
+    'title',
+    /ремонт: кондиционер/,
+  );
+  await expect(row('R01')).toContainText('Требует уборки');
   await expect(row('R01')).toContainText('Корпус Основной');
-  await expect(row('R02')).toContainText('в продаже');
-  await expect(row('R02')).toContainText('проверено');
+  await expect(row('R02')).toContainText('В продаже');
+  await expect(row('R02')).toContainText('Проверено');
   // категории — заголовками групп с числом мест и вместимостью (как список категорий),
   // а не колонкой, где имя повторяется в каждой из 88 строк (упрощение фонда 02.10)
   const groupHead = main.getByTestId('category-group');
@@ -77,11 +81,11 @@ test('таблица показывает расположение, состоя
   await expect(groupHead.nth(1)).toContainText('1 гость');
   await expect(main.getByRole('table').getByText('Мужской общий номер')).toHaveCount(1);
   // строка сама открывает карточку места: клик по обычной ячейке, не по ссылке (ТЗ §12)
-  await row('R02').locator('td').nth(1).click();
+  await row('R02').locator('td').nth(3).click();
   await expect(page).toHaveURL(/\/units\/R02/);
-  await expect(page.getByRole('dialog', { name: 'Номер R02' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Номер R02' })).toBeVisible();
   await page.goBack();
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect(page.getByTestId('unit-aside')).toHaveCount(0);
   // кнопок «Редактировать» в строках больше нет — действия в меню «⋯»
   await expect(main.getByRole('button', { name: 'Редактировать', exact: true })).toHaveCount(0);
   await main.getByRole('button', { name: 'Действия: R03', exact: true }).click();
@@ -164,7 +168,7 @@ test('категория и тип пересекаются, фильтр дос
   await main.getByRole('link', { name: 'Открыть номер R01', exact: true }).focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/units\/R01/);
-  await expect(page.getByRole('dialog', { name: 'Номер R01' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Номер R01' })).toBeVisible();
 });
 
 test('панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами', async ({
@@ -179,9 +183,9 @@ test('панель места: факты, сейчас и следующее, �
     .getByTestId('unit-row')
     .filter({ has: page.getByRole('link', { name: 'Открыть номер R09', exact: true }) })
     .locator('td')
-    .nth(1)
+    .nth(3)
     .click();
-  const drawer = page.getByRole('dialog', { name: 'Номер R09' });
+  const drawer = page.getByRole('complementary', { name: 'Номер R09' });
   await expect(drawer).toBeVisible();
   await expect(page).toHaveURL(/\/units\/R09$/);
   await expect(drawer.getByTestId('unit-category')).toHaveText(
@@ -191,27 +195,30 @@ test('панель места: факты, сейчас и следующее, �
   await expect(drawer.getByTestId('unit-capacity')).toHaveText('2 гостя');
   await expect(drawer.getByTestId('unit-state')).toContainText('заблокирована');
   await expect(drawer.getByTestId('unit-state')).toContainText('ремонт: кондиционер');
+  // «Сейчас» и «Следующее проживание» живут на вкладке «Бронь / Гости»
+  await drawer.getByRole('tab', { name: 'Бронь / Гости' }).click();
   await expect(drawer.getByTestId('unit-now')).toHaveText('свободно');
   await expect(drawer.getByTestId('unit-next')).toContainText('бронь');
+  await drawer.getByRole('tab', { name: 'Информация' }).click();
   // даты блокировки словами, без « · » и сырых 2026-09-28
   await expect(drawer.getByTestId('block-row').first()).not.toContainText(/\d{4}-\d{2}-\d{2}/);
   // под панелью фонд с тем же фильтром: список не перерисовался на пустые параметры адреса панели
   await expect(main.getByTestId('unit-row')).toHaveCount(16);
   // уборка из панели — тем же блоком, что в карточке
   await drawer.getByTestId('hk-DIRTY').click();
-  await expect(drawer.getByTestId('unit-hk')).toHaveText('требует уборки');
+  await expect(drawer.getByTestId('unit-hk')).toHaveText('Требует уборки');
   await page.keyboard.press('Escape');
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect(page.getByTestId('unit-aside')).toHaveCount(0);
   await expect(page).toHaveURL(/\/inventory\?kind=ROOM$/);
   await expect(
     main
       .getByTestId('unit-row')
       .filter({ has: page.getByRole('link', { name: 'Открыть номер R09', exact: true }) }),
-  ).toContainText('требует уборки');
+  ).toContainText('Требует уборки');
   // прямой заход по адресу — полная карточка с теми же фактами, без панели
   await page.goto('/units/R09');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('R09');
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect(page.getByTestId('unit-aside')).toHaveCount(0);
   await expect(page.getByRole('main').getByTestId('unit-facts')).toBeVisible();
 });
 
@@ -227,16 +234,118 @@ test('панель места: живущий гость — «живёт», о�
       .getByRole('main')
       .getByRole('link', { name: `Открыть номер ${code}`, exact: true })
       .click();
-    const drawer = page.getByRole('dialog', { name: `Номер ${code}` });
+    const drawer = page.getByRole('complementary', { name: `Номер ${code}` });
     await expect(drawer).toBeVisible();
     return drawer;
   };
   const living = await open('R08');
+  await living.getByRole('tab', { name: 'Бронь / Гости' }).click();
   await expect(living.getByTestId('unit-now')).toContainText('живёт');
   await expect(living.getByTestId('unit-now')).toContainText('DSG-DESK');
   await page.keyboard.press('Escape');
   // как GET /units/:code — отменённые и незаезды в карточку места не попадают
-  await expect((await open('R07')).getByTestId('unit-now')).toHaveText('свободно');
+  const free = await open('R07');
+  await free.getByRole('tab', { name: 'Бронь / Гости' }).click();
+  await expect(free.getByTestId('unit-now')).toHaveText('свободно');
+});
+
+test('панель места появляется при выборе места и исчезает, когда адрес другой; плитки без обрезки', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`);
+  for (const width of [1440, 1024, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/inventory');
+    const main = page.getByRole('main');
+    // без выбранного места панели нет
+    await expect(page.getByTestId('unit-aside')).toHaveCount(0);
+    // подписи плиток целиком: ни у одной плитки содержимое не шире самой плитки
+    const clipped = await main.locator('.inv-tile').evaluateAll((tiles) =>
+      tiles.filter((t) => t.scrollWidth > t.clientWidth + 1).length,
+    );
+    expect(clipped).toBe(0);
+    await expect(main.locator('.inv-tile')).toHaveCount(6);
+    if (width === 390) continue;
+    await main.getByRole('link', { name: 'Открыть номер R02', exact: true }).click();
+    await expect(page.getByRole('complementary', { name: 'Номер R02' })).toBeVisible();
+    // выбор другого места меняет панель, не плодит вторую
+    // с клавиатуры: строка таблицы может стоять под липкой шапкой прокручиваемого списка
+    await main.getByRole('link', { name: 'Открыть номер R03', exact: true }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('complementary', { name: 'Номер R03' })).toBeVisible();
+    await expect(page.getByTestId('unit-aside')).toHaveCount(1);
+    // фильтр меняет адрес: панель уходит вместе с выбором, список остаётся отфильтрованным
+    await main.getByRole('button', { name: 'Койко-места', exact: true }).click();
+    await expect(page).toHaveURL(/\/inventory\?kind=BED$/);
+    await expect(page.getByTestId('unit-aside')).toHaveCount(0);
+    await expect(main.getByTestId('unit-row').first()).toBeVisible();
+  }
+});
+
+test('массовые действия: выбор мест и «Назначить уборку»', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/design-seed`);
+  await page.goto('/inventory?kind=ROOM');
+  const main = page.getByRole('main');
+  await expect(main.getByRole('region', { name: 'Массовые действия' })).toHaveCount(0);
+  await main.getByRole('checkbox', { name: 'Выбрать R02', exact: true }).check();
+  await main.getByRole('checkbox', { name: 'Выбрать R03', exact: true }).check();
+  const bar = main.getByRole('region', { name: 'Массовые действия' });
+  await expect(bar).toContainText('Выбрано 2 объекта');
+  // выбор не открывает панель места
+  await expect(page.getByTestId('unit-aside')).toHaveCount(0);
+  await bar.getByRole('button', { name: 'Назначить уборку' }).click();
+  await expect(page.getByTestId('toast-stack')).toContainText('Назначена уборка: 2 места');
+  await expect(bar).toHaveCount(0);
+  const row = (code: string) =>
+    main
+      .getByTestId('unit-row')
+      .filter({ has: page.getByRole('link', { name: `Открыть номер ${code}`, exact: true }) });
+  await expect(row('R02')).toContainText('Требует уборки');
+  await expect(row('R03')).toContainText('Требует уборки');
+  // «выбрать все» берёт только показанные места
+  await main.getByRole('checkbox', { name: 'Выбрать все показанные места' }).check();
+  await expect(main.getByRole('region', { name: 'Массовые действия' })).toContainText(
+    'Выбрано 16 объектов',
+  );
+});
+
+test('фото категории: заглушка, выбор из библиотеки с порядком, галерея и сохранение', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`);
+  await page.goto('/inventory?kind=ROOM');
+  await page
+    .getByRole('main')
+    .getByRole('link', { name: 'Открыть номер R09', exact: true })
+    .click();
+  const drawer = page.getByRole('complementary', { name: 'Номер R09' });
+  await expect(drawer.getByTestId('unit-photo')).toContainText('Фото ещё не добавлены');
+  await drawer.getByRole('button', { name: 'Добавить фото категории' }).click();
+  const picker = page.getByRole('dialog', { name: /Фото категории:/ });
+  const items = picker.getByRole('button', { pressed: false });
+  await expect(items.first()).toBeVisible();
+  // порядок выбора и есть порядок показа: сначала второе, потом первое
+  const all = picker.locator('.photo-picker__item');
+  await all.nth(1).click();
+  await all.nth(0).click();
+  await expect(all.nth(1).locator('.photo-picker__order')).toHaveText('1');
+  await expect(all.nth(0).locator('.photo-picker__order')).toHaveText('2');
+  await expect(picker).toContainText('Выбрано 2 из 10');
+  const audit = await new AxeBuilder({ page })
+    .include('dialog[open]')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(audit.violations).toEqual([]);
+  await picker.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(picker).toHaveCount(0);
+  const photo = drawer.getByTestId('unit-photo');
+  await expect(photo.locator('img')).toBeVisible();
+  await expect(photo).toContainText('1/2');
+  await drawer.getByRole('button', { name: 'Следующее фото' }).click();
+  await expect(photo).toContainText('2/2');
+  await expect(drawer.getByRole('button', { name: 'Изменить фото категории' })).toBeVisible();
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -250,12 +359,15 @@ for (const theme of ['light', 'dark'] as const) {
         .getByRole('main')
         .getByRole('link', { name: 'Открыть номер R09', exact: true })
         .click();
-      await expect(page.getByRole('dialog', { name: 'Номер R09' })).toBeVisible();
+      await expect(page.getByRole('complementary', { name: 'Номер R09' })).toBeVisible();
       const audit = await new AxeBuilder({ page })
-        .include('dialog[open]')
+        .include('.fund-aside')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();
       expect(audit.violations).toEqual([]);
+      await page.screenshot({
+        path: `reports/inventory-design-2026-09-20/unit-panel-${theme}-${width}.png`,
+      });
       await page.keyboard.press('Escape');
     }
   });

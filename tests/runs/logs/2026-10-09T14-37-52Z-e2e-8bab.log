@@ -1,0 +1,84 @@
+# Сквозные (e2e) · 09.10.2026 19:37 Алматы · vm
+# коммит 95476bc (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing.spec.ts' '-g' 'Реклама|хаб Marketing' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (17.8s)
+  ✘  2 tests/ui/marketing.spec.ts:163:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (45.2s)
+
+
+  1) tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').visible().locator('.page__subtitle')
+    Expected: "Привлекайте гостей, автоматизируйте рекламу и развивайте бренд с помощью ИИ."
+    Received: "Привлекайте гостей, развивайте сайт и продвигайте бизнес с помощью ИИ."
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().locator('.page__subtitle') with timeout 15000ms
+      - waiting for getByRole('main').visible().locator('.page__subtitle')
+        34 × locator resolved to <div class="page__subtitle">Привлекайте гостей, развивайте сайт и продвигайте…</div>
+           - unexpected value "Привлекайте гостей, развивайте сайт и продвигайте бизнес с помощью ИИ."
+
+
+       99 |   const hub = main(page);
+      100 |   await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+    > 101 |   await expect(hub.locator('.page__subtitle')).toHaveText(
+          |                                                ^
+      102 |     'Привлекайте гостей, автоматизируйте рекламу и развивайте бренд с помощью ИИ.',
+      103 |   );
+      104 |   // три модуля одного вида, по порядку
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:101:48
+
+    Error Context: test-results/marketing-хаб-Marketing-2--96553-ел-ни-одного-запроса-данных/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-Marketing-2--96553-ел-ни-одного-запроса-данных/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-Marketing-2--96553-ел-ни-одного-запроса-данных/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing.spec.ts:163:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByRole('link', { name: 'Открыть: Реклама', exact: true })
+
+
+      166 | }) => {
+      167 |   await page.goto('/marketing');
+    > 168 |   await main(page).getByRole('link', { name: 'Открыть: Реклама', exact: true }).click();
+          |                                                                                 ^
+      169 |   await expect(page).toHaveURL(/\/marketing\/ads$/);
+      170 |   const ads = main(page);
+      171 |   await expect(ads.getByRole('heading', { level: 1 })).toHaveText('Реклама');
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:168:81
+
+    Error Context: test-results/marketing-экраны-«Реклама»-92464-ни-чисел-ни-запросов-данных/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-экраны-«Реклама»-92464-ни-чисел-ни-запросов-данных/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-экраны-«Реклама»-92464-ни-чисел-ни-запросов-данных/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных 
+    tests/ui/marketing.spec.ts:163:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных 
+
+# код выхода 1 · 1 мин 18 с

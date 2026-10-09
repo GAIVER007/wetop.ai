@@ -127,13 +127,13 @@ test('вложенные разделы: раскрытие, один актив
     await sales.click();
     await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
   }).toPass({ timeout: 15_000 });
-  await sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true }).click();
+  await sidebar.getByRole('link', { name: 'Анализ конкурентов', exact: true }).click();
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
   // переход закрывает список; вкладка группы помечена текущим экраном
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await expect(sales).toHaveClass(/has-current-page/);
-  await expect(sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).not.toBeVisible();
+  await expect(sidebar.getByRole('link', { name: 'Анализ конкурентов', exact: true })).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');

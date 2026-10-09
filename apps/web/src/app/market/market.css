@@ -268,4 +268,276 @@
   .market-night__market {
     font-weight: var(--weight-semibold);
   }
+
+  /* COMP3.2 (план plans/competitor-analysis-comp3-2026-10-09.md): обзор «календарь · график · рекомендация»,
+     ниже «конкуренты · подсказки». Цвет сигнала не единственный носитель: слово в доступном имени и легенде. */
+  .market-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 3fr);
+    gap: var(--space-4);
+    align-items: start;
+    margin-bottom: var(--space-6);
+  }
+  .market-main {
+    display: grid;
+    grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+    gap: var(--space-4);
+    align-items: start;
+    margin-bottom: var(--space-6);
+  }
+  /* остальных подсказок нет (единственная ушла в карточку рекомендации): таблица во всю ширину */
+  .market-main--single {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .market-block {
+    min-width: 0;
+  }
+  .market-calendar__week,
+  .market-calendar__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .market-calendar__week {
+    margin-bottom: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    text-align: center;
+  }
+  .market-day a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    min-height: var(--target-min);
+    padding: var(--space-1);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-xs);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .market-day a:hover {
+    border-color: var(--primary);
+  }
+  .market-day__num {
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+  .market-day__own {
+    font-size: var(--text-xs);
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .market-day--high a,
+  .market-swatch.market-day--high {
+    background: var(--success-soft);
+  }
+  .market-day--mid a,
+  .market-swatch.market-day--mid {
+    background: var(--primary-soft);
+  }
+  .market-day--low a,
+  .market-swatch.market-day--low {
+    background: var(--warning-soft);
+  }
+  .market-day--shift a,
+  .market-swatch.market-day--shift {
+    background: var(--danger-soft);
+  }
+  .market-day--none a,
+  .market-swatch.market-day--none {
+    background: var(--surface-muted);
+  }
+  .market-day--none a .market-day__own {
+    color: var(--muted);
+  }
+  .market-reco {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+    padding: var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-left: 4px solid var(--info);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+  }
+  .market-reco--warn {
+    border-left-color: var(--warning);
+  }
+  .market-reco--ok {
+    border-left-color: var(--success);
+  }
+  .market-reco h2 {
+    margin: 0;
+    font-size: var(--text-lg);
+  }
+  .market-reco p {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-2);
+  }
+  .market-reco__basis {
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+  .market-chart__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+  .market-chart__legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .market-chart__swatch {
+    display: inline-block;
+    width: 16px;
+    height: 4px;
+    border-radius: var(--radius-xs);
+  }
+  .market-chart__swatch--own {
+    background: var(--chart-1);
+  }
+  .market-chart__swatch--market {
+    background: var(--chart-2);
+  }
+  .market-chart__data {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .market-chart__data summary {
+    min-height: var(--target-min);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-2);
+  }
+  .market-chart__data table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  .market-chart__data th,
+  .market-chart__data td {
+    padding: var(--space-1) var(--space-2);
+    border-bottom: 1px solid var(--border-soft);
+    text-align: left;
+  }
+  .market-comp-table .market-comp-name {
+    text-align: left;
+    min-width: 180px;
+  }
+  .market-comp-table td {
+    vertical-align: middle;
+  }
+  .market-comp-delta .is-up {
+    color: var(--success);
+  }
+  .market-comp-delta .is-down {
+    color: var(--danger);
+  }
+  .market-nodata {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  @media (max-width: 1279px) {
+    .market-overview {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .market-reco {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 960px) {
+    .market-overview {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .market-main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    /* Строка таблицы конкурентов складывается в карточку (приём .fund-cat-table, DESIGN.md §8) */
+    .tbl.market-comp-table,
+    .market-comp-table tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .market-comp-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .market-comp-table tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-1) var(--space-4);
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .market-comp-table tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .market-comp-table tbody th,
+    .market-comp-table tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+    }
+    .market-comp-table tbody .market-comp-name {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .market-comp-table tbody .market-comp-status {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .market-comp-table tbody .market-comp-dist {
+      grid-column: 1;
+      grid-row: 2;
+      color: var(--muted);
+      font-size: var(--text-sm);
+    }
+    .market-comp-table tbody .market-comp-avg {
+      grid-column: 1;
+      grid-row: 3;
+      font-size: var(--text-sm);
+    }
+    .market-comp-table tbody .market-comp-avg::before {
+      content: 'Загрузка за период: ';
+      color: var(--muted);
+    }
+    .market-comp-table tbody .market-comp-delta {
+      grid-column: 2;
+      grid-row: 3;
+      justify-self: end;
+      font-size: var(--text-sm);
+    }
+    .market-comp-table tbody .market-comp-seen {
+      grid-column: 1;
+      grid-row: 4;
+      color: var(--muted);
+      font-size: var(--text-xs);
+    }
+    .market-comp-table tbody .market-comp-actions {
+      grid-column: 1 / -1;
+      grid-row: 5;
+    }
+  }
 }

@@ -86,6 +86,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--board-caption-end', // board.css: место под меню брони, 8 px без меню на узкой сетке
       '--board-head-real', // board.css: фактическая высота шапки дат, замер из board-grid.tsx
       '--board-unit-real', // board.css: фактическая ширина колонки мест — к ней липнет имя длинной брони
+      '--board-zoom', // board-zoom.tsx: масштаб календаря 70–130 %, переменная на :root
       '--plate-living', // board.css: цвета плашек календаря по образцу владельца (09.10.2026), свои для тем
       '--plate-living-ink',
       '--plate-booked',

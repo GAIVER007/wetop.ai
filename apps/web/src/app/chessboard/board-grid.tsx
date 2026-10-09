@@ -854,6 +854,10 @@ export function ChessboardGrid({
   /** Дата, на которую считается «занято/всего» в строке категории: сегодня, если она в окне, иначе первая */
   const loadDate = board.dates.includes(today) ? today : (board.dates[0] ?? today);
   const groupLoad = (code: string) => board.byCategory[loadDate]?.[code];
+  const loadPct = (code: string) => {
+    const load = groupLoad(code);
+    return `${load ? Math.round((load.occupied / Math.max(load.units, 1)) * 100) : 0}%`;
+  };
   // 30 дней: день не уже 72 px — читаемость ценой горизонтальной прокрутки внутри сетки
   // (условие владельца к PR 2; ТЗ §44). Календарный месяц вписывается в окно отдельным режимом.
   const dayWidth = board.dates.length > 14 ? 72 : 104;
@@ -1082,11 +1086,7 @@ export function ChessboardGrid({
                         }
                       >
                         <span className="board-group-bar" aria-hidden="true">
-                          <span
-                            style={{
-                              width: `${groupLoad(g.code) ? Math.round((groupLoad(g.code)!.occupied / Math.max(groupLoad(g.code)!.units, 1)) * 100) : 0}%`,
-                            }}
-                          />
+                          <span style={{ width: loadPct(g.code) }} /* slop-allow: inline-style доля занятых мест категории из данных */ />
                         </span>
                         <span className="board-group-ratio">
                           {groupLoad(g.code)
@@ -1626,7 +1626,7 @@ function Cell({
             <span
               className="board-stay-caption board-block-caption"
               data-span={blockRun.span}
-              style={{ width: `calc(${blockRun.span * 100}% - var(--space-2))` }}
+              style={{ width: `calc(${blockRun.span * 100}% - var(--space-2))` }} // slop-allow: inline-style ширина подписи по числу суток из данных
             >
               <span className="board-stay-line">
                 <b className="board-stay-glyph" aria-hidden="true">
@@ -1683,7 +1683,7 @@ function unitDot(row: ChessboardRow, date: string): { state: string; title: stri
 }
 
 /** Ширина, с которой карточка брони встаёт панелью справа от сетки; ниже — окно у плашки */
-const DOCK_QUERY = '(min-width: 1100px)';
+const DOCK_QUERY = '(min-width: 1280px)';
 function useDockedPreview() {
   return useSyncExternalStore(
     (notify) => {

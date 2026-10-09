@@ -785,4 +785,32 @@
   .unit-list li[aria-current='true'] {
     font-weight: var(--weight-semibold);
   }
+  /* выбор мест и панель массовых действий */
+  .inv-check {
+    width: var(--space-10);
+    text-align: center;
+  }
+  .inv-check input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+  }
+  .inventory-row[aria-selected='true'] {
+    background: var(--primary-soft);
+  }
+  .inv-bulk {
+    position: sticky;
+    bottom: var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-popover, 0 6px 24px rgb(0 0 0 / 0.12));
+    z-index: var(--layer-sticky, 5);
+  }
 }

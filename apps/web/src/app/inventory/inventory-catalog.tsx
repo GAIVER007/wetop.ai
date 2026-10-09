@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type {
@@ -12,6 +12,8 @@ import { Badge, Button, EmptyState, Input, Select, Table, cx } from '../../compo
 import { ActionMenu } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
 import { pluralRu } from '../../lib/plural';
+import { useToast } from '../../components/toast';
+import { bulkHousekeepingAction } from './actions';
 import { FundEditorDialog } from './fund-editor';
 import { HousekeepingBadge, floorRoomText } from './unit-state';
 import { displayDate } from '../../lib/display-date';
@@ -88,6 +90,9 @@ export function InventoryCatalog({
   const router = useRouter();
   const [editRoom, setEditRoom] = useState<InventoryUnit | null>(null);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkPending, startBulk] = useTransition();
+  const { toast } = useToast();
   const occ = new Map(occupancy.map((o) => [o.code, o]));
   const mapped = new Set(channelCategories);
   const category = search.get('category') ?? '';
@@ -217,8 +222,30 @@ export function InventoryCatalog({
   }
   /** Строка открывает карточку места; клик по ссылке, кнопке или меню остаётся за ними */
   function rowClick(e: React.MouseEvent, unit: InventoryUnit) {
-    if ((e.target as HTMLElement).closest('a, button, [role="menu"]')) return;
+    if ((e.target as HTMLElement).closest('a, button, input, label, [role="menu"]')) return;
     router.push(`/units/${encodeURIComponent(unit.code)}`);
+  }
+  const visibleCodes = filtered.map((u) => u.code);
+  const allSelected = visibleCodes.length > 0 && visibleCodes.every((c) => selected.has(c));
+  const toggle = (code: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(code)) next.add(code);
+      return next;
+    });
+  function bulkHousekeeping(status: string, word: string) {
+    const codes = [...selected];
+    startBulk(async () => {
+      const r = await bulkHousekeepingAction(codes, status);
+      toast({
+        text: r.skipped
+          ? `${word}: ${r.done} из ${codes.length}. Не прошли ${r.skipped}${r.reason ? `: ${r.reason}` : ''}`
+          : `${word}: ${pluralRu(r.done, ['место', 'места', 'мест'])}`,
+        tone: r.skipped ? 'warning' : 'success',
+      });
+      setSelected(new Set());
+      router.refresh();
+    });
   }
   return (
     <section className="inventory-content" aria-label="Каталог размещения">
@@ -407,6 +434,14 @@ export function InventoryCatalog({
         <Table className="inventory-table" aria-label="Номера и койко-места">
           <thead>
             <tr>
+              <th className="inv-check">
+                <input
+                  type="checkbox"
+                  aria-label="Выбрать все показанные места"
+                  checked={allSelected}
+                  onChange={() => setSelected(allSelected ? new Set() : new Set(visibleCodes))}
+                />
+              </th>
               <th>Место</th>
               <th>Тип</th>
               <th>Расположение</th>
@@ -426,7 +461,7 @@ export function InventoryCatalog({
             .map(([code, group]) => (
               <tbody key={code}>
                 <tr className="inventory-group-row" data-testid="category-group">
-                  <th scope="colgroup" colSpan={9}>
+                  <th scope="colgroup" colSpan={10}>
                     <button
                       type="button"
                       className="inv-group-toggle"
@@ -457,7 +492,16 @@ export function InventoryCatalog({
                       data-testid="unit-row"
                       className="inventory-row"
                       onClick={(e) => rowClick(e, unit)}
+                      aria-selected={selected.has(unit.code)}
                     >
+                      <td className="inv-check">
+                        <input
+                          type="checkbox"
+                          aria-label={`Выбрать ${unit.code}`}
+                          checked={selected.has(unit.code)}
+                          onChange={() => toggle(unit.code)}
+                        />
+                      </td>
                       <td>
                         <Link
                           prefetch={false}
@@ -537,6 +581,31 @@ export function InventoryCatalog({
               </tbody>
             ))}
         </Table>
+      )}
+      {selected.size > 0 && (
+        <div className="inv-bulk" role="region" aria-label="Массовые действия">
+          <span>Выбрано {pluralRu(selected.size, ['объект', 'объекта', 'объектов'])}</span>
+          <Button
+            tone="secondary"
+            size="sm"
+            disabled={bulkPending}
+            onClick={() => bulkHousekeeping('DIRTY', 'Назначена уборка')}
+          >
+            <Icon name="dirty" width={16} height={16} />
+            Назначить уборку
+          </Button>
+          <ActionMenu
+            text="Изменить статус уборки"
+            label="Изменить статус уборки выбранных мест"
+            items={[
+              { label: 'Убрано', onSelect: () => bulkHousekeeping('CLEAN', 'Убрано') },
+              { label: 'Проверено', onSelect: () => bulkHousekeeping('INSPECTED', 'Проверено') },
+            ]}
+          />
+          <Button tone="ghost" size="sm" onClick={() => setSelected(new Set())}>
+            Снять выбор
+          </Button>
+        </div>
       )}
       <FundEditorDialog
         categories={editorCategories}

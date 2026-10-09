@@ -81,7 +81,7 @@ test('таблица показывает расположение, состоя
   await expect(groupHead.nth(1)).toContainText('1 гость');
   await expect(main.getByRole('table').getByText('Мужской общий номер')).toHaveCount(1);
   // строка сама открывает карточку места: клик по обычной ячейке, не по ссылке (ТЗ §12)
-  await row('R02').locator('td').nth(1).click();
+  await row('R02').locator('td').nth(3).click();
   await expect(page).toHaveURL(/\/units\/R02/);
   await expect(page.getByRole('dialog', { name: 'Номер R02' })).toBeVisible();
   await page.goBack();
@@ -183,7 +183,7 @@ test('панель места: факты, сейчас и следующее, �
     .getByTestId('unit-row')
     .filter({ has: page.getByRole('link', { name: 'Открыть номер R09', exact: true }) })
     .locator('td')
-    .nth(1)
+    .nth(3)
     .click();
   const drawer = page.getByRole('dialog', { name: 'Номер R09' });
   await expect(drawer).toBeVisible();
@@ -247,6 +247,33 @@ test('панель места: живущий гость — «живёт», о�
   const free = await open('R07');
   await free.getByRole('tab', { name: 'Бронь / Гости' }).click();
   await expect(free.getByTestId('unit-now')).toHaveText('свободно');
+});
+
+test('массовые действия: выбор мест и «Назначить уборку»', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/design-seed`);
+  await page.goto('/inventory?kind=ROOM');
+  const main = page.getByRole('main');
+  await expect(main.getByRole('region', { name: 'Массовые действия' })).toHaveCount(0);
+  await main.getByRole('checkbox', { name: 'Выбрать R02', exact: true }).check();
+  await main.getByRole('checkbox', { name: 'Выбрать R03', exact: true }).check();
+  const bar = main.getByRole('region', { name: 'Массовые действия' });
+  await expect(bar).toContainText('Выбрано 2 объекта');
+  // выбор не открывает панель места
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await bar.getByRole('button', { name: 'Назначить уборку' }).click();
+  await expect(page.getByTestId('toast-stack')).toContainText('Назначена уборка: 2 места');
+  await expect(bar).toHaveCount(0);
+  const row = (code: string) =>
+    main
+      .getByTestId('unit-row')
+      .filter({ has: page.getByRole('link', { name: `Открыть номер ${code}`, exact: true }) });
+  await expect(row('R02')).toContainText('Требует уборки');
+  await expect(row('R03')).toContainText('Требует уборки');
+  // «выбрать все» берёт только показанные места
+  await main.getByRole('checkbox', { name: 'Выбрать все показанные места' }).check();
+  await expect(main.getByRole('region', { name: 'Массовые действия' })).toContainText(
+    'Выбрано 16 объектов',
+  );
 });
 
 for (const theme of ['light', 'dark'] as const) {

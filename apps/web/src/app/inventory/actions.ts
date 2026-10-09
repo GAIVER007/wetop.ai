@@ -1,6 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, inventoryEditorApi, reservationsApi } from '../../lib/api';
+import { ApiError, inventoryEditorApi, reservationsApi, unitsApi } from '../../lib/api';
 
 const FUND_PATHS = [
   '/inventory',
@@ -61,4 +61,32 @@ export async function inventoryRates() {
   } catch {
     return { plans: [], error: 'Не удалось загрузить тарифы. Закройте форму и попробуйте снова.' };
   }
+}
+
+const HK_STATUSES = ['DIRTY', 'CLEAN', 'INSPECTED'];
+
+/**
+ * Массовая смена уборки (F2): каждое место проходит ту же проверку цикла «требует уборки → убрано → проверено»,
+ * что и по одному. Не прошедшие (перепрыгнули шаг, место не найдено) пропускаются и считаются отдельно.
+ */
+export async function bulkHousekeepingAction(
+  codes: string[],
+  status: string,
+): Promise<{ done: number; skipped: number; reason: string | null }> {
+  if (!HK_STATUSES.includes(status) || codes.length === 0 || codes.length > 200)
+    return { done: 0, skipped: codes.length, reason: 'Выберите от 1 до 200 мест и статус уборки' };
+  let done = 0;
+  let skipped = 0;
+  let reason: string | null = null;
+  for (const code of codes) {
+    try {
+      await unitsApi.housekeeping(code, status);
+      done++;
+    } catch (e) {
+      skipped++;
+      reason ??= failure(e);
+    }
+  }
+  for (const path of FUND_PATHS) revalidatePath(path);
+  return { done, skipped, reason };
 }

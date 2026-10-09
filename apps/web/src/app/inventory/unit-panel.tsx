@@ -16,7 +16,12 @@ import { HousekeepingBadge, UnitStateBadge, floorRoomText } from './unit-state';
  * «История» и быстрые действия. Всё из `GET /units/:code` и списка мест; поля, которых в карточке нет
  * (дата создания, каналы места), не выдумываются. Фото появятся в срезе F3 (нужна модель, DATA_MODEL.md).
  */
-function Row({ icon, label, children, testId }: {
+function Row({
+  icon,
+  label,
+  children,
+  testId,
+}: {
   icon: 'inventory' | 'guests' | 'clock' | 'check' | 'dirty' | 'rates';
   label: string;
   children: React.ReactNode;
@@ -107,9 +112,7 @@ export function UnitPanel({
   const beds = (
     <div className="unit-tab">
       <p className="sub">
-        {unit.kind === 'BED'
-          ? 'Койко-места этой комнаты'
-          : `Места комнаты ${unit.roomNumber}`}
+        {unit.kind === 'BED' ? 'Койко-места этой комнаты' : `Места комнаты ${unit.roomNumber}`}
       </p>
       <ul className="unit-list">
         {roomUnits.map((u) => (

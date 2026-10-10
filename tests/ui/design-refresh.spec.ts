@@ -20,9 +20,9 @@ test('финансы: деньги на первом экране, кнопки 
     await expect(attention).toBeAttached();
     if (width === 1440) {
       // по макету 09.10 карточка внимания стоит третьим рядом: на первом экране деньги и загрузка,
-      // внимание частично видно и достижимо прокруткой (плитки стали выше с кругом значка слева)
+      // внимание частично видно и достижимо прокруткой; с левым меню (ADR-161) плитки рядами 4 + 3, карточка у края экрана
       await expect(page.getByTestId('cash-summary')).toBeInViewport();
-      await expect(risks).toBeInViewport({ ratio: 0.1 });
+      await expect(risks).toBeInViewport();
       await attention.scrollIntoViewIfNeeded();
       await expect(attention).toBeInViewport();
     }

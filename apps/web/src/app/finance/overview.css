@@ -3,6 +3,7 @@
    только токенами; деньги в графике — var(--success) / var(--danger), как у сумм кассы. */
 @layer sections {
   .biz-overview {
+    container: biz-overview / inline-size;
     display: grid;
     gap: var(--space-4);
     margin-bottom: var(--space-4);
@@ -11,6 +12,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
     gap: var(--space-2);
+  }
+  /* С левым меню (ADR-161) на 1280–1440 px семь плиток в ряд не встают: шестая строка тесна, седьмая плитка
+     уходит одна на второй ряд, суммы ломаются. Тогда ряды 4 + 3, суммы целиком; мерится ширина самого обзора */
+  @container biz-overview (min-width: 900px) and (max-width: 1259px) {
+    .biz-kpis {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
   .biz-row {
     display: grid;

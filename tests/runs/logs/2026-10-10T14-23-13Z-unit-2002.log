@@ -1,0 +1,16 @@
+# Модульные (unit) · 10.10.2026 19:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8155904 (claude/restaurant-module-tz), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T14-23-13Z-unit-2002.json' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 110ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  07:23:46
+   Duration  1.27s (tests 43%, transform 35%, import 19%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T14-23-13Z-unit-2002.json
+
+# код выхода 0 · 35 с

@@ -1,0 +1,212 @@
+# Модульные (unit) · 10.10.2026 15:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 54
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T10-22-40Z-unit-a893.json' 'apps/web/src/lib/navigation-food.test.ts' 'packages/domain/src/food/restaurant.test.ts' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| packages/domain/src/food/restaurant.test.ts (17 tests) 38ms
+ ❯ |unit| tests/unit/design-slop.test.ts (18 tests | 7 failed) 44ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (18)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 3ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 26ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 1ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     × dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 2ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     × radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     ✓ z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 0ms
+     × font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a) 1ms
+     × space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a) 1ms
+     ✓ inline-style: style={…} в TSX: только геометрия из данных и только с `slop-allow: inline-style <причина>` (MV8.5 DS0a) 0ms
+     ✓ important: !important в CSS: каскад решают слои и порядок, исключение только с `slop-allow: important <причина>` (MV8.5 DS0b) 0ms
+     × breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1) 1ms
+     ✓ layer-name: @layer вне договора reset, tokens, base, components, sections, utilities (DESIGN.md §20.6) 1ms
+     × orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a) 1ms
+     ✓ снимок покрывает все правила 0ms
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 1 failed) 18ms
+   ❯ Food workspace isolation (4)
+     × exposes exactly accepted Food menu 12ms
+     ✓ does not expose Food to existing verticals 2ms
+     ✓ uses canonical landings and verified scope 1ms
+     ✓ identifies isolated routes before API access 0ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 89ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/beauty/beauty.css: 0 → 1",
++   "apps/web/src/app/food/restaurant.css: 0 → 15",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(4) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/food/customers.tsx: 0 → 1",
++   "apps/web/src/app/food/kitchen-board.tsx: 0 → 2",
++   "apps/web/src/app/food/menu-board.tsx: 0 → 2",
++   "apps/web/src/app/food/order-drawer.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/food/restaurant.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/food/restaurant.css: 0 → 6",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/beauty/beauty.css: 40 → 46",
++   "apps/web/src/app/food/restaurant.css: 0 → 28",
++   "apps/web/src/app/today/vertical-today.css: 8 → 9",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-seller/channel-steps.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > exposes exactly accepted Food menu
+AssertionError: expected [ '/today', '/orders', …(13) ] to deeply equal [ '/today', '/floor-plan', …(8) ]
+
+- Expected
++ Received
+
+@@ -1,10 +1,15 @@
+  [
+    "/today",
++   "/orders",
+    "/floor-plan",
++   "/kitchen",
+    "/table-reservations",
+    "/customers",
++   "/menu",
++   "/employees",
++   "/payroll",
+    "/dining-areas",
+    "/staff",
+    "/management/analytics",
+    "/journal",
+    "/help",
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:10:7
+      8|     expect(
+      9|       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.ma…
+     10|     ).toEqual([
+       |       ^
+     11|       '/today',
+     12|       '/floor-plan',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+
+ Test Files  2 failed | 2 passed (4)
+      Tests  8 failed | 34 passed (42)
+   Start at  03:22:41
+   Duration  6.85s (transform 63%, import 34%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T10-22-40Z-unit-a893.json
+
+# код выхода 1 · 8 с

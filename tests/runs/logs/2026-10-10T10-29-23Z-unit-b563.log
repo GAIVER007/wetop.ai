@@ -1,0 +1,321 @@
+# Модульные (unit) · 10.10.2026 15:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 55
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T10-29-23Z-unit-b563.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/db-backup-offsite.test.ts' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/guard-run.test.ts' 'tests/unit/launchd-status.test.ts' 'apps/api/src/rate-window.test.ts' 'tests/unit/test-journal-merge.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/api/src/rate-window.test.ts (6 tests) 64ms
+ ✓ |unit| tests/unit/test-journal-merge.test.ts (3 tests) 1351ms
+   ✓ журнал из записей: test:status видит то же, что видел по общему файлу (2)
+     ✓ нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты 1233ms
+ ❯ |unit| tests/unit/launchd-status.test.ts (4 tests | 2 failed) 2975060ms
+   ❯ status.sh: состояние туннеля (4)
+     ✓ ни tunnel, ни domain не загружены, но адрес отвечает — говорит, что туннель работает 1466ms
+     ✓ адрес молчит и задача не загружена — говорит, что туннеля нет 4987ms
+     × задача загружена и адрес отвечает — обычная строка без предупреждения 2955056ms
+     × задача загружена, а снаружи молчит — называет это расхождением 13493ms
+ ❯ |unit| tests/unit/guard-run.test.ts (8 tests | 5 failed) 2986701ms
+   ❯ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ только токен подписки: отказ до первого круга, модель не зовётся 8ms
+     ✓ ни ключа, ни токена: отказ с подсказкой про ключ 15ms
+     × заданы оба: платит ключ, токен подписки процессу агента не достаётся 6647ms
+     × подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 2943525ms
+   ❯ дежурный агент: дневной потолок денег (ADR-137) (4)
+     × каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 21580ms
+     × предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 6129ms
+     × вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 5033ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 3751ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 4 failed) 2987176ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ без --yes-replace-production ничего не делает 16ms
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 1654ms
+     × смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 5275ms
+     × схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 2943248ms
+     × пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 20113ms
+     × транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 11933ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 4935ms
+ ❯ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 2 failed | 1 skipped) 2990392ms
+   ✓ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     ✓ последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 1182ms
+     ✓ шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 2337ms
+     ✓ закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере 3292ms
+   ❯ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     × ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 2954582ms
+     × настройки читаются из .env клона, как у db-backup.sh 14902ms
+     ✓ Telegram: токен в адресе через stdin, а не аргументом 1727ms
+   ✓ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     ✓ не настроено: перечислены недостающие переменные, код 2 748ms
+     ✓ ночная копия старше 26 часов: наружу не несём, сообщаем 1949ms
+     ✓ R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 4717ms
+     ✓ размер в R2 не совпал: сбой, статус не тронут 3192ms
+     ✓ rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 1760ms
+   ↓ вторая копия вне сервера: настоящий age, круг до расшифровки (1)
+     ↓ копия из R2 расшифровывается закрытым ключом и совпадает с ночной
+ ❯ |unit| tests/unit/auto-deploy.test.ts (16 tests | 3 failed) 3031000ms
+   ❯ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 1850ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 919ms
+     × новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 2973226ms
+     × в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 9080ms
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 6913ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 4801ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 3756ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 4307ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2840ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 4408ms
+     ✓ локальные правки в клоне — не затирает их 2291ms
+     ✓ историю ветки переписали — не выкладывает поверх 3460ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 3475ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 3926ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 3253ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 2490ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:141:3
+    139|   });
+    140|
+    141|   it('новый коммит без миграций — выкладывает, проверяет и сообщает, т…
+       |   ^
+    142|     const before = head();
+    143|     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:160:3
+    158|   });
+    159|
+    160|   it('в обновлении миграция — не выкладывает, говорит один раз и ждёт …
+       |   ^
+    161|     const before = head();
+    162|     commit('packages/database/prisma/migrations/0002_more/migration.sq…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:177:3
+    175|   });
+    176|
+    177|   it('владелец применил миграции и назвал вершину — выкладывает ровно …
+       |   ^
+    178|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    179|     const refusal = run();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: ключи R2 не светятся (ADR-137) > ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет
+AssertionError: expected null to be +0 // Object.is equality
+
+- Expected:
+0
+
++ Received:
+null
+
+ ❯ tests/unit/db-backup-offsite.test.ts:176:27
+    174|     s.dump('wetop-20261002T233000Z.dump');
+    175|     const r = s.run(s.env0);
+    176|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    177|     expect(s.read('calls')).not.toContain(SECRET);
+    178|     expect(s.read('calls')).not.toContain('r2-key-id');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: ключи R2 не светятся (ADR-137) > настройки читаются из .env клона, как у db-backup.sh
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-backup-offsite.test.ts:192:3
+    190|   });
+    191|
+    192|   it('настройки читаются из .env клона, как у db-backup.sh', () => {
+       |   ^
+    193|     const s = sandbox();
+    194|     s.dump('wetop-20261002T233000Z.dump');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > смешанная schema-миграция с GRANT не выполняется второй раз после восстановления
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:117:3
+    115|   });
+    116|
+    117|   it('смешанная schema-миграция с GRANT не выполняется второй раз посл…
+       |   ^
+    118|     const s = sandbox();
+    119|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления
+AssertionError: expected null to be +0 // Object.is equality
+
+- Expected:
+0
+
++ Received:
+null
+
+ ❯ tests/unit/db-restore-prod.test.ts:128:62
+    126|   it('схема public из копии не пересоздаётся: её записи вычеркнуты из …
+    127|     const s = sandbox();
+    128|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+       |                                                              ^
+    129|     const used = s.read('used-list');
+    130|     expect(used).toContain('TABLE DATA public reservations');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны
+AssertionError: expected null to be +0 // Object.is equality
+
+- Expected:
+0
+
++ Received:
+null
+
+ ❯ tests/unit/db-restore-prod.test.ts:137:62
+    135|   it('пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma среза…
+    136|     const s = sandbox();
+    137|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+       |                                                              ^
+    138|     expect(s.read('calls')).not.toContain(PASSWORD);
+    139|     expect(s.read('calls')).not.toContain('pgbouncer');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:144:3
+    142|   });
+    143|
+    144|   it('транзакция упала: код 1 и прямое «откатилось целиком», пароль в …
+       |   ^
+    145|     const s = sandbox({ psqlFails: true });
+    146|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > заданы оба: платит ключ, токен подписки процессу агента не достаётся
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:109:3
+    107|   });
+    108|
+    109|   it('заданы оба: платит ключ, токен подписки процессу агента не доста…
+       |   ^
+    110|     const s = sandbox();
+    111|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>', CLAUDE_CODE_OAUTH_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале
+AssertionError: expected null to be 99 // Object.is equality
+
+- Expected:
+99
+
++ Received:
+null
+
+ ❯ tests/unit/guard-run.test.ts:125:27
+    123|     const s = sandbox();
+    124|     const r = s.run({ CLAUDE_CODE_OAUTH_TOKEN: 'subscription-token', G…
+    125|     expect(r.code, r.out).toBe(99);
+       |                           ^
+    126|     expect(r.out).toContain('подписка владельца');
+    127|     expect(s.claudeCalls()).toContain('oauth=set');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC
+AssertionError: expected null to be 99 // Object.is equality
+
+- Expected:
+99
+
++ Received:
+null
+
+ ❯ tests/unit/guard-run.test.ts:135:27
+    133|     const s = sandbox();
+    134|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>', GUARD_RUN_BUDGET_U…
+    135|     expect(r.code, r.out).toBe(99);
+       |                           ^
+    136|     expect(s.claudeCalls()).toContain('--max-budget-usd 1.5');
+    137|     expect(readFileSync(s.runsFile, 'utf8').trim()).toBe(`${today()} 1…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:141:3
+    139|   });
+    140|
+    141|   it('предел запусков исчерпан: модель не зовётся, дежурным одно сообщ…
+       |   ^
+    142|     const s = sandbox();
+    143|     writeFileSync(s.runsFile, `${today()} 4\n`);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > вчерашний счётчик не мешает: новые сутки начинаются с первого запуска
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:156:3
+    154|   });
+    155|
+    156|   it('вчерашний счётчик не мешает: новые сутки начинаются с первого за…
+       |   ^
+    157|     const s = sandbox();
+    158|     writeFileSync(s.runsFile, '2000-01-01 4\n');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/16]⎯
+
+ FAIL  |unit| tests/unit/launchd-status.test.ts > status.sh: состояние туннеля > задача загружена и адрес отвечает — обычная строка без предупреждения
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/launchd-status.test.ts:82:3
+     80|   });
+     81|
+     82|   it('задача загружена и адрес отвечает — обычная строка без предупреж…
+       |   ^
+     83|     const out = run({ loaded: ['api', 'web', 'domain'], httpCode: '200…
+     84|     expect(out).toContain('domain  running');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/16]⎯
+
+ FAIL  |unit| tests/unit/launchd-status.test.ts > status.sh: состояние туннеля > задача загружена, а снаружи молчит — называет это расхождением
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/launchd-status.test.ts:89:3
+     87|   });
+     88|
+     89|   it('задача загружена, а снаружи молчит — называет это расхождением',…
+       |   ^
+     90|     const out = run({ loaded: ['api', 'web', 'domain'], httpCode: '000…
+     91|     expect(out).toMatch(/туннель.*не отвечает/s);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/16]⎯
+
+
+ Test Files  5 failed | 2 passed (7)
+      Tests  16 failed | 39 passed | 1 skipped (56)
+   Start at  03:29:24
+   Duration  3031.17s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T10-29-23Z-unit-b563.json
+
+# код выхода 1 · 50 мин 32 с

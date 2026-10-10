@@ -1,0 +1,887 @@
+# Сквозные (e2e) · 10.10.2026 17:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 64
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 71 tests using 2 workers
+
+[WebServer] node:events:487
+[WebServer]       throw er; // Unhandled 'error' event
+[WebServer]       ^
+[WebServer] 
+[WebServer] Error: listen EADDRINUSE: address already in use 127.0.0.1:4320
+[WebServer]     at Server.setupListenHandle [as _listen2] (node:net:2167:16)
+[WebServer]     at listenInCluster (node:net:2224:12)
+[WebServer]     at node:net:2448:7
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[WebServer] Emitted 'error' event on Server instance at:
+[WebServer]     at emitErrorNT (node:net:2203:8)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+[WebServer]   code: 'EADDRINUSE',
+[WebServer]   errno: -48,
+[WebServer]   syscall: 'listen',
+[WebServer]   address: '127.0.0.1',
+[WebServer]   port: 4320
+[WebServer] }
+[WebServer] 
+[WebServer] Node.js v24.19.0
+  ✓   1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (7.2s)
+  ✓   2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (7.9s)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (6.3s)
+  ✓   4 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (6.7s)
+  ✓   6 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (4.0s)
+  ✓   5 tests/site/homepage-blocks.spec.ts:21:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (5.7s)
+  ✓   8 tests/site/homepage-blocks.spec.ts:32:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (19.6s)
+  ✓   7 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (25.2s)
+  ✓   9 tests/site/homepage-blocks.spec.ts:63:1 › содержимое блоков видно сразу: шесть возможностей, две большие карточки продаж, четыре шага (6.5s)
+  ✓  11 tests/site/homepage-blocks.spec.ts:82:1 › первый экран: две кнопки в строку, направления сразу после Hero (1.1s)
+  ✓  12 tests/site/homepage-blocks.spec.ts:95:1 › карточки блоков читаются одной фразой, а не абзацем (280ms)
+  ✓  10 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (6.6s)
+  ✓  14 tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (464ms)
+  ✓  13 tests/site/homepage-blocks.spec.ts:110:1 › «Продажи и ИИ»: примеры подписаны вымышленными, ИИ назван отдельным расширением (3.6s)
+  ✓  16 tests/site/homepage-blocks.spec.ts:138:1 › первый экран: дашборд подписан примером и не имитирует кнопки (548ms)
+  ✓  15 tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (656ms)
+  ✓  17 tests/site/homepage-blocks.spec.ts:153:1 › на главной нет дорожной карты направлений и слова «пилот» (369ms)
+  ✓  19 tests/site/homepage-blocks.spec.ts:166:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (312ms)
+  ✓  20 tests/site/homepage-blocks.spec.ts:178:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (215ms)
+  ✓  18 tests/site/auth-dialog.spec.ts:223:1 › на телефоне окно открывается из меню и не шире экрана (1.0s)
+  ✓  21 tests/site/homepage-blocks.spec.ts:188:1 › карточка призыва и подвал: правовые страницы, контакты, без чисел клиентов (254ms)
+  ✓  23 tests/site/homepage-blocks.spec.ts:214:1 › в текстах главной нет длинного тире и разделителя « · » (394ms)
+  ✓  24 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (497ms)
+  ✘  22 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (1.7s)
+  ✘  25 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (1.4s)
+  ✘  27 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access (1.7s)
+  ✘  26 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (1.7s)
+  ✘  28 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (4.1s)
+  ✘  29 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (4.1s)
+  ✘  30 tests/site/homepage-blocks.spec.ts:242:1 › блоки доступны в обеих темах (3.8s)
+  ✘  31 tests/site/landing.spec.ts:20:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (3.8s)
+  ✘  33 tests/site/landing.spec.ts:26:3 › / — открывается, доступна и без «TODO» на экране (1.6s)
+  ✘  32 tests/site/homepage-blocks.spec.ts:256:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (1.6s)
+  ✘  34 tests/site/landing.spec.ts:41:3 › / — на телефоне нет горизонтальной прокрутки (10.1s)
+  ✘  35 tests/site/homepage-blocks.spec.ts:271:3 › /privacy/: заголовок, редакция, доступность (10.2s)
+  ✘  37 tests/site/homepage-blocks.spec.ts:271:3 › /terms/: заголовок, редакция, доступность (3.9s)
+  ✘  36 tests/site/landing.spec.ts:26:3 › /blog/ — открывается, доступна и без «TODO» на экране (3.9s)
+  ✘  39 tests/site/landing.spec.ts:41:3 › /blog/ — на телефоне нет горизонтальной прокрутки (2.1s)
+  ✘  38 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (2.1s)
+  ✘  40 tests/site/landing.spec.ts:26:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (9.4s)
+  ✘  41 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (9.7s)
+  ✓  43 tests/site/landing.spec.ts:41:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (2.0s)
+  ✓  44 tests/site/landing.spec.ts:26:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (2.9s)
+  ✘  42 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (12.8s)
+  ✓  45 tests/site/landing.spec.ts:41:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (14.7s)
+  ✓  46 tests/site/landing.spec.ts:26:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (9.8s)
+  ✓  48 tests/site/landing.spec.ts:41:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (4.0s)
+  ✘  47 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (16.3s)
+  ✓  49 tests/site/landing.spec.ts:26:3 › /calculator/ — открывается, доступна и без «TODO» на экране (11.2s)
+  ✓  51 tests/site/landing.spec.ts:41:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (1.3s)
+  ✓  52 tests/site/landing.spec.ts:26:3 › /privacy/ — открывается, доступна и без «TODO» на экране (7.7s)
+  ✘  50 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (12.4s)
+  ✘  53 tests/site/landing.spec.ts:41:3 › /privacy/ — на телефоне нет горизонтальной прокрутки (4.2s)
+  ✘  55 tests/site/landing.spec.ts:26:3 › /terms/ — открывается, доступна и без «TODO» на экране (2.2s)
+  ✘  54 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (2.1s)
+  ✘  57 tests/site/landing.spec.ts:41:3 › /terms/ — на телефоне нет горизонтальной прокрутки (6.5s)
+  ✘  56 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (6.5s)
+  ✘  58 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (14.5s)
+  ✘  59 tests/site/landing.spec.ts:54:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (14.2s)
+  ✘  60 tests/site/landing.spec.ts:72:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (201ms)
+  ✘  62 tests/site/landing.spec.ts:85:1 › главная: регистрация открыта, маркетинговых обещаний trial нет (4.7s)
+  ✘  61 tests/site/public-intro.spec.ts:55:1 › new header registration: keyboard activation and focus return on mobile (4.7s)
+  ✘  63 tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog (16.2s)
+  ✘  64 tests/site/landing.spec.ts:139:1 › первый экран объясняет платформу, направления и зрелость (15.2s)
+  ✘  66 tests/site/public-intro.spec.ts:101:1 › business positioning: three verticals, no maturity labels, five capabilities each (27.2s)
+  ✘  65 tests/site/restaurants.spec.ts:8:1 › /restaurants/ — hero, мокап с планом зала, разделы и призыв (27.0s)
+  ✘  68 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (7.0s)
+  ✘  67 tests/site/restaurants.spec.ts:40:1 › с главной на /restaurants/ ведёт карточка ресторанного направления (7.1s)
+  ✘  69 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (3.0s)
+  ✘  70 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (3.1s)
+  ✘  71 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (2.8s)
+
+
+  1) tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 ──
+
+    Error: page.reload: net::ERR_CONNECTION_REFUSED
+    Call log:
+      - waiting for navigation until "load"
+
+
+      260 |       await page.keyboard.press('ArrowDown');
+      261 |       await expect(page.locator('input[name="vertical"][value="BEAUTY"]')).toBeChecked();
+    > 262 |       await page.reload();
+          |                  ^
+      263 |       await expect(page.locator('input[name="vertical"][value="BEAUTY"]')).toBeChecked();
+      264 |       await page.screenshot({
+      265 |         path: `${report}/site-register-${theme}-${width}.png`,
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:262:18
+
+    Error Context: test-results/auth-dialog-снимки-окна-ре-b53eb-светлая-и-тёмная-1440-и-390/error-context.md
+
+  2) tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/?vertical=BEAUTY#register
+    Call log:
+      - navigating to "http://127.0.0.1:4320/?vertical=BEAUTY#register", waiting until "load"
+
+
+      302 |       }),
+      303 |     });
+    > 304 |     await page.goto(`/?vertical=${vertical}#register`);
+          |                ^
+      305 |     const dialog = page.getByRole('dialog');
+      306 |     await expect(dialog.locator(`input[name="vertical"][value="${vertical}"]`)).toBeChecked();
+      307 |     await expect(dialog.getByText('Подключение по приглашению', { exact: true })).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:304:16
+
+    Error Context: test-results/auth-dialog-MV2-selector-p-33014-thout-granting-pilot-access/error-context.md
+
+  3) tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/?vertical=FOOD_SERVICE#register
+    Call log:
+      - navigating to "http://127.0.0.1:4320/?vertical=FOOD_SERVICE#register", waiting until "load"
+
+
+      302 |       }),
+      303 |     });
+    > 304 |     await page.goto(`/?vertical=${vertical}#register`);
+          |                ^
+      305 |     const dialog = page.getByRole('dialog');
+      306 |     await expect(dialog.locator(`input[name="vertical"][value="${vertical}"]`)).toBeChecked();
+      307 |     await expect(dialog.getByText('Подключение по приглашению', { exact: true })).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:304:16
+
+    Error Context: test-results/auth-dialog-MV2-selector-p-de8dc-thout-granting-pilot-access/error-context.md
+
+  4) tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 390 px и открывает регистрацию с первого экрана 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      225 |     await page.setViewportSize({ width, height: 900 });
+      226 |     await page.emulateMedia({ reducedMotion: 'reduce' });
+    > 227 |     await page.goto('/');
+          |                ^
+      228 |     expect(
+      229 |       Number(
+      230 |         await page.evaluate(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/homepage-blocks.spec.ts:227:16
+
+    Error Context: test-results/homepage-blocks-главная-по-b6ff3-егистрацию-с-первого-экрана/error-context.md
+
+  5) tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 768 px и открывает регистрацию с первого экрана 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      225 |     await page.setViewportSize({ width, height: 900 });
+      226 |     await page.emulateMedia({ reducedMotion: 'reduce' });
+    > 227 |     await page.goto('/');
+          |                ^
+      228 |     expect(
+      229 |       Number(
+      230 |         await page.evaluate(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/homepage-blocks.spec.ts:227:16
+
+    Error Context: test-results/homepage-blocks-главная-по-9bb2d-егистрацию-с-первого-экрана/error-context.md
+
+  6) tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      225 |     await page.setViewportSize({ width, height: 900 });
+      226 |     await page.emulateMedia({ reducedMotion: 'reduce' });
+    > 227 |     await page.goto('/');
+          |                ^
+      228 |     expect(
+      229 |       Number(
+      230 |         await page.evaluate(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/homepage-blocks.spec.ts:227:16
+
+    Error Context: test-results/homepage-blocks-главная-по-4fd57-егистрацию-с-первого-экрана/error-context.md
+
+  7) tests/site/homepage-blocks.spec.ts:242:1 › блоки доступны в обеих темах ───────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      243 |   for (const colorScheme of ['light', 'dark'] as const) {
+      244 |     await page.emulateMedia({ colorScheme, reducedMotion: 'reduce' });
+    > 245 |     await page.goto('/');
+          |                ^
+      246 |     const result = await new AxeBuilder({ page })
+      247 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      248 |       .analyze();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/homepage-blocks.spec.ts:245:16
+
+    Error Context: test-results/homepage-blocks-блоки-доступны-в-обеих-темах/error-context.md
+
+  8) tests/site/homepage-blocks.spec.ts:256:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      258 | }) => {
+      259 |   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
+    > 260 |   await page.goto('/');
+          |              ^
+      261 |   await page.getByRole('button', { name: 'Переключить тему' }).click();
+      262 |   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+      263 |   await page.reload();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/homepage-blocks.spec.ts:260:14
+
+    Error Context: test-results/homepage-blocks-FAQ-раскры-98471-атель-темы-запоминает-выбор/error-context.md
+
+  9) tests/site/homepage-blocks.spec.ts:271:3 › /privacy/: заголовок, редакция, доступность ────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/privacy/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/privacy/", waiting until "load"
+
+
+      270 | for (const path of ['/privacy/', '/terms/'] as const) {
+      271 |   test(`${path}: заголовок, редакция, доступность`, async ({ page }) => {
+    > 272 |     await page.goto(path);
+          |                ^
+      273 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      274 |     await expect(page.locator('.legal__meta')).toContainText(/Редакция от/);
+      275 |     const axe = await new AxeBuilder({ page })
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/homepage-blocks.spec.ts:272:16
+
+    Error Context: test-results/homepage-blocks--privacy-заголовок-редакция-доступность/error-context.md
+
+  10) tests/site/homepage-blocks.spec.ts:271:3 › /terms/: заголовок, редакция, доступность ─────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/terms/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/terms/", waiting until "load"
+
+
+      270 | for (const path of ['/privacy/', '/terms/'] as const) {
+      271 |   test(`${path}: заголовок, редакция, доступность`, async ({ page }) => {
+    > 272 |     await page.goto(path);
+          |                ^
+      273 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      274 |     await expect(page.locator('.legal__meta')).toContainText(/Редакция от/);
+      275 |     const axe = await new AxeBuilder({ page })
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/homepage-blocks.spec.ts:272:16
+
+    Error Context: test-results/homepage-blocks--terms-заголовок-редакция-доступность/error-context.md
+
+  11) tests/site/landing.spec.ts:20:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      19 | ];
+      20 | test('чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён', async ({ page }) => {
+    > 21 |   await page.goto('/');
+         |              ^
+      22 |   await expect(page.locator('script[src*="/widget/widget.js"]')).toHaveCount(0);
+      23 | });
+      24 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:21:14
+
+    Error Context: test-results/landing-чат-ИИ-помощника-т-2e0ae-бличный-сервис-не-подключён/error-context.md
+
+  12) tests/site/landing.spec.ts:26:3 › / — открывается, доступна и без «TODO» на экране ───────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      25 | for (const path of PAGES) {
+      26 |   test(`${path} — открывается, доступна и без «TODO» на экране`, async ({ page }) => {
+    > 27 |     const response = await page.goto(path);
+         |                                 ^
+      28 |     expect(response?.status(), `страница ${path}`).toBe(200);
+      29 |
+      30 |     await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:27:33
+
+    Error Context: test-results/landing--—-открывается-доступна-и-без-«TODO»-на-экране/error-context.md
+
+  13) tests/site/landing.spec.ts:41:3 › / — на телефоне нет горизонтальной прокрутки ───────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      41 |   test(`${path} — на телефоне нет горизонтальной прокрутки`, async ({ page }) => {
+      42 |     await page.setViewportSize({ width: 390, height: 844 });
+    > 43 |     await page.goto(path);
+         |                ^
+      44 |     // Выражение строкой, а не стрелкой: в корневом tsconfig нет библиотеки DOM, и `document` тут не типизирован
+      45 |     const overflow = Number(
+      46 |       await page.evaluate(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:43:16
+
+    Error Context: test-results/landing--—-на-телефоне-нет-горизонтальной-прокрутки/error-context.md
+
+  14) tests/site/landing.spec.ts:26:3 › /blog/ — открывается, доступна и без «TODO» на экране ──────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/blog/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/blog/", waiting until "load"
+
+
+      25 | for (const path of PAGES) {
+      26 |   test(`${path} — открывается, доступна и без «TODO» на экране`, async ({ page }) => {
+    > 27 |     const response = await page.goto(path);
+         |                                 ^
+      28 |     expect(response?.status(), `страница ${path}`).toBe(200);
+      29 |
+      30 |     await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:27:33
+
+    Error Context: test-results/landing--blog-—-открывается-доступна-и-без-«TODO»-на-экране/error-context.md
+
+  15) tests/site/landing.spec.ts:41:3 › /blog/ — на телефоне нет горизонтальной прокрутки ──────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/blog/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/blog/", waiting until "load"
+
+
+      41 |   test(`${path} — на телефоне нет горизонтальной прокрутки`, async ({ page }) => {
+      42 |     await page.setViewportSize({ width: 390, height: 844 });
+    > 43 |     await page.goto(path);
+         |                ^
+      44 |     // Выражение строкой, а не стрелкой: в корневом tsconfig нет библиотеки DOM, и `document` тут не типизирован
+      45 |     const overflow = Number(
+      46 |       await page.evaluate(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:43:16
+
+    Error Context: test-results/landing--blog-—-на-телефоне-нет-горизонтальной-прокрутки/error-context.md
+
+  16) tests/site/landing.spec.ts:26:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/for/hostels/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/for/hostels/", waiting until "load"
+
+
+      25 | for (const path of PAGES) {
+      26 |   test(`${path} — открывается, доступна и без «TODO» на экране`, async ({ page }) => {
+    > 27 |     const response = await page.goto(path);
+         |                                 ^
+      28 |     expect(response?.status(), `страница ${path}`).toBe(200);
+      29 |
+      30 |     await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:27:33
+
+    Error Context: test-results/landing--for-hostels-—-отк-18f1b-упна-и-без-«TODO»-на-экране/error-context.md
+
+  17) tests/site/landing.spec.ts:41:3 › /privacy/ — на телефоне нет горизонтальной прокрутки ───────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/privacy/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/privacy/", waiting until "load"
+
+
+      41 |   test(`${path} — на телефоне нет горизонтальной прокрутки`, async ({ page }) => {
+      42 |     await page.setViewportSize({ width: 390, height: 844 });
+    > 43 |     await page.goto(path);
+         |                ^
+      44 |     // Выражение строкой, а не стрелкой: в корневом tsconfig нет библиотеки DOM, и `document` тут не типизирован
+      45 |     const overflow = Number(
+      46 |       await page.evaluate(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:43:16
+
+    Error Context: test-results/landing--privacy-—-на-телефоне-нет-горизонтальной-прокрутки/error-context.md
+
+  18) tests/site/landing.spec.ts:26:3 › /terms/ — открывается, доступна и без «TODO» на экране ─────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/terms/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/terms/", waiting until "load"
+
+
+      25 | for (const path of PAGES) {
+      26 |   test(`${path} — открывается, доступна и без «TODO» на экране`, async ({ page }) => {
+    > 27 |     const response = await page.goto(path);
+         |                                 ^
+      28 |     expect(response?.status(), `страница ${path}`).toBe(200);
+      29 |
+      30 |     await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:27:33
+
+    Error Context: test-results/landing--terms-—-открывается-доступна-и-без-«TODO»-на-экране/error-context.md
+
+  19) tests/site/landing.spec.ts:41:3 › /terms/ — на телефоне нет горизонтальной прокрутки ─────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/terms/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/terms/", waiting until "load"
+
+
+      41 |   test(`${path} — на телефоне нет горизонтальной прокрутки`, async ({ page }) => {
+      42 |     await page.setViewportSize({ width: 390, height: 844 });
+    > 43 |     await page.goto(path);
+         |                ^
+      44 |     // Выражение строкой, а не стрелкой: в корневом tsconfig нет библиотеки DOM, и `document` тут не типизирован
+      45 |     const overflow = Number(
+      46 |       await page.evaluate(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:43:16
+
+    Error Context: test-results/landing--terms-—-на-телефоне-нет-горизонтальной-прокрутки/error-context.md
+
+  20) tests/site/landing.spec.ts:54:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      54 | test('ссылка в мессенджере: заголовок, описание и картинка 1200×630', async ({ page, request }) => {
+      55 |   for (const path of PAGES) {
+    > 56 |     await page.goto(path);
+         |                ^
+      57 |     const meta = async (property: string) =>
+      58 |       page.locator(`meta[property="${property}"]`).getAttribute('content');
+      59 |     expect(await meta('og:title'), `og:title на ${path}`).toContain('WETOP');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:56:16
+
+    Error Context: test-results/landing-ссылка-в-мессендже-3692a-писание-и-картинка-1200×630/error-context.md
+
+  21) tests/site/landing.spec.ts:72:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается 
+
+    Error: apiRequestContext.get: connect ECONNREFUSED 127.0.0.1:4320
+    Call log:
+      - → GET http://127.0.0.1:4320/sitemap.xml
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      71 |
+      72 | test('в sitemap.xml только живые адреса, robots.txt на него ссылается', async ({ request }) => {
+    > 73 |   const sitemap = await request.get('/sitemap.xml');
+         |                                 ^
+      74 |   expect(sitemap.status()).toBe(200);
+      75 |   const urls = [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]!);
+      76 |   expect(urls.length).toBeGreaterThan(0);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:73:33
+
+    Error Context: test-results/landing-в-sitemap-xml-толь-def61-obots-txt-на-него-ссылается/error-context.md
+
+  22) tests/site/landing.spec.ts:85:1 › главная: регистрация открыта, маркетинговых обещаний trial нет 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      85 | test('главная: регистрация открыта, маркетинговых обещаний trial нет', async ({ page }) => {
+      86 |   await page.setViewportSize({ width: 1440, height: 1000 });
+    > 87 |   await page.goto('/');
+         |              ^
+      88 |   const body = await page.locator('body').innerText();
+      89 |   expect(body).not.toContain(' · ');
+      90 |   const start = page.locator('#start');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:87:14
+
+    Error Context: test-results/landing-главная-регистраци-76940-тинговых-обещаний-trial-нет/error-context.md
+
+  23) tests/site/landing.spec.ts:139:1 › первый экран объясняет платформу, направления и зрелость ──
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      139 | test('первый экран объясняет платформу, направления и зрелость', async ({ page }) => {
+      140 |   // LAND2 v2: заголовок и карточки по снимку владельца
+    > 141 |   await page.goto('/');
+          |              ^
+      142 |   const hero = page.locator('.public-intro');
+      143 |   await expect(hero.getByRole('heading', { level: 1 })).toHaveText(
+      144 |     'Управляйте бронированиями, клиентами и командой из одного окна',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/landing.spec.ts:141:14
+
+    Error Context: test-results/landing-первый-экран-объяс-b096f-орму-направления-и-зрелость/error-context.md
+
+  24) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+       7 |       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+    >  9 |       await page.goto('/');
+         |                  ^
+      10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      11 |         'Управляйте бронированиями, клиентами и командой из одного окна',
+      12 |       );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:9:18
+
+    Error Context: test-results/public-intro-public-intro-dark-320/error-context.md
+
+  25) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+       7 |       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+    >  9 |       await page.goto('/');
+         |                  ^
+      10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      11 |         'Управляйте бронированиями, клиентами и командой из одного окна',
+      12 |       );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:9:18
+
+    Error Context: test-results/public-intro-public-intro-dark-390/error-context.md
+
+  26) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 ────────────────────────────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.verticals__card').nth(1).locator('[data-auth="register"]')
+    Expected pattern: /vertical=BEAUTY.*#register/
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.verticals__card').nth(1).locator('[data-auth="register"]') with timeout 10000ms
+      - waiting for locator('.verticals__card').nth(1).locator('[data-auth="register"]')
+
+
+      32 |         const card = cards.nth(index);
+      33 |         await expect(card).not.toContainText(/пилот/i);
+    > 34 |         await expect(card.locator('[data-auth="register"]')).toHaveAttribute('href', pattern);
+         |                                                              ^
+      35 |       }
+      36 |       const layout = await page.evaluate(() => ({
+      37 |         width: innerWidth,
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:34:62
+
+    Error Context: test-results/public-intro-public-intro-dark-768/error-context.md
+
+  27) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 ───────────────────────────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.verticals__card').nth(1).locator('[data-auth="register"]')
+    Expected pattern: /vertical=BEAUTY.*#register/
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.verticals__card').nth(1).locator('[data-auth="register"]') with timeout 10000ms
+      - waiting for locator('.verticals__card').nth(1).locator('[data-auth="register"]')
+
+
+      32 |         const card = cards.nth(index);
+      33 |         await expect(card).not.toContainText(/пилот/i);
+    > 34 |         await expect(card.locator('[data-auth="register"]')).toHaveAttribute('href', pattern);
+         |                                                              ^
+      35 |       }
+      36 |       const layout = await page.evaluate(() => ({
+      37 |         width: innerWidth,
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:34:62
+
+    Error Context: test-results/public-intro-public-intro-dark-1440/error-context.md
+
+  28) tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 ───────────────────────────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.verticals__card').nth(1).locator('[data-auth="register"]')
+    Expected pattern: /vertical=BEAUTY.*#register/
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.verticals__card').nth(1).locator('[data-auth="register"]') with timeout 10000ms
+      - waiting for locator('.verticals__card').nth(1).locator('[data-auth="register"]')
+
+
+      32 |         const card = cards.nth(index);
+      33 |         await expect(card).not.toContainText(/пилот/i);
+    > 34 |         await expect(card.locator('[data-auth="register"]')).toHaveAttribute('href', pattern);
+         |                                                              ^
+      35 |       }
+      36 |       const layout = await page.evaluate(() => ({
+      37 |         width: innerWidth,
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:34:62
+
+    Error Context: test-results/public-intro-public-intro-light-320/error-context.md
+
+  29) tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 ───────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+       7 |       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+    >  9 |       await page.goto('/');
+         |                  ^
+      10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      11 |         'Управляйте бронированиями, клиентами и командой из одного окна',
+      12 |       );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:9:18
+
+    Error Context: test-results/public-intro-public-intro-light-390/error-context.md
+
+  30) tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 ───────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+       7 |       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+    >  9 |       await page.goto('/');
+         |                  ^
+      10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      11 |         'Управляйте бронированиями, клиентами и командой из одного окна',
+      12 |       );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:9:18
+
+    Error Context: test-results/public-intro-public-intro-light-768/error-context.md
+
+  31) tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 ──────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+       7 |       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
+       8 |       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+    >  9 |       await page.goto('/');
+         |                  ^
+      10 |       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      11 |         'Управляйте бронированиями, клиентами и командой из одного окна',
+      12 |       );
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:9:18
+
+    Error Context: test-results/public-intro-public-intro-light-1440/error-context.md
+
+  32) tests/site/public-intro.spec.ts:55:1 › new header registration: keyboard activation and focus return on mobile 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      63 |     route.fulfill({ status: 401, json: { message: 'synthetic anonymous visitor' } }),
+      64 |   );
+    > 65 |   await page.goto('/');
+         |              ^
+      66 |   const trigger = page.locator('.site-header__register');
+      67 |   await trigger.focus();
+      68 |   await trigger.press('Enter');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:65:14
+
+    Error Context: test-results/public-intro-new-header-re-6ae3a--and-focus-return-on-mobile/error-context.md
+
+  33) tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      82 |     route.fulfill({ status: 401, json: { message: 'synthetic anonymous visitor' } }),
+      83 |   );
+    > 84 |   await page.goto('/');
+         |              ^
+      85 |   for (const [index, action, name] of [
+      86 |     [1, 'Для салонов', 'Салон красоты / студия'],
+      87 |     [2, 'Для ресторанов', 'Кафе / ресторан'],
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:84:14
+
+    Error Context: test-results/public-intro-vertical-card-d2333-ical-in-existing-AuthDialog/error-context.md
+
+  34) tests/site/public-intro.spec.ts:101:1 › business positioning: three verticals, no maturity labels, five capabilities each 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      103 | }) => {
+      104 |   await page.setViewportSize({ width: 390, height: 844 });
+    > 105 |   await page.goto('/');
+          |              ^
+      106 |   const intro = page.locator('.public-intro');
+      107 |   await expect(intro).not.toContainText(/пилот|Beauty|Food Service/i);
+      108 |   for (const label of ['Гостиницы', 'Рестораны', 'Салоны красоты'])
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:105:14
+
+    Error Context: test-results/public-intro-business-posi-3ffbe-bels-five-capabilities-each/error-context.md
+
+  35) tests/site/restaurants.spec.ts:8:1 › /restaurants/ — hero, мокап с планом зала, разделы и призыв 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/restaurants/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/restaurants/", waiting until "load"
+
+
+       7 |  */
+       8 | test('/restaurants/ — hero, мокап с планом зала, разделы и призыв', async ({ page }) => {
+    >  9 |   await page.goto('/restaurants/');
+         |              ^
+      10 |   await expect(page.getByRole('heading', { level: 1 })).toContainText(/рестораном/i);
+      11 |   // дашборд-мокап: ресторанное меню, план зала с четырьмя статусами, текущие заказы, подпись примера
+      12 |   const dash = page.locator('.dash--restaurant');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/restaurants.spec.ts:9:14
+
+    Error Context: test-results/restaurants--restaurants-—-3c645-ланом-зала-разделы-и-призыв/error-context.md
+
+  36) tests/site/restaurants.spec.ts:40:1 › с главной на /restaurants/ ведёт карточка ресторанного направления 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      39 |
+      40 | test('с главной на /restaurants/ ведёт карточка ресторанного направления', async ({ page }) => {
+    > 41 |   await page.goto('/');
+         |              ^
+      42 |   await expect(page.locator('#audience a[href="/restaurants/"]')).toHaveCount(1);
+      43 | });
+      44 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/restaurants.spec.ts:41:14
+
+    Error Context: test-results/restaurants-с-главной-на-r-be88a-ка-ресторанного-направления/error-context.md
+
+  37) tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв ───────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/for/hostels/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/for/hostels/", waiting until "load"
+
+
+      14 | for (const segment of SEGMENTS) {
+      15 |   test(`${segment.path} — заголовок, возможности и призыв`, async ({ page }) => {
+    > 16 |     await page.goto(segment.path);
+         |                ^
+      17 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+      18 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      19 |     expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/segments.spec.ts:16:16
+
+    Error Context: test-results/segments--for-hostels-—-заголовок-возможности-и-призыв/error-context.md
+
+  38) tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв ───────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/for/mini-hotels/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/for/mini-hotels/", waiting until "load"
+
+
+      14 | for (const segment of SEGMENTS) {
+      15 |   test(`${segment.path} — заголовок, возможности и призыв`, async ({ page }) => {
+    > 16 |     await page.goto(segment.path);
+         |                ^
+      17 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+      18 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      19 |     expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/segments.spec.ts:16:16
+
+    Error Context: test-results/segments--for-mini-hotels-—-заголовок-возможности-и-призыв/error-context.md
+
+  39) tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв ──────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/for/apart-hotels/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/for/apart-hotels/", waiting until "load"
+
+
+      14 | for (const segment of SEGMENTS) {
+      15 |   test(`${segment.path} — заголовок, возможности и призыв`, async ({ page }) => {
+    > 16 |     await page.goto(segment.path);
+         |                ^
+      17 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+      18 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      19 |     expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/segments.spec.ts:16:16
+
+    Error Context: test-results/segments--for-apart-hotels-—-заголовок-возможности-и-призыв/error-context.md
+
+  40) tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/", waiting until "load"
+
+
+      27 |
+      28 | test('карточки направлений на главной ведут на страницы по типам объектов', async ({ page }) => {
+    > 29 |   await page.goto('/');
+         |              ^
+      30 |   for (const segment of SEGMENTS) {
+      31 |     await expect(page.locator(`#audience a[href="${segment.path}"]`)).toHaveCount(1);
+      32 |   }
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/segments.spec.ts:29:14
+
+    Error Context: test-results/segments-карточки-направле-9d38c--страницы-по-типам-объектов/error-context.md
+
+  40 failed
+    tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 ───
+    tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access 
+    tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access 
+    tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 390 px и открывает регистрацию с первого экрана 
+    tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 768 px и открывает регистрацию с первого экрана 
+    tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана 
+    tests/site/homepage-blocks.spec.ts:242:1 › блоки доступны в обеих темах ────────────────────────
+    tests/site/homepage-blocks.spec.ts:256:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор 
+    tests/site/homepage-blocks.spec.ts:271:3 › /privacy/: заголовок, редакция, доступность ─────────
+    tests/site/homepage-blocks.spec.ts:271:3 › /terms/: заголовок, редакция, доступность ───────────
+    tests/site/landing.spec.ts:20:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён 
+    tests/site/landing.spec.ts:26:3 › / — открывается, доступна и без «TODO» на экране ─────────────
+    tests/site/landing.spec.ts:41:3 › / — на телефоне нет горизонтальной прокрутки ─────────────────
+    tests/site/landing.spec.ts:26:3 › /blog/ — открывается, доступна и без «TODO» на экране ────────
+    tests/site/landing.spec.ts:41:3 › /blog/ — на телефоне нет горизонтальной прокрутки ────────────
+    tests/site/landing.spec.ts:26:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране ─
+    tests/site/landing.spec.ts:41:3 › /privacy/ — на телефоне нет горизонтальной прокрутки ─────────
+    tests/site/landing.spec.ts:26:3 › /terms/ — открывается, доступна и без «TODO» на экране ───────
+    tests/site/landing.spec.ts:41:3 › /terms/ — на телефоне нет горизонтальной прокрутки ───────────
+    tests/site/landing.spec.ts:54:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 
+    tests/site/landing.spec.ts:72:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается 
+    tests/site/landing.spec.ts:85:1 › главная: регистрация открыта, маркетинговых обещаний trial нет 
+    tests/site/landing.spec.ts:139:1 › первый экран объясняет платформу, направления и зрелость ────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 ─────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 ─────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 ─────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 ─────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 ────────────────────────────────
+    tests/site/public-intro.spec.ts:55:1 › new header registration: keyboard activation and focus return on mobile 
+    tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog 
+    tests/site/public-intro.spec.ts:101:1 › business positioning: three verticals, no maturity labels, five capabilities each 
+    tests/site/restaurants.spec.ts:8:1 › /restaurants/ — hero, мокап с планом зала, разделы и призыв 
+    tests/site/restaurants.spec.ts:40:1 › с главной на /restaurants/ ведёт карточка ресторанного направления 
+    tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв ─────────────
+    tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв ─────────
+    tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв ────────
+    tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов 
+  31 passed (7.9m)
+
+# код выхода 1 · 8 мин 28 с

@@ -135,7 +135,7 @@ test('MV9 scope switching, read-only and invalid Hospitality tab never show fore
   const f = await seed(request);
   await setScope(page, f.beauty, f.salon);
   await page.goto('/management/analytics');
-  await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('revenue-KZT')).toBeVisible();
   const choose = async (name: string) => {
     await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
     await page
@@ -148,9 +148,9 @@ test('MV9 scope switching, read-only and invalid Hospitality tab never show fore
   await expect(page.getByTestId('food-finance-unavailable')).toBeVisible();
   await expect(page.getByTestId('revenue-KZT')).toHaveCount(0);
   await choose('Тестовый салон');
-  await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('revenue-KZT')).toBeVisible();
   await page.reload();
-  await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('revenue-KZT')).toBeVisible();
   await request.post(`${api}/__test/control`, { data: { readOnly: true, role: 'STAFF' } });
   await page.reload();
   await expect(page.locator('.vertical-report:visible')).toHaveCount(1);

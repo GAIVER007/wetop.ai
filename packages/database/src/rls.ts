@@ -93,6 +93,14 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'service_periods',
   'restaurant_reservations',
   'table_assignments',
+  // Ресторан v2 (DATA_MODEL §33, ADR-159, миграция 20261010000081_restaurant_module)
+  'menu_categories',
+  'menu_items',
+  'menu_item_ingredients',
+  'restaurant_orders',
+  'restaurant_order_items',
+  'employee_pay_settings',
+  'employee_pay_adjustments',
   // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
   'marketing_sites',
   'marketing_site_versions',

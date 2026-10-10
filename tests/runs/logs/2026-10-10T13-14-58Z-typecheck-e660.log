@@ -1,0 +1,18 @@
+# Типы (typecheck) · 10.10.2026 18:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 74
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/today/food-today.tsx(149,26): error TS2741: Property 'summary' is missing in type '{ name: string; values: number[]; }' but required in type 'LineSeries'.
+
+# код выхода 1 · 2 мин 39 с

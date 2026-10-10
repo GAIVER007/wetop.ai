@@ -46,6 +46,8 @@
   --warning-soft: #fff3dd;
   --danger: #b42336;
   --danger-soft: #fde8eb;
+  --violet: #6d4fd0;
+  --violet-soft: #efeafc;
   --purple: #7860cb;
   --purple-soft: #f1eeff;
   --chip-bg: rgba(255, 255, 255, 0.62);
@@ -147,6 +149,8 @@
     --warning: #f6ba52;
     --warning-soft: rgba(62, 47, 24, 0.7);
     --danger: #ff8a98;
+    --violet: #a68bff;
+    --violet-soft: rgba(52, 40, 92, 0.7);
     --danger-soft: rgba(84, 26, 36, 0.7);
     --purple: #b4a0f2;
     --purple-soft: rgba(43, 35, 66, 0.7);
@@ -221,6 +225,8 @@
   --warning: #f6ba52;
   --warning-soft: rgba(62, 47, 24, 0.7);
   --danger: #ff8a98;
+  --violet: #a68bff;
+  --violet-soft: rgba(52, 40, 92, 0.7);
   --danger-soft: rgba(84, 26, 36, 0.7);
   --purple: #b4a0f2;
   --purple-soft: rgba(43, 35, 66, 0.7);
@@ -317,7 +323,9 @@
 }
 
 /* Лендинг салонов (/for/salons/): палитра макета владельца 10.10.2026 — тёплый светлый фон,
-   белые карточки, чёрная кнопка, бежевые плашки. Живёт только внутри .salon-page. */
+   белые карточки, чёрная кнопка, бежевые плашки. Живёт только внутри .salon-page.
+   Страница всегда светлая, как макет: тёмных значений у --salon-* нет намеренно
+   (тёмный вариант выглядел мутным, решение 10.10.2026). */
 :root {
   --salon-bg: #faf8f5;
   --salon-surface: #ffffff;
@@ -333,38 +341,13 @@
   --salon-band-muted: #beb8ad;
   --salon-band-hover: #ffffff;
   --salon-shadow: 0 10px 30px rgba(21, 19, 15, 0.06);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --salon-bg: #15130f;
-    --salon-surface: #1e1b16;
-    --salon-text: #f4f0e9;
-    --salon-muted: #b5aea3;
-    --salon-border: #37322a;
-    --salon-chip: #2b2620;
-    --salon-accent: #f4f0e9;
-    --salon-accent-hover: #ffffff;
-    --salon-on-accent: #16140f;
-    --salon-band: #0b0a07;
-    --salon-band-text: #f4f0e9;
-    --salon-band-muted: #b5aea3;
-    --salon-band-hover: #ffffff;
-    --salon-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  }
-}
-:root[data-theme='dark'] {
-  --salon-bg: #15130f;
-  --salon-surface: #1e1b16;
-  --salon-text: #f4f0e9;
-  --salon-muted: #b5aea3;
-  --salon-border: #37322a;
-  --salon-chip: #2b2620;
-  --salon-accent: #f4f0e9;
-  --salon-accent-hover: #ffffff;
-  --salon-on-accent: #16140f;
-  --salon-band: #0b0a07;
-  --salon-band-text: #f4f0e9;
-  --salon-band-muted: #b5aea3;
-  --salon-band-hover: #ffffff;
-  --salon-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  /* Пастельные тона записей мокап-календаря: фон и текст парами, контраст не ниже 4.5 */
+  --salon-apt1-bg: #f6e3e6;
+  --salon-apt1-ink: #7f2d43;
+  --salon-apt2-bg: #e9e5f8;
+  --salon-apt2-ink: #46398f;
+  --salon-apt3-bg: #e0f0e6;
+  --salon-apt3-ink: #1f5c40;
+  --salon-apt4-bg: #f6ecd9;
+  --salon-apt4-ink: #6e4f14;
 }

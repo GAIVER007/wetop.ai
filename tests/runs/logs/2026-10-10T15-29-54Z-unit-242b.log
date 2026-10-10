@@ -1,0 +1,20 @@
+# Модульные (unit) · 10.10.2026 20:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5413b09 (HEAD), незакоммиченных файлов набора: 145
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T15-29-54Z-unit-242b.json' 'tests/unit/site-design.test.ts' 'tests/unit/design-slop.test.ts' 'packages/domain/src/food/restaurant.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 12ms
+ ✓ |unit| packages/domain/src/food/restaurant.test.ts (17 tests) 5ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 3ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 3ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 30ms
+
+ Test Files  5 passed (5)
+      Tests  48 passed (48)
+   Start at  08:29:55
+   Duration  1.91s (import 49%, transform 48%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T15-29-54Z-unit-242b.json
+
+# код выхода 0 · 3 с

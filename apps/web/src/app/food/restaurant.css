@@ -54,7 +54,7 @@
     padding: var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: var(--surface-2);
+    background: var(--surface-muted);
     min-height: 160px;
     align-content: start;
   }
@@ -130,7 +130,7 @@
     display: grid;
     place-items: center;
     border-radius: var(--radius-lg);
-    background: var(--surface-2);
+    background: var(--surface-muted);
     border: 1px solid var(--border);
     color: var(--text-2);
   }
@@ -180,7 +180,7 @@
     padding: var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: var(--surface-2);
+    background: var(--surface-muted);
   }
   .rest-tech-totals div {
     display: grid;

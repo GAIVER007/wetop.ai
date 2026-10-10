@@ -1,0 +1,38 @@
+# Сквозные (e2e) · 10.10.2026 20:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит b0bb1ad (claude/beauty-salons-landing)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'salon-landing'
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (266ms)
+  ✓  2 tests/site/salon-landing.spec.ts:34:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (122ms)
+  ✓  3 tests/site/salon-landing.spec.ts:49:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (210ms)
+  ✓  4 tests/site/salon-landing.spec.ts:70:3 › доступность и вёрстка: light, компьютер и телефон (864ms)
+  ✓  5 tests/site/salon-landing.spec.ts:70:3 › доступность и вёрстка: dark, компьютер и телефон (694ms)
+
+
+  1) tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера 
+
+    Error: записей в календаре
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 5
+    Received:    0
+
+      27 |   await expect(hero).toContainText('Пример интерфейса. Данные вымышленные.');
+      28 |   await expect(hero.locator('.salon-hero__mock a, .salon-hero__mock button')).toHaveCount(0);
+    > 29 |   expect(await hero.locator('.salon-hero__apt').count(), 'записей в календаре').toBeGreaterThanOrEqual(5);
+         |                                                                                 ^
+      30 |   await expect(hero.locator('.salon-hero__col').first()).toContainText('Дана');
+      31 |   await expect(hero.locator('.salon-hero__free').first()).toContainText('Свободно');
+      32 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/beauty-landing/tests/site/salon-landing.spec.ts:29:81
+
+    Error Context: test-results/salon-landing-герой-заголо-b1ec0--и-мокап-с-подписью-примера/error-context.md
+
+  1 failed
+    tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера 
+  4 passed (10.4s)
+
+# код выхода 1 · 12 с

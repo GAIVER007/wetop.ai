@@ -23,9 +23,12 @@ test('герой: заголовок, регистрация с направле
     'href',
     '#salon-features',
   );
-  // Мокап записей: вымышленные данные, подпись примера, интерактива внутри нет (§19.9)
+  // Мокап-календарь по мастерам: вымышленные данные, подпись примера, интерактива внутри нет (§19.9)
   await expect(hero).toContainText('Пример интерфейса. Данные вымышленные.');
   await expect(hero.locator('.salon-hero__mock a, .salon-hero__mock button')).toHaveCount(0);
+  expect(await hero.locator('.salon-hero__apt').count(), 'записей в календаре').toBeGreaterThanOrEqual(5);
+  await expect(hero.locator('.salon-hero__col').first()).toContainText('Дана');
+  await expect(hero.locator('.salon-hero__free').first()).toContainText('Свободно');
 });
 
 test('полоса фактов и возможности: восемь карточек, без выдуманных чисел', async ({ page }) => {

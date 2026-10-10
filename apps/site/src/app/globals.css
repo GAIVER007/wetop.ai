@@ -3396,39 +3396,88 @@ button {
 .salon-hero__mock-summary strong {
   color: var(--salon-text);
 }
-.salon-hero__mock-row {
+.salon-hero__cal {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: var(--radius-control);
-  background: var(--salon-chip);
-  font-size: 0.875rem;
+  grid-template-columns: 44px repeat(3, minmax(0, 1fr));
+  gap: 6px;
 }
-.salon-hero__mock-time {
-  color: var(--salon-text);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-.salon-hero__mock-client {
-  font-weight: 600;
-}
-.salon-hero__mock-service {
-  color: var(--salon-muted);
-}
-.salon-hero__mock-master {
-  color: var(--salon-muted);
-  text-align: right;
-}
-/* На узком экране строка записи складывается в две: время + клиент + мастер, ниже услуга во всю ширину */
+/* На телефоне третья колонка мастера прячется, календарь остаётся читаемым */
 @media (max-width: 40rem) {
-  .salon-hero__mock-row {
-    grid-template-columns: 48px minmax(0, 1fr) minmax(0, 1fr);
+  .salon-hero__cal {
+    grid-template-columns: 44px repeat(2, minmax(0, 1fr));
   }
-  .salon-hero__mock-service {
-    grid-column: 2 / 4;
+  .salon-hero__col:last-child {
+    display: none;
   }
+}
+.salon-hero__rail,
+.salon-hero__col {
+  display: grid;
+  gap: 6px;
+}
+.salon-hero__rail > span,
+.salon-hero__col > span {
+  min-height: 48px;
+}
+.salon-hero__rail > span {
+  display: flex;
+  align-items: flex-start;
+  color: var(--salon-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  padding-top: 6px;
+}
+.salon-hero__master {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.salon-hero__rail .salon-hero__master {
+  min-height: 28px;
+}
+.salon-hero__apt {
+  display: grid;
+  gap: 2px;
+  align-content: center;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+.salon-hero__apt strong {
+  font-size: 0.75rem;
+}
+.salon-hero__apt--1 {
+  background: var(--salon-apt1-bg);
+  color: var(--salon-apt1-ink);
+}
+.salon-hero__apt--2 {
+  background: var(--salon-apt2-bg);
+  color: var(--salon-apt2-ink);
+}
+.salon-hero__apt--3 {
+  background: var(--salon-apt3-bg);
+  color: var(--salon-apt3-ink);
+}
+.salon-hero__apt--4 {
+  background: var(--salon-apt4-bg);
+  color: var(--salon-apt4-ink);
+}
+.salon-hero__free {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--salon-border);
+  border-radius: var(--radius-sm);
+  color: var(--salon-muted);
+  font-size: 0.75rem;
+}
+.salon-hero__slot {
+  border-radius: var(--radius-sm);
+  background: var(--salon-bg);
 }
 
 /* Полоса фактов: большие числа на светлой полосе, как в макете; только числа продукта (§19.9) */

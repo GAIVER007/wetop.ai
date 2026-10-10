@@ -64,6 +64,7 @@ import {
   WhatsAppForm,
 } from '../forms';
 import { AnalyticsView, OverviewView } from './overview';
+import { ChannelsTable } from './channels';
 import { ScenariosView } from './scenarios';
 import '../ai-seller.css';
 
@@ -226,7 +227,7 @@ async function SellerScreen({
       {view === '' && <SetupView status={status.value} />}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} q={q} channel={channel} />}
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
-      {view === 'connections' && <ConnectionsView status={status.value} />}
+      {view === 'connections' && <ConnectionsView status={status.value} summary />}
       {view === 'scenarios' && <ScenariosView status={status.value} />}
       {view === 'analytics' && <AnalyticsView days={days} status={status.value} />}
     </Stack>
@@ -382,9 +383,10 @@ function SetupChecklist({ items }: { items: SellerChecklistItem[] }) {
 }
 
 /** «Подключения»: модель, код для сайта и WhatsApp — всё, что связывает продавца с внешним миром, на одном экране */
-async function ConnectionsView({ status }: { status: SellerStatus }) {
+async function ConnectionsView({ status, summary = false }: { status: SellerStatus; summary?: boolean }) {
   return (
     <div className="seller-connection-steps">
+      {summary && <ChannelsTable status={status} />}
       <details open>
         <summary>
           1. Модель ИИ <span>Проверка и сохранение ключа</span>

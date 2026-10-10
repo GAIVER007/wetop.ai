@@ -6402,6 +6402,9 @@ createServer(async (req, res) => {
           sellerAgents.push(created);
           return send(201, agentView(created));
         }
+        // состояние Telegram рабочего агента для сводки каналов (S2.8): не подключён
+        if (path === '/ai-seller/agents/working/telegram')
+          return send(200, { set: false, state: 'NOT_CONNECTED', username: null, allowedUserIds: [], lastReceivedAt: null, lastSentAt: null, error: null });
         const instruction = path.match(/^\/ai-seller\/agents\/([^/]+)\/instruction(\/generate)?$/);
         if (instruction) {
           const id = instruction[1]!;

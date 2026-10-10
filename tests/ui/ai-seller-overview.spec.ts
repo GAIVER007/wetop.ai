@@ -80,6 +80,24 @@ test('аналитика: таблица периода и прошлого та
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute('aria-current', 'page');
 });
 
+test('подключения: сводка каналов называет состояние каждого и не придумывает подключённого', async ({ page }) => {
+  await page.goto('/ai-seller/connections');
+  const table = page.getByTestId('seller-channels-table');
+  await expect(table.locator('tbody tr')).toHaveCount(3);
+  await expect(page.getByTestId('seller-channel-whatsapp')).toContainText('Не подключён');
+  await expect(page.getByTestId('seller-channel-telegram')).toContainText('Не подключён');
+  await expect(page.getByTestId('seller-channel-site')).toContainText(/Готов|Нет сайта|Адрес не задан/);
+  // подключили WhatsApp: строка меняется, остальные нет
+  await page.getByText('3. WhatsApp').click();
+  await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
+  await page.getByTestId('seller-whatsapp-token').fill('EAAG-valid-token-16chars');
+  await page.getByTestId('seller-whatsapp-secret').fill('meta-app-secret');
+  await page.getByTestId('seller-whatsapp-save').click();
+  await expect(page.getByTestId('seller-channel-whatsapp')).toContainText('Подключён');
+  await expect(page.getByTestId('seller-channel-whatsapp')).toContainText('555000111');
+  await expect(page.getByTestId('seller-channel-telegram')).toContainText('Не подключён');
+});
+
 test('аналитика: работа продавца за сутки, доля без человека, передачи и время первого ответа', async ({ page }) => {
   await page.goto('/ai-seller/analytics');
   await expect(page.getByTestId('seller-metric-automated')).toHaveText('66,7 %');

@@ -76,8 +76,8 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
     await repo.writeReadings(c!.id, '2031-06-02', [{ date: '2031-06-03', bp: null }], 'MANUAL', audit);
     const rows = await repo.readings('2031-06-01', '2031-06-10', '2031-06-02');
     expect(rows.sort((a, b) => a.observedOn.localeCompare(b.observedOn))).toEqual([
-      { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031-06-01', occupancyBp: 7000, source: 'MANUAL' },
-      { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031-06-02', occupancyBp: 8550, source: 'MANUAL' },
+      { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031-06-01', occupancyBp: 7000, level: null, source: 'MANUAL' },
+      { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031-06-02', occupancyBp: 8550, level: null, source: 'MANUAL' },
     ]);
     // снимок «из будущего» относительно даты снимка не отдаётся
     expect(await repo.readings('2031-06-01', '2031-06-10', '2031-06-01')).toHaveLength(1);
@@ -152,8 +152,8 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
       own,
       '2031-07-01',
       [
-        { date: '2031-07-02', bp: 4000 },
-        { date: '2031-07-03', bp: 6100 },
+        { date: '2031-07-02', bp: 4000, level: null },
+        { date: '2031-07-03', bp: 6100, level: null },
       ],
       { entityType: 'Competitor', entityId: mine, action: 'market.occupancy.collected', after: {} },
     );
@@ -168,7 +168,7 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
       { propertyId, occupancyBp: 6100, source: 'AI_AGENT', createdById: null },
     ]);
     // повтор сборщика заменяет своё значение того же дня, а не добавляет второе
-    await repo.writeCollected(own, '2031-07-01', [{ date: '2031-07-03', bp: 6300 }], {
+    await repo.writeCollected(own, '2031-07-01', [{ date: '2031-07-03', bp: 6300, level: null }], {
       entityType: 'Competitor',
       entityId: mine,
       action: 'market.occupancy.collected',
@@ -181,8 +181,22 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
     });
     expect(log?.after).toMatchObject({ saved: 1, kept: 1 });
 
+    // ночь только с уровнем (DATA_MODEL §23.1): процента нет, уровень записан; повтор с процентом его дополняет
+    await repo.writeCollected(own, '2031-07-01', [{ date: '2031-07-04', bp: null, level: 'FEW_LEFT' }], {
+      entityType: 'Competitor',
+      entityId: mine,
+      action: 'market.occupancy.collected',
+      after: {},
+    });
+    const levelOnly = await db.competitorOccupancy.findFirst({
+      where: { competitorId: mine, stayDate: new Date('2031-07-04T00:00:00Z') },
+      select: { occupancyBp: true, availabilityLevel: true, source: true },
+    });
+    expect(levelOnly).toEqual({ occupancyBp: null, availabilityLevel: 'FEW_LEFT', source: 'AI_AGENT' });
+    await db.competitorOccupancy.deleteMany({ where: { competitorId: mine, stayDate: new Date('2031-07-04T00:00:00Z') } });
+
     // снимок другого объекта ложится в его объект
-    await repo.writeCollected(target, '2031-07-01', [{ date: '2031-07-02', bp: 5000 }], {
+    await repo.writeCollected(target, '2031-07-01', [{ date: '2031-07-02', bp: 5000, level: null }], {
       entityType: 'Competitor',
       entityId: theirs.id,
       action: 'market.occupancy.collected',

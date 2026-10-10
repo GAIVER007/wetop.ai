@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import {
   can,
+  competitorPlatform,
   demandLevel,
   formatOccupancy,
   formatPoints,
@@ -23,6 +24,7 @@ import {
   Button,
   EmptyState,
   Field,
+  Grid as AutoGrid,
   SectionTitle,
   Select,
   Stat,
@@ -158,19 +160,19 @@ export default async function MarketPage({
       width="wide"
       title="Загрузка конкурентов"
       subtitle={subtitle}
-      actions={editable ? <CompetitorButton primary={empty} /> : undefined}
+      // одна кнопка «Добавить» на экране: пусто, она в пустом состоянии; есть конкуренты, в шапке
+      actions={editable && !empty ? <CompetitorButton /> : undefined}
     >
-      <Toolbar from={from} days={days} asOf={asOf} compare={compare} today={today} />
+      {!empty && <Toolbar from={from} days={days} asOf={asOf} compare={compare} today={today} />}
       {empty ? (
         <EmptyState
           icon={<Icon name="analytics" />}
           title="Добавьте ближайших конкурентов"
           data-testid="market-empty"
+          details={<HowItWorks />}
           actions={editable ? <CompetitorButton primary /> : undefined}
         >
-          Три-пять отелей рядом с вами, с которыми гость сравнивает вас при выборе. Вносите их
-          загрузку на ближайшие ночи, и WETOP покажет, где рынок почти полон и цену можно поднять,
-          а где спрос слабый и нужна акция.{' '}
+          Три-пять отелей рядом с вами, с которыми гость сравнивает вас при выборе.{' '}
           {!editable && 'Добавлять конкурентов могут владелец и управляющий.'}
         </EmptyState>
       ) : (
@@ -183,13 +185,52 @@ export default async function MarketPage({
           )}
         </>
       )}
-      <p className="market-note" data-testid="market-source-note">
-        Сейчас загрузку конкурентов вносите вы: процент занятых номеров на ночь, по тому, что видно
-        на их странице бронирования. Автоматический сбор ИИ-агентом готовим. Ваша загрузка берётся
-        из календаря: занятые места от всех, включая заблокированные.
-      </p>
+      {!empty && (
+        <p className="market-note" data-testid="market-source-note">
+          Ваша загрузка берётся из календаря: занятые места от всех, включая заблокированные.
+          Загрузку соседей вносите вы кнопкой «Внести загрузку»; снимки сборщика подписаны «ИИ».
+          Автоматический сбор пока не подключён.
+        </p>
+      )}
     </Page>
   );
+}
+
+/**
+ * Как работает раздел: три шага. Источник загрузки не обещаем: сбор с площадок не решён (Q-257 открыт, ADR-142
+ * запрещает автоматически читать площадки), поэтому шаг 2 говорит «вручную или сборщиком».
+ */
+function HowItWorks() {
+  return (
+    <AutoGrid min={180} role="list" className="market-steps" data-testid="market-steps">
+      <div role="listitem">
+        <strong>Добавьте соседа</strong>
+        название, расстояние и число номеров
+      </div>
+      <div role="listitem">
+        <strong>Загрузка соседей обновляется</strong>
+        вручную или сборщиком: процент занятых номеров на каждую ближайшую ночь
+      </div>
+      <div role="listitem">
+        <strong>WETOP подсказывает цену</strong>
+        где рынок почти полон, цену можно поднять; где пусто, пора акция
+      </div>
+    </AutoGrid>
+  );
+}
+
+/**
+ * Кто даёт данные по соседу: «ИИ», только если в окне есть снимки сборщика (`AI_AGENT`). Ссылка на площадку есть, а
+ * сборщика нет: «Сбор не подключён» (не обещаем сбор до решения Q-257). Ссылки нет: «вручную».
+ */
+function tracking(c: { url: string | null; sources: string[] }): {
+  word: string;
+  tone: 'info' | 'neutral';
+} {
+  if (c.sources.includes('AI_AGENT')) return { word: 'ИИ', tone: 'info' };
+  return competitorPlatform(c.url)
+    ? { word: 'Сбор не подключён', tone: 'neutral' }
+    : { word: 'вручную', tone: 'neutral' };
 }
 
 function Toolbar({
@@ -232,7 +273,7 @@ function Toolbar({
             ))}
           </Select>
         </Field>
-        <Button type="submit" tone="secondary" size="sm">
+        <Button type="submit" tone="secondary">
           Показать
         </Button>
         {(from !== today || asOf !== today) && (
@@ -380,7 +421,9 @@ function Grid({
                     ) : (
                       c.name
                     )}
-                    {c.sources.includes('AI_AGENT') && <Badge tone="info">ИИ</Badge>}
+                    <Badge tone={tracking(c).tone} data-testid={`market-tracking-${c.id}`}>
+                      {tracking(c).word}
+                    </Badge>
                   </span>
                   <span className="market-sub">
                     {[

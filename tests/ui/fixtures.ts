@@ -16,6 +16,7 @@
  * ожидание здесь отдавало бы им уже загруженную страницу и проверяло пустоту вместо скелетона.
  */
 import { test as base, expect, type Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 const STREAM_GRACE_MS = 700;
 
@@ -67,6 +68,28 @@ async function settleTheme(page: Page, scheme: 'light' | 'dark' | 'no-preference
     )
     .catch(() => undefined);
 }
+
+/**
+ * Тот же класс без смены темы (разбор 09.10.2026, «История ночи» в `market.spec`): панель выезжает CSS-анимацией
+ * `drawer-in`, и axe, позванный сразу после щелчка, мерил полупрозрачный текст, цвета плавали от прогона к прогону.
+ * Обёртка `emulateMedia` тут не срабатывает (темы не меняли, анимация не переход), поэтому ждём перед каждым
+ * замером axe: конец всех конечных анимаций и переходов, с потолком. Бесконечные (спиннер) не ждём.
+ */
+const MOTION_SETTLE_MS = 1000;
+const SETTLE_MOTION = `Promise.race([
+  Promise.all(document.getAnimations()
+    .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+    .map((a) => a.finished.catch(() => undefined))),
+  new Promise((r) => setTimeout(r, ${MOTION_SETTLE_MS})),
+]).then(() => true)`;
+
+const axeAnalyze = AxeBuilder.prototype.analyze;
+AxeBuilder.prototype.analyze = async function analyze(this: AxeBuilder) {
+  // `page` у AxeBuilder приватное поле; публичного способа дождаться страницы перед замером нет
+  const page = (this as unknown as { page: Page }).page;
+  await page.evaluate(SETTLE_MOTION).catch(() => undefined);
+  return axeAnalyze.call(this);
+};
 
 export * from '@playwright/test';
 

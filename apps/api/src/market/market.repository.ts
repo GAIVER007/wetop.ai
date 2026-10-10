@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   LUXX_APARTS_PROPERTY,
   MarketInputError,
+  type AvailabilityLevel,
   type CompetitorInput,
   type MarketReading,
   type ObservationSource,
@@ -85,9 +86,11 @@ export interface CollectorTarget {
   timezone: string;
 }
 
+/** Ночь от сборщика: процент, уровень наличия (DATA_MODEL §23.1) или оба; пустой ночи сервис не пропускает */
 export interface CollectedEntry {
   date: string;
-  bp: number;
+  bp: number | null;
+  level: AvailabilityLevel | null;
 }
 
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
@@ -206,14 +209,17 @@ export class PrismaMarketRepository implements MarketRepository {
         stayDate: true,
         observedOn: true,
         occupancyBp: true,
+        availabilityLevel: true,
         source: true,
       },
     });
+    // и проценты, и уровни наличия (§23.1): средняя рынка в домене считается только из процентов
     return rows.map((r) => ({
       competitorId: r.competitorId,
       stayDate: iso(r.stayDate),
       observedOn: iso(r.observedOn),
       occupancyBp: r.occupancyBp,
+      level: r.availabilityLevel,
       source: r.source,
     }));
   }
@@ -221,7 +227,7 @@ export class PrismaMarketRepository implements MarketRepository {
   async nightReadings(stayDate: string): Promise<MarketReading[]> {
     const propertyId = await this.propertyId();
     const rows = await this.prisma.db.competitorOccupancy.findMany({
-      where: { propertyId, stayDate: asDate(stayDate), competitor: { active: true } },
+      where: { propertyId, stayDate: asDate(stayDate), competitor: { active: true }, occupancyBp: { not: null } },
       orderBy: { observedOn: 'asc' },
       select: { competitorId: true, stayDate: true, observedOn: true, occupancyBp: true, source: true },
     });
@@ -229,7 +235,7 @@ export class PrismaMarketRepository implements MarketRepository {
       competitorId: r.competitorId,
       stayDate: iso(r.stayDate),
       observedOn: iso(r.observedOn),
-      occupancyBp: r.occupancyBp,
+      occupancyBp: r.occupancyBp!,
       source: r.source,
     }));
   }
@@ -324,8 +330,21 @@ export class PrismaMarketRepository implements MarketRepository {
         const key = { competitorId: target.id, stayDate: asDate(e.date), observedOn: day };
         await tx.competitorOccupancy.upsert({
           where: { competitorId_stayDate_observedOn: key },
-          create: { ...key, propertyId: target.propertyId, occupancyBp: e.bp, source: 'AI_AGENT', createdById: null },
-          update: { occupancyBp: e.bp, source: 'AI_AGENT', createdById: null, observedAt: new Date() },
+          create: {
+            ...key,
+            propertyId: target.propertyId,
+            occupancyBp: e.bp,
+            availabilityLevel: e.level,
+            source: 'AI_AGENT',
+            createdById: null,
+          },
+          update: {
+            occupancyBp: e.bp,
+            availabilityLevel: e.level,
+            source: 'AI_AGENT',
+            createdById: null,
+            observedAt: new Date(),
+          },
         });
         saved += 1;
       }

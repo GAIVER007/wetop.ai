@@ -1,0 +1,29 @@
+# Модульные (unit) · 09.10.2026 20:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 26973cb (claude/market-ai-collector), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-22-19Z-unit-0cbf.json' 'scripts/market' 'packages/domain/src/market'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (22 tests) 6ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 12ms
+ ✓ |unit| packages/domain/src/marketing/generation.test.ts (18 tests) 19ms
+ ✓ |unit| packages/domain/src/marketing/builder.test.ts (18 tests) 13ms
+ ✓ |unit| packages/domain/src/marketing/edit.test.ts (30 tests) 24ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (14 tests) 22ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (39 tests) 39ms
+ ✓ |unit| packages/domain/src/marketing/conversation.test.ts (9 tests) 6ms
+ ✓ |unit| packages/domain/src/marketing/assets.test.ts (10 tests) 4ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 4ms
+ ✓ |unit| packages/domain/src/marketing/diff.test.ts (9 tests) 9ms
+ ✓ |unit| packages/domain/src/marketing/host.test.ts (26 tests) 4ms
+ ✓ |unit| scripts/market/pages.test.ts (2 tests) 4ms
+ ✓ |unit| scripts/market/collect.test.ts (8 tests) 16ms
+
+ Test Files  14 passed (14)
+      Tests  253 passed (253)
+   Start at  08:22:19
+   Duration  547ms (transform 67%, import 20%, tests 10%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-22-19Z-unit-0cbf.json
+
+# код выхода 0 · 1 с

@@ -1,0 +1,41 @@
+# Модульные (unit) · 10.10.2026 13:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит fc5d7e0 (claude/market-ai-collector), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T08-12-14Z-unit-bf70.json' 'scripts/market' 'packages/domain/src/market' 'apps/api/src/market'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ✓ |unit| packages/domain/src/marketing/generation.test.ts (18 tests) 125ms
+ ✓ |unit| packages/domain/src/marketing/builder.test.ts (18 tests) 348ms
+ ✓ |unit| packages/domain/src/marketing/edit.test.ts (30 tests) 417ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (39 tests) 758ms
+ ✓ |unit| packages/domain/src/marketing/diff.test.ts (9 tests) 293ms
+ ✓ |unit| apps/api/src/marketing-site/asset-fetch.test.ts (50 tests) 272ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 739ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (14 tests) 622ms
+ ✓ |unit| apps/api/src/marketing-site/asset-storage.test.ts (8 tests) 796ms
+   ✓ MKT8: адаптер S3 (3)
+     ✓ подписанный GET: один объект, срок в адресе, секрета в адресе нет; сети не нужно 464ms
+ ✓ |unit| packages/domain/src/marketing/host.test.ts (26 tests) 140ms
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (24 tests) 106ms
+ ✓ |unit| packages/domain/src/marketing/conversation.test.ts (9 tests) 334ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 224ms
+ ✓ |unit| packages/domain/src/marketing/assets.test.ts (10 tests) 29ms
+ ✓ |unit| apps/api/src/marketing-site/preview-token.test.ts (5 tests) 14ms
+ ✓ |unit| scripts/market/pages.test.ts (4 tests) 23ms
+ ✓ |unit| scripts/market/collect.test.ts (9 tests) 675ms
+ ✓ |unit| apps/api/src/marketing-site/asset-image.test.ts (9 tests) 3059ms
+   ✓ MKT8: обработка изображения сайта (9)
+     ✓ картинка: длинная сторона до 2400 без увеличения; логотип до 1600 с прозрачностью 2288ms
+ ✓ |unit| apps/api/src/market/market.service.test.ts (7 tests) 71ms
+ ✓ |unit| apps/api/src/market/collector.controller.test.ts (8 tests) 2568ms
+   ✓ ключ сборщика (M2a, Q-260) (2)
+     ✓ без ключа — 401, чужой узкий ключ — 403; ничего не пишется 648ms
+
+ Test Files  20 passed (20)
+      Tests  345 passed (345)
+   Start at  01:12:26
+   Duration  26.13s (transform 68%, import 20%, tests 11%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T08-12-14Z-unit-bf70.json
+
+# код выхода 0 · 39 с

@@ -268,4 +268,29 @@
   .market-night__market {
     font-weight: var(--weight-semibold);
   }
+
+  /* Три шага в пустом состоянии (слот `details` у EmptyState): сетка из `Grid`, здесь только вид пункта и номер */
+  .market-steps {
+    counter-reset: market-step;
+    margin-top: var(--space-6);
+    text-align: left;
+  }
+  .market-steps > * {
+    counter-increment: market-step;
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-control);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .market-steps strong {
+    color: var(--text);
+  }
+  .market-steps strong::before {
+    content: counter(market-step) '. ';
+    color: var(--primary);
+  }
 }

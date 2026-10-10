@@ -123,6 +123,28 @@ describe('launchd install.sh', () => {
     expect(dryPlist('api')).not.toContain('DATABASE_POOL_MAX');
   });
 
+  /*
+   * 09.10.2026: сборщик загрузки конкурентов (ADR-142, `docs/market/collector.md`) идёт раз в сутки по часам, а не
+   * держится постоянно. Ключи в plist не пишутся: plist лежит открытым в ~/Library/LaunchAgents.
+   */
+  it('сборщик market: раз в сутки в 06:00, не держится постоянно и не стартует при входе, ключей в plist нет', () => {
+    const plist = dryPlist('market');
+    expect(plist).toContain('scripts/market/cli-collect.ts');
+    expect(plist).toMatch(
+      /<key>StartCalendarInterval<\/key>\s*<dict>\s*<key>Hour<\/key><integer>6<\/integer>\s*<key>Minute<\/key><integer>0<\/integer>\s*<\/dict>/,
+    );
+    expect(plist).toMatch(/<key>KeepAlive<\/key><false\/>/);
+    expect(plist).toMatch(/<key>RunAtLoad<\/key><false\/>/);
+    expect(plist).not.toMatch(/KEY|TOKEN|ANTHROPIC/);
+  });
+
+  it('постоянные службы по-прежнему без расписания: держатся и стартуют при входе', () => {
+    const plist = dryPlist('api');
+    expect(plist).not.toContain('StartCalendarInterval');
+    expect(plist).toMatch(/<key>KeepAlive<\/key><true\/>/);
+    expect(plist).toMatch(/<key>RunAtLoad<\/key><true\/>/);
+  });
+
   it('--dry не снимает загруженную задачу', () => {
     const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0 });
     const { out, calls } = install(sb, ['--dry', 'web']);

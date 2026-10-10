@@ -6,6 +6,9 @@ for (const theme of ['dark', 'light'] as const) {
     test(`public intro: ${theme}, ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+      // Тема и системной настройкой: localStorage применяется после первой отрисовки, и axe
+      // замеряет контраст кнопок посреди анимации перехода темы (ловлено 10.10.2026)
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.goto('/');
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
         'Управляйте бронированиями, клиентами и командой из одного окна',

@@ -24,7 +24,7 @@ export default function SalonLandingPage() {
   const s = t.salon;
   const register = registerLink(undefined, 'BEAUTY').href;
   return (
-    <div className="page">
+    <div className="page salon-page">
       <div className="container">
         <section className="salon-hero" aria-labelledby="salon-title">
           <div>
@@ -53,7 +53,7 @@ export default function SalonLandingPage() {
             </ul>
           </div>
           <figure className="salon-hero__figure">
-            <div className="salon-hero__mock glass">
+            <div className="salon-hero__mock">
               <div className="salon-hero__mock-head">
                 <div>
                   <strong>{s.mock.title}</strong>
@@ -82,7 +82,7 @@ export default function SalonLandingPage() {
 
         <ul className="salon-facts">
           {s.facts.map((fact) => (
-            <li key={fact.value} className="salon-facts__item glass glass--quiet">
+            <li key={fact.value} className="salon-facts__item">
               <strong>{fact.value}</strong>
               <span>{typo(fact.text)}</span>
             </li>
@@ -103,7 +103,7 @@ export default function SalonLandingPage() {
           </div>
           <ul className="card-grid card-grid--4">
             {s.features.map((card) => (
-              <li key={card.title} className="card glass">
+              <li key={card.title} className="card">
                 <span className="icon-tile">
                   <Icon name={card.icon} />
                 </span>
@@ -114,8 +114,14 @@ export default function SalonLandingPage() {
           </ul>
         </section>
 
-        <section className="salon-growth glass glass--strong" aria-labelledby="salon-growth-title">
-          <SalonArt />
+        <section className="salon-growth" aria-labelledby="salon-growth-title">
+          <div className="salon-growth__art">
+            <SalonArt />
+            <span className="salon-growth__float">
+              <strong>{s.growth.float.value}</strong>
+              {s.growth.float.text}
+            </span>
+          </div>
           <div>
             <p className="salon-hero__badge">{s.growth.badge}</p>
             <h2 id="salon-growth-title" className="salon-growth__title">
@@ -159,7 +165,7 @@ export default function SalonLandingPage() {
           </div>
         </section>
 
-        <div className="cta glass glass--strong">
+        <div className="cta salon-cta">
           <div className="cta__copy">
             <h2 className="cta__title">{typo(s.ctaTitle)}</h2>
             <p className="cta__text">{typo(s.ctaText)}</p>
@@ -182,7 +188,7 @@ export default function SalonLandingPage() {
 /** Интерьер салона со снимка — рисунок на SVG в фирменных тонах (§19.9: вместо фото и стоков). */
 function SalonArt() {
   return (
-    <span className="salon-growth__art" aria-hidden="true">
+    <span aria-hidden="true">
       <svg
         viewBox="0 0 240 200"
         fill="none"

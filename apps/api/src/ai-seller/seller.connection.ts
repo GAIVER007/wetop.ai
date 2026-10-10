@@ -31,6 +31,8 @@ export interface SellerPort {
   conversation(id: string): Promise<unknown>;
   takeover(id: string): Promise<unknown>;
   release(id: string): Promise<unknown>;
+  handling(id: string, body: Record<string, unknown>): Promise<unknown>;
+  addNote(id: string, body: Record<string, unknown>): Promise<unknown>;
   reply(id: string, text: string): Promise<unknown>;
   knowledge(): Promise<unknown>;
   uploadKnowledge(file: { name: string; type: string; data: Uint8Array }): Promise<unknown>;

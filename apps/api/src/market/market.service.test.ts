@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { MarketReading, ObservationSource } from '@pms/domain';
+import type { MarketReading, ObservationSource, PriceReading } from '@pms/domain';
 import type { CompetitorRecord, MarketAudit, MarketRepository } from './market.repository';
 import { MarketService, type OwnOccupancySource } from './market.service';
 
@@ -27,9 +27,42 @@ class FakeRepo implements MarketRepository {
       url: c.url ?? null,
       note: c.note ?? null,
       active: true,
+      district: c.district ?? null,
+      category: c.category ?? null,
+      address: c.address ?? null,
+      dataSource: c.dataSource ?? null,
+      monitoring: c.monitoring ?? 'BOTH',
+      refreshHours: c.refreshHours ?? null,
+      autoRefresh: c.autoRefresh ?? false,
     });
     this.audits.push(audit);
     return id;
+  }
+  rateStore: PriceReading[] = [];
+  async currency() {
+    return 'KZT';
+  }
+  async rateReadings(from: string, to: string, asOf: string) {
+    return this.rateStore.filter((r) => r.stayDate >= from && r.stayDate <= to && r.observedOn <= asOf);
+  }
+  async writeRates(
+    competitorId: string,
+    observedOn: string,
+    currency: string,
+    entries: Array<{ date: string; priceMinor: bigint | null }>,
+    source: ObservationSource,
+    audit: MarketAudit,
+  ) {
+    if (!this.rows.find((r) => r.id === competitorId && r.active)) return false;
+    for (const e of entries) {
+      this.rateStore = this.rateStore.filter(
+        (r) => !(r.competitorId === competitorId && r.stayDate === e.date && r.observedOn === observedOn),
+      );
+      if (e.priceMinor !== null)
+        this.rateStore.push({ competitorId, stayDate: e.date, observedOn, priceMinor: e.priceMinor, currency, source });
+    }
+    this.audits.push(audit);
+    return true;
   }
   async updateCompetitor(id: string, patch: Partial<CompetitorRecord>, audit: MarketAudit) {
     const r = this.rows.find((x) => x.id === id);
@@ -188,5 +221,99 @@ describe('MarketService', () => {
     ]);
     expect(h.pickupBp).toBe(3000);
     await expect(service.night('10.10.2026')).rejects.toThrow(BadRequestException);
+  });
+});
+
+describe('MarketService: карточка конкурента и цены (DATA_MODEL §23.1)', () => {
+  let repo: FakeRepo;
+  let service: MarketService;
+  beforeEach(() => {
+    repo = new FakeRepo();
+    service = new MarketService(repo, own);
+  });
+
+  it('конкурент создаётся с районом, типом, источником и настройками мониторинга', async () => {
+    const c = await service.createCompetitor({
+      name: 'Almaty Residence',
+      district: 'Медеу',
+      category: 'Отель 4★',
+      dataSource: 'Booking.com',
+      monitoring: 'PRICE',
+      refreshHours: 2,
+      autoRefresh: true,
+    });
+    expect(c).toMatchObject({
+      district: 'Медеу',
+      category: 'Отель 4★',
+      dataSource: 'Booking.com',
+      monitoring: 'PRICE',
+      refreshHours: 2,
+      autoRefresh: true,
+    });
+    await expect(service.createCompetitor({ name: 'Б', monitoring: 'ALL' })).rejects.toThrow(BadRequestException);
+    await expect(service.createCompetitor({ name: 'В', refreshHours: 500 })).rejects.toThrow(BadRequestException);
+  });
+
+  it('цены пишутся сегодняшним днём в валюте объекта; пустое снимает; журнал пишется', async () => {
+    const c = await service.createCompetitor({ name: 'Отель Сосед' });
+    await expect(
+      service.writeRates(c.id, {
+        entries: [
+          { date: '2026-10-03', price: '42 000' },
+          { date: '2026-10-04', price: '41500,50' },
+        ],
+      }),
+    ).resolves.toEqual({ saved: 2, cleared: 0 });
+    expect(repo.rateStore.map((r) => [r.stayDate, r.priceMinor, r.currency])).toEqual([
+      ['2026-10-03', 4_200_000n, 'KZT'],
+      ['2026-10-04', 4_150_050n, 'KZT'],
+    ]);
+    expect(repo.audits.at(-1)!.action).toBe('market.rates.recorded');
+    await expect(
+      service.writeRates(c.id, { entries: [{ date: '2026-10-04', price: '' }] }),
+    ).resolves.toEqual({ saved: 0, cleared: 1 });
+    expect(repo.rateStore).toHaveLength(1);
+  });
+
+  it('цены: ночь вне окна, дубль, ноль, список слишком длинный и чужой конкурент отклоняются', async () => {
+    const c = await service.createCompetitor({ name: 'Отель Сосед' });
+    await expect(service.writeRates(c.id, { entries: [] })).rejects.toThrow('entries');
+    await expect(
+      service.writeRates(c.id, { entries: [{ date: '2025-01-01', price: '1000' }] }),
+    ).rejects.toThrow('Ночь 2025-01-01');
+    await expect(
+      service.writeRates(c.id, {
+        entries: [
+          { date: '2026-10-03', price: '1000' },
+          { date: '2026-10-03', price: '1100' },
+        ],
+      }),
+    ).rejects.toThrow('дважды');
+    await expect(
+      service.writeRates(c.id, { entries: [{ date: '2026-10-03', price: '0' }] }),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      service.writeRates(c.id, {
+        entries: Array.from({ length: 63 }, (_, i) => ({ date: `2026-10-${String(i + 1).padStart(2, '0')}`, price: '1000' })),
+      }),
+    ).rejects.toThrow('Не больше 62');
+    await expect(
+      service.writeRates('00000000-0000-4000-8000-0000000000ff', { entries: [{ date: '2026-10-03', price: '1000' }] }),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('ценовая доска: средняя по рынку, цены по ночам строкой, изменение к вчера', async () => {
+    const c = await service.createCompetitor({ name: 'Отель Сосед' });
+    repo.rateStore.push(
+      { competitorId: c.id, stayDate: '2026-10-03', observedOn: '2026-10-02', priceMinor: 4_000_000n, currency: 'KZT', source: 'MANUAL' },
+      { competitorId: c.id, stayDate: '2026-10-03', observedOn: '2026-10-03', priceMinor: 4_200_000n, currency: 'KZT', source: 'MANUAL' },
+    );
+    const v = await service.rates({});
+    expect(v.currency).toBe('KZT');
+    expect(v.board.market[0]).toMatchObject({ date: '2026-10-03', avgMinor: '4200000', count: 1 });
+    expect(v.board.competitors[0]).toMatchObject({ id: c.id, avgMinor: '4200000', changePermille: 50 });
+    expect(JSON.stringify(v)).not.toMatch(/\d+n\b/); // BigInt не доходит до JSON
+    await expect(service.rates({ asOf: '2026-10-04' })).rejects.toThrow('позже сегодня');
+    await expect(service.rates({ compare: '3' })).rejects.toThrow('compare');
   });
 });

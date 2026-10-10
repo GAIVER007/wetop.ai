@@ -1,0 +1,158 @@
+# Сквозные (e2e) · 09.10.2026 20:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит fbd0aa0 (claude/sales2-impl), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/market-competitors.spec.ts' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/market-competitors.spec.ts:51:1 › список: район, тип, загрузка сегодня, средняя цена, изменение и статус (1.9s)
+  ✓   2 tests/ui/market-competitors.spec.ts:68:1 › отбор по району оставляет одну строку и сбрасывается (1.8s)
+  ✓   3 tests/ui/market-competitors.spec.ts:80:1 › цены на графике: четвёртый график появляется, когда цены внесены (1.6s)
+[WebServer] [browser] Encountered two children with the same key, `39,5 тыс.`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[WebServer] [browser] Encountered two children with the same key, `39,5 тыс.`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+  ✓   4 tests/ui/market-competitors.spec.ts:95:1 › цены вносятся панелью: сохранённое видно в списке, очищенное снимает (2.0s)
+  ✓   5 tests/ui/market-competitors.spec.ts:111:1 › цена словами ошибки: ввод не теряется (1.2s)
+  ✓   6 tests/ui/market-competitors.spec.ts:121:1 › карточка: район, тип и настройки мониторинга сохраняются; автообновление честно названо будущим (1.5s)
+  ✘   7 tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 1440px (2.3s)
+  ✘   8 tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 390px (2.2s)
+  ✘   9 tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 1440px (2.2s)
+  ✘  10 tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 390px (2.2s)
+
+
+  1) tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 1440px ───────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "landmark-unique",
+    + ]
+
+      151 |       await expect(page.getByTestId('market-competitors')).toBeVisible();
+      152 |       const scan = await new AxeBuilder({ page }).analyze();
+    > 153 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                ^
+      154 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      155 |       mkdirSync(SHOTS, { recursive: true });
+      156 |       await page.getByTestId('market-competitors').screenshot({ path: `${SHOTS}/list-${theme}-${width}.png` });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:153:48
+
+    Error Context: test-results/market-competitors-доступность-и-снимки-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-доступность-и-снимки-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-доступность-и-снимки-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 390px ────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "landmark-unique",
+    + ]
+
+      151 |       await expect(page.getByTestId('market-competitors')).toBeVisible();
+      152 |       const scan = await new AxeBuilder({ page }).analyze();
+    > 153 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                ^
+      154 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      155 |       mkdirSync(SHOTS, { recursive: true });
+      156 |       await page.getByTestId('market-competitors').screenshot({ path: `${SHOTS}/list-${theme}-${width}.png` });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:153:48
+
+    Error Context: test-results/market-competitors-доступность-и-снимки-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-доступность-и-снимки-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-доступность-и-снимки-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 1440px ────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "landmark-unique",
+    + ]
+
+      151 |       await expect(page.getByTestId('market-competitors')).toBeVisible();
+      152 |       const scan = await new AxeBuilder({ page }).analyze();
+    > 153 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                ^
+      154 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      155 |       mkdirSync(SHOTS, { recursive: true });
+      156 |       await page.getByTestId('market-competitors').screenshot({ path: `${SHOTS}/list-${theme}-${width}.png` });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:153:48
+
+    Error Context: test-results/market-competitors-доступность-и-снимки-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-доступность-и-снимки-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-доступность-и-снимки-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 390px ─────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "landmark-unique",
+    + ]
+
+      151 |       await expect(page.getByTestId('market-competitors')).toBeVisible();
+      152 |       const scan = await new AxeBuilder({ page }).analyze();
+    > 153 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                ^
+      154 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      155 |       mkdirSync(SHOTS, { recursive: true });
+      156 |       await page.getByTestId('market-competitors').screenshot({ path: `${SHOTS}/list-${theme}-${width}.png` });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:153:48
+
+    Error Context: test-results/market-competitors-доступность-и-снимки-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-доступность-и-снимки-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-доступность-и-снимки-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 1440px ────────────────
+    tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 390px ─────────────────
+    tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 1440px ─────────────────
+    tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 390px ──────────────────
+  6 passed (27.1s)
+
+# код выхода 1 · 28 с

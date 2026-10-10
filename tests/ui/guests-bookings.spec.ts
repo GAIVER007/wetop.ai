@@ -65,7 +65,8 @@ test('гости и бронирования: плитки, виды со счё
     await expect(table.getByRole('columnheader', { name, exact: true })).toHaveCount(1);
   // «Источник» и «Гостей» уходят из таблицы, пока списку не хватает ширины (справа открыта панель), и возвращаются на широком экране
   await expect(table.getByRole('columnheader', { name: 'Источник', exact: true })).toBeHidden();
-  await page.setViewportSize({ width: 1920, height: 1000 });
+  // с левым меню (ADR-161, 232 px) и открытой панелью списку хватает ширины только на очень широком экране
+  await page.setViewportSize({ width: 2560, height: 1000 });
   await expect(table.getByRole('columnheader', { name: 'Источник', exact: true })).toBeVisible();
   await page.setViewportSize({ width: 1440, height: 1000 });
   // ячейка отметки без правого отступа (без `!important`, слои каскада решают сами)
@@ -313,11 +314,12 @@ test('гости и бронирования: пустые состояния, �
 
 test('гости и бронирования: одна вкладка меню, ссылка в классический список и новая бронь', async ({ page }) => {
   await page.goto('/guests');
-  const menu = page.getByRole('navigation', { name: 'Разделы' }).first();
-  const tab = menu.getByRole('link', { name: 'Гости и бронирования', exact: true });
+  // подразделы левого меню (ADR-161) в панели, она закрыта: ищем с учётом скрытых
+  const menu = page.locator('.sidenav__items');
+  const tab = menu.locator('a[href="/guests"]');
   await expect(tab).toHaveAttribute('aria-current', 'page');
-  await expect(menu.getByRole('link', { name: 'Гости', exact: true })).toHaveCount(0);
-  await expect(menu.getByRole('link', { name: 'Брони', exact: true })).toHaveCount(0);
+  await expect(menu.getByRole('link', { name: 'Гости', exact: true, includeHidden: true })).toHaveCount(0);
+  await expect(menu.getByRole('link', { name: 'Брони', exact: true, includeHidden: true })).toHaveCount(0);
 
   // классический список броней живёт по прежнему адресу, и меню там подсвечивает ту же вкладку
   await page.getByRole('main').getByRole('link', { name: 'Список броней', exact: true }).click();

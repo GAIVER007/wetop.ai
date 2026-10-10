@@ -64,6 +64,11 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'План зала' },
       { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Бронирования' },
       { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы и столы' },
+      // Ресторан по ТЗ владельца 09.10.2026 (ADR-159)
+      { href: '/orders', label: 'Заказы', icon: 'receipt', requires: 'desk', description: 'Заказы ресторана' },
+      { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Экран кухни (KDS)' },
+      { href: '/menu', label: 'Меню', icon: 'kettle', requires: 'desk', description: 'Меню и техкарты' },
+      { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
 
       {
         href: '/calendar',
@@ -263,6 +268,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
     label: 'Продажи',
     items: [
+      {
+        // Хаб «Продажи» (SALES2.2, plans/sales2-audit-2026-10-09.md): один вход к конкурентам, ИИ-продавцу и числам
+        href: '/sales',
+        requires: 'reports',
+        label: 'Обзор продаж',
+        icon: 'rates',
+        description: 'Брони из диалогов, выручка, конкуренты и ИИ-продавец на одной странице.',
+      },
       {
         // Один модуль вместо «Менеджера каналов» и «Синхронизации каналов» (ADR-112)
         href: '/channels',
@@ -465,6 +478,7 @@ export const menuSections: MenuSection[] = [
     icon: 'rates',
     items: [
       // «Тарифы и цены» сняты 06.10.2026: цена категории — в «Категориях номеров»
+      menuItem('/sales'),
       menuItem('/market'),
       menuItem('/channels'),
       menuItem('/ai-agents', 'ИИ-продавцы'),
@@ -519,11 +533,17 @@ export const beautyMenuSections: MenuSection[] = [
   direct('profile', '/profile', 'guests'),
 ];
 
+/** Состав и порядок — макет «WETOP для ресторанов» (ADR-159): Главная, Заказы, Зал, Кухня, Клиенты, Меню… */
 export const foodMenuSections: MenuSection[] = [
-  direct('today', '/today', 'today', 'Сегодня'),
+  direct('today', '/today', 'today', 'Главная'),
+  direct('orders', '/orders', 'receipt'),
   direct('floor-plan', '/floor-plan', 'board'),
+  direct('kitchen', '/kitchen', 'kitchen'),
   direct('table-reservations', '/table-reservations', 'booking'),
-  direct('customers', '/customers', 'guests', 'Гости'),
+  direct('customers', '/customers', 'guests', 'Клиенты'),
+  direct('menu', '/menu', 'kettle'),
+  direct('employees', '/employees', 'guests', 'Сотрудники'),
+  direct('payroll', '/payroll', 'money'),
   direct('dining-areas', '/dining-areas', 'settings'),
   direct('staff', '/staff', 'guests'),
   direct('analytics', '/management/analytics', 'analytics'),

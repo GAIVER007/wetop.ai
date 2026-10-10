@@ -145,15 +145,13 @@ export type Dictionary = {
     lead: string;
     steps: Array<{ title: string; text: string }>;
   };
-  /** Карточка призыва рядом с FAQ. */
+  /** Единый финал страниц: плита призыва с условиями словами. */
   final: {
-    eyebrow: string;
     title: string;
     text: string;
     contact: string;
     contactsLabel: string;
-    badgeTop: string;
-    badgeBottom: string;
+    note: string;
   };
   /** «Вопросы и ответы»: нативные details. */
   faq: {
@@ -183,7 +181,190 @@ export type Dictionary = {
     };
     empty: string;
     ctaText: string;
+    badge: string;
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
     link: string;
+  };
+  /**
+   * Лендинг «Для салонов красоты» (`/for/salons/`, ТЗ владельца 10.10.2026,
+   * план `plans/salon-landing-2026-10-10.md`). Текст только из продукта (§19.9).
+   */
+  salon: {
+    metaTitle: string;
+    description: string;
+    badge: string;
+    title: string;
+    lead: string;
+    primary: string;
+    secondary: string;
+    /** Чипы под кнопками героя: «7 дней бесплатно» и т.п. (ADR-098). */
+    chips: string[];
+    /** Мокап-календарь записей по мастерам: только вымышленные данные, подпись примера обязательна. */
+    mock: {
+      label: string;
+      title: string;
+      date: string;
+      summary: Array<{ name: string; value: string }>;
+      /** Строки времени календаря; у мастера запись ищется по точному совпадению времени. */
+      times: string[];
+      masters: Array<{
+        name: string;
+        appointments: Array<{ time: string; service: string; client: string; tone: 1 | 2 | 3 | 4 }>;
+        /** Времена со «Свободно»: показываются пунктирной ячейкой. */
+        free: string[];
+      }>;
+      freeLabel: string;
+    };
+    /** Полоса фактов: только числа продукта (§19.9), чисел клиентов не бывает. */
+    facts: Array<{ value: string; text: string }>;
+    featuresTitle: string;
+    featuresLead: string;
+    features: Array<{ icon: IconName; title: string; text: string }>;
+    growth: {
+      badge: string;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
+      /** Плавающая карточка на иллюстрации: вымышленное число с пометкой примера (§19.9). */
+      float: { value: string; text: string };
+    };
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
+    ctaTitle: string;
+    ctaText: string;
+  };
+  /** Лендинг «Для гостиниц» (/for/hotels/): тот же каркас, что у салона; мокап общий `hero.dash`. */
+  hotel: {
+    metaTitle: string;
+    description: string;
+    badge: string;
+    title: string;
+    lead: string;
+    primary: string;
+    secondary: string;
+    chips: string[];
+    facts: Array<{ value: string; text: string }>;
+    /** Снимок настоящего календаря стойки с демо-данными (светлая и тёмная темы). */
+    calendar: { eyebrow: string; title: string; lead: string; alt: string; note: string };
+    featuresTitle: string;
+    featuresLead: string;
+    features: Array<{ icon: IconName; title: string; text: string }>;
+    growth: {
+      badge: string;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
+      float: { value: string; text: string };
+    };
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
+    ctaTitle: string;
+    ctaText: string;
+  };
+  /** Лендинг «Для ресторанов»: тот же каркас, что у гостиниц; в герое фото вместо мокапа. */
+  restaurant: {
+    metaTitle: string;
+    description: string;
+    badge: string;
+    title: string;
+    lead: string;
+    primary: string;
+    secondary: string;
+    chips: string[];
+    photoAlt: string;
+    facts: Array<{ value: string; text: string }>;
+    featuresTitle: string;
+    featuresLead: string;
+    features: Array<{ icon: IconName; title: string; text: string }>;
+    growth: {
+      badge: string;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
+      float: { value: string; text: string };
+    };
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
+    ctaTitle: string;
+    ctaText: string;
+  };
+  /** Страница «Для ресторанов» (`/restaurants/`, макет владельца 10.10.2026): блок `.restl` + блоки §19.5. */
+  restaurants: {
+    metaTitle: string;
+    description: string;
+    eyebrow: string;
+    title: string;
+    titleAccent: string;
+    lead: string;
+    primary: string;
+    demo: string;
+    chips: string[];
+    /** Рукописные пометки по краям hero, как на макете. */
+    noteLeft: string;
+    noteRight: string;
+    homeCardLink: string;
+    home: string;
+    exampleNote: string;
+    dash: {
+      greeting: string;
+      date: string;
+      nav: string[];
+      metrics: Array<{ label: string; value: string; delta: string }>;
+      planTitle: string;
+      tables: Array<'free' | 'busy' | 'reserved' | 'cleaning'>;
+      legend: Array<{ kind: 'free' | 'busy' | 'reserved' | 'cleaning'; label: string }>;
+      ordersTitle: string;
+      orders: Array<{ table: string; time: string; status: string }>;
+    };
+    phone: {
+      greeting: string;
+      revenueLabel: string;
+      revenue: string;
+      delta: string;
+      tiles: string[];
+    };
+    /** Полоса показателей: только факты продукта, без чисел клиентов (§19.9, ADR-160). */
+    band: Array<{ icon: IconName; value: string; caption: string }>;
+    processesEyebrow: string;
+    processesTitle: string;
+    processesLead: string;
+    processesAll: string;
+    processes: Array<{ icon: IconName; title: string; text: string }>;
+    actionEyebrow: string;
+    actionTitle: string;
+    actionLead: string;
+    /** Мини-экраны разделов: вид задаёт `kind`, строки вымышленные и подписаны. */
+    shots: Array<{
+      kind: 'floor' | 'kds' | 'menu' | 'calc' | 'staff' | 'payroll' | 'clients' | 'analytics';
+      title: string;
+      rows: Array<{ left: string; right: string }>;
+    }>;
+    moreEyebrow: string;
+    moreTitle: string;
+    moreLead: string;
+    more: Array<{ icon: IconName; title: string; text: string }>;
+    resultsEyebrow: string;
+    resultsTitle: string;
+    resultsLead: string;
+    results: Array<{ label: string; text: string; chart: 'line' | 'bars'; tone: 'green' | 'orange' | 'purple' | 'blue' }>;
+    aiEyebrow: string;
+    aiTitle: string;
+    aiLead: string;
+    ai: Array<{ icon: IconName; title: string; text: string; tone: 'blue' | 'green' | 'purple' | 'orange' }>;
+    stepsEyebrow: string;
+    stepsTitle: string;
+    steps: Array<{ title: string; text: string }>;
+    faqEyebrow: string;
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
+    ctaTitle: string;
+    ctaText: string;
+    ctaChips: string[];
+    ctaNote: string;
   };
   /** Страницы по типам объектов (`/for/<slug>/`, срез D2 плана прямых продаж). */
   segments: {
@@ -194,7 +375,8 @@ export type Dictionary = {
     ctaText: string;
     home: string;
     items: Record<
-      SegmentSlug,
+      /** У салонов своя страница со своим словарём (`salon`), общего шаблона у них нет. */
+      Exclude<SegmentSlug, 'salons'>,
       {
         title: string;
         metaTitle: string;
@@ -203,6 +385,9 @@ export type Dictionary = {
         cards: Array<{ icon: IconName; title: string; text: string; tags?: string[] }>;
         /** Чего в системе пока нет: честная строка, а не скрытое ограничение. */
         limits?: string;
+        /** Фото героя (свой файл из KIE, не сток) и вопросы: есть у страниц типов объектов. */
+        photoAlt?: string;
+        faq?: Array<{ q: string; a: string }>;
       }
     >;
   };
@@ -288,6 +473,11 @@ export type Dictionary = {
       hotelPlaceholder: string;
       phone: string;
       phoneCountry: string;
+      country: string;
+      language: string;
+      languageSoon: string;
+      languageNote: string;
+      vertical: string;
       phonePlaceholder: string;
       show: string;
       hide: string;

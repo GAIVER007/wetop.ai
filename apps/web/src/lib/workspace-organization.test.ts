@@ -27,6 +27,7 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
     '/bar',
   ]);
   expect(menuSections.find((s) => s.id === 'sales')?.items.map((i) => i.href)).toEqual([
+    '/sales',
     '/market',
     '/channels',
     '/ai-agents',
@@ -45,7 +46,8 @@ it('phone bottom bar: the four leading tabs; a group tab opens its first item un
     '/finance',
     '/chessboard',
     '/guests',
-    '/market',
+    // группа «Продажи» открывается хабом (SALES2.2), а не «Загрузкой конкурентов»
+    '/sales',
   ]);
   // Группы на панели зовутся именем группы, не первым пунктом (ADR-157): «Финансы» и «Продажи»
   expect(phoneNavigation[0]!.label).toBe('Финансы');

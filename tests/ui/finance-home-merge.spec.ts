@@ -1,6 +1,6 @@
 import { formatMoney } from '../../apps/web/src/lib/money';
 import { formatPercent } from '../../apps/web/src/lib/dashboard-format';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, sideNav } from './fixtures';
 
 /**
  * Единый раздел «Финансы» по макету владельца 09.10.2026 («Обзор бизнеса», план
@@ -116,11 +116,11 @@ test('/today гостиницы перенаправляет в финансы',
 
 test('меню: «Финансы» первой вкладкой, «Главной» нет', async ({ page }) => {
   await page.goto('/finance');
-  const menu = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
-  await expect(menu.locator('.topmenu__tab').first()).toHaveText('Финансы');
+  const menu = sideNav(page);
+  await expect(menu.locator('.sidenav__section').first()).toHaveText('Финансы');
   await expect(menu.getByRole('link', { name: 'Главная', exact: true })).toHaveCount(0);
   // активная отметка живёт на пункте группы (ADR-157): на /finance это «Оплаты и касса»
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Оплаты и касса');
+  await expect(menu.locator('.sidenav__sub [aria-current="page"]')).toHaveText('Оплаты и касса');
 });
 
 test('период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию', async ({ page }) => {

@@ -1,4 +1,4 @@
-import { expect, FIXTURE_API, test, type Page } from './fixtures';
+import { expect, FIXTURE_API, test, type Page, sideNav } from './fixtures';
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; приёмка §4.4; макет владельца 26.09.2026 — ADR-097), браузер →
@@ -73,14 +73,19 @@ test('раздел в меню «Продажи», четыре вкладки, 
   await page.waitForURL('**/finance');
   await page.goto('/ai-seller');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
-  // вкладка группы текущего раздела подсвечена, пункт помечен текущим (DESIGN.md §8, верхнее меню)
-  const sidebar = page.locator('.workspace-header .topmenu');
-  await expect(sidebar.getByRole('button', { name: 'Продажи', exact: true })).toHaveClass(
-    /has-current-page/,
-  );
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('ИИ-продавцы');
+  // текущий раздел на кнопке левого меню, пункт помечен текущим (ADR-161)
+  await expect(sideNav(page).locator('.sidenav__current')).toHaveText('Продажи');
+  await expect(sideNav(page).locator('.sidenav__sub [aria-current="page"]')).toHaveText('ИИ-продавцы');
   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link');
-  await expect(tabs).toHaveText(['Настройка', 'Диалоги', 'Знания', 'Подключения']);
+  await expect(tabs).toHaveText([
+    'Обзор',
+    'Настройка',
+    'Диалоги',
+    'Знания',
+    'Подключения',
+    'Сценарии',
+    'Аналитика',
+  ]);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец ещё не настроен');
   // вместо семи бейджей «не заполнено» — только то, что осталось, и куда идти (макет владельца 26.09.2026)
   await expect(page.getByTestId('seller-checklist')).toContainText('До запуска — 2 шага');

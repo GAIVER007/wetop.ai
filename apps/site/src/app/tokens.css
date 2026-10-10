@@ -335,4 +335,13 @@
   --salon-band-muted: #beb8ad;
   --salon-band-hover: #ffffff;
   --salon-shadow: 0 10px 30px rgba(21, 19, 15, 0.06);
+  /* Пастельные тона записей мокап-календаря: фон и текст парами, контраст не ниже 4.5 */
+  --salon-apt1-bg: #f6e3e6;
+  --salon-apt1-ink: #7f2d43;
+  --salon-apt2-bg: #e9e5f8;
+  --salon-apt2-ink: #46398f;
+  --salon-apt3-bg: #e0f0e6;
+  --salon-apt3-ink: #1f5c40;
+  --salon-apt4-bg: #f6ecd9;
+  --salon-apt4-ink: #6e4f14;
 }

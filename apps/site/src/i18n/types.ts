@@ -199,13 +199,21 @@ export type Dictionary = {
     secondary: string;
     /** Чипы под кнопками героя: «7 дней бесплатно» и т.п. (ADR-098). */
     chips: string[];
-    /** Мокап «Записи на сегодня»: только вымышленные данные, подпись примера обязательна. */
+    /** Мокап-календарь записей по мастерам: только вымышленные данные, подпись примера обязательна. */
     mock: {
       label: string;
       title: string;
       date: string;
       summary: Array<{ name: string; value: string }>;
-      rows: Array<{ time: string; client: string; service: string; master: string }>;
+      /** Строки времени календаря; у мастера запись ищется по точному совпадению времени. */
+      times: string[];
+      masters: Array<{
+        name: string;
+        appointments: Array<{ time: string; service: string; client: string; tone: 1 | 2 | 3 | 4 }>;
+        /** Времена со «Свободно»: показываются пунктирной ячейкой. */
+        free: string[];
+      }>;
+      freeLabel: string;
     };
     /** Полоса фактов: только числа продукта (§19.9), чисел клиентов не бывает. */
     facts: Array<{ value: string; text: string }>;

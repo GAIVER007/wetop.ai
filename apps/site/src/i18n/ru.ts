@@ -355,18 +355,41 @@ export const ru: Dictionary = {
     chips: ['7 дней бесплатно', 'Без карты', 'Быстрая настройка'],
     mock: {
       label: 'Пример интерфейса. Данные вымышленные.',
-      title: 'Записи на сегодня',
+      title: 'Календарь записей',
       date: 'Пятница, 17 октября',
       summary: [
-        { name: 'записей', value: '12' },
+        { name: 'записей', value: '7' },
         { name: 'свободных окон', value: '5' },
       ],
-      rows: [
-        { time: '10:00', client: 'Алия', service: 'Стрижка', master: 'Дана' },
-        { time: '11:30', client: 'Мария', service: 'Маникюр', master: 'Айгерим' },
-        { time: '13:00', client: 'Карина', service: 'Окрашивание', master: 'Дана' },
-        { time: '15:30', client: 'Инкар', service: 'Укладка', master: 'Айгерим' },
+      times: ['10:00', '11:30', '13:00', '14:30', '16:00'],
+      masters: [
+        {
+          name: 'Дана',
+          appointments: [
+            { time: '10:00', service: 'Стрижка', client: 'Алия', tone: 1 },
+            { time: '13:00', service: 'Окрашивание', client: 'Карина', tone: 4 },
+            { time: '16:00', service: 'Укладка', client: 'Инкар', tone: 3 },
+          ],
+          free: ['11:30'],
+        },
+        {
+          name: 'Айгерим',
+          appointments: [
+            { time: '11:30', service: 'Маникюр', client: 'Мария', tone: 2 },
+            { time: '14:30', service: 'Педикюр', client: 'Диана', tone: 2 },
+          ],
+          free: ['10:00', '16:00'],
+        },
+        {
+          name: 'Мадина',
+          appointments: [
+            { time: '10:00', service: 'Брови', client: 'Аружан', tone: 3 },
+            { time: '14:30', service: 'Макияж', client: 'Салтанат', tone: 1 },
+          ],
+          free: ['13:00', '16:00'],
+        },
       ],
+      freeLabel: 'Свободно',
     },
     facts: [
       { value: '7 дней', text: 'бесплатный пробный период, карта не нужна' },

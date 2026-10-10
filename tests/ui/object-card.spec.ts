@@ -18,7 +18,9 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  // гостиничный `/today` с 09.10.2026 перенаправляет на `/finance` (ADR-152): ждём конечный адрес, иначе
+  // следующий goto обрывает идущий редирект (net::ERR_ABORTED)
+  await page.waitForURL('**/finance');
 }
 
 test('карточка объекта: все поля сохраняются и читаются обратно', async ({ page }) => {

@@ -70,6 +70,8 @@ export interface SellerOrgsRepository {
    * копии в агенте нет; агент без филиала — пусто.
    */
   hostsForAgent(scope: SellerAgentScope): Promise<string[]>;
+  /** Как подписать сотрудника в заметке и в «ответственном»: имя, а без него начало почты */
+  userLabel(userId: string): Promise<string | null>;
 }
 
 /** Строка `seller_profiles` (DATA_MODEL §15): поля «Настроек» плюс отметки доставки продавцу */
@@ -444,6 +446,15 @@ export class PrismaSellerFactsRepository implements SellerFactsRepository {
 @Injectable()
 export class PrismaSellerOrgsRepository implements SellerOrgsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async userLabel(userId: string): Promise<string | null> {
+    const row = await this.prisma.db.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true },
+    });
+    if (!row) return null;
+    return row.name?.trim() || row.email.split('@')[0] || null;
+  }
 
   async withExtension(): Promise<SellerOrganizationRow[]> {
     const rows = await this.prisma.db.organizationExtension.findMany({

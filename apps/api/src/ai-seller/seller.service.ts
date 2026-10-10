@@ -35,6 +35,9 @@ import {
   conversationQuery,
   conversationView,
   conversationsView,
+  handlingInput,
+  handlingView,
+  noteText,
   knowledgeFile,
   knowledgeView,
   list,
@@ -845,6 +848,54 @@ export class SellerService {
       after: result,
     });
     return result;
+  }
+
+  /** Ответственный и следующий шаг. «Ответственный я» берёт вошедшего сотрудника: подпись не присылается снаружи */
+  async setHandling(rawId: string, raw: unknown) {
+    const id = conversationId(rawId);
+    const input = handlingInput(raw);
+    const { client } = await this.bound('act');
+    const body: Record<string, unknown> = {};
+    if (input.nextStep !== undefined) body.next_step = input.nextStep;
+    if (input.assignee !== undefined) {
+      const userId = currentUserId();
+      if (input.assignee === 'me' && !userId) throw new BadRequestException('Не удалось определить, кто вы');
+      body.assignee_user_id = input.assignee === 'me' ? userId : null;
+      body.assignee_name = input.assignee === 'me' ? await this.who(userId!) : null;
+    }
+    const result = handlingView(await this.call(() => client.handling(id, body)));
+    // текст шага — рабочая запись о госте: в журнал платформы идёт, что менялось
+    await this.audit.record({
+      entityType: 'SellerConversation',
+      entityId: id,
+      action: 'seller.conversation.handling',
+      after: { changed: Object.keys(input), assignee: result.assignee?.name ?? null },
+    });
+    return result;
+  }
+
+  async addNote(rawId: string, rawText: unknown) {
+    const id = conversationId(rawId);
+    const text = noteText(rawText);
+    const userId = currentUserId();
+    if (!userId) throw new BadRequestException('Не удалось определить, кто вы');
+    const { client } = await this.bound('act');
+    const author = await this.who(userId);
+    const raw = await this.call(() =>
+      client.addNote(id, { body: text, author_user_id: userId, author_name: author }),
+    );
+    await this.audit.record({
+      entityType: 'SellerConversation',
+      entityId: id,
+      action: 'seller.conversation.note',
+      after: { length: text.length },
+    });
+    const n = obj(raw);
+    return { id: str(n.id) ?? '', author: str(n.author) ?? author, authorUserId: userId, text, at: str(n.at) };
+  }
+
+  private async who(userId: string): Promise<string> {
+    return (await this.orgs.userLabel(userId)) ?? 'Сотрудник';
   }
 
   async reply(rawId: string, rawText: unknown) {

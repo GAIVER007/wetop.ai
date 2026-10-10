@@ -119,6 +119,17 @@ export function conversationView(raw: unknown, id: string) {
     mode: str(body.mode) ?? '',
     stage: str(body.stage) ?? '',
     leadData: obj(body.lead_data),
+    handling: handlingView(body.handling),
+    notes: list(body.notes).map((n) => {
+      const x = obj(n);
+      return {
+        id: str(x.id) ?? '',
+        author: str(x.author) ?? '',
+        authorUserId: str(x.author_user_id),
+        text: str(x.text) ?? '',
+        at: str(x.at),
+      };
+    }),
     contact: {
       name: str(contact.name),
       phone: str(contact.phone),
@@ -136,6 +147,42 @@ export function conversationView(raw: unknown, id: string) {
       };
     }),
   };
+}
+
+export function handlingView(raw: unknown) {
+  const h = obj(raw);
+  const a = obj(h.assignee);
+  const name = str(a.name);
+  return { assignee: name ? { userId: str(a.user_id), name } : null, nextStep: str(h.next_step) };
+}
+
+export const NEXT_STEP_MAX = 200;
+export const NOTE_MAX = 2000;
+
+/** Следующий шаг: пусто снимает; ответственный: «me» берёт вошедшего, пусто снимает, ничего не прислали — не трогаем */
+export function handlingInput(raw: unknown): { nextStep?: string | null; assignee?: 'me' | null } {
+  const body = obj(raw);
+  const out: { nextStep?: string | null; assignee?: 'me' | null } = {};
+  if ('nextStep' in body) {
+    const text = typeof body.nextStep === 'string' ? body.nextStep.trim() : '';
+    if (text.length > NEXT_STEP_MAX)
+      throw new BadRequestException(`Следующий шаг: не длиннее ${NEXT_STEP_MAX} знаков`);
+    out.nextStep = text || null;
+  }
+  if ('assignee' in body) {
+    if (body.assignee !== 'me' && body.assignee !== null)
+      throw new BadRequestException('Ответственный: «me» или null');
+    out.assignee = body.assignee;
+  }
+  if (Object.keys(out).length === 0) throw new BadRequestException('Нечего менять');
+  return out;
+}
+
+export function noteText(raw: unknown): string {
+  const text = typeof raw === 'string' ? raw.trim() : '';
+  if (text === '') throw new BadRequestException('Заметка: пустой текст');
+  if (text.length > NOTE_MAX) throw new BadRequestException(`Заметка: не длиннее ${NOTE_MAX} знаков`);
+  return text;
 }
 
 export function modeView(raw: unknown) {

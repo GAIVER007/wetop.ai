@@ -54,6 +54,12 @@ export class FakeSeller implements SellerPort {
   close(id: string) {
     return this.call('close', id);
   }
+  handling(id: string, body: Record<string, unknown>) {
+    return this.call('handling', id, body);
+  }
+  addNote(id: string, body: Record<string, unknown>) {
+    return this.call('addNote', id, body);
+  }
   reply(id: string, text: string) {
     return this.call('reply', id, text);
   }
@@ -196,6 +202,10 @@ export class FakeOrgs implements SellerOrgsRepository {
   }
   async hostsForAgent(scope: SellerAgentScope): Promise<string[]> {
     return this.agentHosts.get(scope.agentId) ?? [];
+  }
+  userLabels = new Map<string, string>();
+  async userLabel(userId: string): Promise<string | null> {
+    return this.userLabels.get(userId) ?? null;
   }
 }
 

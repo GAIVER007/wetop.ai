@@ -529,6 +529,63 @@ describe('диалоги, знания, сводка, песочница (П7)',
     expect(JSON.stringify(audit.events)).not.toContain('места есть');
   });
 
+  it('ответственный и следующий шаг: «я» берёт вошедшего и его имя из базы; снаружи имя не принимается', async () => {
+    orgs.userLabels.set(USER_A, 'Алия');
+    connection.seller.replies.handling = {
+      assignee: { user_id: USER_A, name: 'Алия' },
+      next_step: 'Позвонить до 18:00',
+    };
+    const res = await api()
+      .patch(`/ai-seller/conversations/${CONV}/handling`)
+      .set(as('session-a'))
+      .send({ nextStep: ' Позвонить до 18:00 ', assignee: 'me', assigneeName: 'Подделка' })
+      .expect(200);
+    expect(res.body).toEqual({ assignee: { userId: USER_A, name: 'Алия' }, nextStep: 'Позвонить до 18:00' });
+    expect(connection.seller.calls[0]!.args).toEqual([
+      CONV,
+      { next_step: 'Позвонить до 18:00', assignee_user_id: USER_A, assignee_name: 'Алия' },
+    ]);
+    expect(audit.events.at(-1)).toMatchObject({ action: 'seller.conversation.handling' });
+    expect(JSON.stringify(audit.events)).not.toContain('Позвонить');
+  });
+
+  it('следующий шаг: пусто снимает, слишком длинный и пустой запрос — 400, ответственного снимает null', async () => {
+    await api()
+      .patch(`/ai-seller/conversations/${CONV}/handling`)
+      .set(as('session-a'))
+      .send({ nextStep: '' })
+      .expect(200);
+    expect(connection.seller.calls[0]!.args).toEqual([CONV, { next_step: null }]);
+    await api()
+      .patch(`/ai-seller/conversations/${CONV}/handling`)
+      .set(as('session-a'))
+      .send({ assignee: null })
+      .expect(200);
+    expect(connection.seller.calls[1]!.args).toEqual([CONV, { assignee_user_id: null, assignee_name: null }]);
+    for (const bad of [{}, { nextStep: 'я'.repeat(201) }, { assignee: 'someone' }])
+      await api().patch(`/ai-seller/conversations/${CONV}/handling`).set(as('session-a')).send(bad).expect(400);
+    expect(connection.seller.ops()).toEqual(['handling', 'handling']);
+  });
+
+  it('заметка уходит с автором из сессии; журнал платформы знает длину, но не текст', async () => {
+    orgs.userLabels.set(USER_A, 'Алия');
+    connection.seller.replies.addNote = { id: 'n1', author: 'Алия', text: 'Просил тихий номер', at: '2026-10-10T07:00:00+00:00' };
+    const res = await api()
+      .post(`/ai-seller/conversations/${CONV}/notes`)
+      .set(as('session-a'))
+      .send({ text: ' Просил тихий номер ', author: 'Подделка' })
+      .expect(200);
+    expect(res.body).toMatchObject({ author: 'Алия', text: 'Просил тихий номер' });
+    expect(connection.seller.calls[0]!.args).toEqual([
+      CONV,
+      { body: 'Просил тихий номер', author_user_id: USER_A, author_name: 'Алия' },
+    ]);
+    expect(JSON.stringify(audit.events)).not.toContain('тихий');
+    for (const bad of ['   ', 'я'.repeat(2001)])
+      await api().post(`/ai-seller/conversations/${CONV}/notes`).set(as('session-a')).send({ text: bad }).expect(400);
+    expect(connection.seller.ops()).toEqual(['addNote']);
+  });
+
   it('пустой или слишком длинный ответ — 400', async () => {
     await api()
       .post(`/ai-seller/conversations/${CONV}/reply`)

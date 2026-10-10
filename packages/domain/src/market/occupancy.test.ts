@@ -3,6 +3,8 @@ import {
   MarketInputError,
   buildMarketBoard,
   buildNightHistory,
+  availabilityLevelFromBp,
+  availabilityLevelFromPage,
   competitorPlatform,
   estimateNightOccupancy,
   platformNightUrl,
@@ -333,5 +335,27 @@ describe('platformNightUrl', () => {
     // площадка, которую сборщик пока не читает, и не площадка вовсе
     expect(platformNightUrl('https://www.airbnb.com/rooms/1', '2026-10-31')).toBeNull();
     expect(platformNightUrl('https://altyn-hotel.kz/', '2026-10-31')).toBeNull();
+  });
+});
+
+describe('уровень наличия (DATA_MODEL §23.1)', () => {
+  it('по странице: нет предложений, малый видимый остаток, есть места; закрыто и не разобрано без уровня', () => {
+    expect(availabilityLevelFromPage({ status: 'sold_out', roomsLeft: null })).toBe('SOLD_OUT');
+    // хотя бы у одного предложения видно «осталось 5» или меньше: мало мест
+    expect(availabilityLevelFromPage({ status: 'available', roomsLeft: null, fewestLeft: 5 })).toBe('FEW_LEFT');
+    expect(availabilityLevelFromPage({ status: 'available', roomsLeft: 12, fewestLeft: 1 })).toBe('FEW_LEFT');
+    // остатки видны, но все больше порога, или не видны вовсе: есть места
+    expect(availabilityLevelFromPage({ status: 'available', roomsLeft: 14, fewestLeft: 6 })).toBe('AVAILABLE');
+    expect(availabilityLevelFromPage({ status: 'available', roomsLeft: null })).toBe('AVAILABLE');
+    expect(availabilityLevelFromPage({ status: 'blocked', roomsLeft: null })).toBeNull();
+    expect(availabilityLevelFromPage({ status: 'unknown', roomsLeft: null })).toBeNull();
+  });
+
+  it('по проценту (ручной ввод и старые снимки): пороги подсказок Q-258', () => {
+    expect(availabilityLevelFromBp(10000)).toBe('SOLD_OUT');
+    expect(availabilityLevelFromBp(9999)).toBe('FEW_LEFT');
+    expect(availabilityLevelFromBp(8500)).toBe('FEW_LEFT');
+    expect(availabilityLevelFromBp(8499)).toBe('AVAILABLE');
+    expect(availabilityLevelFromBp(0)).toBe('AVAILABLE');
   });
 });

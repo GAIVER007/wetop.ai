@@ -1370,6 +1370,13 @@ enum CompetitorObservationSource {
   AI_AGENT
 }
 
+/// DATA_MODEL §23.1: что видно на площадке на ночь, когда процента загрузки соседа нет
+enum CompetitorAvailabilityLevel {
+  SOLD_OUT
+  FEW_LEFT
+  AVAILABLE
+}
+
 model Competitor {
   id          String   @id @default(uuid()) @db.Uuid
   propertyId  String   @map("property_id") @db.Uuid
@@ -1402,8 +1409,10 @@ model CompetitorOccupancy {
   competitorId String                      @map("competitor_id") @db.Uuid
   stayDate     DateTime                    @map("stay_date") @db.Date
   observedOn   DateTime                    @map("observed_on") @db.Date
-  /// базисные пункты 0…10 000 (85,5 % = 8 550), ADR-008
-  occupancyBp  Int                         @map("occupancy_bp")
+  /// базисные пункты 0…10 000 (85,5 % = 8 550), ADR-008; NULL, когда известен только уровень (§23.1)
+  occupancyBp       Int?                         @map("occupancy_bp")
+  /// §23.1: уровень наличия; хотя бы одно из двух полей заполнено (CHECK competitor_occupancy_has_value)
+  availabilityLevel CompetitorAvailabilityLevel? @map("availability_level")
   source       CompetitorObservationSource @default(MANUAL)
   createdById  String?                     @map("created_by_id") @db.Uuid
   observedAt   DateTime                    @default(now()) @map("observed_at") @db.Timestamptz(6)

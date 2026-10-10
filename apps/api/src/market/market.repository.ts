@@ -200,6 +200,8 @@ export class PrismaMarketRepository implements MarketRepository {
         stayDate: { gte: asDate(from), lte: asDate(to) },
         observedOn: { lte: asDate(asOf) },
         competitor: { active: true },
+        // расчёт «вы и рынок» идёт по процентам; снимок только с уровнем (§23.1) войдёт в него отдельным путём
+        occupancyBp: { not: null },
       },
       select: {
         competitorId: true,
@@ -213,7 +215,7 @@ export class PrismaMarketRepository implements MarketRepository {
       competitorId: r.competitorId,
       stayDate: iso(r.stayDate),
       observedOn: iso(r.observedOn),
-      occupancyBp: r.occupancyBp,
+      occupancyBp: r.occupancyBp!,
       source: r.source,
     }));
   }
@@ -221,7 +223,7 @@ export class PrismaMarketRepository implements MarketRepository {
   async nightReadings(stayDate: string): Promise<MarketReading[]> {
     const propertyId = await this.propertyId();
     const rows = await this.prisma.db.competitorOccupancy.findMany({
-      where: { propertyId, stayDate: asDate(stayDate), competitor: { active: true } },
+      where: { propertyId, stayDate: asDate(stayDate), competitor: { active: true }, occupancyBp: { not: null } },
       orderBy: { observedOn: 'asc' },
       select: { competitorId: true, stayDate: true, observedOn: true, occupancyBp: true, source: true },
     });
@@ -229,7 +231,7 @@ export class PrismaMarketRepository implements MarketRepository {
       competitorId: r.competitorId,
       stayDate: iso(r.stayDate),
       observedOn: iso(r.observedOn),
-      occupancyBp: r.occupancyBp,
+      occupancyBp: r.occupancyBp!,
       source: r.source,
     }));
   }

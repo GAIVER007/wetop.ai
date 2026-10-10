@@ -424,6 +424,30 @@ export interface NightObservation {
   status: 'sold_out' | 'available' | 'blocked' | 'unknown';
   /** сколько номеров можно забронировать на эту ночь, сумма по типам; null, если не видно */
   roomsLeft: number | null;
+  /** самый малый остаток, который площадка показала у какого-либо предложения («осталось 2»); для уровня §23.1 */
+  fewestLeft?: number | null;
+}
+
+/** Уровень наличия у снимка (DATA_MODEL §23.1, утверждено 10.10.2026): что видно, когда процента нет */
+export type AvailabilityLevel = 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE';
+
+/** «Мало мест»: видимый остаток до этого числа включительно (Q-MKT-LVL-1, умолчание) */
+export const FEW_LEFT_MAX = 5;
+
+/**
+ * Уровень по странице площадки: предложений на ночь нет, «нет мест»; хотя бы у одного виден малый остаток, «мало
+ * мест»; остальное с предложениями, «есть места». Закрытая или не разобранная страница уровня не даёт.
+ */
+export function availabilityLevelFromPage(o: NightObservation): AvailabilityLevel | null {
+  if (o.status === 'sold_out') return 'SOLD_OUT';
+  if (o.status !== 'available') return null;
+  return o.fewestLeft != null && o.fewestLeft <= FEW_LEFT_MAX ? 'FEW_LEFT' : 'AVAILABLE';
+}
+
+/** Уровень по проценту (ручной ввод и снимки до §23.1): те же пороги, что у подсказок (Q-258) */
+export function availabilityLevelFromBp(bp: number): AvailabilityLevel {
+  if (bp >= 10000) return 'SOLD_OUT';
+  return bp >= HIGH_DEMAND_BP ? 'FEW_LEFT' : 'AVAILABLE';
 }
 
 /**

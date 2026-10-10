@@ -12,16 +12,31 @@ const SEGMENTS = [
 ];
 
 for (const segment of SEGMENTS) {
-  test(`${segment.path} — заголовок, возможности и призыв`, async ({ page }) => {
+  test(`${segment.path} — герой с фото, возможности, календарь, вопросы и призыв`, async ({ page }) => {
     await page.goto(segment.path);
     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
-    expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
-    await expect(page.locator('main a[data-auth="register"]')).toBeVisible();
-    await expect(page.locator('main a[href="/"]')).toBeVisible();
+    const hero = page.locator('.hotel-hero');
+    await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+      'href',
+      'https://wetop.ai/?vertical=HOSPITALITY#register',
+    );
+    // Своё цветное фото (KIE), не сток: файл отдаётся, у картинки описание
+    const photo = hero.locator('img');
+    await expect(photo).toHaveAttribute('alt', /.+/);
+    expect((await page.request.get((await photo.getAttribute('src')) ?? '')).status()).toBe(200);
+    expect(
+      await page.locator('#segment-features .card').count(),
+      'карточек возможностей',
+    ).toBeGreaterThanOrEqual(5);
+    await expect(page.locator('.hotel-shot img')).toHaveAttribute('src', '/screens/calendar-week-light.png');
+    await expect(page.locator('.faq details')).toHaveCount(4);
+    await expect(page.locator('.cta [data-auth="register"]')).toBeVisible();
+    await expect(page.locator('.cta a[href="/calculator/"]')).toBeVisible();
     const text = await page.locator('body').innerText();
     expect(text, 'название стороннего сервиса на странице').not.toMatch(/exely|travelline/i);
     expect(text, 'цифры клиентов и цены').not.toMatch(/\d+\s?(клиент|отел[яей]\b)|\d+\s?₸\s*(в месяц|\/ мес)/i);
+    expect(text, '«7 дней» один раз на экран').toMatch(/^(?![\s\S]*7 дней[\s\S]*7 дней)/);
   });
 }
 

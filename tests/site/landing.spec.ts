@@ -123,7 +123,7 @@ test('главная: регистрация открыта, маркетинг�
     page.locator('#get-started [data-auth="register"]'),
   ).toHaveAttribute('href', 'https://wetop.ai/#register');
   expect(await page.locator('a[href$="#start"]').filter({ hasText: /заявк/i }).count()).toBe(0);
-  // блог: статей нет — пункта нет ни в шапке, ни в подвале; сама страница отдаётся
+  // блог (10.10.2026): статьи опубликованы, пункт появился в подвале; шапка без изменений
   await expect(
     page
       .getByRole('navigation', { name: 'Основная навигация' })
@@ -131,7 +131,7 @@ test('главная: регистрация открыта, маркетинг�
   ).toHaveCount(0);
   await expect(
     page.getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' }),
-  ).toHaveCount(0);
+  ).toHaveCount(1);
   expect((await page.request.get('/blog/')).status()).toBe(200);
   // Карта разделов на первом экране (01.10.2026): схема продукта, а не снимок системы и не выдуманные показатели
   await expect(hero.locator('.dash')).toBeVisible();

@@ -96,11 +96,12 @@ export function PlatformOverviewSection({ view, today }: { view: PlatformOvervie
           testId="platform-kpi-new"
         />
       </Stats>
-      <Grid min={320}>
-        <Panel title="Рост количества клиентов">
-          <DayBars testId="platform-growth" today={today} days={growthBars(view.growth)} />
-          <p className="muted">Подключения по месяцам за год, столбик — всего организаций к концу месяца.</p>
-        </Panel>
+      <Panel title="Рост количества клиентов">
+        <DayBars testId="platform-growth" today={today} days={growthBars(view.growth)} />
+        <p className="muted">Подключения по месяцам за год; высота столбика: всего организаций к концу месяца.</p>
+      </Panel>
+      {/* кольцу с легендой нужно около 400 px: при трёх панелях в ряд рядом с левой колонкой подписи обрезались */}
+      <Grid min={400}>
         {view.verticals.length > 0 && (
           <Panel title="Клиенты по направлениям">
             <DonutShare

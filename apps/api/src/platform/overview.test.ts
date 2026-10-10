@@ -22,7 +22,7 @@ const src = (organizations: OverviewSource['organizations']): OverviewSource => 
 });
 
 describe('buildPlatformOverview', () => {
-  it('считает итоги по статусам; «клиенты» — без архива, архив отдельно', () => {
+  it('считает итоги по статусам; «клиенты» без архива, архив отдельно', () => {
     const view = buildPlatformOverview(
       src([
         org('2026-01-15T00:00:00Z', 'ACTIVE'),
@@ -41,7 +41,7 @@ describe('buildPlatformOverview', () => {
       usersTotal: 7,
       activeUsers: 3,
     });
-    // кольцо статусов — все четыре, нули не отдаются
+    // кольцо статусов: все четыре, нули не отдаются
     expect(view.statuses).toEqual([
       { status: 'ACTIVE', organizations: 1 },
       { status: 'TRIAL', organizations: 1 },
@@ -50,11 +50,11 @@ describe('buildPlatformOverview', () => {
     ]);
   });
 
-  it('новые за 30 дней: граница входит, 31-й день — нет', () => {
+  it('новые за 30 дней: граница входит, 31-й день: нет', () => {
     const view = buildPlatformOverview(
       src([
-        org('2026-09-10T12:00:00Z'), // ровно 30 дней назад — входит
-        org('2026-09-10T11:59:59Z'), // старше — нет
+        org('2026-09-10T12:00:00Z'), // ровно 30 дней назад: входит
+        org('2026-09-10T11:59:59Z'), // старше: нет
         org('2026-10-01T00:00:00Z'),
       ]),
       NOW,
@@ -65,7 +65,7 @@ describe('buildPlatformOverview', () => {
   it('рост: 12 месяцев по UTC, новые и накопительно; старые организации сидят в накопительном итоге', () => {
     const view = buildPlatformOverview(
       src([
-        org('2025-01-01T00:00:00Z'), // до окна — только в total
+        org('2025-01-01T00:00:00Z'), // до окна: только в total
         org('2025-11-01T00:00:00Z'), // первый месяц окна
         org('2026-10-09T00:00:00Z'),
         org('2026-10-10T00:00:00Z'),

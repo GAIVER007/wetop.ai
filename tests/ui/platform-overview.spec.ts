@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 
 /**
  * Обзор платформы и таблица клиентов (срез P1, план `plans/platform-superadmin-2026-10-10.md`, макет владельца).
- * Числа — из стенда: своя «Luxx Aparts» (ui-org, работает, три направления) и «Хостел «Пример»» (ui-org-2,
+ * Числа: из стенда: своя «Luxx Aparts» (ui-org, работает, три направления) и «Хостел «Пример»» (ui-org-2,
  * пробный, подключён два дня назад). Денег на экране нет: платежи платформе не ведутся (ADR-102, Q-PA-1, Q-PA-2).
  * Доступность /platform в двух темах сторожит platform-access.spec.ts, сюда не дублируется.
  */
@@ -20,7 +20,7 @@ async function signInAsPlatformAdmin(page: Page, request: import('@playwright/te
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
 }
 
-test('обзор: плитки, рост, направления, статусы; про деньги — честные слова, а не числа', async ({
+test('обзор: плитки, рост, направления, статусы; про деньги: честные слова, а не числа', async ({
   page,
   request,
 }) => {
@@ -31,13 +31,13 @@ test('обзор: плитки, рост, направления, статусы
   await expect(overview.getByTestId('platform-kpi-active')).toHaveText('1');
   await expect(overview.getByTestId('platform-kpi-trial')).toHaveText('1');
   await expect(overview.getByTestId('platform-kpi-read-only')).toHaveText('0');
-  // «Хостел «Пример»» подключён два дня назад — единственное новое подключение за 30 дней
+  // «Хостел «Пример»» подключён два дня назад: единственное новое подключение за 30 дней
   await expect(overview.getByTestId('platform-kpi-new')).toHaveText('1');
 
   // рост: выбран текущий месяц, подпись говорит итог словами
   await expect(overview.getByTestId('platform-growth')).toBeVisible();
   await expect(overview).toContainText('всего организаций 2');
-  // направления и статусы — кольца с подписями словами
+  // направления и статусы: кольца с подписями словами
   await expect(overview.getByTestId('platform-verticals')).toContainText('Гостиница');
   await expect(overview.getByTestId('platform-statuses')).toContainText('работает');
   await expect(overview.getByTestId('platform-statuses')).toContainText('пробный');
@@ -46,8 +46,25 @@ test('обзор: плитки, рост, направления, статусы
   const billing = page.getByTestId('platform-no-billing');
   await expect(billing).toContainText('ADR-102');
   await expect(billing).toContainText('Q-PA-1');
-  await expect(page.locator('main')).not.toContainText('MRR —');
+  // слово MRR есть в объяснении, а числа рядом с ним быть не должно
+  expect(await page.locator('main').innerText()).not.toMatch(/MRR\D{0,3}\d/);
   await expect(page.locator('main')).not.toContainText('₽');
+});
+
+test('подписи колец направлений и статусов читаются целиком на 1440 px рядом с левой колонкой', async ({
+  page,
+  request,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await signInAsPlatformAdmin(page, request);
+  await page.goto('/platform');
+  const names = page.getByTestId('platform-overview').locator('.donut__name');
+  await expect(names.first()).toBeVisible();
+  // обрезанная многоточием подпись: содержимое шире видимой части
+  const clipped = await names.evaluateAll((els) =>
+    els.filter((el) => el.scrollWidth > el.clientWidth).map((el) => el.textContent),
+  );
+  expect(clipped).toEqual([]);
 });
 
 test('таблица клиентов: направления, филиалы, дата подключения; поиск и отборы работают на месте', async ({
@@ -86,7 +103,7 @@ test('таблица клиентов: направления, филиалы, �
   await expect(table.getByRole('link', { name: 'Luxx Aparts' })).toBeVisible();
   await expect(table.getByRole('link', { name: 'Хостел «Пример»' })).toHaveCount(0);
 
-  // под отбор никто не попал — пустое состояние вместо пустой таблицы
+  // под отбор никто не попал: пустое состояние вместо пустой таблицы
   await page.getByTestId('platform-clients-search').fill('нет такой организации');
   await expect(page.getByTestId('platform-clients-empty')).toBeVisible();
   await expect(page.getByTestId('platform-organizations')).toHaveCount(0);

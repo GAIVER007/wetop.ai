@@ -181,7 +181,7 @@ export type Dictionary = {
     ctaText: string;
     link: string;
   };
-  /** Страница «Для ресторанов» (`/restaurants/`, макет владельца 10.10.2026): собрана из блоков §19.5. */
+  /** Страница «Для ресторанов» (`/restaurants/`, макет владельца 10.10.2026): блок `.restl` + блоки §19.5. */
   restaurants: {
     metaTitle: string;
     description: string;
@@ -190,8 +190,11 @@ export type Dictionary = {
     titleAccent: string;
     lead: string;
     primary: string;
-    secondary: string;
-    /** Ссылка на эту страницу с карточки направления на главной. */
+    demo: string;
+    chips: string[];
+    /** Рукописные пометки по краям hero, как на макете. */
+    noteLeft: string;
+    noteRight: string;
     homeCardLink: string;
     home: string;
     exampleNote: string;
@@ -201,31 +204,46 @@ export type Dictionary = {
       nav: string[];
       metrics: Array<{ label: string; value: string; delta: string }>;
       planTitle: string;
-      /** Статусы столов мини-плана: порядок клеток как на экране стойки. */
       tables: Array<'free' | 'busy' | 'reserved' | 'cleaning'>;
       legend: Array<{ kind: 'free' | 'busy' | 'reserved' | 'cleaning'; label: string }>;
       ordersTitle: string;
       orders: Array<{ table: string; time: string; status: string }>;
     };
-    /** Полоса фактов о продукте: без чисел клиентов и обещаний результата (§19.9). */
-    facts: Array<{ icon: IconName; title: string; text: string }>;
-    featuresEyebrow: string;
-    featuresTitle: string;
-    featuresLead: string;
-    features: Array<{ icon: IconName; title: string; text: string }>;
+    phone: {
+      greeting: string;
+      revenueLabel: string;
+      revenue: string;
+      delta: string;
+      tiles: string[];
+    };
+    /** Полоса показателей: только факты продукта, без чисел клиентов (§19.9, ADR-160). */
+    band: Array<{ icon: IconName; value: string; caption: string }>;
+    processesEyebrow: string;
+    processesTitle: string;
+    processesLead: string;
+    processesAll: string;
+    processes: Array<{ icon: IconName; title: string; text: string }>;
     actionEyebrow: string;
     actionTitle: string;
     actionLead: string;
-    /** Карточки «возможности в действии»: мини-экраны словами, строки вымышленные. */
-    modules: Array<{ icon: IconName; title: string; rows: Array<{ left: string; right: string }> }>;
-    reportsEyebrow: string;
-    reportsTitle: string;
-    reportsLead: string;
-    reports: Array<{ label: string; text: string }>;
+    /** Мини-экраны разделов: вид задаёт `kind`, строки вымышленные и подписаны. */
+    shots: Array<{
+      kind: 'floor' | 'kds' | 'menu' | 'calc' | 'staff' | 'payroll' | 'clients' | 'analytics';
+      title: string;
+      rows: Array<{ left: string; right: string }>;
+    }>;
+    moreEyebrow: string;
+    moreTitle: string;
+    moreLead: string;
+    more: Array<{ icon: IconName; title: string; text: string }>;
+    resultsEyebrow: string;
+    resultsTitle: string;
+    resultsLead: string;
+    results: Array<{ label: string; text: string; chart: 'line' | 'bars'; tone: 'green' | 'orange' | 'purple' | 'blue' }>;
     aiEyebrow: string;
     aiTitle: string;
     aiLead: string;
-    ai: Array<{ icon: IconName; title: string; text: string }>;
+    ai: Array<{ icon: IconName; title: string; text: string; tone: 'blue' | 'green' | 'purple' | 'orange' }>;
     stepsEyebrow: string;
     stepsTitle: string;
     steps: Array<{ title: string; text: string }>;
@@ -234,6 +252,8 @@ export type Dictionary = {
     faq: Array<{ q: string; a: string }>;
     ctaTitle: string;
     ctaText: string;
+    ctaChips: string[];
+    ctaNote: string;
   };
   /** Страницы по типам объектов (`/for/<slug>/`, срез D2 плана прямых продаж). */
   segments: {

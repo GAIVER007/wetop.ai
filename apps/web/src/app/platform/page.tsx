@@ -4,7 +4,6 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { RefreshButton } from '../../components/refresh-button';
 import {
-  Badge,
   EmptyState,
   Fact,
   Grid,
@@ -12,7 +11,6 @@ import {
   Panel,
   SectionTitle,
   Stack,
-  Table,
 } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { ApiError, branchesApi, platformApi, type PlatformOrganization } from '../../lib/api';
@@ -24,6 +22,8 @@ import {
   organizationStatusLine,
 } from '../../lib/platform';
 import { ArchiveForm, CreateOrganizationForm, ExtensionForm, OwnerLinkForm, RenameForm, StatusForm } from './forms';
+import { ClientsTable } from './clients-table';
+import { PlatformOverviewSection } from './overview';
 import { OwnOrganization } from './own-organization';
 import { SiteBuilderLicense } from './site-builder';
 import { DataConnectionPanel } from './data-connection';
@@ -79,9 +79,10 @@ async function Organizations({
   showArchived: boolean;
   query: Record<string, string | string[] | undefined>;
 }) {
-  const [organizations, branches] = await Promise.all([
+  const [organizations, branches, overview] = await Promise.all([
     settle(platformApi.organizations()),
     settle(branchesApi.list()),
+    settle(platformApi.overview()),
   ]);
   if (!organizations.ok) {
     if (organizations.error instanceof ApiError && organizations.error.status === 403)
@@ -109,6 +110,11 @@ async function Organizations({
     .join('&')}`;
   return (
     <Stack>
+      {overview.ok ? (
+        <PlatformOverviewSection view={overview.value} today={new Date().toISOString().slice(0, 10)} />
+      ) : (
+        <LoadError testId="platform-overview-error" {...loadErrorProps(overview.error)} />
+      )}
       {branches.ok ? (
         <Suspense fallback={<LoadingState label="Считаем показатели филиалов…" />}>
           <OwnOrganization data={branches.value} query={query} selected={selected} />
@@ -148,54 +154,7 @@ async function Organizations({
             Здесь появятся гостиницы, зарегистрированные на платформе.
           </EmptyState>
         ) : (
-          <Table aria-label="Организации платформы" data-testid="platform-organizations">
-            <thead>
-              <tr>
-                <th>Организация</th>
-                <th>Состояние</th>
-                <th>Людей</th>
-                <th>Владелец</th>
-                <th>ИИ-продавец</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((o) => {
-                const status = organizationStatusLine(o);
-                const seller = extensionLine(o.aiSeller);
-                return (
-                  <tr key={o.id} aria-current={o.id === selected ? 'true' : undefined}>
-                    <td>
-                      <Link href={`/platform?org=${o.id}${archivedParam}#organization`} prefetch={false}>
-                        {o.name}
-                      </Link>
-                      {o.id === ownId && (
-                        <>
-                          {' '}
-                          <Badge tone="info">Ваша</Badge>
-                        </>
-                      )}
-                      {o.ownerPending && (
-                        <>
-                          {' '}
-                          <Badge tone="warn">ждёт пароля</Badge>
-                        </>
-                      )}
-                      <span className="sub">, с {organizationSince(o.createdAt)}</span>
-                    </td>
-                    <td>
-                      <Badge tone={status.tone}>{status.label}</Badge>
-                    </td>
-                    <td>{o.members}</td>
-                    <td>{o.owners.length > 0 ? o.owners.join(', ') : 'Не указан'}</td>
-                    <td>
-                      <Badge tone={seller.tone}>{seller.label}</Badge>
-                      <span className="sub"> {seller.detail}</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
+          <ClientsTable items={visible} ownId={ownId} selected={selected} archivedParam={archivedParam} />
         )}
         {card && <OrganizationCard organization={card} own={card.id === ownId} />}
       </Panel>

@@ -2835,7 +2835,33 @@ export interface PlatformOrganization {
   owners: string[];
   /** Владелец заведён главным администратором и ещё не задал пароль: ему можно выслать ссылку */
   ownerPending: boolean;
+  /** Направления бизнесов организации по порядку создания, без повторов */
+  verticals: PlatformVertical[];
+  /** Число филиалов во всех бизнесах организации */
+  locations: number;
   aiSeller: ExtensionAccessView & { note: string | null; updatedAt: string | null };
+}
+
+export type PlatformVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+
+/**
+ * Обзор платформы (срез P1, `plans/platform-superadmin-2026-10-10.md`): итоги, рост подключений за 12 месяцев,
+ * направления и статусы. Денег здесь нет: платежи платформе не ведутся (ADR-102, Q-PA-1, Q-PA-2).
+ */
+export interface PlatformOverview {
+  totals: {
+    organizations: number;
+    active: number;
+    trial: number;
+    readOnly: number;
+    suspended: number;
+    newLast30d: number;
+    usersTotal: number;
+    activeUsers: number;
+  };
+  growth: Array<{ month: string; added: number; total: number }>;
+  verticals: Array<{ vertical: PlatformVertical; organizations: number }>;
+  statuses: Array<{ status: SignedInOrganization['status']; organizations: number }>;
 }
 
 /** Изменение расширения: статус, дата «до» (`ГГГГ-ММ-ДД`, включительно; пусто — бессрочно) и заметка */
@@ -2858,6 +2884,8 @@ export interface PlatformSiteBuilderLocation {
 
 export const platformApi = {
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
+  /** Обзор платформы: только главному администратору, остальным API отвечает 403 */
+  overview: () => getJson<PlatformOverview>('/platform/overview'),
   siteBuilder: (organizationId: string) =>
     getJson<{ items: PlatformSiteBuilderLocation[] }>(`/platform/organizations/${encodeURIComponent(organizationId)}/site-builder`),
   changeSiteBuilder: (organizationId: string, locationId: string, body: ExtensionChangeBody) =>

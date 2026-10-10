@@ -1,0 +1,16 @@
+# Модульные (unit) · 10.10.2026 16:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2341cfb (claude/platform-superadmin), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-59-29Z-unit-1db8.json' 'apps/api/src/platform/overview.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin
+
+ ✓ |unit| apps/api/src/platform/overview.test.ts (4 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  04:59:29
+   Duration  325ms (transform 81%, import 16%, tests 1%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-59-29Z-unit-1db8.json
+
+# код выхода 0 · 1 с

@@ -84,6 +84,18 @@ class FakeExtensions implements ExtensionsRepository {
     const org = this.orgs.find((o) => o.id === input.organizationId)!;
     org.aiSeller = { ...input.change, updatedAt: input.now };
   }
+  /** Сырьё обзора — из тех же организаций, что и список; людей в хранилище нет, числа заданы прямо */
+  async overviewSource() {
+    return {
+      organizations: this.orgs.map((o) => ({
+        status: o.status,
+        createdAt: o.createdAt,
+        businesses: o.verticals.map((vertical) => ({ vertical, createdAt: o.createdAt })),
+      })),
+      usersTotal: 5,
+      activeUsers: 2,
+    };
+  }
 }
 
 const repo = new FakeExtensions();
@@ -107,6 +119,8 @@ class FakeCreation {
       members: 1,
       owners: [input.ownerEmail],
       ownerPending: true,
+      verticals: [input.vertical],
+      locations: 1,
       aiSeller: null,
     });
     return { organizationId: NEW_ORG, ownerLinkSent: this.sent };
@@ -208,6 +222,8 @@ beforeEach(() => {
       members: 2,
       owners: ['vladelec@example.invalid'],
       ownerPending: false,
+      verticals: ['HOSPITALITY'],
+      locations: 1,
       aiSeller: null,
     },
   ];
@@ -248,9 +264,37 @@ describe('раздел «Платформа» — только главный а
         members: 2,
         owners: ['vladelec@example.invalid'],
         ownerPending: false,
+        verticals: ['HOSPITALITY'],
+        locations: 1,
         aiSeller: { access: 'off', status: null, activeUntil: null, daysLeft: null, note: null, updatedAt: null },
       },
     ]);
+  });
+});
+
+describe('обзор платформы (срез P1, план platform-superadmin-2026-10-10)', () => {
+  it('владелец организации обзор не видит: 403; без входа 401', async () => {
+    const res = await api().get('/platform/overview').set(as('session-owner')).expect(403);
+    expect(res.body.message).toBe(PLATFORM_ADMIN_ONLY);
+    await api().get('/platform/overview').expect(401);
+  });
+
+  it('главному администратору — итоги, рост за 12 месяцев, направления и статусы; денег в ответе нет', async () => {
+    const res = await api().get('/platform/overview').set(as('session-admin')).expect(200);
+    expect(res.body.totals).toMatchObject({
+      organizations: 1,
+      trial: 1,
+      active: 0,
+      suspended: 0,
+      usersTotal: 5,
+      activeUsers: 2,
+    });
+    expect(res.body.growth).toHaveLength(12);
+    expect(res.body.growth.at(-1).total).toBe(1);
+    expect(res.body.verticals).toEqual([{ vertical: 'HOSPITALITY', organizations: 1 }]);
+    expect(res.body.statuses).toEqual([{ status: 'TRIAL', organizations: 1 }]);
+    // платежи платформе не ведутся (ADR-102): ни MRR, ни «просрочено» в ответе нет
+    expect(JSON.stringify(res.body)).not.toMatch(/mrr|overdue/i);
   });
 });
 
@@ -390,6 +434,8 @@ describe('организация: название, архив и возврат
       members: 1,
       owners: ['sever@example.invalid'],
       ownerPending: false,
+      verticals: ['HOSPITALITY'],
+      locations: 1,
       aiSeller: null,
     });
   });

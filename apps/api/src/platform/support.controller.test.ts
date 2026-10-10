@@ -67,6 +67,8 @@ class FakeOrganizations implements Pick<ExtensionsRepository, 'organization'> {
           members: 2,
           owners: ['vladelec@example.invalid'],
           ownerPending: false,
+          verticals: ['HOSPITALITY'],
+          locations: 1,
           aiSeller: null,
         }
       : null;

@@ -2334,6 +2334,8 @@ const platformOrganizations = () => [
     members: uiMembers.size,
     owners: ['admin@wetop.test'],
     ownerPending: false,
+    verticals: ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'],
+    locations: 3,
   },
   {
     id: 'ui-org-2',
@@ -2344,6 +2346,8 @@ const platformOrganizations = () => [
     members: 1,
     owners: ['owner@example.com'],
     ownerPending: false,
+    verticals: ['HOSPITALITY'],
+    locations: 1,
   },
   ...platformCreated.map((c) => ({
     id: c.id,
@@ -2354,8 +2358,48 @@ const platformOrganizations = () => [
     members: 1,
     owners: [c.ownerEmail],
     ownerPending: true,
+    verticals: ['HOSPITALITY'],
+    locations: 1,
   })),
 ];
+/** Обзор платформы (срез P1): считается из тех же организаций, что и таблица, той же арифметикой, что у API */
+const platformOverview = () => {
+  const orgs = platformOrganizations();
+  const byStatus = (s: string) => orgs.filter((o) => o.status === s).length;
+  const monthKey = (iso: string) => iso.slice(0, 7);
+  const now = new Date();
+  const months: string[] = [];
+  for (let i = 11; i >= 0; i -= 1)
+    months.push(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1)).toISOString().slice(0, 7));
+  const verticalCount = new Map<string, number>();
+  for (const o of orgs) {
+    if (o.status === 'SUSPENDED' || o.verticals.length === 0) continue;
+    verticalCount.set(o.verticals[0]!, (verticalCount.get(o.verticals[0]!) ?? 0) + 1);
+  }
+  return {
+    totals: {
+      organizations: orgs.length - byStatus('SUSPENDED'),
+      active: byStatus('ACTIVE'),
+      trial: byStatus('TRIAL'),
+      readOnly: byStatus('READ_ONLY'),
+      suspended: byStatus('SUSPENDED'),
+      newLast30d: orgs.filter((o) => Date.parse(o.createdAt) >= Date.now() - 30 * DAY_MS).length,
+      usersTotal: uiMembers.size + 1,
+      activeUsers: uiMembers.size,
+    },
+    growth: months.map((month) => ({
+      month,
+      added: orgs.filter((o) => monthKey(o.createdAt) === month).length,
+      total: orgs.filter((o) => monthKey(o.createdAt) <= month).length,
+    })),
+    verticals: ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']
+      .filter((v) => verticalCount.has(v))
+      .map((vertical) => ({ vertical, organizations: verticalCount.get(vertical)! })),
+    statuses: (['ACTIVE', 'TRIAL', 'READ_ONLY', 'SUSPENDED'] as const)
+      .filter((s) => byStatus(s) > 0)
+      .map((status) => ({ status, organizations: byStatus(status) })),
+  };
+};
 // ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
 const SUPPORT_DIALOG_A = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 const SUPPORT_DIALOG_B = '7b2c3d4e-5f6a-4b7c-9d8e-0f1a2b3c4d5e';
@@ -6164,6 +6208,8 @@ createServer(async (req, res) => {
         });
       if (path === '/platform/organizations' && req.method === 'GET')
         return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
+      // Обзор платформы (срез P1, план platform-superadmin-2026-10-10): денег в ответе нет (ADR-102)
+      if (path === '/platform/overview' && req.method === 'GET') return send(200, platformOverview());
       // MKT9.2: лицензии конструктора сайта по филиалам
       const siteBuilder = platformSiteBuilderFixture(path, req.method ?? 'GET', body);
       if (siteBuilder) return send(siteBuilder.status, siteBuilder.data);

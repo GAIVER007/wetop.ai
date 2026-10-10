@@ -1,0 +1,134 @@
+# Модульные (unit) · 10.10.2026 17:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2341cfb (claude/platform-superadmin), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T12-00-26Z-unit-4f5e.json' 'apps/api/src/platform/platform.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin
+
+ ❯ |unit| apps/api/src/platform/platform.controller.test.ts (35 tests | 3 failed) 151ms
+   ❯ раздел «Платформа» — только главный администратор (4)
+     ✓ владелец организации получает 403 и на список, и на изменение 18ms
+     ✓ служебный ключ раздел не открывает: он не человек и не главный администратор 1ms
+     ✓ без входа — 401 от замка 1ms
+     × главному администратору — организации без броней и гостей: название, сроки, люди, владельцы, расширение 4ms
+   ❯ обзор платформы (срез P1, план platform-superadmin-2026-10-10) (2)
+     × владелец организации обзор не видит: 403; без входа 401 2ms
+     × главному администратору — итоги, рост за 12 месяцев, направления и статусы; денег в ответе нет 1ms
+   ✓ включение «ИИ-продавца» главным администратором (Q-183) (3)
+     ✓ оплачен бессрочно с номером счёта: записано с автором, в ответе — «действует» 1ms
+     ✓ пробный без срока — 400 словами домена, ничего не записано 1ms
+     ✓ неизвестная организация — 404; не идентификатор — 400 2ms
+   ✓ статус организации: подтверждение оплаты (5)
+     ✓ главный администратор подтверждает оплату — ACTIVE, с автором и заметкой 1ms
+     ✓ и переводит обратно в «только чтение» 1ms
+     ✓ другие статусы отсюда не ставятся: приостановка и пробный — не оплата 2ms
+     ✓ владелец организации сам себе оплату не подтверждает — 403 1ms
+     ✓ нет такой организации — 404 1ms
+   ✓ лицензия конструктора сайта филиала (MKT9.2) (3)
+     ✓ владелец организации не видит и не выдаёт себе лицензию: 403, ничего не записано 1ms
+     ✓ главный администратор активирует: записано с автором, ответ «действует» 1ms
+     ✓ пробный без срока: 400; чужой филиал: 404; ничего не записано 1ms
+   ✓ организация: название, архив и возврат (10)
+     ✓ переименование: пробелы сжаты, записано с автором, в ответе новое название 1ms
+     ✓ то же название: ответ 200, лишней записи в журнале нет 1ms
+     ✓ пустое, слишком длинное и не строка: 400, ничего не записано 3ms
+     ✓ переименовывает только главный администратор; нет такой — 404; не идентификатор — 400 2ms
+     ✓ архив: статус SUSPENDED, автор записан, организация остаётся в списке 1ms
+     ✓ свою организацию в архив убрать нельзя: 409, статус не тронут 1ms
+     ✓ уже в архиве — 409; нет такой — 404; владелец — 403 2ms
+     ✓ возврат ставит прежний статус, а не «оплачено» 1ms
+     ✓ прежний статус не найден: возврат в «только чтение», платный доступ сам не появляется 1ms
+     ✓ вернуть из архива можно только организацию из архива: иначе 409; владелец — 403 3ms
+   ✓ создание организации (8)
+     ✓ главный администратор создаёт: 201, название и почта приведены к одному виду, автор записан 1ms
+     ✓ направление салона принимается; письмо не ушло — организация создана, ownerLinkSent false 1ms
+     ✓ пустое, слишком длинное и не строка: 400 словами названия, ничего не создано 3ms
+     ✓ почта владельца не адрес и неизвестное направление: 400, ничего не создано 3ms
+     ✓ отказ службы (почта занята, направление только для пилота) идёт наружу её словами 1ms
+     ✓ владелец организации не создаёт чужие организации: 403; без входа 401 1ms
+     ✓ ссылка владельцу ещё раз: 201 и в ответе только ownerLinkSent; нет такой организации 404; не идентификатор 400 1ms
+     ✓ ссылку владельцу выдаёт только главный администратор; отказ службы идёт наружу 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > раздел «Платформа» — только главный администратор > главному администратору — организации без броней и гостей: название, сроки, люди, владельцы, расширение
+AssertionError: expected [ { …(9) } ] to deeply equal [ { …(11) } ]
+
+- Expected
++ Received
+
+@@ -8,19 +8,15 @@
+        "status": null,
+        "updatedAt": null,
+      },
+      "createdAt": "2026-09-25T00:00:00.000Z",
+      "id": "5d2f1a9e-8c7b-4e3a-a1f0-6b9c2d4e8f00",
+-     "locations": 1,
+      "members": 2,
+      "name": "Хостел «Пример»",
+      "ownerPending": false,
+      "owners": [
+        "<email>",
+      ],
+      "status": "TRIAL",
+      "trialEndsAt": "2026-10-02T00:00:00.000Z",
+-     "verticals": [
+-       "HOSPITALITY",
+-     ],
+    },
+  ]
+
+ ❯ apps/api/src/platform/platform.controller.test.ts:257:28
+    255|   it('главному администратору — организации без броней и гостей: назва…
+    256|     const res = await api().get('/platform/organizations').set(as('ses…
+    257|     expect(res.body.items).toEqual([
+       |                            ^
+    258|       {
+    259|         id: ORG,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > обзор платформы (срез P1, план platform-superadmin-2026-10-10) > владелец организации обзор не видит: 403; без входа 401
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:277:80
+    275| describe('обзор платформы (срез P1, план platform-superadmin-2026-10-1…
+    276|   it('владелец организации обзор не видит: 403; без входа 401', async …
+    277|     const res = await api().get('/platform/overview').set(as('session-…
+       |                                                                                ^
+    278|     expect(res.body.message).toBe(PLATFORM_ADMIN_ONLY);
+    279|     await api().get('/platform/overview').expect(401);
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > обзор платформы (срез P1, план platform-superadmin-2026-10-10) > главному администратору — итоги, рост за 12 месяцев, направления и статусы; денег в ответе нет
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:283:80
+    281|
+    282|   it('главному администратору — итоги, рост за 12 месяцев, направления…
+    283|     const res = await api().get('/platform/overview').set(as('session-…
+       |                                                                                ^
+    284|     expect(res.body.totals).toMatchObject({
+    285|       organizations: 1,
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 32 passed (35)
+   Start at  05:00:27
+   Duration  1.10s (transform 47%, import 38%, tests 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T12-00-26Z-unit-4f5e.json
+
+# код выхода 1 · 2 с

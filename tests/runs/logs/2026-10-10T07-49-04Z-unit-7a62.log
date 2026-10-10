@@ -1,0 +1,77 @@
+# Модульные (unit) · 10.10.2026 12:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8364a37 (claude/market-ai-collector), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-49-04Z-unit-7a62.json' 'packages/domain/src/market/occupancy.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| packages/domain/src/market/occupancy.test.ts (24 tests | 2 failed) 60ms
+   ✓ parseOccupancyPercent (3)
+     ✓ процент в базисные пункты: целый, с запятой и точкой, знак процента 4ms
+     ✓ пусто: значения нет 1ms
+     ✓ мимо 0…100, больше двух знаков после запятой и не число: отказ словами 4ms
+   ✓ formatOccupancy и demandLevel (2)
+     ✓ без лишних нулей, запятая 1ms
+     ✓ уровни спроса по порогам Q-258 0ms
+   ✓ parseCompetitorInput (3)
+     ✓ название обязательно при создании, поля чистятся 3ms
+     ✓ пустые необязательные поля при правке снимаются (null) 1ms
+     ✓ отрицательное расстояние, ноль номеров, адрес не http: отказ 1ms
+   ✓ marketDates (1)
+     ✓ окно подряд, через границу месяца 1ms
+   ✓ buildMarketBoard (8)
+     ✓ своя загрузка из календаря: занято от занято + свободно + блок 1ms
+     ✓ клетка конкурента: последний снимок не позже даты снимка и изменение к сравнению 1ms
+     ✓ конкуренты по расстоянию, без расстояния последними 0ms
+     ✓ средняя по рынку: простое среднее по конкурентам с данными; разница с вами 0ms
+     ✓ итог окна: рынок средним по дням, вы от суммы клеток, дни высокого спроса 0ms
+     ✓ подсказки: высокий спрос с отставанием, высокий спрос, слабый спрос, нет данных 1ms
+     ✓ ночи одного правила подряд склеиваются в отрезок, подсказок не больше пяти 2ms
+     ✓ пустой календарь (нет мест) и рынок без данных: прочерки, без деления на ноль 1ms
+   ✓ buildNightHistory (2)
+     ✓ по дням снимка: значение переносится до нового снимка, отмечено, был ли снимок в этот день; темп рынка 2ms
+     ✓ нет снимков: пустая история, темп неизвестен; дней не больше предела, свежие остаются 2ms
+   ✓ competitorPlatform (1)
+     ✓ площадка по ссылке конкурента: по ней ИИ-сборщик понимает, где смотреть свободные номера 1ms
+   ✓ estimateNightOccupancy (1)
+     ✓ оценка загрузки ночи по странице площадки: распродано, сколько можно забронировать, неизвестно 1ms
+   ✓ platformNightUrl (1)
+     ✓ адрес страницы соседа на одну ночь: даты, один взрослый (хостел на двоих вариантов не показывает) 3ms
+   ❯ уровень наличия (DATA_MODEL §23.1) (2)
+     × по странице: нет предложений, малый видимый остаток, есть места; закрыто и не разобрано без уровня 13ms
+     × по проценту (ручной ввод и старые снимки): пороги подсказок Q-258 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > уровень наличия (DATA_MODEL §23.1) > по странице: нет предложений, малый видимый остаток, есть места; закрыто и не разобрано без уровня
+TypeError: availabilityLevelFromPage is not a function
+ ❯ packages/domain/src/market/occupancy.test.ts:343:12
+    341| describe('уровень наличия (DATA_MODEL §23.1)', () => {
+    342|   it('по странице: нет предложений, малый видимый остаток, есть места;…
+    343|     expect(availabilityLevelFromPage({ status: 'sold_out', roomsLeft: …
+       |            ^
+    344|     // хотя бы у одного предложения видно «осталось 5» или меньше: мал…
+    345|     expect(availabilityLevelFromPage({ status: 'available', roomsLeft:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > уровень наличия (DATA_MODEL §23.1) > по проценту (ручной ввод и старые снимки): пороги подсказок Q-258
+TypeError: availabilityLevelFromBp is not a function
+ ❯ packages/domain/src/market/occupancy.test.ts:355:12
+    353|
+    354|   it('по проценту (ручной ввод и старые снимки): пороги подсказок Q-25…
+    355|     expect(availabilityLevelFromBp(10000)).toBe('SOLD_OUT');
+       |            ^
+    356|     expect(availabilityLevelFromBp(9999)).toBe('FEW_LEFT');
+    357|     expect(availabilityLevelFromBp(8500)).toBe('FEW_LEFT');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 22 passed (24)
+   Start at  00:49:10
+   Duration  1.14s (transform 57%, import 30%, tests 10%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-49-04Z-unit-7a62.json
+
+# код выхода 1 · 8 с

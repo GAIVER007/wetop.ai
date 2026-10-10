@@ -261,7 +261,10 @@ test('календарь возвращает обе позиции после �
       wrap.evaluate((el) => {
         const today = el.querySelector('thead .is-today')!.getBoundingClientRect();
         const units = el.querySelector('thead th')!.getBoundingClientRect();
-        return Math.abs(today.left - units.right);
+        // день стоит у края колонки мест; если до него не дотянуться (сегодня у правого края сетки),
+        // прокрутка упирается в максимум, и этого достаточно
+        const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
+        return atEnd && today.left >= units.right - 2 ? 0 : Math.abs(today.left - units.right);
       }),
     )
     .toBeLessThanOrEqual(2);

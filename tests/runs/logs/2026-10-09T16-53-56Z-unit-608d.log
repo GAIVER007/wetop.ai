@@ -1,0 +1,46 @@
+# Модульные (unit) · 09.10.2026 21:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3d8cd3b (claude/market-ai-collector), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T16-53-56Z-unit-608d.json' 'scripts/market/collect.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| scripts/market/collect.test.ts (9 tests | 1 failed) 19ms
+   ❯ ИИ-сборщик загрузки конкурентов (7)
+     ✓ открывает страницу на каждую ночь, оценивает загрузку и пишет снимок с паузой между страницами 12ms
+     ✓ страница закрыта проверкой площадки: не обходит, останавливается по соседу, уже оценённое пишет 1ms
+     ✓ Booking.com отвечает автомату 202 и пустой страницей: это проверка площадки, модель не зовём 0ms
+     × страница не загрузилась (таймаут): ночь без оценки, остальные ночи и соседи идут дальше 2ms
+     ✓ модель увидела проверку на странице с кодом 200: то же самое, дальше не идёт 0ms
+     ✓ без ссылки на площадку или без числа номеров страницу не открывает 0ms
+     ✓ проверка без записи: читает и оценивает, в WETOP ничего не пишет 0ms
+   ✓ блок номеров со страницы (1)
+     ✓ Ostrovok: только «Заезд»…«Расположение»; без границ текст обрезается до отзывов с именами гостей 3ms
+   ✓ ответ модели (1)
+     ✓ принимает только то, что прошло проверку; остаток бывает только у «продаётся» 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/market/collect.test.ts > ИИ-сборщик загрузки конкурентов > страница не загрузилась (таймаут): ночь без оценки, остальные ночи и соседи идут дальше
+Error: page.goto: Timeout 45000ms exceeded
+ ❯ setup.status scripts/market/collect.test.ts:94:103
+     92|       [altyn, { ...altyn, id: 'b', name: 'Хостел Рой' }],
+     93|       (url) => {
+     94|         if (url.includes('altyn') && new URL(url).searchParams.get('ch…
+       |                                                                                                       ^
+     95|         return { status: 200, text: '' };
+     96|       },
+ ❯ Object.readPage scripts/market/collect.test.ts:26:14
+ ❯ collect scripts/market/collect.ts:113:31
+ ❯ scripts/market/collect.test.ts:99:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  09:53:57
+   Duration  320ms (transform 76%, import 16%, tests 7%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T16-53-56Z-unit-608d.json
+
+# код выхода 1 · 1 с

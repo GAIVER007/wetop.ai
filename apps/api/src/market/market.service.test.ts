@@ -174,7 +174,7 @@ describe('MarketService', () => {
     expect(repo.readingsStore.every((r) => r.observedOn === '2026-10-03')).toBe(true);
     const v = await service.occupancy({});
     expect(v.board.competitors[0]!.cells.slice(0, 2).map((x) => x.bp)).toEqual([9000, 7250]);
-    expect(v.board.market[0]).toEqual({ date: '2026-10-03', bp: 9000, count: 1 });
+    expect(v.board.market[0]).toEqual({ date: '2026-10-03', bp: 9000, count: 1, tight: 1, withLevel: 1 });
     await service.writeOccupancy(c.id, { entries: [{ date: '2026-10-04', percent: '' }] });
     expect(repo.readingsStore).toHaveLength(1);
     expect(repo.audits.at(-1)!.action).toBe('market.occupancy.recorded');

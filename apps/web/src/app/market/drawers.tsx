@@ -141,8 +141,8 @@ function CompetitorForm({
         {error && <Alert boxed>{error}</Alert>}
         {competitor && <input type="hidden" name="id" value={competitor.id} />}
         <p className="settings-note">
-          Обязательно только название. По расстоянию список идёт от ближайших; ссылка, страница
-          отеля, где вы смотрите его загрузку (например, на Booking.com).
+          Обязательно только название. Ссылка на страницу соседа на площадке необязательна: по ней
+          удобно открыть отель и сверить загрузку.
         </p>
         <Field label="Название отеля">
           <Input
@@ -175,19 +175,14 @@ function CompetitorForm({
         <Field label="Адрес">
           <Input name="address" maxLength={200} defaultValue={v('address', competitor?.address)} />
         </Field>
-        <Field label="Расстояние, метров">
-          <Input
-            name="distanceM"
-            inputMode="numeric"
-            defaultValue={v('distanceM', competitor?.distanceM)}
-            data-testid="market-distance"
-          />
+        <Field label="Страница соседа на площадке (для будущего сбора)" controlId="market-url" hint="Необязательно. Например, адрес отеля на Booking.com">
+          <Input name="url" type="url" defaultValue={v('url', competitor?.url)} placeholder="https://www.booking.com/hotel/…" data-testid="market-url" />
         </Field>
-        <Field label="Номеров у конкурента">
+        <Field label="Номеров у соседа" controlId="market-units" hint="Сколько номеров он продаёт всего">
           <Input name="unitsTotal" inputMode="numeric" defaultValue={v('unitsTotal', competitor?.unitsTotal)} />
         </Field>
-        <Field label="Ссылка на страницу отеля">
-          <Input name="url" type="url" defaultValue={v('url', competitor?.url)} placeholder="https://" />
+        <Field label="Расстояние, метров" controlId="market-distance" hint="Список идёт от ближайших">
+          <Input name="distanceM" inputMode="numeric" defaultValue={v('distanceM', competitor?.distanceM)} data-testid="market-distance" />
         </Field>
         <Field label="Заметка">
           <Textarea name="note" rows={2} maxLength={500} defaultValue={v('note', competitor?.note)} />

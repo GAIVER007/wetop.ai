@@ -1,0 +1,162 @@
+# Модульные (unit) · 10.10.2026 14:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 421bd69 (claude/market-ai-collector), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T09-37-56Z-unit-1ff7.json' 'packages/domain/src/market/occupancy.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| packages/domain/src/market/occupancy.test.ts (27 tests | 4 failed) 122ms
+   ✓ parseOccupancyPercent (3)
+     ✓ процент в базисные пункты: целый, с запятой и точкой, знак процента 3ms
+     ✓ пусто: значения нет 0ms
+     ✓ мимо 0…100, больше двух знаков после запятой и не число: отказ словами 10ms
+   ✓ formatOccupancy и demandLevel (2)
+     ✓ без лишних нулей, запятая 1ms
+     ✓ уровни спроса по порогам Q-258 0ms
+   ✓ parseCompetitorInput (3)
+     ✓ название обязательно при создании, поля чистятся 1ms
+     ✓ пустые необязательные поля при правке снимаются (null) 2ms
+     ✓ отрицательное расстояние, ноль номеров, адрес не http: отказ 10ms
+   ✓ marketDates (1)
+     ✓ окно подряд, через границу месяца 22ms
+   ❯ buildMarketBoard (8)
+     ✓ своя загрузка из календаря: занято от занято + свободно + блок 1ms
+     × клетка конкурента: последний снимок не позже даты снимка и изменение к сравнению 20ms
+     ✓ конкуренты по расстоянию, без расстояния последними 1ms
+     ✓ средняя по рынку: простое среднее по конкурентам с данными; разница с вами 1ms
+     ✓ итог окна: рынок средним по дням, вы от суммы клеток, дни высокого спроса 0ms
+     ✓ подсказки: высокий спрос с отставанием, высокий спрос, слабый спрос, нет данных 1ms
+     ✓ ночи одного правила подряд склеиваются в отрезок, подсказок не больше пяти 3ms
+     ✓ пустой календарь (нет мест) и рынок без данных: прочерки, без деления на ноль 1ms
+   ✓ buildNightHistory (2)
+     ✓ по дням снимка: значение переносится до нового снимка, отмечено, был ли снимок в этот день; темп рынка 1ms
+     ✓ нет снимков: пустая история, темп неизвестен; дней не больше предела, свежие остаются 1ms
+   ✓ competitorPlatform (1)
+     ✓ площадка по ссылке конкурента: по ней ИИ-сборщик понимает, где смотреть свободные номера 1ms
+   ✓ estimateNightOccupancy (1)
+     ✓ оценка загрузки ночи по странице площадки: распродано, сколько можно забронировать, неизвестно 1ms
+   ✓ platformNightUrl (1)
+     ✓ адрес страницы соседа на одну ночь: даты, один взрослый (хостел на двоих вариантов не показывает) 3ms
+   ✓ уровень наличия (DATA_MODEL §23.1) (2)
+     ✓ по странице: нет предложений, малый видимый остаток, есть места; закрыто и не разобрано без уровня 1ms
+     ✓ по проценту (ручной ввод и старые снимки): пороги подсказок Q-258 0ms
+   ❯ buildMarketBoard: уровни наличия (DATA_MODEL §23.1) (3)
+     × клетка: уровень из снимка, без него из процента; процента в клетке нет, если его не было 17ms
+     × строка рынка: средняя только из процентов, рядом «почти полны из скольких с уровнем» 5ms
+     × «рынок почти полон» без процентов: почти полны не меньше половины соседей с уровнем 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > buildMarketBoard > клетка конкурента: последний снимок не позже даты снимка и изменение к сравнению
+AssertionError: expected { date: '2026-10-04', bp: 9000, …(2) } to deeply equal { date: '2026-10-04', bp: 9000, …(3) }
+
+- Expected
++ Received
+
+  {
+    "bp": 9000,
+    "date": "2026-10-04",
+    "deltaBp": 1000,
+-   "level": "FEW_LEFT",
+    "source": "AI_AGENT",
+  }
+
+ ❯ packages/domain/src/market/occupancy.test.ts:147:24
+    145|   it('клетка конкурента: последний снимок не позже даты снимка и измен…
+    146|     const a = board.competitors.find((c) => c.id === 'a')!;
+    147|     expect(a.cells[0]).toEqual({ date: '2026-10-04', bp: 9000, deltaBp…
+       |                        ^
+    148|     // 05.10 последний снимок 02.10, то есть не новее даты сравнения: …
+    149|     expect(a.cells[1]).toEqual({ date: '2026-10-05', bp: 4000, deltaBp…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > buildMarketBoard: уровни наличия (DATA_MODEL §23.1) > клетка: уровень из снимка, без него из процента; процента в клетке нет, если его не было
+AssertionError: expected [ [ null, undefined ], …(1) ] to deeply equal [ [ null, 'FEW_LEFT' ], …(1) ]
+
+- Expected
++ Received
+
+  [
+    [
+      null,
+-     "FEW_LEFT",
++     undefined,
+    ],
+    [
+      3000,
+-     "AVAILABLE",
++     undefined,
+    ],
+  ]
+
+ ❯ packages/domain/src/market/occupancy.test.ts:395:51
+    393|   it('клетка: уровень из снимка, без него из процента; процента в клет…
+    394|     const roy = board.competitors.find((c) => c.id === 'roy')!;
+    395|     expect(roy.cells.map((c) => [c.bp, c.level])).toEqual([
+       |                                                   ^
+    396|       [null, 'FEW_LEFT'],
+    397|       [3000, 'AVAILABLE'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > buildMarketBoard: уровни наличия (DATA_MODEL §23.1) > строка рынка: средняя только из процентов, рядом «почти полны из скольких с уровнем»
+AssertionError: expected [ { date: '2026-10-20', …(2) }, …(1) ] to deeply equal [ { date: '2026-10-20', …(4) }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+      "bp": null,
+      "count": 0,
+      "date": "2026-10-20",
+-     "tight": 2,
+-     "withLevel": 3,
+    },
+    {
+      "bp": 3000,
+      "count": 1,
+      "date": "2026-10-21",
+-     "tight": 1,
+-     "withLevel": 2,
+    },
+  ]
+
+ ❯ packages/domain/src/market/occupancy.test.ts:403:26
+    401|
+    402|   it('строка рынка: средняя только из процентов, рядом «почти полны из…
+    403|     expect(board.market).toEqual([
+       |                          ^
+    404|       { date: '2026-10-20', bp: null, count: 0, tight: 2, withLevel: 3…
+    405|       { date: '2026-10-21', bp: 3000, count: 1, tight: 1, withLevel: 2…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > buildMarketBoard: уровни наличия (DATA_MODEL §23.1) > «рынок почти полон» без процентов: почти полны не меньше половины соседей с уровнем
+AssertionError: expected +0 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ packages/domain/src/market/occupancy.test.ts:410:44
+    408|
+    409|   it('«рынок почти полон» без процентов: почти полны не меньше половин…
+    410|     expect(board.summary.highDemandNights).toBe(2);
+       |                                            ^
+    411|     const high = board.insights.find((i) => i.kind === 'high');
+    412|     expect(high).toMatchObject({ from: '2026-10-20', to: '2026-10-21',…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 23 passed (27)
+   Start at  02:38:11
+   Duration  1.16s (transform 57%, tests 22%, import 18%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T09-37-56Z-unit-1ff7.json
+
+# код выхода 1 · 17 с

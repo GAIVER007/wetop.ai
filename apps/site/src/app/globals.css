@@ -3200,3 +3200,60 @@ button {
     width: 84px;
   }
 }
+
+/* Чип направления с поповером (поручение владельца 09.10.2026): описание по щелчку, ссылка на страницу направления. */
+.chip {
+  position: relative;
+}
+.chip__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--public-border);
+  border-radius: 999px;
+  background: var(--public-surface);
+  color: var(--public-text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.chip__button svg {
+  color: var(--public-accent);
+}
+.chip__button:hover,
+.chip__button[aria-expanded='true'] {
+  border-color: var(--public-accent);
+}
+.chip__pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  width: 264px;
+  padding: 14px 16px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-lg);
+  background: var(--public-surface);
+  box-shadow: var(--public-shadow);
+  text-align: left;
+}
+.chip__name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.chip__text {
+  margin: 6px 0 10px;
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+@media (max-width: 40rem) {
+  .chip__pop {
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 32px);
+  }
+}

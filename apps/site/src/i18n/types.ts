@@ -4,7 +4,13 @@ import type { IconName } from '../components/icon';
  * Все тексты сайта. Новый язык (казахский, английский) = новый файл рядом с ru.ts того же типа и строка
  * в src/i18n/index.ts; компоненты тексты не хранят.
  */
-export type SegmentSlug = 'hostels' | 'mini-hotels' | 'apart-hotels';
+export type SegmentSlug =
+  | 'hostels'
+  | 'mini-hotels'
+  | 'apart-hotels'
+  | 'hotels'
+  | 'salons'
+  | 'restaurants';
 
 export type Dictionary = {
   meta: {
@@ -41,8 +47,6 @@ export type Dictionary = {
     secondary: string;
     /** Строка под кнопками. */
     note: string;
-    /** Рукописная пометка у мокапа. */
-    annotation: string;
     /** Дашборд-мокап: только вымышленные данные, подпись примера обязательна. */
     dash: {
       label: string;

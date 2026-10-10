@@ -1,0 +1,11 @@
+# Линтер (lint) · 09.10.2026 22:40 Алматы · vm
+# коммит 03762c2 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 3
+# npx eslint .
+
+/home/user/wetop.ai/tests/ui/reports-finance.spec.ts
+  16:34  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 28 с

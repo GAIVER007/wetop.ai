@@ -6,9 +6,12 @@ for (const theme of ['dark', 'light'] as const) {
     test(`public intro: ${theme}, ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+      // Тема и системной настройкой: localStorage применяется после первой отрисовки, и axe
+      // замеряет контраст кнопок посреди анимации перехода темы (ловлено 10.10.2026)
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.goto('/');
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-        'Управляйте бизнесом из одного окна',
+        'Управляйте бронированиями, клиентами и командой из одного окна',
       );
       const header = page.locator('header');
       await expect(
@@ -16,31 +19,32 @@ for (const theme of ['dark', 'light'] as const) {
       ).toBeVisible();
       const hero = page.locator('.public-intro');
       await expect(hero).toContainText('Салоны красоты');
-      await expect(hero).toContainText('Ресторанный бизнес');
+      await expect(hero).toContainText('Рестораны');
       await expect(hero).not.toContainText(/пилот/i);
-      await expect(hero.locator('.today-preview')).toBeVisible();
+      // Дашборд-мокап (LAND2 v2): вымышленные данные и подпись примера, интерактива внутри нет
+      await expect(hero.locator('.dash')).toBeVisible();
       await expect(hero).toContainText('Пример интерфейса. Данные вымышленные.');
+      await expect(hero.locator('.dash a, .dash button, .dash [role="button"]')).toHaveCount(0);
       const cards = page.locator('.verticals__card');
       await expect(cards).toHaveCount(3);
-      await expect(cards.nth(0)).toContainText('Гостиничный бизнес');
-      for (const card of [cards.nth(1), cards.nth(2)]) {
+      await expect(cards.nth(0)).toContainText('Гостиницы');
+      // Кнопка карточки проваливается на страницу направления (решение владельца 09.10.2026)
+      for (const [index, href] of [
+        [0, '/for/hotels/'],
+        [1, '/for/salons/'],
+        [2, '/for/restaurants/'],
+      ] as const) {
+        const card = cards.nth(index);
         await expect(card).not.toContainText(/пилот/i);
-        await expect(card.getByRole('link', { name: 'Обсудить подключение' })).toHaveAttribute(
-          'href',
-          /^mailto:/,
-        );
-        await expect(card.getByRole('link', { name: 'Регистрация' })).toHaveAttribute(
-          'href',
-          /vertical=(BEAUTY|FOOD_SERVICE).*#register/,
-        );
+        await expect(card.locator('.verticals__action')).toHaveAttribute('href', href);
       }
       const layout = await page.evaluate(() => ({
         width: innerWidth,
         scroll: document.documentElement.scrollWidth,
-        preview: document.querySelector('.today-preview')!.getBoundingClientRect().top,
+        preview: document.querySelector('.dash')!.getBoundingClientRect().top,
       }));
       expect(layout.scroll).toBeLessThanOrEqual(layout.width);
-      expect(layout.preview).toBeLessThan(width === 1440 ? 600 : 844);
+      expect(layout.preview).toBeLessThan(width === 1440 ? 900 : 1400);
       const violations = (
         await new AxeBuilder({ page })
           .include('header')
@@ -73,25 +77,19 @@ test('new header registration: keyboard activation and focus return on mobile', 
   await expect(trigger).toBeFocused();
 });
 
-test('pilot invitation links preselect the correct vertical in existing AuthDialog', async ({
-  page,
-}) => {
+test('direction pages preselect the correct vertical in existing AuthDialog', async ({ page }) => {
   await page.route('https://app.wetop.ai/api/site-auth/options', (route) =>
     route.fulfill({ json: { registrationEnabled: true } }),
   );
   await page.route('https://app.wetop.ai/api/site-auth/session', (route) =>
     route.fulfill({ status: 401, json: { message: 'synthetic anonymous visitor' } }),
   );
-  await page.goto('/');
-  for (const [index, name] of [
-    [1, 'Салон красоты / студия'],
-    [2, 'Кафе / ресторан'],
+  for (const [path, name] of [
+    ['/for/salons/', 'Салон красоты / студия'],
+    ['/for/restaurants/', 'Кафе / ресторан'],
   ] as const) {
-    await page
-      .locator('.verticals__card')
-      .nth(index)
-      .getByRole('link', { name: 'Регистрация' })
-      .click();
+    await page.goto(path);
+    await page.locator('.cta [data-auth="register"]').click();
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByRole('radio', { name: new RegExp(name) })).toBeChecked();
     await expect(dialog).toContainText('По приглашению');
@@ -99,17 +97,41 @@ test('pilot invitation links preselect the correct vertical in existing AuthDial
   }
 });
 
-test('business positioning and centered mobile cards without maturity labels', async ({ page }) => {
+test('hero chips open a description popover with a link to the direction page', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const chip = page.locator('.chip').filter({ hasText: 'Салоны красоты' });
+  const pop = chip.locator('.chip__pop');
+  await expect(pop).toBeHidden();
+  await chip.getByRole('button').click();
+  await expect(pop).toBeVisible();
+  await expect(pop).toContainText('Салоны, студии, барбершопы');
+  await expect(pop.getByRole('link', { name: /Для салонов/ })).toHaveAttribute(
+    'href',
+    '/for/salons/',
+  );
+  // закрытие по Escape и щелчку мимо
+  await page.keyboard.press('Escape');
+  await expect(pop).toBeHidden();
+  await chip.getByRole('button').click();
+  await page.locator('h1').click();
+  await expect(pop).toBeHidden();
+});
+
+test('business positioning: three verticals, no maturity labels, five capabilities each', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   const intro = page.locator('.public-intro');
   await expect(intro).not.toContainText(/пилот|Beauty|Food Service/i);
-  for (const label of ['Гостиничный бизнес', 'Ресторанный бизнес', 'Салоны красоты'])
+  for (const label of ['Гостиницы', 'Рестораны', 'Салоны красоты'])
     await expect(intro).toContainText(label);
   const cards = page.locator('.verticals__card');
   await expect(page.locator('.verticals')).not.toContainText(/пилот/i);
   for (const card of await cards.all()) {
-    await expect(card).toHaveCSS('text-align', 'center');
-    await expect(card.locator('.verticals__capabilities li')).toHaveCount(6);
+    await expect(card.locator('.verticals__capabilities li')).toHaveCount(5);
+    await expect(card.locator('.verticals__art')).toBeVisible();
   }
 });

@@ -130,7 +130,7 @@ export function TopNav({
             <Link
               className="workspace-brand"
               href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
-              aria-label="WETOP, Главная"
+              aria-label="WETOP, стартовый экран"
             >
               <span className="workspace-mark">W</span>
               <span className="brand-name">

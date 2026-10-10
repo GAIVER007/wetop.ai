@@ -1,0 +1,267 @@
+# Сквозные (e2e) · 09.10.2026 18:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 56
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/market.spec.ts' '-g' 'История ночи' '--workers=1' '--timeout=120000' '--repeat-each=5'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (2.6s)
+  ✓  2 tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (1.9s)
+  ✘  3 tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (1.3s)
+  ✓  4 tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (1.8s)
+  ✘  5 tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (1.3s)
+
+
+  1) tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f5f7fc",
+    +               "contrastRatio": 4.34,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#65768a",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.34 (foreground color: #65768a, background color: #f5f7fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"row\">09.10.2026</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > tbody > tr:nth-child(1) > th[scope=\"row\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.34 (foreground color: #65768a, background color: #f5f7fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"row\">09.10.2026</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > tbody > tr:nth-child(1) > th[scope=\"row\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f7f9fc",
+    +               "contrastRatio": 4.33,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#67778b",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.33 (foreground color: #67778b, background color: #f7f9fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"row\">08.10.2026</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > tbody > tr:nth-child(2) > th[scope=\"row\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.33 (foreground color: #67778b, background color: #f7f9fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"row\">08.10.2026</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > tbody > tr:nth-child(2) > th[scope=\"row\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      263 |   });
+      264 |   const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    > 265 |   expect(audit.violations).toEqual([]);
+          |                            ^
+      266 |   mkdirSync(SHOTS, { recursive: true });
+      267 |   await page.screenshot({ path: `${SHOTS}/night-light-1440.png` });
+      268 |   await page.keyboard.press('Escape');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/market.spec.ts:265:28
+
+    Error Context: test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса-repeat2/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса-repeat2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса-repeat2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f5f7fc",
+    +               "contrastRatio": 4.34,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#65768a",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.34 (foreground color: #65768a, background color: #f5f7fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"row\">09.10.2026</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > tbody > tr:nth-child(1) > th[scope=\"row\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.34 (foreground color: #65768a, background color: #f5f7fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"row\">09.10.2026</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > tbody > tr:nth-child(1) > th[scope=\"row\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f7f9fc",
+    +               "contrastRatio": 4.33,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#67778b",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.33 (foreground color: #67778b, background color: #f7f9fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"row\">08.10.2026</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > tbody > tr:nth-child(2) > th[scope=\"row\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.33 (foreground color: #67778b, background color: #f7f9fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"row\">08.10.2026</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > tbody > tr:nth-child(2) > th[scope=\"row\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      263 |   });
+      264 |   const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    > 265 |   expect(audit.violations).toEqual([]);
+          |                            ^
+      266 |   mkdirSync(SHOTS, { recursive: true });
+      267 |   await page.screenshot({ path: `${SHOTS}/night-light-1440.png` });
+      268 |   await page.keyboard.press('Escape');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/market.spec.ts:265:28
+
+    Error Context: test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса-repeat4/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса-repeat4/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса-repeat4/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+    tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+  3 passed (17.4s)
+
+# код выхода 1 · 18 с

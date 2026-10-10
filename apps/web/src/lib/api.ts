@@ -235,7 +235,7 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
-/** Фото и договор объекта (ADR-156, DATA_MODEL §31.3): файл идёт в API стойки, оттуда в закрытое хранилище */
+/** Фото и договор объекта (ADR-158, DATA_MODEL §32.3): файл идёт в API стойки, оттуда в закрытое хранилище */
 export interface PropertyMediaItem {
   id: string;
   kind: 'PHOTO' | 'CONTRACT';
@@ -2588,9 +2588,23 @@ export interface SellerConversationRow {
   hasContact: boolean;
 }
 
+export interface SellerConversationNote {
+  id: string;
+  author: string;
+  authorUserId: string | null;
+  text: string;
+  at: string | null;
+}
+export interface SellerHandling {
+  assignee: { userId: string | null; name: string } | null;
+  nextStep: string | null;
+}
 export interface SellerConversationCard {
   id: string;
   mode: string;
+  /** S2.6: кто отвечает за диалог и что дальше; внутренние заметки гостю не видны */
+  handling: SellerHandling;
+  notes: SellerConversationNote[];
   stage: string;
   leadData: Record<string, unknown>;
   contact: {
@@ -2609,6 +2623,12 @@ export interface SellerSummary {
   replies: number;
   leads: number;
   slaBreaches: number;
+  /** S2.9: диалоги суток, где подключился человек или нужен человек */
+  handoffs: number;
+  /** Доля диалогов суток без человека, десятые доли процента; null: диалогов не было */
+  automatedPermille: number | null;
+  /** Среднее время от вопроса гостя до первого ответа продавца, секунды; null: ответов не было */
+  avgFirstReplySeconds: number | null;
 }
 
 export interface SellerExtractResult {
@@ -2635,6 +2655,15 @@ export interface SellerWhatsAppView {
 }
 
 /** Инструкция продавцу одним текстом (ADR-097) */
+/** Версия инструкции (DATA_MODEL §33): текст целиком не отдаётся, только начало и длина */
+export interface SellerPromptVersion {
+  id: string;
+  length: number;
+  preview: string;
+  createdAt: string;
+  author: string | null;
+}
+
 export interface SellerPromptView {
   saved: boolean;
   text: string;
@@ -2757,6 +2786,9 @@ export const sellerApi = {
   catalog: () => getJson<AgentCatalogView>('/ai-seller/catalog'),
   prompt: () => getJson<SellerPromptView>('/ai-seller/prompt'),
   savePrompt: (text: string) => sendJson<SellerPromptView>('PUT', '/ai-seller/prompt', { text }),
+  promptVersions: () => getJson<{ items: SellerPromptVersion[] }>('/ai-seller/prompt/versions'),
+  restorePromptVersion: (id: string) =>
+    sendJson<SellerPromptView>('POST', `/ai-seller/prompt/versions/${encodeURIComponent(id)}/restore`, {}),
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
   extract: (story: string) =>
     sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),
@@ -2800,6 +2832,10 @@ export const sellerApi = {
     sendJson<{ ok: true }>('POST', `/ai-seller/conversations/${encodeURIComponent(id)}/reply`, {
       text,
     }),
+  setHandling: (id: string, body: { nextStep?: string; assignee?: 'me' | null }) =>
+    sendJson<SellerHandling>('PATCH', `/ai-seller/conversations/${encodeURIComponent(id)}/handling`, body),
+  addNote: (id: string, text: string) =>
+    sendJson<SellerConversationNote>('POST', `/ai-seller/conversations/${encodeURIComponent(id)}/notes`, { text }),
   knowledge: () =>
     getJson<{ items: Array<{ source: string; chunks: number; createdAt: string | null }> }>(
       '/ai-seller/knowledge',
@@ -3522,6 +3558,34 @@ export interface MarketCompetitor {
   url: string | null;
   note: string | null;
   active: boolean;
+  /** DATA_MODEL §23.1 */
+  district: string | null;
+  category: string | null;
+  address: string | null;
+  dataSource: string | null;
+  monitoring: MarketMonitoring;
+  refreshHours: number | null;
+  autoRefresh: boolean;
+}
+export type MarketMonitoring = 'OCCUPANCY' | 'PRICE' | 'BOTH';
+/** Цены конкурентов по ночам (DATA_MODEL §23.1): деньги целыми строкой в минорных единицах, нет цены это null */
+export interface MarketRates {
+  today: string;
+  from: string;
+  days: number;
+  currency: string | null;
+  board: {
+    competitors: Array<{
+      id: string;
+      cells: Array<{ date: string; priceMinor: string | null; source: MarketSource | null }>;
+      avgMinor: string | null;
+      /** Десятые доли процента: 50 = +5 % */
+      changePermille: number | null;
+      lastObservedOn: string | null;
+    }>;
+    market: Array<{ date: string; avgMinor: string | null; minMinor: string | null; maxMinor: string | null; count: number }>;
+    summary: { marketAvgMinor: string | null; minMinor: string | null; maxMinor: string | null; competitorsWithData: number };
+  };
 }
 export interface MarketCell {
   date: string;
@@ -3584,6 +3648,24 @@ export interface MarketNightHistory {
   }>;
   pickupBp: number | null;
 }
+/** Хаб «Продажи» (SALES2.2): сводка периода; деньги строкой в минорных единицах, неизвестное `null`, а не ноль */
+export interface SalesSummary {
+  period: { from: string; to: string };
+  previousPeriod: { from: string; to: string };
+  bookings: { current: number; previous: number };
+  offers: { current: number; previous: number };
+  conversionPermille: { current: number | null; previous: number | null };
+  revenue: { currentMinor: string; previousMinor: string; currency: string | null };
+  competitors: { count: number; lastObservedOn: string | null; addedLast30: number };
+}
+
+export const salesApi = {
+  summary: (from: string, to: string) =>
+    getJson<SalesSummary>(
+      `/sales/summary?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+};
+
 export const marketApi = {
   night: (date: string) =>
     getJson<MarketNightHistory>(`/market/night?date=${encodeURIComponent(date)}`),
@@ -3596,6 +3678,17 @@ export const marketApi = {
     const tail = qs.toString();
     return getJson<MarketView>(`/market/occupancy${tail ? `?${tail}` : ''}`);
   },
+  rates: (q: { from?: string; days?: number; asOf?: string; compare?: number }) => {
+    const qs = new URLSearchParams();
+    if (q.from) qs.set('from', q.from);
+    if (q.days) qs.set('days', String(q.days));
+    if (q.asOf) qs.set('asOf', q.asOf);
+    if (q.compare !== undefined) qs.set('compare', String(q.compare));
+    const tail = qs.toString();
+    return getJson<MarketRates>(`/market/rates${tail ? `?${tail}` : ''}`);
+  },
+  writeRates: (id: string, entries: Array<{ date: string; price: string | null }>) =>
+    sendJson<{ saved: number; cleared: number }>('PUT', `/market/competitors/${encodeURIComponent(id)}/rates`, { entries }),
   createCompetitor: (body: unknown) => sendJson<MarketCompetitor>('POST', '/market/competitors', body),
   updateCompetitor: (id: string, body: unknown) =>
     sendJson<MarketCompetitor>('PATCH', `/market/competitors/${encodeURIComponent(id)}`, body),
@@ -3667,7 +3760,7 @@ export const sharedOnboardingApi = {
 
 export interface BarCategoryRow { id: string; name: string; defaultMarkupBasis: number; active: boolean }
 export interface BarProductRow {
-  id: string; code: string; name: string; categoryId: string | null; unitsPerPackage: number;
+  id: string; code: string; name: string; categoryId: string | null; barcode: string | null; unitsPerPackage: number;
   markupBasis: number | null; salePrice: string; minimumStockUnits: string; active: boolean;
   category?: BarCategoryRow | null;
 }
@@ -3676,14 +3769,37 @@ export interface BarReceiptRow {
   id: string; documentNumber: string; documentDate: string; receivedDate: string; status: 'DRAFT' | 'POSTED' | 'REVERSED';
   totalAmount: string; paidAmount: string; dueAmount: string; supplier: BarSupplierRow; _count: { lines: number };
 }
-export interface BarStockRow extends BarProductRow { availableUnits: string; stockCostMinor: string }
+export interface BarStockRow extends BarProductRow {
+  availableUnits: string; stockCostMinor: string;
+  /** Последний проведённый приход (ADR-157): цена закупки, дата приёмки и поставщик; приходов нет, тогда null */
+  lastUnitCostMinor: string | null; lastReceivedDate: string | null; lastSupplier: { id: string; name: string } | null;
+  /** Ближайший срок годности среди партий с остатком */
+  nearestExpiry: string | null;
+}
 export interface BarSaleRow {
   id: string; status: 'POSTED' | 'REVERSED'; totalRevenue: string; totalCost: string; createdAt: string;
   lines: Array<{ id: string; productId: string; quantityUnits: string; salePrice: string; revenue: string; cost: string; product: { name: string } }>;
 }
 export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
-export interface BarMovementRow { id: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
-export interface BarReport { purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
+export interface BarMovementRow { id: string; productId: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
+export interface BarReport {
+  purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string;
+  writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string;
+  /** Текущий месяц объекта к прошлому (ADR-157); прирост null, если в прошлом месяце не было сумм */
+  month?: {
+    monthStart: string; purchasesMinor: string; purchasesPrevMinor: string; revenueMinor: string; revenuePrevMinor: string;
+    grossProfitMinor: string; purchasesGrowth: number | null; revenueGrowth: number | null;
+  };
+  /** Популярные товары за последние 30 дней, штуки строкой */
+  popular?: Array<{ productId: string; name: string; units: string }>;
+}
+/** Строка накладной из ИИ-скана (ADR-157): товар найден по штрихкоду или названию, иначе `productId: null` */
+export interface BarScanLine { productId: string | null; name: string; barcode: string | null; quantityUnits: string; unitCostMinor: string }
+export interface BarScanResult {
+  supplierId: string | null; supplierName: string | null;
+  documentNumber: string | null; documentDate: string | null;
+  lines: BarScanLine[]; warnings: string[];
+}
 export const barApi = {
   categories: () => getJson<BarCategoryRow[]>('/bar/categories'),
   createCategory: (body: unknown) => sendJson<BarCategoryRow>('POST', '/bar/categories', body),
@@ -3692,6 +3808,7 @@ export const barApi = {
   createProduct: (body: unknown) => sendJson<BarProductRow>('POST', '/bar/products', body),
   setProductActive: (id: string, active: boolean) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/active`, { active }),
   setProductPrice: (id: string, salePriceMinor: string) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/price`, { salePriceMinor }),
+  updateProduct: (id: string, body: unknown) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}`, body),
   suppliers: () => getJson<BarSupplierRow[]>('/bar/suppliers'),
   createSupplier: (body: unknown) => sendJson<BarSupplierRow>('POST', '/bar/suppliers', body),
   setSupplierActive: (id: string, active: boolean) => sendJson<BarSupplierRow>('PATCH', `/bar/suppliers/${encodeURIComponent(id)}/active`, { active }),
@@ -3709,6 +3826,7 @@ export const barApi = {
   writeOff: (body: unknown) => sendJson<{ id: string; movementsCreated: number; costMinor: string }>('POST', '/bar/write-offs', body),
   payReceipt: (id: string, body: unknown) => sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>('POST', `/bar/receipts/${encodeURIComponent(id)}/payments`, body),
   inventoryCount: (body: unknown) => sendJson<{ id: string; systemUnits: string; actualUnits: string; differenceUnits: string; costMinor: string }>('POST', '/bar/inventory-counts', body),
+  scanReceipt: (body: { fileName: string; mediaType: string; dataBase64: string }) => sendJson<BarScanResult>('POST', '/bar/receipts/scan', body),
 };
 
 /** MV9: fixed read-only report queries for a branch returned by GET /branches. No mutations or arbitrary paths. */

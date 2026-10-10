@@ -78,6 +78,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/products': 'settings',
   'PATCH /bar/products/:id/active': 'settings',
   'PATCH /bar/products/:id/price': 'settings',
+  'PATCH /bar/products/:id': 'settings',
   'GET /bar/suppliers': 'desk',
   'POST /bar/suppliers': 'settings',
   'PATCH /bar/suppliers/:id/active': 'settings',
@@ -93,6 +94,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/write-offs': 'desk',
   'POST /bar/inventory-counts': 'desk',
   'POST /bar/receipts': 'desk',
+  // ИИ-скан накладной (ADR-157): читает документ и ничего не создаёт, право как у самого прихода
+  'POST /bar/receipts/scan': 'desk',
   'POST /bar/receipts/:id/post': 'desk',
   'POST /bar/receipts/:id/payments': 'desk',
   // Каталог салона (срез B3, Q-253): читать может смена, цены меняет `rates`, мастеров `property`
@@ -178,7 +181,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',
   'GET /hotel/settings': 'desk',
-  // фото и договор объекта (ADR-156): читают все с доступом к стойке, договор отдаётся только с правом `settings`
+  // фото и договор объекта (ADR-158): читают все с доступом к стойке, договор отдаётся только с правом `settings`
   'GET /hotel/media': 'desk',
   'GET /hotel/first-steps': 'desk',
   'GET /hotel/onboarding': 'desk',
@@ -266,11 +269,14 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/cash/operations/:id/void': 'refunds',
 
   // загрузка конкурентов (ADR-142): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
+  'GET /sales/summary': 'reports',
   'GET /market/occupancy': 'reports',
+  'GET /market/rates': 'reports',
   'GET /market/night': 'reports',
   'POST /market/competitors': 'rates',
   'PATCH /market/competitors/:id': 'rates',
   'PUT /market/competitors/:id/occupancy': 'rates',
+  'PUT /market/competitors/:id/rates': 'rates',
   'GET /market/collector/competitors': 'service',
   'PUT /market/collector/competitors/:id/occupancy': 'service',
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет
@@ -364,6 +370,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /ai-seller/conversations/:id/takeover': 'dialogs',
   'POST /ai-seller/conversations/:id/release': 'dialogs',
   'POST /ai-seller/conversations/:id/reply': 'dialogs',
+  'PATCH /ai-seller/conversations/:id/handling': 'dialogs',
+  'GET /ai-seller/prompt/versions': 'seller',
+  'POST /ai-seller/prompt/versions/:id/restore': 'seller',
+  'POST /ai-seller/conversations/:id/notes': 'dialogs',
   'GET /ai-seller/profile': 'seller',
   'PUT /ai-seller/profile': 'seller',
   'GET /ai-seller/prompt': 'seller',

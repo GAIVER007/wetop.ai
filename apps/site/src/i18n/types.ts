@@ -4,7 +4,13 @@ import type { IconName } from '../components/icon';
  * Все тексты сайта. Новый язык (казахский, английский) = новый файл рядом с ru.ts того же типа и строка
  * в src/i18n/index.ts; компоненты тексты не хранят.
  */
-export type SegmentSlug = 'hostels' | 'mini-hotels' | 'apart-hotels';
+export type SegmentSlug =
+  | 'hostels'
+  | 'mini-hotels'
+  | 'apart-hotels'
+  | 'hotels'
+  | 'salons'
+  | 'restaurants';
 
 export type Dictionary = {
   meta: {
@@ -21,7 +27,6 @@ export type Dictionary = {
   };
   nav: {
     product: string;
-    ai: string;
     audience: string;
     features: string;
     sales: string;
@@ -31,41 +36,36 @@ export type Dictionary = {
     register: string;
   };
   hero: {
-    /** Плашка над заголовком: самостоятельная регистрация открыта (ADR-147). */
+    /** Плашка над заголовком. */
     status: string;
-    /** Заголовок первого экрана; `titleAccent` идёт второй строкой фирменным цветом. */
+    /** Заголовок первого экрана; `titleAccent` идёт последней строкой фирменным цветом. */
     title: string;
     titleAccent: string;
     lead: string;
-    /** Вторая кнопка первого экрана: к блоку «Возможности». */
+    /** Кнопки первого экрана: регистрация и переход к «Возможностям». */
+    primary: string;
     secondary: string;
-    /** Строка под кнопками первого экрана: следующий шаг регистрации. */
+    /** Строка под кнопками. */
     note: string;
-    /** Карта разделов (01.10.2026): шесть областей платформы ссылками на блоки страницы; имён и сумм нет. */
-    map: {
+    /** Дашборд-мокап: только вымышленные данные, подпись примера обязательна. */
+    dash: {
       label: string;
+      nav: string[];
       title: string;
-      hint: string;
-      items: Array<{ icon: IconName; title: string; text: string; href: string }>;
-      caption: string;
+      date: string;
+      scope: string;
+      metrics: Array<{ name: string; value: string; delta: string }>;
+      arrivalsTitle: string;
+      arrivals: Array<{ time: string; name: string; detail: string; guests: string }>;
+      chartTitle: string;
+      chartDays: string[];
+      chartValues: number[];
+      chartPeak: string;
+      showAll: string;
     };
   };
-  /**
-   * Полоса фактов под первым экраном (02.10.2026): четыре коротких ответа на вопрос «что это даёт».
-   * Три факта, которые раньше висели под чертой на первом экране, живут здесь. Обещаний и цифр нет (§19.9).
-   */
   intro: {
     availability: string;
-    previewLabel: string;
-    previewTitle: string;
-    previewContext: string;
-    previewDate: string;
-    previewWorkspace: string;
-    previewNav: string[];
-    eventsTitle: string;
-    events: Array<{ time: string; title: string; detail: string; status: string }>;
-    attentionTitle: string;
-    attention: Array<{ title: string; detail: string }>;
     verticalTitle: string;
     verticalLead: string;
     contactAction: string;
@@ -76,91 +76,63 @@ export type Dictionary = {
       name: string;
       text: string;
       capabilities: string[];
-      note: string;
+      /** Подпись ссылки-стрелки карточки: «Для гостиниц». */
+      action: string;
     }>;
   };
-  facts: {
-    label: string;
-    items: Array<{ icon: IconName; title: string; text: string }>;
-  };
-  mockup: {
-    label: string;
-    title: string;
-    views: string[];
-    weekdays: string[];
-    rooms: string;
-    beds: string;
-    room: string;
-    bed: string;
-    fromDesk: string;
-    checkedIn: string;
-    unassigned: string;
-    toastTitle: string;
-    toastText: string;
-  };
-  /**
-   * Раздел «Для кого»: типы объектов, с которыми система работает, и приглашение салонам (03.10.2026).
-   * Дорожной карты направлений на странице нет: `invite` зовёт написать, функций салона не обещает.
-   */
+  /** Ссылки под карточкой гостиниц: страницы по типу объекта (`/for/*`). */
   audience: {
-    eyebrow: string;
-    title: string;
-    lead: string;
     items: Array<{ icon: IconName; title: string; text: string; segment: SegmentSlug }>;
-    /** Подпись ссылки карточки на страницу по типу объекта. */
-    more: string;
-    /** Подпись под макетом шахматки. */
-    caption: string;
-    /** Приглашение салонам и студиям: заголовок, текст и подпись ссылки на почту. */
-    invite: { title: string; text: string; action: string };
   };
   features: {
     eyebrow: string;
     title: string;
     lead: string;
-    items: Array<{ icon: IconName; title: string; text: string; tags?: string[] }>;
+    items: Array<{ icon: IconName; title: string; text: string }>;
   };
-  /** «Откуда приходят брони»: четыре входа и карточка со ссылкой на калькулятор. */
-  sales: {
+  /** «Продажи и ИИ»: две большие карточки с примерами и полоса источников броней. */
+  growth: {
     eyebrow: string;
     title: string;
     lead: string;
-    items: Array<{ icon: IconName; title: string; text: string; tags?: string[]; link?: string }>;
-    calculator: { title: string; text: string; link: string };
-  };
-  /** «ИИ-продавцы»: шаги настройки и пример знаний. */
-  ai: {
-    eyebrow: string;
-    title: string;
-    lead: string;
-    steps: Array<{ title: string; text: string }>;
-    preview: {
-      label: string;
-      hint: string;
+    market: {
+      icon: IconName;
       title: string;
-      items: Array<{ term: string; text: string }>;
+      text: string;
+      points: string[];
+      action: string;
+      preview: {
+        label: string;
+        title: string;
+        delta: string;
+        rows: Array<{ name: string; value: string; own?: boolean }>;
+        marker: string;
+        days: string[];
+      };
+    };
+    ai: {
+      icon: IconName;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
       note: string;
-      open: string;
-      signIn: string;
+      chat: {
+        label: string;
+        title: string;
+        online: string;
+        inbound: string;
+        outbound: string;
+        placeholder: string;
+      };
+    };
+    sources: {
+      title: string;
+      lead: string;
+      items: Array<{ icon: IconName; title: string; text: string }>;
     };
   };
-  /** «Загрузка конкурентов» (ADR-142): четыре пункта и пример таблицы на одну ночь. */
-  market: {
-    eyebrow: string;
-    title: string;
-    lead: string;
-    points: Array<{ title: string; text: string }>;
-    preview: {
-      label: string;
-      hint: string;
-      title: string;
-      items: Array<{ term: string; text: string }>;
-      note: string;
-      open: string;
-      signIn: string;
-    };
-  };
-  /** «Команда и доступ»: три карточки. */
+  /** «Команда и контроль доступа»: три карточки. */
   team: {
     eyebrow: string;
     title: string;
@@ -172,13 +144,16 @@ export type Dictionary = {
     title: string;
     lead: string;
     steps: Array<{ title: string; text: string }>;
-    ctaTitle: string;
-    ctaText: string;
+  };
+  /** Карточка призыва рядом с FAQ. */
+  final: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    contact: string;
     contactsLabel: string;
-    cityLabel: string;
-    siteLabel: string;
-    connectLabel: string;
-    connectText: string;
+    badgeTop: string;
+    badgeBottom: string;
   };
   /** «Вопросы и ответы»: нативные details. */
   faq: {
@@ -210,6 +185,47 @@ export type Dictionary = {
     ctaText: string;
     link: string;
   };
+  /**
+   * Лендинг «Для салонов красоты» (`/for/salons/`, ТЗ владельца 10.10.2026,
+   * план `plans/salon-landing-2026-10-10.md`). Текст только из продукта (§19.9).
+   */
+  salon: {
+    metaTitle: string;
+    description: string;
+    badge: string;
+    title: string;
+    lead: string;
+    primary: string;
+    secondary: string;
+    /** Чипы под кнопками героя: «7 дней бесплатно» и т.п. (ADR-098). */
+    chips: string[];
+    /** Мокап «Записи на сегодня»: только вымышленные данные, подпись примера обязательна. */
+    mock: {
+      label: string;
+      title: string;
+      date: string;
+      summary: Array<{ name: string; value: string }>;
+      rows: Array<{ time: string; client: string; service: string; master: string }>;
+    };
+    /** Полоса фактов: только числа продукта (§19.9), чисел клиентов не бывает. */
+    facts: Array<{ value: string; text: string }>;
+    featuresTitle: string;
+    featuresLead: string;
+    features: Array<{ icon: IconName; title: string; text: string }>;
+    growth: {
+      badge: string;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
+      /** Плавающая карточка на иллюстрации: вымышленное число с пометкой примера (§19.9). */
+      float: { value: string; text: string };
+    };
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
+    ctaTitle: string;
+    ctaText: string;
+  };
   /** Страницы по типам объектов (`/for/<slug>/`, срез D2 плана прямых продаж). */
   segments: {
     eyebrow: string;
@@ -219,7 +235,8 @@ export type Dictionary = {
     ctaText: string;
     home: string;
     items: Record<
-      SegmentSlug,
+      /** У салонов своя страница со своим словарём (`salon`), общего шаблона у них нет. */
+      Exclude<SegmentSlug, 'salons'>,
       {
         title: string;
         metaTitle: string;
@@ -250,6 +267,11 @@ export type Dictionary = {
     tagline: string;
     /** Девиз в нижней строке подвала. */
     motto: string;
+    product: string;
+    features: string;
+    contacts: string;
+    privacy: string;
+    terms: string;
   };
   notFound: {
     title: string;

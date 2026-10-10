@@ -1,0 +1,466 @@
+# Сквозные (e2e) · 09.10.2026 18:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 56
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/market.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (6.1s)
+  ✓  2 tests/ui/market.spec.ts:118:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (2.6s)
+  ✓  3 tests/ui/market.spec.ts:160:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (1.4s)
+  ✓  4 tests/ui/market.spec.ts:176:3 › снимки и доступность: light (3.0s)
+  ✓  5 tests/ui/market.spec.ts:176:3 › снимки и доступность: dark (2.9s)
+  ✓  6 tests/ui/market.spec.ts:216:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (1.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '912616482'
+[WebServer] }
+  ✘  7 tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (1.3s)
+
+
+  1) tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 408
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfcfe",
+    +               "contrastRatio": 3.81,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#738295",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.81 (foreground color: #738295, background color: #fbfcfe, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"col\">Снимок</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > thead > tr > th[scope=\"col\"]:nth-child(1)",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.81 (foreground color: #738295, background color: #fbfcfe, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"col\">Снимок</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > thead > tr > th[scope=\"col\"]:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfcfe",
+    +               "contrastRatio": 3.81,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#738295",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.81 (foreground color: #738295, background color: #fbfcfe, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"col\">Отель Алтын</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > thead > tr > th[scope=\"col\"]:nth-child(2)",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.81 (foreground color: #738295, background color: #fbfcfe, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"col\">Отель Алтын</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > thead > tr > th[scope=\"col\"]:nth-child(2)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfcfe",
+    +               "contrastRatio": 3.81,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#738295",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.81 (foreground color: #738295, background color: #fbfcfe, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"col\">Хостел Сити</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > thead > tr > th[scope=\"col\"]:nth-child(3)",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.81 (foreground color: #738295, background color: #fbfcfe, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"col\">Хостел Сити</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > thead > tr > th[scope=\"col\"]:nth-child(3)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfcfe",
+    +               "contrastRatio": 3.81,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#738295",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.81 (foreground color: #738295, background color: #fbfcfe, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"col\">Рынок</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > thead > tr > th[scope=\"col\"]:nth-child(4)",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.81 (foreground color: #738295, background color: #fbfcfe, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"col\">Рынок</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > thead > tr > th[scope=\"col\"]:nth-child(4)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f4f7fb",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#738295",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #738295, background color: #f4f7fb, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"row\">09.10.2026</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > tbody > tr:nth-child(1) > th[scope=\"row\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #738295, background color: #f4f7fb, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"row\">09.10.2026</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > tbody > tr:nth-child(1) > th[scope=\"row\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfcfe",
+    +               "contrastRatio": 4.23,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#6e7a8d",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.23 (foreground color: #6e7a8d, background color: #fbfcfe, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<table class=\"tbl tbl--sm market-night-table\" aria-label=\"Загрузка ночи по дням снимков\" data-testid=\"market-night-table\">",
+    +                 "target": Array [
+    +                   ".market-night-table",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.23 (foreground color: #6e7a8d, background color: #fbfcfe, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<td class=\"\">92 %</td>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > tbody > tr:nth-child(1) > td:nth-child(2)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfcfe",
+    +               "contrastRatio": 4.23,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#6e7a8d",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.23 (foreground color: #6e7a8d, background color: #fbfcfe, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<table class=\"tbl tbl--sm market-night-table\" aria-label=\"Загрузка ночи по дням снимков\" data-testid=\"market-night-table\">",
+    +                 "target": Array [
+    +                   ".market-night-table",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.23 (foreground color: #6e7a8d, background color: #fbfcfe, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<td class=\"\">95 %</td>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > tbody > tr:nth-child(1) > td:nth-child(3)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fbfcfe",
+    +               "contrastRatio": 4.23,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#6e7a8d",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.23 (foreground color: #6e7a8d, background color: #fbfcfe, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<table class=\"tbl tbl--sm market-night-table\" aria-label=\"Загрузка ночи по дням снимков\" data-testid=\"market-night-table\">",
+    +                 "target": Array [
+    +                   ".market-night-table",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.23 (foreground color: #6e7a8d, background color: #fbfcfe, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<td class=\"market-night__market\">94 %</td>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "tr:nth-child(1) > .market-night__market",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f8f9fd",
+    +               "contrastRatio": 3.57,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#778597",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.57 (foreground color: #778597, background color: #f8f9fd, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<th scope=\"row\">08.10.2026</th>",
+    +                 "target": Array [
+    +                   ".market-night-table > tbody > tr:nth-child(2) > th[scope=\"row\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.57 (foreground color: #778597, background color: #f8f9fd, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<th scope=\"row\">08.10.2026</th>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > tbody > tr:nth-child(2) > th[scope=\"row\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ffffff",
+    +               "contrastRatio": 4.16,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#727d8e",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.16 (foreground color: #727d8e, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<table class=\"tbl tbl--sm market-night-table\" aria-label=\"Загрузка ночи по дням снимков\" data-testid=\"market-night-table\">",
+    +                 "target": Array [
+    +                   ".market-night-table",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.16 (foreground color: #727d8e, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<td class=\"\">80 %</td>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".market-night-table > tbody > tr:nth-child(2) > td:nth-child(2)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ffffff",
+    +               "contrastRatio": 4.16,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#727d8e",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.16 (foreground color: #727d8e, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<table class=\"tbl tbl--sm market-night-table\" aria-label=\"Загрузка ночи по дням снимков\" data-testid=\"market-night-table\">",
+    +                 "target": Array [
+    +                   ".market-night-table",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.16 (foreground color: #727d8e, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<td class=\"market-night__market\">80 %</td>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "tr:nth-child(2) > .market-night__market",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      258 |   await expect(page.getByTestId('market-night-pickup')).toContainText('+14 п.п.');
+      259 |   const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    > 260 |   expect(audit.violations).toEqual([]);
+          |                            ^
+      261 |   mkdirSync(SHOTS, { recursive: true });
+      262 |   await page.screenshot({ path: `${SHOTS}/night-light-1440.png` });
+      263 |   await page.keyboard.press('Escape');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/market.spec.ts:260:28
+
+    Error Context: test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/market.spec.ts:244:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+  6 passed (27.5s)
+
+# код выхода 1 · 28 с

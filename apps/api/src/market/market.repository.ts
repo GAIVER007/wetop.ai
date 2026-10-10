@@ -3,9 +3,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   LUXX_APARTS_PROPERTY,
   MarketInputError,
+  type AvailabilityLevel,
   type CompetitorInput,
+  type CompetitorMonitoring,
   type MarketReading,
   type ObservationSource,
+  type PriceReading,
 } from '@pms/domain';
 import { auditUserId } from '../accounts/actor';
 import { PrismaService } from '../database/prisma.provider';
@@ -20,6 +23,14 @@ export interface CompetitorRecord {
   url: string | null;
   note: string | null;
   active: boolean;
+  /** DATA_MODEL §23.1 */
+  district: string | null;
+  category: string | null;
+  address: string | null;
+  dataSource: string | null;
+  monitoring: CompetitorMonitoring;
+  refreshHours: number | null;
+  autoRefresh: boolean;
 }
 
 /** Строка журнала, которую запись пишет той же транзакцией */
@@ -43,6 +54,22 @@ export interface MarketRepository {
   ): Promise<boolean>;
   /** Снимки ночей [from, to] с днём снимка не позже asOf */
   readings(from: string, to: string, asOf: string): Promise<MarketReading[]>;
+  /** Валюта объекта: в ней пишутся цены конкурентов */
+  currency(): Promise<string>;
+  /** Цены ночей [from, to] с днём снимка не позже asOf (действующие конкуренты) */
+  rateReadings(from: string, to: string, asOf: string): Promise<PriceReading[]>;
+  /**
+   * Цены дня `observedOn`: значение заменяет прежнее за этот день, null снимает его. Одной транзакцией с журналом.
+   * false: конкурента нет у этого объекта или он в архиве.
+   */
+  writeRates(
+    competitorId: string,
+    observedOn: string,
+    currency: string,
+    entries: Array<{ date: string; priceMinor: bigint | null }>,
+    source: ObservationSource,
+    audit: MarketAudit,
+  ): Promise<boolean>;
   /** Все снимки одной ночи действующих конкурентов, по всем дням снимка (история ночи, M1.2) */
   nightReadings(stayDate: string): Promise<MarketReading[]>;
   /**
@@ -85,9 +112,11 @@ export interface CollectorTarget {
   timezone: string;
 }
 
+/** Ночь от сборщика: процент, уровень наличия (DATA_MODEL §23.1) или оба; пустой ночи сервис не пропускает */
 export interface CollectedEntry {
   date: string;
-  bp: number;
+  bp: number | null;
+  level: AvailabilityLevel | null;
 }
 
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
@@ -100,6 +129,13 @@ const toRecord = (c: {
   url: string | null;
   note: string | null;
   active: boolean;
+  district: string | null;
+  category: string | null;
+  address: string | null;
+  dataSource: string | null;
+  monitoring: CompetitorMonitoring;
+  refreshHours: number | null;
+  autoRefresh: boolean;
 }): CompetitorRecord => ({
   id: c.id,
   name: c.name,
@@ -108,6 +144,13 @@ const toRecord = (c: {
   url: c.url,
   note: c.note,
   active: c.active,
+  district: c.district,
+  category: c.category,
+  address: c.address,
+  dataSource: c.dataSource,
+  monitoring: c.monitoring,
+  refreshHours: c.refreshHours,
+  autoRefresh: c.autoRefresh,
 });
 
 type Tx = Parameters<Parameters<PrismaService['db']['$transaction']>[0]>[0];
@@ -157,6 +200,13 @@ export class PrismaMarketRepository implements MarketRepository {
             unitsTotal: c.unitsTotal ?? null,
             url: c.url ?? null,
             note: c.note ?? null,
+            district: c.district ?? null,
+            category: c.category ?? null,
+            address: c.address ?? null,
+            dataSource: c.dataSource ?? null,
+            ...(c.monitoring ? { monitoring: c.monitoring } : {}),
+            refreshHours: c.refreshHours ?? null,
+            autoRefresh: c.autoRefresh ?? false,
             createdById: auditUserId(),
           },
           select: { id: true },
@@ -206,22 +256,86 @@ export class PrismaMarketRepository implements MarketRepository {
         stayDate: true,
         observedOn: true,
         occupancyBp: true,
+        availabilityLevel: true,
         source: true,
       },
     });
+    // и проценты, и уровни наличия (§23.1): средняя рынка в домене считается только из процентов
     return rows.map((r) => ({
       competitorId: r.competitorId,
       stayDate: iso(r.stayDate),
       observedOn: iso(r.observedOn),
       occupancyBp: r.occupancyBp,
+      level: r.availabilityLevel,
       source: r.source,
     }));
+  }
+
+  async currency(): Promise<string> {
+    const propertyId = await this.propertyId();
+    const row = await this.prisma.db.property.findUnique({ where: { id: propertyId }, select: { currency: true } });
+    return row?.currency ?? 'KZT';
+  }
+
+  async rateReadings(from: string, to: string, asOf: string): Promise<PriceReading[]> {
+    const propertyId = await this.propertyId();
+    const rows = await this.prisma.db.competitorRate.findMany({
+      where: {
+        propertyId,
+        stayDate: { gte: asDate(from), lte: asDate(to) },
+        observedOn: { lte: asDate(asOf) },
+        competitor: { active: true },
+      },
+      select: { competitorId: true, stayDate: true, observedOn: true, priceMinor: true, currency: true, source: true },
+    });
+    return rows.map((r) => ({
+      competitorId: r.competitorId,
+      stayDate: iso(r.stayDate),
+      observedOn: iso(r.observedOn),
+      priceMinor: r.priceMinor,
+      currency: r.currency,
+      source: r.source,
+    }));
+  }
+
+  async writeRates(
+    competitorId: string,
+    observedOn: string,
+    currency: string,
+    entries: Array<{ date: string; priceMinor: bigint | null }>,
+    source: ObservationSource,
+    audit: MarketAudit,
+  ): Promise<boolean> {
+    const propertyId = await this.propertyId();
+    const found = await this.prisma.db.competitor.findFirst({
+      where: { id: competitorId, propertyId, active: true },
+      select: { id: true },
+    });
+    if (!found) return false;
+    const day = asDate(observedOn);
+    const createdById = auditUserId();
+    await this.prisma.db.$transaction(async (tx) => {
+      for (const e of entries) {
+        const key = { competitorId, stayDate: asDate(e.date), observedOn: day };
+        if (e.priceMinor === null) {
+          await tx.competitorRate.deleteMany({ where: { ...key, propertyId } });
+          continue;
+        }
+        await tx.competitorRate.upsert({
+          where: { competitorId_stayDate_observedOn: key },
+          create: { ...key, propertyId, priceMinor: e.priceMinor, currency, source, createdById },
+          update: { priceMinor: e.priceMinor, currency, source, createdById, observedAt: new Date() },
+        });
+      }
+      await writeAudit(tx, audit);
+    });
+    return true;
   }
 
   async nightReadings(stayDate: string): Promise<MarketReading[]> {
     const propertyId = await this.propertyId();
     const rows = await this.prisma.db.competitorOccupancy.findMany({
-      where: { propertyId, stayDate: asDate(stayDate), competitor: { active: true } },
+      where: { propertyId, stayDate: asDate(stayDate), competitor: { active: true }, occupancyBp: { not: null } },
       orderBy: { observedOn: 'asc' },
       select: { competitorId: true, stayDate: true, observedOn: true, occupancyBp: true, source: true },
     });
@@ -229,7 +343,7 @@ export class PrismaMarketRepository implements MarketRepository {
       competitorId: r.competitorId,
       stayDate: iso(r.stayDate),
       observedOn: iso(r.observedOn),
-      occupancyBp: r.occupancyBp,
+      occupancyBp: r.occupancyBp!,
       source: r.source,
     }));
   }
@@ -324,8 +438,21 @@ export class PrismaMarketRepository implements MarketRepository {
         const key = { competitorId: target.id, stayDate: asDate(e.date), observedOn: day };
         await tx.competitorOccupancy.upsert({
           where: { competitorId_stayDate_observedOn: key },
-          create: { ...key, propertyId: target.propertyId, occupancyBp: e.bp, source: 'AI_AGENT', createdById: null },
-          update: { occupancyBp: e.bp, source: 'AI_AGENT', createdById: null, observedAt: new Date() },
+          create: {
+            ...key,
+            propertyId: target.propertyId,
+            occupancyBp: e.bp,
+            availabilityLevel: e.level,
+            source: 'AI_AGENT',
+            createdById: null,
+          },
+          update: {
+            occupancyBp: e.bp,
+            availabilityLevel: e.level,
+            source: 'AI_AGENT',
+            createdById: null,
+            observedAt: new Date(),
+          },
         });
         saved += 1;
       }

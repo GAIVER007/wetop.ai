@@ -34,6 +34,16 @@ export class MarketController {
     return this.service.occupancy({ from, days, asOf, compare });
   }
 
+  @Get('rates')
+  rates(
+    @Query('from') from?: string,
+    @Query('days') days?: string,
+    @Query('asOf') asOf?: string,
+    @Query('compare') compare?: string,
+  ) {
+    return this.service.rates({ from, days, asOf, compare });
+  }
+
   @Get('night')
   night(@Query('date') date?: string) {
     return this.service.night(date);
@@ -56,5 +66,12 @@ export class MarketController {
   @HttpCode(200)
   writeOccupancy(@Param('id', ParseUUIDPipe) id: string, @Body() dto: { entries?: unknown }) {
     return this.service.writeOccupancy(id, dto ?? {});
+  }
+
+  @Access('rates')
+  @Put('competitors/:id/rates')
+  @HttpCode(200)
+  writeRates(@Param('id', ParseUUIDPipe) id: string, @Body() dto: { entries?: unknown }) {
+    return this.service.writeRates(id, dto ?? {});
   }
 }

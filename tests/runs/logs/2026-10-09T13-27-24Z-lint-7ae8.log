@@ -1,0 +1,11 @@
+# Линтер (lint) · 09.10.2026 18:27 Алматы · vm
+# коммит d0eb1e6 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 38
+# npx eslint .
+
+/home/user/wetop.ai/apps/web/src/app/bar/receipts/new/new-receipt.tsx
+  3:30  error  'BarScanResult' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 40 с

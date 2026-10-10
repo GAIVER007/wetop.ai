@@ -70,7 +70,7 @@ test('раздел в меню «Продажи», четыре вкладки, 
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/ai-seller');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
   // вкладка группы текущего раздела подсвечена, пункт помечен текущим (DESIGN.md §8, верхнее меню)
@@ -80,7 +80,15 @@ test('раздел в меню «Продажи», четыре вкладки, 
   );
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('ИИ-продавцы');
   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link');
-  await expect(tabs).toHaveText(['Настройка', 'Диалоги', 'Знания', 'Подключения']);
+  await expect(tabs).toHaveText([
+    'Обзор',
+    'Настройка',
+    'Диалоги',
+    'Знания',
+    'Подключения',
+    'Сценарии',
+    'Аналитика',
+  ]);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец ещё не настроен');
   // вместо семи бейджей «не заполнено» — только то, что осталось, и куда идти (макет владельца 26.09.2026)
   await expect(page.getByTestId('seller-checklist')).toContainText('До запуска — 2 шага');
@@ -485,7 +493,7 @@ test('закрытое расширение: администратор види
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/ai-seller');
   await expect(
     page.getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' }),

@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 10.10.2026 13:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит fc5d7e0 (claude/market-ai-collector), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T08-11-44Z-integration-61d2.json' 'tests/integration/market-occupancy.test.ts' 'tests/integration/competitor-availability-level.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ✓ |integration| tests/integration/market-occupancy.test.ts (4 tests) 472ms
+ ✓ |integration| tests/integration/competitor-availability-level.test.ts (3 tests) 426ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  01:11:47
+   Duration  3.60s (tests 37%, import 32%, transform 31%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T08-11-44Z-integration-61d2.json
+
+# код выхода 0 · 7 с

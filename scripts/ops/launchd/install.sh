@@ -8,6 +8,8 @@
 #   domain — постоянный туннель wetop.ai (plans/wetop-domain-2026-09-14.md §6): app.wetop.ai за Cloudflare Access и
 #   только публичные пути API на api.wetop.ai. Вместе с быстрым туннелем (tunnel) не ставится: тот открывает всё API
 #   и перерегистрирует webhook на свой адрес — сначала uninstall.sh tunnel.
+#   market: сборщик загрузки конкурентов (ADR-142, docs/market/collector.md): раз в сутки в 06:00 по часам Mac, не
+#   держится постоянно и не стартует при входе. Без аргументов не ставится, только по имени. Ключи читает из .env.
 #   scripts/ops/launchd/install.sh --takeover ...                  остановить уже запущенные вручную процессы
 #   scripts/ops/launchd/install.sh --dry ...                       только собрать и проверить plist во временной папке
 #   scripts/ops/launchd/status.sh                                  что запущено
@@ -45,8 +47,8 @@ for a in "$@"; do
   case "$a" in
     --takeover) TAKEOVER=1 ;;
     --dry) DRY=1 ;;
-    api|web|tunnel|domain|awake) NAMES+=("$a") ;;
-    *) echo "неизвестно: $a (есть api, web, tunnel, domain, awake, --takeover, --dry)"; exit 2 ;;
+    api|web|tunnel|domain|awake|market) NAMES+=("$a") ;;
+    *) echo "неизвестно: $a (есть api, web, tunnel, domain, awake, market, --takeover, --dry)"; exit 2 ;;
   esac
 done
 DOMAIN_CONFIG="$HOME/.cloudflared/wetop.yml"
@@ -80,10 +82,15 @@ $args  </array>
     <key>PATH</key><string>$(xml "$PATH_ENV")</string>${EXTRA_ENV:+
 $EXTRA_ENV}
   </dict>
-  <key>RunAtLoad</key><true/>
+  <key>RunAtLoad</key><${RUN_AT_LOAD:-true}/>
   <key>KeepAlive</key><$keep/>
   <key>ThrottleInterval</key><integer>15</integer>${START_INTERVAL:+
-  <key>StartInterval</key><integer>$START_INTERVAL</integer>}
+  <key>StartInterval</key><integer>$START_INTERVAL</integer>}${START_HOUR:+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>$START_HOUR</integer>
+    <key>Minute</key><integer>${START_MINUTE:-0}</integer>
+  </dict>}
   <key>StandardOutPath</key><string>$(xml "$log")</string>
   <key>StandardErrorPath</key><string>$(xml "$log")</string>
 </dict>
@@ -104,6 +111,7 @@ command_for() {
     # постоянный туннель: адреса и правила — в ~/.cloudflared/wetop.yml (образец scripts/ops/cloudflared-wetop.example.yml)
     domain) CMD=("${CLOUDFLARED:-cloudflared}" tunnel --no-autoupdate --config "$DOMAIN_CONFIG" run) ;;
     # одним процессом: node с загрузчиком tsx, без npm и sh (ADR-032)
+    market) CMD=("$NODE" --import tsx scripts/market/cli-collect.ts) ;;
   esac
 }
 
@@ -201,8 +209,9 @@ for n in "${NAMES[@]}"; do
     kill $pids 2>/dev/null; sleep 3
   fi
   command_for "$n"
-  # Все службы держатся постоянно; StartInterval и EXTRA_ENV поддерживают будущие задачи по расписанию.
-  START_INTERVAL=""; keep=true; EXTRA_ENV=""
+  # Службы держатся постоянно; задача по расписанию (market) запускается по часам и сама завершается
+  START_INTERVAL=""; START_HOUR=""; START_MINUTE=""; RUN_AT_LOAD=true; keep=true; EXTRA_ENV=""
+  if [ "$n" = market ]; then START_HOUR=6; START_MINUTE=0; RUN_AT_LOAD=false; keep=false; fi
   write_plist "$AGENTS/$label.plist" "$label" "$LOGS/$n.log" "$keep" "${CMD[@]}"
   if [ "$DRY" -eq 1 ]; then echo "  $AGENTS/$label.plist собран и проверен (plutil), не загружен"; continue; fi
   loaded=0

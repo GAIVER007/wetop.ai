@@ -2,7 +2,7 @@ import { FIXTURE_API, expect, test, type Page } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
- * «Настройки объекта» по верстке владельца (ADR-156, DATA_MODEL §31): описание, сайт, правила проживания, удобства,
+ * «Настройки объекта» по верстке владельца (ADR-158, DATA_MODEL §32): описание, сайт, правила проживания, удобства,
  * предпросмотр карточки. Схема не используется: стенд тот же подставной API, разбор ввода тот же, что у настоящего.
  */
 const API = FIXTURE_API;
@@ -18,7 +18,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance'); // /today у отеля сразу ведёт на /finance (ADR-152)
 }
 
 test('карточка объекта: все поля сохраняются и читаются обратно', async ({ page }) => {

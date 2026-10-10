@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, HEADER_GROWTH_PX, test, expect } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
 const API = FIXTURE_API;
 test.beforeEach(async ({ page, request }) => {
@@ -9,19 +9,21 @@ test.beforeEach(async ({ page, request }) => {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 });
 
-test('настройки: основные поля и сохранение помещаются на ноутбуке', async ({ page }) => {
+test('настройки: основные поля и сохранение видны на ноутбуке сразу, вбок не прокручивается', async ({
+  page,
+}) => {
   await page.goto('/hotel-settings');
-  await expect(page.getByLabel('Название объекта')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Сохранить изменения' })).toBeVisible();
-  const size = await page.evaluate(() => ({
-    h: document.documentElement.scrollHeight,
-    v: innerHeight,
-  }));
-  // бюджет задан 01.10.2026 при прежней шапке; с ADR-134 шапка выше на HEADER_GROWTH_PX, место под форму то же
-  expect(size.h).toBeLessThanOrEqual(size.v + HEADER_GROWTH_PX + 1);
+  // С 09.10 «Настройки объекта» это три колонки карточек на пяти вкладках (ADR-158): страница
+  // прокручивается вниз намеренно, как «Отчёты»; одним экраном остаются ключевые поля и сохранение
+  await expect(page.getByLabel('Название объекта')).toBeInViewport();
+  await expect(page.getByRole('button', { name: 'Сохранить изменения' })).toBeInViewport();
+  const overflowX = await page.evaluate(
+    () => document.documentElement.scrollWidth - innerWidth,
+  );
+  expect(overflowX).toBeLessThanOrEqual(1);
 });
 
 test('интеграции: незавершённая настройка не называется подключением', async ({ page }) => {

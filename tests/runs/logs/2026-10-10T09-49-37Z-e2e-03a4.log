@@ -1,0 +1,67 @@
+# Сквозные (e2e) · 10.10.2026 14:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 55eedaa (claude/sales2-impl), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ai-seller-overview.spec.ts' 'tests/ui/ai-seller.spec.ts' '--workers=1' '--timeout=240000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+  ✓   1 tests/ui/ai-seller-overview.spec.ts:24:1 › вкладки по макету: обзор, настройка, диалоги, знания, подключения, сценарии, аналитика (2.2s)
+  ✓   2 tests/ui/ai-seller-overview.spec.ts:31:1 › обзор: восемь плиток, числа из бота и из сводки продаж (1.5s)
+  ✓   3 tests/ui/ai-seller-overview.spec.ts:48:1 › обзор: диалог, которому нужен человек, виден списком и ведёт в диалоги (1.3s)
+  ✓   4 tests/ui/ai-seller-overview.spec.ts:60:1 › сводка продаж не посчиталась: сказано словами, плитки бота живы (997ms)
+  ✓   5 tests/ui/ai-seller-overview.spec.ts:68:1 › аналитика: таблица периода и прошлого такого же, период переключается (1.2s)
+  ✓   6 tests/ui/ai-seller-overview.spec.ts:83:1 › подключения: сводка каналов называет состояние каждого и не придумывает подключённого (1.4s)
+  ✓   7 tests/ui/ai-seller-overview.spec.ts:101:1 › аналитика: работа продавца за сутки, доля без человека, передачи и время первого ответа (1.1s)
+  ✓   8 tests/ui/ai-seller-overview.spec.ts:109:1 › аналитика: сводка недоступна, сказано словами (652ms)
+  ✓   9 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, light, 1440px (1.7s)
+  ✓  10 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, light, 390px (1.7s)
+  ✓  11 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, dark, 1440px (1.6s)
+  ✓  12 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, dark, 390px (1.7s)
+  ✓  13 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, light, 1440px (1.6s)
+  ✓  14 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, light, 390px (1.6s)
+  ✓  15 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, dark, 1440px (1.6s)
+  ✓  16 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, dark, 390px (1.6s)
+  ✓  17 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, light, 1440px (1.6s)
+  ✓  18 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, light, 390px (1.6s)
+  ✓  19 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, dark, 1440px (1.6s)
+  ✓  20 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, dark, 390px (1.7s)
+  ✓  21 tests/ui/ai-seller-overview.spec.ts:133:1 › сценарии: работает «Продажи», «Поддержка сайта» помечена «скоро», конструктор честно назван будущим (787ms)
+  ✓  22 tests/ui/ai-seller.spec.ts:65:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (2.5s)
+  ✓  23 tests/ui/ai-seller.spec.ts:110:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (1.8s)
+  ✓  24 tests/ui/ai-seller.spec.ts:141:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.4s)
+  ✓  25 tests/ui/ai-seller.spec.ts:171:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (1.4s)
+  ✓  26 tests/ui/ai-seller.spec.ts:188:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (2.6s)
+  ✓  27 tests/ui/ai-seller.spec.ts:225:1 › продавец недоступен — метка, причина и обещание повтора (1.3s)
+  ✓  28 tests/ui/ai-seller.spec.ts:236:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (825ms)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  29 tests/ui/ai-seller.spec.ts:255:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (3.4s)
+  ✓  30 tests/ui/ai-seller.spec.ts:269:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (996ms)
+  ✓  31 tests/ui/ai-seller.spec.ts:306:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (1.7s)
+  ✓  32 tests/ui/ai-seller.spec.ts:349:1 › карточка диалога по неизвестному id не падает, а говорит словами (758ms)
+  ✓  33 tests/ui/ai-seller.spec.ts:355:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (2.4s)
+  ✓  34 tests/ui/ai-seller.spec.ts:383:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (1.8s)
+  ✓  35 tests/ui/ai-seller.spec.ts:398:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (1.2s)
+  ✓  36 tests/ui/ai-seller.spec.ts:416:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (1.4s)
+  ✓  37 tests/ui/ai-seller.spec.ts:448:1 › снимки экранов раздела (3.2s)
+  ✓  38 tests/ui/ai-seller.spec.ts:476:1 › Все агенты возвращает в единый каталог, а не только к черновикам (2.3s)
+  ✓  39 tests/ui/ai-seller.spec.ts:485:1 › закрытое расширение: администратор видит действие для управления доступом (1.5s)
+
+  39 passed (1.2m)
+
+# код выхода 0 · 1 мин 10 с

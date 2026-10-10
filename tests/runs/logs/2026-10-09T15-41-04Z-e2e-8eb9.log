@@ -1,0 +1,331 @@
+# Сквозные (e2e) · 09.10.2026 20:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит bb883f7 (claude/sales2-impl), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/market.spec.ts' 'tests/ui/market-competitors.spec.ts' 'tests/ui/market-charts.spec.ts' 'tests/ui/sales-hub.spec.ts' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 36 tests using 2 workers
+
+  ✓   2 tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей (5.0s)
+  ✓   3 tests/ui/market-charts.spec.ts:79:1 › без сравнения: график изменения говорит, как его включить, а не рисует нули (1.5s)
+  ✓   4 tests/ui/market-charts.spec.ts:90:1 › пока конкурентов нет, графиков нет: пустое состояние как раньше (832ms)
+  ✓   5 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 1440px (3.0s)
+  ✓   6 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 390px (3.1s)
+  ✓   7 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 1440px (2.5s)
+  ✓   8 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 390px (2.6s)
+  ✘   1 tests/ui/market-competitors.spec.ts:51:1 › список: район, тип, загрузка сегодня, средняя цена, изменение и статус (19.4s)
+  ✓   9 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (4.7s)
+  ✓  11 tests/ui/market.spec.ts:107:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (17.6s)
+  ✘  10 tests/ui/market-competitors.spec.ts:68:1 › отбор по району оставляет одну строку и сбрасывается (21.4s)
+  ✘  12 tests/ui/market.spec.ts:151:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (31.8s)
+  ✓  13 tests/ui/market-competitors.spec.ts:80:1 › цены на графике: четвёртый график появляется, когда цены внесены (26.0s)
+[WebServer] [browser] Encountered two children with the same key, `39,5 тыс.`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[WebServer] [browser] Encountered two children with the same key, `39,5 тыс.`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+  ✓  15 tests/ui/market-competitors.spec.ts:95:1 › цены вносятся панелью: сохранённое видно в списке, очищенное снимает (19.3s)
+  ✘  14 tests/ui/market.spec.ts:168:3 › снимки и доступность: light (28.9s)
+  ✘  16 tests/ui/market-competitors.spec.ts:111:1 › цена словами ошибки: ввод не теряется (30.8s)
+  ✓  17 tests/ui/market.spec.ts:168:3 › снимки и доступность: dark (28.2s)
+  ✓  18 tests/ui/market-competitors.spec.ts:121:1 › карточка: район, тип и настройки мониторинга сохраняются; автообновление честно названо будущим (19.8s)
+  ✓  20 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: light, 1440px (22.3s)
+  ✓  21 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: light, 390px (23.2s)
+  ✓  22 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: dark, 1440px (39.0s)
+  ✓  23 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: dark, 390px (19.5s)
+  ✘  19 tests/ui/market.spec.ts:208:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (2.1m)
+  ✘  24 tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету (30.9s)
+  ✓  26 tests/ui/sales-hub.spec.ts:70:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули (20.0s)
+  ✓  27 tests/ui/sales-hub.spec.ts:90:1 › нет конкурентов: рекомендации зовут добавить, плитки не рисуют нули (10.8s)
+  ✘  25 tests/ui/market.spec.ts:237:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (38.1s)
+  ✓  28 tests/ui/sales-hub.spec.ts:99:1 › нет предложений: конверсия это знак пропуска, а не 0 % (5.0s)
+  ✓  29 tests/ui/sales-hub.spec.ts:109:1 › сводка не посчиталась: сказано словами, плитки броней и конкурентов это пропуск, карточки живы (6.9s)
+  ✓  30 tests/ui/sales-hub.spec.ts:122:1 › период: «7 дней» меняет адрес, неверные даты в адресе возвращают 30 дней (12.9s)
+  ✓  31 tests/ui/sales-hub.spec.ts:133:1 › расширение «ИИ-продавец» выключено: плитки диалогов это пропуск с причиной, карточка объясняет (10.0s)
+  ✓  32 tests/ui/sales-hub.spec.ts:146:1 › администратор смены открывает хаб (9.0s)
+  ✓  33 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: light, 1440px (11.0s)
+  ✓  34 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: light, 390px (11.7s)
+  ✓  35 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: dark, 1440px (3.9s)
+  ✓  36 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: dark, 390px (3.4s)
+
+
+  1) tests/ui/market-competitors.spec.ts:51:1 › список: район, тип, загрузка сегодня, средняя цена, изменение и статус 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('market-list-row-00000000-0000-4000-8000-00000000000a')
+    Expected substring: "Медеу"
+    Received string:    "Отель Алтын200 м––92 %––Актуальнозагрузка от 09.10.2026Внести загрузкуВнести ценыИзменить"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('market-list-row-00000000-0000-4000-8000-00000000000a') with timeout 15000ms
+      - waiting for getByTestId('market-list-row-00000000-0000-4000-8000-00000000000a')
+        33 × locator resolved to <tr data-testid="market-list-row-00000000-0000-4000-8000-00000000000a">…</tr>
+           - unexpected value "Отель Алтын200 м––92 %––Актуальнозагрузка от 09.10.2026Внести загрузкуВнести ценыИзменить"
+
+
+      53 |   await page.goto('/market');
+      54 |   const a = page.getByTestId(`market-list-row-${A}`);
+    > 55 |   await expect(a).toContainText('Медеу');
+         |                   ^
+      56 |   await expect(a).toContainText('Отель 4★');
+      57 |   await expect(a.getByTestId('market-list-now')).toHaveText('92 %');
+      58 |   await expect(a.getByTestId('market-list-price')).toContainText('42 000');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:55:19
+
+    Error Context: test-results/market-competitors-список--33e24-няя-цена-изменение-и-статус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-список--33e24-няя-цена-изменение-и-статус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-список--33e24-няя-цена-изменение-и-статус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/market-competitors.spec.ts:68:1 › отбор по району оставляет одну строку и сбрасывается 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('market-list-row-00000000-0000-4000-8000-00000000000b')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('market-list-row-00000000-0000-4000-8000-00000000000b') with timeout 15000ms
+      - waiting for getByTestId('market-list-row-00000000-0000-4000-8000-00000000000b')
+
+
+      72 |   await page.getByTestId('market-list-filters').getByRole('button', { name: 'Показать' }).click();
+      73 |   await expect(page).toHaveURL(/district=/);
+    > 74 |   await expect(page.getByTestId(`market-list-row-${B}`)).toBeVisible();
+         |                                                          ^
+      75 |   await expect(page.getByTestId(`market-list-row-${A}`)).toHaveCount(0);
+      76 |   await page.getByRole('link', { name: 'Сбросить' }).click();
+      77 |   await expect(page.getByTestId(`market-list-row-${A}`)).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:74:58
+
+    Error Context: test-results/market-competitors-отбор-п-921a8--одну-строку-и-сбрасывается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-отбор-п-921a8--одну-строку-и-сбрасывается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-отбор-п-921a8--одну-строку-и-сбрасывается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/market-competitors.spec.ts:111:1 › цена словами ошибки: ввод не теряется ─────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('market-rates-form')
+    Expected substring: "Цена: число"
+    Received string:    "Конкурент не найден или убран из спискаЦена за ночь в ₸, например 42 000. Запишется снимком сегодняшнего дня: завтра увидите, как изменилась цена. Очистите поле, чтобы снять сегодняшнее значение.Пятница, 9 октября₸Суббота, 10 октября₸Воскресенье, 11 октября₸Понедельник, 12 октября₸Вторник, 13 октября₸Среда, 14 октября₸Четверг, 15 октября₸Пятница, 16 октября₸Суббота, 17 октября₸Воскресенье, 18 октября₸Понедельник, 19 октября₸Вторник, 20 октября₸Среда, 21 октября₸Четверг, 22 октября₸ОтменаСохранить"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('market-rates-form') with timeout 15000ms
+      - waiting for getByTestId('market-rates-form')
+        3 × locator resolved to <form class="settings-service-form" data-testid="market-rates-form" action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')">…</form>
+          - unexpected value "Цена за ночь в ₸, например 42 000. Запишется снимком сегодняшнего дня: завтра увидите, как изменилась цена. Очистите поле, чтобы снять сегодняшнее значение.Пятница, 9 октября₸Суббота, 10 октября₸Воскресенье, 11 октября₸Понедельник, 12 октября₸Вторник, 13 октября₸Среда, 14 октября₸Четверг, 15 октября₸Пятница, 16 октября₸Суббота, 17 октября₸Воскресенье, 18 октября₸Понедельник, 19 октября₸Вторник, 20 октября₸Среда, 21 октября₸Четверг, 22 октября₸ОтменаСохраняю…"
+        29 × locator resolved to <form class="settings-service-form" data-testid="market-rates-form" action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')">…</form>
+           - unexpected value "Конкурент не найден или убран из спискаЦена за ночь в ₸, например 42 000. Запишется снимком сегодняшнего дня: завтра увидите, как изменилась цена. Очистите поле, чтобы снять сегодняшнее значение.Пятница, 9 октября₸Суббота, 10 октября₸Воскресенье, 11 октября₸Понедельник, 12 октября₸Вторник, 13 октября₸Среда, 14 октября₸Четверг, 15 октября₸Пятница, 16 октября₸Суббота, 17 октября₸Воскресенье, 18 октября₸Понедельник, 19 октября₸Вторник, 20 октября₸Среда, 21 октября₸Четверг, 22 октября₸ОтменаСохранить"
+
+
+      115 |   await page.getByTestId(`market-r-${today}`).fill('много');
+      116 |   await page.getByTestId('market-rates-save').click();
+    > 117 |   await expect(page.getByTestId('market-rates-form')).toContainText('Цена: число');
+          |                                                       ^
+      118 |   await expect(page.getByTestId(`market-r-${today}`)).toHaveValue('много');
+      119 | });
+      120 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:117:55
+
+    Error Context: test-results/market-competitors-цена-словами-ошибки-ввод-не-теряется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-цена-словами-ошибки-ввод-не-теряется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-цена-словами-ошибки-ввод-не-теряется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/market.spec.ts:151:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('read-only-banner')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('read-only-banner') with timeout 15000ms
+      - waiting for getByTestId('read-only-banner')
+
+
+      159 |   const main = page.getByRole('main');
+      160 |   const grid = page.getByTestId('market-table');
+    > 161 |   await expect(page.getByTestId('read-only-banner')).toBeVisible();
+          |                                                      ^
+      162 |   await expect(grid.getByRole('row', { name: /Отель Алтын/ })).toContainText('92 %');
+      163 |   await expect(main.getByTestId('market-add')).toHaveCount(0);
+      164 |   await expect(main.getByTestId('market-table').getByRole('button')).toHaveCount(0);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:161:54
+
+    Error Context: test-results/market-«только-чтение»-таб-9cfde--добавлять-и-вносить-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«только-чтение»-таб-9cfde--добавлять-и-вносить-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«только-чтение»-таб-9cfde--добавлять-и-вносить-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/market.spec.ts:168:3 › снимки и доступность: light ───────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('market-empty')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('market-empty') with timeout 15000ms
+      - waiting for getByTestId('market-empty')
+
+
+      188 |
+      189 |     await page.goto('/market');
+    > 190 |     await expect(page.getByTestId('market-empty')).toBeVisible();
+          |                                                    ^
+      191 |     await axe();
+      192 |     await shot('empty');
+      193 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:190:52
+
+    Error Context: test-results/market-снимки-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-снимки-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-снимки-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/market.spec.ts:208:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Внести загрузку: Хостел Сити' })
+
+
+      215 |   const grid = page.getByTestId('market-table');
+      216 |   const city = grid.getByRole('row', { name: /Хостел Сити/ });
+    > 217 |   await main.getByRole('button', { name: 'Внести загрузку: Хостел Сити' }).click();
+          |                                                                            ^
+      218 |   const entry = page.getByTestId('market-occupancy-form');
+      219 |   await entry.getByTestId('market-fill-value').fill('70');
+      220 |   await entry.getByTestId('market-fill').click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:217:76
+
+    Error Context: test-results/market-«Заполнить-все-ночи-07318-ает-снимок-сегодняшним-днём/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«Заполнить-все-ночи-07318-ает-снимок-сегодняшним-днём/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«Заполнить-все-ночи-07318-ает-снимок-сегодняшним-днём/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/market.spec.ts:237:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('market-night-table').locator('tbody tr')
+    Expected: 2
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('market-night-table').locator('tbody tr') with timeout 15000ms
+      - waiting for getByTestId('market-night-table').locator('tbody tr')
+        30 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      245 |   const table = page.getByTestId('market-night-table');
+      246 |   // два дня снимков: вчера «Алтын» 80 %, «Сити» ещё нет; сегодня 92 % и 95 %
+    > 247 |   await expect(table.locator('tbody tr')).toHaveCount(2);
+          |                                           ^
+      248 |   await expect(table.locator('tbody tr').first()).toContainText('92 %');
+      249 |   await expect(table.locator('tbody tr').nth(1)).toContainText('80 %');
+      250 |   // рынок вчера 80 %, сегодня 93,5 %: темп +13,5 п.п., целыми +14
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:247:43
+
+    Error Context: test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/sales$/
+    Received string:  "http://127.0.0.1:3127/today"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        27 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3127/today"
+
+
+      51 |   await menu.getByRole('button', { name: 'Продажи', exact: true }).click();
+      52 |   await menu.getByRole('link', { name: 'Обзор продаж', exact: true }).click();
+    > 53 |   await expect(page).toHaveURL(/\/sales$/);
+         |                      ^
+      54 |   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Продажи');
+      55 |
+      56 |   const kpis = page.getByTestId('sales-kpis');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/sales-hub.spec.ts:53:22
+
+    Error Context: test-results/sales-hub-пункт-«Обзор-про-1bc85-жах»-шесть-плиток-по-макету/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sales-hub-пункт-«Обзор-про-1bc85-жах»-шесть-плиток-по-макету/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sales-hub-пункт-«Обзор-про-1bc85-жах»-шесть-плиток-по-макету/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/market-competitors.spec.ts:51:1 › список: район, тип, загрузка сегодня, средняя цена, изменение и статус 
+    tests/ui/market-competitors.spec.ts:68:1 › отбор по району оставляет одну строку и сбрасывается 
+    tests/ui/market-competitors.spec.ts:111:1 › цена словами ошибки: ввод не теряется ──────────────
+    tests/ui/market.spec.ts:151:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя 
+    tests/ui/market.spec.ts:168:3 › снимки и доступность: light ────────────────────────────────────
+    tests/ui/market.spec.ts:208:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём 
+    tests/ui/market.spec.ts:237:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+    tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету 
+  28 passed (6.9m)
+
+# код выхода 1 · 6 мин 54 с

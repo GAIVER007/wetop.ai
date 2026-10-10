@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 09.10.2026 23:05 Алматы · vm
+# коммит 02e9f49 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/mobile-adaptation.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (17.6s)
+  ✓  2 tests/ui/mobile-adaptation.spec.ts:67:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (2.1s)
+  ✓  3 tests/ui/mobile-adaptation.spec.ts:76:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (2.4s)
+  ✓  4 tests/ui/mobile-adaptation.spec.ts:91:1 › телефон: сводка и управление оставляют сетку на первом экране (2.3s)
+  ✓  5 tests/ui/mobile-adaptation.spec.ts:110:1 › узкий телефон: плитки финансов встают в одну колонку (2.0s)
+  ✓  6 tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (8.2s)
+  ✓  7 tests/ui/mobile-adaptation.spec.ts:154:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (12.5s)
+
+  7 passed (56.5s)
+
+# код выхода 0 · 58 с

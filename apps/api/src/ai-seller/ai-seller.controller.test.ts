@@ -172,6 +172,7 @@ beforeEach(() => {
   connection.seller.failWith = null;
   connection.seller.replies = {};
   profiles.rows.clear();
+  profiles.versions = [];
   profiles.audits = [];
   facts.source = factsSource();
   facts.asked = [];
@@ -282,6 +283,42 @@ describe('инструкция продавцу одним текстом (ADR-0
     expect(res.body).toMatchObject({ saved: true, text: 'Отвечай кратко.' });
     expect(profiles.rows.get(ORG_A)?.promptText).toBe('Отвечай кратко.');
     expect(profiles.rows.get(ORG_B)).toBeUndefined();
+  });
+
+  it('версии: каждое изменившее текст сохранение — новая версия, повтор того же текста ничего не множит', async () => {
+    const save = (text: string) => api().put('/ai-seller/prompt').set(as('session-a')).send({ text }).expect(200);
+    await save('Первая');
+    await save('Первая');
+    await save('Вторая');
+    const res = await api().get('/ai-seller/prompt/versions').set(as('session-a')).expect(200);
+    expect(res.body.items.map((v: { preview: string }) => v.preview)).toEqual(['Вторая', 'Первая']);
+    expect(res.body.items[0]).toMatchObject({ length: 6, author: 'Автор' });
+    // версии чужой организации не видны
+    const other = await api().get('/ai-seller/prompt/versions').set(as('session-b')).expect(200);
+    expect(other.body.items).toEqual([]);
+  });
+
+  it('вернуть версию: её текст становится текущим и новой последней версией, в журнале версия и длина без текста', async () => {
+    const save = (text: string) => api().put('/ai-seller/prompt').set(as('session-a')).send({ text }).expect(200);
+    await save('Первая');
+    await save('Вторая');
+    const list = await api().get('/ai-seller/prompt/versions').set(as('session-a')).expect(200);
+    const first = list.body.items[1].id;
+    const res = await api().post(`/ai-seller/prompt/versions/${first}/restore`).set(as('session-a')).expect(200);
+    expect(res.body).toMatchObject({ text: 'Первая', saved: true, applied: false });
+    const after = await api().get('/ai-seller/prompt/versions').set(as('session-a')).expect(200);
+    expect(after.body.items.map((v: { preview: string }) => v.preview)).toEqual(['Первая', 'Вторая', 'Первая']);
+    expect(audit.events.at(-1)).toMatchObject({ action: 'seller.prompt.restored', after: { versionId: first, length: 6 } });
+    expect(JSON.stringify(audit.events.at(-1))).not.toContain('Первая');
+  });
+
+  it('вернуть можно только свою версию; чужая и неизвестная — 404, не uuid — 400, сотруднику — 403', async () => {
+    await api().put('/ai-seller/prompt').set(as('session-b')).send({ text: 'Чужая' }).expect(200);
+    const foreign = (await api().get('/ai-seller/prompt/versions').set(as('session-b'))).body.items[0].id;
+    await api().post(`/ai-seller/prompt/versions/${foreign}/restore`).set(as('session-a')).expect(404);
+    await api().post('/ai-seller/prompt/versions/3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c/restore').set(as('session-a')).expect(404);
+    await api().post('/ai-seller/prompt/versions/not-a-uuid/restore').set(as('session-a')).expect(400);
+    await api().post(`/ai-seller/prompt/versions/${foreign}/restore`).set(as('session-staff')).expect(403);
   });
 
   it('сотрудник текст не меняет — 403', async () => {
@@ -529,6 +566,63 @@ describe('диалоги, знания, сводка, песочница (П7)',
     expect(JSON.stringify(audit.events)).not.toContain('места есть');
   });
 
+  it('ответственный и следующий шаг: «я» берёт вошедшего и его имя из базы; снаружи имя не принимается', async () => {
+    orgs.userLabels.set(USER_A, 'Алия');
+    connection.seller.replies.handling = {
+      assignee: { user_id: USER_A, name: 'Алия' },
+      next_step: 'Позвонить до 18:00',
+    };
+    const res = await api()
+      .patch(`/ai-seller/conversations/${CONV}/handling`)
+      .set(as('session-a'))
+      .send({ nextStep: ' Позвонить до 18:00 ', assignee: 'me', assigneeName: 'Подделка' })
+      .expect(200);
+    expect(res.body).toEqual({ assignee: { userId: USER_A, name: 'Алия' }, nextStep: 'Позвонить до 18:00' });
+    expect(connection.seller.calls[0]!.args).toEqual([
+      CONV,
+      { next_step: 'Позвонить до 18:00', assignee_user_id: USER_A, assignee_name: 'Алия' },
+    ]);
+    expect(audit.events.at(-1)).toMatchObject({ action: 'seller.conversation.handling' });
+    expect(JSON.stringify(audit.events)).not.toContain('Позвонить');
+  });
+
+  it('следующий шаг: пусто снимает, слишком длинный и пустой запрос — 400, ответственного снимает null', async () => {
+    await api()
+      .patch(`/ai-seller/conversations/${CONV}/handling`)
+      .set(as('session-a'))
+      .send({ nextStep: '' })
+      .expect(200);
+    expect(connection.seller.calls[0]!.args).toEqual([CONV, { next_step: null }]);
+    await api()
+      .patch(`/ai-seller/conversations/${CONV}/handling`)
+      .set(as('session-a'))
+      .send({ assignee: null })
+      .expect(200);
+    expect(connection.seller.calls[1]!.args).toEqual([CONV, { assignee_user_id: null, assignee_name: null }]);
+    for (const bad of [{}, { nextStep: 'я'.repeat(201) }, { assignee: 'someone' }])
+      await api().patch(`/ai-seller/conversations/${CONV}/handling`).set(as('session-a')).send(bad).expect(400);
+    expect(connection.seller.ops()).toEqual(['handling', 'handling']);
+  });
+
+  it('заметка уходит с автором из сессии; журнал платформы знает длину, но не текст', async () => {
+    orgs.userLabels.set(USER_A, 'Алия');
+    connection.seller.replies.addNote = { id: 'n1', author: 'Алия', text: 'Просил тихий номер', at: '2026-10-10T07:00:00+00:00' };
+    const res = await api()
+      .post(`/ai-seller/conversations/${CONV}/notes`)
+      .set(as('session-a'))
+      .send({ text: ' Просил тихий номер ', author: 'Подделка' })
+      .expect(200);
+    expect(res.body).toMatchObject({ author: 'Алия', text: 'Просил тихий номер' });
+    expect(connection.seller.calls[0]!.args).toEqual([
+      CONV,
+      { body: 'Просил тихий номер', author_user_id: USER_A, author_name: 'Алия' },
+    ]);
+    expect(JSON.stringify(audit.events)).not.toContain('тихий');
+    for (const bad of ['   ', 'я'.repeat(2001)])
+      await api().post(`/ai-seller/conversations/${CONV}/notes`).set(as('session-a')).send({ text: bad }).expect(400);
+    expect(connection.seller.ops()).toEqual(['addNote']);
+  });
+
   it('пустой или слишком длинный ответ — 400', async () => {
     await api()
       .post(`/ai-seller/conversations/${CONV}/reply`)
@@ -588,7 +682,16 @@ describe('диалоги, знания, сводка, песочница (П7)',
       sla_breaches: 0,
     };
     const summary = await api().get('/ai-seller/summary').set(as('session-a')).expect(200);
-    expect(summary.body).toEqual({ hours: 24, dialogs: 5, replies: 12, leads: 2, slaBreaches: 0 });
+    expect(summary.body).toEqual({
+      hours: 24,
+      dialogs: 5,
+      replies: 12,
+      leads: 2,
+      slaBreaches: 0,
+      handoffs: 0,
+      automatedPermille: null,
+      avgFirstReplySeconds: null,
+    });
     // Числа за сутки считаются без проверок агента, как и список диалогов
     expect(connection.seller.calls.at(-1)?.args).toEqual([true]);
 

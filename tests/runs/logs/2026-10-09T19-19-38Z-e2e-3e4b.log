@@ -1,0 +1,87 @@
+# Сквозные (e2e) · 10.10.2026 00:19 Алматы · vm
+# коммит 3f1de2c (claude/quirky-newton-qkhfgz)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/desktop-compact.spec.ts' 'tests/ui/unified-sections.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+  ✘   1 tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы (10.4s)
+  ✓   2 tests/ui/desktop-compact.spec.ts:51:1 › ноутбук: длинный список прокручивается внутри себя, отборы остаются на месте (2.4s)
+  ✓   3 tests/ui/desktop-compact.spec.ts:68:1 › ноутбук: под содержимым нет пустой полосы шире 32 px (8.3s)
+  ✓   4 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (14.5s)
+  ✓   5 tests/ui/mobile-adaptation.spec.ts:67:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.3s)
+  ✓   6 tests/ui/mobile-adaptation.spec.ts:76:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (2.4s)
+  ✓   7 tests/ui/mobile-adaptation.spec.ts:91:1 › телефон: сводка и управление оставляют сетку на первом экране (2.2s)
+  ✓   8 tests/ui/mobile-adaptation.spec.ts:110:1 › узкий телефон: плитки финансов встают в одну колонку (1.9s)
+  ✓   9 tests/ui/mobile-adaptation.spec.ts:121:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (8.8s)
+  ✓  10 tests/ui/mobile-adaptation.spec.ts:154:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (12.3s)
+  ✘  11 tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение помещаются на ноутбуке (5.8s)
+  ✓  12 tests/ui/unified-sections.spec.ts:27:1 › интеграции: незавершённая настройка не называется подключением (3.6s)
+  ✓  13 tests/ui/unified-sections.spec.ts:33:1 › адаптивный обзор разделов (7.6s)
+
+
+  1) tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы 
+
+    Error: /management/analytics: страница выше экрана на 1046 px
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 8
+    Received:    1046
+
+      45 |       () => document.documentElement.scrollHeight - window.innerHeight,
+      46 |     );
+    > 47 |     expect(over, `${route}: страница выше экрана на ${over} px`).toBeLessThanOrEqual(8);
+         |                                                                  ^
+      48 |   }
+      49 | });
+      50 |
+        at /home/user/wetop.ai/tests/ui/desktop-compact.spec.ts:47:66
+
+    Error Context: test-results/desktop-compact-ноутбук-14-f9b79-ются-без-прокрутки-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop-compact-ноутбук-14-f9b79-ются-без-прокрутки-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop-compact-ноутбук-14-f9b79-ются-без-прокрутки-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение помещаются на ноутбуке 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 797
+    Received:    1723
+
+      22 |   }));
+      23 |   // бюджет задан 01.10.2026 при прежней шапке; с ADR-134 шапка выше на HEADER_GROWTH_PX, место под форму то же
+    > 24 |   expect(size.h).toBeLessThanOrEqual(size.v + HEADER_GROWTH_PX + 1);
+         |                  ^
+      25 | });
+      26 |
+      27 | test('интеграции: незавершённая настройка не называется подключением', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/unified-sections.spec.ts:24:18
+
+    Error Context: test-results/unified-sections-настройки-7f700-ение-помещаются-на-ноутбуке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-sections-настройки-7f700-ение-помещаются-на-ноутбуке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-sections-настройки-7f700-ение-помещаются-на-ноутбуке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/desktop-compact.spec.ts:27:1 › ноутбук 1440×900: рабочие экраны помещаются без прокрутки страницы 
+    tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение помещаются на ноутбуке 
+  11 passed (2.1m)
+
+# код выхода 1 · 2 мин 8 с

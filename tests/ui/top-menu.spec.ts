@@ -10,11 +10,11 @@ import { mkdirSync } from 'node:fs';
  */
 const routes = [
   '/ai-agents',
-  '/today',
   '/chessboard',
   // «Гости и бронирования» с 09.10.2026: один пункт на месте «Броней» и «Гостей», список броней открывается кнопкой
   '/guests',
   '/inventory',
+  '/sales',
   '/market',
   '/channels',
   // MKT2: вход в сайт через хаб «Маркетинг», у страниц /website/* своего пункта меню нет
@@ -30,12 +30,11 @@ const routes = [
   '/incidents',
 ];
 
+// «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
 const TABS = [
-  'Главная',
+  'Финансы',
   'Календарь',
   'Гости и бронирования',
-  'Финансы',
-  'Бар',
   'Продажи',
   'Маркетинг',
   'Отчёты',
@@ -53,30 +52,24 @@ test.beforeEach(async ({ request }) => {
 });
 
 test('строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры', async ({ page }) => {
-  await page.goto('/today');
+  await page.goto('/finance');
   const header = page.locator('.workspace-header');
   const menu = menuOf(page);
   // бокового меню больше нет: все разделы в шапке
   await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
   await expect(menu.locator('.topmenu__tab')).toHaveText(TABS);
-  // Утверждённая owner Главная скрывает поиск; вкладки остаются под верхней строкой.
-  await expect(header.getByRole('button', { name: 'Найти гостя или бронь' })).toBeHidden();
-  const row = await header.locator('.workspace-header__row').boundingBox();
-  const homeTab = await menu.locator('.topmenu__tab').first().boundingBox();
-  expect(homeTab!.y).toBeGreaterThanOrEqual(row!.y + row!.height - 1);
-  // Прежняя проверка поиска сохраняется на Календаре, где поиск доступен.
-  await page.goto('/chessboard');
+  // Поиск доступен и на стартовых «Финансах» (слияние с Главной 09.10); вкладки под верхней строкой.
   const search = await header.getByRole('button', { name: 'Найти гостя или бронь' }).boundingBox();
   const first = await menu.locator('.topmenu__tab').first().boundingBox();
   expect(first!.y).toBeGreaterThanOrEqual(search!.y + search!.height - 1);
-  await page.goto('/today');
   // в разметке каждый раздел ровно один раз, включая пункты закрытых списков
   const links = await menu
     .locator('a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Главная');
+  // активная отметка на пункте группы «Финансы» (ADR-157)
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Оплаты и касса');
 
   const sales = menu.getByRole('button', { name: 'Продажи', exact: true });
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
@@ -89,6 +82,9 @@ test('строка вкладок в шапке: порядок, одна акт
   await expect(menu.locator('[aria-expanded="true"]')).toHaveCount(1);
   const rates = menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true });
   await expect(rates).toBeVisible();
+  // первым в группе стоит «Обзор продаж», «Загрузка конкурентов» вторая
+  await page.keyboard.press('Tab');
+  await expect(menu.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(rates).toBeFocused();
   await page.keyboard.press('Enter');
@@ -99,9 +95,9 @@ test('строка вкладок в шапке: порядок, одна акт
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
   await expect(sales).toHaveClass(/has-current-page/);
-  await expect(menu.getByRole('link', { name: 'Главная', exact: true })).not.toHaveAttribute(
-    'aria-current',
-    'page',
+  // «Финансы» с ADR-157 группа: на чужом экране её вкладка без отметки текущего пункта
+  await expect(menu.getByRole('button', { name: 'Финансы', exact: true })).not.toHaveClass(
+    /has-current-page/,
   );
 
   // Escape закрывает список и возвращает фокус на вкладку
@@ -169,7 +165,7 @@ for (const theme of ['light', 'dark'] as const) {
     page.on('pageerror', (error) => {
       if (!devNoise.test(error.message)) errors.push(error.message);
     });
-    await page.goto('/today');
+    await page.goto('/finance');
     const header = page.locator('.workspace-header');
     for (const width of [1024, 1280, 1440]) {
       await page.setViewportSize({ width, height: 900 });
@@ -210,15 +206,21 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.locator('.topmenu')).toBeHidden();
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-    for (const label of ['Главная', 'Календарь', 'Гости и бронирования', 'Финансы', 'Номерной фонд'])
+    for (const label of ['Календарь', 'Гости и бронирования', 'Номерной фонд'])
       await expect(drawer.getByRole('link', { name: label, exact: true })).toBeVisible();
+    // «Финансы»: группа (ADR-157); на /finance она уже раскрыта как активная, клик нужен только закрытой
+    const barLink = drawer.getByRole('link', { name: 'Бар', exact: true });
+    if (!(await barLink.isVisible()))
+      await drawer.getByRole('button', { name: 'Финансы', exact: true }).click();
+    await expect(barLink).toBeVisible();
     await drawer.getByRole('button', { name: 'Настройки', exact: true }).click();
     await expect(drawer.getByRole('link', { name: 'Объект', exact: true })).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(drawer).not.toBeVisible();
     const bottom = page.locator('.bottom-navigation');
     await expect(bottom).toBeVisible();
-    await expect(bottom.locator('a')).toHaveText(['Главная', 'Календарь', 'Брони', 'Финансы']);
+    // на вкладке телефона у «Гостей и бронирований» короткая подпись shortLabel «Брони»
+    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Продажи']);
     await expect(bottom.getByRole('button', { name: 'Ещё разделы', exact: true })).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),

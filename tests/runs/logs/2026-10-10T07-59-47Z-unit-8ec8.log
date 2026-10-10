@@ -1,0 +1,21 @@
+# Модульные (unit) · 10.10.2026 12:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит fc5d7e0 (claude/market-ai-collector), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-59-47Z-unit-8ec8.json' 'apps/api/src/market'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ✓ |unit| apps/api/src/marketing-site/preview-token.test.ts (5 tests) 5ms
+ ✓ |unit| apps/api/src/marketing-site/asset-fetch.test.ts (50 tests) 41ms
+ ✓ |unit| apps/api/src/marketing-site/asset-storage.test.ts (8 tests) 26ms
+ ✓ |unit| apps/api/src/marketing-site/asset-image.test.ts (9 tests) 405ms
+ ✓ |unit| apps/api/src/market/market.service.test.ts (7 tests) 11ms
+ ✓ |unit| apps/api/src/market/collector.controller.test.ts (8 tests) 496ms
+
+ Test Files  6 passed (6)
+      Tests  87 passed (87)
+   Start at  00:59:50
+   Duration  3.43s (import 46%, transform 42%, tests 11%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-59-47Z-unit-8ec8.json
+
+# код выхода 0 · 6 с

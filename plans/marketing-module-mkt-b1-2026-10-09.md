@@ -94,7 +94,7 @@
 - integration: CRUD на настоящей PostgreSQL (локальный стенд `scripts/ops/local-db.sh`)
 - e2e: `tests/ui/marketing-budget.spec.ts`: хаб, бюджет, добавление расхода, аналитика,
   axe в двух темах на 1440 и 390; снимки в `reports/marketing-b1-2026-10-09/`
-- Миграция №31(76): таблицы + enum + RLS + grants, с down.sql; на рабочей базе применяет владелец
+- Миграция (итоговые номера 081 и 082 после слияния с main): таблицы + enum + RLS + grants, с down.sql; на рабочей базе применяет владелец
 
 ## 6. Вопросы (QUESTIONS.md, не блокируют В1/В2)
 

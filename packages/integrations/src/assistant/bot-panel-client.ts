@@ -159,6 +159,8 @@ const SITE_GENERATION_PATH = '/internal/site-generation';
 const SITE_EDIT_PATH = '/internal/site-edit';
 /** MKT9.2: разговор с ИИ сайта (Чат, План, Оформление), версий не создаёт */
 const SITE_ASSISTANT_PATH = '/internal/site-assistant';
+/** ADR-157: скан накладной бара (контракт `bar-receipt-scan/0`), вход без состояния, ключ только платформы */
+const BAR_RECEIPT_SCAN_PATH = '/internal/bar-receipt-scan';
 
 export class BotPanelClient {
   private readonly base: string;
@@ -262,6 +264,16 @@ export class BotPanelClient {
     return this.json('POST', `/conversations/${encodeURIComponent(id)}/release`);
   }
 
+  /** Ответственный и следующий шаг (S2.6): поля, которых нет в теле, бот не трогает */
+  handling(id: string, body: Json): Promise<Json> {
+    return this.json('PATCH', `/conversations/${encodeURIComponent(id)}/handling`, body);
+  }
+
+  /** Внутренняя заметка к диалогу (S2.6) */
+  addNote(id: string, body: Json): Promise<Json> {
+    return this.json('POST', `/conversations/${encodeURIComponent(id)}/notes`, body);
+  }
+
   reply(id: string, text: string): Promise<Json> {
     return this.json('POST', `/conversations/${encodeURIComponent(id)}/reply`, { text });
   }
@@ -320,6 +332,15 @@ export class BotPanelClient {
    */
   siteAssistant(body: Json): Promise<Json> {
     return this.request('POST', SITE_ASSISTANT_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
+  }
+
+  /**
+   * Скан накладной бара (ADR-157, `bar-receipt-scan/0`): фото документа и справочники объекта внутрь,
+   * строгий JSON строк наружу. Как генерация сайта: без организации и агента, ключ модели только платформы.
+   * Внутри один вызов каскада с картинкой, поэтому таймаут генерации сайта.
+   */
+  barReceiptScan(body: Json): Promise<Json> {
+    return this.request('POST', BAR_RECEIPT_SCAN_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
   }
 
   /** Завести или поправить гостиницу у продавца (Э4): имя, действует ли, домены, публичный ключ виджета */

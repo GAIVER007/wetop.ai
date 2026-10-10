@@ -18,6 +18,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'invites',
   'user_errors',
   'seller_profiles',
+  'seller_prompt_versions',
   'organization_extensions',
   'seller_agents',
   'wizard_drafts',
@@ -85,6 +86,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
   'competitors',
   'competitor_occupancy',
+  'competitor_rates',
   // Food Service v1, migration 55.
   'dining_areas',
   'dining_tables',
@@ -103,11 +105,15 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'site_assets',
   // Фото категорий размещения, через категорию (DATA_MODEL §30, ADR-153, миграция …070)
   'accommodation_type_photos',
+  // Область доступа сотрудника, через членство (DATA_MODEL §31.1, ADR-156, миграция …072_membership_scopes)
+  'membership_scopes',
+  // Фото и договор объекта (DATA_MODEL §32.3, ADR-158, миграция …076_property_media)
+  'property_media',
   // MKT9.2: лицензия конструктора (через Location → Business), разговор ИИ и закладки (через свой сайт), миграция …068
   'site_builder_entitlements',
   'site_ai_runs',
   'marketing_site_version_bookmarks',
-  // МКТ-В1/В2: учёт бюджета и расходов маркетинга, через Location → Business (DATA_MODEL §32, миграция …075)
+  // МКТ-В1/В2: учёт бюджета и расходов маркетинга, через Location → Business (DATA_MODEL §32, миграция …081)
   'marketing_expenses',
   'marketing_budgets',
   // Existing policies from 20261004000051_bar_inventory.

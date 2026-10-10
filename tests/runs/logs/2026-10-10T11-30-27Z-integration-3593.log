@@ -1,0 +1,48 @@
+# Интеграционные (integration) · 10.10.2026 16:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1cb1b93 (claude/sales2-impl), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-30-27Z-integration-3593.json' 'tests/integration/seller-prompt-versions' 'tests/integration/seller-profiles' 'tests/integration/rls-isolation' 'tests/integration/market-occupancy'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl
+
+[pms_test] миграций применено 85; данные скопированы
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 648ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 597ms
+ ✓ |integration| tests/integration/market-occupancy.test.ts (5 tests) 409ms
+ ❯ |integration| tests/integration/seller-prompt-versions.test.ts (3 tests) 229ms
+   ❯ версии инструкции продавца (integration) (3)
+     ✓ первая правка без профиля создаёт версию; повтор того же текста не множит; новый текст добавляет 38ms
+     ✓ текст версии отдаётся только своему агенту; предел списка работает 11ms
+     ✓ база отвергает пустой текст версии и версию к несуществующему агенту 9ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/seller-prompt-versions.test.ts > версии инструкции продавца (integration)
+PrismaClientKnownRequestError: 
+Invalid `prisma.location.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `properties_location_id_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ deleteOrganizationChain tests/tools/property-owner.ts:24:3
+     22| /** Убрать цепочку Business → Location тестовых организаций — после уд…
+     23| export async function deleteOrganizationChain(db: Pick<Db, 'location' …
+     24|   await db.location.deleteMany({ where: { business: { organizationId: …
+       |   ^
+     25|   await db.business.deleteMany({ where: { organizationId: { in: organi…
+     26| }
+ ❯ tests/integration/seller-prompt-versions.test.ts:56:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  21 passed (21)
+   Start at  04:30:28
+   Duration  5.78s (tests 52%, transform 25%, import 22%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-30-27Z-integration-3593.json
+
+# код выхода 1 · 7 с

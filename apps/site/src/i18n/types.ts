@@ -145,15 +145,13 @@ export type Dictionary = {
     lead: string;
     steps: Array<{ title: string; text: string }>;
   };
-  /** Карточка призыва рядом с FAQ. */
+  /** Единый финал страниц: плита призыва с условиями словами. */
   final: {
-    eyebrow: string;
     title: string;
     text: string;
     contact: string;
     contactsLabel: string;
-    badgeTop: string;
-    badgeBottom: string;
+    note: string;
   };
   /** «Вопросы и ответы»: нативные details. */
   faq: {

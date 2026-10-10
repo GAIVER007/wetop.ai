@@ -1,0 +1,17 @@
+# Линтер (lint) · 10.10.2026 21:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит ac58515 (claude/hotels-landing), незакоммиченных файлов набора: 9
+# npx eslint .
+
+/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/apps/site/src/app/for/hotels/page.tsx
+  2:8  error  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/apps/site/src/app/for/restaurants/page.tsx
+  2:8  error  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/apps/site/src/app/for/salons/page.tsx
+  2:8  error  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 3 problems (3 errors, 0 warnings)
+
+
+# код выхода 1 · 15 с

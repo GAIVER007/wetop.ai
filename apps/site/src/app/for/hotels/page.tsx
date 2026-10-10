@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Icon } from '../../../components/icon';
 import { DashMock } from '../../../components/landing/dash-mock';
+import { LandingFinal } from '../../../components/landing/landing-final';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -146,46 +146,16 @@ export default function HotelLandingPage() {
           </div>
         </section>
 
-        <section className="section section--tight faq" aria-labelledby="hotel-faq-title">
-          <div className="faq__layout">
-            <div className="section-heading">
-              <p className="eyebrow">{t.faq.eyebrow}</p>
-              <h2 id="hotel-faq-title" className="section-heading__title">
-                {s.faqTitle}
-              </h2>
-            </div>
-            <div className="faq__list">
-              {s.faq.map((item) => (
-                <details key={item.q}>
-                  <summary>
-                    <span>{typo(item.q)}</span>
-                    <span aria-hidden="true">+</span>
-                  </summary>
-                  <p>{typo(item.a)}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <div className="cta glass glass--strong">
-          <div className="cta__copy">
-            <h2 className="cta__title">{typo(s.ctaTitle)}</h2>
-            <p className="cta__text">{typo(s.ctaText)}</p>
-            <div className="cta__actions">
-              <a className="btn btn--primary btn--lg" href={register} data-auth="register">
-                {t.nav.register}
-                <Icon name="arrowRight" size={18} />
-              </a>
-              <Link className="link-arrow" href="/calculator/">
-                {t.calculator.link}
-              </Link>
-              <Link className="link-arrow" href="/">
-                {t.segments.home}
-              </Link>
-            </div>
-          </div>
-        </div>
+        <LandingFinal
+          faq={{ title: s.faqTitle, items: s.faq }}
+          cta={{
+            title: s.ctaTitle,
+            text: s.ctaText,
+            note: t.final.note,
+            register: { href: register, label: t.nav.register },
+            secondary: { href: '/calculator/', label: t.calculator.link },
+          }}
+        />
       </div>
     </div>
   );

@@ -39,10 +39,13 @@ test('блоки идут в заданном порядке, у каждого 
   expect(ids.filter((id) => BLOCKS.some((b) => b.id === id))).toEqual(BLOCKS.map((b) => b.id));
   for (const block of BLOCKS) {
     const section = page.locator(`#${block.id}`);
-    await expect(
-      section.locator('.eyebrow, .public-intro__eyebrow').first(),
-      `надзаголовок #${block.id}`,
-    ).toBeVisible();
+    // Единый финал (10.10.2026) без надзаголовка: заголовок «Частые вопросы» по центру сам за себя
+    if (block.id !== 'faq') {
+      await expect(
+        section.locator('.eyebrow, .public-intro__eyebrow').first(),
+        `надзаголовок #${block.id}`,
+      ).toBeVisible();
+    }
     await expect(
       section.getByRole('heading', { level: 2 }).first(),
       `заголовок #${block.id}`,

@@ -3156,78 +3156,6 @@ button {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   }
 }
-.final-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: clamp(24px, 3vw, 32px);
-  border-radius: var(--radius-lg);
-  background: var(--primary-soft);
-  overflow: hidden;
-}
-.final-card__title {
-  margin: 0;
-  font-family: var(--font-head);
-  font-size: clamp(1.5rem, 2.4vw, 2rem);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  max-width: 14ch;
-}
-.final-card__text {
-  margin: 0;
-  color: var(--text-2);
-  max-width: 34ch;
-}
-.final-card__badge {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface-solid);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-lg);
-  padding: 8px 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-.final-card__badge svg {
-  color: var(--primary);
-}
-.final-card__art {
-  color: var(--primary);
-  align-self: flex-end;
-  margin-top: -40px;
-  opacity: 0.9;
-}
-.final-card__art svg {
-  display: block;
-  width: clamp(120px, 14vw, 180px);
-  height: auto;
-}
-.final-card__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.final-card__contacts {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-@media (max-width: 40rem) {
-  .final-card__badge {
-    position: static;
-    align-self: flex-start;
-  }
-  .final-card__art {
-    margin-top: 0;
-  }
-}
 
 /* Подвал одной строкой; ниже мелкая строка с правовыми страницами. */
 .site-footer__row {
@@ -4094,35 +4022,10 @@ button {
   margin-top: 2px;
   color: var(--salon-text);
 }
-
-/* Финальный призыв: тёмная плита, как нижние секции макета */
-.salon-page .cta.salon-cta {
-  background: var(--salon-band);
-  border-color: var(--salon-band);
-  color: var(--salon-band-text);
-}
-.salon-cta .cta__title {
-  color: var(--salon-band-text);
-}
-.salon-cta .cta__text {
-  color: var(--salon-band-muted);
-}
-.salon-cta .btn--primary {
-  background: var(--salon-band-text);
-  color: var(--salon-band);
-}
-.salon-cta .btn--primary:hover {
-  background: var(--salon-band-hover);
-  color: var(--salon-band);
-}
-.salon-cta .link-arrow {
-  color: var(--salon-band-text);
-}
 .salon-page .eyebrow::before {
   border-color: var(--salon-border);
   background: var(--salon-chip);
 }
-
 
 /* Лендинг «Для гостиниц» (10.10.2026): каркас салонного в базовой палитре сайта. */
 .hotel-hero {
@@ -4297,7 +4200,6 @@ button {
   margin-top: 12px;
 }
 
-
 /* Цветные фото направлений (10.10.2026, решение владельца; сгенерированы через KIE, свои файлы). */
 .verticals__art--photo {
   padding: 0;
@@ -4322,17 +4224,6 @@ button {
   height: auto;
   border-radius: var(--radius-lg);
 }
-.final-card__art--photo {
-  margin-top: 0;
-  opacity: 1;
-}
-.final-card__art--photo img {
-  display: block;
-  width: clamp(160px, 18vw, 240px);
-  height: auto;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-soft);
-}
 @media (max-width: 40rem) {
   .verticals__art--photo img {
     width: 112px;
@@ -4348,7 +4239,52 @@ button {
 }
 
 
-/* Лендинг ресторанов (10.10.2026): те же блоки, что у гостиниц; в герое фото вместо мокапа. */
+/* Единый финал страниц (10.10.2026): вопросы колонкой по центру, ниже плита призыва с условиями. */
+.landing-final__faq {
+  max-width: 760px;
+  margin: 0 auto clamp(32px, 4vw, 48px);
+}
+.landing-final__cta {
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 0;
+  align-items: center;
+}
+@media (min-width: 64rem) {
+  .landing-final__cta:has(.landing-final__photo) {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  }
+}
+.landing-final__note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.landing-final__note svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.landing-final__contacts {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.landing-final__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+}
+@media (max-width: 64rem) {
+  .landing-final__photo {
+    display: none;
+  }
+}
+
+/* Фото героя лендинга ресторанов (блоки те же `.hotel-*`, реестр: строка `.restaurant-hero`). */
 .restaurant-hero__photo img {
   display: block;
   width: 100%;
@@ -4356,16 +4292,4 @@ button {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-floating);
-}
-
-.salon-cta__photo img {
-  display: block;
-  width: clamp(200px, 24vw, 320px);
-  height: auto;
-  border-radius: var(--radius-lg);
-}
-@media (max-width: 64rem) {
-  .salon-cta__photo {
-    display: none;
-  }
 }

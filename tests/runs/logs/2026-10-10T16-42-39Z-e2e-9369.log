@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 10.10.2026 21:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит ac58515 (claude/hotels-landing), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/homepage-blocks.spec.ts'
+
+Running 20 tests using 1 worker
+
+  ✓   1 tests/site/homepage-blocks.spec.ts:21:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (216ms)
+  ✓   2 tests/site/homepage-blocks.spec.ts:32:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (149ms)
+  ✓   3 tests/site/homepage-blocks.spec.ts:66:1 › содержимое блоков видно сразу: шесть возможностей, две большие карточки продаж, четыре шага (147ms)
+  ✓   4 tests/site/homepage-blocks.spec.ts:85:1 › первый экран: две кнопки в строку, направления сразу после Hero (150ms)
+  ✓   5 tests/site/homepage-blocks.spec.ts:98:1 › карточки блоков читаются одной фразой, а не абзацем (145ms)
+  ✓   6 tests/site/homepage-blocks.spec.ts:113:1 › «Продажи и ИИ»: примеры подписаны вымышленными, ИИ назван отдельным расширением (415ms)
+  ✓   7 tests/site/homepage-blocks.spec.ts:141:1 › первый экран: дашборд подписан примером и не имитирует кнопки (126ms)
+  ✓   8 tests/site/homepage-blocks.spec.ts:156:1 › на главной нет дорожной карты направлений и слова «пилот» (114ms)
+  ✓   9 tests/site/homepage-blocks.spec.ts:169:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (137ms)
+  ✓  10 tests/site/homepage-blocks.spec.ts:181:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (136ms)
+  ✓  11 tests/site/homepage-blocks.spec.ts:191:1 › карточка призыва и подвал: правовые страницы, контакты, без чисел клиентов (126ms)
+  ✓  12 tests/site/homepage-blocks.spec.ts:217:1 › в текстах главной нет длинного тире и разделителя « · » (114ms)
+  ✓  13 tests/site/homepage-blocks.spec.ts:225:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (241ms)
+  ✓  14 tests/site/homepage-blocks.spec.ts:225:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (225ms)
+  ✓  15 tests/site/homepage-blocks.spec.ts:225:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (242ms)
+  ✓  16 tests/site/homepage-blocks.spec.ts:225:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (243ms)
+  ✓  17 tests/site/homepage-blocks.spec.ts:245:1 › блоки доступны в обеих темах (1.2s)
+  ✓  18 tests/site/homepage-blocks.spec.ts:259:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (241ms)
+  ✓  19 tests/site/homepage-blocks.spec.ts:274:3 › /privacy/: заголовок, редакция, доступность (351ms)
+  ✓  20 tests/site/homepage-blocks.spec.ts:274:3 › /terms/: заголовок, редакция, доступность (346ms)
+
+  20 passed (9.5s)
+
+# код выхода 0 · 10 с

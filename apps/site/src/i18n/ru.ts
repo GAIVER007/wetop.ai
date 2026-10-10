@@ -47,14 +47,14 @@ export const ru: Dictionary = {
       metrics: [
         { name: 'Новые брони', value: '12', delta: '+20%' },
         { name: 'Гости сегодня', value: '28', delta: '+12%' },
-        { name: 'Выручка', value: '256 000 ₸', delta: '+18%' },
+        { name: 'Выручка', value: '256\u00a0000\u00a0₸', delta: '+18%' },
         { name: 'Загрузка', value: '78 %', delta: '+6%' },
       ],
       arrivalsTitle: 'Ближайшие заезды',
       arrivals: [
         { time: '14:00', name: 'Гость 01', detail: 'Стандарт', guests: '2 гостя' },
         { time: '15:00', name: 'Гость 02', detail: 'Делюкс', guests: '1 гость' },
-        { time: '18:00', name: 'Тур-группа', detail: 'Комфорт', guests: '12 гостей' },
+        { time: '18:00', name: 'Группа', detail: 'Комфорт', guests: '12 гостей' },
         { time: '20:00', name: 'Гость 03', detail: 'Стандарт', guests: '2 гостя' },
       ],
       chartTitle: 'Загрузка на неделю',

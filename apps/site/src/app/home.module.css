@@ -110,6 +110,10 @@
   .home :global(.steps) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+  /* Шаги в правой колонке «Команда + Запуск» остаются 2×2: четыре узкие колонки ломали текст (10.10.2026) */
+  .home :global(.steps--row) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .home :global(.step__number) {
   background: var(--primary-soft);

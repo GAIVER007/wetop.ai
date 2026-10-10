@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans, Manrope } from 'next/font/google';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
-import { AuthDialog } from '../components/auth-dialog';
+import { AuthDialogLazy } from '../components/auth-dialog-lazy';
 import { SiteFooter } from '../components/site-footer';
 import { SiteHeader } from '../components/site-header';
 import { getDictionary, localeInfo } from '../i18n';
@@ -84,7 +84,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
         <SiteFooter />
-        <AuthDialog texts={t.auth} urls={authUrls} />
+        <AuthDialogLazy texts={t.auth} urls={authUrls} />
         <noscript>
           <p>
             Для входа без JavaScript: <a href={authUrls.login}>Войти</a> или{' '}

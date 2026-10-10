@@ -2690,7 +2690,11 @@ let sellerUpdatedAt: string | null = null;
 /** Инструкция продавцу одним текстом (ADR-097): сохранённая и та, что продавец получил последним «Применить» */
 let sellerPrompt: string | null = null;
 let sellerAppliedPrompt: string | null = null;
-let sellerDialogs = sellerDialogSeed();
+type SellerDialogRow = ReturnType<typeof sellerDialogSeed>[number] & {
+  handling?: { assignee: { userId: string | null; name: string } | null; nextStep: string | null };
+  notes?: Array<{ id: string; author: string; authorUserId: string | null; text: string; at: string }>;
+};
+let sellerDialogs: SellerDialogRow[] = sellerDialogSeed();
 const sellerKnowledgeSeed = () => [
   { source: 'platform:facts.md', chunks: 2, createdAt: '2026-09-24T06:00:00.000Z' },
   { source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' },
@@ -6414,7 +6418,7 @@ createServer(async (req, res) => {
         return send(404, { message: 'Маршрут не найден' });
       }
       const dialog = path.match(
-        /^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/,
+        /^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply|handling|notes))?$/,
       );
       if (req.method === 'GET') {
         if (path === '/ai-seller/catalog') {
@@ -6543,6 +6547,8 @@ createServer(async (req, res) => {
             mode: d.mode,
             stage: d.stage,
             leadData: d.leadData,
+            handling: d.handling ?? { assignee: null, nextStep: null },
+            notes: d.notes ?? [],
             contact: d.contact,
             messages: d.messages,
           });
@@ -6698,6 +6704,30 @@ createServer(async (req, res) => {
         sellerAppliedProfile = structuredClone(sellerProfile);
         sellerAppliedPrompt = sellerPrompt;
         return send(200, { profileApplied: true, factsApplied: true });
+      }
+      if (dialog && dialog[2] === 'handling' && req.method === 'PATCH') {
+        const d = sellerDialogs.find((x) => x.id === dialog[1]);
+        if (!d) return send(404, { message: 'диалог не найден' });
+        const h = (d.handling ??= { assignee: null, nextStep: null });
+        if ('nextStep' in body) {
+          const text = String(body['nextStep'] ?? '').trim();
+          if (text.length > 200) return send(400, { message: 'Следующий шаг: не длиннее 200 знаков' });
+          h.nextStep = text || null;
+        }
+        if ('assignee' in body)
+          h.assignee = body['assignee'] === 'me' ? { userId: 'ui-user', name: 'Администратор' } : null;
+        if (!('nextStep' in body) && !('assignee' in body)) return send(400, { message: 'Нечего менять' });
+        return send(200, h);
+      }
+      if (dialog && dialog[2] === 'notes' && req.method === 'POST') {
+        const d = sellerDialogs.find((x) => x.id === dialog[1]);
+        if (!d) return send(404, { message: 'диалог не найден' });
+        const text = String(body['text'] ?? '').trim();
+        if (!text) return send(400, { message: 'Заметка: пустой текст' });
+        if (text.length > 2000) return send(400, { message: 'Заметка: не длиннее 2000 знаков' });
+        const note = { id: `n${(d.notes ??= []).length + 1}`, author: 'Администратор', authorUserId: 'ui-user', text, at: new Date().toISOString() };
+        d.notes.push(note);
+        return send(200, note);
       }
       if (dialog && dialog[2] && req.method === 'POST') {
         const d = sellerDialogs.find((x) => x.id === dialog[1]);

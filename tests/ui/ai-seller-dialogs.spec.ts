@@ -1,10 +1,11 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
+import type { APIRequestContext } from '@playwright/test';
 import { FIXTURE_API, expect, test } from './fixtures';
 
 /**
  * «Диалоги» ИИ-продавца в три колонки (SALES2.6, макет владельца 09.10.2026): список, переписка, карточка гостя;
- * поиск по имени и отбор по каналу. Ответственного, следующего шага и заметок нет: им нужна модель (решение владельца).
+ * поиск по имени и отбор по каналу. Ответственный, следующий шаг и заметки хранит бот (миграция 0012).
  */
 const API = FIXTURE_API;
 const SHOTS = 'reports/sales2-dialogs-2026-10-09';
@@ -31,7 +32,8 @@ test('три колонки на широком экране: список, пе
   // колонки в одном ряду: верх переписки и карточки не ниже низа списка
   expect(Math.abs(b!.y - c!.y)).toBeLessThan(4);
   await expect(client).toContainText('Телефон');
-  await expect(client).toContainText('Ответственного, следующего шага и заметок пока нет');
+  await expect(client).toContainText('Ведение');
+  await expect(page.getByTestId('dialog-assignee')).toContainText('не назначен');
   await expect(page.getByRole('row', { name: /А\*\*\*/ })).toHaveAttribute('aria-selected', 'true');
 });
 
@@ -63,6 +65,59 @@ test('канал в адресе отбирает диалоги; режим и 
   await page.getByRole('navigation', { name: 'Отбор диалогов' }).getByRole('link', { name: 'Нужен человек' }).click();
   await expect(page).toHaveURL(/mode=needs_human/);
   await expect(page).toHaveURL(/q=/);
+});
+
+const OPEN = `/ai-seller/dialogs?id=${DIALOG}`;
+const control = (request: APIRequestContext, data: Record<string, unknown>) =>
+  request.post(`${API}/__test/control`, { data });
+
+test('ответственный: «Взять себе» закрепляет за вошедшим, «Снять» убирает', async ({ page }) => {
+  await page.goto(OPEN);
+  await page.getByTestId('dialog-assign-me').click();
+  await expect(page.getByTestId('dialog-assignee')).toContainText('Администратор');
+  await page.reload();
+  await expect(page.getByTestId('dialog-assignee')).toContainText('Администратор');
+  await page.getByTestId('dialog-unassign').click();
+  await expect(page.getByTestId('dialog-assignee')).toContainText('не назначен');
+});
+
+test('следующий шаг сохраняется и переживает обновление; слишком длинный отклоняется словами', async ({ page }) => {
+  await page.goto(OPEN);
+  await page.getByTestId('dialog-next-step').fill('Перезвонить до 18:00');
+  await page.getByTestId('dialog-next-step-save').click();
+  await page.reload();
+  await expect(page.getByTestId('dialog-next-step')).toHaveValue('Перезвонить до 18:00');
+  await page.getByTestId('dialog-next-step').fill('');
+  await page.getByTestId('dialog-next-step-save').click();
+  await page.reload();
+  await expect(page.getByTestId('dialog-next-step')).toHaveValue('');
+});
+
+test('заметки: появляются списком с автором, пустая не уходит, гость их не получает', async ({ page }) => {
+  await page.goto(OPEN);
+  await expect(page.getByTestId('dialog-notes-empty')).toBeVisible();
+  await page.getByTestId('dialog-note-text').fill('   ');
+  await page.getByTestId('dialog-note-add').click();
+  // отказ сервера виден словами, форма после него собирается заново: ждём, потом вводим настоящую заметку
+  await expect(page.getByRole('alert').filter({ hasText: 'Заметка' })).toBeVisible();
+  await expect(page.getByTestId('dialog-notes-empty')).toBeVisible();
+  await page.getByTestId('dialog-note-text').fill('Гость просил тихий номер');
+  await page.getByTestId('dialog-note-add').click();
+  const notes = page.getByTestId('dialog-notes');
+  await expect(notes).toContainText('Администратор');
+  await expect(notes).toContainText('Гость просил тихий номер');
+  // внутренняя заметка не попадает в переписку с гостем
+  await expect(page.getByRole('list', { name: 'Переписка' })).not.toContainText('тихий номер');
+});
+
+test('срок расширения вышел: ведение видно, но менять и писать заметки нельзя', async ({ page, request }) => {
+  await control(request, { sellerExtension: 'expired' });
+  await page.goto(OPEN);
+  await expect(page.getByTestId('dialog-assignee')).toContainText('не назначен');
+  await expect(page.getByTestId('dialog-assign-me')).toHaveCount(0);
+  await expect(page.getByTestId('dialog-next-step-save')).toHaveCount(0);
+  await expect(page.getByTestId('dialog-note-add')).toHaveCount(0);
+  await expect(page.getByTestId('dialog-next-step-read')).toContainText('не задан');
 });
 
 for (const theme of ['light', 'dark'] as const) {

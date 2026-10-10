@@ -249,6 +249,41 @@ export async function dialogModeAction(
   }
 }
 
+/** «Взять себе» и «Снять с себя» */
+export async function assigneeAction(id: string, assignee: 'me' | null): Promise<SimpleResult> {
+  try {
+    await sellerApi.setHandling(id, { assignee });
+    revalidatePath('/ai-seller/dialogs');
+    return { error: null, message: assignee ? 'Диалог закреплён за вами.' : 'Ответственный снят.', attempt: 0 };
+  } catch (e) {
+    return { error: describe(e), message: null, attempt: 0 };
+  }
+}
+
+/** Следующий шаг: пустое поле снимает его */
+export async function nextStepAction(id: string, prev: SimpleResult | null, form: FormData): Promise<SimpleResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    await sellerApi.setHandling(id, { nextStep: String(form.get('nextStep') ?? '') });
+    revalidatePath('/ai-seller/dialogs');
+    return { error: null, message: 'Следующий шаг сохранён.', attempt };
+  } catch (e) {
+    return { error: describe(e), message: null, attempt };
+  }
+}
+
+/** Внутренняя заметка: гость её не видит */
+export async function noteAction(id: string, prev: SimpleResult | null, form: FormData): Promise<SimpleResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    await sellerApi.addNote(id, String(form.get('text') ?? ''));
+    revalidatePath('/ai-seller/dialogs');
+    return { error: null, message: 'Заметка добавлена.', attempt };
+  } catch (e) {
+    return { error: describe(e), message: null, attempt };
+  }
+}
+
 /** «Ответить» гостю от человека */
 export async function replyAction(
   id: string,

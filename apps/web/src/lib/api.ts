@@ -2407,9 +2407,23 @@ export interface SellerConversationRow {
   hasContact: boolean;
 }
 
+export interface SellerConversationNote {
+  id: string;
+  author: string;
+  authorUserId: string | null;
+  text: string;
+  at: string | null;
+}
+export interface SellerHandling {
+  assignee: { userId: string | null; name: string } | null;
+  nextStep: string | null;
+}
 export interface SellerConversationCard {
   id: string;
   mode: string;
+  /** S2.6: кто отвечает за диалог и что дальше; внутренние заметки гостю не видны */
+  handling: SellerHandling;
+  notes: SellerConversationNote[];
   stage: string;
   leadData: Record<string, unknown>;
   contact: {
@@ -2619,6 +2633,10 @@ export const sellerApi = {
     sendJson<{ ok: true }>('POST', `/ai-seller/conversations/${encodeURIComponent(id)}/reply`, {
       text,
     }),
+  setHandling: (id: string, body: { nextStep?: string; assignee?: 'me' | null }) =>
+    sendJson<SellerHandling>('PATCH', `/ai-seller/conversations/${encodeURIComponent(id)}/handling`, body),
+  addNote: (id: string, text: string) =>
+    sendJson<SellerConversationNote>('POST', `/ai-seller/conversations/${encodeURIComponent(id)}/notes`, { text }),
   knowledge: () =>
     getJson<{ items: Array<{ source: string; chunks: number; createdAt: string | null }> }>(
       '/ai-seller/knowledge',

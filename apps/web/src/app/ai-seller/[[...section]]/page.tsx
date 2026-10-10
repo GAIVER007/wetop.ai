@@ -53,7 +53,9 @@ import { loadErrorProps } from '../../../lib/load-error';
 import { pluralRu } from '../../../lib/plural';
 import { CopyButton } from '../../website/forms';
 import {
+  DialogHandling,
   DialogModeButtons,
+  DialogNoteForm,
   DialogReplyForm,
   KnowledgeUploadForm,
   LlmKeyForm,
@@ -875,10 +877,29 @@ async function DialogCard({
             ))}
           </dl>
         )}
-        <p className="settings-note">
-          Ответственного, следующего шага и заметок пока нет: они появятся после решения владельца по
-          модели диалога.
-        </p>
+        <SectionTitle id="seller-handling-title">Ведение</SectionTitle>
+        <DialogHandling
+          id={card.id}
+          assignee={card.handling.assignee?.name ?? null}
+          nextStep={card.handling.nextStep}
+          canAct={canAct}
+        />
+        <SectionTitle id="seller-notes-title">Заметки</SectionTitle>
+        {card.notes.length === 0 ? (
+          <p className="settings-note" data-testid="dialog-notes-empty">
+            Заметок пока нет. Их видят только сотрудники.
+          </p>
+        ) : (
+          <ol className="seller-notes" aria-label="Внутренние заметки" data-testid="dialog-notes">
+            {card.notes.map((n) => (
+              <li key={n.id}>
+                <b>{n.author}</b>
+                {n.at ? <span className="sub"> {clock.moment(n.at)}</span> : null}: {n.text}
+              </li>
+            ))}
+          </ol>
+        )}
+        {canAct && <DialogNoteForm id={card.id} />}
       </Panel>
     </>
   );

@@ -160,7 +160,7 @@ test('«Регистрация» при открытой регистрации 
   await dialog.getByLabel('Имя').fill('Дана Тестова');
   await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
   // страна кода — явно: иначе она зависит от пояса и языка браузера, на котором гоняют тест
-  await dialog.getByLabel('Код страны').selectOption('KZ');
+  await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
   await dialog.getByLabel('Телефон').fill('701 555 44 33');
   await dialog.getByLabel('Почта').fill('dana@example.invalid');
   await dialog.getByLabel('Пароль', { exact: true }).fill('parol-dlya-testa');
@@ -250,7 +250,7 @@ test('снимки окна регистрации: светлая и тёмна
       await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
       await dialog.getByLabel('Имя').fill('Дана Тестова');
       await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
-      await dialog.getByLabel('Код страны').selectOption('KZ');
+      await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
       await dialog.getByLabel('Телефон').fill('701 555 44 33');
       await page.waitForTimeout(300);
       const axe = await new AxeBuilder({ page }).include('.auth-dialog').analyze();
@@ -304,7 +304,7 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
     await page.goto(`/?vertical=${vertical}#register`);
     const dialog = page.getByRole('dialog');
     await expect(dialog.locator(`input[name="vertical"][value="${vertical}"]`)).toBeChecked();
-    await expect(dialog.getByText('Подключение по приглашению', { exact: true })).toBeVisible();
+    await expect(dialog).toContainText('Подключение по приглашению');
     await dialog.getByLabel('Имя', { exact: true }).fill('Мария Тестова');
     await dialog.getByLabel('Название бизнеса').fill('Тестовый пилот');
     await dialog.getByLabel('Почта', { exact: true }).fill('pilot@example.invalid');
@@ -319,3 +319,17 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
     });
   });
 }
+
+test('registration: country sets the phone code, language is Russian only', async ({ page }) => {
+  await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
+  await page.goto('/#register');
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Страна', { exact: true }).selectOption('UZ');
+  await expect(dialog.locator('.auth-phone__code')).toHaveText('+998');
+  // В подписи кода страны больше нет: страна выбирается отдельным списком
+  await expect(dialog.locator('.auth-phone select')).toHaveCount(0);
+  const language = dialog.getByLabel('Язык системы');
+  await expect(language).toHaveValue('ru');
+  await expect(language.locator('option[value="kk"]')).toBeDisabled();
+  await expect(dialog).toContainText('Пока интерфейс только на русском.');
+});

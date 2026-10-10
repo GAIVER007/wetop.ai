@@ -467,6 +467,11 @@ export type Dictionary = {
       hotelPlaceholder: string;
       phone: string;
       phoneCountry: string;
+      country: string;
+      language: string;
+      languageSoon: string;
+      languageNote: string;
+      vertical: string;
       phonePlaceholder: string;
       show: string;
       hide: string;

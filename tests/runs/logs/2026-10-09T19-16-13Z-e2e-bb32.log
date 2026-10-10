@@ -1,0 +1,108 @@
+# Сквозные (e2e) · 10.10.2026 00:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 35
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-budget.spec.ts:55:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (2.7s)
+  ✘   2 tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (16.8s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   3 tests/ui/marketing-budget.spec.ts:99:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (2.8s)
+  ✘   4 tests/ui/marketing-budget.spec.ts:136:1 › аналитика: динамика к прошлому месяцу, график по дням, у CPL и ROMI «Недостаточно данных» (16.1s)
+  ✓   5 tests/ui/marketing-budget.spec.ts:153:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (1.3s)
+  ✓   6 tests/ui/marketing-budget.spec.ts:167:3 › снимки и доступность: light (4.0s)
+  ✓   7 tests/ui/marketing-budget.spec.ts:167:3 › снимки и доступность: dark (3.9s)
+  ✓   8 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (1.1s)
+  ✓   9 tests/ui/marketing.spec.ts:66:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (3.1s)
+  ✓  10 tests/ui/marketing.spec.ts:91:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (1.8s)
+  ✓  11 tests/ui/marketing.spec.ts:181:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (3.6s)
+  ✓  12 tests/ui/marketing.spec.ts:239:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (3.7s)
+  ✓  13 tests/ui/marketing.spec.ts:261:3 › хаб на компьютере и телефоне, доступность: light (6.8s)
+  ✓  14 tests/ui/marketing.spec.ts:261:3 › хаб на компьютере и телефоне, доступность: dark (6.6s)
+  ✓  15 tests/ui/marketing.spec.ts:316:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (3.7s)
+
+
+  1) tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('budget-expense-form').getByRole('alert')
+    Expected substring: "Статья"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('budget-expense-form').getByRole('alert') with timeout 15000ms
+      - waiting for getByTestId('budget-expense-form').getByRole('alert')
+
+
+      77 |   await form.getByTestId('budget-category').fill('');
+      78 |   await form.getByTestId('budget-save').click();
+    > 79 |   await expect(form.getByRole('alert')).toContainText('Статья');
+         |                                         ^
+      80 |   await expect(form.getByTestId('budget-amount')).toHaveValue('720');
+      81 |
+      82 |   await form.getByTestId('budget-category').fill('Реклама');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:79:41
+
+    Error Context: test-results/marketing-budget-первый-ра-394b9-ноз-и-распределение-оживают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-первый-ра-394b9-ноз-и-распределение-оживают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-первый-ра-394b9-ноз-и-распределение-оживают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing-budget.spec.ts:136:1 › аналитика: динамика к прошлому месяцу, график по дням, у CPL и ROMI «Недостаточно данных» 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('budget-an-spent')
+    Expected substring: "к прошлому месяцу"
+    Received string:    "51 200 ₸"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('budget-an-spent') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('budget-an-spent')
+        33 × locator resolved to <div class="stat__value" data-testid="budget-an-spent">51 200 ₸</div>
+           - unexpected value "51 200 ₸"
+
+
+      143 |   // учтено 720 + 480 + 50 000 = 51 200; прошлый месяц 600 → рост
+      144 |   await expect(main.getByTestId('budget-an-spent')).toContainText('51 200');
+    > 145 |   await expect(main.getByTestId('budget-an-spent')).toContainText('к прошлому месяцу');
+          |                                                     ^
+      146 |   await expect(main.getByTestId('budget-chart')).toBeVisible();
+      147 |   await expect(main.getByTestId('budget-an-shares')).toContainText('TikTok Ads');
+      148 |   const insufficient = main.getByText('Недостаточно данных');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:145:53
+
+    Error Context: test-results/marketing-budget-аналитика-a86a3--ROMI-«Недостаточно-данных»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-аналитика-a86a3--ROMI-«Недостаточно-данных»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-аналитика-a86a3--ROMI-«Недостаточно-данных»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают 
+    tests/ui/marketing-budget.spec.ts:136:1 › аналитика: динамика к прошлому месяцу, график по дням, у CPL и ROMI «Недостаточно данных» 
+  13 passed (1.5m)
+
+# код выхода 1 · 1 мин 31 с

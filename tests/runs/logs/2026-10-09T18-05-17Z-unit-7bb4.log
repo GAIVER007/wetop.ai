@@ -1,0 +1,31 @@
+# Модульные (unit) · 09.10.2026 23:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-05-17Z-unit-7bb4.json' 'apps/api/src/marketing-budget/marketing-budget.service.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts [ apps/api/src/marketing-budget/marketing-budget.service.test.ts ]
+Error: Cannot find module './marketing-budget.service' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/api/src/marketing-budget/marketing-budget.service.test.ts
+ ❯ apps/api/src/marketing-budget/marketing-budget.service.test.ts:9:1
+      7|   MarketingBudgetRepository,
+      8| } from './marketing-budget.repository';
+      9| import { MarketingBudgetService } from './marketing-budget.service';
+       | ^
+     10|
+     11| const SCOPE: BudgetScope = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:05:22
+   Duration  3.00s (worker 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-05-17Z-unit-7bb4.json
+
+# код выхода 1 · 9 с

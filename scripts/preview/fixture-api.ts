@@ -87,6 +87,9 @@ import {
   parseCompetitorInput,
   parseOccupancyPercent,
   type MarketReading,
+  MarketingBudgetError,
+  parseMarketingBudgetInput,
+  parseMarketingExpenseInput,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -4664,6 +4667,124 @@ function read(path: string, q: URLSearchParams): unknown {
   return undefined;
 }
 
+
+// ── Бюджет маркетинга (МКТ-В1/В2, ADR-MKT-B1): те же правила, что API, из домена ──────────────
+interface FixtureMarketingExpense {
+  id: string;
+  date: string;
+  platform: string;
+  campaign: string | null;
+  category: string;
+  description: string | null;
+  amount: string;
+  currency: string;
+  fxRate: string;
+  baseAmount: string;
+  countedInBudget: boolean;
+}
+const budgetExpenses: FixtureMarketingExpense[] = [];
+const budgetPlans = new Map<string, string>();
+const resetMarketingBudget = () => {
+  budgetExpenses.length = 0;
+  budgetPlans.clear();
+};
+const BUDGET_RC = 'KZT';
+const budgetMonthShift = (month: string, shift: number) => {
+  const [y, m] = month.split('-').map(Number);
+  const total = (y as number) * 12 + ((m as number) - 1) + shift;
+  return `${Math.floor(total / 12)}-${String((total % 12) + 1).padStart(2, '0')}`;
+};
+/** null — маршрут не бюджета; иначе [код, тело] */
+function marketingBudgetRoute(
+  path: string,
+  method: string,
+  q: URLSearchParams,
+  body: Record<string, unknown>,
+): [number, unknown] | null {
+  if (!path.startsWith('/marketing/budget') && !path.startsWith('/marketing/expenses')) return null;
+  if (!can(uiRole, 'settings')) return [403, { message: accessDeniedMessage('settings') }];
+  try {
+    if (path === '/marketing/budget' && method === 'GET') {
+      const month = q.get('month') ?? today.slice(0, 7);
+      if (!/^\d{4}-\d{2}$/.test(month)) return [400, { message: 'Месяц: в виде ГГГГ-ММ' }];
+      const prevMonth = budgetMonthShift(month, -1);
+      const expenses = budgetExpenses
+        .filter((e) => e.date.startsWith(month))
+        .sort((a, b) => (a.date === b.date ? 0 : a.date > b.date ? -1 : 1));
+      const prevSpent = budgetExpenses
+        .filter((e) => e.date.startsWith(prevMonth) && e.countedInBudget)
+        .reduce((sum, e) => sum + BigInt(e.baseAmount), 0n);
+      return [
+        200,
+        {
+          month,
+          today,
+          reportingCurrency: BUDGET_RC,
+          locationCurrency: BUDGET_RC,
+          plan: budgetPlans.get(`${month}-01`) ?? null,
+          prevSpent: prevSpent.toString(),
+          expenses,
+        },
+      ];
+    }
+    if (path === '/marketing/budget' && method === 'PUT') {
+      const input = parseMarketingBudgetInput(body);
+      budgetPlans.set(input.month, input.amount.toString());
+      return [200, { month: input.month.slice(0, 7), amount: input.amount.toString() }];
+    }
+    if (path === '/marketing/expenses' && method === 'POST') {
+      const input = parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC });
+      const row: FixtureMarketingExpense = {
+        id: `00000000-0000-4000-9000-${String(budgetExpenses.length + 1).padStart(12, '0')}`,
+        date: input.date,
+        platform: input.platform,
+        campaign: input.campaign,
+        category: input.category,
+        description: input.description,
+        amount: input.amount.toString(),
+        currency: input.currency,
+        fxRate: input.fxRate,
+        baseAmount: input.baseAmount.toString(),
+        countedInBudget: input.countedInBudget,
+      };
+      budgetExpenses.push(row);
+      return [201, row];
+    }
+    const m = /^\/marketing\/expenses\/([^/]+)$/.exec(path);
+    if (m) {
+      const id = decodeURIComponent(m[1] as string);
+      const index = budgetExpenses.findIndex((e) => e.id === id);
+      if (index < 0) return [404, { message: 'Расход не найден' }];
+      if (method === 'PATCH') {
+        const input = parseMarketingExpenseInput(body, { reportingCurrency: BUDGET_RC });
+        const row: FixtureMarketingExpense = {
+          ...(budgetExpenses[index] as FixtureMarketingExpense),
+          date: input.date,
+          platform: input.platform,
+          campaign: input.campaign,
+          category: input.category,
+          description: input.description,
+          amount: input.amount.toString(),
+          currency: input.currency,
+          fxRate: input.fxRate,
+          baseAmount: input.baseAmount.toString(),
+          countedInBudget: input.countedInBudget,
+        };
+        budgetExpenses[index] = row;
+        return [200, row];
+      }
+      if (method === 'DELETE') {
+        budgetExpenses.splice(index, 1);
+        return [200, { ok: true }];
+      }
+    }
+    return null;
+  } catch (e) {
+    if (e instanceof MarketingBudgetError) return [400, { message: e.message }];
+    throw e;
+  }
+}
+
 // ── Загрузка конкурентов (ADR-142): те же правила, что API, из домена ──────────────────────────
 interface FixtureCompetitor {
   id: string;
@@ -4929,6 +5050,34 @@ createServer(async (req, res) => {
     if (siteResponse) return send(siteResponse.status, siteResponse.data);
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);
+    const budgetResponse = marketingBudgetRoute(path, req.method ?? 'GET', url.searchParams, body);
+    if (budgetResponse) return send(budgetResponse[0], budgetResponse[1]);
+    // засев бюджета маркетинга для UI-тестов: строки расходов и план месяца
+    if (path === '/__test/marketing-budget' && req.method === 'POST') {
+      resetMarketingBudget();
+      for (const e of (body['expenses'] as Array<Record<string, unknown>> | undefined) ?? []) {
+        const input = parseMarketingExpenseInput(e, { reportingCurrency: BUDGET_RC });
+        budgetExpenses.push({
+          id: `00000000-0000-4000-9000-${String(budgetExpenses.length + 1).padStart(12, '0')}`,
+          date: input.date,
+          platform: input.platform,
+          campaign: input.campaign,
+          category: input.category,
+          description: input.description,
+          amount: input.amount.toString(),
+          currency: input.currency,
+          fxRate: input.fxRate,
+          baseAmount: input.baseAmount.toString(),
+          countedInBudget: input.countedInBudget,
+        });
+      }
+      const plan = body['plan'] as { month?: unknown; amount?: unknown } | undefined;
+      if (plan) {
+        const input = parseMarketingBudgetInput(plan as Record<string, unknown>);
+        budgetPlans.set(input.month, input.amount.toString());
+      }
+      return send(200, { ok: true, today });
+    }
     // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
     if (path === '/__test/market' && req.method === 'POST') {
       resetMarket();
@@ -4955,6 +5104,7 @@ createServer(async (req, res) => {
       fixtureBeautyAppointments.length = 0;
       fixtureAppointments.length = 0;
       resetMarket();
+      resetMarketingBudget();
       resetAgentFixture();
       resetMarketingSiteFixture();
       resetSiteAssetsFixture();

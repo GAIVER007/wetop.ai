@@ -28,6 +28,8 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
   ]);
   expect(menuSections.find((s) => s.id === 'marketing')?.items.map((i) => i.href)).toEqual([
     '/marketing',
+    '/marketing/budget',
+    '/marketing/analytics',
   ]);
   expect(
     menuSections.find((s) => s.id === 'settings')?.items.some((i) => i.href === '/journal'),

@@ -21,6 +21,10 @@ describe('сайт в меню — одно место (ADR-117)', () => {
     expect(marketing?.direct).toBeUndefined();
     expect(marketing?.items.map((item) => [item.href, item.label])).toEqual([
       ['/marketing', 'Сайт и SEO'],
+      // МКТ-В1 (ADR-MKT-B1): учёт бюджета и расходов маркетинга
+      ['/marketing/budget', 'Бюджет'],
+      // «Аналитика маркетинга» (10.10.2026): эффективность источников
+      ['/marketing/analytics', 'Аналитика'],
     ]);
   });
 

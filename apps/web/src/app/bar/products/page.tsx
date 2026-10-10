@@ -1,11 +1,13 @@
 import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../lib/api';
+import { hotelApi } from '../../../lib/hotel-api';
 import { formatMoney } from '../../../lib/money';
 import { Page } from '../../../components/page';
 import { Badge, Button, EmptyState, SectionTitle, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { toggleBarCatalogAction } from '../actions';
+import { BarCommandForm } from '../command-form';
 import { ProductPriceForm } from '../product-price-form';
 import { CategoryForm, ProductForm } from './catalog-forms';
 import { BarTabs } from '../tabs';
@@ -20,6 +22,9 @@ export default async function BarProductsPage() {
   const failed = [categories, stock].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!categories.ok || !stock.ok) return null;
+  // контекст денежных форм: сервер сверяет объект и валюту (D-CUR)
+  const { property } = await hotelApi.settings();
+  const context = { propertyId: property.id, currency: property.currency };
   const low = (item: { availableUnits: string; minimumStockUnits: string }) =>
     BigInt(item.availableUnits) <= BigInt(item.minimumStockUnits);
   const rows = [...stock.value].sort((a, b) =>
@@ -29,20 +34,20 @@ export default async function BarProductsPage() {
     <div className="bar-catalog-grid">
       <section className="panel">
         <h3>Новый товар</h3>
-        <ProductForm categories={categories.value.filter((category) => category.active)} />
+        <ProductForm categories={categories.value.filter((category) => category.active)} context={context} />
       </section>
       <section className="panel">
         <h3>Категории и наценка</h3>
         <p className="bar-muted">Наценка категории наследуется товаром, у товара её можно переопределить.</p>
-        <CategoryForm />
+        <CategoryForm context={context} />
         {categories.value.length > 0 && <ul className="bar-catalog-list">{categories.value.map((category) => <li key={category.id}>
           <span>{category.name}, {category.defaultMarkupBasis / 100}%</span>
-          <form action={toggleBarCatalogAction}>
+          <BarCommandForm context={context} action={toggleBarCatalogAction}>
             <input type="hidden" name="kind" value="category" />
             <input type="hidden" name="id" value={category.id} />
             <input type="hidden" name="active" value={String(!category.active)} />
             <Button type="submit" tone="ghost" size="xs">{category.active ? 'В архив' : 'Восстановить'}</Button>
-          </form>
+          </BarCommandForm>
         </li>)}</ul>}
       </section>
     </div>
@@ -58,14 +63,14 @@ export default async function BarProductsPage() {
               <td><Badge tone={!item.active ? 'neutral' : low(item) ? 'warn' : 'ok'}>{item.availableUnits} шт.</Badge></td>
               <td>{item.minimumStockUnits} шт.</td>
               <td>{item.markupBasis === null ? (item.category ? `${item.category.defaultMarkupBasis / 100}% из категории` : 'нет') : `${item.markupBasis / 100}%`}</td>
-              <td>{item.active ? <ProductPriceForm productId={item.id} salePrice={item.salePrice} /> : formatMoney(item.salePrice)}</td>
-              <td>{formatMoney(item.stockCostMinor)}</td>
-              <td><form action={toggleBarCatalogAction}>
+              <td>{item.active ? <ProductPriceForm productId={item.id} salePrice={item.salePrice} context={context} /> : formatMoney(item.salePrice, property.currency)}</td>
+              <td>{formatMoney(item.stockCostMinor, property.currency)}</td>
+              <td><BarCommandForm context={context} action={toggleBarCatalogAction}>
                 <input type="hidden" name="kind" value="product" />
                 <input type="hidden" name="id" value={item.id} />
                 <input type="hidden" name="active" value={String(!item.active)} />
                 <Button type="submit" tone="ghost" size="xs">{item.active ? 'В архив' : 'Восстановить'}</Button>
-              </form></td>
+              </BarCommandForm></td>
             </tr>)}</tbody>
           </Table>}
     </section>

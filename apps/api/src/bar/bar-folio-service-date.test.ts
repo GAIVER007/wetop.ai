@@ -17,7 +17,9 @@ describe('бар на счёт: дата услуги начисления', () 
   it('начисление создаётся с сегодняшней датой объекта', async () => {
     const created: Array<Record<string, unknown>> = [];
     const tx = {
-      $queryRaw: async () => [],
+      // валюта объекта отвечает KZT (D-CUR), сверка истории закупок и замки строк — пусто
+      $queryRaw: async (strings: TemplateStringsArray) =>
+        strings.join('?').includes('SELECT currency FROM properties') ? [{ currency: 'KZT' }] : [],
       barSale: {
         findFirst: async () => null,
         create: async () => ({ id: 'sale-1' }),

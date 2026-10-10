@@ -127,12 +127,16 @@ export function ReservationDrawer({
                   </Button>
                 </>
               ) : (
-                <Button tone="secondary" onClick={() => setEditing(true)}>
+                <Button disabled={pending} tone="secondary" onClick={() => setEditing(true)}>
                   Изменить бронь
                 </Button>
               )}
               <Field label={r.table ? 'Пересадить на другой стол' : 'Назначить стол'}>
-                <Select value={tableId} onChange={(e) => setTableId(e.target.value)}>
+                <Select
+                  disabled={editing || pending}
+                  value={tableId}
+                  onChange={(e) => setTableId(e.target.value)}
+                >
                   <option value="">Выберите стол</option>
                   {data.tables
                     .filter(
@@ -152,14 +156,18 @@ export function ReservationDrawer({
               </Field>
               <div className="food-actions">
                 <Button
-                  disabled={pending || !tableId}
+                  disabled={editing || pending || !tableId}
                   tone="secondary"
                   onClick={() => command('assign')}
                 >
                   {r.table ? 'Пересадить' : 'Назначить стол'}
                 </Button>
                 {r.table && r.status !== 'SEATED' && (
-                  <Button disabled={pending} tone="ghost" onClick={() => command('unassign')}>
+                  <Button
+                    disabled={editing || pending}
+                    tone="ghost"
+                    onClick={() => command('unassign')}
+                  >
                     Снять стол
                   </Button>
                 )}
@@ -169,7 +177,7 @@ export function ReservationDrawer({
                   <Button
                     key={status}
                     tone={status === 'CANCELLED' || status === 'NO_SHOW' ? 'secondary' : 'primary'}
-                    disabled={pending || (status === 'SEATED' && !r.table)}
+                    disabled={editing || pending || (status === 'SEATED' && !r.table)}
                     onClick={() => command('status', status)}
                   >
                     {foodStatusActions[status]}

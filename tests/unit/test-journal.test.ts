@@ -5,6 +5,7 @@ import {
   capLog,
   fingerprint,
   journalRow,
+  maskJsonReport,
   maskSecrets,
   parseEslintOutput,
   parseJournal,
@@ -59,6 +60,24 @@ function run(over: Partial<RunRecord> = {}): RunRecord {
 }
 
 describe('лог уходит в репозиторий без секретов и ПД', () => {
+  it('saved runner JSON preserves fractional durations and masks nested secrets', () => {
+    const report = {
+      duration: 4258.78912345678,
+      numPassedTests: 4133,
+      nested: { password: 'fictional-unlisted-secret', authorization: 'Bearer fictional-token' },
+      messages: ['test.guest@example.com', 'password=fictional-message-secret'],
+    };
+    const masked = maskJsonReport(JSON.stringify(report));
+    expect(JSON.parse(masked)).toEqual({
+      duration: report.duration,
+      numPassedTests: 4133,
+      nested: { password: '<скрыто>', authorization: '<скрыто>' },
+      messages: ['<email>', 'password=<скрыто>'],
+    });
+    expect(masked).not.toContain('fictional-unlisted-secret');
+    expect(masked).not.toContain('fictional-token');
+  });
+
   it('JWT, пароль в адресе базы, ключ в заголовке и значения секретов из .env скрыты', () => {
     const values = secretValuesFromEnv({
       LEGACY_API_KEY: FAKE_KEY,

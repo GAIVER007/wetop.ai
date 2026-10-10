@@ -97,6 +97,7 @@ for (const width of [1440, 390]) {
         .getByRole('button', { name: 'Действия с категорией Мужской общий номер', exact: true })
         .click();
       await page.getByRole('menuitem', { name: 'Свободные места', exact: true }).click();
+      await settleStreaming(page);
       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
         'MALE',
       );

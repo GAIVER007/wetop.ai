@@ -1,59 +1,91 @@
 import { defineConfig } from '@playwright/test';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
+import { prepareIsolatedUiWorkers } from './isolated-workers';
 
-// Chrome с машины по умолчанию; `UI_BROWSER_CHANNEL=chromium` — сборка Playwright;
-// `UI_BROWSER_EXECUTABLE=/путь/к/chrome` (или `CHROMIUM_PATH`, как у e2e и главной) — конкретный двоичный файл
+const repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
+const isolated = prepareIsolatedUiWorkers(repoRoot);
 const uiExecutable = process.env.UI_BROWSER_EXECUTABLE || process.env.CHROMIUM_PATH;
+const fontResponses = process.env.NEXT_FONT_GOOGLE_MOCKED_RESPONSES;
+type WebServer = {
+  command: string;
+  cwd: string;
+  env: Record<string, string>;
+  url: string;
+  reuseExistingServer: boolean;
+  timeout?: number;
+};
 
-/** Browser → real Next.js/server actions → synthetic loopback API. Not DB integration evidence. */
+const browserUse = {
+  ...(uiExecutable
+    ? { launchOptions: { executablePath: uiExecutable } }
+    : { channel: process.env.UI_BROWSER_CHANNEL || 'chrome' }),
+  viewport: { width: 1440, height: 1000 },
+  trace: 'retain-on-failure' as const,
+};
+
+const webServers = isolated.workers.flatMap((worker): WebServer[] => [
+  {
+    command: 'npx tsx tests/ui/fixture-api.ts',
+    cwd: worker.root,
+    env: { FIXTURE_PORT: String(worker.fixturePort) },
+    url: `${worker.fixtureOrigin}/__test/health`,
+    reuseExistingServer: false,
+  },
+  {
+    command: `npm exec -w apps/web -- next dev --port ${worker.webPort} --hostname 127.0.0.1`,
+    cwd: worker.root,
+    env: {
+      APP_UI_TEST: '1',
+      APP_DEMO_MODE: '',
+      APP_API_URL: worker.fixtureOrigin,
+      APP_ALLOW_TEST_DATA: '1',
+      APP_URL: worker.webOrigin,
+      WETOP_SITE_URL: worker.siteOrigin,
+      SITE_ORIGINS: worker.siteOrigin,
+      NEXT_TEST_DIST_DIR: `.next-mainui-${worker.index}`,
+      NEXT_TEST_TURBOPACK_ROOT: isolated.runtimeParent,
+      ...(fontResponses ? { NEXT_FONT_GOOGLE_MOCKED_RESPONSES: fontResponses } : {}),
+    },
+    url: `${worker.webOrigin}/today`,
+    reuseExistingServer: false,
+    timeout: 120_000,
+  },
+  {
+    command: `npm exec -w apps/site -- next dev --webpack --port ${worker.sitePort} --hostname 127.0.0.1`,
+    cwd: worker.root,
+    env: {
+      WETOP_SITE_URL: worker.siteOrigin,
+      WETOP_APP_URL: worker.webOrigin,
+      NEXT_TEST_DIST_DIR: `.next-mainui-${worker.index}`,
+      ...(fontResponses ? { NEXT_FONT_GOOGLE_MOCKED_RESPONSES: fontResponses } : {}),
+    },
+    url: worker.siteOrigin,
+    reuseExistingServer: false,
+    timeout: 120_000,
+  },
+]);
+
+/** Browser to independent Next.js and synthetic API pairs. This is not DB integration evidence. */
 export default defineConfig({
-  testDir: '.',
-  testMatch: '*.spec.ts',
-  // наборы со своим стендом идут отдельно: замок — `playwright.auth.config.ts`, подставной помощник —
-  // `playwright.assistant.config.ts` (стойке нужен `ASSISTANT_URL` на время запуска)
-  testIgnore: ['login-lock.spec.ts', 'unified-auth.spec.ts', 'assistant-widget.spec.ts'],
+  // Auth config owns login lock, unified auth and A27 boundary. Assistant keeps its own fake service.
+  testIgnore: [
+    'login-lock.spec.ts',
+    'unified-auth.spec.ts',
+    'assistant-widget.spec.ts',
+    'a27-auth-boundary.spec.ts',
+  ],
   fullyParallel: false,
-  workers: 1,
+  workers: 2,
   timeout: 45_000,
   expect: { timeout: 15_000 },
-  // эталонные снимки страницы компонентов (DESIGN.md, план шаг 4): имя даёт сам тест, включая платформу
-  snapshotPathTemplate: '{testDir}/../../design/reference/kit/{arg}{ext}',
-  use: {
-    baseURL: 'http://127.0.0.1:3100',
-    ...(uiExecutable
-      ? { launchOptions: { executablePath: uiExecutable } }
-      : { channel: process.env.UI_BROWSER_CHANNEL || 'chrome' }),
-    viewport: { width: 1440, height: 1000 },
-    trace: 'retain-on-failure',
-  },
-  webServer: [
-    {
-      command: 'npx tsx tests/ui/fixture-api.ts',
-      cwd: '../..',
-      url: 'http://127.0.0.1:4311/__test/health',
-      reuseExistingServer: false,
-    },
-    {
-      command: 'npm exec -w apps/web -- next dev --port 3100 --hostname 127.0.0.1',
-      cwd: '../..',
-      env: {
-        APP_UI_TEST: '1',
-        APP_DEMO_MODE: '',
-        APP_API_URL: 'http://127.0.0.1:4311',
-        APP_ALLOW_TEST_DATA: '1',
-        APP_URL: 'http://127.0.0.1:3100',
-        WETOP_SITE_URL: 'http://127.0.0.1:3002',
-      },
-      url: 'http://127.0.0.1:3100/today',
-      reuseExistingServer: false,
-      timeout: 120_000,
-    },
-    {
-      command: 'npm run dev -w apps/site',
-      cwd: '../..',
-      env: { WETOP_SITE_URL: 'http://127.0.0.1:3002', WETOP_APP_URL: 'http://127.0.0.1:3100' },
-      url: 'http://127.0.0.1:3002',
-      reuseExistingServer: false,
-      timeout: 120_000,
-    },
-  ],
+  snapshotPathTemplate: resolve(repoRoot, 'design/reference/kit/{arg}{ext}'),
+  projects: isolated.workers.map((worker) => ({
+    name: `main-ui-${worker.index}`,
+    testDir: worker.uiDir,
+    testMatch: worker.testMatch,
+    workers: 1,
+    use: { ...browserUse, baseURL: worker.webOrigin },
+  })),
+  webServer: webServers,
 });

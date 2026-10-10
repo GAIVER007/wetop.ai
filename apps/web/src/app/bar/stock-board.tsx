@@ -15,6 +15,7 @@ import {
   writeOffBarAction,
   type BarActionResult,
 } from './actions';
+import { BarContextFields, type BarFormContext } from './context';
 import { STATUS_LABEL, STATUS_TONE, markupPercent, recommendedPriceMinor, stockStatusOf } from './stock-status';
 import { suggestCode } from './receipts/new/new-receipt';
 
@@ -48,7 +49,9 @@ export function ProductAvatar({ name, size }: { name: string; size?: 'lg' }) {
   return <span className={cx('bar-avatar', `bar-avatar--${tones[hash % tones.length]}`, size === 'lg' && 'bar-avatar--lg')} aria-hidden="true">{name.trim().charAt(0).toUpperCase()}</span>;
 }
 
-export function StockBoard({ stock, categories, suppliers, movements, today, initialProduct, bottom }: {
+export function StockBoard({ context, stock, categories, suppliers, movements, today, initialProduct, bottom }: {
+  /** Объект и валюта для скрытых полей денежных форм (D-CUR) */
+  context: BarFormContext;
   stock: BarStockRow[];
   categories: BarCategoryRow[];
   suppliers: BarSupplierRow[];
@@ -186,9 +189,9 @@ export function StockBoard({ stock, categories, suppliers, movements, today, ini
       </div>
       <aside className="panel bar-card" aria-label={selected === 'new' ? 'Новый товар' : current ? `Карточка товара ${current.name}` : 'Карточка товара'}>
         {selected === 'new'
-          ? <NewProductCard key="new" categories={categories} onClose={() => setSelected(null)} />
+          ? <NewProductCard key="new" context={context} categories={categories} onClose={() => setSelected(null)} />
           : current
-            ? <ProductCard key={current.id} product={current} categories={categories} movements={movements.filter((movement) => movement.productId === current.id)}
+            ? <ProductCard key={current.id} context={context} product={current} categories={categories} movements={movements.filter((movement) => movement.productId === current.id)}
                 writeOffOpen={writeOffOpen} onWriteOff={setWriteOffOpen} onClose={() => setSelected(null)}
                 onDelete={() => void archive([current.id], `Удалить «${current.name}»?`)} />
             : <div className="bar-card-empty">
@@ -209,7 +212,8 @@ function CardField({ label, htmlFor, children }: { label: string; htmlFor: strin
   return <div className="bar-card-field"><label htmlFor={htmlFor} title={label}>{label}</label>{children}</div>;
 }
 
-function ProductCard({ product, categories, movements, writeOffOpen, onWriteOff, onClose, onDelete }: {
+function ProductCard({ context, product, categories, movements, writeOffOpen, onWriteOff, onClose, onDelete }: {
+  context: BarFormContext;
   product: BarStockRow;
   categories: BarCategoryRow[];
   movements: BarMovementRow[];
@@ -238,6 +242,7 @@ function ProductCard({ product, categories, movements, writeOffOpen, onWriteOff,
   const id = (name: string) => `bar-card-${name}`;
   const info = (
     <form action={action} className="bar-card-form">
+      <BarContextFields context={context} />
       <input type="hidden" name="id" value={product.id} />
       <input type="hidden" name="unitsPerPackage" value={String(product.unitsPerPackage)} />
       <input type="hidden" name="barcode" value={product.barcode ?? ''} />
@@ -299,6 +304,7 @@ function ProductCard({ product, categories, movements, writeOffOpen, onWriteOff,
       ]} />
       {writeOffOpen && (
         <form action={writeOffAction} className="bar-card-writeoff" aria-label={`Списание: ${product.name}`}>
+          <BarContextFields context={context} />
           <input type="hidden" name="productId" value={product.id} />
           <Input name="quantityUnits" aria-label="Списать, шт." inputMode="numeric" pattern="[0-9]+" defaultValue="1" required />
           <Select name="reason" aria-label="Причина списания" required defaultValue="">
@@ -314,7 +320,7 @@ function ProductCard({ product, categories, movements, writeOffOpen, onWriteOff,
   );
 }
 
-function NewProductCard({ categories, onClose }: { categories: BarCategoryRow[]; onClose: () => void }) {
+function NewProductCard({ context, categories, onClose }: { context: BarFormContext; categories: BarCategoryRow[]; onClose: () => void }) {
   const [state, action, pending] = useActionState(createBarProductAction, initial);
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -328,6 +334,7 @@ function NewProductCard({ categories, onClose }: { categories: BarCategoryRow[];
         <Button type="button" tone="ghost" size="xs" onClick={onClose} aria-label="Закрыть карточку"><Icon name="close" width={16} height={16} /></Button>
       </header>
       <form action={action} className="bar-card-form">
+        <BarContextFields context={context} />
         <div className="bar-card-grid">
           <CardField label="Название товара" htmlFor={id('name')}><Input id={id('name')} name="name" value={name} onChange={(event) => { setName(event.target.value); if (!codeTouched) setCode(suggestCode(event.target.value)); }} required /></CardField>
           <CardField label="Категория" htmlFor={id('category')}>

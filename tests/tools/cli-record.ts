@@ -24,6 +24,7 @@ import {
   almatyTime,
   capLog,
   durationText,
+  maskJsonReport,
   maskSecrets,
   outcomeText,
   parseEslintOutput,
@@ -196,6 +197,13 @@ function main(): void {
       note: note === null ? null : mask(note),
     };
     const entry = writeRunRecord(ROOT, record);
+    // A29: по явному запросу прогона сохранить замаскированный JSON-отчёт раннера как доказательство
+    if (process.env.TEST_RECORD_PRESERVE_JSON === '1' && existsSync(reportFile))
+      writeFileSync(
+        resolve(ROOT, 'tests/runs', `${id}.json`),
+        maskJsonReport(readFileSync(reportFile, 'utf8'), values),
+        { mode: 0o600 },
+      );
     rmSync(reportFile, { force: true });
 
     console.log(`\n■ ${suite.name}: ${outcomeText(record)} · ${durationText(durationMs)}`);

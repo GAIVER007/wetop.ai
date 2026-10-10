@@ -133,7 +133,9 @@ test('вложенные разделы: раскрытие, один актив
   // переход закрывает список; вкладка группы помечена текущим экраном
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await expect(sales).toHaveClass(/has-current-page/);
-  await expect(sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).not.toBeVisible();
+  await expect(
+    sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true }),
+  ).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');

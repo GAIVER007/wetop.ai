@@ -1,0 +1,30 @@
+{
+  "name": "A28/A29 money-UTC-auth port onto current main",
+  "branch": "claude/a28-money-port-2026-10-10",
+  "baseMainSha": "2341cfb785832213dcebf44a1f8d86c84e638dd1",
+  "mergeCommitSha": "SEE_GIT_LOG (первый коммит ветки; восстановлен после перезагрузки Mac 10.10, прежний локальный f87e1c95 утрачен вместе со scratchpad)",
+  "source": {
+    "bundlePath": "/Users/vyacheslav/.codex/visualizations/2026/10/08/01a11c07-1e74-7383-9e89-edd5df327595/a29-evidence/a29-candidate.bundle",
+    "bundleRef": "refs/heads/codex/wetop-a29-gates",
+    "bundleHeadSha": "db18826c1f1fd218f82ff81339eece1b2dc4a82b",
+    "bundleRequiresSha": "60e85fc114c4927a2d050ab82e003b0eb7578e44",
+    "carriesA28Candidate": "7fa893430604de993696fd7b06bdb33cfe5e79be (as commit 8665b95e 'Preserve A28 candidate on frozen A29 upstream')",
+    "verification": "git bundle verify OK 2026-10-10 (дважды: до и после перезагрузки); восстановлен как recovered/a29-gates"
+  },
+  "restoreInstructions": [
+    "git clone https://github.com/GAIVER007/wetop.ai.git && cd wetop.ai",
+    "git fetch origin claude/a28-money-port-2026-10-10  # готовый порт",
+    "либо с нуля: git fetch <bundlePath> refs/heads/codex/wetop-a29-gates:recovered/a29-gates && git checkout -b port 2341cfb7 && git merge recovered/a29-gates && разрешение 23 конфликтов по reports/wetop-master-2026-10-10"
+  ],
+  "rejectedFromSource": [
+    "apps/web/src/app/design-system/kit.css (max-width витрины: сдвинул бы эталоны -linux)",
+    "apps/web/src/app/bar/catalogs.tsx и receipt-form.tsx (удалены редизайном Бар-2; семантика перенесена в новые экраны)"
+  ],
+  "addedBeyondSource": [
+    "verifyContext в новых действиях Бар-2 (updateBarProductAction, postBarReceiptAction, reverseBarSaleAction, toggleBarCatalogAction) и контекст форм на пяти подстраницах",
+    "стабильный ключ идемпотентности в FolioSaleForm вместо crypto.randomUUID() на сервере",
+    "deploy/server-bootstrap.sh: cd / в as_user (мастер-ТЗ §8)",
+    "мок валюты в apps/api/src/bar/bar-folio-service-date.test.ts (новый тест main не знал про D-CUR-сверку)",
+    "describe-whitelist actions.ts расширен сообщениями скана и строк прихода (иначе их глотал экран ошибок)"
+  ]
+}

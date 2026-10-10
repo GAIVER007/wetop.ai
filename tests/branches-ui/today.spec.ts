@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { settleStreaming } from '../ui/fixtures';
 import {
   beautyToday,
   foodToday,
@@ -55,6 +56,21 @@ async function choose(page: Page, name: string) {
     .getByRole('button')
     .filter({ hasText: name })
     .click();
+  await settleStreaming(page);
+}
+function settleNavigations(page: Page) {
+  const goto = page.goto.bind(page);
+  page.goto = async (url, options) => {
+    const response = await goto(url, options);
+    await settleStreaming(page);
+    return response;
+  };
+  const reload = page.reload.bind(page);
+  page.reload = async (options) => {
+    const response = await reload(options);
+    await settleStreaming(page);
+    return response;
+  };
 }
 const callsSince = async (request: APIRequestContext, from: number) =>
   ((await (await request.get(`${api}/__test/calls`)).json()) as string[]).slice(from);
@@ -113,6 +129,7 @@ const value = (page: Page, id: string) => page.getByTestId(id);
 
 /** Окно гостиничного обучения поверх Главной перехватило бы щелчки: пройденным оно не считается только в своём тесте */
 test.beforeEach(async ({ page }, info) => {
+  settleNavigations(page);
   if (info.title.includes('обучение само открывается')) return;
   await page.addInitScript(() => {
     const get = Storage.prototype.getItem;

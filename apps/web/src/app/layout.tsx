@@ -8,6 +8,7 @@ import './premium.css';
 import '../components/shell/sidebar.css';
 import '../components/shell/top-menu.css';
 import { headers } from 'next/headers';
+import { unstable_rethrow } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
 import { ToastProvider } from '../components/toast';
@@ -23,9 +24,14 @@ import { AccessGate } from '../components/access-gate';
 import { hotelApi } from '../lib/hotel-api';
 import { FALLBACK_TIMEZONE } from '../lib/property-time';
 import type { DeskShell } from '../lib/desk-person';
-import { deskShell } from '../lib/desk-shell';
+import { currentMe, deskShell } from '../lib/desk-shell';
+import { authRequired } from '../lib/session';
+import { safeReturnPath } from '../lib/auth-entry';
+import { scopeResolvePath } from '../lib/scope-pointer';
+import { Page } from '../components/page';
 import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
+import { WorkspaceSessionBoundary } from '../components/workspace-session-boundary';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
@@ -73,7 +79,8 @@ export default async function RootLayout({
   children: ReactNode;
   drawer: ReactNode;
 }) {
-  const path = (await headers()).get('x-wetop-path') ?? '';
+  const requestHeaders = await headers();
+  const path = requestHeaders.get('x-wetop-path') ?? '';
   // Вход, регистрация, ссылки из писем и приглашения доступны без сессии.
   // Защищённая оболочка здесь не нужна: её запросы `/hotel/settings` и `/auth/me`
   // при включённом замке уводят на `/login` раньше, чем токен подтверждения дойдёт до API.
@@ -92,7 +99,59 @@ export default async function RootLayout({
       </html>
     );
   }
-  // Кто вошёл и что ему открыто (ADR-083): меню получает обещание и не задерживает страницу
+  // Validate before rendering a protected shell. Page checks also remain necessary for client navigation.
+  const protectedWorkspace = authRequired();
+  let verifiedIdentity: { userId: string; organizationId: string } | null = null;
+  if (protectedWorkspace) {
+    try {
+      const me = await currentMe();
+      if (me.user)
+        verifiedIdentity = { userId: me.user.id, organizationId: me.user.organizationId };
+    } catch (error) {
+      unstable_rethrow(error);
+      if (!(error instanceof ApiError)) throw error;
+      const denied = error.status === 403;
+      return (
+        <html lang="ru" suppressHydrationWarning>
+          <head>
+            <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+          </head>
+          <body>
+            <ThemeProvider>
+              <Page title={denied ? 'Нет доступа' : 'Нет связи с сервером'} width="narrow">
+                <section className="empty-state" role="alert">
+                  <p>
+                    {denied
+                      ? 'Сервер отклонил запрос. Проверьте права и выбранный филиал.'
+                      : 'Проверьте подключение и повторите загрузку. Ваша сессия сохранена.'}
+                  </p>
+                  <div className="row">
+                    <a
+                      className="btn"
+                      href={safeReturnPath(requestHeaders.get('x-wetop-return') ?? path)}
+                    >
+                      Повторить загрузку
+                    </a>
+                    {denied && (
+                      <a
+                        className="btn btn--secondary"
+                        href={scopeResolvePath(
+                          safeReturnPath(requestHeaders.get('x-wetop-return') ?? path),
+                        )}
+                      >
+                        Выбрать филиал
+                      </a>
+                    )}
+                  </div>
+                </section>
+              </Page>
+            </ThemeProvider>
+          </body>
+        </html>
+      );
+    }
+  }
+  // Кто вошёл и что ему открыто (ADR-083): меню получает общее обещание.
   const desk = deskShell();
   // Пояс объекта для календарей и времени в клиентских компонентах (С-13) — тоже обещанием. Отказ API или
   // уход на вход здесь не решаются: их решает заголовок объекта ниже, а часам хватит пояса платформы
@@ -103,51 +162,79 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
-        <Suspense fallback={null}>
-          <ScopeGate />
-        </Suspense>
-        <Suspense fallback={null}>
-          <OnboardingGate />
-        </Suspense>
-        <ThemeProvider>
-          <PropertyTimeProvider timezone={timezone}>
-            {/* кто вошёл — кнопкам и закрытым по роли страницам (ADR-107): то же обещание, что у меню */}
-            <DeskAccessProvider desk={desk}>
-              <ToastProvider>
-                <TopNav
-                  account={
-                    <Suspense fallback={null}>
-                      <AccountMenu />
-                    </Suspense>
-                  }
-                  demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
-                  desk={desk}
-                  property={{
-                    name: (
-                      <Suspense fallback="Объект не загружен">
-                        <ProjectProperty field="name" />
+        <WorkspaceSessionBoundaryEnabled
+          enabled={protectedWorkspace}
+          identity={verifiedIdentity}
+          serverPath={path}
+        >
+          <Suspense fallback={null}>
+            <ScopeGate />
+          </Suspense>
+          <Suspense fallback={null}>
+            <OnboardingGate />
+          </Suspense>
+          <ThemeProvider>
+            <PropertyTimeProvider timezone={timezone}>
+              {/* кто вошёл — кнопкам и закрытым по роли страницам (ADR-107): то же обещание, что у меню */}
+              <DeskAccessProvider desk={desk}>
+                <ToastProvider>
+                  <TopNav
+                    account={
+                      <Suspense fallback={null}>
+                        <AccountMenu />
                       </Suspense>
-                    ),
-                    address: (
-                      <Suspense fallback="Настройки объекта">
-                        <ProjectProperty field="address" />
-                      </Suspense>
-                    ),
-                  }}
-                >
-                  <AccessGate>{children}</AccessGate>
-                </TopNav>
-                {drawer}
-              </ToastProvider>
-            </DeskAccessProvider>
-          </PropertyTimeProvider>
-        </ThemeProvider>
-        {/* Чат ИИ-помощника на каждом экране (ТЗ П2): без ASSISTANT_URL ничего не рисует */}
-        <Suspense fallback={null}>
-          <WorkspaceAssistant desk={desk} />
-        </Suspense>
+                    }
+                    demo={
+                      process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'
+                    }
+                    desk={desk}
+                    property={{
+                      name: (
+                        <Suspense fallback="Объект не загружен">
+                          <ProjectProperty field="name" />
+                        </Suspense>
+                      ),
+                      address: (
+                        <Suspense fallback="Настройки объекта">
+                          <ProjectProperty field="address" />
+                        </Suspense>
+                      ),
+                    }}
+                  >
+                    <AccessGate>{children}</AccessGate>
+                  </TopNav>
+                  {drawer}
+                </ToastProvider>
+              </DeskAccessProvider>
+            </PropertyTimeProvider>
+          </ThemeProvider>
+          {/* Чат ИИ-помощника на каждом экране (ТЗ П2): без ASSISTANT_URL ничего не рисует */}
+          <Suspense fallback={null}>
+            <WorkspaceAssistant desk={desk} />
+          </Suspense>
+        </WorkspaceSessionBoundaryEnabled>
       </body>
     </html>
+  );
+}
+
+function WorkspaceSessionBoundaryEnabled({
+  children,
+  enabled,
+  identity,
+  serverPath,
+}: {
+  children: ReactNode;
+  enabled: boolean;
+  identity: { userId: string; organizationId: string } | null;
+  serverPath: string;
+}) {
+  return enabled && identity ? (
+    <WorkspaceSessionBoundary identity={identity} serverPath={serverPath}>
+      {children}
+    </WorkspaceSessionBoundary>
+  ) : (
+    children
   );
 }
 

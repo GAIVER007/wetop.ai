@@ -378,6 +378,7 @@ function makeFakes() {
     // ── касса (DATA_MODEL §21): статьи как после первого чтения (стартовый набор), операции в памяти ──
     async cashBalanceSources() {
       return {
+        currency: 'KZT',
         payments: payments
           .filter((p) => p.status === 'COMPLETED')
           .map((p) => ({ method: p.method, amountMinor: p.amountMinor })),

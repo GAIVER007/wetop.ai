@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { settleStreaming } from '../ui/fixtures';
 const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
 type Fixture = {
   business: string;
@@ -31,9 +32,25 @@ async function choose(page: Page, name: string) {
     .getByRole('button')
     .filter({ hasText: name })
     .click();
+  await settleStreaming(page);
+}
+function settleNavigations(page: Page) {
+  const goto = page.goto.bind(page);
+  page.goto = async (url, options) => {
+    const response = await goto(url, options);
+    await settleStreaming(page);
+    return response;
+  };
+  const reload = page.reload.bind(page);
+  page.reload = async (options) => {
+    const response = await reload(options);
+    await settleStreaming(page);
+    return response;
+  };
 }
 // Match the accepted MV8 setup: switching is tested independently of the Hospitality training modal.
 test.beforeEach(async ({ page }) => {
+  settleNavigations(page);
   await page.addInitScript(() => {
     const get = Storage.prototype.getItem;
     Storage.prototype.getItem = function (key: string) {

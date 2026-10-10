@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { requireVertical } from '../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi, type BarReceiptRow, type BarReport, type BarSaleRow } from '../../lib/api';
-import { hotelToday } from '../../lib/hotel-api';
+import { hotelApi, hotelToday } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
@@ -78,6 +78,9 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
   const failed = [categories, stock, suppliers, folios, receipts, sales, movements, report].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!categories.ok || !stock.ok || !suppliers.ok || !folios.ok || !receipts.ok || !sales.ok || !movements.ok || !report.ok) return null;
+  // контекст форм: объект и валюта, сервер сверяет их при каждой денежной команде (D-CUR)
+  const { property } = await hotelApi.settings();
+  const context = { propertyId: property.id, currency: property.currency };
   const r = report.value;
   const active = stock.value.filter((item) => item.active);
   const unitsTotal = active.reduce((sum, item) => sum + BigInt(item.availableUnits), 0n);
@@ -152,7 +155,7 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
           <span className="bar-quick-icon"><Icon name="cart" width={20} height={20} /></span>
           <div><h2 id="bar-quick-title" className="bar-panel-title">Быстрая продажа</h2><p className="bar-muted">Продайте товар гостю или напрямую</p></div>
         </header>
-        <SaleForm stock={stock.value} />
+        <SaleForm stock={stock.value} context={context} />
       </section>
       <section className="panel bar-quick-panel" aria-labelledby="bar-folio-title">
         <header className="bar-quick-head">
@@ -161,7 +164,7 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
         </header>
         {folios.value.length === 0
           ? <p className="bar-muted">Открытых счетов нет: продайте товар слева, без брони.</p>
-          : <FolioSaleForm stock={stock.value} folios={folios.value} />}
+          : <FolioSaleForm stock={stock.value} folios={folios.value} context={context} />}
       </section>
     </div>
     {stock.value.length === 0
@@ -169,7 +172,7 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
           <EmptyState icon={<Icon name="product" />} title="Товаров пока нет">Добавьте первый товар кнопкой «Добавить товар» или загрузите фото накладной: «Приход».</EmptyState>
           {bottom}
         </>
-      : <StockBoard key={productParam ?? 'first'} stock={stock.value} categories={categories.value} suppliers={suppliers.value} movements={movements.value}
+      : <StockBoard key={productParam ?? 'first'} context={context} stock={stock.value} categories={categories.value} suppliers={suppliers.value} movements={movements.value}
           today={today} initialProduct={productParam ?? active[0]?.id ?? null} bottom={bottom} />}
   </Page>;
 }

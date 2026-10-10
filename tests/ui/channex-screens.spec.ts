@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, settleStreaming, test } from './fixtures';
 
 /**
  * Срез 7.2 «Три экрана Channex» (plans/slice-7-2-channex-screens.md) на синтетическом API с витриной,
@@ -296,6 +296,7 @@ test('приём брони из канала: цепочка ревизия →
 }) => {
   await page.goto('/channels/events');
   await page.getByRole('link', { name: 'ui-rev-new-2' }).click();
+  await settleStreaming(page);
   await expect(page).toHaveURL(/\/channels\/events\/ui-rev-new-2$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Приём брони из канала');
   const chain = page.getByRole('main').getByTestId('revision-chain');

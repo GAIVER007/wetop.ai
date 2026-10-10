@@ -1,11 +1,13 @@
 import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../lib/api';
+import { hotelApi } from '../../../lib/hotel-api';
 import { formatMoney } from '../../../lib/money';
 import { Page } from '../../../components/page';
 import { Badge, Button, EmptyState, SectionTitle, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { reverseBarSaleAction } from '../actions';
+import { BarCommandForm } from '../command-form';
 import { WriteOffForm } from '../write-off-form';
 import { InventoryCountForm } from '../inventory-count-form';
 import { BarTabs } from '../tabs';
@@ -30,18 +32,21 @@ export default async function BarOperationsPage() {
   const failed = [stock, sales, movements].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!stock.ok || !sales.ok || !movements.ok) return null;
+  // контекст денежных форм: сервер сверяет объект и валюту (D-CUR)
+  const { property } = await hotelApi.settings();
+  const context = { propertyId: property.id, currency: property.currency };
   return <Page width="wide" title="Бар: операции" subtitle="Списание и инвентаризация, журнал продаж с возвратами, лента движений остатка.">
     <BarTabs current="operations" />
     <div className="bar-quick">
       <section className="panel bar-quick-panel">
         <h3>Списание</h3>
         <p className="bar-muted">Порча, бой, срок или угощение: остаток уменьшится с причиной в ленте.</p>
-        <WriteOffForm stock={stock.value} />
+        <WriteOffForm stock={stock.value} context={context} />
       </section>
       <section className="panel bar-quick-panel">
         <h3>Инвентаризация</h3>
         <p className="bar-muted">Пересчёт по факту: недостача запишется движением с причиной.</p>
-        <InventoryCountForm stock={stock.value} />
+        <InventoryCountForm stock={stock.value} context={context} />
       </section>
     </div>
     <SectionTitle>Продажи</SectionTitle>
@@ -57,8 +62,8 @@ export default async function BarOperationsPage() {
             <td>{formatMoney(BigInt(sale.totalRevenue) - BigInt(sale.totalCost))}</td>
             <td><Badge tone={sale.status === 'POSTED' ? 'ok' : 'neutral'}>{sale.status === 'POSTED' ? 'Продано' : 'Возврат'}</Badge></td>
             <td>{sale.status === 'POSTED' && <div className="bar-return">
-              <form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="true" /><input type="hidden" name="reason" value="Возврат гостя, товар пригоден" /><Button type="submit" tone="ghost" size="xs">Вернуть на склад</Button></form>
-              <form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="false" /><input type="hidden" name="reason" value="Возврат гостя, товар непригоден" /><Button type="submit" tone="ghost" size="xs">Без возврата на склад</Button></form>
+              <BarCommandForm context={context} action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="true" /><input type="hidden" name="reason" value="Возврат гостя, товар пригоден" /><Button type="submit" tone="ghost" size="xs">Вернуть на склад</Button></BarCommandForm>
+              <BarCommandForm context={context} action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="false" /><input type="hidden" name="reason" value="Возврат гостя, товар непригоден" /><Button type="submit" tone="ghost" size="xs">Без возврата на склад</Button></BarCommandForm>
             </div>}</td>
           </tr>)}</tbody>
         </Table>}

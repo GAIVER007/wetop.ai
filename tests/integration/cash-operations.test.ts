@@ -1,8 +1,11 @@
+import { randomUUID } from 'node:crypto';
+import { withSignedInUser } from '../../apps/api/src/auth/request-context';
+import { forgetPropertyRef } from '../../apps/api/src/database/property-ref';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { NEW_PROPERTY_DEFAULTS, createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
-import { LUXX_APARTS_PROPERTY, cashBalances } from '@pms/domain';
+import { cashBalances } from '@pms/domain';
 import { PrismaFinanceRepository } from '../../apps/api/src/finance/finance.repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 
@@ -17,22 +20,23 @@ const url = process.env.DATABASE_URL;
 describe.skipIf(!url)('касса: операции, статьи, лента (integration, DATA_MODEL §21)', () => {
   let db: Db;
   let repo: PrismaFinanceRepository;
+  let propertyId: string;
+  let identity: { userId: string; organizationId: string };
+  const cashCase = (name: string, run: () => Promise<void>) => it(name, () => withSignedInUser(identity, run));
 
   async function cleanup() {
-    await db.cashReconciliation.deleteMany({});
-    await db.cashOperation.deleteMany({});
-    await db.cashCategory.deleteMany({});
+    await db.cashReconciliation.deleteMany({ where: { propertyId } });
+    await db.cashOperation.deleteMany({ where: { propertyId } });
+    await db.cashCategory.deleteMany({ where: { propertyId } });
   }
 
   beforeAll(async () => {
     db = createPrismaClient(url);
     repo = new PrismaFinanceRepository({ db } as unknown as PrismaService);
-    const property = await db.property.findFirst({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      orderBy: { createdAt: 'asc' },
-      select: { id: true },
-    });
-    expect(property, 'в тестовой базе нужен объект').toBeTruthy();
+    const org = await db.organization.create({ data: { name: `Cash isolated ${randomUUID()}` } });
+    const user = await db.user.create({ data: { email: `${randomUUID()}@example.invalid`, name: 'Synthetic cash owner' } });
+    const property = await db.$transaction(tx => createPropertyInChain(tx, org.id, { name: `Cash isolated ${randomUUID()}`, ...NEW_PROPERTY_DEFAULTS }));
+    propertyId = property.id; identity = { userId: user.id, organizationId: org.id }; forgetPropertyRef();
     await cleanup();
   });
 
@@ -42,7 +46,7 @@ describe.skipIf(!url)('касса: операции, статьи, лента (i
     await db.$disconnect();
   });
 
-  it('пустой справочник статей заполняется стартовым набором (Q-236), повторное чтение набор не множит', async () => {
+  cashCase('пустой справочник статей заполняется стартовым набором (Q-236), повторное чтение набор не множит', async () => {
     const first = await repo.cashCategories();
     expect(first.map((c) => c.name)).toContain('Комиссия банка');
     expect(first.map((c) => c.name)).toContain('Начальный остаток');
@@ -51,7 +55,7 @@ describe.skipIf(!url)('касса: операции, статьи, лента (i
     expect(second).toHaveLength(first.length);
   });
 
-  it('операция с комиссией — две строки одной транзакцией; аннулирование снимает обе; повтор — ошибка', async () => {
+  cashCase('операция с комиссией — две строки одной транзакцией; аннулирование снимает обе; повтор — ошибка', async () => {
     const categories = await repo.cashCategories();
     const fee = categories.find((c) => c.name === 'Комиссия банка')!;
     const id = await repo.createCashOperation({
@@ -64,7 +68,7 @@ describe.skipIf(!url)('касса: операции, статьи, лента (i
       occurredAt: '2031-06-01T06:00:00Z',
       commission: { amountMinor: 950n, categoryId: fee.id },
     });
-    const rows = await db.cashOperation.findMany({ orderBy: { createdAt: 'asc' } });
+    const rows = await db.cashOperation.findMany({ where: { propertyId }, orderBy: { createdAt: 'asc' } });
     expect(rows).toHaveLength(2);
     expect(rows[1]).toMatchObject({ kind: 'EXPENSE', relatedId: id, amount: 950n });
     // слагаемые остатков: поступление минус комиссия
@@ -75,13 +79,13 @@ describe.skipIf(!url)('касса: операции, статьи, лента (i
     const record = await repo.cashOperationById(id);
     expect(record).toMatchObject({ status: 'COMPLETED', commissionId: rows[1]!.id });
     await repo.voidCashOperation(id);
-    const voided = await db.cashOperation.findMany({});
+    const voided = await db.cashOperation.findMany({ where: { propertyId } });
     expect(voided.every((o) => o.status === 'VOIDED')).toBe(true);
     await expect(repo.voidCashOperation(id)).rejects.toThrow(/аннулирована/);
     expect(cashBalances(await repo.cashBalanceSources()).totalMinor).toBe(0n);
   });
 
-  it('статья чужого объекта отвергается базой (триггер), перевод попадает в ленту с отбором по источнику', async () => {
+  cashCase('статья чужого объекта отвергается базой (триггер), перевод попадает в ленту с отбором по источнику', async () => {
     // чужая статья: объект другой организации через общую цепочку (DATA_MODEL §18, v2.6)
     const org = await db.organization.create({ data: { name: 'Касса чужие' }, select: { id: true } });
     const otherProperty = (
@@ -156,21 +160,28 @@ describe.skipIf(!url)('касса: операции, статьи, лента (i
 describe.skipIf(!url)('сверка кассы (§21.4) на настоящей схеме', () => {
   let db: Db;
   let repo: PrismaFinanceRepository;
+  let propertyId: string;
+  let identity: { userId: string; organizationId: string };
+  const cashCase = (name: string, run: () => Promise<void>) => it(name, () => withSignedInUser(identity, run));
 
   beforeAll(async () => {
     db = createPrismaClient(url);
     repo = new PrismaFinanceRepository({ db } as unknown as PrismaService);
-    await db.cashReconciliation.deleteMany({});
+    const org = await db.organization.create({ data: { name: `Cash isolated ${randomUUID()}` } });
+    const user = await db.user.create({ data: { email: `${randomUUID()}@example.invalid`, name: 'Synthetic cash owner' } });
+    const property = await db.$transaction(tx => createPropertyInChain(tx, org.id, { name: `Cash isolated ${randomUUID()}`, ...NEW_PROPERTY_DEFAULTS }));
+    propertyId = property.id; identity = { userId: user.id, organizationId: org.id }; forgetPropertyRef();
+    await db.cashReconciliation.deleteMany({ where: { propertyId } });
   });
   afterAll(async () => {
     if (!db) return;
-    await db.cashReconciliation.deleteMany({});
-    await db.cashOperation.deleteMany({ where: { note: 'Поправка по сверке кассы' } });
-    await db.cashCategory.deleteMany({ where: { name: { in: ['Недостача кассы', 'Излишек кассы'] } } });
+    await db.cashReconciliation.deleteMany({ where: { propertyId } });
+    await db.cashOperation.deleteMany({ where: { propertyId, note: 'Поправка по сверке кассы' } });
+    await db.cashCategory.deleteMany({ where: { propertyId, name: { in: ['Недостача кассы', 'Излишек кассы'] } } });
     await db.$disconnect();
   });
 
-  it('запись с поправкой одной транзакцией; статья заводится по требованию; последняя сверка по способу', async () => {
+  cashCase('запись с поправкой одной транзакцией; статья заводится по требованию; последняя сверка по способу', async () => {
     const id = await repo.createCashReconciliation({
       method: 'CASH',
       expectedMinor: 100_000n,
@@ -180,7 +191,7 @@ describe.skipIf(!url)('сверка кассы (§21.4) на настоящей 
     });
     expect(id).toBeTruthy();
     const adjustment = await db.cashOperation.findFirst({
-      where: { note: 'Поправка по сверке кассы' },
+      where: { propertyId, note: 'Поправка по сверке кассы' },
       include: { category: true },
     });
     expect(adjustment).toMatchObject({ kind: 'EXPENSE', method: 'CASH', amount: 5_000n });

@@ -1,14 +1,23 @@
 'use client';
-import { useActionState } from 'react';
+import { useBarAction } from './use-bar-action';
+import { BarContextFields, type BarFormContext } from './context';
+
 import type { BarStockRow } from '../../lib/api';
 import { Button, Field, Input, Select } from '../../components/ui';
 import { writeOffBarAction, type BarActionResult } from './actions';
 
 const initial: BarActionResult = { error: null, ok: 0 };
-export function WriteOffForm({ stock }: { stock: BarStockRow[] }) {
-  const [state, action, pending] = useActionState(writeOffBarAction, initial);
+export function WriteOffForm({
+  stock,
+  context,
+}: {
+  context: BarFormContext;
+  stock: BarStockRow[];
+}) {
+  const [state, action, pending] = useBarAction(writeOffBarAction, initial);
   const available = stock.filter((item) => item.active && BigInt(item.availableUnits) > 0n);
-  return <form action={action} className="bar-sale-form">
+  return <form onSubmit={action} className="bar-sale-form">
+    <BarContextFields context={context} />
     <Field label="Товар"><Select name="productId" required defaultValue=""><option value="" disabled>Выберите товар</option>{available.map((item) => <option key={item.id} value={item.id}>{item.name}, остаток {item.availableUnits} шт.</option>)}</Select></Field>
     <Field label="Кол-во, шт."><Input name="quantityUnits" inputMode="numeric" pattern="[0-9]+" required /></Field>
     <Field label="Причина"><Select name="reason" required defaultValue=""><option value="" disabled>Выберите</option><option>Порча</option><option>Бой</option><option>Истек срок</option><option>Угощение</option><option>Нужды объекта</option><option>Иное</option></Select></Field>

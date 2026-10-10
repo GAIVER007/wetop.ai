@@ -630,7 +630,7 @@ export class FinanceService {
     ]);
     const b = cashBalances(src);
     return {
-      currency: 'KZT',
+      currency: src.currency,
       totalMinor: s(b.totalMinor),
       balances: b.balances.map((x) => ({ method: x.method, balanceMinor: s(x.balanceMinor) })),
       categories,

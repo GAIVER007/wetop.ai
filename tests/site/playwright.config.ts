@@ -10,6 +10,9 @@ import { defineConfig } from '@playwright/test';
  * Браузер: обычный chromium Playwright; где браузеров нет, но есть свой Chrome — `CHROMIUM_PATH=/путь`.
  */
 const PORT = 4320;
+const siteBuild = process.env.NEXT_FONT_GOOGLE_MOCKED_RESPONSES
+  ? 'npm exec -w apps/site -- next build --webpack'
+  : 'npm run site:build';
 
 export default defineConfig({
   testDir: '.',
@@ -26,7 +29,7 @@ export default defineConfig({
       : {}),
   },
   webServer: {
-    command: `npm run site:build && node scripts/site/static-server.mjs apps/site/out ${PORT}`,
+    command: `${siteBuild} && node scripts/site/static-server.mjs apps/site/out ${PORT}`,
     cwd: '../..',
     url: `http://127.0.0.1:${PORT}/`,
     reuseExistingServer: false,

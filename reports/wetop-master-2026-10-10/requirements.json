@@ -1,0 +1,167 @@
+{
+  "meta": {
+    "task": "Мастер-ТЗ владельца от 09.10.2026: единый фактический отчёт, восстановление сделанного, выполнение технического остатка",
+    "executor": "Claude (Mac, локальная сессия 10.10.2026; исполнение в собственном чистом клоне; оригинальное дерево claude/restaurant-module-tz не тронуто)",
+    "targetMainSha": "2341cfb785832213dcebf44a1f8d86c84e638dd1",
+    "targetMainFetchedAt": "2026-10-10T12:05:00Z (заморожен; к 14:20 UTC main ушёл на 4c8d1ac6, дрейф слить следующим шагом)",
+    "inputCandidate": {
+      "name": "A28/A29: полный локальный кандидат аудита (деньги, UTC/schema, web-auth, UI, тесты)",
+      "recoveredFrom": "/Users/vyacheslav/.codex/visualizations/2026/10/08/01a11c07-1e74-7383-9e89-edd5df327595/a29-evidence/a29-candidate.bundle",
+      "bundleBranch": "codex/wetop-a29-gates",
+      "bundleHeadSha": "db18826c1f1fd218f82ff81339eece1b2dc4a82b",
+      "bundleBaseSha": "60e85fc114c4927a2d050ab82e003b0eb7578e44",
+      "carriesA28CandidateSha": "7fa893430604de993696fd7b06bdb33cfe5e79be (как коммит 8665b95e «Preserve A28 candidate on frozen A29 upstream»)",
+      "deltaFiles": 92
+    },
+    "incident": "10.10 ~14:00 UTC Mac перезагрузился, scratchpad с первым клоном (коммит слияния f87e1c95) и журналом прогонов стёрт; порт воспроизведён заново теми же решениями, прогоны повторены. Номера прогонов до перезагрузки (lint c61d, unit 64df и спутники) существовали, но их файлы утрачены вместе с клоном и в ветку не входят."
+  },
+  "requirements": [
+    {
+      "id": "R-A2-BOOTSTRAP",
+      "origin": "A2",
+      "title": "Штатный bootstrap API и BarService (@Inject)",
+      "implementation": "ALREADY_PRESENT",
+      "evidence": "PASS_AT_SOURCE (a28-a2-bootstrap-source-proof.json); интеграционный tests/integration/bar-api-bootstrap.test.ts перенесён (opt-in, см. O-9)",
+      "delivery": "IN_MAIN",
+      "ownerDecision": "APPROVED_CONTRACT"
+    },
+    {
+      "id": "R-A3-MONEY-CORE",
+      "origin": "A3 / ТЗ №2.2–2.4, D-CUR, D-KEY",
+      "title": "Деньги бара и финансов: D-CUR (совместимость валют, 409 на смешение), D-KEY (повтор по ключу под замком, различие ключа и содержимого, сохранённый REVERSED), Int64-границы, FIFO/склад/касса/Folio, оплата поставщику только COMPLETED-кассой, вложенная сериализация sales/movements",
+      "implementation": "IMPLEMENTED",
+      "evidence": "LOCAL_VERIFIED: unit-наборы bar-money-boundaries-audit/bar-nested-json/bar-replay-conflict-fixes, actions 17/17, finance.controller 35/35 (см. checks.json); runtime-матрицы A3 остаются opt-in (O-9)",
+      "delivery": "REMOTE_BRANCH claude/a28-money-port-2026-10-10",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "files": "apps/api/src/bar/bar.repository.ts, apps/api/src/finance/*, tests/*",
+      "portNotes": "Слито семантически с Бар-2 (ADR-157): месячные метрики, популярные и скан сохранены; replay/saleTransaction кандидата заменил наивный replay; у продажи в счёт гостя сохранена serviceDate (Q-292) и возвращён стабильный ключ из формы вместо crypto.randomUUID() на сервере (регрессия Бар-2 против D-KEY)."
+    },
+    {
+      "id": "R-A3-MONEY-UI",
+      "origin": "A3 UI / ТЗ №2.5",
+      "title": "Денежный UI: контекст формы (объект+валюта, verifyContext), сохранение введённого при отказе (useBarAction), стабильный ключ команды, ошибки вместо ложных нулей, подписи валюты",
+      "implementation": "IMPLEMENTED",
+      "evidence": "LOCAL_VERIFIED: actions.test 17/17; UI-спеки — checks.json",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "portNotes": "Бар-2 удалил catalogs.tsx и receipt-form.tsx кандидата; семантика перенесена в новые экраны пяти подстраниц, контекст доведён и до новых действий Бар-2 (updateBarProductAction, postBarReceiptAction, reverseBarSaleAction, toggleBarCatalogAction); formatMoney получает валюту объекта."
+    },
+    {
+      "id": "R-A26-UTC-SCHEMA",
+      "origin": "A2.6",
+      "title": "TIMESTAMPTZ/UTC и схема соединений direct/service/tenant, перепроверка на переиспользованных соединениях",
+      "implementation": "IMPLEMENTED",
+      "evidence": "LOCAL_VERIFIED: connection-timezone unit; tests/integration/connection-schema-a29.test.ts 7/7 на настоящей PostgreSQL 16.14 (checks.json)",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "open": "Q-A28-STARTUP-SCHEMA остаётся OPEN (унаследованный приоритет URL options), см. WETOP_REMAINING_TZ.md O-3"
+    },
+    {
+      "id": "R-A27-WEB-AUTH",
+      "origin": "A2.7",
+      "title": "Web-auth: границы сессии рабочего места, смена пользователя/организации, back/forward и новые вкладки",
+      "implementation": "IMPLEMENTED",
+      "evidence": "LOCAL_VERIFIED: unit session-navigation-a27 / workspace-session-a27; браузерный auth-набор — checks.json",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "files": "apps/web/src/components/workspace-session-boundary.tsx, apps/web/src/lib/desk-shell.ts, layout.tsx, team/page.tsx"
+    },
+    {
+      "id": "R-LOGIN-LOCK",
+      "origin": "A2.9",
+      "title": "Пять требований login-lock живы и исполняются: канонический auth-набор отдельной задачей гейта ui-auth",
+      "implementation": "IMPLEMENTED",
+      "evidence": "карта reports/a29-auth-mapping.md; локальный прогон auth-конфига — checks.json",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "notes": "login-lock.spec.ts не исполнялся ни одним конфигом с 01.10 (e76d00bc); задача ui-auth делает набор обязательным."
+    },
+    {
+      "id": "R-CI-GATE",
+      "origin": "A4/A5",
+      "title": "Гейт: задача ui-auth, два worker на шард с изолированными runtime, агрегатор требует все части",
+      "implementation": "IMPLEMENTED",
+      "evidence": "LOCAL_VERIFIED: tests/unit/ci-runner.test.ts на слитом workflow; YAML разобран парсером",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "notes": "Строго аддитивно: триггеры ADR-152 и permissions contents:read не тронуты, выкладки в workflow нет."
+    },
+    {
+      "id": "R-DRAWER-CONTRAST",
+      "origin": "A28 UI / §5.8",
+      "title": "Шторка держит AA-контраст с первого кадра анимации (снята opacity из drawer-in)",
+      "implementation": "IMPLEMENTED",
+      "evidence": "tests/ui/drawer-contrast-a29.spec.ts прибивает анимацию к t=0 (checks.json)",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT; видимое отличие (шторка без фейда) — на взгляд владельца",
+      "notes": "Ожидания конца анимаций в спеках main сохранены: оба уровня защиты."
+    },
+    {
+      "id": "R-KIT-WIDTH",
+      "origin": "A29 (kit.css max-width)",
+      "title": "Ширина витрины /design-system",
+      "implementation": "NOT_STARTED",
+      "evidence": "DESIGN_GAP",
+      "delivery": "REJECTED",
+      "ownerDecision": "NEEDS_DECISION (необязательно)",
+      "notes": "Сдвинула бы все эталоны -linux без продуктовой нужды; возвращать только с пересъёмкой ui-snapshots."
+    },
+    {
+      "id": "R-SERVER-BOOTSTRAP",
+      "origin": "№2.9 / мастер-ТЗ §8",
+      "title": "server-bootstrap.sh: git от имени pms из /, а не из каталога запуска",
+      "implementation": "IMPLEMENTED (этой сессией)",
+      "evidence": "LOCAL_VERIFIED: deploy-server 41/41; все аргументы as_user абсолютные (проверено)",
+      "delivery": "REMOTE_BRANCH",
+      "ownerDecision": "APPROVED_CONTRACT (мастер-ТЗ §8 прямо называет ремонт)"
+    },
+    {
+      "id": "R-MENU-PR",
+      "origin": "меню профиля / №2.9 (0001+0005)",
+      "title": "Кнопка меню профиля недоступна до оживления React",
+      "implementation": "IMPLEMENTED (другой сессией)",
+      "evidence": "PASS_AT_SOURCE; гейт на 37c77c03: fast/bot/db зелёные, красные — чужие слои устаревшего основания",
+      "delivery": "REMOTE_BRANCH: PR #332 (draft), ветка claude/profile-menu-ready, head b99ec05f98dc9463d2fc2352b2b0c792d05f040a; НЕ в main",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "notes": "Ветка чужая и живая — не трогал. Остаток: merge свежего main, один гейт, ready (O-2)."
+    },
+    {
+      "id": "R-SITE-AUTH-EARLY-CLICK",
+      "origin": "регрессия 10.10 (CWV, PR #357/#360)",
+      "title": "Первый щелчок по «Войти»/«Регистрация» до загрузки ленивого куска уводил на боевой wetop.ai; гейт main красный в «главной»",
+      "implementation": "ALREADY_PRESENT (чужой PR #362: жадный монтаж окна возвращён)",
+      "evidence": "FAIL_REPRODUCED (прогоны гейта 38037374393/38044499299/38048316467, 4 падения) → ремонт чужой; моя диагностика причины (CORS-несовпадение мока выдало побег на живой домен) в WETOP_MASTER_RESULT.md",
+      "delivery": "IN_MAIN (2341cfb7)",
+      "ownerDecision": "APPROVED_CONTRACT",
+      "notes": "Свой дубль-ремонт снят по §7 мастер-ТЗ."
+    },
+    {
+      "id": "R-OPEN-BUSINESS",
+      "origin": "M6, M9, N6, Q-BAR-9, смена валюты с историей",
+      "title": "Открытые бизнес-решения денежного учёта",
+      "implementation": "NOT_STARTED",
+      "evidence": "DESIGN_GAP",
+      "delivery": "UNKNOWN",
+      "ownerDecision": "NEEDS_DECISION",
+      "notes": "Последующих решений владельца не найдено (DECISIONS.md на 2341cfb7); код отвечает 409/консервативно, ничего не выдумано. Варианты — WETOP_REMAINING_TZ.md O-4."
+    },
+    {
+      "id": "R-LOAD-STAND",
+      "origin": "пакет нагрузки",
+      "title": "Нагрузочный стенд (push-menu-load.sh и пр.)",
+      "implementation": "NOT_STARTED",
+      "evidence": "NOT_RUN",
+      "delivery": "EXCLUDED",
+      "ownerDecision": "DEFERRED (запуск прямо запрещён мастер-ТЗ §0)"
+    },
+    {
+      "id": "R-RUNTIME-MATRICES",
+      "origin": "A2/A3/A26 runtime-матрицы (76 тестов)",
+      "title": "Opt-in интеграционные матрицы через настоящий HTTP-стенд (bar-money-fixes 35, bar-money-invariants-audit 31, bar-api-bootstrap 5, auth-timezone 2 и пр.)",
+      "implementation": "IMPLEMENTED (код и тесты в ветке)",
+      "evidence": "NOT_RUN здесь: харнес требует изолированного Linux-гостя (preload-proof: внешняя сеть обязана давать EPERM, своя PG 16.14 с ролями a24_*); на Mac и на раннере GitHub без адаптации не исполняется. PASS_AT_SOURCE в среде A28 (candidate-2.8.json: FULL_INTEGRATION 952/997 и матрицы 36+36 сценариев UTC/LA)",
+      "delivery": "REMOTE_BRANCH (в гейт не включены)",
+      "ownerDecision": "NEEDS_DECISION (O-9: отдельный контейнерный workflow или адаптация preload-контракта)"
+    }
+  ]
+}

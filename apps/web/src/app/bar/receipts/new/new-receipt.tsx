@@ -3,6 +3,7 @@ import { startTransition, useActionState, useEffect, useRef, useState } from 're
 import type { BarProductRow, BarSupplierRow } from '../../../../lib/api';
 import { formatMoney, minorToInput } from '../../../../lib/money';
 import { Button, Field, Input, Select, Textarea } from '../../../../components/ui';
+import { BarContextFields, type BarFormContext } from '../../context';
 import {
   createBarReceiptAction,
   scanBarReceiptAction,
@@ -68,7 +69,7 @@ const parseBasis = parseMinor;
 const divideRoundUp = (valueMinor: bigint, divisor: bigint) => (valueMinor + divisor - 1n) / divisor;
 const roundUpToTenTenge = (minorUnits: bigint) => divideRoundUp(minorUnits, 1_000n) * 1_000n;
 
-export function NewReceipt({ products, suppliers, today }: { products: BarProductRow[]; suppliers: BarSupplierRow[]; today: string }) {
+export function NewReceipt({ products, suppliers, today, context }: { products: BarProductRow[]; suppliers: BarSupplierRow[]; today: string; context: BarFormContext }) {
   const [state, action, pending] = useActionState(createBarReceiptAction, initial);
   const [scanState, scanDispatch, scanPending] = useActionState(scanBarReceiptAction, scanInitial);
   const [lines, setLines] = useState<LineDraft[]>(() => [emptyLine()]);
@@ -137,6 +138,7 @@ export function NewReceipt({ products, suppliers, today }: { products: BarProduc
           <ul className="bar-scan-warnings">{scanState.scan.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
         )}
       </section>
+      <BarContextFields context={context} />
       <input type="hidden" name="lineCount" value={lines.length} />
       <div className="bar-form-grid">
         <Field label="Поставщик" controlId="bar-supplier" {...(supplierGuess ? { hint: `В документе: «${supplierGuess}». Такого поставщика ещё нет: заведите его на вкладке «Поставщики»` } : {})}>

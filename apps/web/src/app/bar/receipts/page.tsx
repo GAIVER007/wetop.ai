@@ -2,11 +2,13 @@ import Link from 'next/link';
 import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../lib/api';
+import { hotelApi } from '../../../lib/hotel-api';
 import { formatMoney } from '../../../lib/money';
 import { Page } from '../../../components/page';
 import { Badge, Button, EmptyState, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { postBarReceiptAction } from '../actions';
+import { BarCommandForm } from '../command-form';
 import { SupplierPaymentForm } from '../supplier-payment-form';
 import { BarTabs } from '../tabs';
 import '../bar.css';
@@ -18,6 +20,9 @@ export default async function BarReceiptsPage() {
   await requireVertical(['HOSPITALITY']);
   const receipts = await settle(barApi.receipts());
   if (!receipts.ok) throw receipts.error;
+  // контекст денежных форм: сервер сверяет объект и валюту (D-CUR)
+  const { property } = await hotelApi.settings();
+  const context = { propertyId: property.id, currency: property.currency };
   return <Page width="wide" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={
     <Link className="btn" href="/bar/receipts/new" prefetch={false}>Новый приход</Link>
   }>
@@ -31,14 +36,14 @@ export default async function BarReceiptsPage() {
             <td><b>{receipt.documentNumber}</b><small>{receipt.receivedDate.slice(0, 10)}</small></td>
             <td>{receipt.supplier.name}</td>
             <td>{receipt._count.lines}</td>
-            <td>{formatMoney(receipt.totalAmount)}</td>
-            <td>{formatMoney(receipt.paidAmount)}</td>
-            <td>{formatMoney(receipt.dueAmount)}</td>
+            <td>{formatMoney(receipt.totalAmount, property.currency)}</td>
+            <td>{formatMoney(receipt.paidAmount, property.currency)}</td>
+            <td>{formatMoney(receipt.dueAmount, property.currency)}</td>
             <td><Badge tone={receipt.status === 'POSTED' ? 'ok' : 'neutral'}>{receipt.status === 'POSTED' ? 'Проведён' : 'Черновик'}</Badge></td>
             <td>{receipt.status === 'DRAFT'
-              ? <form action={postBarReceiptAction}><input type="hidden" name="id" value={receipt.id} /><Button size="xs" type="submit">Провести</Button></form>
+              ? <BarCommandForm context={context} action={postBarReceiptAction}><input type="hidden" name="id" value={receipt.id} /><Button size="xs" type="submit">Провести</Button></BarCommandForm>
               : BigInt(receipt.dueAmount) > 0n
-                ? <SupplierPaymentForm receiptId={receipt.id} dueAmount={receipt.dueAmount} />
+                ? <SupplierPaymentForm receiptId={receipt.id} dueAmount={receipt.dueAmount} context={context} />
                 : <Badge tone="ok">Оплачено</Badge>}</td>
           </tr>)}</tbody>
         </Table>}

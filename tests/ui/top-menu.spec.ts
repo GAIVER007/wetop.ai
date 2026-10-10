@@ -79,7 +79,7 @@ test('строка вкладок в шапке: порядок, одна акт
     await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
   await expect(menu.locator('[aria-expanded="true"]')).toHaveCount(1);
-  const rates = menu.getByRole('link', { name: 'Загрузка конкурентов', exact: true });
+  const rates = menu.getByRole('link', { name: 'Анализ конкурентов', exact: true });
   await expect(rates).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(rates).toBeFocused();
@@ -89,7 +89,7 @@ test('строка вкладок в шапке: порядок, одна акт
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await expect(rates).toBeHidden();
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
   await expect(sales).toHaveClass(/has-current-page/);
   // «Финансы» с ADR-157 группа: на чужом экране её вкладка без отметки текущего пункта
   await expect(menu.getByRole('button', { name: 'Финансы', exact: true })).not.toHaveClass(

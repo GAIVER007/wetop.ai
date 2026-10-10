@@ -1,0 +1,30 @@
+# Модульные (unit) · 09.10.2026 20:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/market-redesign-comp32), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-30-03Z-unit-d8a9.json' 'apps/web/src/app/market/derive.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/web/src/app/market/derive.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/market/derive.test.ts [ apps/web/src/app/market/derive.test.ts ]
+Error: Cannot find module './derive' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/src/app/market/derive.test.ts
+ ❯ apps/web/src/app/market/derive.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { competitorStats, signalCells, signalNights, SHIFT_BP } from '…
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  08:30:04
+   Duration  96ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-30-03Z-unit-d8a9.json
+
+# код выхода 1 · 1 с

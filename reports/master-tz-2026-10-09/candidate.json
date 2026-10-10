@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-10-10T07:30:00Z",
+  "candidates": [
+    {
+      "name": "COMP3.2 market redesign",
+      "base_target_main": "4c6bc576dc72e71bfce62aacbcab880c7fd32d5a",
+      "head": "9e12ccfb45c44735b09679cf8afd6686d81ee980",
+      "tree": "cd0cfab7dfbd2bdd10acda496c57d0f887d22688",
+      "branch": "claude/market-redesign-comp32",
+      "pr": 347,
+      "ordered_delta_from_pre_merge_head": [
+        {"sha": "ae6c1b4674cf950428e1109bea8d6f45c660e61d", "what": "merge origin/main (d120f575d) into branch, local pre-task state"},
+        {"sha": "a52263251", "what": "merge origin/main (4c6bc576) resolving CLAUDE.md section-2 conflict (both entries kept)"},
+        {"sha": "9e12ccfb45c44735b09679cf8afd6686d81ee980", "what": "test: record typecheck, lint and unit on the merged tree"}
+      ],
+      "restore": "git fetch origin claude/market-redesign-comp32 && git checkout 9e12ccfb45c44735b09679cf8afd6686d81ee980"
+    },
+    {
+      "name": "profile-menu readiness (foreign patches, my merge)",
+      "base_target_main": "4c6bc576dc72e71bfce62aacbcab880c7fd32d5a",
+      "head": "b99ec05f98dc9463d2fc2352b2b0c792d05f040a",
+      "tree": "de2c0a6ef8a217320ccdd39e4ce6af5d56e9107a",
+      "branch": "claude/profile-menu-ready",
+      "pr": 332,
+      "ordered_delta_from_published_head": [
+        {"sha": "8cf5e4dd8", "what": "merge origin/main (4c6bc576) resolving premium.spec.ts import conflict (both named imports kept)"},
+        {"sha": "b99ec05f98dc9463d2fc2352b2b0c792d05f040a", "what": "test: record typecheck and lint; red-gate triage in message"}
+      ],
+      "restore": "git fetch origin claude/profile-menu-ready && git checkout b99ec05f98dc9463d2fc2352b2b0c792d05f040a"
+    },
+    {
+      "name": "full audit candidate 2.8 (money/UTC/web-auth)",
+      "head": "7fa893430604de993696fd7b06bdb33cfe5e79be",
+      "base": "e77f8951166a90f1751bbd9674896d9d4546035a",
+      "status": "NOT_AVAILABLE_HERE",
+      "restore": "blocked: see WETOP_REMAINING_TZ.md REM-1"
+    }
+  ],
+  "drift_note": "TARGET_MAIN_SHA frozen at 4c6bc576dc72e71bfce62aacbcab880c7fd32d5a (fetched 2026-10-09T18:20:45Z); main at report time 5b1348cc69cd3cee92007aff13f0d5293c4b04a8 (observed 2026-10-10T07:07:53Z); drift is PR #321 finance-group + evening merges, gates on both newer tips red with foreign failures (see checks.json)"
+}

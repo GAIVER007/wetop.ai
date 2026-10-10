@@ -47,6 +47,8 @@ test('/restaurants/ — hero, мокап с планом зала, раздел�
 for (const theme of ['light', 'dark'] as const)
   test(`/restaurants/ доступна в теме ${theme}`, async ({ page }) => {
     await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+    // тема из localStorage ставится после первой отрисовки: без этого axe мерит контраст посреди перехода темы
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     await page.goto('/restaurants/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await page.evaluate(async () => {

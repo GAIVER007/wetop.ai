@@ -3669,3 +3669,35 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* Мобильная сцена /restaurants/: дашборд без сайдбара, метрики 2×2, телефон карточкой под ноутбуком */
+@media (max-width: 40rem) {
+  .restl .restl__laptop {
+    border-width: 6px;
+    border-bottom-width: 14px;
+  }
+  .restl .dash--restaurant {
+    grid-template-columns: 1fr;
+  }
+  .restl .dash--restaurant .dash__sidebar {
+    display: none;
+  }
+  .restl .dash--restaurant .dash__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .restl .dash--restaurant .dash__columns {
+    grid-template-columns: 1fr;
+  }
+  .restl__phone {
+    display: grid;
+    gap: 8px;
+    position: static;
+    width: auto;
+    margin-top: 12px;
+    padding: 14px 12px;
+    border: 6px solid var(--surface-solid);
+    border-radius: var(--radius);
+    background: var(--public-surface);
+    box-shadow: var(--shadow-floating);
+  }
+}

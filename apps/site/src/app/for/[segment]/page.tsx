@@ -19,18 +19,17 @@ export const dynamicParams = false;
 
 type Props = { params: Promise<{ segment: string }> };
 
-const SLUGS: SegmentSlug[] = [
+/** Без salons: у салонов свой лендинг `app/for/salons/page.tsx` (план plans/salon-landing-2026-10-10.md). */
+const SLUGS: Exclude<SegmentSlug, 'salons'>[] = [
   'hotels',
-  'salons',
   'restaurants',
   'hostels',
   'mini-hotels',
   'apart-hotels',
 ];
 
-/** Направление регистрации для CTA страницы: салоны и рестораны предвыбирают свою вертикаль. */
+/** Направление регистрации для CTA страницы: рестораны предвыбирают свою вертикаль. */
 const VERTICAL: Partial<Record<SegmentSlug, 'BEAUTY' | 'FOOD_SERVICE'>> = {
-  salons: 'BEAUTY',
   restaurants: 'FOOD_SERVICE',
 };
 
@@ -39,8 +38,9 @@ export function generateStaticParams(): Array<{ segment: SegmentSlug }> {
 }
 
 function resolve(slug: string) {
-  if (!SLUGS.includes(slug as SegmentSlug)) notFound();
-  return getDictionary().segments.items[slug as SegmentSlug];
+  const known = SLUGS.find((candidate) => candidate === slug);
+  if (!known) notFound();
+  return getDictionary().segments.items[known];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -6235,6 +6235,9 @@ createServer(async (req, res) => {
             replies: 3,
             leads: 0,
             slaBreaches: 1,
+            handoffs: 1,
+            automatedPermille: 750,
+            avgFirstReplySeconds: 12,
           });
         if (path === '/platform/support/prompt' && req.method === 'GET')
           return send(200, { text: supportPrompt });
@@ -6562,6 +6565,9 @@ createServer(async (req, res) => {
             replies: 5,
             leads: 1,
             slaBreaches: 0,
+            handoffs: sellerDialogs.filter((d) => d.channel !== 'sandbox' && d.mode !== 'bot_active').length,
+            automatedPermille: 667,
+            avgFirstReplySeconds: 42,
           });
         if (path === '/ai-seller/embed')
           // Э4: тег с публичным ключом гостиницы (выводимый, не секрет) и домены её сайтов

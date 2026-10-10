@@ -80,6 +80,14 @@ test('аналитика: таблица периода и прошлого та
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute('aria-current', 'page');
 });
 
+test('аналитика: работа продавца за сутки, доля без человека, передачи и время первого ответа', async ({ page }) => {
+  await page.goto('/ai-seller/analytics');
+  await expect(page.getByTestId('seller-metric-automated')).toHaveText('66,7 %');
+  await expect(page.getByTestId('seller-metric-handoffs')).toHaveText('1');
+  await expect(page.getByTestId('seller-metric-reply-time')).toHaveText('42 с');
+  await expect(page.getByTestId('seller-analytics-day')).toContainText('тире, а не 0');
+});
+
 test('аналитика: сводка недоступна, сказано словами', async ({ page, request }) => {
   await control(request, { failPath: '/sales/summary' });
   await page.goto('/ai-seller/analytics');

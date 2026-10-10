@@ -216,6 +216,10 @@ export function summaryView(raw: unknown) {
     replies: num(body.replies),
     leads: num(body.leads),
     slaBreaches: num(body.sla_breaches),
+    // S2.9: null, когда диалогов или ответов не было: ноль выглядел бы как «всё мгновенно» и «никто не справился»
+    handoffs: num(body.handoffs),
+    automatedPermille: typeof body.automated_permille === 'number' ? body.automated_permille : null,
+    avgFirstReplySeconds: typeof body.avg_first_reply_seconds === 'number' ? body.avg_first_reply_seconds : null,
   };
 }
 

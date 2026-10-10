@@ -228,7 +228,7 @@ async function SellerScreen({
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'connections' && <ConnectionsView status={status.value} />}
       {view === 'scenarios' && <ScenariosView status={status.value} />}
-      {view === 'analytics' && <AnalyticsView days={days} />}
+      {view === 'analytics' && <AnalyticsView days={days} status={status.value} />}
     </Stack>
   );
 }

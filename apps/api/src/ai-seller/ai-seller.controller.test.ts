@@ -645,7 +645,16 @@ describe('диалоги, знания, сводка, песочница (П7)',
       sla_breaches: 0,
     };
     const summary = await api().get('/ai-seller/summary').set(as('session-a')).expect(200);
-    expect(summary.body).toEqual({ hours: 24, dialogs: 5, replies: 12, leads: 2, slaBreaches: 0 });
+    expect(summary.body).toEqual({
+      hours: 24,
+      dialogs: 5,
+      replies: 12,
+      leads: 2,
+      slaBreaches: 0,
+      handoffs: 0,
+      automatedPermille: null,
+      avgFirstReplySeconds: null,
+    });
     // Числа за сутки считаются без проверок агента, как и список диалогов
     expect(connection.seller.calls.at(-1)?.args).toEqual([true]);
 

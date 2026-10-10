@@ -383,3 +383,15 @@ export function conversationChannelLabel(channel: string | null): string {
   if (channel === 'sandbox') return 'проверка';
   return channel;
 }
+
+/** Время первого ответа словами: 20 → «20 с», 65 → «1 мин 5 с», 3720 → «1 ч 2 мин»; нет данных → null */
+export function replyTimeText(seconds: number | null): string | null {
+  if (seconds === null) return null;
+  if (seconds < 60) return `${seconds} с`;
+  if (seconds < 3600) {
+    const s = seconds % 60;
+    return `${Math.floor(seconds / 60)} мин${s ? ` ${s} с` : ''}`;
+  }
+  const m = Math.floor((seconds % 3600) / 60);
+  return `${Math.floor(seconds / 3600)} ч${m ? ` ${m} мин` : ''}`;
+}

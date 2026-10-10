@@ -7,7 +7,8 @@ import { hotelToday } from '../../../lib/hotel-api';
 import { displayDate } from '../../../lib/display-date';
 import { formatMoney } from '../../../lib/money';
 import { pluralRu } from '../../../lib/plural';
-import { conversationChannelLabel, conversationStageLabel, sellerConnected } from '../../../lib/ai-seller';
+import { conversationChannelLabel, conversationStageLabel, replyTimeText, sellerConnected } from '../../../lib/ai-seller';
+import { conversionText as percentText } from '../../../lib/sales';
 import { conversionText, countDelta, moneyDelta, salesPeriod } from '../../../lib/sales';
 import { salesApi, sellerApi, type SellerStatus } from '../../../lib/api';
 
@@ -106,10 +107,14 @@ export async function OverviewView({ status }: { status: SellerStatus }) {
  * «Аналитика» продавца: путь от предложения до брони за выбранный отрезок и к прошлому такого же. Предложение это
  * момент, когда продавец собрал данные брони и спросил подтверждение; бронь создаётся после явного «да» гостя.
  */
-export async function AnalyticsView({ days }: { days: string }) {
+export async function AnalyticsView({ days, status }: { days: string; status: SellerStatus }) {
   const today = await hotelToday();
   const period = salesPeriod({ days }, today);
-  const sales = await settle(salesApi.summary(period.from, period.to));
+  const [sales, bot] = await Promise.all([
+    settle(salesApi.summary(period.from, period.to)),
+    sellerConnected(status) ? settle(sellerApi.summary()) : null,
+  ]);
+  const day = bot?.ok ? bot.value : null;
   const link = (n: '7' | '30') => `/ai-seller/analytics?days=${n}`;
   if (!sales.ok) {
     return (
@@ -138,6 +143,35 @@ export async function AnalyticsView({ days }: { days: string }) {
           30 дней
         </Link>
       </nav>
+      <Panel aria-labelledby="seller-analytics-day-title" data-testid="seller-analytics-day">
+        <SectionTitle first id="seller-analytics-day-title">
+          Работа продавца за сутки
+        </SectionTitle>
+        <Table size="sm" aria-label="Показатели продавца за сутки" data-testid="seller-analytics-day-table">
+          <tbody>
+            <tr>
+              <th scope="row">Диалогов</th>
+              <td>{day ? String(day.dialogs) : DASH}</td>
+            </tr>
+            <tr>
+              <th scope="row">Без участия человека</th>
+              <td data-testid="seller-metric-automated">{(day && percentText(day.automatedPermille)) ?? DASH}</td>
+            </tr>
+            <tr>
+              <th scope="row">Передано человеку</th>
+              <td data-testid="seller-metric-handoffs">{day ? String(day.handoffs) : DASH}</td>
+            </tr>
+            <tr>
+              <th scope="row">Среднее время первого ответа</th>
+              <td data-testid="seller-metric-reply-time">{(day && replyTimeText(day.avgFirstReplySeconds)) ?? DASH}</td>
+            </tr>
+          </tbody>
+        </Table>
+        <p className="settings-note">
+          Передача человеку: в диалоге подключился оператор или продавец позвал человека. Время первого ответа:
+          от первого сообщения гостя до первого ответа продавца. Нет диалогов или ответов: тире, а не 0.
+        </p>
+      </Panel>
       <Panel aria-labelledby="seller-analytics-title">
         <SectionTitle first id="seller-analytics-title">
           От предложения до брони

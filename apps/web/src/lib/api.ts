@@ -2442,6 +2442,12 @@ export interface SellerSummary {
   replies: number;
   leads: number;
   slaBreaches: number;
+  /** S2.9: диалоги суток, где подключился человек или нужен человек */
+  handoffs: number;
+  /** Доля диалогов суток без человека, десятые доли процента; null: диалогов не было */
+  automatedPermille: number | null;
+  /** Среднее время от вопроса гостя до первого ответа продавца, секунды; null: ответов не было */
+  avgFirstReplySeconds: number | null;
 }
 
 export interface SellerExtractResult {

@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   SELLER_TABS,
+  replyTimeText,
   categoryPriceLine,
   conversationChannelLabel,
   conversationModeLabel,
@@ -26,6 +27,18 @@ const status = (over: Partial<SellerStatus> = {}): SellerStatus => ({
   retrying: false,
   embedAvailable: true,
   ...over,
+});
+
+describe('время первого ответа словами', () => {
+  it('секунды, минуты, часы; нет данных остаётся null, а не «0 с»', () => {
+    expect(replyTimeText(null)).toBeNull();
+    expect(replyTimeText(0)).toBe('0 с');
+    expect(replyTimeText(20)).toBe('20 с');
+    expect(replyTimeText(60)).toBe('1 мин');
+    expect(replyTimeText(65)).toBe('1 мин 5 с');
+    expect(replyTimeText(3600)).toBe('1 ч');
+    expect(replyTimeText(3720)).toBe('1 ч 2 мин');
+  });
 });
 
 describe('вкладки раздела (макет владельца 26.09.2026)', () => {

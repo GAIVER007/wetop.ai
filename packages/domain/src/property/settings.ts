@@ -16,7 +16,7 @@ export interface HotelSettingsPatch {
   countryCode?: string | null;
   city?: string | null;
   channexPropertyType?: string | null;
-  /** Карточка объекта (ADR-156, DATA_MODEL §31) */
+  /** Карточка объекта (ADR-158, DATA_MODEL §32) */
   description?: string | null;
   website?: string | null;
   publicName?: string | null;
@@ -38,7 +38,7 @@ export interface HotelSettingsPatch {
 export type HotelSettingsParse =
   { ok: true; value: HotelSettingsPatch } | { ok: false; reason: string };
 
-/** Способ оплаты на месте, подпись отмены и залога для карточки (ADR-156): подписи, не финансовая логика (Q-293) */
+/** Способ оплаты на месте, подпись отмены и залога для карточки (ADR-158): подписи, не финансовая логика (Q-293) */
 export const ONSITE_PAYMENTS = ['CASH_CARD', 'CASH', 'CARD', 'TRANSFER'] as const;
 export const CANCELLATION_RULES = ['FREE_1D', 'FREE_3D', 'FREE_7D', 'NON_REFUNDABLE'] as const;
 export const DEPOSIT_RULES = ['NONE', 'FIRST_NIGHT', 'HALF', 'FULL'] as const;

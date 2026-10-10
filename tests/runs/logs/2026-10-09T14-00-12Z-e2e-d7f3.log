@@ -1,0 +1,189 @@
+# Сквозные (e2e) · 09.10.2026 19:00 Алматы · vm
+# коммит b97d5ce (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/finance-home-merge.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/finance-home-merge.spec.ts:19:1 › обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек (17.0s)
+  ✘  2 tests/ui/finance-home-merge.spec.ts:102:1 › очередь «Требуют внимания» открывается из «Все задачи» (45.2s)
+  ✘  3 tests/ui/finance-home-merge.spec.ts:109:1 › /today гостиницы перенаправляет в финансы (17.2s)
+  ✓  4 tests/ui/finance-home-merge.spec.ts:117:1 › меню: «Финансы» первой вкладкой, «Главной» нет (1.6s)
+  ✘  5 tests/ui/finance-home-merge.spec.ts:125:1 › период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию (16.2s)
+  ✘  6 tests/ui/finance-home-merge.spec.ts:137:1 › телефон: показатели первым экраном, фильтры достижимы (16.4s)
+
+
+  1) tests/ui/finance-home-merge.spec.ts:19:1 › обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 })
+
+
+      21 |   await expect(
+      22 |     page.getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 }),
+    > 23 |   ).toBeVisible();
+         |     ^
+      24 |   const main = page.getByRole('main');
+      25 |
+      26 |   // суммы периода из того же API, что экран
+        at /home/user/wetop.ai/tests/ui/finance-home-merge.spec.ts:23:5
+
+    Error Context: test-results/finance-home-merge-обзор-б-b768a-и-деньги-кассы-без-заглушек/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-обзор-б-b768a-и-деньги-кассы-без-заглушек/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-обзор-б-b768a-и-деньги-кассы-без-заглушек/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-home-merge.spec.ts:102:1 › очередь «Требуют внимания» открывается из «Все задачи» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Все задачи', exact: true })
+
+
+      102 | test('очередь «Требуют внимания» открывается из «Все задачи»', async ({ page }) => {
+      103 |   await page.goto('/finance');
+    > 104 |   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
+          |                                                                       ^
+      105 |   await expect(page.getByRole('dialog', { name: 'Требуют внимания', exact: true })).toBeVisible();
+      106 |   await expect(page.locator('#day-attention')).toHaveCount(1);
+      107 | });
+        at /home/user/wetop.ai/tests/ui/finance-home-merge.spec.ts:104:71
+
+    Error Context: test-results/finance-home-merge-очередь-e23b5-открывается-из-«Все-задачи»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-очередь-e23b5-открывается-из-«Все-задачи»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-очередь-e23b5-открывается-из-«Все-задачи»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-home-merge.spec.ts:109:1 › /today гостиницы перенаправляет в финансы ─────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 })
+
+
+      112 |   await expect(
+      113 |     page.getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 }),
+    > 114 |   ).toBeVisible();
+          |     ^
+      115 | });
+      116 |
+      117 | test('меню: «Финансы» первой вкладкой, «Главной» нет', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/finance-home-merge.spec.ts:114:5
+
+    Error Context: test-results/finance-home-merge--today-гостиницы-перенаправляет-в-финансы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge--today-гостиницы-перенаправляет-в-финансы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge--today-гостиницы-перенаправляет-в-финансы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/finance-home-merge.spec.ts:125:1 › период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('navigation', { name: 'Период обзора', exact: true }).getByRole('link', { name: 'Месяц', exact: true })
+    Expected: "page"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('navigation', { name: 'Период обзора', exact: true }).getByRole('link', { name: 'Месяц', exact: true }) with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Период обзора', exact: true }).getByRole('link', { name: 'Месяц', exact: true })
+
+
+      126 |   await page.goto('/finance');
+      127 |   const period = page.getByRole('navigation', { name: 'Период обзора', exact: true });
+    > 128 |   await expect(period.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
+          |                                                                          ^
+      129 |     'aria-current',
+      130 |     'page',
+      131 |   );
+        at /home/user/wetop.ai/tests/ui/finance-home-merge.spec.ts:128:74
+
+    Error Context: test-results/finance-home-merge-период--c31e0-ей-Месяц-Месяц-по-умолчанию/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-период--c31e0-ей-Месяц-Месяц-по-умолчанию/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-период--c31e0-ей-Месяц-Месяц-по-умолчанию/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/finance-home-merge.spec.ts:137:1 › телефон: показатели первым экраном, фильтры достижимы 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator: getByRole('region', { name: 'Ключевые показатели', exact: true }).getByTestId('biz-revenue')
+    Expected: in viewport
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeInViewport" getByRole('region', { name: 'Ключевые показатели', exact: true }).getByTestId('biz-revenue') with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Ключевые показатели', exact: true }).getByTestId('biz-revenue')
+
+
+      142 |       'biz-revenue',
+      143 |     ),
+    > 144 |   ).toBeInViewport();
+          |     ^
+      145 |   expect(
+      146 |     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+      147 |   ).toBeLessThanOrEqual(1);
+        at /home/user/wetop.ai/tests/ui/finance-home-merge.spec.ts:144:5
+
+    Error Context: test-results/finance-home-merge-телефон-a53c7-м-экраном-фильтры-достижимы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-телефон-a53c7-м-экраном-фильтры-достижимы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-телефон-a53c7-м-экраном-фильтры-достижимы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/finance-home-merge.spec.ts:19:1 › обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек 
+    tests/ui/finance-home-merge.spec.ts:102:1 › очередь «Требуют внимания» открывается из «Все задачи» 
+    tests/ui/finance-home-merge.spec.ts:109:1 › /today гостиницы перенаправляет в финансы ──────────
+    tests/ui/finance-home-merge.spec.ts:125:1 › период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию 
+    tests/ui/finance-home-merge.spec.ts:137:1 › телефон: показатели первым экраном, фильтры достижимы 
+  1 passed (2.1m)
+
+# код выхода 1 · 2 мин 8 с

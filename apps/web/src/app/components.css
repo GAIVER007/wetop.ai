@@ -1572,7 +1572,7 @@
   .btn--secondary.is-danger {
     color: var(--danger);
   }
-    /* Цветные кнопки под курсором: рамка цветом подписи. До DS1c их перекрашивало общее `.btn:hover`
+  /* Цветные кнопки под курсором: рамка цветом подписи. До DS1c их перекрашивало общее `.btn:hover`
      в --primary-hover (синий фон под красной или жёлтой подписью), находка DS1c. */
   .btn--danger:hover:not(:disabled),
   .btn--warning:hover:not(:disabled),
@@ -2960,7 +2960,7 @@
     }
   }
 
-  /* Выключатель, чип-флажок, поле со значком (ADR-156, DESIGN.md §8.3) */
+  /* Выключатель, чип-флажок, поле со значком (ADR-158, DESIGN.md §8.3) */
   .switch {
     position: relative;
     display: flex;

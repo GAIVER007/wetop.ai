@@ -1,0 +1,116 @@
+# Сквозные (e2e) · 09.10.2026 19:58 Алматы · vm
+# коммит 0fbb533 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/bar.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные (3.1s)
+  ✓   2 tests/ui/bar.spec.ts:74:1 › быстрая продажа одной строкой и фильтры доски (2.7s)
+  ✓   3 tests/ui/bar.spec.ts:98:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (3.2s)
+  ✓   4 tests/ui/bar.spec.ts:131:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (2.4s)
+  ✘   5 tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (16.7s)
+  ✓   6 tests/ui/bar.spec.ts:162:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.2s)
+  ✓   7 tests/ui/bar.spec.ts:174:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (4.3s)
+  ✓   8 tests/ui/bar.spec.ts:203:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.7s)
+  ✓   9 tests/ui/bar.spec.ts:215:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (5.2s)
+  ✘  10 tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений (45.4s)
+  ✓  11 tests/ui/bar.spec.ts:253:3 › доступность и телефон: light (6.0s)
+  ✓  12 tests/ui/bar.spec.ts:253:3 › доступность и телефон: dark (5.3s)
+
+
+  1) tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').visible().getByRole('complementary', { name: 'Новый товар' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').visible().getByRole('complementary', { name: 'Новый товар' }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('complementary', { name: 'Новый товар' })
+
+
+      152 |   await m.getByRole('link', { name: 'Добавить товар' }).click();
+      153 |   const card = m.getByRole('complementary', { name: 'Новый товар' });
+    > 154 |   await expect(card).toBeVisible();
+          |                      ^
+      155 |   await card.getByLabel('Название товара').fill('Чай зелёный');
+      156 |   await expect(card.getByLabel('Артикул (SKU)')).toHaveValue('CHAY-ZELENYY');
+      157 |   await card.getByLabel('Цена продажи').fill('500');
+        at /home/user/wetop.ai/tests/ui/bar.spec.ts:154:22
+
+    Error Context: test-results/bar-«Добавить-товар»-откры-50384-од-предлагается-из-названия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-«Добавить-товар»-откры-50384-од-предлагается-из-названия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-«Добавить-товар»-откры-50384-од-предлагается-из-названия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений ────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().locator('.bar-sale-form').first().getByRole('button', { name: 'Списать' })
+        - locator resolved to <button type="submit" class="btn btn--warning">Списать</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <select class="inp" required="" name="productId">…</select> from <section class="panel bar-quick-panel">…</section> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <select class="inp" required="" name="productId">…</select> from <section class="panel bar-quick-panel">…</section> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        84 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <select class="inp" required="" name="productId">…</select> from <section class="panel bar-quick-panel">…</section> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+
+
+      244 |   await writeOff.getByLabel('Кол-во, шт.').fill('1');
+      245 |   await writeOff.getByLabel('Причина').selectOption('Бой');
+    > 246 |   await writeOff.getByRole('button', { name: 'Списать' }).click();
+          |                                                           ^
+      247 |   await expect(writeOff.getByRole('status')).toContainText('Товар списан');
+      248 |   await expect(m.getByRole('region', { name: 'Продажи бара' })).toContainText('Coca-Cola 0.5');
+      249 |   await expect(m.getByRole('region', { name: 'Движения остатка бара' })).toContainText('Приход');
+        at /home/user/wetop.ai/tests/ui/bar.spec.ts:246:59
+
+    Error Context: test-results/bar-операции-списание-с-пр-8db7c-нал-продаж-и-лента-движений/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-операции-списание-с-пр-8db7c-нал-продаж-и-лента-движений/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-операции-списание-с-пр-8db7c-нал-продаж-и-лента-движений/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия 
+    tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений ─────
+  10 passed (1.9m)
+
+# код выхода 1 · 1 мин 54 с

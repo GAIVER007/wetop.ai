@@ -1,0 +1,51 @@
+# Сквозные (e2e) · 09.10.2026 19:11 Алматы · vm
+# коммит b97d5ce (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/finance-home-merge.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/finance-home-merge.spec.ts:19:1 › обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек (3.0s)
+  ✓  2 tests/ui/finance-home-merge.spec.ts:102:1 › очередь «Требуют внимания» открывается из «Все задачи» (1.9s)
+  ✓  3 tests/ui/finance-home-merge.spec.ts:109:1 › /today гостиницы перенаправляет в финансы (2.3s)
+  ✓  4 tests/ui/finance-home-merge.spec.ts:117:1 › меню: «Финансы» первой вкладкой, «Главной» нет (1.6s)
+  ✓  5 tests/ui/finance-home-merge.spec.ts:125:1 › период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию (2.2s)
+  ✘  6 tests/ui/finance-home-merge.spec.ts:137:1 › телефон: показатели первым экраном, фильтры достижимы (1.9s)
+
+
+  1) tests/ui/finance-home-merge.spec.ts:137:1 › телефон: показатели первым экраном, фильтры достижимы 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    164
+
+      145 |   expect(
+      146 |     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+    > 147 |   ).toBeLessThanOrEqual(1);
+          |     ^
+      148 |   const show = page.getByRole('button', { name: 'Показать', exact: true });
+      149 |   await show.scrollIntoViewIfNeeded();
+      150 |   await expect(show).toBeInViewport();
+        at /home/user/wetop.ai/tests/ui/finance-home-merge.spec.ts:147:5
+
+    Error Context: test-results/finance-home-merge-телефон-a53c7-м-экраном-фильтры-достижимы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-телефон-a53c7-м-экраном-фильтры-достижимы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-телефон-a53c7-м-экраном-фильтры-достижимы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/finance-home-merge.spec.ts:137:1 › телефон: показатели первым экраном, фильтры достижимы 
+  5 passed (22.6s)
+
+# код выхода 1 · 24 с

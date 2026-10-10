@@ -1,0 +1,37 @@
+# Модульные (unit) · 09.10.2026 17:43 Алматы · vm
+# коммит d0eb1e6 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 25
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-43-24Z-unit-e7a6.json' 'apps/api/src/body-parsers.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/body-parsers.test.ts (5 tests | 1 failed) 104ms
+   ❯ разбор тела API (5)
+     ✓ большой предел только у POST /marketing/site/versions 2ms
+     ✓ сохранение версии принимает 200 КБ, а больше 300 КБ отклоняет 413 55ms
+     × скан накладной бара принимает фото в base64, а больше 12 МБ отклоняет 413 4ms
+     ✓ другие маршруты и методы по-прежнему режутся на 100 КБ, и JSON, и urlencoded 41ms
+     ✓ main.ts выключает встроенные парсеры Nest и ставит свои 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/body-parsers.test.ts > разбор тела API > скан накладной бара принимает фото в base64, а больше 12 МБ отклоняет 413
+TypeError: isBarReceiptScan is not a function
+ ❯ apps/api/src/body-parsers.test.ts:41:12
+     39|
+     40|   it('скан накладной бара принимает фото в base64, а больше 12 МБ откл…
+     41|     expect(isBarReceiptScan({ method: 'POST', path: '/bar/receipts/sca…
+       |            ^
+     42|     expect(isBarReceiptScan({ method: 'POST', path: '/bar/receipts/sca…
+     43|     expect(isBarReceiptScan({ method: 'GET', path: '/bar/receipts/scan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  12:43:25
+   Duration  546ms (import 48%, tests 27%, transform 24%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-43-24Z-unit-e7a6.json
+
+# код выхода 1 · 2 с

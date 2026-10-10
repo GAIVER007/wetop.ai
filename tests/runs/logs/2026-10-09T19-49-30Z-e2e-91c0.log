@@ -1,0 +1,33 @@
+# Сквозные (e2e) · 10.10.2026 00:49 Алматы · vm
+# коммит e44667e (claude/hopeful-fermat-98a9qt), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/object-card.spec.ts' 'tests/ui/organizations-manage.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 1 worker
+
+  ✓   1 tests/ui/object-card.spec.ts:24:1 › карточка объекта: все поля сохраняются и читаются обратно (17.3s)
+  ✓   2 tests/ui/object-card.spec.ts:76:1 › карточка объекта: снятие всех удобств и возврат значения гасят «есть изменения» (10.4s)
+  ✓   3 tests/ui/object-card.spec.ts:103:1 › карточка объекта: ошибки словами у поля и от API, ввод не пропадает (8.1s)
+  ✓   4 tests/ui/object-card.spec.ts:126:1 › предпросмотр карточки показывает ещё не сохранённые правки (6.4s)
+  ✓   5 tests/ui/object-card.spec.ts:148:1 › «Добавить услугу» раскрывает остальные удобства, номера и места считаются по фонду (6.0s)
+  ✓   6 tests/ui/object-card.spec.ts:164:1 › «Проживание» шлёт свои поля и не затирает «Основное» (11.9s)
+  ✓   7 tests/ui/object-card.spec.ts:187:1 › фото объекта: загрузка, показ в карточке справа, удаление (8.1s)
+  ✓   8 tests/ui/object-card.spec.ts:208:1 › договор объекта: только PDF, новый заменяет прежний, удаление (9.1s)
+  ✓   9 tests/ui/object-card.spec.ts:236:1 › хранилище файлов выключено: загрузки нет, причина сказана словами (6.0s)
+  ✓  10 tests/ui/object-card.spec.ts:250:3 › карточка объекта: доступность и 390 px без горизонтальной прокрутки: light (26.6s)
+  ✓  11 tests/ui/object-card.spec.ts:250:3 › карточка объекта: доступность и 390 px без горизонтальной прокрутки: dark (29.3s)
+  ✓  12 tests/ui/organizations-manage.spec.ts:21:1 › переименование: название сохраняется и видно в таблице; пустое отклоняется словами API (8.2s)
+  ✓  13 tests/ui/organizations-manage.spec.ts:42:1 › архив вместо удаления: подтверждение, скрытие из списка, показ архивных и возврат с прежним статусом (9.4s)
+  ✓  14 tests/ui/organizations-manage.spec.ts:84:1 › своя организация: помечена «Ваша», в архив не убирается (5.4s)
+  ✓  15 tests/ui/organizations-manage.spec.ts:101:1 › создание организации: письмо владельцу ушло, в таблице «ждёт пароля», повторная ссылка сразу нельзя (8.4s)
+  ✓  16 tests/ui/organizations-manage.spec.ts:136:1 › письмо не ушло: организация создана, ссылку можно отправить ещё раз, когда почта заработала (11.3s)
+  ✓  17 tests/ui/organizations-manage.spec.ts:162:1 › создание: отказы API видны словами; ссылка на самостоятельную регистрацию остаётся (8.5s)
+
+  17 passed (3.5m)
+
+# код выхода 0 · 3 мин 30 с

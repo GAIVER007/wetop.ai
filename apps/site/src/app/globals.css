@@ -4067,3 +4067,154 @@ button {
   border-color: var(--salon-border);
   background: var(--salon-chip);
 }
+
+
+/* Лендинг «Для гостиниц» (10.10.2026): каркас салонного в базовой палитре сайта. */
+.hotel-hero {
+  display: grid;
+  gap: clamp(24px, 3vw, 40px);
+  align-items: center;
+  padding: clamp(24px, 4vw, 48px) 0;
+}
+@media (min-width: 64rem) {
+  .hotel-hero {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  }
+}
+.hotel-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.hotel-hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  color: var(--text-2);
+  font-size: 0.875rem;
+}
+.hotel-hero__chips li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hotel-hero__chips svg {
+  color: var(--primary);
+}
+.hotel-hero__figure {
+  margin: 0;
+}
+.hotel-hero__figure figcaption {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  margin-top: 12px;
+}
+.hotel-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 20px 0;
+  margin: 0;
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+@media (max-width: 64rem) {
+  .hotel-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.hotel-facts__item {
+  display: grid;
+  gap: 4px;
+}
+.hotel-facts__item strong {
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+.hotel-facts__item span {
+  color: var(--text-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.hotel-growth {
+  display: grid;
+  gap: 32px;
+  align-items: center;
+  padding: clamp(24px, 3.5vw, 44px);
+  margin: clamp(32px, 5vw, 48px) 0;
+  border-radius: var(--radius-xl);
+}
+@media (min-width: 64rem) {
+  .hotel-growth {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+.hotel-growth__art {
+  position: relative;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: var(--radius-lg);
+  padding: clamp(16px, 2vw, 24px);
+}
+.hotel-growth__art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.hotel-growth__float {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  color: var(--text-2);
+  font-size: 0.75rem;
+}
+.hotel-growth__float strong {
+  color: var(--text);
+  font-family: var(--font-head);
+  font-size: 1rem;
+}
+.hotel-growth__title {
+  margin: 12px 0 0;
+  font-family: var(--font-head);
+  font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+.hotel-growth__text {
+  margin: 12px 0 0;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.hotel-growth__points {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 20px;
+  display: grid;
+  gap: 10px;
+}
+.hotel-growth__points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.5;
+}
+.hotel-growth__points svg {
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 4px;
+}

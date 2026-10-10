@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, menuLinks } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -25,11 +25,6 @@ async function signIn(page: Page) {
 
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
-
-const menuLinks = (page: Page) =>
-  page
-    .locator('.workspace-header .topmenu a')
-    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 /** Снимок для отчёта: без фокуса и с начала страницы — иначе закреплённые шапка и меню снимаются со сдвигом */
 async function shot(page: Page, name: string) {

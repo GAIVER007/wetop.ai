@@ -11,8 +11,8 @@ const url = process.env.DATABASE_URL;
 
 /**
  * Уровень наличия у снимка (DATA_MODEL §23.1, миграция 20261010000080) на настоящей схеме: снимок только с уровнем
- * записывается, пустой (без процента и без уровня) отвергает CHECK, а расчёт «вы и рынок» по процентам такой снимок
- * не берёт. Данные вымышленные (ADR-010), после прогона удаляются.
+ * записывается, пустой (без процента и без уровня) отвергает CHECK, а расчёт раздела получает снимок с уровнем
+ * и без процента. Данные вымышленные (ADR-010), после прогона удаляются.
  */
 describe.skipIf(!url)('загрузка конкурентов: уровень наличия (integration, DATA_MODEL §23.1)', () => {
   let db: Db;
@@ -66,10 +66,13 @@ describe.skipIf(!url)('загрузка конкурентов: уровень �
     await expect(snapshot('2026-10-22', {})).rejects.toThrow(/competitor_occupancy_has_value/);
   });
 
-  it('расчёт «вы и рынок» берёт только снимки с процентом', async () => {
-    const readings = (await repo.readings('2026-10-20', '2026-10-22', '2026-10-10')).filter(
-      (r) => r.competitorId === competitorId,
-    );
-    expect(readings.map((r) => [r.stayDate, r.occupancyBp])).toEqual([['2026-10-21', 9000]]);
+  it('расчёт раздела получает и проценты, и уровни: снимок только с уровнем приходит без процента', async () => {
+    const readings = (await repo.readings('2026-10-20', '2026-10-22', '2026-10-10'))
+      .filter((r) => r.competitorId === competitorId)
+      .sort((a, b) => a.stayDate.localeCompare(b.stayDate));
+    expect(readings.map((r) => [r.stayDate, r.occupancyBp, r.level])).toEqual([
+      ['2026-10-20', null, 'FEW_LEFT'],
+      ['2026-10-21', 9000, 'FEW_LEFT'],
+    ]);
   });
 });

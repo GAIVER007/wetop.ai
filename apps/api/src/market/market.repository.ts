@@ -203,22 +203,23 @@ export class PrismaMarketRepository implements MarketRepository {
         stayDate: { gte: asDate(from), lte: asDate(to) },
         observedOn: { lte: asDate(asOf) },
         competitor: { active: true },
-        // расчёт «вы и рынок» идёт по процентам; снимок только с уровнем (§23.1) войдёт в него отдельным путём
-        occupancyBp: { not: null },
       },
       select: {
         competitorId: true,
         stayDate: true,
         observedOn: true,
         occupancyBp: true,
+        availabilityLevel: true,
         source: true,
       },
     });
+    // и проценты, и уровни наличия (§23.1): средняя рынка в домене считается только из процентов
     return rows.map((r) => ({
       competitorId: r.competitorId,
       stayDate: iso(r.stayDate),
       observedOn: iso(r.observedOn),
-      occupancyBp: r.occupancyBp!,
+      occupancyBp: r.occupancyBp,
+      level: r.availabilityLevel,
       source: r.source,
     }));
   }

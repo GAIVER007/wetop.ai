@@ -76,8 +76,8 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
     await repo.writeReadings(c!.id, '2031-06-02', [{ date: '2031-06-03', bp: null }], 'MANUAL', audit);
     const rows = await repo.readings('2031-06-01', '2031-06-10', '2031-06-02');
     expect(rows.sort((a, b) => a.observedOn.localeCompare(b.observedOn))).toEqual([
-      { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031-06-01', occupancyBp: 7000, source: 'MANUAL' },
-      { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031-06-02', occupancyBp: 8550, source: 'MANUAL' },
+      { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031-06-01', occupancyBp: 7000, level: null, source: 'MANUAL' },
+      { competitorId: c!.id, stayDate: '2031-06-02', observedOn: '2031-06-02', occupancyBp: 8550, level: null, source: 'MANUAL' },
     ]);
     // снимок «из будущего» относительно даты снимка не отдаётся
     expect(await repo.readings('2031-06-01', '2031-06-10', '2031-06-01')).toHaveLength(1);

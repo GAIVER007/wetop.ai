@@ -122,7 +122,9 @@ export interface MarketReading {
   competitorId: string;
   stayDate: string;
   observedOn: string;
-  occupancyBp: number;
+  /** NULL: известен только уровень наличия (DATA_MODEL §23.1) */
+  occupancyBp: number | null;
+  level?: AvailabilityLevel | null;
   source: ObservationSource;
 }
 
@@ -146,6 +148,8 @@ export interface MarketCell {
   /** Изменение к дате сравнения; null: сравнения нет или нового снимка после неё не было */
   deltaBp: number | null;
   source: ObservationSource | null;
+  /** уровень наличия: из снимка, без него из процента по порогам (§23.1); null, если снимка нет */
+  level: AvailabilityLevel | null;
 }
 
 export type InsightKind = 'high-behind' | 'high' | 'low-ahead' | 'low' | 'missing';
@@ -174,7 +178,8 @@ export interface MarketBoard {
       lastObservedOn: string | null;
     }
   >;
-  market: Array<{ date: string; bp: number | null; count: number }>;
+  /** средняя только из процентов; `tight` из `withLevel` соседей почти полны («нет мест» или «мало мест») */
+  market: Array<{ date: string; bp: number | null; count: number; tight: number; withLevel: number }>;
   gap: Array<{ date: string; bp: number | null }>;
   summary: {
     marketBp: number | null;
@@ -204,10 +209,13 @@ function latestAsOf(readings: MarketReading[], asOf: string): Map<string, Market
 
 const INSIGHT_ORDER: InsightKind[] = ['high-behind', 'high', 'low-ahead', 'low', 'missing'];
 
-function nightKind(market: number | null, own: number | null): InsightKind | null {
+/** Почти полна половина соседей с уровнем и больше (Q-MKT-LVL-2): рынок почти полон и без процентов */
+const tightMarket = (m: { tight: number; withLevel: number }) => m.withLevel > 0 && m.tight * 2 >= m.withLevel;
+
+function nightKind(market: number | null, own: number | null, tight: boolean): InsightKind | null {
+  if ((market !== null && market >= HIGH_DEMAND_BP) || tight)
+    return market !== null && own !== null && own <= market - GAP_BP ? 'high-behind' : 'high';
   if (market === null) return null;
-  if (market >= HIGH_DEMAND_BP)
-    return own !== null && own <= market - GAP_BP ? 'high-behind' : 'high';
   if (market <= LOW_DEMAND_BP)
     return own !== null && own >= market + GAP_BP ? 'low-ahead' : 'low';
   return null;
@@ -248,15 +256,17 @@ export function buildMarketBoard(input: {
     let lastObservedOn: string | null = null;
     const cells = dates.map((date): MarketCell => {
       const now = current.get(`${c.id}|${date}`);
-      if (!now) return { date, bp: null, deltaBp: null, source: null };
+      if (!now) return { date, bp: null, deltaBp: null, source: null, level: null };
       sources.add(now.source);
       if (!lastObservedOn || now.observedOn > lastObservedOn) lastObservedOn = now.observedOn;
       const before = compareOn && now.observedOn > compareOn ? earlier.get(`${c.id}|${date}`) : undefined;
+      const bp = now.occupancyBp;
       return {
         date,
-        bp: now.occupancyBp,
-        deltaBp: before ? now.occupancyBp - before.occupancyBp : null,
+        bp,
+        deltaBp: before && bp !== null && before.occupancyBp !== null ? bp - before.occupancyBp : null,
         source: now.source,
+        level: now.level ?? (bp === null ? null : availabilityLevelFromBp(bp)),
       };
     });
     return { ...c, cells, sources: [...sources].sort(), lastObservedOn };
@@ -264,7 +274,14 @@ export function buildMarketBoard(input: {
 
   const market = dates.map((date, i) => {
     const values = competitors.flatMap((c) => (c.cells[i]!.bp === null ? [] : [c.cells[i]!.bp!]));
-    return { date, bp: mean(values), count: values.length };
+    const levels = competitors.flatMap((c) => (c.cells[i]!.level === null ? [] : [c.cells[i]!.level]));
+    return {
+      date,
+      bp: mean(values),
+      count: values.length,
+      tight: levels.filter((l) => l !== 'AVAILABLE').length,
+      withLevel: levels.length,
+    };
   });
   const gap = dates.map((date, i) => {
     const m = market[i]!.bp;
@@ -281,20 +298,21 @@ export function buildMarketBoard(input: {
   let open: { kind: InsightKind; idx: number[] } | null = null;
   const close = () => {
     if (!open) return;
-    const ms = open.idx.map((i) => market[i]!.bp!);
+    const ms = open.idx.flatMap((i) => (market[i]!.bp === null ? [] : [market[i]!.bp!]));
     const os = open.idx.flatMap((i) => (own[i]!.bp === null ? [] : [own[i]!.bp!]));
     ranges.push({
       kind: open.kind,
       from: dates[open.idx[0]!]!,
       to: dates[open.idx.at(-1)!]!,
       nights: open.idx.length,
-      marketBp: mean(ms),
+      // средняя рынка у подсказки, только если она известна на каждой ночи отрезка: иначе это процент части ночей
+      marketBp: ms.length === open.idx.length ? mean(ms) : null,
       ownBp: mean(os),
     });
     open = null;
   };
   dates.forEach((_, i) => {
-    const kind = nightKind(market[i]!.bp, own[i]!.bp);
+    const kind = nightKind(market[i]!.bp, own[i]!.bp, tightMarket(market[i]!));
     if (open && open.kind === kind) open.idx.push(i);
     else {
       close();
@@ -332,7 +350,7 @@ export function buildMarketBoard(input: {
       marketBp,
       ownBp,
       gapBp: marketBp === null || ownBp === null ? null : ownBp - marketBp,
-      highDemandNights: market.filter((m) => m.bp !== null && m.bp >= HIGH_DEMAND_BP).length,
+      highDemandNights: market.filter((m) => (m.bp !== null && m.bp >= HIGH_DEMAND_BP) || tightMarket(m)).length,
       competitors: competitors.length,
       competitorsWithData: withData.length,
     },
@@ -366,12 +384,13 @@ export function buildNightHistory(input: {
 }): NightHistory {
   const ids = new Set(input.competitors.map((c) => c.id));
   const readings = input.readings.filter(
-    (r) => r.stayDate === input.stayDate && ids.has(r.competitorId),
+    // история ночи строится из процентов: снимок только с уровнем (§23.1) в ней не участвует
+    (r) => r.stayDate === input.stayDate && ids.has(r.competitorId) && r.occupancyBp !== null,
   );
   const byDay = new Map<string, Map<string, number>>();
   for (const r of readings) {
     const day = byDay.get(r.observedOn) ?? new Map<string, number>();
-    day.set(r.competitorId, r.occupancyBp);
+    day.set(r.competitorId, r.occupancyBp!);
     byDay.set(r.observedOn, day);
   }
   const allDays = [...byDay.keys()].sort();

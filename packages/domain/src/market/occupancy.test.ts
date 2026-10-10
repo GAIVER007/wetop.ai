@@ -144,9 +144,9 @@ describe('buildMarketBoard', () => {
 
   it('клетка конкурента: последний снимок не позже даты снимка и изменение к сравнению', () => {
     const a = board.competitors.find((c) => c.id === 'a')!;
-    expect(a.cells[0]).toEqual({ date: '2026-10-04', bp: 9000, deltaBp: 1000, source: 'AI_AGENT' });
+    expect(a.cells[0]).toEqual({ date: '2026-10-04', bp: 9000, deltaBp: 1000, source: 'AI_AGENT', level: 'FEW_LEFT' });
     // 05.10 последний снимок 02.10, то есть не новее даты сравнения: изменения не знаем
-    expect(a.cells[1]).toEqual({ date: '2026-10-05', bp: 4000, deltaBp: null, source: 'MANUAL' });
+    expect(a.cells[1]).toEqual({ date: '2026-10-05', bp: 4000, deltaBp: null, source: 'MANUAL', level: 'AVAILABLE' });
     expect(a.sources).toEqual(['AI_AGENT', 'MANUAL']);
     expect(a.lastObservedOn).toBe('2026-10-03');
     const b = board.competitors.find((c) => c.id === 'b')!;
@@ -162,10 +162,10 @@ describe('buildMarketBoard', () => {
 
   it('средняя по рынку: простое среднее по конкурентам с данными; разница с вами', () => {
     expect(board.market).toEqual([
-      { date: '2026-10-04', bp: 9500, count: 2 },
-      { date: '2026-10-05', bp: 4500, count: 2 },
-      { date: '2026-10-06', bp: 8500, count: 2 },
-      { date: '2026-10-07', bp: 3500, count: 2 },
+      { date: '2026-10-04', bp: 9500, count: 2, tight: 2, withLevel: 2 },
+      { date: '2026-10-05', bp: 4500, count: 2, tight: 0, withLevel: 2 },
+      { date: '2026-10-06', bp: 8500, count: 2, tight: 1, withLevel: 2 },
+      { date: '2026-10-07', bp: 3500, count: 2, tight: 0, withLevel: 2 },
     ]);
     expect(board.gap.map((g) => g.bp)).toEqual([-3500, -2500, 500, -500]);
   });
@@ -222,7 +222,7 @@ describe('buildMarketBoard', () => {
       readings: [],
     });
     expect(b3.own[0]!.bp).toBeNull();
-    expect(b3.market[0]).toEqual({ date: '2026-10-04', bp: null, count: 0 });
+    expect(b3.market[0]).toEqual({ date: '2026-10-04', bp: null, count: 0, tight: 0, withLevel: 0 });
     expect(b3.summary).toMatchObject({ marketBp: null, ownBp: null, gapBp: null });
     expect(b3.insights).toEqual([]);
   });
@@ -360,5 +360,56 @@ describe('уровень наличия (DATA_MODEL §23.1)', () => {
     expect(availabilityLevelFromBp(8500)).toBe('FEW_LEFT');
     expect(availabilityLevelFromBp(8499)).toBe('AVAILABLE');
     expect(availabilityLevelFromBp(0)).toBe('AVAILABLE');
+  });
+});
+
+describe('buildMarketBoard: уровни наличия (DATA_MODEL §23.1)', () => {
+  const ref = (id: string, distanceM: number) => ({ id, name: id, distanceM, unitsTotal: null, url: null });
+  const snap = (competitorId: string, stayDate: string, occupancyBp: number | null, level: 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE' | null) => ({
+    competitorId,
+    stayDate,
+    observedOn: '2026-10-10',
+    occupancyBp,
+    level,
+    source: 'AI_AGENT' as const,
+  });
+  const board = buildMarketBoard({
+    dates: ['2026-10-20', '2026-10-21'],
+    asOf: '2026-10-10',
+    compareDays: 0,
+    own: {},
+    competitors: [ref('roy', 100), ref('o2', 300), ref('evergreen', 2500)],
+    readings: [
+      // 20.10: двое из трёх почти полны, процентов нет вовсе
+      snap('roy', '2026-10-20', null, 'FEW_LEFT'),
+      snap('o2', '2026-10-20', null, 'SOLD_OUT'),
+      snap('evergreen', '2026-10-20', null, 'AVAILABLE'),
+      // 21.10: процент без уровня даёт уровень по порогу; почти полон один из двух
+      snap('roy', '2026-10-21', 3000, null),
+      snap('o2', '2026-10-21', null, 'FEW_LEFT'),
+    ],
+  });
+
+  it('клетка: уровень из снимка, без него из процента; процента в клетке нет, если его не было', () => {
+    const roy = board.competitors.find((c) => c.id === 'roy')!;
+    expect(roy.cells.map((c) => [c.bp, c.level])).toEqual([
+      [null, 'FEW_LEFT'],
+      [3000, 'AVAILABLE'],
+    ]);
+    expect(roy.lastObservedOn).toBe('2026-10-10');
+  });
+
+  it('строка рынка: средняя только из процентов, рядом «почти полны из скольких с уровнем»', () => {
+    expect(board.market).toEqual([
+      { date: '2026-10-20', bp: null, count: 0, tight: 2, withLevel: 3 },
+      { date: '2026-10-21', bp: 3000, count: 1, tight: 1, withLevel: 2 },
+    ]);
+  });
+
+  it('«рынок почти полон» без процентов: почти полны не меньше половины соседей с уровнем', () => {
+    expect(board.summary.highDemandNights).toBe(2);
+    const high = board.insights.find((i) => i.kind === 'high');
+    expect(high).toMatchObject({ from: '2026-10-20', to: '2026-10-21', marketBp: null });
+    expect(board.summary.competitorsWithData).toBe(3);
   });
 });

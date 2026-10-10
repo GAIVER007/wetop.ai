@@ -3700,7 +3700,7 @@ export const marketApi = {
     ),
 };
 
-/** Расход маркетинга (МКТ-В1/В2, DATA_MODEL §32.1). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+/** Расход маркетинга (МКТ-В1/В2, DATA_MODEL §34.1). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
 export interface MarketingExpenseRow {
   id: string;
   date: string;

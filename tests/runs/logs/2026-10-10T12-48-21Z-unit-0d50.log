@@ -1,0 +1,47 @@
+# Модульные (unit) · 10.10.2026 17:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 61
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T12-48-21Z-unit-0d50.json' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| tests/unit/site-design.test.ts (6 tests | 1 failed) 113ms
+   ❯ главная wetop.ai — правила DESIGN.md §19 (6)
+     ✓ цвет только через токены: литерала нет нигде, кроме tokens.css 70ms
+     ✓ цвет строки браузера совпадает с фоном страницы в обеих темах 1ms
+     × отступы — только из лестницы §19.3 23ms
+     ✓ радиус — только токен, круг, pill или «без скругления» 4ms
+     ✓ текст не мельче 12 px 2ms
+     ✓ каждый блок страницы назван в DESIGN.md §19.5 — и наоборот 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/site-design.test.ts > главная wetop.ai — правила DESIGN.md §19 > отступы — только из лестницы §19.3
+AssertionError: отступ вне лестницы 0/2/4/…/16/20/…/64 (DESIGN.md §19.3): expected [ '.dash__legend span — 5px' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   ".dash__legend span — 5px",
++ ]
+
+ ❯ tests/unit/site-design.test.ts:128:79
+    126|       }
+    127|     }
+    128|     expect(found, 'отступ вне лестницы 0/2/4/…/16/20/…/64 (DESIGN.md §…
+       |                                                                               ^
+    129|   });
+    130|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  05:48:37
+   Duration  4.67s (transform 47%, import 44%, tests 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T12-48-21Z-unit-0d50.json
+
+# код выхода 1 · 21 с

@@ -1,6 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Badge,
   Button,
@@ -12,19 +13,40 @@ import {
   Select,
   Table,
 } from '../../components/ui';
+import { Chip, ChipGroup } from '../../components/chip';
 import { occupiedAt } from '../../lib/food-data';
-import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
+import { wholeTenge } from '../../lib/dashboard-format';
+import type { DiningTable, FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { instantOf, localInput } from '../beauty/time';
 import { ReservationDrawer, type ReservationDraft } from './reservation-drawer';
 import { DayToolbar } from './day-toolbar';
 import { foodStatus } from '../../lib/status/food';
+import { setTableCleaning } from './restaurant-actions';
+
+/** Статус стола на плане (§33.3): занят (заказ или посажены), бронь, уборка, свободен */
+type TableKind = 'FREE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING';
+const KIND_LABEL: Record<TableKind, string> = {
+  FREE: 'Свободен',
+  OCCUPIED: 'Занят',
+  RESERVED: 'Бронь',
+  CLEANING: 'Уборка',
+};
+const KIND_TONE: Record<TableKind, 'neutral' | 'danger' | 'info' | 'warn'> = {
+  FREE: 'neutral',
+  OCCUPIED: 'danger',
+  RESERVED: 'info',
+  CLEANING: 'warn',
+};
 export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: boolean }) {
+  const router = useRouter();
   const [draft, setDraft] = useState<ReservationDraft | null>(null);
   const [period, setPeriod] = useState('');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [area, setArea] = useState('');
   const [table, setTable] = useState('');
+  const [floorArea, setFloorArea] = useState('');
+  const [cleaningPending, startCleaning] = useTransition();
   const [switching, setSwitching] = useState(false);
   useEffect(() => {
     const begin = () => {
@@ -71,6 +93,21 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
     [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ');
   const clock = (iso: string) => localInput(iso, data.timezone).slice(11);
   const open = (r: RestaurantReservation) => setDraft({ kind: 'view', id: r.id });
+  const orderByTable = new Map(
+    (data.orders ?? []).filter((o) => o.tableId).map((o) => [o.tableId!, o]),
+  );
+  const tableKind = (t: DiningTable): TableKind => {
+    const r = occupying.find((r) => r.table?.id === t.id);
+    if (orderByTable.has(t.id) || r?.status === 'SEATED') return 'OCCUPIED';
+    if (r) return 'RESERVED';
+    if (t.needsCleaning) return 'CLEANING';
+    return 'FREE';
+  };
+  const toggleCleaning = (t: DiningTable) =>
+    startCleaning(async () => {
+      await setTableCleaning(data.scopeKey, t.id, !t.needsCleaning);
+      router.refresh();
+    });
   return (
     <div className="food-workspace">
       <div className="food-section-heading">
@@ -96,21 +133,37 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
               Столов <strong>{activeTables.length}</strong>
             </span>
             <span>
-              Свободно{' '}
-              <strong>
-                {activeTables.filter((t) => !occupying.some((r) => r.table?.id === t.id)).length}
-              </strong>
+              Свободно <strong>{activeTables.filter((t) => tableKind(t) === 'FREE').length}</strong>
             </span>
             <span>
-              Бронь{' '}
-              <strong>{occupying.filter((r) => r.table && r.status !== 'SEATED').length}</strong>
+              Занято <strong>{activeTables.filter((t) => tableKind(t) === 'OCCUPIED').length}</strong>
             </span>
             <span>
-              Посажено{' '}
-              <strong>{occupying.filter((r) => r.table && r.status === 'SEATED').length}</strong>
+              Бронь <strong>{activeTables.filter((t) => tableKind(t) === 'RESERVED').length}</strong>
+            </span>
+            <span>
+              Уборка <strong>{activeTables.filter((t) => tableKind(t) === 'CLEANING').length}</strong>
             </span>
             <span>
               Без стола <strong>{unassigned.length}</strong>
+            </span>
+          </div>
+          <div className="rest-floor-legend" aria-hidden="true">
+            <span>
+              <i className="rest-floor-dot--free" />
+              Свободен
+            </span>
+            <span>
+              <i className="rest-floor-dot--occupied" />
+              Занят
+            </span>
+            <span>
+              <i className="rest-floor-dot--reserved" />
+              Бронь
+            </span>
+            <span>
+              <i className="rest-floor-dot--cleaning" />
+              Уборка
             </span>
           </div>
           {data.areas.filter((a) => a.active).length === 0 ? (
@@ -125,60 +178,98 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
               }
             />
           ) : (
-            data.areas
-              .filter((a) => a.active)
-              .sort((a, b) => a.sortOrder - b.sortOrder)
-              .map((a) => (
-                <section key={a.id} aria-label={a.name}>
-                  <h2>{a.name}</h2>
-                  {activeTables.filter((t) => t.areaId === a.id).length === 0 ? (
-                    <p className="muted">В этом зале пока нет столов</p>
-                  ) : (
-                    <div className="food-table-grid">
-                      {activeTables
-                        .filter((t) => t.areaId === a.id)
-                        .sort((x, y) => x.sortOrder - y.sortOrder)
-                        .map((t) => {
-                          const r = occupying.find((r) => r.table?.id === t.id);
-                          return (
-                            <button
-                              type="button"
-                              key={t.id}
-                              className="food-table-card"
-                              data-status={r?.status ?? 'FREE'}
-                              aria-label={`${t.name}, ${r ? foodStatus[r.status].label : 'Свободен'}`}
-                              onClick={() =>
-                                r
-                                  ? open(r)
-                                  : write &&
-                                    setDraft({ kind: 'create', walkIn: false, tableId: t.id })
-                              }
-                            >
-                              <strong>{t.name}</strong>
-                              <small>{t.capacity} места</small>
-                              {r ? (
-                                <>
-                                  <span>
-                                    {r.status === 'SEATED' ? 'За столом' : clock(r.startsAt)}
-                                  </span>
-                                  <span>
-                                    {customer(r)}, {r.partySize} гостя
-                                  </span>
-                                  <small>до {clock(r.endsAt)}</small>
-                                </>
-                              ) : (
-                                <span>Свободен</span>
-                              )}
-                              <Badge tone={r?.status === 'SEATED' ? 'ok' : r ? 'info' : 'neutral'}>
-                                {r ? foodStatus[r.status].label : 'Свободен'}
-                              </Badge>
-                            </button>
-                          );
-                        })}
-                    </div>
-                  )}
-                </section>
-              ))
+            <>
+              {data.areas.filter((a) => a.active).length > 1 && (
+                <ChipGroup label="Зал">
+                  <Chip selected={!floorArea} onClick={() => setFloorArea('')}>
+                    Все залы
+                  </Chip>
+                  {data.areas
+                    .filter((a) => a.active)
+                    .sort((a, b) => a.sortOrder - b.sortOrder)
+                    .map((a) => (
+                      <Chip
+                        key={a.id}
+                        selected={floorArea === a.id}
+                        onClick={() => setFloorArea(a.id)}
+                      >
+                        {a.name}
+                      </Chip>
+                    ))}
+                </ChipGroup>
+              )}
+              {data.areas
+                .filter((a) => a.active && (!floorArea || a.id === floorArea))
+                .sort((a, b) => a.sortOrder - b.sortOrder)
+                .map((a) => (
+                  <section key={a.id} aria-label={a.name}>
+                    <h2>{a.name}</h2>
+                    {activeTables.filter((t) => t.areaId === a.id).length === 0 ? (
+                      <p className="muted">В этом зале пока нет столов</p>
+                    ) : (
+                      <div className="food-table-grid">
+                        {activeTables
+                          .filter((t) => t.areaId === a.id)
+                          .sort((x, y) => x.sortOrder - y.sortOrder)
+                          .map((t) => {
+                            const r = occupying.find((r) => r.table?.id === t.id);
+                            const order = orderByTable.get(t.id);
+                            const kind = tableKind(t);
+                            return (
+                              <div className="food-table-card" data-kind={kind} key={t.id}>
+                                <button
+                                  type="button"
+                                  className="food-table-main"
+                                  aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
+                                  onClick={() => {
+                                    if (r) open(r);
+                                    else if (order) router.push('/orders');
+                                    else if (write && kind === 'FREE')
+                                      setDraft({ kind: 'create', walkIn: false, tableId: t.id });
+                                  }}
+                                >
+                                  <strong>{t.name}</strong>
+                                  <small>{t.capacity} места</small>
+                                  {r ? (
+                                    <>
+                                      <span>
+                                        {r.status === 'SEATED' ? 'За столом' : clock(r.startsAt)}
+                                      </span>
+                                      <span>
+                                        {customer(r)}, {r.partySize} гостя
+                                      </span>
+                                      <small>до {clock(r.endsAt)}</small>
+                                    </>
+                                  ) : order ? (
+                                    <>
+                                      <span>Заказ №{order.number}</span>
+                                      <span>{wholeTenge(order.totalMinor, order.currency)}</span>
+                                      <small>с {clock(order.openedAt)}</small>
+                                    </>
+                                  ) : (
+                                    <span>{KIND_LABEL[kind]}</span>
+                                  )}
+                                  <Badge tone={KIND_TONE[kind]}>
+                                    {r ? foodStatus[r.status].label : KIND_LABEL[kind]}
+                                  </Badge>
+                                </button>
+                                {write && !r && !order && (
+                                  <Button
+                                    tone="ghost"
+                                    disabled={cleaningPending}
+                                    onClick={() => toggleCleaning(t)}
+                                  >
+                                    {t.needsCleaning ? 'Убрано' : 'Уборка'}
+                                  </Button>
+                                )}
+                              </div>
+                            );
+                          })}
+                      </div>
+                    )}
+                  </section>
+                ))}
+            </>
           )}
           <Panel>
             <h2>Без стола, {unassigned.length}</h2>

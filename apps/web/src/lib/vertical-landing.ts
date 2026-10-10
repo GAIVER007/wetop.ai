@@ -28,8 +28,17 @@ const routes: Record<WebVertical, string[]> = {
     '/management/analytics/units',
     '/management/analytics/channels',
   ],
-  BEAUTY: ['/calendar', '/appointments', '/employees', '/services', '/beauty'],
-  FOOD_SERVICE: ['/floor-plan', '/table-reservations', '/dining-areas'],
+  // `/employees` и `/customers` общие для салона и ресторана: принадлежности нет, страница сама зовёт requireVertical
+  BEAUTY: ['/calendar', '/appointments', '/services', '/beauty'],
+  FOOD_SERVICE: [
+    '/floor-plan',
+    '/table-reservations',
+    '/dining-areas',
+    '/orders',
+    '/kitchen',
+    '/menu',
+    '/payroll',
+  ],
 };
 export function routeVertical(path: string): WebVertical | null {
   for (const vertical of Object.keys(routes) as WebVertical[]) {

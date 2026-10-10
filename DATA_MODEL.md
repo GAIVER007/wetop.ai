@@ -2069,6 +2069,25 @@ Supabase «function_search_path_mutable») решает это лучше: пу�
 записи (счёт, касса или только цена в `appointments`) **не решён**: Q-252, до ответа владельца срез B7 не
 начинается.
 
+### 19.2. Зарплата мастеров (ПРЕДЛОЖЕНО 09.10.2026, Q-BS-1, кода нет)
+
+Из ТЗ владельца «Модуль для салонов красоты» v1.0 (§5): модели начисления и «итог к выплате».
+Это финансовая логика, поэтому только предложение; до утверждения ни схема, ни код не меняются.
+
+- **`employee_pay_settings`** (настройка оплаты мастера в бизнесе, 1:1 к `employees`):
+  `employee_id` PK/FK, `model` enum `FIXED | PERCENT | FIXED_PLUS_PERCENT | BONUS_ONLY`
+  (как в макете «Редактировать мастера»), `fixed_minor` bigint >= 0 (за период, тиын),
+  `percent` smallint 0..100 (от стоимости выполненных услуг, то есть записей DONE),
+  `plan_bonus_minor` bigint >= 0, `currency` char(3), `updated_at`, `updated_by_id`.
+- **`employee_pay_adjustments`** (бонусы и штрафы руками, журнал только дописывается):
+  `id`, `employee_id` FK, `location_id` FK NULL, `period` date (первый день месяца),
+  `amount_minor` bigint (знак: бонус плюс, штраф минус), `reason` text, `created_at`, `created_by_id`.
+- **Расчёт не хранится**: «итог к выплате» за месяц = `fixed_minor` + `percent` от суммы снимков
+  цен записей DONE мастера за месяц + сумма `adjustments` периода. Никаких float (ADR-008).
+  «% от продаж товаров» из ТЗ не вводится: товаров в модели нет (Q-BS-5).
+- **RLS** через `employees` (родитель business), как у остальных таблиц §19.1.
+- Выплата как операция кассы: только после среза B7 (§21.5), здесь не вводится.
+
 ---
 
 ## 20. Производный тариф и промокод (v2.8 — УТВЕРЖДЕНО владельцем 29.09.2026; ADR-128, срез D4, Q-233, Q-230, Q-231)
@@ -3513,7 +3532,7 @@ CHECK на уровне базы: перечисления `onsite_payment`, `ca
 остаются. Без `SITE_ASSET_STORAGE=s3` загрузка отвечает 503 словами «Хранилище файлов не включено», чтение отдаёт
 `storage: OFF`.
 
-## 32. Маркетинг: учёт бюджета и расходов (v2.16, МКТ-В1/В2 по ТЗ «Модуль Маркетинг» 1.0 от 09.10.2026, поручение владельца «возьми весь дизайн и примени всё чётко, чтобы всё работало с базой»; ADR-MKT-B1)
+## 34. Маркетинг: учёт бюджета и расходов (v2.16, МКТ-В1/В2 по ТЗ «Модуль Маркетинг» 1.0 от 09.10.2026, поручение владельца «возьми весь дизайн и примени всё чётко, чтобы всё работало с базой»; ADR-MKT-B1)
 
 Первые две таблицы маркетингового модуля: журнал расходов на продвижение и план бюджета на месяц.
 Кампании-сущности, статистика кабинетов, органика, лиды и ROMI: это этапы В3…В7 ТЗ, их таблиц здесь нет.
@@ -3521,7 +3540,7 @@ CHECK на уровне базы: перечисления `onsite_payment`, `ca
 курс фиксируется на дату операции при записи, рядом лежит пересчёт в валюту отчётности организации
 (`organizations.reporting_currency`, v2.4). Курс вводится вручную (автокурс: Q-MKT-FX).
 
-### 32.1 `marketing_expenses` — журнал расходов
+### 34.1 `marketing_expenses`: журнал расходов
 
 | Поле | Тип | Смысл |
 |---|---|---|
@@ -3546,7 +3565,7 @@ CHECK на уровне базы: перечисления `onsite_payment`, `ca
 (`app_current_org()`, как у таблиц маркетинга §29.9); права `SELECT, INSERT, UPDATE, DELETE`
 отдельной миграцией прав.
 
-### 32.2 `marketing_budgets` — план бюджета на месяц
+### 34.2 `marketing_budgets`: план бюджета на месяц
 
 | Поле | Тип | Смысл |
 |---|---|---|
@@ -3556,16 +3575,103 @@ CHECK на уровне базы: перечисления `onsite_payment`, `ca
 | `amount` | `bigint` CHECK > 0 | план месяца в валюте отчётности, minor units |
 | `created_at`, `updated_at` | `timestamptz` | |
 
-UNIQUE `(location_id, month)`. RLS и права как у 32.1 (без `DELETE`: план обнуляется правкой).
+UNIQUE `(location_id, month)`. RLS и права как у 34.1 (без `DELETE`: план обнуляется правкой).
 Распределение плана по каналам: этап В7, отдельной таблицы нет.
 
-### 32.3 Чего срез НЕ хранит
+### 34.3 Чего срез НЕ хранит
 
 Производные числа не хранятся и считаются на стойке из строк: израсходовано, остаток,
 прогноз конца месяца (расход / прошедшие дни × дни месяца), дней до конца, распределение
 по платформам, динамика к прошлому месяцу. CPL/CPQL/CAC/ROAS/ROMI (ТЗ §6) не считаются,
 пока нет лидов и выручки маркетинга (этапы В5/В6): на экране честное «Недостаточно данных».
 Файлы чеков (ТЗ §8.6): отдельный срез, Q-MKT-FILES.
+## 33. Ресторан v2: меню, техкарты, заказы, кухня, зарплата (v2.16 от 09.10.2026 — УТВЕРЖДЕНО владельцем 09.10.2026, ТЗ «Модуль для ресторанов» v1.0; ADR-159)
+
+**Статус.** Владелец 09.10.2026 передал макет «WETOP для ресторанов» и ТЗ v1.0 (этапы
+RESTAURANT-1…6) с поручением «дизайн точь-в-точь, применить всё». Это утверждение модели
+для вертикали FOOD_SERVICE. Цепочка §18: Organization → Business (FOOD_SERVICE) → Location.
+Property, Reservation и шахматка не используются. Деньги — целые тиыны/minor units (ADR-008),
+валюта — валюта филиала. Миграции №81 и №82 (при слиянии 10.10 были №78 и №79) на рабочей базе применяет владелец до выкладки кода.
+
+### 33.1 Меню и техкарты
+
+- **`menu_categories`**: `id` uuid PK, `business_id` FK, `name` varchar(100), `sort_order` int,
+  `active` bool, timestamps. UNIQUE `(business_id, name)`. Каталог сети, как `beauty_services`.
+- **`menu_items`**: `id` uuid PK, `business_id` FK, `category_id` FK menu_categories,
+  `name` varchar(200), `weight_grams` int NULL (> 0), `price` bigint >= 0 (minor units),
+  `currency` char(3), `active` bool (переключатель «в меню»), `tech_notes` text NULL
+  (вкладка «Технология»), `sort_order` int, timestamps. Категория того же бизнеса (триггер).
+- **`menu_item_ingredients`** (строки техкарты): `id` uuid PK, `menu_item_id` FK,
+  `name` varchar(200), `norm_qty` numeric(12,3) > 0 (норма), `unit` varchar(8)
+  CHECK `г | мл | шт`, `unit_cost` bigint >= 0 (цена за базовую единицу закупки: за кг при
+  «г», за л при «мл», за штуку при «шт», minor units), `sort_order` int, timestamps.
+- **Вычисляется, не хранится** (домен `packages/domain/src/food`): стоимость строки =
+  `norm_qty / 1000 × unit_cost` для г и мл, `norm_qty × unit_cost` для шт, округление до
+  целой minor unit; себестоимость = сумма строк; food cost = себестоимость / цена;
+  наценка = (цена − себестоимость) / себестоимость; прибыль = цена − себестоимость.
+- Фото блюда в v2.16 нет (Q-REST-3), «Пищевая ценность» и версии техкарт не вводятся.
+
+### 33.2 Заказы и кухня
+
+- **`restaurant_orders`**: `id` uuid PK, `location_id` FK, `number` int > 0 (UNIQUE
+  `(location_id, number)`, выдаётся max+1 в транзакции — филиал уже заперт `FOR UPDATE`
+  в `foodTransaction`), `table_id` FK dining_tables NULL (стол филиала, триггер),
+  `waiter_id` FK employees NULL (сотрудник бизнеса, триггер), `guest_count` int > 0,
+  `status` enum `RestaurantOrderStatus` = `NEW | COOKING | READY | SERVED | CLOSED |
+  CANCELLED` DEFAULT NEW, `notes` text NULL, `total` bigint >= 0 (снимок суммы строк,
+  обновляется в той же транзакции), `currency` char(3), `opened_at` timestamptz DEFAULT now,
+  `cooking_at`, `ready_at`, `served_at`, `closed_at` timestamptz NULL (отметки переходов),
+  `created_by_id` FK users NULL, timestamps.
+- **Статусная машина** (домен, по образцу `foodNext`): NEW → COOKING | CANCELLED;
+  COOKING → READY | CANCELLED; READY → SERVED | CANCELLED; SERVED → CLOSED; CLOSED и
+  CANCELLED — конечные. «Оплачен»/«Закрыт» на макете = CLOSED; движения денег, касса и
+  фискализация в v2.16 не вводятся (Q-REST-1).
+- **`restaurant_order_items`**: `id` uuid PK, `order_id` FK, `menu_item_id` FK NULL
+  (блюдо могло уйти из меню — снимок остаётся), `name` varchar(200) (снимок),
+  `price` bigint >= 0 (снимок), `qty` int > 0, `notes` varchar(500) NULL (комментарий
+  и модификаторы из ТЗ §7), `sort_order` int, timestamps. Строки изменяются, пока заказ
+  NEW или COOKING; дальше состав заморожен (проверка API).
+- **KDS** — те же заказы: колонки Новые = NEW, В работе = COOKING, Готово = READY;
+  «Задерживается» — производное: NEW/COOKING старше 20 минут от `opened_at` (константа
+  домена, не хранится). Средние времена считаются из отметок переходов.
+
+### 33.3 Столы: уборка
+
+`dining_tables.needs_cleaning` bool DEFAULT false — статус «Уборка» на плане зала.
+Ставится и снимается стойкой (право `desk`). Статусы плана зала вычисляются: Занят =
+открытый заказ (NEW…SERVED) или SEATED-бронь на столе; Бронь = назначенная бронь
+BOOKED/CONFIRMED на сегодня; Уборка = флаг; иначе Свободен.
+
+### 33.4 Зарплата персонала (ТЗ §6)
+
+По форме §19.2, таблицы общие для вертикалей; для FOOD_SERVICE утверждены ТЗ владельца,
+у салона §19.2 остаётся предложением (Q-BS-1):
+
+- **`employee_pay_settings`** (1:1 к `employees`): `employee_id` PK/FK,
+  `model` enum `EmployeePayModel` = `FIXED | PERCENT | FIXED_PLUS_PERCENT | BONUS_ONLY`,
+  `fixed_minor` bigint >= 0 (за месяц), `percent` smallint 0..100 (от суммы заказов
+  CLOSED, где сотрудник — официант), `currency` char(3), `updated_at`, `updated_by_id`.
+- **`employee_pay_adjustments`** (премии и штрафы, журнал только дописывается):
+  `id` uuid PK, `employee_id` FK, `period` date (первый день месяца, CHECK),
+  `amount_minor` bigint <> 0 (бонус плюс, штраф минус), `reason` varchar(200),
+  `created_at`, `created_by_id`. UPDATE и DELETE закрыты правами (как журнал).
+- **Расчёт не хранится**: к выплате за месяц = оклад (по модели) + процент от суммы
+  `restaurant_orders.total` CLOSED за месяц по поясу филиала + сумма корректировок периода.
+  Смены и «на смене» — существующие `working_hours` по филиалу, без новой модели.
+
+### 33.5 Права, RLS, вертикаль
+
+- Возможности вертикали: `food.menu`, `food.orders`, `food.staff` (реестр
+  `packages/domain/src/verticals/registry.ts`), проверяются `@RequiresBusinessCapability`.
+- Право чтения — `desk`; правка меню и техкарт — `property`; настройка зарплаты и
+  корректировки — `staff`; заказы и уборка — `desk`.
+- RLS `rls_tenant` на всех новых таблицах (реестр `packages/database/src/rls.ts`):
+  business-таблицы по `businesses.organization_id = app_current_org()`, строки — через
+  родителя. Триггеры принадлежности по образцу `food_ownership_guard` (меню — бизнес
+  FOOD_SERVICE; заказ — филиал FOOD_SERVICE, стол и официант того же филиала/бизнеса);
+  `search_path` функций закреплён. Права `GRANT` отдельной миграцией №82; у
+  `employee_pay_adjustments` — без UPDATE и DELETE.
+
 ## 33. Версии инструкции ИИ-продавца (v2.16, УТВЕРЖДЕНО владельцем 10.10.2026 словом «да, продолжай»; SALES2.7)
 
 **Зачем.** Инструкция продавцу (`seller_profiles.prompt_text`) правится одним окном и затирает прежний текст: ошибочную правку нечем откатить. Нужна история и возврат к прежней версии.

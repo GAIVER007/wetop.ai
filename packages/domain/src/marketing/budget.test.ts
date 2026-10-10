@@ -15,7 +15,7 @@ const base = {
   amount: '120',
 };
 
-describe('расход маркетинга: разбор ввода (DATA_MODEL §32.1)', () => {
+describe('расход маркетинга: разбор ввода (DATA_MODEL §34.1)', () => {
   it('валюта отчётности: курс 1, base_amount равен сумме', () => {
     const e = parseMarketingExpenseInput(base, ctx);
     expect(e.amount).toBe(12000n);
@@ -108,7 +108,7 @@ describe('расход маркетинга: разбор ввода (DATA_MODEL
   });
 });
 
-describe('план бюджета месяца: разбор ввода (DATA_MODEL §32.2)', () => {
+describe('план бюджета месяца: разбор ввода (DATA_MODEL §34.2)', () => {
   it('месяц нормализуется к первому числу, сумма в валюте отчётности', () => {
     const b = parseMarketingBudgetInput({ month: '2026-10', amount: '3000' });
     expect(b.month).toBe('2026-10-01');

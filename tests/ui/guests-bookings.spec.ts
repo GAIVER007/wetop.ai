@@ -65,7 +65,8 @@ test('гости и бронирования: плитки, виды со счё
     await expect(table.getByRole('columnheader', { name, exact: true })).toHaveCount(1);
   // «Источник» и «Гостей» уходят из таблицы, пока списку не хватает ширины (справа открыта панель), и возвращаются на широком экране
   await expect(table.getByRole('columnheader', { name: 'Источник', exact: true })).toBeHidden();
-  await page.setViewportSize({ width: 1920, height: 1000 });
+  // с левым меню (ADR-161, 232 px) и открытой панелью списку хватает ширины только на очень широком экране
+  await page.setViewportSize({ width: 2560, height: 1000 });
   await expect(table.getByRole('columnheader', { name: 'Источник', exact: true })).toBeVisible();
   await page.setViewportSize({ width: 1440, height: 1000 });
   // ячейка отметки без правого отступа (без `!important`, слои каскада решают сами)

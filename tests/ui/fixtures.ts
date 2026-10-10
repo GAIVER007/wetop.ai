@@ -202,8 +202,10 @@ export const menuLinks = (page: Page) =>
 /** Открывает панель разделов наведением на кнопку текущего раздела и показывает подразделы `section` */
 export async function openSection(page: Page, section: string) {
   const nav = sideNav(page);
-  // шапка клиентская: до гидрации наведение без обработчика, поэтому повтор
+  // шапка клиентская: до гидрации наведение без обработчика, поэтому повтор. Мышь сперва уводим: после перехода
+  // панель закрывается по смене адреса, а курсор, уже стоящий на кнопке, нового pointerenter не даёт
   await expect(async () => {
+    await page.mouse.move(page.viewportSize()!.width - 1, page.viewportSize()!.height - 1);
     await nav.locator('.sidenav__current').hover();
     await expect(nav.locator('.sidenav__panel')).toBeVisible({ timeout: 1_000 });
   }).toPass({ timeout: 15_000 });

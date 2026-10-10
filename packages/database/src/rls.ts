@@ -93,6 +93,14 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'service_periods',
   'restaurant_reservations',
   'table_assignments',
+  // Ресторан v2 (DATA_MODEL §33, ADR-159, миграция 20261010000081_restaurant_module)
+  'menu_categories',
+  'menu_items',
+  'menu_item_ingredients',
+  'restaurant_orders',
+  'restaurant_order_items',
+  'employee_pay_settings',
+  'employee_pay_adjustments',
   // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
   'marketing_sites',
   'marketing_site_versions',
@@ -113,7 +121,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'site_builder_entitlements',
   'site_ai_runs',
   'marketing_site_version_bookmarks',
-  // МКТ-В1/В2: учёт бюджета и расходов маркетинга, через Location → Business (DATA_MODEL §32, миграция …081)
+  // МКТ-В1/В2: учёт бюджета и расходов маркетинга, через Location → Business (DATA_MODEL §34, миграция …083)
   'marketing_expenses',
   'marketing_budgets',
   // Existing policies from 20261004000051_bar_inventory.

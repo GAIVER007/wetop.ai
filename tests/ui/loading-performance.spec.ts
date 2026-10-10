@@ -81,7 +81,7 @@ test('мобильное меню использует уже загруженн
     });
   });
   await page.goto('/finance');
-  await expect(page.locator('.workspace-header [data-testid="data-freshness"]')).toContainText(
+  await expect(page.locator('.sidenav [data-testid="data-freshness"]')).toContainText(
     'очередь 7',
   );
   const before = calls;
@@ -151,7 +151,7 @@ test('фоновый опрос не перекрывается и восста�
     });
   });
   await page.goto('/finance');
-  const status = page.locator('.workspace-header [data-testid="data-freshness"]');
+  const status = page.locator('.sidenav [data-testid="data-freshness"]');
   await expect(status).toContainText('очередь 0');
   await expect(status).not.toHaveClass(/freshness--warn/);
   hold = true;

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Icon } from '../../../components/icon';
+import { LandingFinal } from '../../../components/landing/landing-final';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -67,14 +67,36 @@ export default function SalonLandingPage() {
                   ))}
                 </div>
               </div>
-              {s.mock.rows.map((row) => (
-                <div className="salon-hero__mock-row" key={row.time}>
-                  <span className="salon-hero__mock-time">{row.time}</span>
-                  <span className="salon-hero__mock-client">{row.client}</span>
-                  <span className="salon-hero__mock-service">{row.service}</span>
-                  <span className="salon-hero__mock-master">{row.master}</span>
+              <div className="salon-hero__cal">
+                <div className="salon-hero__rail">
+                  <span className="salon-hero__master" aria-hidden="true" />
+                  {s.mock.times.map((time) => (
+                    <span key={time}>{time}</span>
+                  ))}
                 </div>
-              ))}
+                {s.mock.masters.map((master) => (
+                  <div className="salon-hero__col" key={master.name}>
+                    <span className="salon-hero__master">{master.name}</span>
+                    {s.mock.times.map((time) => {
+                      const apt = master.appointments.find((a) => a.time === time);
+                      if (apt)
+                        return (
+                          <span key={time} className={`salon-hero__apt salon-hero__apt--${apt.tone}`}>
+                            <strong>{apt.service}</strong>
+                            {apt.client}
+                          </span>
+                        );
+                      if (master.free.includes(time))
+                        return (
+                          <span key={time} className="salon-hero__free">
+                            {s.mock.freeLabel}
+                          </span>
+                        );
+                      return <span key={time} className="salon-hero__slot" />;
+                    })}
+                  </div>
+                ))}
+              </div>
             </div>
             <figcaption>{s.mock.label}</figcaption>
           </figure>
@@ -116,7 +138,10 @@ export default function SalonLandingPage() {
 
         <section className="salon-growth" aria-labelledby="salon-growth-title">
           <div className="salon-growth__art">
-            <SalonArt />
+            <span className="salon-growth__photo">
+              {/* Фото сгенерировано через KIE по решению владельца 10.10.2026: тёплая палитра макета */}
+              <img src="/photos/salon-warm.jpg" alt="" loading="lazy" width={1184} height={864} />
+            </span>
             <span className="salon-growth__float">
               <strong>{s.growth.float.value}</strong>
               {s.growth.float.text}
@@ -143,80 +168,18 @@ export default function SalonLandingPage() {
           </div>
         </section>
 
-        <section className="section section--tight faq" aria-labelledby="salon-faq-title">
-          <div className="faq__layout">
-            <div className="section-heading">
-              <p className="eyebrow">{t.faq.eyebrow}</p>
-              <h2 id="salon-faq-title" className="section-heading__title">
-                {s.faqTitle}
-              </h2>
-            </div>
-            <div className="faq__list">
-              {s.faq.map((item) => (
-                <details key={item.q}>
-                  <summary>
-                    <span>{typo(item.q)}</span>
-                    <span aria-hidden="true">+</span>
-                  </summary>
-                  <p>{typo(item.a)}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <div className="cta salon-cta">
-          <div className="cta__copy">
-            <h2 className="cta__title">{typo(s.ctaTitle)}</h2>
-            <p className="cta__text">{typo(s.ctaText)}</p>
-            <div className="cta__actions">
-              <a className="btn btn--primary btn--lg" href={register} data-auth="register">
-                {t.nav.register}
-                <Icon name="arrowRight" size={18} />
-              </a>
-              <Link className="link-arrow" href="/">
-                {t.segments.home}
-              </Link>
-            </div>
-          </div>
-        </div>
+        <LandingFinal
+          faq={{ title: s.faqTitle, items: s.faq }}
+          cta={{
+            title: s.ctaTitle,
+            text: s.ctaText,
+            note: t.final.note,
+            register: { href: register, label: t.nav.register },
+            secondary: { href: '/', label: t.segments.home },
+            photo: { src: '/photos/reception.jpg', alt: '' },
+          }}
+        />
       </div>
     </div>
-  );
-}
-
-/** Интерьер салона со снимка — рисунок на SVG в фирменных тонах (§19.9: вместо фото и стоков). */
-function SalonArt() {
-  return (
-    <span aria-hidden="true">
-      <svg
-        viewBox="0 0 240 200"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* зеркало с подсветкой */}
-        <rect x="28" y="20" width="64" height="88" rx="10" />
-        <circle cx="42" cy="34" r="3" strokeWidth="2" opacity="0.6" />
-        <circle cx="60" cy="28" r="3" strokeWidth="2" opacity="0.6" />
-        <circle cx="78" cy="34" r="3" strokeWidth="2" opacity="0.6" />
-        {/* столик под зеркалом */}
-        <path d="M16 124h88M24 124v52M96 124v52" />
-        <path d="M40 124v-8h24v8" strokeWidth="2" opacity="0.6" />
-        {/* кресло */}
-        <path d="M150 84a22 22 0 0 1 44 0v28h-44z" />
-        <path d="M144 112h56v14h-56z" />
-        <path d="M172 126v30M154 176h36" />
-        <path d="M150 96h-8M202 96h-6" strokeWidth="2" opacity="0.6" />
-        {/* растение */}
-        <path d="M222 176v-28" strokeWidth="2" />
-        <path d="M222 152c-8-4-12-12-10-20 8 2 12 10 10 20Z" strokeWidth="2" opacity="0.6" />
-        <path d="M222 156c8-4 12-12 10-20-8 2-12 10-10 20Z" strokeWidth="2" opacity="0.6" />
-        <path d="M214 176h16" strokeWidth="2" />
-        <path d="M16 176h208" opacity="0.4" strokeWidth="2" />
-      </svg>
-    </span>
   );
 }

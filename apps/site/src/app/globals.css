@@ -4340,3 +4340,26 @@ button {
   height: auto;
   border-radius: var(--radius-lg);
 }
+
+
+/* Лендинг ресторанов (10.10.2026): те же блоки, что у гостиниц; в герое фото вместо мокапа. */
+.restaurant-hero__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-floating);
+}
+
+.salon-cta__photo img {
+  display: block;
+  width: clamp(200px, 24vw, 320px);
+  height: auto;
+  border-radius: var(--radius-lg);
+}
+@media (max-width: 64rem) {
+  .salon-cta__photo {
+    display: none;
+  }
+}

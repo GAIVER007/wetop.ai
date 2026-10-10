@@ -191,6 +191,10 @@ export default function SalonLandingPage() {
         </section>
 
         <div className="cta salon-cta">
+          <span className="salon-cta__photo" aria-hidden="true">
+            {/* Фото сгенерировано через KIE (10.10.2026): тёплый ресепшн под палитру макета */}
+            <img src="/photos/reception.jpg" alt="" loading="lazy" width={592} height={432} />
+          </span>
           <div className="cta__copy">
             <h2 className="cta__title">{typo(s.ctaTitle)}</h2>
             <p className="cta__text">{typo(s.ctaText)}</p>

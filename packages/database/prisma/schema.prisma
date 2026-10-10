@@ -3086,8 +3086,8 @@ model RestaurantOrder {
   createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
   location    Location              @relation(fields: [locationId], references: [id])
-  table       DiningTable?          @relation(fields: [tableId], references: [id])
-  waiter      Employee?             @relation(fields: [waiterId], references: [id])
+  table       DiningTable?          @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  waiter      Employee?             @relation(fields: [waiterId], references: [id], onDelete: Restrict)
   createdBy   User?                 @relation(fields: [createdById], references: [id])
   items       RestaurantOrderItem[]
 

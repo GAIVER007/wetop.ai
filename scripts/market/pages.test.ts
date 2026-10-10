@@ -47,3 +47,29 @@ describe.runIf(recordings.length > 0)('записанные ответы мод�
     });
   }
 });
+
+describe('Ostrovok без модели: правила по тексту блока номеров', () => {
+  it('на всех записанных страницах Ostrovok совпадает с ручной разметкой', async () => {
+    const { ostrovokObservation } = await import('./sources');
+    const own = labels.filter((l) => l.file !== 'booking-1020.txt' && l.file !== 'yandex-1020.txt');
+    expect(own).toHaveLength(7);
+    for (const l of own) {
+      const got = ostrovokObservation(readFileSync(`${DIR}/${l.file}`, 'utf8'));
+      expect({ status: got.status, roomsLeft: got.roomsLeft }, l.file).toEqual(l.expected);
+    }
+  });
+
+  it('самый малый видимый остаток для уровня; нет предложений, проверка площадки, пустая страница', async () => {
+    const { ostrovokObservation } = await import('./sources');
+    const page = (f: string) => readFileSync(`${DIR}/${f}`, 'utf8');
+    expect(ostrovokObservation(page('evergreen-1010.txt')).fewestLeft).toBe(5);
+    expect(ostrovokObservation(page('ramada-1231.txt')).fewestLeft).toBe(1);
+    expect(ostrovokObservation('Заезд\n20 окт\nНа 1 ночь, для 1 взрослого\nНет доступных вариантов на эти даты')).toEqual({
+      status: 'sold_out',
+      roomsLeft: null,
+      fewestLeft: null,
+    });
+    expect(ostrovokObservation(page('yandex-1020.txt')).status).toBe('blocked');
+    expect(ostrovokObservation('').status).toBe('unknown');
+  });
+});

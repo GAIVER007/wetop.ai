@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   LUXX_APARTS_PROPERTY,
   MarketInputError,
+  type AvailabilityLevel,
   type CompetitorInput,
   type MarketReading,
   type ObservationSource,
@@ -85,9 +86,11 @@ export interface CollectorTarget {
   timezone: string;
 }
 
+/** Ночь от сборщика: процент, уровень наличия (DATA_MODEL §23.1) или оба; пустой ночи сервис не пропускает */
 export interface CollectedEntry {
   date: string;
-  bp: number;
+  bp: number | null;
+  level: AvailabilityLevel | null;
 }
 
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
@@ -326,8 +329,21 @@ export class PrismaMarketRepository implements MarketRepository {
         const key = { competitorId: target.id, stayDate: asDate(e.date), observedOn: day };
         await tx.competitorOccupancy.upsert({
           where: { competitorId_stayDate_observedOn: key },
-          create: { ...key, propertyId: target.propertyId, occupancyBp: e.bp, source: 'AI_AGENT', createdById: null },
-          update: { occupancyBp: e.bp, source: 'AI_AGENT', createdById: null, observedAt: new Date() },
+          create: {
+            ...key,
+            propertyId: target.propertyId,
+            occupancyBp: e.bp,
+            availabilityLevel: e.level,
+            source: 'AI_AGENT',
+            createdById: null,
+          },
+          update: {
+            occupancyBp: e.bp,
+            availabilityLevel: e.level,
+            source: 'AI_AGENT',
+            createdById: null,
+            observedAt: new Date(),
+          },
         });
         saved += 1;
       }

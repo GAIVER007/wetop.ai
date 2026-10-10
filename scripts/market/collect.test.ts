@@ -10,13 +10,13 @@ function setup(
   page: (url: string) => { status: number; text: string },
   seen: (night: string) => NightObservation,
 ) {
-  const writes: Array<{ id: string; entries: Array<{ date: string; percent: number }> }> = [];
+  const writes: Array<{ id: string; entries: Array<{ date: string; percent?: number; level?: string }> }> = [];
   const pages: string[] = [];
   const sleeps: number[] = [];
   const deps = {
     api: {
       competitors: async () => competitors,
-      write: async (id: string, entries: Array<{ date: string; percent: number }>) => {
+      write: async (id: string, entries: Array<{ date: string; percent?: number; level?: string }>) => {
         writes.push({ id, entries });
         return { saved: entries.length, kept: 0 };
       },
@@ -54,9 +54,16 @@ describe('ИИ-сборщик загрузки конкурентов', () => {
       '2026-10-10',
       '2026-10-11',
     ]);
-    // ночь без видимого остатка не пишется: оценки нет
+    // процент там, где он считается; уровень у каждой разобранной ночи (DATA_MODEL §23.1)
     expect(s.writes).toEqual([
-      { id: 'a', entries: [{ date: '2026-10-09', percent: 75 }, { date: '2026-10-10', percent: 100 }] },
+      {
+        id: 'a',
+        entries: [
+          { date: '2026-10-09', percent: 75, level: 'AVAILABLE' },
+          { date: '2026-10-10', percent: 100, level: 'SOLD_OUT' },
+          { date: '2026-10-11', level: 'AVAILABLE' },
+        ],
+      },
     ]);
     expect(s.sleeps).toEqual([5000, 5000]);
     expect(report?.outcome).toBe('written');
@@ -72,7 +79,7 @@ describe('ИИ-сборщик загрузки конкурентов', () => {
     expect(s.pages).toHaveLength(2);
     expect(report?.outcome).toBe('blocked');
     expect(report?.reason).toContain('не обходим');
-    expect(s.writes).toEqual([{ id: 'a', entries: [{ date: '2026-10-09', percent: 90 }] }]);
+    expect(s.writes).toEqual([{ id: 'a', entries: [{ date: '2026-10-09', percent: 90, level: 'FEW_LEFT' }] }]);
   });
 
   it('Booking.com отвечает автомату 202 и пустой страницей: это проверка площадки, модель не зовём', async () => {
@@ -110,7 +117,7 @@ describe('ИИ-сборщик загрузки конкурентов', () => {
     expect(s.writes).toEqual([]);
   });
 
-  it('без ссылки на площадку или без числа номеров страницу не открывает', async () => {
+  it('без ссылки на площадку страницу не открывает; без числа номеров пишет только уровень', async () => {
     const s = setup(
       [
         { ...altyn, id: 'b', url: 'https://altyn-hotel.kz/' },
@@ -118,12 +125,16 @@ describe('ИИ-сборщик загрузки конкурентов', () => {
         { ...altyn, id: 'd', unitsTotal: null },
       ],
       () => ({ status: 200, text: '' }),
-      () => ({ status: 'sold_out', roomsLeft: null }),
+      () => ({ status: 'available', roomsLeft: 2 }),
     );
     const reports = await s.run();
-    expect(s.pages).toEqual([]);
-    expect(reports.map((r) => r.outcome)).toEqual(['skipped', 'skipped', 'skipped']);
-    expect(reports[2]?.reason).toContain('число номеров');
+    expect(s.pages).toHaveLength(3);
+    expect(reports.map((r) => r.outcome)).toEqual(['skipped', 'skipped', 'written']);
+    expect(s.writes[0]?.entries).toEqual([
+      { date: '2026-10-09', level: 'FEW_LEFT' },
+      { date: '2026-10-10', level: 'FEW_LEFT' },
+      { date: '2026-10-11', level: 'FEW_LEFT' },
+    ]);
   });
 
   it('проверка без записи: читает и оценивает, в WETOP ничего не пишет', async () => {

@@ -145,8 +145,8 @@ describe('PUT /market/collector/competitors/:id/occupancy', () => {
     expect(writes[0]!.target.propertyId).toBe('prop-a');
     expect(writes[0]!.observedOn).toBe('2026-10-04');
     expect(writes[0]!.entries).toEqual([
-      { date: '2026-10-04', bp: 9100 },
-      { date: '2026-10-05', bp: 6450 },
+      { date: '2026-10-04', bp: 9100, level: null },
+      { date: '2026-10-05', bp: 6450, level: null },
     ]);
     expect(writes[0]!.audit).toMatchObject({
       entityType: 'Competitor',
@@ -154,6 +154,22 @@ describe('PUT /market/collector/competitors/:id/occupancy', () => {
       action: 'market.occupancy.collected',
     });
     expect(writes[0]!.tenant).toBeNull();
+  });
+
+  it('уровень наличия (DATA_MODEL §23.1): ночь с уровнем без процента, с обоими; неизвестный уровень 400', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-03T06:00:00Z'));
+    await put(SOSED, [
+      { date: '2026-10-04', level: 'FEW_LEFT' },
+      { date: '2026-10-06', percent: 100, level: 'SOLD_OUT' },
+    ]).expect(200);
+    expect(writes[0]!.entries).toEqual([
+      { date: '2026-10-04', bp: null, level: 'FEW_LEFT' },
+      { date: '2026-10-06', bp: 10000, level: 'SOLD_OUT' },
+    ]);
+    await put(SOSED, [{ date: '2026-10-04', level: 'почти полон' }]).expect(400);
+    await put(SOSED, [{ date: '2026-10-04', level: null }]).expect(400);
+    expect(writes).toHaveLength(1);
   });
 
   it('объект и организация не берутся из тела запроса', async () => {

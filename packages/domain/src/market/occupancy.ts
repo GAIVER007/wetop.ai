@@ -441,7 +441,9 @@ export const FEW_LEFT_MAX = 5;
 export function availabilityLevelFromPage(o: NightObservation): AvailabilityLevel | null {
   if (o.status === 'sold_out') return 'SOLD_OUT';
   if (o.status !== 'available') return null;
-  return o.fewestLeft != null && o.fewestLeft <= FEW_LEFT_MAX ? 'FEW_LEFT' : 'AVAILABLE';
+  // самый малый видимый остаток; если площадка показала только сумму, решает она
+  const low = o.fewestLeft ?? o.roomsLeft;
+  return low != null && low <= FEW_LEFT_MAX ? 'FEW_LEFT' : 'AVAILABLE';
 }
 
 /** Уровень по проценту (ручной ввод и снимки до §23.1): те же пороги, что у подсказок (Q-258) */

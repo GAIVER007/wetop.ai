@@ -85,6 +85,36 @@ roomsLeft (only when status is "available", otherwise null): the total number of
 
 evidence: one short quote or paraphrase from the page that supports the answer.`;
 
+/**
+ * Ostrovok без модели (ADR-142 п. 16): блок номеров (`pageSection`) читается правилами. Перед каждой карточкой номера
+ * («N фото») может стоять «осталось N номеров»; у части карточек остатка нет, тогда сумма неизвестна, а для уровня
+ * берётся самый малый видимый остаток. «Нет доступных вариантов» без карточек: на ночь не продаётся. Разметка и
+ * сверка: записанные страницы `tests/fixtures/market-pages/`.
+ */
+export function ostrovokObservation(text: string): NightObservation {
+  if (/робот|captcha|подтвердите/i.test(text)) return { status: 'blocked', roomsLeft: null, fewestLeft: null };
+  const cards: Array<number | null> = [];
+  let pending: number | null = null;
+  for (const line of text.split('\n').map((l) => l.trim())) {
+    const left = /(?:осталось|остался|осталась) (\d+) (?:номер|мест|кроват)/i.exec(line);
+    if (left) pending = Number(left[1]);
+    else if (/^\d+ фото$/.test(line)) {
+      cards.push(pending);
+      pending = null;
+    }
+  }
+  if (cards.length === 0)
+    return /нет доступных вариантов/i.test(text)
+      ? { status: 'sold_out', roomsLeft: null, fewestLeft: null }
+      : { status: 'unknown', roomsLeft: null, fewestLeft: null };
+  const known = cards.filter((c): c is number => c !== null);
+  return {
+    status: 'available',
+    roomsLeft: known.length === cards.length ? known.reduce((a, b) => a + b, 0) : null,
+    fewestLeft: known.length ? Math.min(...known) : null,
+  };
+}
+
 /** Ответ модели: только то, что прошло проверку схемой; иначе «не разобрано» */
 export function parseObservation(text: string): NightObservation {
   try {

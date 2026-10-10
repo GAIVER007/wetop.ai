@@ -3,7 +3,8 @@
  *
  *   npm run market:collect -- [--dry-run] [--nights 14]
  *
- * Окружение: MARKET_COLLECT_URL (адрес API WETOP), MARKET_COLLECT_KEY (служебный ключ сборщика), ANTHROPIC_API_KEY,
+ * Окружение: MARKET_COLLECT_URL (адрес API WETOP), MARKET_COLLECT_KEY (служебный ключ сборщика), ANTHROPIC_API_KEY
+ * (только для Booking.com и Trip.com: Ostrovok читается правилами без модели),
  * из окружения или `.env` проекта; необязательно MARKET_COLLECT_MODEL (по умолчанию claude-opus-5-5), MARKET_COLLECT_DELAY_MS (пауза между
  * страницами, по умолчанию 8000). Значения ключей вписывает владелец (SECURITY.md §3).
  */
@@ -11,7 +12,9 @@ import Anthropic from '@anthropic-ai/sdk';
 import { existsSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 import { collect } from './collect';
-import { claudeExtractor, collectorApi, pageReader } from './sources';
+import { competitorPlatform } from '@pms/domain';
+import { claudeExtractor, collectorApi, ostrovokObservation, pageReader } from './sources';
+import type { ExtractNight } from './collect';
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -25,13 +28,20 @@ async function main(): Promise<void> {
   const key = process.env['MARKET_COLLECT_KEY'];
   if (!url || !key) throw new Error('Нужны MARKET_COLLECT_URL и MARKET_COLLECT_KEY');
   const nights = Math.min(Math.max(Number(arg('--nights') ?? 14), 1), 62);
+  // Ostrovok читается правилами без модели (ADR-142 п. 16); модель и её ключ нужны только остальным площадкам
+  let claude: ExtractNight | undefined;
+  const extract: ExtractNight = async (text, ctx) => {
+    if (competitorPlatform(ctx.url) === 'Ostrovok') return ostrovokObservation(text);
+    claude ??= claudeExtractor(new Anthropic(), process.env['MARKET_COLLECT_MODEL'] || 'claude-opus-5-5');
+    return claude(text, ctx);
+  };
   const browser = await chromium.launch();
   try {
     const reports = await collect(
       {
         api: collectorApi(url, key),
         readPage: pageReader(browser),
-        extract: claudeExtractor(new Anthropic(), process.env['MARKET_COLLECT_MODEL'] || 'claude-opus-5-5'),
+        extract,
       },
       {
         nights,

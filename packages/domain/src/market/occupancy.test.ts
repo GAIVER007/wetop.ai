@@ -347,6 +347,9 @@ describe('уровень наличия (DATA_MODEL §23.1)', () => {
     // остатки видны, но все больше порога, или не видны вовсе: есть места
     expect(availabilityLevelFromPage({ status: 'available', roomsLeft: 14, fewestLeft: 6 })).toBe('AVAILABLE');
     expect(availabilityLevelFromPage({ status: 'available', roomsLeft: null })).toBe('AVAILABLE');
+    // видна только сумма: она и решает
+    expect(availabilityLevelFromPage({ status: 'available', roomsLeft: 3 })).toBe('FEW_LEFT');
+    expect(availabilityLevelFromPage({ status: 'available', roomsLeft: 6 })).toBe('AVAILABLE');
     expect(availabilityLevelFromPage({ status: 'blocked', roomsLeft: null })).toBeNull();
     expect(availabilityLevelFromPage({ status: 'unknown', roomsLeft: null })).toBeNull();
   });

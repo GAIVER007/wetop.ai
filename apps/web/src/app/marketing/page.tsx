@@ -15,7 +15,7 @@ import { Badge } from '../../components/ui';
  * `/auth/me` через `requireVertical`, право `settings` проверяет общий `AccessGate`.
  */
 interface Module {
-  key: 'site' | 'ads' | 'content';
+  key: 'site' | 'budget' | 'ads' | 'content';
   testId: string;
   title: string;
   icon: IconName;
@@ -33,6 +33,16 @@ const MODULES: Module[] = [
     href: '/marketing/site/editor',
     text: 'Создайте сайт гостиницы с помощью ИИ, подключите онлайн-бронирование и продвигайте его в поиске.',
     caps: ['ИИ-конструктор сайта', 'Онлайн-бронирование', 'SEO-оптимизация'],
+  },
+  {
+    // МКТ-В1/В2 (ADR-MKT-B1): учёт бюджета и расходов — работает с базой, в отличие от «Скоро» ниже
+    key: 'budget',
+    testId: 'marketing-budget',
+    title: 'Бюджет',
+    icon: 'money',
+    href: '/marketing/budget',
+    text: 'Планируйте рекламный бюджет, ведите расходы по каналам и следите за прогнозом месяца.',
+    caps: ['План месяца и прогноз', 'Журнал расходов по каналам', 'Аналитика бюджета'],
   },
   {
     key: 'ads',
@@ -62,8 +72,14 @@ const SITE_MENU = [
   { label: 'Бронирование и аналитика', href: '/website' },
 ];
 
+const LIVE = new Set(['site', 'budget']);
+const BUDGET_MENU = [
+  { label: 'Расходы', href: '/marketing/budget/expenses' },
+  { label: 'Аналитика маркетинга', href: '/marketing/analytics' },
+];
+
 function ModuleCard({ module }: { module: Module }) {
-  const live = module.key === 'site';
+  const live = LIVE.has(module.key);
   const headingId = `${module.testId}-title`;
   return (
     <section
@@ -95,7 +111,12 @@ function ModuleCard({ module }: { module: Module }) {
             Открыть
             <Icon name="arrow" width={16} aria-hidden="true" />
           </Link>
-          {live && <ActionMenu label={`Ещё действия: ${module.title}`} items={SITE_MENU} />}
+          {live && (
+            <ActionMenu
+              label={`Ещё действия: ${module.title}`}
+              items={module.key === 'budget' ? BUDGET_MENU : SITE_MENU}
+            />
+          )}
         </div>
       </div>
     </section>

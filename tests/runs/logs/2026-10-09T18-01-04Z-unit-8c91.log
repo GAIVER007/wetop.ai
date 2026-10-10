@@ -1,0 +1,30 @@
+# Модульные (unit) · 09.10.2026 23:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-01-04Z-unit-8c91.json' 'packages/domain/src/marketing/budget.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/domain/src/marketing/budget.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/budget.test.ts [ packages/domain/src/marketing/budget.test.ts ]
+Error: Cannot find module './budget' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/packages/domain/src/marketing/budget.test.ts
+ ❯ packages/domain/src/marketing/budget.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   MARKETING_PLATFORMS,
+      4|   MarketingBudgetError,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:01:17
+   Duration  427ms (worker 99%, environment 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-01-04Z-unit-8c91.json
+
+# код выхода 1 · 13 с

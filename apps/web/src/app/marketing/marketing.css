@@ -10,7 +10,8 @@
   }
   .marketing-hub__modules {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* МКТ-В1: модулей стало четыре — 2×2 вместо ряда из трёх, карточки не оставляют сироту */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-4);
   }
   .marketing-hub__aside {

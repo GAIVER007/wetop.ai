@@ -98,6 +98,8 @@ model Location {
   appointments           Appointment[]
   /// MKT9.2: один филиал, один сайт навсегда (полный UNIQUE location_id, архив не освобождает филиал)
   marketingSite          MarketingSite?
+  marketingExpenses      MarketingExpense[]
+  marketingBudgets       MarketingBudget[]
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
@@ -131,6 +133,61 @@ model PropertyMedia {
 
   @@index([propertyId, kind])
   @@map("property_media")
+}
+
+/// Каналы продвижения (ТЗ «Модуль Маркетинг» §4, DATA_MODEL §32)
+enum MarketingPlatform {
+  META
+  GOOGLE
+  TIKTOK
+  INSTAGRAM
+  YOUTUBE
+  WHATSAPP
+  SITE
+  PHONE
+  OTHER
+}
+
+/// §32.1 (v2.16, ADR-MKT-B1): журнал расходов на маркетинг филиала. Деньги BigInt в minor units (ADR-008):
+/// amount в валюте ввода, base_amount в валюте отчётности организации по курсу fx_rate, зафиксированному
+/// на дату операции (ТЗ §8.3). Правки и удаления пишутся в журнал организации (аудит, ТЗ §8.7).
+model MarketingExpense {
+  id              String            @id @default(uuid()) @db.Uuid
+  locationId      String            @map("location_id") @db.Uuid
+  date            DateTime          @db.Date
+  platform        MarketingPlatform
+  campaign        String?           @db.VarChar(200)
+  category        String            @db.VarChar(100)
+  description     String?           @db.VarChar(500)
+  amount          BigInt
+  currency        String            @db.Char(3)
+  fxRate          Decimal           @map("fx_rate") @db.Decimal(14, 6)
+  baseAmount      BigInt            @map("base_amount")
+  countedInBudget Boolean           @default(true) @map("counted_in_budget")
+  createdById     String?           @map("created_by_id") @db.Uuid
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([locationId, date])
+  @@map("marketing_expenses")
+}
+
+/// §32.2 (v2.16, ADR-MKT-B1): план бюджета маркетинга филиала на месяц, в валюте отчётности организации.
+model MarketingBudget {
+  id         String   @id @default(uuid()) @db.Uuid
+  locationId String   @map("location_id") @db.Uuid
+  month      DateTime @db.Date
+  amount     BigInt
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([locationId, month])
+  @@map("marketing_budgets")
 }
 
 model Property {
@@ -2180,6 +2237,7 @@ model User {
   sitePublications             MarketingSitePublication[]
   siteAssetsCreated            SiteAsset[]
   propertyMedia                PropertyMedia[]
+  marketingExpensesCreated     MarketingExpense[]
   siteAiRunsRequested          SiteAiRun[]
   siteBookmarksCreated         MarketingSiteVersionBookmark[]
   siteBuilderEntitlementEdits  SiteBuilderEntitlement[]

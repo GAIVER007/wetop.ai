@@ -335,6 +335,22 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Сайт и SEO, а дальше реклама, контент и репутация.',
       },
       {
+        // МКТ-В1/В2 (ADR-MKT-B1): учёт рекламного бюджета и расходов; право раздела, как у хаба
+        href: '/marketing/budget',
+        requires: 'settings',
+        label: 'Бюджет маркетинга',
+        icon: 'money',
+        description: 'План месяца и расходы на продвижение по каналам.',
+      },
+      {
+        // «Маркетинг → Аналитика» (10.10.2026): эффективность источников; лиды и выручка с этапов В3/В5/В6
+        href: '/marketing/analytics',
+        requires: 'settings',
+        label: 'Аналитика маркетинга',
+        icon: 'analytics',
+        description: 'Расходы, лиды и продажи по источникам: куда уходят деньги и что они приносят.',
+      },
+      {
         // ADR-117: сайт объекта — одно место (раньше «Аналитика сайта», «Настройки сайта» и панель в «Интеграциях»)
         href: '/website',
         requires: 'settings',
@@ -484,7 +500,11 @@ export const menuSections: MenuSection[] = [
     id: 'marketing',
     label: 'Маркетинг',
     icon: 'send',
-    items: [menuItem('/marketing', 'Сайт и SEO')],
+    items: [
+      menuItem('/marketing', 'Сайт и SEO'),
+      menuItem('/marketing/budget', 'Бюджет'),
+      menuItem('/marketing/analytics', 'Аналитика'),
+    ],
   },
   {
     // хаб REP1 плюс «Аналитика» одной группой; «Оплаты» — вкладка «Финансов» (ADR-134)

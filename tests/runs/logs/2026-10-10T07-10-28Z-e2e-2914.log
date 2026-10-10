@@ -1,0 +1,221 @@
+# Сквозные (e2e) · 10.10.2026 12:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 36
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✘   1 tests/ui/marketing-budget.spec.ts:55:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (59.9s)
+  ✘   2 tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (1.0m)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✘   3 tests/ui/marketing-budget.spec.ts:99:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (47.6s)
+  ✓   4 tests/ui/marketing-budget.spec.ts:136:1 › аналитика: динамика к прошлому месяцу, график по дням, у CPL и ROMI «Недостаточно данных» (21.6s)
+  ✓   5 tests/ui/marketing-budget.spec.ts:154:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (10.6s)
+  ✓   6 tests/ui/marketing-budget.spec.ts:168:3 › снимки и доступность: light (1.6m)
+  ✓   7 tests/ui/marketing-budget.spec.ts:168:3 › снимки и доступность: dark (44.0s)
+  ✓   8 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (16.1s)
+  ✓   9 tests/ui/marketing.spec.ts:66:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (37.8s)
+  ✓  10 tests/ui/marketing.spec.ts:91:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (14.7s)
+  ✓  11 tests/ui/marketing.spec.ts:181:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (27.4s)
+  ✓  12 tests/ui/marketing.spec.ts:239:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (33.7s)
+  ✘  13 tests/ui/marketing.spec.ts:261:3 › хаб на компьютере и телефоне, доступность: light (2.2m)
+  ✘  14 tests/ui/marketing.spec.ts:261:3 › хаб на компьютере и телефоне, доступность: dark (2.2m)
+  ✘  15 tests/ui/marketing.spec.ts:316:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (54.5s)
+
+
+  1) tests/ui/marketing-budget.spec.ts:55:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/marketing", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/fixtures.ts:111:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:56:14
+
+    Error Context: test-results/marketing-budget-хаб-карто-cea27-раздел-пустой-месяц-честный/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-хаб-карто-cea27-раздел-пустой-месяц-честный/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-хаб-карто-cea27-раздел-пустой-месяц-честный/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/marketing/budget", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/fixtures.ts:111:30)
+        at openBudget (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:51:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:70:9
+
+    Error Context: test-results/marketing-budget-первый-ра-394b9-ноз-и-распределение-оживают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-первый-ра-394b9-ноз-и-распределение-оживают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-первый-ра-394b9-ноз-и-распределение-оживают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing-budget.spec.ts:99:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Расход сохранён')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Расход сохранён') with timeout 15000ms
+      - waiting for getByText('Расход сохранён')
+      - Test timeout of 45000ms exceeded.
+
+
+      123 |   await form.getByTestId('budget-amount').fill('800');
+      124 |   await form.getByTestId('budget-save').click();
+    > 125 |   await expect(page.getByText('Расход сохранён')).toBeVisible();
+          |                                                   ^
+      126 |   await expect(main.getByTestId('budget-filter-sum')).toContainText('800 ₸');
+      127 |
+      128 |   // удаление: с подтверждением словами, строка уходит
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:125:51
+
+    Error Context: test-results/marketing-budget-журнал-чу-c9538-тр-чипами-правка-и-удаление/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-журнал-чу-c9538-тр-чипами-правка-и-удаление/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-журнал-чу-c9538-тр-чипами-правка-и-удаление/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/marketing.spec.ts:261:3 › хаб на компьютере и телефоне, доступность: light ───────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 120000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      291 |           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      292 |         ).toBe(true);
+    > 293 |         const screenAudit = await new AxeBuilder({ page })
+          |                             ^
+      294 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      295 |           .analyze();
+      296 |         expect(screenAudit.violations).toEqual([]);
+        at AxeBuilder.analyze (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing.spec.ts:293:29
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/marketing.spec.ts:261:3 › хаб на компьютере и телефоне, доступность: dark ────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('main').visible().getByTestId('marketing-content-screen')
+    Expected: visible
+    Received: undefined
+
+
+      287 |       for (const screen of ['ads', 'content'] as const) {
+      288 |         await page.goto(`/marketing/${screen}`);
+    > 289 |         await expect(main(page).getByTestId(`marketing-${screen}-screen`)).toBeVisible();
+          |                                                                            ^
+      290 |         expect(
+      291 |           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      292 |         ).toBe(true);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing.spec.ts:289:76
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/marketing.spec.ts:316:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+
+      319 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      320 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 321 |   await page.waitForURL('**/today');
+          |              ^
+      322 |   await page.goto('/branches');
+      323 |   const body = main(page);
+      324 |   await body.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing.spec.ts:321:14
+
+    Error Context: test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/marketing-budget.spec.ts:55:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный 
+    tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают 
+    tests/ui/marketing-budget.spec.ts:99:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление 
+    tests/ui/marketing.spec.ts:261:3 › хаб на компьютере и телефоне, доступность: light ────────────
+    tests/ui/marketing.spec.ts:261:3 › хаб на компьютере и телефоне, доступность: dark ─────────────
+    tests/ui/marketing.spec.ts:316:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+  9 passed (18.8m)
+
+# код выхода 1 · 19 мин 8 с

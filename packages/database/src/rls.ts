@@ -113,6 +113,9 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'site_builder_entitlements',
   'site_ai_runs',
   'marketing_site_version_bookmarks',
+  // МКТ-В1/В2: учёт бюджета и расходов маркетинга, через Location → Business (DATA_MODEL §32, миграция …081)
+  'marketing_expenses',
+  'marketing_budgets',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

@@ -186,7 +186,7 @@ const HOVER_TARGETS = [
   '.seg a',
   '.tbl td a',
   '.facts a',
-  '.topmenu__tab',
+  '.sidenav__link',
 ];
 const HOVER_PROPS = [
   'background-color',

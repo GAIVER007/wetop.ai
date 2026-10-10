@@ -1,11 +1,11 @@
-import { FIXTURE_API, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, sideNav, openSection } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
 // Контракт меню: основные разделы доступны ровно по разу, настройки объекта — во внутренних вкладках.
 // «ИИ-агенты» в «Продажах» всегда, доступ проверяет сам раздел (ADR-090); «Платформа» — только по
 // отметке главного администратора (ADR-083, tests/ui/platform-access.spec.ts).
-// С 02.10.2026 (ADR-134) на компьютере разделы стоят строкой вкладок в шапке (tests/ui/top-menu.spec.ts),
+// С 10.10.2026 (ADR-161) на компьютере разделы в левом меню с панелью (tests/ui/side-nav.spec.ts),
 // здесь: меню телефона и планшета «Навигация» из того же реестра и обход всех пунктов по страницам.
 const routes = [
   '/ai-agents',
@@ -126,21 +126,14 @@ test('все пункты меню открывают существующие �
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/finance');
-  const menu = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
-  const tabs = menu.locator('.topmenu__tabs > *');
-  for (let i = 0; i < (await tabs.count()); i++) {
-    const tab = tabs.nth(i);
-    const toggle = tab.getByRole('button');
-    // раздел из одного пункта — сама вкладка и есть ссылка; группа — список под вкладкой
-    const grouped = (await toggle.count()) > 0;
-    const links = grouped ? tab.locator('a') : tab;
-    for (let j = 0; j < (await links.count()); j++) {
-      const link = links.nth(j);
+  const menu = sideNav(page);
+  for (const section of SECTIONS) {
+    const items = await openSection(page, section);
+    const count = await items.locator('a').count();
+    for (let j = 0; j < count; j++) {
+      // панель раздела: подразделы справа (ADR-161); после перехода панель закрыта, открываем снова
+      const link = (await openSection(page, section)).locator('a').nth(j);
       const href = await link.getAttribute('href');
-      if (grouped) {
-        await toggle.click();
-        await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-      }
       await link.click();
       await expect(page).toHaveURL(new RegExp(`${href}$`));
       await expect(
@@ -160,8 +153,11 @@ test('все пункты меню открывают существующие �
       await expect(page.getByRole('main').filter({ visible: true })).not.toContainText(
         'Не удалось загрузить данные',
       );
-      await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
-      await expect(link).toHaveAttribute('aria-current', 'page');
+      await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveCount(1);
+      await expect(menu.locator(`.sidenav__items a[href="${href}"]`)).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
     }
   }
 });
@@ -178,7 +174,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/finance');
     for (const width of [320, 390, 768, 960]) {
       await page.setViewportSize({ width, height: 844 });
-      await expect(page.locator('.topmenu')).toBeHidden();
+      await expect(page.locator('.sidenav')).toBeHidden();
       await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
       const menu = page.getByRole('dialog', { name: 'Навигация', exact: true });
       const groups = menu.locator('.sidebar-section-toggle');
@@ -227,7 +223,8 @@ test('«Гости и бронирования»: один пункт меню, 
 }) => {
   await page.goto('/guests');
   const main = page.getByRole('main');
-  const menu = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
+  // подразделы левого меню (ADR-161): каждый адрес один раз, текущий помечен
+  const menu = page.locator('.sidenav__items');
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
   await main.getByRole('link', { name: 'Список броней', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations$/);

@@ -1,4 +1,4 @@
-import { FIXTURE_API, boardFilter, expect, openBoardFilters, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, openBoardFilters, test, devNoise, type Page, goViaMenu } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -118,22 +118,14 @@ test('все разделы, карточки и печать открывают
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/finance');
-  // строка разделов в шапке (ADR-134): группа «Продажи» раскрывает список под вкладкой
-  const sidebar = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
-  const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
-  await expect(sales).toHaveAttribute('aria-expanded', 'false');
-  // страница ещё стримится, и клик до гидратации кнопки теряется — повторяем, как в real-data.spec
-  await expect(async () => {
-    await sales.click();
-    await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
-  }).toPass({ timeout: 15_000 });
-  await sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true }).click();
+  // левое меню (ADR-161): панель разделов, «Продажи» → «Загрузка конкурентов»
+  const sidebar = page.locator('.sidenav__items');
+  await goViaMenu(page, 'Продажи', 'Загрузка конкурентов');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
-  // переход закрывает список; вкладка группы помечена текущим экраном
-  await expect(sales).toHaveAttribute('aria-expanded', 'false');
-  await expect(sales).toHaveClass(/has-current-page/);
-  await expect(sidebar.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).not.toBeVisible();
+  // переход закрывает панель; кнопка показывает раздел текущего экрана
+  await expect(page.locator('.sidenav__panel')).toBeHidden();
+  await expect(page.locator('.sidenav__current')).toHaveText('Продажи');
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
@@ -523,20 +515,8 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/finance');
-  // «Неисправности» лежат в группе «Настройки» верхнего меню (ADR-134), и до раскрытия ссылка скрыта.
-  // Экран стримится, и клик по группе до гидрации теряется: жмём, пока ссылка не раскроется,
-  // но только если группа свёрнута: иначе щелчок её закроет
-  const control = page
-    .locator('.workspace-header .topmenu__group')
-    .filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
-  const toggle = control.getByRole('button', { name: 'Настройки', exact: true });
-  await expect(async () => {
-    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
-    await expect(control.getByRole('link', { name: 'Неисправности', exact: true })).toBeVisible({
-      timeout: 1_500,
-    });
-  }).toPass({ timeout: 15_000 });
-  await control.getByRole('link', { name: 'Неисправности', exact: true }).click();
+  // «Неисправности» лежат в разделе «Настройки» левого меню (ADR-161): панель, затем подраздел
+  await goViaMenu(page, 'Настройки', 'Неисправности');
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
   await page.getByTestId('incident-resolve').click();

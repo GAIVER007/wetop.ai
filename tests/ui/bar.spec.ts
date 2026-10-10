@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, sideNav } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -162,13 +162,12 @@ test('«Добавить товар» открывает карточку нов
 test('меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar/products');
-  const menu = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
-  const finance = menu.getByRole('button', { name: 'Финансы', exact: true });
-  await expect(finance).toHaveClass(/has-current-page/);
-  await expect(menu.locator('.topmenu__tab', { hasText: 'Бар' })).toHaveCount(0);
-  await finance.click();
-  await expect(menu.getByRole('link', { name: 'Оплаты и касса', exact: true })).toBeVisible();
-  await expect(menu.getByRole('link', { name: 'Бар', exact: true })).toHaveAttribute('aria-current', 'page');
+  // левое меню (ADR-161): на кнопке раздел «Финансы», «Бар» его подраздел, а не свой раздел
+  const nav = sideNav(page);
+  await expect(nav.locator('.sidenav__current')).toHaveText('Финансы');
+  await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
+  await expect(nav.locator('.sidenav__sub').getByRole('link', { name: 'Оплаты и касса', exact: true })).toBeVisible();
+  await expect(nav.locator('.sidenav__sub').getByRole('link', { name: 'Бар', exact: true })).toHaveAttribute('aria-current', 'page');
 });
 
 test('новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом', async ({ page }) => {

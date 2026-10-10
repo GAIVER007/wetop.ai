@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, menuLinks } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -24,11 +24,6 @@ async function signIn(page: Page) {
 
 const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF') =>
   request.post(`${API}/__test/control`, { data: { role } });
-
-const menuLinks = (page: Page) =>
-  page
-    .locator('.workspace-header .topmenu a')
-    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 const shot = (page: Page, name: string) =>
   page.screenshot({ path: `reports/roles-2026-09-27/${name}.png`, fullPage: true });

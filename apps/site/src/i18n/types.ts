@@ -181,6 +181,9 @@ export type Dictionary = {
     };
     empty: string;
     ctaText: string;
+    badge: string;
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
     link: string;
   };
   /**
@@ -382,6 +385,9 @@ export type Dictionary = {
         cards: Array<{ icon: IconName; title: string; text: string; tags?: string[] }>;
         /** Чего в системе пока нет: честная строка, а не скрытое ограничение. */
         limits?: string;
+        /** Фото героя (свой файл из KIE, не сток) и вопросы: есть у страниц типов объектов. */
+        photoAlt?: string;
+        faq?: Array<{ q: string; a: string }>;
       }
     >;
   };

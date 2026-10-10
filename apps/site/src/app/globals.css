@@ -1937,8 +1937,24 @@ button {
   font-weight: 600;
 }
 .calc__output {
-  padding-top: 24px;
-  border-top: 1px solid var(--glass-border-dim);
+  padding: 24px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--primary-soft);
+}
+/* 10.10.2026: на широком экране поля слева, результат панелью справа и не уезжает при прокрутке */
+@media (min-width: 64rem) {
+  .calc {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .calc__output {
+    position: sticky;
+    top: 96px;
+  }
+  .calc .calc__numbers {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .calc__title {
   margin: 0 0 16px;
@@ -4328,7 +4344,8 @@ button {
 }
 
 /* Фото героя лендинга ресторанов (блоки те же `.hotel-*`, реестр: строка `.restaurant-hero`). */
-.restaurant-hero__photo img {
+.restaurant-hero__photo img,
+.hotel-hero__photo img {
   display: block;
   width: 100%;
   height: auto;

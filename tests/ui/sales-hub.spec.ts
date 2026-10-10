@@ -148,7 +148,9 @@ test('администратор смены открывает хаб', async ({
   await signIn(page);
   await control(request, { role: 'STAFF' });
   // как человек: со стартовой страницы роли через меню (прямой переход первым запросом после смены роли разворачивает стойка)
-  await page.goto('/finance');
+  // переход может быть прерван разворотом стойки на стартовую страницу роли: ждём, пока она откроется
+  await page.goto('/finance').catch(() => undefined);
+  await page.waitForURL('**/finance');
   const menu = page.locator('.topmenu');
   await menu.getByRole('button', { name: 'Продажи', exact: true }).click();
   await menu.getByRole('link', { name: 'Обзор продаж', exact: true }).click();

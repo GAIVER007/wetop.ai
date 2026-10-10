@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 09.10.2026 19:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/sales2-impl), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/sales-hub.spec.ts' 'tests/ui/market.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=240000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (3.0s)
+  ✓   2 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (3.1s)
+  ✓   3 tests/ui/market.spec.ts:149:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (2.1s)
+  ✓   4 tests/ui/market.spec.ts:165:3 › снимки и доступность: light (3.5s)
+  ✓   5 tests/ui/market.spec.ts:165:3 › снимки и доступность: dark (3.1s)
+  ✓   6 tests/ui/market.spec.ts:205:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (1.5s)
+  ✓   7 tests/ui/market.spec.ts:233:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (1.8s)
+  ✓   8 tests/ui/sales-hub.spec.ts:43:1 › пункт «Обзор продаж» первым в «Продажах»; шесть чисел с изменением к прошлому отрезку (1.6s)
+  ✓   9 tests/ui/sales-hub.spec.ts:76:1 › нет предложений: конверсия это знак пропуска, а не 0 %; нет базы: сравнения нет (615ms)
+  ✓  10 tests/ui/sales-hub.spec.ts:90:1 › сводка не посчиталась: сказано словами, числа броней и конкурентов это пропуск, карточки живы (619ms)
+  ✓  11 tests/ui/sales-hub.spec.ts:104:1 › период: «7 дней» меняет адрес и подпись, неверные даты в адресе возвращают 30 дней (1.6s)
+  ✓  12 tests/ui/sales-hub.spec.ts:122:1 › расширение «ИИ-продавец» выключено: карточка объясняет, диалоги это пропуск, конкуренты работают (621ms)
+  ✓  13 tests/ui/sales-hub.spec.ts:135:1 › карточка конкурентов: устаревшие данные помечены; «Добавить конкурента» открывает окно (731ms)
+  ✓  14 tests/ui/sales-hub.spec.ts:154:1 › администратор смены видит хаб, но без кнопки «Настроить»; владелец с ней (1.2s)
+  ✓  15 tests/ui/sales-hub.spec.ts:168:5 › доступность и снимки: light, 1440px (1.6s)
+  ✓  16 tests/ui/sales-hub.spec.ts:168:5 › доступность и снимки: light, 390px (1.5s)
+  ✓  17 tests/ui/sales-hub.spec.ts:168:5 › доступность и снимки: dark, 1440px (1.6s)
+  ✓  18 tests/ui/sales-hub.spec.ts:168:5 › доступность и снимки: dark, 390px (1.4s)
+
+  18 passed (35.8s)
+
+# код выхода 0 · 37 с

@@ -15,7 +15,7 @@ async function signIn(page: Page, request: APIRequestContext) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 /** Заводит салон формой филиалов и переключает стойку на него */
@@ -61,26 +61,27 @@ test('в салоне меню без гостиничных разделов: �
   request,
 }) => {
   await signIn(page, request);
-  const menu = page.locator('.topmenu');
+  // все разделы направления в панели левого меню (ADR-161); она закрыта, поэтому проверяем разметку
+  const menu = page.locator('.sidenav__sections');
   // до переключения это обычная гостиница
-  await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Календарь', exact: true, includeHidden: true })).toHaveCount(1);
   await createAndOpenSalon(page, 'Студия Айна');
-  await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
-  for (const label of ['Главная', 'Брони', 'Номерной фонд', 'Гости', 'Гости и бронирования']) {
-    await expect(menu.getByRole('link', { name: label, exact: true })).toHaveCount(0);
+  await expect(menu.getByRole('link', { name: 'Календарь', exact: true, includeHidden: true })).toHaveCount(1);
+  for (const label of ['Финансы', 'Брони', 'Номерной фонд', 'Гости', 'Гости и бронирования']) {
+    await expect(menu.getByRole('link', { name: label, exact: true, includeHidden: true })).toHaveCount(0);
   }
   // MV8: «Сегодня» салона на общем адресе
-  await expect(menu.getByRole('link', { name: 'Сегодня', exact: true })).toHaveAttribute(
+  await expect(menu.getByRole('link', { name: 'Сегодня', exact: true, includeHidden: true })).toHaveAttribute(
     'href',
     '/today',
   );
-  await expect(menu.getByRole('link', { name: 'Календарь', exact: true })).toHaveAttribute(
+  await expect(menu.getByRole('link', { name: 'Календарь', exact: true, includeHidden: true })).toHaveAttribute(
     'href',
     '/calendar',
   );
   // Раздел мастеров: подпись «Мастера». Прежняя «Сотрудники» стояла в меню рядом с «Сотрудники и
   // доступ» (`/staff`, учётные записи) и читалась как тот же раздел, поэтому переименована 09.10.2026.
-  await expect(menu.getByRole('link', { name: 'Мастера', exact: true })).toHaveAttribute(
+  await expect(menu.getByRole('link', { name: 'Мастера', exact: true, includeHidden: true })).toHaveAttribute(
     'href',
     '/employees',
   );

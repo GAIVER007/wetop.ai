@@ -70,6 +70,8 @@ export interface SellerOrgsRepository {
    * копии в агенте нет; агент без филиала — пусто.
    */
   hostsForAgent(scope: SellerAgentScope): Promise<string[]>;
+  /** Как подписать сотрудника в заметке и в «ответственном»: имя, а без него начало почты */
+  userLabel(userId: string): Promise<string | null>;
 }
 
 /** Строка `seller_profiles` (DATA_MODEL §15): поля «Настроек» плюс отметки доставки продавцу */
@@ -85,6 +87,15 @@ export interface SellerProfileRow extends SellerProfileInput {
   factsAppliedAt: Date | null;
   lastError: string | null;
   lastErrorAt: Date | null;
+}
+
+/** Версия инструкции в списке (DATA_MODEL §33): текст целиком не отдаётся, только начало */
+export interface PromptVersionRow {
+  id: string;
+  length: number;
+  preview: string;
+  createdAt: Date;
+  author: string | null;
 }
 
 export interface SellerProfilesRepository {
@@ -104,6 +115,10 @@ export interface SellerProfilesRepository {
     userId: string | null,
     now: Date,
   ): Promise<SellerProfileRow>;
+  /** Последние версии инструкции агента, новые первыми */
+  promptVersions(agentId: string, limit: number): Promise<PromptVersionRow[]>;
+  /** Текст версии этого агента; чужой или несуществующей нет */
+  promptVersionText(agentId: string, versionId: string): Promise<string | null>;
   markProfileApplied(agentId: string, version: Date): Promise<void>;
   markFactsApplied(agentId: string, hash: string, at: Date): Promise<void>;
   markError(agentId: string, message: string, at: Date): Promise<void>;
@@ -288,7 +303,10 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
     const stamp = { promptText: text, updatedAt: now, updatedBy: userId };
     const { agentId } = scope;
     return this.prisma.db.$transaction(async (tx) => {
-      const before = await tx.sellerProfile.findUnique({ where: { agentId }, select: { agentId: true } });
+      const before = await tx.sellerProfile.findUnique({
+        where: { agentId },
+        select: { agentId: true, promptText: true },
+      });
       const saved = before
         ? await tx.sellerProfile.update({ where: { agentId }, data: stamp })
         : await tx.sellerProfile.create({
@@ -299,6 +317,11 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
               ...stamp,
             },
           });
+      // DATA_MODEL §33: версия пишется только когда текст изменился; после профиля, чтобы агент уже существовал
+      if (before?.promptText !== text)
+        await tx.sellerPromptVersion.create({
+          data: { agentId, organizationId: scope.organizationId, text, createdBy: userId ?? auditUserId() },
+        });
       // SECURITY.md §6: правка — в журнал с автором; сам текст — настройка владельца, в журнал идёт его длина
       await tx.auditLog.create({
         data: {
@@ -311,6 +334,30 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
       });
       return rowOf(saved as ProfileRecord);
     });
+  }
+
+  async promptVersions(agentId: string, limit: number): Promise<PromptVersionRow[]> {
+    const rows = await this.prisma.db.sellerPromptVersion.findMany({
+      where: { agentId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: { id: true, text: true, createdAt: true, author: { select: { name: true, email: true } } },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      length: r.text.length,
+      preview: r.text.slice(0, 120),
+      createdAt: r.createdAt,
+      author: r.author ? r.author.name?.trim() || r.author.email.split('@')[0] || null : null,
+    }));
+  }
+
+  async promptVersionText(agentId: string, versionId: string): Promise<string | null> {
+    const row = await this.prisma.db.sellerPromptVersion.findFirst({
+      where: { id: versionId, agentId },
+      select: { text: true },
+    });
+    return row?.text ?? null;
   }
 
   async markProfileApplied(agentId: string, version: Date): Promise<void> {
@@ -444,6 +491,15 @@ export class PrismaSellerFactsRepository implements SellerFactsRepository {
 @Injectable()
 export class PrismaSellerOrgsRepository implements SellerOrgsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async userLabel(userId: string): Promise<string | null> {
+    const row = await this.prisma.db.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true },
+    });
+    if (!row) return null;
+    return row.name?.trim() || row.email.split('@')[0] || null;
+  }
 
   async withExtension(): Promise<SellerOrganizationRow[]> {
     const rows = await this.prisma.db.organizationExtension.findMany({

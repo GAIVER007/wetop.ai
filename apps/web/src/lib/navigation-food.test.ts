@@ -45,15 +45,21 @@ describe('Food workspace isolation', () => {
       expect(menuSectionsFor(owner, v).flatMap((s) => s.items.map((i) => i.href))).not.toContain(
         '/floor-plan',
       );
-      if (v === 'HOSPITALITY')
-        expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({ href: '/today', label: 'Главная' });
+      if (v === 'HOSPITALITY') {
+        // первая вкладка гостиницы — группа «Финансы» (ADR-157): первый пункт «Оплаты и касса»
+        expect(menuSectionsFor(owner, v)[0]!.label).toBe('Финансы');
+        expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({
+          href: '/finance',
+          label: 'Оплаты и касса',
+        });
+      }
     }
   });
   it('uses canonical landings and verified scope', () => {
-    // MV8: один рабочий экран дня на все направления
+    // MV8: рабочий экран дня салона и ресторана; гостиница стартует с единых «Финансов» (09.10.2026)
     expect(landingForVertical('FOOD_SERVICE')).toBe('/today');
     expect(landingForVertical('BEAUTY')).toBe('/today');
-    expect(landingForVertical('HOSPITALITY')).toBe('/today');
+    expect(landingForVertical('HOSPITALITY')).toBe('/finance');
     expect(
       deskShellOf({
         user: { email: 'synthetic@example.invalid', name: null },

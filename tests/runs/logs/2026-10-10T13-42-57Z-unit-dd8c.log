@@ -1,0 +1,47 @@
+# Модульные (unit) · 10.10.2026 18:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит e80744f (claude/beauty-salons-landing), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T13-42-57Z-unit-dd8c.json' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/beauty-landing
+
+ ❯ |unit| tests/unit/site-design.test.ts (6 tests | 1 failed) 13ms
+   ❯ главная wetop.ai — правила DESIGN.md §19 (6)
+     ✓ цвет только через токены: литерала нет нигде, кроме tokens.css 3ms
+     ✓ цвет строки браузера совпадает с фоном страницы в обеих темах 0ms
+     ✓ отступы — только из лестницы §19.3 3ms
+     ✓ радиус — только токен, круг, pill или «без скругления» 1ms
+     ✓ текст не мельче 12 px 1ms
+     × каждый блок страницы назван в DESIGN.md §19.5 — и наоборот 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/site-design.test.ts > главная wetop.ai — правила DESIGN.md §19 > каждый блок страницы назван в DESIGN.md §19.5 — и наоборот
+AssertionError: блок есть в коде, но не описан в DESIGN.md §19.5: expected [ '.salon-cta' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   ".salon-cta",
++ ]
+
+ ❯ tests/unit/site-design.test.ts:182:78
+    180|     const undocumented = [...inCode].filter((name) => !documented.has(…
+    181|     const stale = [...documented].filter((name) => !inCode.has(name)).…
+    182|     expect(undocumented, 'блок есть в коде, но не описан в DESIGN.md §…
+       |                                                                              ^
+    183|     expect(stale, 'блок описан в DESIGN.md §19.5, но его нет в коде').…
+    184|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  06:42:58
+   Duration  136ms (transform 49%, tests 23%, import 19%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T13-42-57Z-unit-dd8c.json
+
+# код выхода 1 · 1 с

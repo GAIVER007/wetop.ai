@@ -367,18 +367,10 @@ test('навигация ресторана: пункты макета на ме
 }) => {
   await seed(page, request);
   await page.goto('/today');
-  const nav = page.getByRole('navigation', { name: 'Разделы' });
-  for (const [label, path] of [
-    ['Заказы', '/orders'],
-    ['Кухня', '/kitchen'],
-    ['Меню', '/menu'],
-    ['Клиенты', '/customers'],
-    ['Сотрудники', '/employees'],
-    ['Зарплата', '/payroll'],
-  ] as const) {
-    await expect(nav.getByRole('link', { name: label, exact: true })).toHaveAttribute(
-      'href',
-      path,
-    );
-  }
+  // левая навигация (ADR-161): пункты закрытой панели лежат в разметке скрытыми
+  const hrefs = await page
+    .locator('.sidenav a')
+    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+  for (const path of ['/orders', '/kitchen', '/menu', '/customers', '/employees', '/payroll'])
+    expect(hrefs, path).toContain(path);
 });

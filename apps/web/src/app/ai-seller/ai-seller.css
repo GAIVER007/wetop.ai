@@ -1,5 +1,57 @@
 /* Раздел «ИИ-продавец» (макет владельца 26.09.2026, ADR-097). Только раскладка: цвета и размеры — токены. */ /* Вкладки раздела: четыре, в одну строку; на узком — прокрутка вкладок, а не страницы */
 @layer sections {
+  /* «Диалоги» (S2.6): список, переписка и карточка гостя в три колонки; ниже 1280 px колонки друг под другом */
+  .seller-dialogs__search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+  }
+  .seller-dialogs__search .field {
+    margin: 0;
+    white-space: nowrap;
+  }
+  .seller-dialogs {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  .seller-dialogs > * {
+    min-width: 0;
+  }
+  .seller-dialogs tr[aria-selected='true'] {
+    background: var(--row-hover);
+  }
+  .seller-dialogs .sub {
+    display: block;
+  }
+  @media (min-width: 1280px) {
+    .seller-dialogs {
+      grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr) minmax(240px, 1fr);
+    }
+    .seller-dialogs__wide {
+      grid-column: span 2;
+    }
+  }
+
+  /* «Обзор» и «Аналитика» (S3.1): плитки показателей те же, что на хабе «Продажи», в четыре колонки */
+  .seller-overview,
+  .seller-analytics {
+    display: grid;
+    gap: var(--space-6);
+    min-width: 0;
+  }
+  .seller-overview .kpi-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  @media (max-width: 960px) {
+    .seller-overview .kpi-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
   .seller-tabs {
     flex-wrap: nowrap;
     overflow-x: auto;

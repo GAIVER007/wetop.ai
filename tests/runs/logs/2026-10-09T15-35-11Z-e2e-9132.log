@@ -1,0 +1,104 @@
+# Сквозные (e2e) · 09.10.2026 20:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит bb883f7 (claude/sales2-impl), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/market-competitors.spec.ts' 'tests/ui/market.spec.ts' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 2 workers
+
+  ✓   1 tests/ui/market-competitors.spec.ts:51:1 › список: район, тип, загрузка сегодня, средняя цена, изменение и статус (2.4s)
+  ✓   3 tests/ui/market-competitors.spec.ts:68:1 › отбор по району оставляет одну строку и сбрасывается (2.2s)
+  ✓   4 tests/ui/market-competitors.spec.ts:80:1 › цены на графике: четвёртый график появляется, когда цены внесены (1.7s)
+[WebServer] [browser] Encountered two children with the same key, `39,5 тыс.`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[WebServer] [browser] Encountered two children with the same key, `39,5 тыс.`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+  ✓   5 tests/ui/market-competitors.spec.ts:95:1 › цены вносятся панелью: сохранённое видно в списке, очищенное снимает (1.9s)
+  ✓   6 tests/ui/market-competitors.spec.ts:111:1 › цена словами ошибки: ввод не теряется (1.3s)
+  ✓   7 tests/ui/market-competitors.spec.ts:121:1 › карточка: район, тип и настройки мониторинга сохраняются; автообновление честно названо будущим (2.8s)
+  ✓   8 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: light, 1440px (2.2s)
+  ✓   9 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: light, 390px (2.1s)
+  ✘   2 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (18.1s)
+  ✓  10 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: dark, 1440px (2.1s)
+  ✓  12 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: dark, 390px (3.4s)
+  ✘  11 tests/ui/market.spec.ts:107:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (2.0m)
+  ✓  13 tests/ui/market.spec.ts:151:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (2.8s)
+  ✓  14 tests/ui/market.spec.ts:168:3 › снимки и доступность: light (3.9s)
+  ✓  15 tests/ui/market.spec.ts:168:3 › снимки и доступность: dark (3.5s)
+  ✓  16 tests/ui/market.spec.ts:208:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (2.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4013024130'
+[WebServer] }
+  ✓  17 tests/ui/market.spec.ts:237:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (2.4s)
+
+
+  1) tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('market-empty')
+    Expected substring: "Добавьте ближайших конкурентов"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('market-empty') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('market-empty')
+
+
+      68 |   const grid = page.getByTestId('market-table');
+      69 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Загрузка конкурентов');
+    > 70 |   await expect(main.getByTestId('market-empty')).toContainText('Добавьте ближайших конкурентов');
+         |                                                  ^
+      71 |
+      72 |   // отказ словами у формы, введённое не теряется
+      73 |   await main.getByTestId('market-empty').getByTestId('market-add').click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:70:50
+
+    Error Context: test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/market.spec.ts:107:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('market-edit-00000000-0000-4000-8000-00000000000b')
+
+
+      141 |
+      142 |   await page.goto('/market');
+    > 143 |   await main.getByTestId('market-edit-00000000-0000-4000-8000-00000000000b').click();
+          |                                                                              ^
+      144 |   await page.getByTestId('market-archive').click();
+      145 |   await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Убрать' }).click();
+      146 |   await expect(page.getByText('Конкурент убран из списка')).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:143:78
+
+    Error Context: test-results/market-таблица-«вы-и-рынок-d83e0-ёт-к-ценам-убрать-из-списка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-таблица-«вы-и-рынок-d83e0-ёт-к-ценам-убрать-из-списка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-таблица-«вы-и-рынок-d83e0-ёт-к-ценам-убрать-из-списка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку 
+    tests/ui/market.spec.ts:107:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка 
+  15 passed (2.7m)
+
+# код выхода 1 · 2 мин 43 с

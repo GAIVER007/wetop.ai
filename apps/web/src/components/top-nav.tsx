@@ -6,7 +6,7 @@ import { Suspense, use, useEffect, useRef, useState, type ReactNode } from 'reac
 import { Icon } from './icon';
 import { Sidebar } from './shell/sidebar';
 import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
-import { TopMenu } from './shell/top-menu';
+import { SideNav } from './shell/side-nav';
 import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
@@ -25,9 +25,9 @@ import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
 
 /**
- * Оболочка стойки (ADR-134): шапка из двух липких строк. Первая: знак WETOP, объект с переключателем
- * филиала, поиск ⌘K, «Демо», тема, меню профиля. Вторая: строка разделов (`TopMenu`). До 960 px вместо
- * строки разделов кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
+ * Оболочка стойки: слева контекстное меню (`SideNav`, ADR-161, вместо строки вкладок ADR-134), справа шапка
+ * одной липкой строкой: объект с переключателем филиала, поиск ⌘K, «Демо», тема, меню профиля. До 960 px меню
+ * слева нет: знак в шапке, кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
  */
 export function TopNav({
   children,
@@ -118,6 +118,7 @@ export function TopNav({
         <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
           К содержимому
         </a>
+        <SideNav path={path} desk={desk} />
         <header className="workspace-header">
           <div className="workspace-header__row">
             <button
@@ -130,7 +131,7 @@ export function TopNav({
             <Link
               className="workspace-brand"
               href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
-              aria-label="WETOP, Главная"
+              aria-label="WETOP, стартовый экран"
             >
               <span className="workspace-mark">W</span>
               <span className="brand-name">
@@ -244,7 +245,6 @@ export function TopNav({
               </div>
             </div>
           </div>
-          <TopMenu path={path} desk={desk} />
         </header>
         <div className="workspace-body">
           <Suspense fallback={null}>

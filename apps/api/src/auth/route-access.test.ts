@@ -284,11 +284,14 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/cash/operations/:id/void': 'refunds',
 
   // загрузка конкурентов (ADR-142): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
+  'GET /sales/summary': 'reports',
   'GET /market/occupancy': 'reports',
+  'GET /market/rates': 'reports',
   'GET /market/night': 'reports',
   'POST /market/competitors': 'rates',
   'PATCH /market/competitors/:id': 'rates',
   'PUT /market/competitors/:id/occupancy': 'rates',
+  'PUT /market/competitors/:id/rates': 'rates',
   'GET /market/collector/competitors': 'service',
   'PUT /market/collector/competitors/:id/occupancy': 'service',
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет
@@ -382,6 +385,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /ai-seller/conversations/:id/takeover': 'dialogs',
   'POST /ai-seller/conversations/:id/release': 'dialogs',
   'POST /ai-seller/conversations/:id/reply': 'dialogs',
+  'PATCH /ai-seller/conversations/:id/handling': 'dialogs',
+  'GET /ai-seller/prompt/versions': 'seller',
+  'POST /ai-seller/prompt/versions/:id/restore': 'seller',
+  'POST /ai-seller/conversations/:id/notes': 'dialogs',
   'GET /ai-seller/profile': 'seller',
   'PUT /ai-seller/profile': 'seller',
   'GET /ai-seller/prompt': 'seller',

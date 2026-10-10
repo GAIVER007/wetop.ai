@@ -392,9 +392,21 @@ describe('знания, сводка и отказы помощника', () => 
       replies: 12,
       leads: 0,
       sla_breaches: 1,
+      handoffs: 2,
+      automated_permille: 714,
+      avg_first_reply_seconds: 18,
     };
     const res = await api().get('/platform/support/summary').set(as('session-admin')).expect(200);
-    expect(res.body).toEqual({ hours: 24, dialogs: 7, replies: 12, leads: 0, slaBreaches: 1 });
+    expect(res.body).toEqual({
+      hours: 24,
+      dialogs: 7,
+      replies: 12,
+      leads: 0,
+      slaBreaches: 1,
+      handoffs: 2,
+      automatedPermille: 714,
+      avgFirstReplySeconds: 18,
+    });
   });
 
   it('отказ помощника — его словами и с его именем; недоступен — 503; не нашёл — 404', async () => {

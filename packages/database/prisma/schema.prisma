@@ -219,6 +219,7 @@ model Property {
   fiscalReceipts      FiscalReceipt[]
   competitors         Competitor[]
   competitorOccupancy CompetitorOccupancy[]
+  competitorRates     CompetitorRate[]
   services            Service[]
   trackedSites        TrackedSite[]
   inventoryUnits      InventoryUnit[]
@@ -1425,6 +1426,13 @@ enum CompetitorObservationSource {
   AI_AGENT
 }
 
+/// DATA_MODEL §23.1: что видно на площадке на ночь, когда процента загрузки соседа нет
+enum CompetitorAvailabilityLevel {
+  SOLD_OUT
+  FEW_LEFT
+  AVAILABLE
+}
+
 model Competitor {
   id          String   @id @default(uuid()) @db.Uuid
   propertyId  String   @map("property_id") @db.Uuid
@@ -1437,6 +1445,15 @@ model Competitor {
   note        String?
   /// «убрать из списка» = архив, снимки остаются
   active      Boolean  @default(true)
+  /// район, тип объекта, адрес и метка источника данных (DATA_MODEL §23.1)
+  district    String?
+  category    String?
+  address     String?
+  dataSource  String?  @map("data_source")
+  monitoring  CompetitorMonitoring @default(BOTH)
+  /// как часто обновлять данные сборщика, часы 1…168
+  refreshHours Int?    @map("refresh_hours") @db.SmallInt
+  autoRefresh Boolean  @default(false) @map("auto_refresh")
   createdById String?  @map("created_by_id") @db.Uuid
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -1444,10 +1461,40 @@ model Competitor {
   property  Property              @relation(fields: [propertyId], references: [id])
   createdBy User?                 @relation(fields: [createdById], references: [id])
   readings  CompetitorOccupancy[]
+  rates     CompetitorRate[]
 
   @@unique([propertyId, name])
   @@unique([id, propertyId])
   @@map("competitors")
+}
+
+enum CompetitorMonitoring {
+  OCCUPANCY
+  PRICE
+  BOTH
+}
+
+/// Снимок цены конкурента на ночь stay_date, сделанный в день observed_on (DATA_MODEL §23.1)
+model CompetitorRate {
+  id           String                      @id @default(uuid()) @db.Uuid
+  propertyId   String                      @map("property_id") @db.Uuid
+  competitorId String                      @map("competitor_id") @db.Uuid
+  stayDate     DateTime                    @map("stay_date") @db.Date
+  observedOn   DateTime                    @map("observed_on") @db.Date
+  /// минорные единицы (ADR-008): наименьшая видимая цена на двоих за ночь, > 0
+  priceMinor   BigInt                      @map("price_minor")
+  currency     String                      @db.Char(3)
+  source       CompetitorObservationSource @default(MANUAL)
+  createdById  String?                     @map("created_by_id") @db.Uuid
+  observedAt   DateTime                    @default(now()) @map("observed_at") @db.Timestamptz(6)
+
+  property   Property   @relation(fields: [propertyId], references: [id])
+  competitor Competitor @relation(fields: [competitorId, propertyId], references: [id, propertyId], map: "competitor_rates_competitor_fkey")
+  createdBy  User?      @relation(fields: [createdById], references: [id])
+
+  @@unique([competitorId, stayDate, observedOn])
+  @@index([propertyId, observedOn, stayDate])
+  @@map("competitor_rates")
 }
 
 /// Снимок загрузки конкурента на ночь stay_date, сделанный в день observed_on; повтор за день заменяет значение
@@ -1457,8 +1504,10 @@ model CompetitorOccupancy {
   competitorId String                      @map("competitor_id") @db.Uuid
   stayDate     DateTime                    @map("stay_date") @db.Date
   observedOn   DateTime                    @map("observed_on") @db.Date
-  /// базисные пункты 0…10 000 (85,5 % = 8 550), ADR-008
-  occupancyBp  Int                         @map("occupancy_bp")
+  /// базисные пункты 0…10 000 (85,5 % = 8 550), ADR-008; NULL, когда известен только уровень (§23.1)
+  occupancyBp       Int?                         @map("occupancy_bp")
+  /// §23.1: уровень наличия; хотя бы одно из двух полей заполнено (CHECK competitor_occupancy_has_value)
+  availabilityLevel CompetitorAvailabilityLevel? @map("availability_level")
   source       CompetitorObservationSource @default(MANUAL)
   createdById  String?                     @map("created_by_id") @db.Uuid
   observedAt   DateTime                    @default(now()) @map("observed_at") @db.Timestamptz(6)
@@ -2067,6 +2116,7 @@ model Organization {
   businesses       Business[]
   userErrors       UserError[]
   sellerProfiles   SellerProfile[]
+  sellerPromptVersions SellerPromptVersion[]
   agents           SellerAgent[]
   wizardDrafts     WizardDraft[]
   extensions       OrganizationExtension[]
@@ -2117,10 +2167,12 @@ model User {
   fiscalReceipts               FiscalReceipt[]
   competitorsCreated           Competitor[]
   competitorReadings           CompetitorOccupancy[]
+  competitorRatesCreated       CompetitorRate[]
   userErrors                   UserError[]
   beautyEmployees              Employee[]
   appointmentsCreated          Appointment[]
   sellerProfileEdits           SellerProfile[]
+  sellerPromptVersions         SellerPromptVersion[]
   platformAdmin                PlatformAdmin?
   extensionEdits               OrganizationExtension[]
   foodReservationsCreated      RestaurantReservation[]
@@ -2328,6 +2380,22 @@ enum SellerReplyLength {
 /// Профиль ИИ-продавца: одна строка на АГЕНТА (SA2.5; до сужения — на организацию; DATA_MODEL §15, ТЗ ред. 1 П5, ADR-079, ADR-081). Поля экрана
 /// «Настройки», не текст промпта: ядро правил держит бот. Перечисления и пределы — модели бота `SellerProfile`. Поля
 /// доставки (П8) ведёт платформа. CHECK на число языков и строк в списках — в миграции.
+/// Версия инструкции продавца (DATA_MODEL §33): строка на каждое изменившее текст сохранение, только добавляется
+model SellerPromptVersion {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId        String       @map("agent_id") @db.Uuid
+  agent          SellerAgent  @relation(fields: [agentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "seller_prompt_versions_agent_fkey")
+  organizationId String       @map("organization_id") @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "seller_prompt_versions_org_fkey")
+  text           String       @db.VarChar(20000)
+  createdBy      String?      @map("created_by") @db.Uuid
+  author         User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "seller_prompt_versions_user_fkey")
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([agentId, createdAt(sort: Desc)], map: "seller_prompt_versions_agent_created_idx")
+  @@map("seller_prompt_versions")
+}
+
 model SellerProfile {
   /// Агент, которому принадлежит профиль (DATA_MODEL §20.2, сужение SA2.5 — миграция 036): первичный ключ. У перенесённого
   /// продавца равен `organization_id`; у организации может быть по профилю на каждого агента
@@ -2439,6 +2507,7 @@ model SellerAgent {
   draft          WizardDraft?
   /// Рабочий профиль продавца этого агента (`seller_profiles`, DATA_MODEL §20.2); у агентов мастера пусто
   workingProfile SellerProfile?
+  promptVersions SellerPromptVersion[]
 
   bookingIntents SellerBookingIntent[]
 

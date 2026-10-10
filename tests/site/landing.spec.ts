@@ -10,6 +10,9 @@ import { expect, test } from '@playwright/test';
 const PAGES = [
   '/',
   '/blog/',
+  '/for/hotels/',
+  '/for/salons/',
+  '/for/restaurants/',
   '/for/hostels/',
   '/for/mini-hotels/',
   '/for/apart-hotels/',

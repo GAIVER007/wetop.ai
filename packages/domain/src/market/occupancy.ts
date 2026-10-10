@@ -55,12 +55,24 @@ export function demandLevel(bp: number | null | undefined): DemandLevel | null {
   return 'mid';
 }
 
+export type CompetitorMonitoring = 'OCCUPANCY' | 'PRICE' | 'BOTH';
+export const COMPETITOR_MONITORING: readonly CompetitorMonitoring[] = ['OCCUPANCY', 'PRICE', 'BOTH'];
+
 export interface CompetitorInput {
   name?: string;
   distanceM?: number | null;
   unitsTotal?: number | null;
   url?: string | null;
   note?: string | null;
+  /** DATA_MODEL §23.1: район, тип объекта, адрес и метка источника данных */
+  district?: string | null;
+  category?: string | null;
+  address?: string | null;
+  dataSource?: string | null;
+  monitoring?: CompetitorMonitoring;
+  /** Как часто обновлять данные сборщика, часы 1…168; пусто: не задано */
+  refreshHours?: number | null;
+  autoRefresh?: boolean;
 }
 
 const optionalInt = (raw: unknown, label: string, min: number): number | null | undefined => {
@@ -104,6 +116,29 @@ export function parseCompetitorInput(
   }
   const note = optionalText(dto.note, 'Заметка', 500);
   if (note !== undefined) out.note = note;
+  const district = optionalText(dto.district, 'Район', 80);
+  if (district !== undefined) out.district = district;
+  const category = optionalText(dto.category, 'Тип объекта', 60);
+  if (category !== undefined) out.category = category;
+  const address = optionalText(dto.address, 'Адрес', 200);
+  if (address !== undefined) out.address = address;
+  const dataSource = optionalText(dto.dataSource, 'Источник данных', 40);
+  if (dataSource !== undefined) out.dataSource = dataSource;
+  if (dto.monitoring !== undefined) {
+    if (!COMPETITOR_MONITORING.includes(dto.monitoring as CompetitorMonitoring))
+      throw new MarketInputError('Что отслеживать: только загрузку, только цены или то и другое');
+    out.monitoring = dto.monitoring as CompetitorMonitoring;
+  }
+  if (dto.refreshHours !== undefined) {
+    if (dto.refreshHours === null || String(dto.refreshHours).trim() === '') out.refreshHours = null;
+    else {
+      const hours = Number(String(dto.refreshHours).trim());
+      if (!Number.isInteger(hours) || hours < 1 || hours > 168)
+        throw new MarketInputError('Частота обновления: от 1 до 168 часов');
+      out.refreshHours = hours;
+    }
+  }
+  if (dto.autoRefresh !== undefined) out.autoRefresh = dto.autoRefresh === true;
   return out;
 }
 
@@ -122,7 +157,9 @@ export interface MarketReading {
   competitorId: string;
   stayDate: string;
   observedOn: string;
-  occupancyBp: number;
+  /** NULL: известен только уровень наличия (DATA_MODEL §23.1) */
+  occupancyBp: number | null;
+  level?: AvailabilityLevel | null;
   source: ObservationSource;
 }
 
@@ -146,6 +183,8 @@ export interface MarketCell {
   /** Изменение к дате сравнения; null: сравнения нет или нового снимка после неё не было */
   deltaBp: number | null;
   source: ObservationSource | null;
+  /** уровень наличия: из снимка, без него из процента по порогам (§23.1); null, если снимка нет */
+  level: AvailabilityLevel | null;
 }
 
 export type InsightKind = 'high-behind' | 'high' | 'low-ahead' | 'low' | 'missing';
@@ -174,7 +213,8 @@ export interface MarketBoard {
       lastObservedOn: string | null;
     }
   >;
-  market: Array<{ date: string; bp: number | null; count: number }>;
+  /** средняя только из процентов; `tight` из `withLevel` соседей почти полны («нет мест» или «мало мест») */
+  market: Array<{ date: string; bp: number | null; count: number; tight: number; withLevel: number }>;
   gap: Array<{ date: string; bp: number | null }>;
   summary: {
     marketBp: number | null;
@@ -204,10 +244,13 @@ function latestAsOf(readings: MarketReading[], asOf: string): Map<string, Market
 
 const INSIGHT_ORDER: InsightKind[] = ['high-behind', 'high', 'low-ahead', 'low', 'missing'];
 
-function nightKind(market: number | null, own: number | null): InsightKind | null {
+/** Почти полна половина соседей с уровнем и больше (Q-MKT-LVL-2): рынок почти полон и без процентов */
+const tightMarket = (m: { tight: number; withLevel: number }) => m.withLevel > 0 && m.tight * 2 >= m.withLevel;
+
+function nightKind(market: number | null, own: number | null, tight: boolean): InsightKind | null {
+  if ((market !== null && market >= HIGH_DEMAND_BP) || tight)
+    return market !== null && own !== null && own <= market - GAP_BP ? 'high-behind' : 'high';
   if (market === null) return null;
-  if (market >= HIGH_DEMAND_BP)
-    return own !== null && own <= market - GAP_BP ? 'high-behind' : 'high';
   if (market <= LOW_DEMAND_BP)
     return own !== null && own >= market + GAP_BP ? 'low-ahead' : 'low';
   return null;
@@ -248,15 +291,17 @@ export function buildMarketBoard(input: {
     let lastObservedOn: string | null = null;
     const cells = dates.map((date): MarketCell => {
       const now = current.get(`${c.id}|${date}`);
-      if (!now) return { date, bp: null, deltaBp: null, source: null };
+      if (!now) return { date, bp: null, deltaBp: null, source: null, level: null };
       sources.add(now.source);
       if (!lastObservedOn || now.observedOn > lastObservedOn) lastObservedOn = now.observedOn;
       const before = compareOn && now.observedOn > compareOn ? earlier.get(`${c.id}|${date}`) : undefined;
+      const bp = now.occupancyBp;
       return {
         date,
-        bp: now.occupancyBp,
-        deltaBp: before ? now.occupancyBp - before.occupancyBp : null,
+        bp,
+        deltaBp: before && bp !== null && before.occupancyBp !== null ? bp - before.occupancyBp : null,
         source: now.source,
+        level: now.level ?? (bp === null ? null : availabilityLevelFromBp(bp)),
       };
     });
     return { ...c, cells, sources: [...sources].sort(), lastObservedOn };
@@ -264,7 +309,14 @@ export function buildMarketBoard(input: {
 
   const market = dates.map((date, i) => {
     const values = competitors.flatMap((c) => (c.cells[i]!.bp === null ? [] : [c.cells[i]!.bp!]));
-    return { date, bp: mean(values), count: values.length };
+    const levels = competitors.flatMap((c) => (c.cells[i]!.level === null ? [] : [c.cells[i]!.level]));
+    return {
+      date,
+      bp: mean(values),
+      count: values.length,
+      tight: levels.filter((l) => l !== 'AVAILABLE').length,
+      withLevel: levels.length,
+    };
   });
   const gap = dates.map((date, i) => {
     const m = market[i]!.bp;
@@ -281,20 +333,21 @@ export function buildMarketBoard(input: {
   let open: { kind: InsightKind; idx: number[] } | null = null;
   const close = () => {
     if (!open) return;
-    const ms = open.idx.map((i) => market[i]!.bp!);
+    const ms = open.idx.flatMap((i) => (market[i]!.bp === null ? [] : [market[i]!.bp!]));
     const os = open.idx.flatMap((i) => (own[i]!.bp === null ? [] : [own[i]!.bp!]));
     ranges.push({
       kind: open.kind,
       from: dates[open.idx[0]!]!,
       to: dates[open.idx.at(-1)!]!,
       nights: open.idx.length,
-      marketBp: mean(ms),
+      // средняя рынка у подсказки, только если она известна на каждой ночи отрезка: иначе это процент части ночей
+      marketBp: ms.length === open.idx.length ? mean(ms) : null,
       ownBp: mean(os),
     });
     open = null;
   };
   dates.forEach((_, i) => {
-    const kind = nightKind(market[i]!.bp, own[i]!.bp);
+    const kind = nightKind(market[i]!.bp, own[i]!.bp, tightMarket(market[i]!));
     if (open && open.kind === kind) open.idx.push(i);
     else {
       close();
@@ -332,7 +385,7 @@ export function buildMarketBoard(input: {
       marketBp,
       ownBp,
       gapBp: marketBp === null || ownBp === null ? null : ownBp - marketBp,
-      highDemandNights: market.filter((m) => m.bp !== null && m.bp >= HIGH_DEMAND_BP).length,
+      highDemandNights: market.filter((m) => (m.bp !== null && m.bp >= HIGH_DEMAND_BP) || tightMarket(m)).length,
       competitors: competitors.length,
       competitorsWithData: withData.length,
     },
@@ -366,12 +419,13 @@ export function buildNightHistory(input: {
 }): NightHistory {
   const ids = new Set(input.competitors.map((c) => c.id));
   const readings = input.readings.filter(
-    (r) => r.stayDate === input.stayDate && ids.has(r.competitorId),
+    // история ночи строится из процентов: снимок только с уровнем (§23.1) в ней не участвует
+    (r) => r.stayDate === input.stayDate && ids.has(r.competitorId) && r.occupancyBp !== null,
   );
   const byDay = new Map<string, Map<string, number>>();
   for (const r of readings) {
     const day = byDay.get(r.observedOn) ?? new Map<string, number>();
-    day.set(r.competitorId, r.occupancyBp);
+    day.set(r.competitorId, r.occupancyBp!);
     byDay.set(r.observedOn, day);
   }
   const allDays = [...byDay.keys()].sort();
@@ -392,4 +446,107 @@ export function buildNightHistory(input: {
   const pickupBp =
     withMarket.length >= 2 ? withMarket.at(-1)!.marketBp! - withMarket[0]!.marketBp! : null;
   return { stayDate: input.stayDate, competitors: input.competitors, days: shown, pickupBp };
+}
+
+/**
+ * Площадка по ссылке конкурента: стойка подписывает «Сбор не подключён» у соседа со ссылкой на площадку. Будет ли
+ * сборщик читать площадки, не решено (Q-257 открыт; ADR-142 автоматический сбор с площадок запрещает).
+ */
+const PLATFORMS: Array<[RegExp, string]> = [
+  [/(^|\.)booking\.com$/, 'Booking.com'],
+  [/(^|\.)trip\.com$/, 'Trip.com'],
+  [/(^|\.)ostrovok\.ru$/, 'Ostrovok'],
+  [/(^|\.)airbnb\.[a-z.]+$/, 'Airbnb'],
+];
+
+export function competitorPlatform(url: string | null | undefined): string | null {
+  if (!url) return null;
+  let host: string;
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+  return PLATFORMS.find(([re]) => re.test(host))?.[1] ?? null;
+}
+
+/**
+ * Что ИИ-сборщик увидел на странице соседа на одну ночь (ADR-142, дополнение 09.10.2026): распродано, продаётся и
+ * сколько номеров можно забронировать, страница закрыта проверкой площадки или не разобрана.
+ */
+export interface NightObservation {
+  status: 'sold_out' | 'available' | 'blocked' | 'unknown';
+  /** сколько номеров можно забронировать на эту ночь, сумма по типам; null, если не видно */
+  roomsLeft: number | null;
+  /** самый малый остаток, который площадка показала у какого-либо предложения («осталось 2»); для уровня §23.1 */
+  fewestLeft?: number | null;
+}
+
+/** Уровень наличия у снимка (DATA_MODEL §23.1, утверждено 10.10.2026): что видно, когда процента нет */
+export type AvailabilityLevel = 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE';
+
+/** «Мало мест»: видимый остаток до этого числа включительно (Q-MKT-LVL-1, умолчание) */
+export const FEW_LEFT_MAX = 5;
+
+/**
+ * Уровень по странице площадки: предложений на ночь нет, «нет мест»; хотя бы у одного виден малый остаток, «мало
+ * мест»; остальное с предложениями, «есть места». Закрытая или не разобранная страница уровня не даёт.
+ */
+export function availabilityLevelFromPage(o: NightObservation): AvailabilityLevel | null {
+  if (o.status === 'sold_out') return 'SOLD_OUT';
+  if (o.status !== 'available') return null;
+  // самый малый видимый остаток; если площадка показала только сумму, решает она
+  const low = o.fewestLeft ?? o.roomsLeft;
+  return low != null && low <= FEW_LEFT_MAX ? 'FEW_LEFT' : 'AVAILABLE';
+}
+
+/** Уровень по проценту (ручной ввод и снимки до §23.1): те же пороги, что у подсказок (Q-258) */
+export function availabilityLevelFromBp(bp: number): AvailabilityLevel {
+  if (bp >= 10000) return 'SOLD_OUT';
+  return bp >= HIGH_DEMAND_BP ? 'FEW_LEFT' : 'AVAILABLE';
+}
+
+/**
+ * Оценка загрузки ночи в базисных пунктах: распродано, 100 %; иначе доля занятых из числа номеров соседа. Площадка
+ * процент не показывает, видно только, что ещё продаётся, поэтому это оценка, а не точное число; где посчитать нечем,
+ * null: сборщик такую ночь не пишет, а не выдумывает.
+ * ponytail: площадка часто ограничивает выбор (например, до 10 номеров одного типа), и при большом остатке оценка
+ * загрузки выходит выше настоящей; уточнять, когда появятся данные для сверки с ручным вводом.
+ */
+export function estimateNightOccupancy(o: NightObservation, unitsTotal: number | null): number | null {
+  if (o.status === 'sold_out') return 10000;
+  if (o.status !== 'available' || o.roomsLeft === null || !unitsTotal) return null;
+  const free = Math.min(Math.max(o.roomsLeft, 0), unitsTotal);
+  return Math.round(((unitsTotal - free) / unitsTotal) * 10000);
+}
+
+/**
+ * Адрес страницы соседа на одну ночь для одного взрослого: хостел продаёт койки по одной и на двоих вариантов не
+ * показывает (проба 09.10.2026: «Нет доступных вариантов» при свободных местах), а отель одному гостю показывает все
+ * номера. Площадку, которую сборщик не читает, не трогаем (null).
+ */
+export function platformNightUrl(url: string, night: string): string | null {
+  const platform = competitorPlatform(url);
+  const out = new URL(url);
+  const next = plusDays(night, 1);
+  if (platform === 'Booking.com') {
+    out.searchParams.set('checkin', night);
+    out.searchParams.set('checkout', next);
+    out.searchParams.set('group_adults', '1');
+    out.searchParams.set('group_children', '0');
+    out.searchParams.set('no_rooms', '1');
+    return out.toString();
+  }
+  if (platform === 'Ostrovok') {
+    // выдача кладёт в ссылку свою сессию поиска (room, search_chain_id, q): она не нужна и устаревает
+    const ru = (iso: string) => iso.split('-').reverse().join('.');
+    return `${out.origin}${out.pathname}?dates=${ru(night)}-${ru(next)}&guests=1`;
+  }
+  if (platform === 'Trip.com') {
+    out.searchParams.set('checkIn', night);
+    out.searchParams.set('checkOut', next);
+    out.searchParams.set('adult', '1');
+    return out.toString();
+  }
+  return null;
 }

@@ -7,6 +7,7 @@ import {
   HttpCode,
   Inject,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -66,6 +67,19 @@ export class AiSellerController {
   @Header('Cache-Control', 'no-store')
   prompt() {
     return this.seller.prompt();
+  }
+
+  /** История инструкции: последние версии без полного текста */
+  @Get('prompt/versions')
+  @Header('Cache-Control', 'no-store')
+  promptVersions() {
+    return this.seller.promptVersions();
+  }
+
+  @Post('prompt/versions/:id/restore')
+  @HttpCode(200)
+  restorePromptVersion(@Param('id') id: string) {
+    return this.seller.restorePromptVersion(id);
   }
 
   @Put('prompt')
@@ -154,6 +168,19 @@ export class AiSellerController {
   @HttpCode(200)
   release(@Param('id') id: string) {
     return this.seller.switchMode(id, 'release');
+  }
+
+  @Access('dialogs')
+  @Patch('conversations/:id/handling')
+  setHandling(@Param('id') id: string, @Body() body: unknown) {
+    return this.seller.setHandling(id, body);
+  }
+
+  @Access('dialogs')
+  @Post('conversations/:id/notes')
+  @HttpCode(200)
+  addNote(@Param('id') id: string, @Body() body: { text?: unknown } | undefined) {
+    return this.seller.addNote(id, body?.text);
   }
 
   @Access('dialogs')

@@ -57,11 +57,12 @@ describe('tourKeyOf', () => {
 });
 
 describe('shouldAutoStartTour', () => {
-  it('сам стартует один раз — на Главной, у вошедшего, пока не пройдено', () => {
-    expect(shouldAutoStartTour({ path: '/today', key: 'k', done: false })).toBe(true);
-    expect(shouldAutoStartTour({ path: '/today', key: 'k', done: true })).toBe(false);
+  it('сам стартует один раз: на стартовых «Финансах», у вошедшего, пока не пройдено', () => {
+    expect(shouldAutoStartTour({ path: '/finance', key: 'k', done: false })).toBe(true);
+    expect(shouldAutoStartTour({ path: '/finance', key: 'k', done: true })).toBe(false);
     expect(shouldAutoStartTour({ path: '/chessboard', key: 'k', done: false })).toBe(false);
-    expect(shouldAutoStartTour({ path: '/today', key: null, done: false })).toBe(false);
+    expect(shouldAutoStartTour({ path: '/today', key: 'k', done: false })).toBe(false);
+    expect(shouldAutoStartTour({ path: '/finance', key: null, done: false })).toBe(false);
   });
 });
 

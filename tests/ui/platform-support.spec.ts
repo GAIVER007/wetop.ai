@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, menuLinks } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -20,16 +20,11 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
-
-const menuLinks = (page: Page) =>
-  page
-    .locator('.workspace-header .topmenu a')
-    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 /** Снимок для отчёта: без фокуса и с начала страницы — иначе закреплённые шапка и меню снимаются со сдвигом */
 async function shot(page: Page, name: string) {
@@ -60,7 +55,7 @@ test('не главный администратор: пункта нет, а с
 test('главный администратор: сводка, очередь, карточка — кто пишет', async ({ page, request }) => {
   await signIn(page);
   await control(request, { platformAdmin: true });
-  await page.goto('/today');
+  await page.goto('/finance');
   expect(await menuLinks(page)).not.toContain('/platform/support');
   // Своего пункта меню у техподдержки больше нет — до неё главный администратор доходит переключателем
   // агентов на «ИИ-продавце» (перенос раздела под общую навигацию ботов)

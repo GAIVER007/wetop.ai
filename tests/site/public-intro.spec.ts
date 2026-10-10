@@ -6,6 +6,9 @@ for (const theme of ['dark', 'light'] as const) {
     test(`public intro: ${theme}, ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+      // Тема и системной настройкой: localStorage применяется после первой отрисовки, и axe
+      // замеряет контраст кнопок посреди анимации перехода темы (ловлено 10.10.2026)
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.goto('/');
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
         'Управляйте бронированиями, клиентами и командой из одного окна',
@@ -25,13 +28,15 @@ for (const theme of ['dark', 'light'] as const) {
       const cards = page.locator('.verticals__card');
       await expect(cards).toHaveCount(3);
       await expect(cards.nth(0)).toContainText('Гостиницы');
-      for (const [index, pattern] of [
-        [1, /vertical=BEAUTY.*#register/],
-        [2, /vertical=FOOD_SERVICE.*#register/],
+      // Кнопка карточки проваливается на страницу направления (решение владельца 09.10.2026)
+      for (const [index, href] of [
+        [0, '/for/hotels/'],
+        [1, '/for/salons/'],
+        [2, '/for/restaurants/'],
       ] as const) {
         const card = cards.nth(index);
         await expect(card).not.toContainText(/пилот/i);
-        await expect(card.locator('[data-auth="register"]')).toHaveAttribute('href', pattern);
+        await expect(card.locator('.verticals__action')).toHaveAttribute('href', href);
       }
       const layout = await page.evaluate(() => ({
         width: innerWidth,
@@ -72,30 +77,46 @@ test('new header registration: keyboard activation and focus return on mobile', 
   await expect(trigger).toBeFocused();
 });
 
-test('vertical card buttons preselect the correct vertical in existing AuthDialog', async ({
-  page,
-}) => {
+test('direction pages preselect the correct vertical in existing AuthDialog', async ({ page }) => {
   await page.route('https://app.wetop.ai/api/site-auth/options', (route) =>
     route.fulfill({ json: { registrationEnabled: true } }),
   );
   await page.route('https://app.wetop.ai/api/site-auth/session', (route) =>
     route.fulfill({ status: 401, json: { message: 'synthetic anonymous visitor' } }),
   );
-  await page.goto('/');
-  for (const [index, action, name] of [
-    [1, 'Для салонов', 'Салон красоты / студия'],
-    [2, 'Для ресторанов', 'Кафе / ресторан'],
+  for (const [path, name] of [
+    ['/for/salons/', 'Салон красоты / студия'],
+    ['/for/restaurants/', 'Кафе / ресторан'],
   ] as const) {
-    await page
-      .locator('.verticals__card')
-      .nth(index)
-      .getByRole('link', { name: action, exact: true })
-      .click();
+    await page.goto(path);
+    await page.locator('.cta [data-auth="register"]').click();
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByRole('radio', { name: new RegExp(name) })).toBeChecked();
     await expect(dialog).toContainText('По приглашению');
     await page.keyboard.press('Escape');
   }
+});
+
+test('hero chips open a description popover with a link to the direction page', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const chip = page.locator('.chip').filter({ hasText: 'Салоны красоты' });
+  const pop = chip.locator('.chip__pop');
+  await expect(pop).toBeHidden();
+  await chip.getByRole('button').click();
+  await expect(pop).toBeVisible();
+  await expect(pop).toContainText('Салоны, студии, барбершопы');
+  await expect(pop.getByRole('link', { name: /Для салонов/ })).toHaveAttribute(
+    'href',
+    '/for/salons/',
+  );
+  // закрытие по Escape и щелчку мимо
+  await page.keyboard.press('Escape');
+  await expect(pop).toBeHidden();
+  await chip.getByRole('button').click();
+  await page.locator('h1').click();
+  await expect(pop).toBeHidden();
 });
 
 test('business positioning: three verticals, no maturity labels, five capabilities each', async ({

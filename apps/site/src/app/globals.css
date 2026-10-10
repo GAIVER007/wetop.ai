@@ -3701,3 +3701,369 @@ button {
     box-shadow: var(--shadow-floating);
   }
 }
+
+/* Чип направления с поповером (поручение владельца 09.10.2026): описание по щелчку, ссылка на страницу направления. */
+.chip {
+  position: relative;
+}
+.chip__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--public-border);
+  border-radius: 999px;
+  background: var(--public-surface);
+  color: var(--public-text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.chip__button svg {
+  color: var(--public-accent);
+}
+.chip__button:hover,
+.chip__button[aria-expanded='true'] {
+  border-color: var(--public-accent);
+}
+.chip__pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  width: 264px;
+  padding: 14px 16px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-lg);
+  background: var(--public-surface);
+  box-shadow: var(--public-shadow);
+  text-align: left;
+}
+.chip__name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.chip__text {
+  margin: 6px 0 10px;
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+@media (max-width: 40rem) {
+  .chip__pop {
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 32px);
+  }
+}
+/* ============================================================================
+   Лендинг «Для салонов красоты» (/for/salons/, план plans/salon-landing-2026-10-10.md).
+   Вид 1:1 по макету владельца 10.10.2026 (решение владельца поверх стеклянного направления,
+   как ADR-132 у главной): палитра --salon-* из tokens.css живёт только внутри .salon-page,
+   стекла на странице нет, карточки сплошные. Блоки реестра §19.5: .salon-page, .salon-hero,
+   .salon-facts, .salon-growth. Мокап записей и рисунок на SVG стоят вместо фото (§19.9).
+   ========================================================================= */
+.salon-page {
+  /* Семантические токены перекрашены локальной палитрой: общие блоки (.card, .faq, .cta,
+     .section-heading) берут цвета макета сами, по одной подмене на токен */
+  --text: var(--salon-text);
+  --text-2: var(--salon-muted);
+  --muted: var(--salon-muted);
+  --border: var(--salon-border);
+  --primary: var(--salon-text);
+  --shadow-card: var(--salon-shadow);
+  background: var(--salon-bg);
+  color: var(--salon-text);
+}
+.salon-page .card,
+.salon-page .cta {
+  background: var(--salon-surface);
+  border: 1px solid var(--salon-border);
+  box-shadow: var(--salon-shadow);
+  backdrop-filter: none;
+}
+.salon-page .cta::after {
+  display: none;
+}
+.salon-page .icon-tile {
+  background: var(--salon-chip);
+  color: var(--salon-text);
+}
+.salon-page .btn--primary {
+  background: var(--salon-accent);
+  color: var(--salon-on-accent);
+  box-shadow: var(--salon-shadow);
+}
+.salon-page .btn--primary:hover {
+  background: var(--salon-accent-hover);
+}
+.salon-page .btn--secondary {
+  background: var(--salon-surface);
+  color: var(--salon-text);
+  border: 1px solid var(--salon-border);
+  backdrop-filter: none;
+}
+.salon-page .btn--secondary:hover {
+  background: var(--salon-chip);
+}
+.salon-hero {
+  display: grid;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: clamp(32px, 5vw, 48px);
+}
+@media (min-width: 64rem) {
+  .salon-hero {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+}
+.salon-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--salon-chip);
+  color: var(--salon-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.salon-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.salon-hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  color: var(--salon-muted);
+  font-size: 0.875rem;
+}
+.salon-hero__chips li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.salon-hero__chips .icon {
+  color: var(--salon-text);
+}
+.salon-hero__figure {
+  margin: 0;
+  min-width: 0;
+}
+.salon-hero__figure figcaption {
+  margin-top: 10px;
+  text-align: center;
+  color: var(--salon-muted);
+  font-size: 0.8125rem;
+}
+.salon-hero__mock {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  background: var(--salon-surface);
+  border: 1px solid var(--salon-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--salon-shadow);
+}
+.salon-hero__mock-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--salon-border);
+}
+.salon-hero__mock-date {
+  display: block;
+  color: var(--salon-muted);
+  font-size: 0.8125rem;
+}
+.salon-hero__mock-summary {
+  display: flex;
+  gap: 16px;
+  color: var(--salon-muted);
+  font-size: 0.8125rem;
+}
+.salon-hero__mock-summary strong {
+  color: var(--salon-text);
+}
+.salon-hero__mock-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--salon-chip);
+  font-size: 0.875rem;
+}
+.salon-hero__mock-time {
+  color: var(--salon-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.salon-hero__mock-client {
+  font-weight: 600;
+}
+.salon-hero__mock-service {
+  color: var(--salon-muted);
+}
+.salon-hero__mock-master {
+  color: var(--salon-muted);
+  text-align: right;
+}
+/* На узком экране строка записи складывается в две: время + клиент + мастер, ниже услуга во всю ширину */
+@media (max-width: 40rem) {
+  .salon-hero__mock-row {
+    grid-template-columns: 48px minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .salon-hero__mock-service {
+    grid-column: 2 / 4;
+  }
+}
+
+/* Полоса фактов: большие числа на светлой полосе, как в макете; только числа продукта (§19.9) */
+.salon-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 20px 0;
+  margin: 0;
+  border-top: 1px solid var(--salon-border);
+  border-bottom: 1px solid var(--salon-border);
+}
+@media (max-width: 64rem) {
+  .salon-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.salon-facts__item {
+  display: grid;
+  gap: 4px;
+  padding: 8px 16px;
+  text-align: center;
+}
+.salon-facts__item strong {
+  font-size: 1.875rem;
+  letter-spacing: -0.02em;
+}
+.salon-facts__item span {
+  color: var(--salon-muted);
+  font-size: 0.875rem;
+}
+
+/* «Больше довольных клиентов. Больше прибыли.»: рисунок на тёплой плитке вместо фото, пункты без процентов */
+.salon-growth {
+  display: grid;
+  gap: 32px;
+  align-items: center;
+  padding: clamp(24px, 3.5vw, 44px);
+  margin-bottom: clamp(32px, 5vw, 48px);
+  background: var(--salon-surface);
+  border: 1px solid var(--salon-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--salon-shadow);
+}
+@media (min-width: 64rem) {
+  .salon-growth {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+.salon-growth__art {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 32px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--salon-chip);
+  color: var(--salon-text);
+}
+.salon-growth__art svg {
+  width: min(100%, 320px);
+  height: auto;
+}
+.salon-growth__float {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: var(--radius-control);
+  background: var(--salon-surface);
+  border: 1px solid var(--salon-border);
+  box-shadow: var(--salon-shadow);
+  font-size: 0.75rem;
+  color: var(--salon-muted);
+}
+.salon-growth__float strong {
+  font-size: 1.125rem;
+  color: var(--salon-text);
+}
+.salon-growth__title {
+  margin: 0 0 12px;
+  font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+.salon-growth__text {
+  margin: 0 0 16px;
+  color: var(--salon-muted);
+}
+.salon-growth__points {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+.salon-growth__points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--salon-muted);
+}
+.salon-growth__points .icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--salon-text);
+}
+
+/* Финальный призыв: тёмная плита, как нижние секции макета */
+.salon-page .cta.salon-cta {
+  background: var(--salon-band);
+  border-color: var(--salon-band);
+  color: var(--salon-band-text);
+}
+.salon-cta .cta__title {
+  color: var(--salon-band-text);
+}
+.salon-cta .cta__text {
+  color: var(--salon-band-muted);
+}
+.salon-cta .btn--primary {
+  background: var(--salon-band-text);
+  color: var(--salon-band);
+}
+.salon-cta .btn--primary:hover {
+  background: var(--salon-band-hover);
+  color: var(--salon-band);
+}
+.salon-cta .link-arrow {
+  color: var(--salon-band-text);
+}
+.salon-page .eyebrow::before {
+  border-color: var(--salon-border);
+  background: var(--salon-chip);
+}

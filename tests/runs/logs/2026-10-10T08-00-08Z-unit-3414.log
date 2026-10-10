@@ -1,0 +1,49 @@
+# Модульные (unit) · 10.10.2026 13:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит fc5d7e0 (claude/market-ai-collector), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T08-00-08Z-unit-3414.json' 'scripts/market/pages.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| scripts/market/pages.test.ts (4 tests | 2 failed) 52ms
+   ✓ страницы площадок: разметка (2)
+     ✓ у каждой страницы есть разметка, отзывов и почты в страницах нет 31ms
+     ✓ остаток размечен только у «продаётся»; оценка по разметке считается 4ms
+   ❯ Ostrovok без модели: правила по тексту блока номеров (2)
+     × на всех записанных страницах Ostrovok совпадает с ручной разметкой 12ms
+     × самый малый видимый остаток для уровня; нет предложений, проверка площадки, пустая страница 0ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  01:00:14
+   Duration  7.81s (transform 84%, import 15%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T08-00-08Z-unit-3414.json
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/market/pages.test.ts > Ostrovok без модели: правила по тексту блока номеров > на всех записанных страницах Ostrovok совпадает с ручной разметкой
+TypeError: ostrovokObservation is not a function
+ ❯ scripts/market/pages.test.ts:57:19
+     55|     expect(own).toHaveLength(7);
+     56|     for (const l of own) {
+     57|       const got = ostrovokObservation(readFileSync(`${DIR}/${l.file}`,…
+       |                   ^
+     58|       expect({ status: got.status, roomsLeft: got.roomsLeft }, l.file)…
+     59|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| scripts/market/pages.test.ts > Ostrovok без модели: правила по тексту блока номеров > самый малый видимый остаток для уровня; нет предложений, проверка площадки, пустая страница
+TypeError: ostrovokObservation is not a function
+ ❯ scripts/market/pages.test.ts:65:12
+     63|     const { ostrovokObservation } = await import('./sources');
+     64|     const page = (f: string) => readFileSync(`${DIR}/${f}`, 'utf8');
+     65|     expect(ostrovokObservation(page('evergreen-1010.txt')).fewestLeft)…
+       |            ^
+     66|     expect(ostrovokObservation(page('ramada-1231.txt')).fewestLeft).to…
+     67|     expect(ostrovokObservation('Заезд\n20 окт\nНа 1 ночь, для 1 взросл…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+# код выхода 1 · 15 с

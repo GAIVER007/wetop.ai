@@ -12,7 +12,11 @@ import {
 } from '../../components/ui';
 import type { SellerWhatsAppView } from '../../lib/api';
 import {
+  restoreVersionAction,
+  assigneeAction,
   dialogModeAction,
+  nextStepAction,
+  noteAction,
   llmKeyCheckAction,
   llmKeySaveAction,
   whatsappCheckAction,
@@ -202,6 +206,103 @@ export function DialogReplyForm({
       </Row>
       {state?.error && <Alert>{state.error}</Alert>}
       {state?.message && <Notice data-testid="dialog-reply-result">{state.message}</Notice>}
+    </form>
+  );
+}
+
+/** Вернуть версию инструкции (SALES2.7): одна кнопка в строке истории, результат словами рядом */
+export function RestoreVersionButton({ id, label }: { id: string; label: string }) {
+  const [result, setResult] = useState<SimpleResult | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <span>
+      <Button
+        type="button"
+        tone="secondary"
+        size="sm"
+        disabled={pending}
+        aria-busy={pending}
+        aria-label={`Вернуть версию: ${label}`}
+        data-testid={`prompt-restore-${id}`}
+        onClick={() => start(async () => setResult(await restoreVersionAction(id)))}
+      >
+        {pending ? 'Возвращаю…' : 'Вернуть'}
+      </Button>
+      {result?.error && <Alert>{result.error}</Alert>}
+      {result?.message && <Notice data-testid="prompt-restore-result">{result.message}</Notice>}
+    </span>
+  );
+}
+
+/** Ответственный и следующий шаг (S2.6). Без права действовать — только чтение, формы нет */
+export function DialogHandling({
+  id,
+  assignee,
+  nextStep,
+  canAct,
+}: {
+  id: string;
+  assignee: string | null;
+  nextStep: string | null;
+  canAct: boolean;
+}) {
+  const [result, setResult] = useState<SimpleResult | null>(null);
+  const [pending, start] = useTransition();
+  const [state, action, saving] = useActionState<SimpleResult | null, FormData>(nextStepAction.bind(null, id), null);
+  const run = (who: 'me' | null) => start(async () => setResult(await assigneeAction(id, who)));
+  return (
+    <Stack gap="sm" data-testid="dialog-handling">
+      <p data-testid="dialog-assignee">
+        <b>Ответственный:</b> {assignee ?? 'не назначен'}
+      </p>
+      {canAct ? (
+        <>
+          <Row>
+            <Button type="button" tone="secondary" size="sm" onClick={() => run('me')} disabled={pending} data-testid="dialog-assign-me">
+              Взять себе
+            </Button>
+            {assignee && (
+              <Button type="button" tone="ghost" size="sm" onClick={() => run(null)} disabled={pending} data-testid="dialog-unassign">
+                Снять
+              </Button>
+            )}
+          </Row>
+          <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
+            <Field label="Следующий шаг">
+              <Input name="nextStep" maxLength={200} defaultValue={nextStep ?? ''} placeholder="Например, перезвонить до 18:00" data-testid="dialog-next-step" />
+            </Field>
+            <Row>
+              <Button type="submit" tone="secondary" size="sm" disabled={saving} aria-busy={saving} data-testid="dialog-next-step-save">
+                Сохранить шаг
+              </Button>
+            </Row>
+            {state?.error && <Alert>{state.error}</Alert>}
+          </form>
+          {result?.error && <Alert>{result.error}</Alert>}
+        </>
+      ) : (
+        <p data-testid="dialog-next-step-read">
+          <b>Следующий шаг:</b> {nextStep ?? 'не задан'}
+        </p>
+      )}
+    </Stack>
+  );
+}
+
+/** Добавить внутреннюю заметку (S2.6) */
+export function DialogNoteForm({ id }: { id: string }) {
+  const [state, action, pending] = useActionState<SimpleResult | null, FormData>(noteAction.bind(null, id), null);
+  return (
+    <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
+      <Field label="Новая заметка">
+        <Textarea name="text" rows={3} maxLength={2000} required data-testid="dialog-note-text" />
+      </Field>
+      <Row>
+        <Button type="submit" tone="secondary" size="sm" disabled={pending} aria-busy={pending} data-testid="dialog-note-add">
+          {pending ? 'Добавляю…' : 'Добавить заметку'}
+        </Button>
+      </Row>
+      {state?.error && <Alert>{state.error}</Alert>}
     </form>
   );
 }

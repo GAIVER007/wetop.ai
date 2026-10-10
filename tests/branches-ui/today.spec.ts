@@ -7,7 +7,6 @@ import {
   UNAVAILABLE_MASTER,
 } from '../../apps/web/src/app/today/vertical-metrics';
 import { previousDate } from '../../apps/web/src/lib/food-data';
-import { formatMoney } from '../../apps/web/src/lib/money';
 import { instantOf } from '../../apps/web/src/app/beauty/time';
 
 /**
@@ -141,38 +140,27 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('beauty-today')).toBeVisible();
     const { m } = await expectedBeauty(request, f.salon);
     expect(m.masters).toBe(2);
-    // плитки макета «Главная» (ТЗ салона 09.10.2026): записи, выручка DONE, клиенты, смена
-    for (const [id, text] of [
-      ['today-total', String(m.total)],
-      [
-        'today-revenue',
-        formatMoney(m.revenue[0]?.minor ?? '0', m.revenue[0]?.currency ?? 'KZT'),
-      ],
-      ['today-clients', String(m.clients)],
-      ['today-shift', `${m.onShift} из ${m.masters}`],
+    for (const [id, n] of [
+      ['today-planned', m.planned],
+      ['today-confirmed', m.confirmed],
+      ['today-done', m.done],
+      ['today-masters', m.masters],
     ] as const)
-      await expect(value(page, id), id).toHaveText(text);
+      await expect(value(page, id), id).toHaveText(String(n));
     if (m.awaitingConfirmation > 0)
       await expect(page.getByTestId('today-attention-unconfirmed')).toContainText(
         String(m.awaitingConfirmation),
       );
     if (m.noShow > 0)
       await expect(page.getByTestId('today-attention-no-show')).toContainText(String(m.noShow));
-    // панель «Мастера на смене»: строк столько, сколько мастеров с интервалами без отсутствия
-    if (m.shift.length > 0) {
-      await expect(page.getByTestId('today-shift-list').locator('li')).toHaveCount(m.shift.length);
-      await expect(page.getByTestId('today-shift-list')).toContainText(m.shift[0]!.name);
-    }
-    await expect(page.getByRole('link', { name: 'Новая запись', exact: true })).toBeVisible();
+    await expect(page.getByText('Мастеров', { exact: true })).toBeVisible();
     const rows = page.getByTestId('today-upcoming').locator('li');
     await expect(rows).toHaveCount(m.upcoming.length);
     if (m.upcoming.some((u) => u.master === UNAVAILABLE_MASTER))
       await expect(page.getByTestId('today-upcoming')).toContainText(UNAVAILABLE_MASTER);
     // меню салона: «Сегодня» первым пунктом и текущим
-    await expect(page.getByRole('link', { name: 'Сегодня', exact: true }).first()).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    // левая навигация (ADR-161): текущий раздел показывает кнопка колонки, а не ссылка с aria-current
+    await expect(page.locator('.sidenav__current')).toContainText('Сегодня');
     const calls = await callsSince(request, from);
     expect(calls.filter((c) => c.startsWith('/beauty/'))).toEqual(
       calls.filter((c) => c === '/beauty/appointments'),
@@ -251,9 +239,10 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
     expect(await scopeCookie(page)).toBe(f.food);
     await choose(page, 'Тестовый отель');
-    await expect(page).toHaveURL(/\/today$/);
+    // гостиница с 09.10 живёт единым разделом «Финансы»: /today уводит туда (finance-home-merge)
+    await expect(page).toHaveURL(/\/finance$/);
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
     await expect(page.getByTestId('food-today')).toHaveCount(0);
     await choose(page, 'Тестовый салон');
     await expect(page.getByTestId('beauty-today')).toBeVisible();
@@ -333,7 +322,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const f = await prepare(request);
     await setScope(page, f.hotelScope);
     await page.clock.install();
-    await page.goto('/today');
+    // экран гостиницы живёт в «Финансах»: `/today` перенаправляет туда (f5f7d58a4), и серверное действие
+    // выбора филиала уходит POST на `/finance`, а не на `/today`
+    await page.goto('/finance');
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
     await expect(page.getByTestId('data-freshness')).toBeVisible();
     await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
@@ -346,7 +337,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const held = new Promise<void>((resolve) => {
       started = resolve;
     });
-    await page.route('**/today', async (route) => {
+    await page.route('**/finance', async (route) => {
       if (route.request().method() === 'POST' && route.request().headers()['next-action']) {
         started();
         await gate;
@@ -397,13 +388,13 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await request.post(`${api}/__test/control`, { data: {} });
   });
 
-  test('гостиница: прежняя Главная, без запросов салона и ресторана', async ({ page, request }) => {
+  test('гостиница: блоки владельца в «Финансах», без запросов салона и ресторана', async ({ page, request }) => {
     const f = await prepare(request);
     await setScope(page, f.hotelScope);
     const from = await callCount(request);
     await page.goto('/today');
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|food-service)\b/.test(c))).toBe(false);

@@ -184,7 +184,7 @@ def test_the_migration_adds_and_removes_the_columns(migrated_db: str, alembic_co
     command.downgrade(alembic_config, "0004")
     assert not (USAGE_COLUMNS & _message_columns(migrated_db)), "down снимает колонки"
     assert "tokens_used" in _message_columns(migrated_db)
-    command.upgrade(alembic_config, "head")
+    command.upgrade(alembic_config, "heads")  # две головы: 0011 и 0012
     assert USAGE_COLUMNS <= _message_columns(migrated_db)
 
 

@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 09.10.2026 19:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит eb9e202 (claude/sales2-impl), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/market-charts.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=240000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей (2.0s)
+  ✓  2 tests/ui/market-charts.spec.ts:79:1 › без сравнения: график изменения говорит, как его включить, а не рисует нули (867ms)
+  ✓  3 tests/ui/market-charts.spec.ts:90:1 › пока конкурентов нет, графиков нет: пустое состояние как раньше (625ms)
+  ✓  4 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 1440px (2.0s)
+  ✓  5 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 390px (2.0s)
+  ✓  6 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 1440px (2.2s)
+  ✓  7 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 390px (2.3s)
+
+  7 passed (17.5s)
+
+# код выхода 0 · 18 с

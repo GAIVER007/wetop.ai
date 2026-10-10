@@ -1,0 +1,228 @@
+/* Хаб «Продажи» по макету владельца 09.10.2026: ряд плиток показателей и три карточки. Плотность по DESIGN.md §4. */
+@layer sections {
+  .sales-hub {
+    display: grid;
+    gap: var(--space-6);
+    min-width: 0;
+  }
+  .sales-chips {
+    margin: 0;
+  }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .kpi-tile {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .kpi-tile--link:hover {
+    border-color: var(--primary);
+  }
+  .kpi-tile__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .kpi-tile__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .kpi-tile__label {
+    font-size: var(--text-xs);
+    line-height: 1.25;
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+  .kpi-tile__row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .kpi-tile__value {
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-bold);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-tile__delta {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--text-2);
+  }
+  .kpi-tile__delta[data-direction='up'] {
+    color: var(--success);
+  }
+  .kpi-tile__delta[data-direction='down'] {
+    color: var(--danger);
+  }
+  .kpi-tile__caption {
+    font-size: var(--text-xs);
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .sales-trio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+  .sales-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .sales-card__head {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+  .sales-card__head h2 {
+    margin: 0;
+    font-size: var(--text-xl);
+  }
+  .sales-card__head p {
+    margin: var(--space-1) 0 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .sales-card__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: var(--space-12);
+    height: var(--space-12);
+    border-radius: var(--radius);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .sales-card__icon--seller {
+    background: var(--surface-muted);
+  }
+  .sales-card__icon--tip {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .sales-card__body {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .sales-card__body > .sales-card__checks {
+    min-width: 0;
+  }
+  .sales-card__checks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .sales-card__checks li {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .sales-card__checks svg {
+    color: var(--success);
+    flex: none;
+  }
+  .sales-card__art {
+    width: 96px;
+    height: auto;
+    flex: none;
+  }
+  .sales-card__note {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .sales-card__foot {
+    margin-top: auto;
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .sales-card__foot .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .sales-recs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+  }
+  .sales-rec {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+  .sales-rec strong {
+    font-size: var(--text-sm);
+  }
+  .sales-rec p {
+    margin: var(--space-1) 0 0;
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .sales-rec__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .sales-rec--warn .sales-rec__icon {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .sales-rec--ok .sales-rec__icon {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  @media (max-width: 1279px) {
+    .kpi-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .sales-trio {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 960px) {
+    .sales-trio {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .kpi-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2);
+    }
+  }
+}

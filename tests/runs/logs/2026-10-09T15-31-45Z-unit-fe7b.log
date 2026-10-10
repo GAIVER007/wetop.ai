@@ -1,0 +1,39 @@
+# Модульные (unit) · 09.10.2026 20:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит 10d6e79 (claude/market-ai-collector), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-31-45Z-unit-fe7b.json' 'tests/unit/launchd-install.test.ts' 'tests/unit/launchd-domain-guard.test.ts' 'scripts/market' 'packages/domain/src/market'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ✓ |unit| packages/domain/src/marketing/generation.test.ts (18 tests) 39ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (14 tests) 181ms
+ ✓ |unit| packages/domain/src/marketing/edit.test.ts (30 tests) 186ms
+ ✓ |unit| packages/domain/src/marketing/builder.test.ts (18 tests) 93ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (39 tests) 198ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 133ms
+ ✓ |unit| packages/domain/src/marketing/diff.test.ts (9 tests) 112ms
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (22 tests) 88ms
+ ✓ |unit| packages/domain/src/marketing/conversation.test.ts (9 tests) 8ms
+ ✓ |unit| packages/domain/src/marketing/assets.test.ts (10 tests) 8ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 7ms
+ ✓ |unit| packages/domain/src/marketing/host.test.ts (26 tests) 9ms
+ ✓ |unit| scripts/market/pages.test.ts (2 tests) 10ms
+ ✓ |unit| scripts/market/collect.test.ts (8 tests) 83ms
+ ✓ |unit| tests/unit/launchd-domain-guard.test.ts (4 tests) 3150ms
+   ✓ install.sh domain: две проверки до установки (4)
+     ✓ не поднимает вторую копию, когда туннель уже держит другой cloudflared 599ms
+     ✓ с заполненным конфигом и молчащим адресом обе проверки пропускают 1666ms
+     ✓ ALLOW_SECOND_TUNNEL=1 — осознанный обход 822ms
+ ✓ |unit| tests/unit/launchd-install.test.ts (8 tests) 11271ms
+   ✓ launchd install.sh (8)
+     ✓ проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» 4132ms
+     ✓ переустановка работающей задачи ждёт, пока старый процесс освободит порт 2688ms
+     ✓ переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает 3752ms
+
+ Test Files  16 passed (16)
+      Tests  265 passed (265)
+   Start at  08:31:48
+   Duration  11.97s (tests 59%, transform 31%, import 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-31-45Z-unit-fe7b.json
+
+# код выхода 0 · 15 с

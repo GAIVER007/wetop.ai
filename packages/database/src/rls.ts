@@ -18,6 +18,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'invites',
   'user_errors',
   'seller_profiles',
+  'seller_prompt_versions',
   'organization_extensions',
   'seller_agents',
   'wizard_drafts',
@@ -85,13 +86,14 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
   'competitors',
   'competitor_occupancy',
+  'competitor_rates',
   // Food Service v1, migration 55.
   'dining_areas',
   'dining_tables',
   'service_periods',
   'restaurant_reservations',
   'table_assignments',
-  // Ресторан v2 (DATA_MODEL §33, ADR-159, миграция 20261010000078_restaurant_module)
+  // Ресторан v2 (DATA_MODEL §33, ADR-159, миграция 20261010000081_restaurant_module)
   'menu_categories',
   'menu_items',
   'menu_item_ingredients',

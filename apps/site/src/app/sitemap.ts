@@ -19,7 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ...(latest ? { lastModified: latest } : {}),
     },
     { url: absoluteUrl('/restaurants/'), changeFrequency: 'monthly', priority: 0.8 },
-    ...(['hostels', 'mini-hotels', 'apart-hotels'] as const).map((slug) => ({
+    ...(['hotels', 'salons', 'restaurants', 'hostels', 'mini-hotels', 'apart-hotels'] as const).map((slug) => ({
       url: absoluteUrl(`/for/${slug}/`),
       changeFrequency: 'monthly' as const,
       priority: 0.8,

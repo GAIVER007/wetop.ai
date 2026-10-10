@@ -147,7 +147,12 @@ test('администратор смены открывает хаб', async ({
   await seedMarket(request);
   await signIn(page);
   await control(request, { role: 'STAFF' });
-  await page.goto('/sales');
+  // как человек: со стартовой страницы роли через меню (прямой переход первым запросом после смены роли разворачивает стойка)
+  await page.goto('/finance');
+  const menu = page.locator('.topmenu');
+  await menu.getByRole('button', { name: 'Продажи', exact: true }).click();
+  await menu.getByRole('link', { name: 'Обзор продаж', exact: true }).click();
+  await expect(page).toHaveURL(/\/sales$/);
   await expect(page.getByTestId('sales-kpis')).toBeVisible();
 });
 

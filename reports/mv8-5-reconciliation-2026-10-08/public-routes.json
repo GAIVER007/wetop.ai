@@ -1,0 +1,30 @@
+[
+  {
+    "path": "/login",
+    "status": 200,
+    "loginRedirect": true,
+    "serverApplicationError": false
+  },
+  {
+    "path": "/today",
+    "status": 200,
+    "loginRedirect": false,
+    "serverApplicationError": false
+  },
+  {
+    "path": "/chessboard",
+    "status": 200,
+    "loginRedirect": false,
+    "serverApplicationError": false
+  },
+  {
+    "path": "/reservations",
+    "status": 200,
+    "loginRedirect": false,
+    "serverApplicationError": false
+  },
+  {
+    "path": "/api/site-auth/options",
+    "registrationEnabled": true
+  }
+]

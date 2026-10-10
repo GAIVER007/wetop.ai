@@ -1,0 +1,10 @@
+{
+  "deployed": "0d108ca8ad66ca24282ef060e4599bbdf7efb7fa",
+  "checkout": "0d108ca8ad66ca24282ef060e4599bbdf7efb7fa",
+  "buildId": "O8yV4p3ldOxWsnKiqslip",
+  "containers": "/pms-lux-api-1 sha256:2b6c40903ecdddba3f5d19c036d12c1a9ad292fad3c77b6910b18cd891b5d3aa healthy\n/pms-lux-web-1 sha256:2b6c40903ecdddba3f5d19c036d12c1a9ad292fad3c77b6910b18cd891b5d3aa healthy",
+  "backup": "/root/backups/wetop-20261008T070900Z.dump",
+  "restoreTables": 92,
+  "migrationLast": "20261007000067_site_asset_grants",
+  "authenticatedRouteCheck": "pending user session"
+}

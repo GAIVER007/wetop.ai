@@ -1,0 +1,11 @@
+color.semantic.glass-edge
+color.semantic.glow-1
+color.semantic.glow-2
+color.semantic.glow-3
+color.semantic.star
+color.semantic.accent-1
+color.semantic.accent-2
+color.semantic.purple
+color.semantic.purple-soft
+dimension.glass.blur
+shadow.glass

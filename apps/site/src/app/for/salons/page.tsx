@@ -67,14 +67,36 @@ export default function SalonLandingPage() {
                   ))}
                 </div>
               </div>
-              {s.mock.rows.map((row) => (
-                <div className="salon-hero__mock-row" key={row.time}>
-                  <span className="salon-hero__mock-time">{row.time}</span>
-                  <span className="salon-hero__mock-client">{row.client}</span>
-                  <span className="salon-hero__mock-service">{row.service}</span>
-                  <span className="salon-hero__mock-master">{row.master}</span>
+              <div className="salon-hero__cal">
+                <div className="salon-hero__rail">
+                  <span className="salon-hero__master" aria-hidden="true" />
+                  {s.mock.times.map((time) => (
+                    <span key={time}>{time}</span>
+                  ))}
                 </div>
-              ))}
+                {s.mock.masters.map((master) => (
+                  <div className="salon-hero__col" key={master.name}>
+                    <span className="salon-hero__master">{master.name}</span>
+                    {s.mock.times.map((time) => {
+                      const apt = master.appointments.find((a) => a.time === time);
+                      if (apt)
+                        return (
+                          <span key={time} className={`salon-hero__apt salon-hero__apt--${apt.tone}`}>
+                            <strong>{apt.service}</strong>
+                            {apt.client}
+                          </span>
+                        );
+                      if (master.free.includes(time))
+                        return (
+                          <span key={time} className="salon-hero__free">
+                            {s.mock.freeLabel}
+                          </span>
+                        );
+                      return <span key={time} className="salon-hero__slot" />;
+                    })}
+                  </div>
+                ))}
+              </div>
             </div>
             <figcaption>{s.mock.label}</figcaption>
           </figure>

@@ -1,0 +1,26 @@
+# Модульные (unit) · 01.10.2026 19:16 Алматы · MacBook-Air-Urij.local
+# коммит df6723c (codex/unified-workspace-20260929), незакоммиченных файлов набора: 84
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T14-16-11Z-unit-5939.json' 'apps/api/src/reservations/reservations.controller.test.ts' 'apps/api/src/channels/inbound.controller.test.ts' 'apps/api/src/auth/route-access.test.ts' 'apps/web/src/lib/stay-date.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 6ms
+[Nest] 31484  - 09/10/2026, 10:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+[Nest] 31485  - 10/01/2026, 6:16:15 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 31485  - 10/01/2026, 6:16:15 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 31485  - 10/01/2026, 6:16:15 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 31485  - 10/01/2026, 6:16:15 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 31485  - 10/01/2026, 6:16:15 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 31485  - 10/01/2026, 6:16:15 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (21 tests) 336ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (49 tests) 567ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 34ms
+
+ Test Files  4 passed (4)
+      Tests  83 passed (83)
+   Start at  18:16:13
+   Duration  2.65s (transform 50%, import 34%, tests 15%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T14-16-11Z-unit-5939.json
+
+# код выхода 0 · 4 с

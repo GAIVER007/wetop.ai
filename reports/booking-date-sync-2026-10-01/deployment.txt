@@ -1,0 +1,25 @@
+Production verification, 2026-10-01 14:27 UTC
+Source/main/release: e8b3914f304899e3eae6709c17c76f102bbb9447
+Deployed marker: same SHA; deployment completed 14:25:42 UTC, 187 seconds.
+API and web: healthy; image sha256:d946fc880e33c81393d40bd948bd63e55d4df90d2af2fadb009a5f60a71cea77.
+API health: HTTP 200, status ok, database up.
+Backup before migration: /root/backups/wetop-20261001T141401Z.dump (55 tables).
+040: applied. Both columns, scoped unique index and pair CHECK verified in public.
+
+Additional migration: standard Prisma migrate deploy also applied pending
+20260930000038_rls_integration_grants. This was outside the immediate 040 request;
+reported to owner. Existing project records approve its model, but execution should
+have stopped after preflight identified the additional migration for scope review.
+Post-check: prerequisite a47fc932 is an ancestor of previously deployed df6723c2.
+wetop_app only INSERT on channel_outbox, no access to external_events/system_incidents.
+wetop_service retains SELECT external_events and UPDATE channel_outbox.
+Pending outbox rows without property: 0. Channel overview and event journal load
+successfully in authenticated production browser. No OTA write/sync triggered.
+Do not revert this restriction blindly: rollback would widen access.
+
+Production UI: arrival 2026-10-01, departure 2026-09-30 shows inline error,
+aria-invalid=true, no stale amount, Create disabled. Changing departure to
+2026-10-03 shows pending recalculation, then 2 nights, 22,000 KZT and enabled Create.
+Form restored to 2026-10-02 without submitting. Existing reservation
+20261001-8PDHSK not modified. No production test reservation created.
+Screenshot: /tmp/wetop-booking-dates-live.png.

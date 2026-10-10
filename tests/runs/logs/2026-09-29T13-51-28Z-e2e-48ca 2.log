@@ -1,0 +1,139 @@
+# Сквозные (e2e) · 29.09.2026 18:51 Алматы · vm
+# коммит fb0dfbc (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/rates-derived.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента (45.2s)
+  ✘  2 tests/ui/rates-derived.spec.ts:60:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить (45.2s)
+  ✓  3 tests/ui/rates-derived.spec.ts:95:1 › «только чтение»: производные тарифы и промокоды видны, кнопок правки нет (3.8s)
+  ✘  4 tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: light (3.0m)
+  ✘  5 tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: dark (3.0m)
+
+
+  1) tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Добавить производный тариф' })
+
+
+      35 |   await page.goto('/rates/plans');
+      36 |   const main = page.getByRole('main');
+    > 37 |   await main.getByRole('button', { name: 'Добавить производный тариф' }).click();
+         |                                                                          ^
+      38 |   const drawer = page.getByRole('dialog', { name: 'Новый производный тариф' });
+      39 |   await drawer.getByLabel('Название').fill('Раннее бронирование');
+      40 |   await drawer.getByLabel('Родительский тариф').selectOption({ label: 'Стандартный' });
+        at /home/user/wetop.ai/tests/ui/rates-derived.spec.ts:37:74
+
+    Error Context: test-results/rates-derived-производный--1a9b1-бка-у-формы-правка-процента/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-derived-производный--1a9b1-бка-у-формы-правка-процента/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-derived-производный--1a9b1-бка-у-формы-правка-процента/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/rates-derived.spec.ts:60:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('navigation', { name: 'Тарифы и цены' }).getByRole('link', { name: 'Промокоды' })
+
+
+      63 |   const main = page.getByRole('main');
+      64 |   const tabs = main.getByRole('navigation', { name: 'Тарифы и цены' });
+    > 65 |   await tabs.getByRole('link', { name: 'Промокоды' }).click();
+         |                                                       ^
+      66 |   await expect(page).toHaveURL(/\/rates\/promo$/);
+      67 |   await expect(tabs.getByRole('link', { name: 'Промокоды' })).toHaveAttribute('aria-current', 'page');
+      68 |
+        at /home/user/wetop.ai/tests/ui/rates-derived.spec.ts:65:55
+
+    Error Context: test-results/rates-derived-промокоды-вк-d0515-тор-кода-—-ошибка-выключить/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-derived-промокоды-вк-d0515-тор-кода-—-ошибка-выключить/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-derived-промокоды-вк-d0515-тор-кода-—-ошибка-выключить/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: light ─────────────────────────
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.click: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Добавить производный тариф' })
+
+
+      128 |
+      129 |     await page.goto('/rates/plans');
+    > 130 |     await main.getByRole('button', { name: 'Добавить производный тариф' }).click();
+          |                                                                            ^
+      131 |     const drawer = page.getByRole('dialog', { name: 'Новый производный тариф' });
+      132 |     await drawer.getByLabel('Название').fill('Раннее бронирование');
+      133 |     await drawer.getByLabel('Родительский тариф').selectOption({ label: 'Стандартный' });
+        at /home/user/wetop.ai/tests/ui/rates-derived.spec.ts:130:76
+
+    Error Context: test-results/rates-derived-снимки-D4-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-derived-снимки-D4-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-derived-снимки-D4-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: dark ──────────────────────────
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.click: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Добавить производный тариф' })
+
+
+      128 |
+      129 |     await page.goto('/rates/plans');
+    > 130 |     await main.getByRole('button', { name: 'Добавить производный тариф' }).click();
+          |                                                                            ^
+      131 |     const drawer = page.getByRole('dialog', { name: 'Новый производный тариф' });
+      132 |     await drawer.getByLabel('Название').fill('Раннее бронирование');
+      133 |     await drawer.getByLabel('Родительский тариф').selectOption({ label: 'Стандартный' });
+        at /home/user/wetop.ai/tests/ui/rates-derived.spec.ts:130:76
+
+    Error Context: test-results/rates-derived-снимки-D4-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-derived-снимки-D4-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-derived-снимки-D4-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента 
+    tests/ui/rates-derived.spec.ts:60:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить 
+    tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: light ──────────────────────────
+    tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: dark ───────────────────────────
+  1 passed (7.8m)
+
+# код выхода 1 · 7 мин 47 с

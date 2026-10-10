@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 30.09.2026 19:47 Алматы · MacBook-Air-Urij.local
+# коммит c4079cc (codex/unified-workspace-20260929), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'inventory-onboarding.spec.ts' '--workers=1'
+[WebServer] (node:80335) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80374) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80445) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:80504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu (45.4s)
+
+
+  1) tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Добавить в номерной фонд', exact: true })
+
+
+       5 |   await request.post('http://127.0.0.1:4311/__test/control', { data: { empty: true } });
+       6 |   await page.goto('/inventory');
+    >  7 |   await page.getByRole('button', { name: 'Добавить в номерной фонд', exact: true }).click();
+         |                                                                                     ^
+       8 |   await page.getByRole('menuitem', { name: 'Комнату с койками', exact: true }).click();
+       9 |   const dialog = page.getByRole('dialog', { name: 'Создать категорию' });
+      10 |   await expect(dialog).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/inventory-onboarding.spec.ts:7:85
+
+    Error Context: test-results/inventory-onboarding-empty-38f0b--category-from-the-add-menu/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-onboarding-empty-38f0b--category-from-the-add-menu/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-onboarding-empty-38f0b--category-from-the-add-menu/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu 
+
+# код выхода 1 · 57 с

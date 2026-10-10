@@ -1,0 +1,83 @@
+# Сквозные (e2e) · 01.10.2026 16:21 Алматы · MacBook-Air-Urij.local
+# коммит a1b240e (codex/unified-workspace-20260929), незакоммиченных файлов набора: 94
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/navigation.spec.ts' '--workers=1'
+[WebServer] (node:72049) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72086) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72087) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72095) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:72195) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:72204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/navigation.spec.ts:32:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.7s)
+  ✓  2 tests/ui/navigation.spec.ts:46:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.9s)
+[WebServer] (node:72254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/navigation.spec.ts:85:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (5.9s)
+[WebServer] (node:72272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/navigation.spec.ts:116:1 › все пункты меню открывают существующие страницы (5.4s)
+(node:72278) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/navigation.spec.ts:154:3 › навигация ровная, адаптивная и доступная: light (4.0s)
+  ✓  6 tests/ui/navigation.spec.ts:154:3 › навигация ровная, адаптивная и доступная: dark (3.9s)
+
+
+  1) tests/ui/navigation.spec.ts:116:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').visible().getByRole('heading', { level: 1 }).visible()
+    Expected: visible
+    Error: strict mode violation: getByRole('main').visible().getByRole('heading', { level: 1 }).visible() resolved to 2 elements:
+        1) <h1 class="page__title">Номерной фонд</h1> aka getByRole('heading', { name: 'Номерной фонд' }).first()
+        2) <h1 class="page__title">Номерной фонд</h1> aka getByRole('heading', { name: 'Номерной фонд' }).nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').visible().getByRole('heading', { level: 1 }).visible() with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 }).visible()
+
+
+      141 |           .getByRole('heading', { level: 1 })
+      142 |           .filter({ visible: true }),
+    > 143 |       ).toBeVisible();
+          |         ^
+      144 |       await expect(page.getByRole('main').filter({ visible: true })).not.toContainText(
+      145 |         'Не удалось загрузить данные',
+      146 |       );
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/navigation.spec.ts:143:9
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/navigation.spec.ts:116:1 › все пункты меню открывают существующие страницы ────────────
+  5 passed (40.7s)
+
+# код выхода 1 · 42 с

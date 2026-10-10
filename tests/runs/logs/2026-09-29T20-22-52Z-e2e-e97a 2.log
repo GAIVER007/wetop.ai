@@ -1,0 +1,43 @@
+# Сквозные (e2e) · 30.09.2026 01:22 Алматы · vm
+# коммит 34525e7 (claude/charming-heisenberg-ainaqm)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/ai-agents.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 27 tests using 1 worker
+
+  ✓   1 tests/ui/ai-agents.spec.ts:27:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (4.1s)
+  ✓   2 tests/ui/ai-agents.spec.ts:50:1 › главный администратор: рядом с продавцом карточка WETOP Support (3.8s)
+  ✓   3 tests/ui/ai-agents.spec.ts:62:1 › расширение не подключено: карточка объясняет, «Подключить» ведёт на страницу с объяснением (2.7s)
+  ✓   4 tests/ui/ai-agents.spec.ts:77:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», «Возобновить» (2.4s)
+  ✓   5 tests/ui/ai-agents.spec.ts:88:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, «Настроить» (2.3s)
+  ✓   6 tests/ui/ai-agents.spec.ts:97:1 › продавец работает: статус, каналы по данным, второго завести нельзя — причина словами (2.6s)
+  ✓   7 tests/ui/ai-agents.spec.ts:116:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» (2.1s)
+  ✓   8 tests/ui/ai-agents.spec.ts:125:1 › черновики гостевого мастера: «Черновик», без Business и Location (2.2s)
+  ✓   9 tests/ui/ai-agents.spec.ts:137:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом (2.2s)
+  ✓  10 tests/ui/ai-agents.spec.ts:150:1 › сотрудник смены видит список, но без кнопок (2.0s)
+  ✓  11 tests/ui/ai-agents.spec.ts:158:1 › старый адрес /ai-seller работает (2.1s)
+  ✓  12 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, working, light, 1440 (3.4s)
+  ✓  13 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, off, light, 1440 (3.3s)
+  ✓  14 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, expired, light, 1440 (3.2s)
+  ✓  15 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, setup, light, 1440 (3.4s)
+  ✓  16 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, working, light, 390 (3.2s)
+  ✓  17 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, off, light, 390 (2.9s)
+  ✓  18 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, expired, light, 390 (3.2s)
+  ✓  19 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, setup, light, 390 (3.3s)
+  ✓  20 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, working, dark, 1440 (3.6s)
+  ✓  21 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, off, dark, 1440 (3.1s)
+  ✓  22 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, expired, dark, 1440 (3.2s)
+  ✓  23 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, setup, dark, 1440 (3.5s)
+  ✓  24 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, working, dark, 390 (2.8s)
+  ✓  25 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, off, dark, 390 (2.8s)
+  ✓  26 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, expired, dark, 390 (3.0s)
+  ✓  27 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, setup, dark, 390 (3.0s)
+
+  27 passed (1.6m)
+
+# код выхода 0 · 1 мин 36 с

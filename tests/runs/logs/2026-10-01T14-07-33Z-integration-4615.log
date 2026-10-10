@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 01.10.2026 19:07 Алматы · MacBook-Air-Urij.local
+# коммит df6723c (codex/unified-workspace-20260929), незакоммиченных файлов набора: 54
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T14-07-33Z-integration-4615.json' 'tests/integration/reservation-create-retry.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+(node:26722) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-create-retry.test.ts (2 tests) 533ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:07:35
+   Duration  2.32s (tests 39%, transform 36%, import 25%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T14-07-33Z-integration-4615.json
+
+# код выхода 0 · 4 с

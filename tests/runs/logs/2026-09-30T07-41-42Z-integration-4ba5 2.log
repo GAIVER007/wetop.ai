@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 30.09.2026 12:41 Алматы · vm
+# коммит 1fb5cbb (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T07-41-42Z-integration-4ba5.json' 'tests/integration/business-agents.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/business-agents.test.ts (7 tests) 411ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  07:41:42
+   Duration  2.37s (transform 51%, tests 29%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-09-30T07-41-42Z-integration-4ba5.json
+
+# код выхода 0 · 3 с

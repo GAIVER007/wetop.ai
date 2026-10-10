@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 18:43 Алматы · vm
+# коммит b8c2794 (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-43-55Z-unit-3acc.json' 'apps/api/src/reservations/stay-offers.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/reservations/stay-offers.test.ts (7 tests) 178ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  13:43:56
+   Duration  2.05s (transform 64%, import 27%, tests 9%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-43-55Z-unit-3acc.json
+
+# код выхода 0 · 3 с

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { channelsApi } from '../../lib/api';
-import { hotelClock } from '../../lib/hotel-api';
+import { hotelApi, hotelClock } from '../../lib/hotel-api';
 import { currentMe } from '../../lib/desk-shell';
 import type { PropertyClock } from '../../lib/property-time';
 import { Alert, Badge, Panel, Grid, Fact } from '../../components/ui';
@@ -15,10 +15,11 @@ const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
   iso ? `, проверено ${clock.clock(iso)} по Алматы` : '';
 export async function ChannelConnectionSetup() {
   const clock = await hotelClock();
-  const [connection, webhook, me] = await Promise.all([
+  const [connection, webhook, me, hotel] = await Promise.all([
     channelsApi.connection().catch(() => null),
     channelsApi.webhookStatus().catch(() => null),
     settle(currentMe()),
+    hotelApi.settings().catch(() => null),
   ]);
   const owner = me.ok && me.r.user?.role === 'OWNER';
   const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
@@ -111,6 +112,7 @@ export async function ChannelConnectionSetup() {
           webhookReady={webhookReady}
           configured={!!connection?.apiConfigured}
           connected={!!connection?.propertyAccessible}
+          ratePlans={hotel?.ratePlans.filter((plan) => plan.active).map((plan) => ({ code: plan.code, name: plan.name })) ?? []}
         />
       ) : (
         <p className="note" data-testid="channel-setup-owner-only">

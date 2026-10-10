@@ -1,0 +1,120 @@
+# Модульные (unit) · 29.09.2026 17:31 Алматы · vm
+# коммит f6f4369 (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T12-31-10Z-unit-fde4.json' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/site-design.test.ts (6 tests | 4 failed) 28ms
+   ❯ главная wetop.ai — правила DESIGN.md §19 (6)
+     ✓ цвет только через токены: литерала нет нигде, кроме tokens.css 5ms
+     ✓ цвет строки браузера совпадает с фоном страницы в обеих темах 1ms
+     × отступы — только из лестницы §19.3 9ms
+     × радиус — только токен, круг, pill или «без скругления» 6ms
+     × текст не мельче 12 px 3ms
+     × каждый блок страницы назван в DESIGN.md §19.5 — и наоборот 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/site-design.test.ts > главная wetop.ai — правила DESIGN.md §19 > отступы — только из лестницы §19.3
+AssertionError: отступ вне лестницы 0/2/4/…/16/20/…/64 (DESIGN.md §19.3): expected [ '.ops — 76px' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   ".ops — 76px",
++ ]
+
+ ❯ tests/unit/site-design.test.ts:116:79
+    114|       }
+    115|     }
+    116|     expect(found, 'отступ вне лестницы 0/2/4/…/16/20/…/64 (DESIGN.md §…
+       |                                                                               ^
+    117|   });
+    118|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| tests/unit/site-design.test.ts > главная wetop.ai — правила DESIGN.md §19 > радиус — только токен, круг, pill или «без скругления»
+AssertionError: радиус мимо токенов (DESIGN.md §19.4): expected [ '.ops__kpi — 12px', …(4) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   ".ops__kpi — 12px",
++   ".ops__block — 12px",
++   ".ops__task i — 4px",
++   ".ops__finance — 12px",
++   ".ops__bars i — 4px 4px 1px 1px",
++ ]
+
+ ❯ tests/unit/site-design.test.ts:130:60
+    128|       }
+    129|     }
+    130|     expect(found, 'радиус мимо токенов (DESIGN.md §19.4)').toEqual([]);
+       |                                                            ^
+    131|   });
+    132|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| tests/unit/site-design.test.ts > главная wetop.ai — правила DESIGN.md §19 > текст не мельче 12 px
+AssertionError: шрифт мельче 12 px (DESIGN.md §19.6): expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   ".ops__who small,
++ .ops__task small — 0.6875rem",
++   ".ops__state — 0.6875rem",
++ ]
+
+ ❯ tests/unit/site-design.test.ts:141:59
+    139|       }
+    140|     }
+    141|     expect(found, 'шрифт мельче 12 px (DESIGN.md §19.6)').toEqual([]);
+       |                                                           ^
+    142|   });
+    143|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| tests/unit/site-design.test.ts > главная wetop.ai — правила DESIGN.md §19 > каждый блок страницы назван в DESIGN.md §19.5 — и наоборот
+AssertionError: блок есть в коде, но не описан в DESIGN.md §19.5: expected [ '.is-done', '.ops', …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   ".is-done",
++   ".ops",
++   ".vertical-live",
++   ".vertical-next",
++   ".vertical-status",
++ ]
+
+ ❯ tests/unit/site-design.test.ts:170:78
+    168|     const undocumented = [...inCode].filter((name) => !documented.has(…
+    169|     const stale = [...documented].filter((name) => !inCode.has(name)).…
+    170|     expect(undocumented, 'блок есть в коде, но не описан в DESIGN.md §…
+       |                                                                              ^
+    171|     expect(stale, 'блок описан в DESIGN.md §19.5, но его нет в коде').…
+    172|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed (6)
+   Start at  12:31:11
+   Duration  273ms (transform 51%, tests 28%, import 16%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-29T12-31-10Z-unit-fde4.json
+
+# код выхода 1 · 1 с

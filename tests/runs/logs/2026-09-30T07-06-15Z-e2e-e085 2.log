@@ -1,0 +1,71 @@
+# Сквозные (e2e) · 30.09.2026 12:06 Алматы · vm
+# коммит f177acf (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-agents.spec.ts' 'tests/ui/requests.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 55 tests using 1 worker
+
+  ✓   1 tests/ui/ai-agents.spec.ts:27:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (8.2s)
+  ✓   2 tests/ui/ai-agents.spec.ts:50:1 › главный администратор: рядом с продавцом карточка WETOP Support (5.2s)
+  ✓   3 tests/ui/ai-agents.spec.ts:62:1 › расширение не подключено: карточка объясняет, «Подключить» ведёт на страницу с объяснением (3.2s)
+  ✓   4 tests/ui/ai-agents.spec.ts:77:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», «Возобновить» (2.9s)
+  ✓   5 tests/ui/ai-agents.spec.ts:88:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, «Настроить» (2.9s)
+  ✓   6 tests/ui/ai-agents.spec.ts:97:1 › продавец работает: статус, каналы по данным, второго завести нельзя — причина словами (3.1s)
+  ✓   7 tests/ui/ai-agents.spec.ts:116:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» (2.5s)
+  ✓   8 tests/ui/ai-agents.spec.ts:125:1 › черновики гостевого мастера: «Черновик», без Business и Location (2.5s)
+  ✓   9 tests/ui/ai-agents.spec.ts:137:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом (3.0s)
+  ✓  10 tests/ui/ai-agents.spec.ts:150:1 › сотрудник смены видит список, но без кнопок (2.8s)
+  ✓  11 tests/ui/ai-agents.spec.ts:158:1 › старый адрес /ai-seller работает (3.0s)
+  ✓  12 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, working, light, 1440 (4.6s)
+  ✓  13 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, off, light, 1440 (5.4s)
+  ✓  14 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, expired, light, 1440 (3.6s)
+  ✓  15 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, setup, light, 1440 (3.7s)
+  ✓  16 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, working, light, 390 (3.3s)
+  ✓  17 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, off, light, 390 (3.3s)
+  ✓  18 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, expired, light, 390 (3.2s)
+  ✓  19 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, setup, light, 390 (3.3s)
+  ✓  20 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, working, dark, 1440 (4.0s)
+  ✓  21 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, off, dark, 1440 (3.5s)
+  ✓  22 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, expired, dark, 1440 (3.5s)
+  ✓  23 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, setup, dark, 1440 (3.4s)
+  ✓  24 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, working, dark, 390 (3.8s)
+  ✓  25 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, off, dark, 390 (4.3s)
+  ✓  26 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, expired, dark, 390 (4.3s)
+  ✓  27 tests/ui/ai-agents.spec.ts:174:7 › каталог: axe и снимок, setup, dark, 390 (3.4s)
+  ✓  28 tests/ui/requests.spec.ts:70:3 › экран /today: данные берутся одним запросом на путь (2.0s)
+  ✓  29 tests/ui/requests.spec.ts:70:3 › экран /chessboard: данные берутся одним запросом на путь (3.3s)
+  ✓  30 tests/ui/requests.spec.ts:70:3 › экран /reservations: данные берутся одним запросом на путь (2.6s)
+  ✓  31 tests/ui/requests.spec.ts:70:3 › экран /guests: данные берутся одним запросом на путь (2.3s)
+  ✓  32 tests/ui/requests.spec.ts:70:3 › экран /inventory: данные берутся одним запросом на путь (2.5s)
+  ✓  33 tests/ui/requests.spec.ts:70:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.7s)
+  ✓  34 tests/ui/requests.spec.ts:70:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.8s)
+  ✓  35 tests/ui/requests.spec.ts:70:3 › экран /rates: данные берутся одним запросом на путь (2.2s)
+  ✓  36 tests/ui/requests.spec.ts:70:3 › экран /management/analytics: данные берутся одним запросом на путь (2.2s)
+  ✓  37 tests/ui/requests.spec.ts:70:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.3s)
+  ✓  38 tests/ui/requests.spec.ts:70:3 › экран /finance: данные берутся одним запросом на путь (2.3s)
+  ✓  39 tests/ui/requests.spec.ts:70:3 › экран /channels: данные берутся одним запросом на путь (2.8s)
+  ✓  40 tests/ui/requests.spec.ts:70:3 › экран /channels/connections: данные берутся одним запросом на путь (1.8s)
+  ✓  41 tests/ui/requests.spec.ts:70:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.7s)
+  ✓  42 tests/ui/requests.spec.ts:70:3 › экран /channels/sync: данные берутся одним запросом на путь (1.7s)
+  ✓  43 tests/ui/requests.spec.ts:70:3 › экран /channels/events: данные берутся одним запросом на путь (1.8s)
+  ✓  44 tests/ui/requests.spec.ts:70:3 › экран /website: данные берутся одним запросом на путь (2.0s)
+  ✓  45 tests/ui/requests.spec.ts:70:3 › экран /website/booking: данные берутся одним запросом на путь (2.1s)
+  ✓  46 tests/ui/requests.spec.ts:70:3 › экран /website/analytics: данные берутся одним запросом на путь (2.3s)
+  ✓  47 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.8s)
+  ✓  48 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.7s)
+  ✓  49 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.8s)
+  ✓  50 tests/ui/requests.spec.ts:70:3 › экран /connections: данные берутся одним запросом на путь (2.1s)
+  ✓  51 tests/ui/requests.spec.ts:70:3 › экран /ai-agents: данные берутся одним запросом на путь (1.5s)
+  ✓  52 tests/ui/requests.spec.ts:70:3 › экран /website/settings: данные берутся одним запросом на путь (2.3s)
+  ✓  53 tests/ui/requests.spec.ts:70:3 › экран /incidents: данные берутся одним запросом на путь (2.2s)
+  ✓  54 tests/ui/requests.spec.ts:70:3 › экран /journal: данные берутся одним запросом на путь (2.1s)
+  ✓  55 tests/ui/requests.spec.ts:70:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.3s)
+
+  55 passed (2.8m)
+
+# код выхода 0 · 2 мин 52 с

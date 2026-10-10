@@ -1,0 +1,79 @@
+# Модульные (unit) · 01.10.2026 16:42 Алматы · MacBook-Air-Urij.local
+# коммит 5880f14 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 67
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T11-42-48Z-unit-2d30.json' 'apps/api/src/hotel/branch-context.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/api/src/hotel/branch-context.test.ts (3 tests | 3 failed) 10ms
+   ❯ контекст филиала (3)
+     × настройки двух филиалов и их кэш не смешиваются 6ms
+     × онбординг читает выбранный филиал 0ms
+     × исчезнувший выбранный филиал не превращается в создание другого объекта 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/branch-context.test.ts > контекст филиала > настройки двух филиалов и их кэш не смешиваются
+AssertionError: expected 'first' to be 'branch-a' // Object.is equality
+
+Expected: "branch-a"
+Received: "first"
+
+ ❯ apps/api/src/hotel/branch-context.test.ts:31:27
+     29|     const b = await inBranch('branch-b', () => hotel.settings());
+     30|     const again = await inBranch('branch-a', () => hotel.settings());
+     31|     expect(a.property.id).toBe('branch-a');
+       |                           ^
+     32|     expect(b.property.id).toBe('branch-b');
+     33|     expect(again.property.id).toBe('branch-a');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/hotel/branch-context.test.ts > контекст филиала > онбординг читает выбранный филиал
+AssertionError: expected 'first' to be 'branch-b' // Object.is equality
+
+Expected: "branch-b"
+Received: "first"
+
+ ❯ apps/api/src/hotel/branch-context.test.ts:39:74
+     37|   it('онбординг читает выбранный филиал', async () => {
+     38|     const { onboarding } = fixture();
+     39|     expect((await inBranch('branch-b', () => onboarding.status())).nam…
+       |                                                                          ^
+     40|   });
+     41|   it('исчезнувший выбранный филиал не превращается в создание другого …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/hotel/branch-context.test.ts > контекст филиала > исчезнувший выбранный филиал не превращается в создание другого объекта
+AssertionError: promise resolved "{ needed: true, name: 'first', …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "currency": "KZT",
++   "name": "first",
++   "needed": true,
+  }
+
+ ❯ apps/api/src/hotel/branch-context.test.ts:43:65
+     41|   it('исчезнувший выбранный филиал не превращается в создание другого …
+     42|     const { onboarding } = fixture();
+     43|     await expect(inBranch('missing', () => onboarding.status())).rejec…
+       |                                                                 ^
+     44|   });
+     45| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  15:42:49
+   Duration  779ms (transform 57%, import 41%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T11-42-48Z-unit-2d30.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,65 @@
+# Интеграционные (integration) · 30.09.2026 11:51 Алматы · vm
+# коммит f177acf (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T06-51-52Z-integration-a952.json' 'tests/integration/seller-catalog.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/seller-catalog.test.ts (6 tests | 2 failed) 324ms
+   ❯ каталог AI-агентов (integration, DATABASE_URL required) (6)
+     ✓ placement: Business и Location самого раннего объекта организации 10ms
+     ✓ placement: чужой объект не попадает, у организации без объекта — null 8ms
+     ✓ drafts: только своей организации, предел работает 13ms
+     ❯ после переноса продавца в агента (DATA_MODEL §20, SA1.6) (3)
+       × placement: филиал перенесённого агента важнее самого раннего объекта 10ms
+       ✓ placement: у агента без филиала — прежнее правило, самый ранний объект 12ms
+       × drafts: перенесённый продавец не дублируется черновиком — он рабочий, а не черновик мастера 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/seller-catalog.test.ts > каталог AI-агентов (integration, DATABASE_URL required) > после переноса продавца в агента (DATA_MODEL §20, SA1.6) > placement: филиал перенесённого агента важнее самого раннего объекта
+AssertionError: expected '5565021e-a339-478e-b1e6-c6c4ee65ef13' to be '131d9a3d-9572-4710-a39e-22a5e2e49817' // Object.is equality
+
+Expected: "131d9a3d-9572-4710-a39e-22a5e2e49817"
+Received: "5565021e-a339-478e-b1e6-c6c4ee65ef13"
+
+ ❯ tests/integration/seller-catalog.test.ts:116:34
+    114|     it('placement: филиал перенесённого агента важнее самого раннего о…
+    115|       const place = await repo.placement(orgA);
+    116|       expect(place?.location.id).toBe(secondLocation);
+       |                                  ^
+    117|       expect(place?.location.name).toBe(`Второй филиал ${mark}`);
+    118|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/seller-catalog.test.ts > каталог AI-агентов (integration, DATABASE_URL required) > после переноса продавца в агента (DATA_MODEL §20, SA1.6) > drafts: перенесённый продавец не дублируется черновиком — он рабочий, а не черновик мастера
+AssertionError: expected [ 'Перенесённый А munqz8c1', …(2) ] to deeply equal [ 'Черновик А1 munqz8c1', …(1) ]
+
+- Expected
++ Received
+
+  [
++   "Перенесённый А munqz8c1",
+    "Черновик А1 munqz8c1",
+    "Черновик А2 munqz8c1",
+  ]
+
+ ❯ tests/integration/seller-catalog.test.ts:131:45
+    129|     it('drafts: перенесённый продавец не дублируется черновиком — он р…
+    130|       const own = await repo.drafts(orgA, 50);
+    131|       expect(own.map((d) => d.name).sort()).toEqual([`Черновик А1 ${ma…
+       |                                             ^
+    132|     });
+    133|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  06:51:53
+   Duration  3.17s (transform 61%, import 21%, tests 17%)
+
+JSON report written to /tmp/pms-test-2026-09-30T06-51-52Z-integration-a952.json
+
+# код выхода 1 · 4 с

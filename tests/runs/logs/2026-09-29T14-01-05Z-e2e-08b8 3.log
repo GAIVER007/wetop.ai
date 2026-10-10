@@ -1,0 +1,149 @@
+# Сквозные (e2e) · 29.09.2026 19:01 Алматы · vm
+# коммит fb0dfbc (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/rates-derived.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента (19.1s)
+  ✘  2 tests/ui/rates-derived.spec.ts:60:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить (3.5s)
+  ✓  3 tests/ui/rates-derived.spec.ts:95:1 › «только чтение»: производные тарифы и промокоды видны, кнопок правки нет (2.7s)
+  ✘  4 tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: light (6.3s)
+  ✘  5 tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: dark (7.2s)
+
+
+  1) tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      45 |   await drawer.getByLabel('Заезд не раньше чем за, дн.').fill('30');
+      46 |   await drawer.getByRole('button', { name: 'Сохранить' }).click();
+    > 47 |   await expect(page.getByRole('dialog')).toHaveCount(0);
+         |                                          ^
+      48 |   const row = planRow(page, 'Раннее бронирование');
+      49 |   await expect(row).toContainText('−15% от «Стандартный»; заезд не раньше чем за 30 дн.');
+      50 |   // у обычного тарифа условий нет
+        at /home/user/wetop.ai/tests/ui/rates-derived.spec.ts:47:42
+
+    Error Context: test-results/rates-derived-производный--1a9b1-бка-у-формы-правка-процента/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-derived-производный--1a9b1-бка-у-формы-правка-процента/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-derived-производный--1a9b1-бка-у-формы-правка-процента/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/rates-derived.spec.ts:60:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить 
+
+    Error: locator.fill: Error: strict mode violation: getByRole('dialog', { name: 'Новый промокод' }).getByLabel('Код') resolved to 2 elements:
+        1) <button type="button" class="icon-button" aria-label="Закрыть: Новый промокод">…</button> aka getByRole('button', { name: 'Закрыть: Новый промокод' })
+        2) <input class="inp" required="" name="code" maxlength="32" autocomplete="off"/> aka getByRole('textbox', { name: 'Код' })
+
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Новый промокод' }).getByLabel('Код')
+
+
+      69 |   await main.getByRole('button', { name: 'Добавить промокод' }).click();
+      70 |   const drawer = page.getByRole('dialog', { name: 'Новый промокод' });
+    > 71 |   await drawer.getByLabel('Код').fill('summer10');
+         |                                  ^
+      72 |   await drawer.getByLabel('Скидка, %').fill('10');
+      73 |   await drawer.getByLabel('Использований не больше').fill('5');
+      74 |   await drawer.getByRole('button', { name: 'Сохранить' }).click();
+        at /home/user/wetop.ai/tests/ui/rates-derived.spec.ts:71:34
+
+    Error Context: test-results/rates-derived-промокоды-вк-d0515-тор-кода-—-ошибка-выключить/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-derived-промокоды-вк-d0515-тор-кода-—-ошибка-выключить/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-derived-промокоды-вк-d0515-тор-кода-—-ошибка-выключить/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: light ─────────────────────────
+
+    Error: locator.fill: Error: strict mode violation: getByRole('dialog', { name: 'Новый промокод' }).getByLabel('Код') resolved to 2 elements:
+        1) <button type="button" class="icon-button" aria-label="Закрыть: Новый промокод">…</button> aka getByRole('button', { name: 'Закрыть: Новый промокод' })
+        2) <input class="inp" required="" name="code" maxlength="32" autocomplete="off"/> aka getByRole('textbox', { name: 'Код' })
+
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Новый промокод' }).getByLabel('Код')
+
+
+      144 |     await main.getByRole('button', { name: 'Добавить промокод' }).click();
+      145 |     const promo = page.getByRole('dialog', { name: 'Новый промокод' });
+    > 146 |     await promo.getByLabel('Код').fill('SUMMER10');
+          |                                   ^
+      147 |     await promo.getByLabel('Скидка, %').fill('10');
+      148 |     await promo.getByLabel('Проживание с').fill('2026-11-01');
+      149 |     await promo.getByLabel('Проживание по').fill('2026-11-30');
+        at /home/user/wetop.ai/tests/ui/rates-derived.spec.ts:146:35
+
+    Error Context: test-results/rates-derived-снимки-D4-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-derived-снимки-D4-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-derived-снимки-D4-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: dark ──────────────────────────
+
+    Error: locator.fill: Error: strict mode violation: getByRole('dialog', { name: 'Новый промокод' }).getByLabel('Код') resolved to 2 elements:
+        1) <button type="button" class="icon-button" aria-label="Закрыть: Новый промокод">…</button> aka getByRole('button', { name: 'Закрыть: Новый промокод' })
+        2) <input class="inp" required="" name="code" maxlength="32" autocomplete="off"/> aka getByRole('textbox', { name: 'Код' })
+
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Новый промокод' }).getByLabel('Код')
+
+
+      144 |     await main.getByRole('button', { name: 'Добавить промокод' }).click();
+      145 |     const promo = page.getByRole('dialog', { name: 'Новый промокод' });
+    > 146 |     await promo.getByLabel('Код').fill('SUMMER10');
+          |                                   ^
+      147 |     await promo.getByLabel('Скидка, %').fill('10');
+      148 |     await promo.getByLabel('Проживание с').fill('2026-11-01');
+      149 |     await promo.getByLabel('Проживание по').fill('2026-11-30');
+        at /home/user/wetop.ai/tests/ui/rates-derived.spec.ts:146:35
+
+    Error Context: test-results/rates-derived-снимки-D4-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-derived-снимки-D4-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-derived-снимки-D4-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента 
+    tests/ui/rates-derived.spec.ts:60:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить 
+    tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: light ──────────────────────────
+    tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: dark ───────────────────────────
+  1 passed (48.4s)
+
+# код выхода 1 · 50 с

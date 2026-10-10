@@ -1,0 +1,22 @@
+# Модульные (unit) · 01.10.2026 16:49 Алматы · MacBook-Air-Urij.local
+# коммит 5880f14 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 83
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T11-49-58Z-unit-67e0.json' 'apps/api/src/hotel/branches.test.ts' 'apps/api/src/hotel/branch-context.test.ts' 'apps/api/src/hotel/settings-concurrency.test.ts' 'apps/api/src/hotel/onboarding.test.ts' 'apps/api/src/hotel/settings-update.test.ts' 'apps/api/src/auth/scope.test.ts' 'apps/api/src/database/property-ref.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/api/src/auth/scope.test.ts (10 tests) 4ms
+ ✓ |unit| apps/api/src/database/property-ref.test.ts (21 tests) 10ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 8ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (9 tests) 29ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (5 tests) 13ms
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (3 tests) 9ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (7 tests) 12ms
+
+ Test Files  7 passed (7)
+      Tests  58 passed (58)
+   Start at  15:50:00
+   Duration  1.02s (transform 55%, import 42%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T11-49-58Z-unit-67e0.json
+
+# код выхода 0 · 3 с

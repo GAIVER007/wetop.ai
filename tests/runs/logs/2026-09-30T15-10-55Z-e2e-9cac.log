@@ -1,0 +1,108 @@
+# Сквозные (e2e) · 30.09.2026 20:10 Алматы · MacBook-Air-Urij.local
+# коммит ec63d74 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'ai-seller.spec.ts' '--grep' 'единый каталог|управления доступом' '--workers=1'
+[WebServer] (node:92702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92742) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:92851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92929) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/ai-seller.spec.ts:389:1 › Все агенты возвращает в единый каталог, а не только к черновикам (19.4s)
+(node:92956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/ai-seller.spec.ts:398:1 › закрытое расширение: администратор видит действие для управления доступом (16.7s)
+
+
+  1) tests/ui/ai-seller.spec.ts:389:1 › Все агенты возвращает в единый каталог, а не только к черновикам 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('link', { name: 'Все агенты', exact: true })
+    Expected: "/ai-agents"
+    Received: "/ai-seller/agents"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('link', { name: 'Все агенты', exact: true }) with timeout 15000ms
+      - waiting for getByRole('link', { name: 'Все агенты', exact: true })
+        33 × locator resolved to <a href="/ai-seller/agents" class="btn btn--secondary">Все агенты</a>
+           - unexpected value "/ai-seller/agents"
+
+
+      390 |   await page.goto('/ai-seller');
+      391 |   const back = page.getByRole('link', { name: 'Все агенты', exact: true });
+    > 392 |   await expect(back).toHaveAttribute('href', '/ai-agents');
+          |                      ^
+      393 |   await back.click();
+      394 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+      395 |   await expect(page.getByTestId('agent-seller')).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/ai-seller.spec.ts:392:22
+
+    Error Context: test-results/ai-seller-Все-агенты-возвр-87c7b-ог-а-не-только-к-черновикам/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-Все-агенты-возвр-87c7b-ог-а-не-только-к-черновикам/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-Все-агенты-возвр-87c7b-ог-а-не-только-к-черновикам/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-seller.spec.ts:398:1 › закрытое расширение: администратор видит действие для управления доступом 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' })
+    Expected: "/platform"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' }) with timeout 15000ms
+      - waiting for getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' })
+
+
+      399 |   await request.post(`${API}/__test/control`, { data: { platformAdmin: true, sellerExtension: 'off' } });
+      400 |   await page.goto('/ai-seller');
+    > 401 |   await expect(page.getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' })).toHaveAttribute('href', '/platform');
+          |                                                                                                            ^
+      402 | });
+      403 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/ai-seller.spec.ts:401:108
+
+    Error Context: test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/ai-seller.spec.ts:389:1 › Все агенты возвращает в единый каталог, а не только к черновикам 
+    tests/ui/ai-seller.spec.ts:398:1 › закрытое расширение: администратор видит действие для управления доступом 
+
+# код выхода 1 · 49 с

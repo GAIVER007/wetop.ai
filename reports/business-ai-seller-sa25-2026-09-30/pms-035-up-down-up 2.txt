@@ -1,0 +1,83 @@
+--- PMS 035 на настоящей PostgreSQL 16, локальная база (организация, объект, участник); всё в одной транзакции и откатывается
+--- до 035: агент (id = организация?, состояние, есть ли филиал) и профиль (agent_id = организация?)
+ agent_is_org | lifecycle | has_location 
+--------------+-----------+--------------
+ t            | draft     | t
+(1 row)
+
+ profile_linked | applied 
+----------------+---------
+ t              | t
+(1 row)
+
+--- 035 (up): предпроверка по всей базе внутри, затем перенос
+ seller_scope_assert 
+---------------------
+ t
+(1 row)
+
+ seller_agents_backfill 
+------------------------
+                      0
+(1 row)
+
+ seller_scope_assert 
+---------------------
+ t
+(1 row)
+
+--- после 035: все проверки цепочки
+             check_name              | total | bad 
+-------------------------------------+-------+-----
+ duplicate_sales_agents_per_location |     1 |   0
+ legacy_agents_without_location      |     1 |   0
+ legacy_agents_wrong_location        |     1 |   0
+ orgs_with_many_locations            |     1 |   0
+ orgs_without_actor                  |     1 |   0
+ profiles_without_agent              |     1 |   0
+ profiles_without_organization       |     1 |   0
+ profiles_wrong_agent                |     1 |   0
+(8 rows)
+
+ agent_is_org | lifecycle | has_location 
+--------------+-----------+--------------
+ t            | active    | t
+(1 row)
+
+--- откат (down): функции 035 сняты, тела 034 возвращены, данные на месте
+ precheck_left | assert_left | bind_left 
+---------------+-------------+-----------
+ f             | f           | f
+(1 row)
+
+ agents_after_down 
+-------------------
+                 1
+(1 row)
+
+--- повторный up
+ seller_scope_assert 
+---------------------
+ t
+(1 row)
+
+ seller_agents_backfill 
+------------------------
+                      0
+(1 row)
+
+ seller_scope_assert 
+---------------------
+ t
+(1 row)
+
+ precheck | assert | bind 
+----------+--------+------
+ t        | t      | t
+(1 row)
+
+ all_checks_green 
+------------------
+ t
+(1 row)
+

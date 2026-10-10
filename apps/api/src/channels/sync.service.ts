@@ -18,6 +18,7 @@ import { buildAvailabilityValues, buildRestrictionValues, lastPricedDate } from 
 import { buildChannexSetup } from './setup-plan';
 import { DEFAULT_FULL_SYNC_HOUR, isFullSyncDue } from './schedule';
 import { ARI_STOPPED_MESSAGE, isAriStopped } from './ari-switch';
+import { withIntegrationPropertyScope } from '../auth/request-context';
 import {
   CHANNELS_REPOSITORY,
   CHANNEX_GATEWAY,
@@ -132,7 +133,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
       return;
     this.scheduleTimer = setInterval(
       () =>
-        void this.runScheduledFullSyncIfDue().catch((e: unknown) =>
+        void this.runScheduledFullSyncForConnectedProperties().catch((e: unknown) =>
           this.log.warn(`полная выгрузка по расписанию не удалась: ${(e as Error).message}`),
         ),
       SCHEDULE_CHECK_MS,
@@ -141,6 +142,18 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
   }
   onModuleDestroy(): void {
     if (this.scheduleTimer) clearInterval(this.scheduleTimer);
+  }
+
+  private async runScheduledFullSyncForConnectedProperties(): Promise<void> {
+    for (const mapping of await this.repo.connectedProperties()) {
+      try {
+        await withIntegrationPropertyScope(mapping.localPropertyId, () =>
+          this.runScheduledFullSyncIfDue(),
+        );
+      } catch (e) {
+        this.log.warn(`полная выгрузка объекта ${mapping.localPropertyId} не удалась: ${(e as Error).message}`);
+      }
+    }
   }
 
   /**
@@ -188,6 +201,15 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
         `Тариф ${ratePlanCode} не найден — сначала импорт тарифов`,
       );
     const ratePlan = local.ratePlan;
+    const today = await this.repo.today();
+    const rates = await this.repo.dailyRates([ratePlan.id], today, today);
+    const missingPrice = local.categories.find((category) =>
+      !rates.some((rate) => rate.accommodationTypeCode === category.code && rate.priceMinor > 0n),
+    );
+    if (missingPrice)
+      throw new UnprocessableEntityException(
+        `Для категории ${missingPrice.name} нет положительной цены на сегодня в выбранном тарифе`,
+      );
     const plan = buildChannexSetup({
       property: local.property,
       categories: local.categories,

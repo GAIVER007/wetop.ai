@@ -27,7 +27,7 @@ test('пробный период виден в меню на рабочих э�
   request,
 }) => {
   await signIn(page);
-  const line = page.locator('.workspace-header').getByTestId('trial-line');
+  const line = page.locator('.sidenav').getByTestId('trial-line');
   await expect(page.locator('.workspace-header .profile-caption')).toContainText('Дана Тестова');
   await expect(line).toHaveCount(0);
 

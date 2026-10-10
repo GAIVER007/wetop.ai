@@ -15,6 +15,7 @@ export interface FoodScope {
   businessId: string;
   locationId: string;
   timezone: string;
+  currency: string;
 }
 export function foodMay(permission: Permission) {
   if (!hasSignedInActor() || !actorMay(permission))
@@ -40,7 +41,13 @@ export async function foodScope(db: Pick<DbTx, 'business' | 'location'>): Promis
     where: { id: locationId, businessId, status: 'ACTIVE' },
   });
   if (!location) throw new ForbiddenException('Выберите доступный филиал');
-  return { organizationId, businessId, locationId, timezone: location.timezone };
+  return {
+    organizationId,
+    businessId,
+    locationId,
+    timezone: location.timezone,
+    currency: location.currency,
+  };
 }
 export async function foodWritable(db: Pick<DbTx, 'organization'>) {
   const id = currentOrganizationId();

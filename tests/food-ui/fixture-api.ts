@@ -136,7 +136,17 @@ app.use(
                 where: { business: { organizationId: org } },
                 data: { status: 'ARCHIVED' },
               });
-              await db.organization.update({ where: { id: org }, data: { status: 'ACTIVE' } });
+              // «marker guarded cleanup» сносит организацию и пользователя; следующий спек начинает заново
+              await db.organization.upsert({
+                where: { id: org },
+                create: { id: org, name: `MV7-browser-${org}`, status: 'ACTIVE' },
+                update: { status: 'ACTIVE' },
+              });
+              await db.user.upsert({
+                where: { id: user },
+                create: { id: user, name: 'Тестовый владелец', email: `mv7-${user}@example.invalid` },
+                update: {},
+              });
               const b1 = await db.business.create({
                 data: {
                   organizationId: org,
@@ -198,6 +208,15 @@ app.use(
               if (marker.name !== `MV7-browser-${org}`) throw new Error('Marker mismatch');
               const b = { organizationId: org };
               await db.$transaction(async (tx) => {
+                await tx.restaurantOrderItem.deleteMany({
+                  where: { order: { location: { business: b } } },
+                });
+                await tx.restaurantOrder.deleteMany({ where: { location: { business: b } } });
+                await tx.menuItemIngredient.deleteMany({ where: { menuItem: { business: b } } });
+                await tx.menuItem.deleteMany({ where: { business: b } });
+                await tx.menuCategory.deleteMany({ where: { business: b } });
+                await tx.employeePayAdjustment.deleteMany({ where: { employee: { business: b } } });
+                await tx.employeePaySetting.deleteMany({ where: { employee: { business: b } } });
                 await tx.tableAssignment.deleteMany({
                   where: { reservation: { location: { business: b } } },
                 });

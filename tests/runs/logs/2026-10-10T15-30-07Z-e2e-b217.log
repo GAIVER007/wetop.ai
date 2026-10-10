@@ -1,0 +1,101 @@
+# Сквозные (e2e) · 10.10.2026 20:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5413b09 (HEAD), незакоммиченных файлов набора: 228
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+[WebServer] 
+[WebServer] > Build error occurred
+[WebServer] Error: Turbopack build failed with 4 errors:
+[WebServer] ./apps/site/src/app/globals.css:4070:1
+[WebServer] Error: Parsing CSS source code failed
+[WebServer]   4068 |   background: var(--salon-chip);
+[WebServer]   4069 | }>>>>>>> origin/main
+[WebServer] > 4070 |
+[WebServer]        | ^
+[WebServer] 
+[WebServer] Unexpected end of input
+[WebServer] 
+[WebServer] Generated code of PostCSS transform of file content of apps/site/src/app/globals.css:
+[WebServer] ./apps/site/src/app/globals.css:4070:1
+[WebServer]   4068 |   background: var(--salon-chip);
+[WebServer]   4069 | }>>>>>>> origin/main
+[WebServer] > 4070 |
+[WebServer]        | ^
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Client Component Browser:
+[WebServer]     ./apps/site/src/app/globals.css [Client Component Browser]
+[WebServer]     ./apps/site/src/app/layout.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/site/src/i18n/ru.ts:701:189
+[WebServer] Error: Expression expected
+[WebServer]   699 | ...
+[WebServer]   700 | ...
+[WebServer] > 701 | ... под ваше направление.',>>>>>>> origin/main
+[WebServer]       |                            ^^^
+[WebServer]   702 | ...
+[WebServer]   703 | ...
+[WebServer]   704 | ...
+[WebServer] 
+[WebServer] Parsing ecmascript source code failed
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Server Component:
+[WebServer]     ./apps/site/src/i18n/ru.ts
+[WebServer]     ./apps/site/src/i18n/index.ts
+[WebServer]     ./apps/site/src/app/for/[segment]/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/site/src/i18n/ru.ts:701:192
+[WebServer] Error: Expression expected
+[WebServer]   699 | ...
+[WebServer]   700 | ...
+[WebServer] > 701 | ...од ваше направление.',>>>>>>> origin/main
+[WebServer]       |                             ^^^
+[WebServer]   702 | ...
+[WebServer]   703 | ...
+[WebServer]   704 | ...
+[WebServer] 
+[WebServer] Parsing ecmascript source code failed
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Server Component:
+[WebServer]     ./apps/site/src/i18n/ru.ts
+[WebServer]     ./apps/site/src/i18n/index.ts
+[WebServer]     ./apps/site/src/app/for/[segment]/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/site/src/i18n/ru.ts:701:195
+[WebServer] Error: Expression expected
+[WebServer]   699 | ...
+[WebServer]   700 | ...
+[WebServer] > 701 | ...д ваше направление.',>>>>>>> origin/main
+[WebServer]       |                               ^
+[WebServer]   702 | ...
+[WebServer]   703 | ...
+[WebServer]   704 | ...
+[WebServer] 
+[WebServer] Parsing ecmascript source code failed
+[WebServer] 
+[WebServer] Import trace:
+[WebServer]   Server Component:
+[WebServer]     ./apps/site/src/i18n/ru.ts
+[WebServer]     ./apps/site/src/i18n/index.ts
+[WebServer]     ./apps/site/src/app/for/[segment]/page.tsx
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (./apps/site/src/app/globals.css:4070:1)
+[WebServer]     at <unknown> (./apps/site/src/app/globals.css:4070:1)
+[WebServer]     at <unknown> (./apps/site/src/i18n/ru.ts:701:189)
+[WebServer]     at <unknown> (./apps/site/src/i18n/ru.ts:701:192)
+[WebServer]     at <unknown> (./apps/site/src/i18n/ru.ts:701:195)
+[WebServer] npm error Lifecycle script `build` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/***/scratchpad/mergewk/apps/site
+[WebServer] npm error workspace @pms/site@0.0.0
+[WebServer] npm error location /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/***/scratchpad/mergewk/apps/site
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c next build
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 6 с

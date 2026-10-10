@@ -1,0 +1,14 @@
+# Сквозные (e2e) · 10.10.2026 20:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 371704f (claude/restaurant-module-tz), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json 'tests/site/restaurants.spec.ts' '--config' 'tests/site/playwright.config.ts'
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/site/restaurants.spec.ts:9:1 › /restaurants/ — hero, мокап с планом зала, разделы и призыв (1.3s)
+  ✓  2 tests/site/restaurants.spec.ts:48:3 › /restaurants/ доступна в теме light (4.1s)
+  ✓  3 tests/site/restaurants.spec.ts:48:3 › /restaurants/ доступна в теме dark (2.1s)
+  ✓  4 tests/site/restaurants.spec.ts:66:1 › с главной на /restaurants/ ведёт карточка ресторанного направления (470ms)
+
+  4 passed (35.3s)
+
+# код выхода 0 · 38 с

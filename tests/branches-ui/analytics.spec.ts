@@ -46,13 +46,13 @@ test('MV9 Beauty numbers reconcile with API and independent database aggregates 
     _count: { _all: true },
   });
   await page.goto(`/management/analytics?from=${f.localDay}&to=${f.localDay}`);
-  await expect(page.getByTestId('vertical-analytics')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('vertical-analytics')).toBeVisible();
   for (const status of ['BOOKED', 'CONFIRMED', 'DONE', 'CANCELLED', 'NO_SHOW']) {
     const count = day.appointments.filter((r: { status: string }) => r.status === status).length;
     expect(
       aggregates.filter((a) => a.status === status).reduce((sum, a) => sum + a._count._all, 0),
     ).toBe(count);
-    await expect(page.getByTestId(`period-${status}`)).toHaveText(String(count));
+    await expect(page.getByRole('main').getByTestId(`period-${status}`)).toHaveText(String(count));
   }
   const apiMoney = day.appointments
     .filter((r: { status: string }) => r.status === 'DONE')
@@ -63,9 +63,9 @@ test('MV9 Beauty numbers reconcile with API and independent database aggregates 
       .reduce((sum, a) => sum + (a._sum.price ?? 0n), 0n),
   ).toBe(apiMoney);
   expect(apiMoney).toBe(1200000n);
-  await expect(page.getByTestId('revenue-KZT')).toHaveText(/^12\s000,00 KZT$/);
+  await expect(page.getByRole('main').getByTestId('revenue-KZT')).toHaveText(/^12\s000,00 KZT$/);
   await page.reload();
-  await expect(page.getByTestId('period-DONE')).toHaveText('1');
+  await expect(page.getByRole('main').getByTestId('period-DONE')).toHaveText('1');
 });
 test('MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance', async ({
   page,
@@ -106,11 +106,11 @@ test('MV9 Food pagination, overlap boundaries, mixed Organization groups and una
         Date.parse(r.startsAt) < to.getTime(),
     ).length;
     expect(aggregates.find((a) => a.status === status)?._count._all ?? 0).toBe(count);
-    await expect(page.getByTestId(`period-${status}`)).toHaveText(String(count));
+    await expect(page.getByRole('main').getByTestId(`period-${status}`)).toHaveText(String(count));
   }
-  await expect(page.getByTestId('period-BOOKED')).toHaveText('53');
-  await expect(page.getByTestId('period-CONFIRMED')).toHaveText('52');
-  await expect(page.getByTestId('food-finance-unavailable')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('period-BOOKED')).toHaveText('53');
+  await expect(page.getByRole('main').getByTestId('period-CONFIRMED')).toHaveText('52');
+  await expect(page.getByRole('main').getByTestId('food-finance-unavailable')).toBeVisible();
   await expect(page.locator('[data-testid^="revenue-"]')).toHaveCount(0);
   await page.getByRole('link', { name: 'Все филиалы', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Салоны', exact: true })).toBeVisible();
@@ -135,7 +135,7 @@ test('MV9 scope switching, read-only and invalid Hospitality tab never show fore
   const f = await seed(request);
   await setScope(page, f.beauty, f.salon);
   await page.goto('/management/analytics');
-  await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('revenue-KZT')).toBeVisible();
   const choose = async (name: string) => {
     await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
     await page
@@ -145,12 +145,12 @@ test('MV9 scope switching, read-only and invalid Hospitality tab never show fore
       .click();
   };
   await choose('Тестовый филиал Центр');
-  await expect(page.getByTestId('food-finance-unavailable')).toBeVisible();
-  await expect(page.getByTestId('revenue-KZT')).toHaveCount(0);
+  await expect(page.getByRole('main').getByTestId('food-finance-unavailable')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('revenue-KZT')).toHaveCount(0);
   await choose('Тестовый салон');
-  await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('revenue-KZT')).toBeVisible();
   await page.reload();
-  await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('revenue-KZT')).toBeVisible();
   await request.post(`${api}/__test/control`, { data: { readOnly: true, role: 'STAFF' } });
   await page.reload();
   await expect(page.locator('.vertical-report:visible')).toHaveCount(1);
@@ -183,7 +183,7 @@ for (const width of [1440, 390])
         await page.setViewportSize({ width, height: 1000 });
         await page.emulateMedia({ colorScheme: theme });
         await page.goto(`/management/analytics?from=${f.localDay}&to=${f.localDay}`);
-        await expect(page.getByTestId('vertical-analytics')).toBeVisible();
+        await expect(page.getByRole('main').getByTestId('vertical-analytics')).toBeVisible();
         const violations = (await new AxeBuilder({ page }).analyze()).violations;
         expect(violations).toEqual([]);
         expect(

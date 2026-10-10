@@ -1,0 +1,27 @@
+# Сквозные (e2e) · 10.10.2026 16:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 58
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/restaurant.spec.ts' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/food-ui/restaurant.spec.ts:81:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (10.2s)
+[WebServer] (node:16444) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  2 tests/food-ui/restaurant.spec.ts:129:1 › заказы: создание с экрана, статусы до «Оплачен», вкладки считают (8.5s)
+  ✓  3 tests/food-ui/restaurant.spec.ts:160:1 › кухня: колонки KDS и переходы кнопками (4.8s)
+  ✓  4 tests/food-ui/restaurant.spec.ts:182:1 › главная: плитки, последние заказы и выручка после закрытия (3.4s)
+  ✓  5 tests/food-ui/restaurant.spec.ts:208:1 › план зала: заказ занимает стол, уборка включается и видна легенда (3.8s)
+  ✓  6 tests/food-ui/restaurant.spec.ts:238:1 › сотрудники: список с продажами, добавление и правка (4.3s)
+  ✓  7 tests/food-ui/restaurant.spec.ts:260:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (6.8s)
+  ✓  8 tests/food-ui/restaurant.spec.ts:311:1 › клиенты: вкладки и «Постоянный гость» от двух визитов (2.6s)
+  ✓  9 tests/food-ui/restaurant.spec.ts:364:1 › навигация ресторана: пункты макета на месте и ведут на экраны (1.4s)
+
+  9 passed (2.0m)
+
+# код выхода 0 · 2 мин 4 с

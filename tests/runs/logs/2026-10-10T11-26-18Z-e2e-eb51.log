@@ -1,0 +1,231 @@
+# Сквозные (e2e) · 10.10.2026 16:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 58
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/food.spec.ts' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+[WebServer] (node:16919) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (32.4s)
+  ✘   2 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (22.9s)
+  ✘   3 tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe (39.7s)
+  ✓   4 tests/food-ui/food.spec.ts:221:1 › overlap and archived catalog preserve creation draft and idempotency key (1.8s)
+  ✓   5 tests/food-ui/food.spec.ts:277:1 › stale token refreshes drawer without automatic mutation retry (1.3s)
+  ✓   6 tests/food-ui/food.spec.ts:301:1 › READ_ONLY and STAFF permissions on real API (1.0s)
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✓   7 tests/food-ui/food.spec.ts:328:1 › server branch switch isolates Food businesses and locations and other verticals (7.9s)
+  ✘   8 tests/food-ui/food.spec.ts:379:1 › pagination beyond 100 and previous local day keep table occupied after reload (6.8s)
+  ✘   9 tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (8.2s)
+  ✓  10 tests/food-ui/food.spec.ts:545:1 › API unavailable renders LoadError instead of free tables (1.9s)
+  ✓  11 tests/food-ui/food.spec.ts:553:1 › creation 503 keeps the draft and retry key; invalid period stays inline (1.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '912616482'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '912616482'
+[WebServer] }
+  ✘  12 tests/food-ui/food.spec.ts:583:1 › Food excludes every registered foreign workspace route before API requests (11.4s)
+  ✓  13 tests/food-ui/food.spec.ts:621:1 › marker guarded cleanup (192ms)
+
+
+  1) tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload ───
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Стол 7, За столом' })
+
+
+      151 |   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
+      152 |   await page.reload();
+    > 153 |   await page.getByRole('button', { name: 'Стол 7, За столом' }).click();
+          |                                                                 ^
+      154 |   await expect(dialog.getByRole('button', { name: 'Снять стол', exact: true })).toHaveCount(0);
+      155 |   await dialog.getByRole('button', { name: 'Завершить', exact: true }).click();
+      156 |   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/food.spec.ts:153:65
+
+    Error Context: test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe ─────────────────────
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Стол 7, Подтверждено' })
+
+
+      196 |       }
+      197 |       await page.goto(`/floor-plan?date=${date}&time=19:00`);
+    > 198 |       await page.getByRole('button', { name: 'Стол 7, Подтверждено' }).click();
+          |                                                                        ^
+      199 |       await expect(page.getByRole('dialog')).toBeVisible();
+      200 |       await settled(page);
+      201 |       await page.screenshot({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/food.spec.ts:198:72
+
+    Error Context: test-results/food-real-API-screenshots-keyboard-and-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/food.spec.ts:379:1 › pagination beyond 100 and previous local day keep table occupied after reload 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Стол 7, За столом' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Стол 7, За столом' }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Стол 7, За столом' })
+
+
+      409 |   await page.goto(`/floor-plan?date=${date}&time=19:00`);
+      410 |   await page.reload();
+    > 411 |   await expect(page.getByRole('button', { name: 'Стол 7, За столом' })).toBeVisible();
+          |                                                                         ^
+      412 |   const night = await (
+      413 |     await request.post(`${api}/food-service/service-periods`, {
+      414 |       headers,
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/food.spec.ts:411:73
+
+    Error Context: test-results/food-pagination-beyond-100-7b31d-table-occupied-after-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-pagination-beyond-100-7b31d-table-occupied-after-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-pagination-beyond-100-7b31d-table-occupied-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').locator('dl')
+    Expected substring: "Основной зал, Стол 7"
+    Received string:    "Телефон+700000955979Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей2Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').locator('dl') with timeout 5000ms
+      - waiting for getByRole('dialog').locator('dl')
+        - locator resolved to <dl>…</dl>
+        - unexpected value "Телефон+700000955979Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей5Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+        - locator resolved to <dl>…</dl>
+        - unexpected value "Телефон+700000955979Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей2Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+        2 × locator resolved to <dl>…</dl>
+          - unexpected value "Телефон+700000955979Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей5Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+        10 × locator resolved to <dl>…</dl>
+           - unexpected value "Телефон+700000955979Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей2Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+
+
+      502 |   await d.getByRole('combobox', { name: 'Назначить стол', exact: true }).selectOption(table.id);
+      503 |   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
+    > 504 |   await expect(d.locator('dl')).toContainText('Основной зал, Стол 7');
+          |                                 ^
+      505 |   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
+      506 |   await page.goto('/dining-areas');
+      507 |   await page.getByRole('button', { name: 'Изменить стол Стол 7', exact: true }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/food.spec.ts:504:33
+
+    Error Context: test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/food-ui/food.spec.ts:583:1 › Food excludes every registered foreign workspace route before API requests 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  "http://127.0.0.1:55823/employees"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:55823/employees"
+
+
+      606 |   ]) {
+      607 |     await page.goto(route);
+    > 608 |     await expect(page).toHaveURL(/\/today$/);
+          |                        ^
+      609 |   }
+      610 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      611 |   expect(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/food.spec.ts:608:24
+
+    Error Context: test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload ────
+    tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe ──────────────────────
+    tests/food-ui/food.spec.ts:379:1 › pagination beyond 100 and previous local day keep table occupied after reload 
+    tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+    tests/food-ui/food.spec.ts:583:1 › Food excludes every registered foreign workspace route before API requests 
+  8 passed (2.4m)
+
+# код выхода 1 · 2 мин 28 с

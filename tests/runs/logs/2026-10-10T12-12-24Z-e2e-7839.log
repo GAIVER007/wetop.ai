@@ -1,0 +1,59 @@
+# Сквозные (e2e) · 10.10.2026 17:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 58
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/food.spec.ts:587' 'tests/food-ui/restaurant.spec.ts:81' 'tests/food-ui/restaurant.spec.ts:160' 'tests/food-ui/restaurant.spec.ts:260' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests (58.7s)
+  ✓  2 tests/food-ui/restaurant.spec.ts:81:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (39.6s)
+[WebServer] (node:33914) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  3 tests/food-ui/restaurant.spec.ts:160:1 › кухня: колонки KDS и переходы кнопками (27.4s)
+  ✓  4 tests/food-ui/restaurant.spec.ts:260:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (25.6s)
+
+
+  1) tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  "http://127.0.0.1:55823/appointments"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:55823/appointments"
+        - waiting for "http://127.0.0.1:55823/today" navigation to finish...
+
+
+      610 |   ]) {
+      611 |     await page.goto(route);
+    > 612 |     await expect(page).toHaveURL(/\/today$/);
+          |                        ^
+      613 |   }
+      614 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      615 |   expect(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/food.spec.ts:612:24
+
+    Error Context: test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests 
+  3 passed (3.0m)
+
+# код выхода 1 · 3 мин 5 с

@@ -1,0 +1,95 @@
+# Сквозные (e2e) · 10.10.2026 19:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8155904 (claude/restaurant-module-tz), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json 'tests/site/restaurants.spec.ts' '--config' 'tests/site/playwright.config.ts'
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/site/restaurants.spec.ts:9:1 › /restaurants/ — hero, мокап с планом зала, разделы и призыв (7.3s)
+  ✓  2 tests/site/restaurants.spec.ts:48:3 › /restaurants/ доступна в теме light (16.4s)
+  ✘  3 tests/site/restaurants.spec.ts:48:3 › /restaurants/ доступна в теме dark (11.8s)
+  ✓  4 tests/site/restaurants.spec.ts:66:1 › с главной на /restaurants/ ведёт карточка ресторанного направления (3.3s)
+
+
+  1) tests/site/restaurants.spec.ts:48:3 › /restaurants/ доступна в теме dark ──────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 58
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#0b0c10",
+    +               "contrastRatio": 3.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#315ef5",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.77 (foreground color: #315ef5, background color: #0b0c10, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<section class=\"public-intro\" aria-labelledby=\"restaurants-title\">",
+    +                 "target": Array [
+    +                   ".public-intro",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.77 (foreground color: #315ef5, background color: #0b0c10, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"restl__note restl__note--left\" aria-hidden=\"true\">Рестораны растут вместе с WETOP.AI</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".restl__note--left",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      61 |       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      62 |     ).toBe(true);
+    > 63 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                   ^
+      64 |   });
+      65 |
+      66 | test('с главной на /restaurants/ ведёт карточка ресторанного направления', async ({ page }) => {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/restaurants.spec.ts:63:67
+
+    Error Context: test-results/restaurants--restaurants-доступна-в-теме-dark/error-context.md
+
+  1 failed
+    tests/site/restaurants.spec.ts:48:3 › /restaurants/ доступна в теме dark ───────────────────────
+  3 passed (19.2m)
+
+# код выхода 1 · 19 мин 38 с

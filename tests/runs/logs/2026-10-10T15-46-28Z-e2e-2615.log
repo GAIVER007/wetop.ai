@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 10.10.2026 20:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7b6b32a (claude/sales2-impl), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/sales-hub.spec.ts' 'tests/ui/market.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 19 tests using 1 worker
+
+  ✓   1 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (7.6s)
+  ✓   2 tests/ui/market.spec.ts:129:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (4.6s)
+  ✓   3 tests/ui/market.spec.ts:173:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (4.0s)
+  ✓   4 tests/ui/market.spec.ts:190:3 › снимки и доступность: light (8.3s)
+  ✓   5 tests/ui/market.spec.ts:190:3 › снимки и доступность: dark (6.5s)
+  ✓   6 tests/ui/market.spec.ts:230:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (3.7s)
+  ✓   7 tests/ui/market.spec.ts:259:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (4.5s)
+  ✓   8 tests/ui/sales-hub.spec.ts:63:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету (4.8s)
+  ✓   9 tests/ui/sales-hub.spec.ts:84:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули (1.5s)
+  ✓  10 tests/ui/sales-hub.spec.ts:104:1 › нет конкурентов: рекомендации зовут добавить, плитки не рисуют нули (1.2s)
+  ✓  11 tests/ui/sales-hub.spec.ts:113:1 › нет предложений: конверсия это знак пропуска, а не 0 % (960ms)
+  ✓  12 tests/ui/sales-hub.spec.ts:123:1 › сводка не посчиталась: сказано словами, плитки броней и конкурентов это пропуск, карточки живы (1.1s)
+  ✓  13 tests/ui/sales-hub.spec.ts:136:1 › период: «7 дней» меняет адрес, неверные даты в адресе возвращают 30 дней (3.1s)
+  ✓  14 tests/ui/sales-hub.spec.ts:147:1 › расширение «ИИ-продавец» выключено: плитки диалогов это пропуск с причиной, карточка объясняет (1.7s)
+  ✓  15 tests/ui/sales-hub.spec.ts:160:1 › администратор смены открывает хаб (4.7s)
+  ✓  16 tests/ui/sales-hub.spec.ts:175:5 › доступность и снимки: light, 1440px (3.1s)
+  ✓  17 tests/ui/sales-hub.spec.ts:175:5 › доступность и снимки: light, 390px (3.2s)
+  ✓  18 tests/ui/sales-hub.spec.ts:175:5 › доступность и снимки: dark, 1440px (2.5s)
+  ✓  19 tests/ui/sales-hub.spec.ts:175:5 › доступность и снимки: dark, 390px (2.6s)
+
+  19 passed (1.3m)
+
+# код выхода 0 · 1 мин 22 с

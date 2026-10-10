@@ -10,8 +10,7 @@ import { expect, test, type Page, type Route } from '@playwright/test';
  * кука, тексты API), проверяет `apps/web/src/lib/site-auth.test.ts`.
  */
 const APP = 'https://app.wetop.ai';
-// Порт стенда параметризован (SITE_CHECK_PORT, TESTING.md 10.10.2026): CORS подставного ответа должен совпадать
-const SITE_ORIGIN = `http://127.0.0.1:${process.env['SITE_CHECK_PORT'] || 4320}`;
+const SITE_ORIGIN = `http://127.0.0.1:${process.env['SITE_CHECK_PORT'] ?? 4320}`;
 
 type Calls = { path: string; body: unknown; credentials: boolean }[];
 

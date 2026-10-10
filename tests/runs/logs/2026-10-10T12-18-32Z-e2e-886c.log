@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 10.10.2026 17:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 58
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/food.spec.ts:587' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests (1.6m)
+
+
+  1) tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  ""
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      611 |     await page.goto(route);
+      612 |     // первый заход на маршрут компилируется dev-сервером; под нагрузкой редирект дольше 5 секунд
+    > 613 |     await expect(page).toHaveURL(/\/today$/, { timeout: 15000 });
+          |                        ^
+      614 |   }
+      615 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      616 |   expect(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/food.spec.ts:613:24
+
+    Error Context: test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests 
+
+# код выхода 1 · 2 мин 28 с

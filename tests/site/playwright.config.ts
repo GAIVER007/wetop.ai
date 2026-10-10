@@ -9,8 +9,8 @@ import { defineConfig } from '@playwright/test';
  *
  * Браузер: обычный chromium Playwright; где браузеров нет, но есть свой Chrome — `CHROMIUM_PATH=/путь`.
  */
-// Свой порт на параллельную сессию: две сессии на одной машине воюют за 4320 (TESTING.md, 10.10.2026)
-const PORT = Number(process.env['SITE_CHECK_PORT']) || 4320;
+// Порт можно увести от 4320: параллельная сессия в этом же дереве гоняет свой набор и убивает чужой сервер
+const PORT = Number(process.env['SITE_CHECK_PORT'] ?? 4320);
 
 export default defineConfig({
   testDir: '.',

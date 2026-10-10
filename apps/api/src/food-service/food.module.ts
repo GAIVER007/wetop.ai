@@ -17,6 +17,7 @@ import { Access } from '../auth/access.decorator';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { FoodService } from './food.service';
+import { RestaurantService } from './restaurant.service';
 @Controller('food-service')
 @Access('desk')
 @RequiresBusinessCapability('food.tables')
@@ -83,9 +84,111 @@ export class FoodReservationsController {
     return this.service.unassign(id, b);
   }
 }
+@Controller('food-service')
+@Access('desk')
+@RequiresBusinessCapability('food.menu')
+export class FoodMenuController {
+  constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
+  @Get('menu/categories') categories(@Query() q: Record<string, unknown>) {
+    return this.service.categories(q);
+  }
+  @Post('menu/categories') @Access('property') createCategory(@Body() b: unknown) {
+    return this.service.createCategory(b);
+  }
+  @Patch('menu/categories/:id') @Access('property') updateCategory(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.updateCategory(id, b);
+  }
+  @Get('menu/items') items(@Query() q: Record<string, unknown>) {
+    return this.service.menuItems(q);
+  }
+  @Get('menu/items/:id') item(@Param('id') id: string) {
+    return this.service.menuItem(id);
+  }
+  @Post('menu/items') @Access('property') createItem(@Body() b: unknown) {
+    return this.service.createMenuItem(b);
+  }
+  @Patch('menu/items/:id') @Access('property') updateItem(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.updateMenuItem(id, b);
+  }
+  @Put('menu/items/:id/ingredients') @Access('property') replaceIngredients(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.replaceIngredients(id, b);
+  }
+}
+@Controller('food-service')
+@Access('desk')
+@RequiresBusinessCapability('food.orders')
+export class FoodOrdersController {
+  constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
+  @Get('orders') orders(@Query() q: Record<string, unknown>) {
+    return this.service.orders(q);
+  }
+  @Post('orders') create(@Body() b: unknown) {
+    return this.service.createOrder(b);
+  }
+  @Patch('orders/:id') update(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.updateOrder(id, b);
+  }
+  @Post('orders/:id/status') status(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.orderStatus(id, b);
+  }
+  @Post('tables/:id/cleaning') cleaning(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.tableCleaning(id, b);
+  }
+  @Get('report') report(@Query() q: Record<string, unknown>) {
+    return this.service.report(q);
+  }
+}
+@Controller('food-service')
+@Access('desk')
+@RequiresBusinessCapability('food.staff')
+export class FoodStaffController {
+  constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
+  @Get('employees') employees(@Query() q: Record<string, unknown>) {
+    return this.service.employees(q);
+  }
+  @Post('employees') @Access('staff') createEmployee(@Body() b: unknown) {
+    return this.service.createEmployee(b);
+  }
+  @Patch('employees/:id') @Access('staff') updateEmployee(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.updateEmployee(id, b);
+  }
+  @Get('payroll') @Access('staff') payroll(@Query() q: Record<string, unknown>) {
+    return this.service.payroll(q);
+  }
+  @Put('employees/:id/pay-settings') @Access('staff') paySettings(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.setPaySettings(id, b);
+  }
+  @Post('employees/:id/pay-adjustments') @Access('staff') payAdjustment(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.addPayAdjustment(id, b);
+  }
+}
 @Module({
-  controllers: [FoodCatalogController, FoodReservationsController],
-  providers: [PrismaService, FoodService],
-  exports: [FoodService],
+  controllers: [
+    FoodCatalogController,
+    FoodReservationsController,
+    FoodMenuController,
+    FoodOrdersController,
+    FoodStaffController,
+  ],
+  providers: [PrismaService, FoodService, RestaurantService],
+  exports: [FoodService, RestaurantService],
 })
 export class FoodModule {}

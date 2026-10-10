@@ -64,6 +64,11 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'План зала' },
       { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Бронирования' },
       { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы и столы' },
+      // Ресторан по ТЗ владельца 09.10.2026 (ADR-159)
+      { href: '/orders', label: 'Заказы', icon: 'receipt', requires: 'desk', description: 'Заказы ресторана' },
+      { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Экран кухни (KDS)' },
+      { href: '/menu', label: 'Меню', icon: 'kettle', requires: 'desk', description: 'Меню и техкарты' },
+      { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
 
       {
         href: '/calendar',
@@ -528,11 +533,17 @@ export const beautyMenuSections: MenuSection[] = [
   direct('profile', '/profile', 'guests'),
 ];
 
+/** Состав и порядок — макет «WETOP для ресторанов» (ADR-159): Главная, Заказы, Зал, Кухня, Клиенты, Меню… */
 export const foodMenuSections: MenuSection[] = [
-  direct('today', '/today', 'today', 'Сегодня'),
+  direct('today', '/today', 'today', 'Главная'),
+  direct('orders', '/orders', 'receipt'),
   direct('floor-plan', '/floor-plan', 'board'),
+  direct('kitchen', '/kitchen', 'kitchen'),
   direct('table-reservations', '/table-reservations', 'booking'),
-  direct('customers', '/customers', 'guests', 'Гости'),
+  direct('customers', '/customers', 'guests', 'Клиенты'),
+  direct('menu', '/menu', 'kettle'),
+  direct('employees', '/employees', 'guests', 'Сотрудники'),
+  direct('payroll', '/payroll', 'money'),
   direct('dining-areas', '/dining-areas', 'settings'),
   direct('staff', '/staff', 'guests'),
   direct('analytics', '/management/analytics', 'analytics'),

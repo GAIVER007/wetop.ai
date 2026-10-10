@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 10.10.2026 20:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5413b09 (HEAD), незакоммиченных файлов набора: 232
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/restaurant.spec.ts:238' 'tests/food-ui/restaurant.spec.ts:364' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:33614) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/restaurant.spec.ts:238:1 › сотрудники: список с продажами, добавление и правка (2.1s)
+  ✓  2 tests/food-ui/restaurant.spec.ts:364:1 › навигация ресторана: пункты макета на месте и ведут на экраны (622ms)
+
+  2 passed (8.2s)
+
+# код выхода 0 · 9 с

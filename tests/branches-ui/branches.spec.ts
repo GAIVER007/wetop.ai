@@ -25,9 +25,15 @@ async function reset(request: import('@playwright/test').APIRequestContext): Pro
   return res.json();
 }
 async function choose(page: Page, name: string) {
-  await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
-  await page
-    .getByRole('region', { name: 'Выбор филиала' })
+  const region = page.getByRole('region', { name: 'Выбор филиала' });
+  // щелчок до гидрации кнопки теряется (страница уже нарисована, обработчика ещё нет): повторяем, пока панель
+  // не откроется; так падал release-checks #252 после смены оболочки на боковое меню
+  await expect(async () => {
+    if (!(await region.isVisible()))
+      await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+    await expect(region).toBeVisible({ timeout: 3000 });
+  }).toPass({ timeout: 20000 });
+  await region
     .getByRole('button')
     .filter({ hasText: name })
     .click();
@@ -119,14 +125,14 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     const hotelB = await (await request.post(`${api}/__test/second-hotel`)).json();
     await setScope(page, `business=${f.hotel};location=${f.locations[4]}`);
     await page.goto('/today');
-    await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     // MV8: рабочий экран дня один на все направления
     await choose(page, 'Тестовый филиал Центр');
     await expect(page).toHaveURL(/\/today$/);
     await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     await choose(page, 'Тестовый салон');
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByTestId('beauty-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
     await choose(page, 'Тестовый филиал Парк');
     await expect(page).toHaveURL(/\/today$/);
     await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
@@ -136,7 +142,7 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     // Гостиница уходит с общего /today на единые «Финансы»: ждём выбранный филиал перед переключателем.
     await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText('Тестовый отель');
     await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toBeEnabled();
-    await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     await choose(page, 'Гостиница Б');
     // у второго отеля ещё нет номеров: выбор ведёт в его настройку (MV3: владелец с выбранным филиалом попадает в общий
     // экран настройки)
@@ -192,19 +198,19 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   );
   await choose(page, 'Тестовый салон');
   await expect(page).toHaveURL(/\/today$/);
-  await expect(page.getByTestId('beauty-today')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
   await page.goto('/calendar');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
   await choose(page, 'Тестовый отель');
   await expect(page).toHaveURL(/\/finance$/);
   // The accepted branch action preserves a safe Hospitality collection or falls back to the landing.
-  await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
   expect(
     decodeURIComponent(
       (await page.context().cookies()).find((c) => c.name === 'wetop_scope')!.value,
     ),
   ).toBe(`business=${f.hotel};location=${f.locations[4]}`);
   await page.reload();
-  await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
 });

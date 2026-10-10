@@ -93,9 +93,33 @@ export default function HotelLandingPage() {
           </ul>
         </section>
 
+        <section className="hotel-shot" aria-labelledby="hotel-calendar-title">
+          <div className="section-heading section-heading--center">
+            <p className="eyebrow">{s.calendar.eyebrow}</p>
+            <h2 id="hotel-calendar-title" className="section-heading__title">
+              {typo(s.calendar.title)}
+            </h2>
+            <p className="section-heading__lead">{typo(s.calendar.lead)}</p>
+          </div>
+          <figure className="hotel-shot__frame">
+            {/* Настоящий экран стойки с демо-данными: светлая и тёмная темы (design/reference/current) */}
+            <picture>
+              <source srcSet="/screens/calendar-week-dark.png" media="(prefers-color-scheme: dark)" />
+              <img
+                src="/screens/calendar-week-light.png"
+                alt={s.calendar.alt}
+                width={1440}
+                height={1000}
+                loading="lazy"
+              />
+            </picture>
+            <figcaption>{s.calendar.note}</figcaption>
+          </figure>
+        </section>
+
         <section className="hotel-growth glass" aria-labelledby="hotel-growth-title">
-          <div className="hotel-growth__art">
-            <HotelArt />
+          <div className="hotel-growth__art hotel-growth__art--photo">
+            <img src="/photos/hotel.jpg" alt="" loading="lazy" width={1184} height={864} />
             <span className="hotel-growth__float">
               <strong>{s.growth.float.value}</strong>
               {s.growth.float.text}
@@ -164,38 +188,5 @@ export default function HotelLandingPage() {
         </div>
       </div>
     </div>
-  );
-}
-
-/** Стойка и кровать: рисунок на SVG в фирменных тонах (§19.9: вместо фото и стоков). */
-function HotelArt() {
-  return (
-    <span aria-hidden="true">
-      <svg
-        viewBox="0 0 240 200"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* стойка ресепшн с колокольчиком */}
-        <path d="M18 108h92v68H18z" />
-        <path d="M18 108l10-16h72l10 16" opacity="0.6" strokeWidth="2" />
-        <path d="M54 100a10 10 0 0 1 20 0" strokeWidth="2" />
-        <path d="M50 100h28M62 86v-4" strokeWidth="2" />
-        {/* ключ на стойке */}
-        <circle cx="94" cy="128" r="5" strokeWidth="2" opacity="0.6" />
-        <path d="M94 133v12m0-4h5" strokeWidth="2" opacity="0.6" />
-        {/* кровать */}
-        <path d="M134 128V96m0 32h88m-88 0v48m88-48v48" />
-        <path d="M134 112h16a10 10 0 0 1 10 10v6" strokeWidth="2" />
-        <rect x="140" y="100" width="18" height="8" rx="4" strokeWidth="2" />
-        <path d="M160 128h62a0 0 0 0 1 0 0v0a12 12 0 0 0-12-12h-50Z" strokeWidth="2" opacity="0.6" />
-        {/* звезда над кроватью */}
-        <path d="M186 48l4 8 8 1-6 6 2 9-8-5-8 5 2-9-6-6 8-1z" strokeWidth="2" opacity="0.5" />
-        <path d="M10 176h220" opacity="0.4" strokeWidth="2" />
-      </svg>
-    </span>
   );
 }

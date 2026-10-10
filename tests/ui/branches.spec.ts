@@ -5,7 +5,7 @@ test('филиалы: создание, сохранение после reload �
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/branches');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Организация и филиалы' })).toBeVisible();
@@ -39,7 +39,7 @@ test('организации: филиал создаётся прямо в ра
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/platform');
   await expect(page.getByTestId('platform-forbidden')).toBeVisible();
   await expect(page.locator('summary').filter({ hasText: 'Добавить филиал' })).toHaveCount(0);
@@ -106,7 +106,7 @@ test('переключатель филиалов сохраняет разде�
   // объект и филиал стоят в шапке рядом со знаком (ADR-134); список не сдвигает строку разделов
   const sidebar = page.locator('.workspace-header');
   const trigger = sidebar.getByRole('button', { name: 'Выбрать филиал', exact: true });
-  const navigation = sidebar.locator('.topmenu');
+  const navigation = page.getByRole('main');
   const before = await navigation.boundingBox();
   await trigger.click();
   const choices = sidebar.getByRole('region', { name: 'Выбор филиала' });

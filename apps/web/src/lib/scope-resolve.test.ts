@@ -31,7 +31,7 @@ it('несколько филиалов: никогда не выбираетс�
 });
 
 it('next чужого направления заменяется стартовой страницей направления', () => {
-  expect(decideScope([branch('HOSPITALITY')], '/calendar')).toMatchObject({ target: '/today' });
+  expect(decideScope([branch('HOSPITALITY')], '/calendar')).toMatchObject({ target: '/finance' });
   expect(decideScope([branch('FOOD_SERVICE')], '/chessboard')).toMatchObject({
     target: '/register/setup',
   });
@@ -58,8 +58,10 @@ it('next своего направления и общие разделы сох
 });
 
 it('next только безопасный локальный путь', () => {
-  for (const next of ['//evil.invalid', 'https://evil.invalid/today', '/login', null, '/\\evil'])
+  // небезопасная строка падает в общий «/today» (safeReturnPath), гостиницу оттуда уводит редирект в «Финансы»
+  for (const next of ['//evil.invalid', 'https://evil.invalid/today', '/login', '/\\evil'])
     expect(decideScope([branch('HOSPITALITY')], next)).toMatchObject({ target: '/today' });
+  expect(decideScope([branch('HOSPITALITY')], null)).toMatchObject({ target: '/finance' });
 });
 
 it('устаревший указатель: кука есть, а /auth/me не подтвердил ни Business, ни филиал', () => {

@@ -1,0 +1,44 @@
+# Модульные (unit) · 09.10.2026 19:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит d19b37d (claude/market-ai-collector), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T14-47-53Z-unit-c84d.json' 'scripts/market/collect.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| scripts/market/collect.test.ts (5 tests | 1 failed) 17ms
+   ❯ ИИ-сборщик загрузки конкурентов (5)
+     ✓ открывает страницу на каждую ночь, оценивает загрузку и пишет снимок с паузой между страницами 11ms
+     × страница закрыта проверкой площадки: не обходит, останавливается по соседу, уже оценённое пишет 4ms
+     ✓ модель увидела проверку на странице с кодом 200: то же самое, дальше не идёт 0ms
+     ✓ без ссылки на площадку или без числа номеров страницу не открывает 0ms
+     ✓ проверка без записи: читает и оценивает, в WETOP ничего не пишет 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/market/collect.test.ts > ИИ-сборщик загрузки конкурентов > страница закрыта проверкой площадки: не обходит, останавливается по соседу, уже оценённое пишет
+AssertionError: expected [ Array(1) ] to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ scripts/market/collect.test.ts:72:21
+     70|     );
+     71|     const [report] = await s.run();
+     72|     expect(s.pages).toHaveLength(2);
+       |                     ^
+     73|     expect(report?.outcome).toBe('blocked');
+     74|     expect(report?.reason).toContain('не обходим');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  07:47:54
+   Duration  302ms (transform 76%, import 16%, tests 7%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T14-47-53Z-unit-c84d.json
+
+# код выхода 1 · 1 с

@@ -1,0 +1,494 @@
+# Сквозные (e2e) · 09.10.2026 20:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит fbd0aa0 (claude/sales2-impl), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/market-competitors.spec.ts' 'tests/ui/market-charts.spec.ts' 'tests/ui/market.spec.ts' 'tests/ui/sales-hub.spec.ts' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 36 tests using 2 workers
+
+  ✓   2 tests/ui/market-competitors.spec.ts:51:1 › список: район, тип, загрузка сегодня, средняя цена, изменение и статус (2.0s)
+  ✓   3 tests/ui/market-competitors.spec.ts:68:1 › отбор по району оставляет одну строку и сбрасывается (2.1s)
+  ✓   4 tests/ui/market-competitors.spec.ts:80:1 › цены на графике: четвёртый график появляется, когда цены внесены (1.6s)
+[WebServer] [browser] Encountered two children with the same key, `39,5 тыс.`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[WebServer] [browser] Encountered two children with the same key, `39,5 тыс.`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+  ✓   5 tests/ui/market-competitors.spec.ts:95:1 › цены вносятся панелью: сохранённое видно в списке, очищенное снимает (2.1s)
+  ✓   6 tests/ui/market-competitors.spec.ts:111:1 › цена словами ошибки: ввод не теряется (1.3s)
+  ✓   7 tests/ui/market-competitors.spec.ts:121:1 › карточка: район, тип и настройки мониторинга сохраняются; автообновление честно названо будущим (1.6s)
+  ✓   8 tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 1440px (2.4s)
+  ✘   9 tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 390px (2.1s)
+  ✘   1 tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей (16.9s)
+  ✓  11 tests/ui/market-charts.spec.ts:79:1 › без сравнения: график изменения говорит, как его включить, а не рисует нули (997ms)
+  ✓  12 tests/ui/market-charts.spec.ts:90:1 › пока конкурентов нет, графиков нет: пустое состояние как раньше (648ms)
+  ✓  13 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 1440px (2.2s)
+  ✘  14 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 390px (2.1s)
+  ✓  15 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 1440px (2.6s)
+  ✘  16 tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 390px (2.6s)
+  ✘  10 tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 1440px (16.4s)
+  ✘  17 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (3.4s)
+  ✘  19 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (3.7s)
+  ✘  18 tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 390px (5.7s)
+  ✘  21 tests/ui/market.spec.ts:149:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (8.4s)
+  ✘  22 tests/ui/market.spec.ts:165:3 › снимки и доступность: light (3.4s)
+  ✘  23 tests/ui/market.spec.ts:165:3 › снимки и доступность: dark (3.4s)
+  ✘  20 tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету (20.3s)
+  ✘  24 tests/ui/market.spec.ts:205:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (1.5s)
+  ✓  25 tests/ui/sales-hub.spec.ts:70:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули (2.2s)
+  ✓  27 tests/ui/sales-hub.spec.ts:90:1 › нет конкурентов: рекомендации зовут добавить, плитки не рисуют нули (1.4s)
+  ✓  28 tests/ui/sales-hub.spec.ts:99:1 › нет предложений: конверсия это знак пропуска, а не 0 % (918ms)
+  ✓  29 tests/ui/sales-hub.spec.ts:109:1 › сводка не посчиталась: сказано словами, плитки броней и конкурентов это пропуск, карточки живы (778ms)
+  ✓  30 tests/ui/sales-hub.spec.ts:122:1 › период: «7 дней» меняет адрес, неверные даты в адресе возвращают 30 дней (1.4s)
+  ✓  31 tests/ui/sales-hub.spec.ts:133:1 › расширение «ИИ-продавец» выключено: плитки диалогов это пропуск с причиной, карточка объясняет (789ms)
+  ✓  32 tests/ui/sales-hub.spec.ts:146:1 › администратор смены открывает хаб (1.8s)
+  ✓  33 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: light, 1440px (2.2s)
+  ✓  34 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: light, 390px (2.6s)
+  ✓  35 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: dark, 1440px (2.5s)
+  ✓  36 tests/ui/sales-hub.spec.ts:156:5 › доступность и снимки: dark, 390px (2.1s)
+  ✘  26 tests/ui/market.spec.ts:233:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (18.9s)
+
+
+  1) tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('market-charts').locator('figure')
+    Expected: 3
+    Received: 4
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('market-charts').locator('figure') with timeout 15000ms
+      - waiting for getByTestId('market-charts').locator('figure')
+        33 × locator resolved to 4 elements
+           - unexpected value "4"
+
+
+      52 |   await page.goto('/market');
+      53 |   const charts = page.getByTestId('market-charts');
+    > 54 |   await expect(charts.locator('figure')).toHaveCount(3);
+         |                                          ^
+      55 |   const load = page.getByTestId('market-chart-load');
+      56 |   for (const key of ['own', 'market', 'min', 'max'])
+      57 |     await expect(load.locator(`path[data-series="${key}"]`)).toHaveCount(1);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-charts.spec.ts:54:42
+
+    Error Context: test-results/market-charts-три-графика--ef77a--значения-доступны-таблицей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-charts-три-графика--ef77a--значения-доступны-таблицей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-charts-три-графика--ef77a--значения-доступны-таблицей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 390px ──────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      104 |       const scan = await new AxeBuilder({ page }).analyze();
+      105 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+    > 106 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+          |                                                                                             ^
+      107 |       mkdirSync(SHOTS, { recursive: true });
+      108 |       await page.getByTestId('market-charts').screenshot({ path: `${SHOTS}/charts-${theme}-${width}.png` });
+      109 |     });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-charts.spec.ts:106:93
+
+    Error Context: test-results/market-charts-доступность-и-снимки-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-charts-доступность-и-снимки-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-charts-доступность-и-снимки-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 390px ───────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      104 |       const scan = await new AxeBuilder({ page }).analyze();
+      105 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+    > 106 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+          |                                                                                             ^
+      107 |       mkdirSync(SHOTS, { recursive: true });
+      108 |       await page.getByTestId('market-charts').screenshot({ path: `${SHOTS}/charts-${theme}-${width}.png` });
+      109 |     });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-charts.spec.ts:106:93
+
+    Error Context: test-results/market-charts-доступность-и-снимки-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-charts-доступность-и-снимки-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-charts-доступность-и-снимки-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 390px ────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      152 |       const scan = await new AxeBuilder({ page }).analyze();
+      153 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+    > 154 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+          |                                                                                             ^
+      155 |       mkdirSync(SHOTS, { recursive: true });
+      156 |       await page.getByTestId('market-competitors').screenshot({ path: `${SHOTS}/list-${theme}-${width}.png` });
+      157 |     });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:154:93
+
+    Error Context: test-results/market-competitors-доступность-и-снимки-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-доступность-и-снимки-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-доступность-и-снимки-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 1440px ────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('market-competitors')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('market-competitors') with timeout 15000ms
+      - waiting for getByTestId('market-competitors')
+
+
+      149 |       await seed(request);
+      150 |       await page.goto('/market');
+    > 151 |       await expect(page.getByTestId('market-competitors')).toBeVisible();
+          |                                                            ^
+      152 |       const scan = await new AxeBuilder({ page }).analyze();
+      153 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+      154 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:151:60
+
+    Error Context: test-results/market-competitors-доступность-и-снимки-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-доступность-и-снимки-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-доступность-и-снимки-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 390px ─────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      152 |       const scan = await new AxeBuilder({ page }).analyze();
+      153 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+    > 154 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+          |                                                                                             ^
+      155 |       mkdirSync(SHOTS, { recursive: true });
+      156 |       await page.getByTestId('market-competitors').screenshot({ path: `${SHOTS}/list-${theme}-${width}.png` });
+      157 |     });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market-competitors.spec.ts:154:93
+
+    Error Context: test-results/market-competitors-доступность-и-снимки-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-competitors-доступность-и-снимки-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-competitors-доступность-и-снимки-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('row', { name: /Отель Тестовый/ })
+    Expected substring: "300 м"
+    Error: strict mode violation: getByRole('main').getByRole('row', { name: /Отель Тестовый/ }) resolved to 2 elements:
+        1) <tr data-testid="market-list-row-00000000-0000-4000-8000-000000000001">…</tr> aka getByTestId('market-list-row-00000000-0000-4000-8000-000000000001')
+        2) <tr data-testid="market-row-00000000-0000-4000-8000-000000000001">…</tr> aka getByTestId('market-row-00000000-0000-4000-8000-000000000001')
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('row', { name: /Отель Тестовый/ }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('row', { name: /Отель Тестовый/ })
+
+
+      82 |
+      83 |   const row = main.getByRole('row', { name: /Отель Тестовый/ });
+    > 84 |   await expect(row).toContainText('300 м');
+         |                     ^
+      85 |   await expect(row).toContainText('данных нет');
+      86 |   await expect(main.getByTestId('market-insights')).toContainText('Нет данных: Отель Тестовый');
+      87 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:84:21
+
+    Error Context: test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('row', { name: /Отель Алтын/ })
+    Expected substring: "92 %"
+    Error: strict mode violation: getByRole('main').getByRole('row', { name: /Отель Алтын/ }) resolved to 2 elements:
+        1) <tr data-testid="market-list-row-00000000-0000-4000-8000-00000000000a">…</tr> aka getByTestId('market-list-row-00000000-0000-4000-8000-00000000000a')
+        2) <tr data-testid="market-row-00000000-0000-4000-8000-00000000000a">…</tr> aka getByTestId('market-row-00000000-0000-4000-8000-00000000000a')
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('row', { name: /Отель Алтын/ }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('row', { name: /Отель Алтын/ })
+
+
+      112 |   const main = page.getByRole('main');
+      113 |   const altyn = main.getByRole('row', { name: /Отель Алтын/ });
+    > 114 |   await expect(altyn).toContainText('92 %');
+          |                       ^
+      115 |   await expect(altyn).toContainText('+12 п.п.');
+      116 |   await expect(altyn).toContainText('ИИ');
+      117 |   await expect(altyn).toContainText('200 м');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:114:23
+
+    Error Context: test-results/market-таблица-«вы-и-рынок-d83e0-ёт-к-ценам-убрать-из-списка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-таблица-«вы-и-рынок-d83e0-ёт-к-ценам-убрать-из-списка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-таблица-«вы-и-рынок-d83e0-ёт-к-ценам-убрать-из-списка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/market.spec.ts:149:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('row', { name: /Отель Алтын/ })
+    Expected substring: "92 %"
+    Error: strict mode violation: getByRole('main').getByRole('row', { name: /Отель Алтын/ }) resolved to 2 elements:
+        1) <tr data-testid="market-list-row-00000000-0000-4000-8000-00000000000a">…</tr> aka getByTestId('market-list-row-00000000-0000-4000-8000-00000000000a')
+        2) <tr data-testid="market-row-00000000-0000-4000-8000-00000000000a">…</tr> aka getByTestId('market-row-00000000-0000-4000-8000-00000000000a')
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('row', { name: /Отель Алтын/ }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('row', { name: /Отель Алтын/ })
+
+
+      157 |   const main = page.getByRole('main');
+      158 |   await expect(page.getByTestId('read-only-banner')).toBeVisible();
+    > 159 |   await expect(main.getByRole('row', { name: /Отель Алтын/ })).toContainText('92 %');
+          |                                                                ^
+      160 |   await expect(main.getByTestId('market-add')).toHaveCount(0);
+      161 |   await expect(main.getByTestId('market-table').getByRole('button')).toHaveCount(0);
+      162 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:159:64
+
+    Error Context: test-results/market-«только-чтение»-таб-9cfde--добавлять-и-вносить-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«только-чтение»-таб-9cfde--добавлять-и-вносить-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«только-чтение»-таб-9cfde--добавлять-и-вносить-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/market.spec.ts:165:3 › снимки и доступность: light ──────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      178 |       for (const width of [1440, 390]) {
+      179 |         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    > 180 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+          |                                                                                                   ^
+      181 |         await page.screenshot({ path: `${SHOTS}/${name}-${theme}-${width}.png`, fullPage: true });
+      182 |       }
+      183 |       await page.setViewportSize({ width: 1440, height: 900 });
+        at shot (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:180:99)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:195:5
+
+    Error Context: test-results/market-снимки-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-снимки-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-снимки-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/market.spec.ts:165:3 › снимки и доступность: dark ───────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      178 |       for (const width of [1440, 390]) {
+      179 |         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    > 180 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+          |                                                                                                   ^
+      181 |         await page.screenshot({ path: `${SHOTS}/${name}-${theme}-${width}.png`, fullPage: true });
+      182 |       }
+      183 |       await page.setViewportSize({ width: 1440, height: 900 });
+        at shot (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:180:99)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:195:5
+
+    Error Context: test-results/market-снимки-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-снимки-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-снимки-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/market.spec.ts:205:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём 
+
+    Error: locator.click: Error: strict mode violation: getByRole('main').getByRole('row', { name: /Хостел Сити/ }).getByRole('button', { name: 'Внести загрузку: Хостел Сити' }) resolved to 2 elements:
+        1) <button type="button" class="btn btn--secondary btn--xs" aria-label="Внести загрузку: Хостел Сити" data-testid="market-enter-00000000-0000-4000-8000-00000000000b">Внести загрузку</button> aka getByTestId('market-list-row-00000000-0000-4000-8000-00000000000b').getByTestId('market-enter-00000000-0000-4000-8000-00000000000b')
+        2) <button type="button" class="btn btn--secondary btn--xs" aria-label="Внести загрузку: Хостел Сити" data-testid="market-enter-00000000-0000-4000-8000-00000000000b">Внести загрузку</button> aka getByTestId('market-row-00000000-0000-4000-8000-00000000000b').getByTestId('market-enter-00000000-0000-4000-8000-00000000000b')
+
+    Call log:
+      - waiting for getByRole('main').getByRole('row', { name: /Хостел Сити/ }).getByRole('button', { name: 'Внести загрузку: Хостел Сити' })
+
+
+      211 |   const main = page.getByRole('main');
+      212 |   const city = main.getByRole('row', { name: /Хостел Сити/ });
+    > 213 |   await city.getByRole('button', { name: 'Внести загрузку: Хостел Сити' }).click();
+          |                                                                            ^
+      214 |   const entry = page.getByTestId('market-occupancy-form');
+      215 |   await entry.getByTestId('market-fill-value').fill('70');
+      216 |   await entry.getByTestId('market-fill').click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:213:76
+
+    Error Context: test-results/market-«Заполнить-все-ночи-07318-ает-снимок-сегодняшним-днём/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«Заполнить-все-ночи-07318-ает-снимок-сегодняшним-днём/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«Заполнить-все-ночи-07318-ает-снимок-сегодняшним-днём/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/market.spec.ts:233:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('market-night-empty')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('market-night-empty') with timeout 15000ms
+      - waiting for getByTestId('market-night-empty')
+
+
+      266 |   // ночь без снимков: честная пустая история
+      267 |   await page.goto(`/market?night=${plus(today, 20)}`);
+    > 268 |   await expect(page.getByTestId('market-night-empty')).toBeVisible();
+          |                                                        ^
+      269 | });
+      270 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/market.spec.ts:268:56
+
+    Error Context: test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-«История-ночи»-дата-850fa-крытие-убирает-её-из-адреса/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('sales-kpi-competitors')
+    Expected: "1"
+    Received: "2"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('sales-kpi-competitors') with timeout 15000ms
+      - waiting for getByTestId('sales-kpi-competitors')
+        33 × locator resolved to <span class="kpi-tile__value" data-testid="sales-kpi-competitors">2</span>
+           - unexpected value "2"
+
+
+      56 |   const kpis = page.getByTestId('sales-kpis');
+      57 |   await expect(kpis.locator('.kpi-tile')).toHaveCount(6);
+    > 58 |   await expect(page.getByTestId('sales-kpi-competitors')).toHaveText('1');
+         |                                                           ^
+      59 |   await expect(kpis.locator('.kpi-tile', { hasText: 'Конкурентов в отслеживании' })).toContainText('+1');
+      60 |   await expect(kpis.locator('.kpi-tile', { hasText: 'Конкурентов в отслеживании' })).toContainText('с прошлого месяца');
+      61 |   await expect(page.getByTestId('sales-kpi-market')).toHaveText(/\d+\s?%/);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/sales-hub.spec.ts:58:59
+
+    Error Context: test-results/sales-hub-пункт-«Обзор-про-1bc85-жах»-шесть-плиток-по-макету/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sales-hub-пункт-«Обзор-про-1bc85-жах»-шесть-плиток-по-макету/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sales-hub-пункт-«Обзор-про-1bc85-жах»-шесть-плиток-по-макету/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14 failed
+    tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей 
+    tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: light, 390px ───────────────────────
+    tests/ui/market-charts.spec.ts:98:5 › доступность и снимки: dark, 390px ────────────────────────
+    tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: light, 390px ─────────────────
+    tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 1440px ─────────────────
+    tests/ui/market-competitors.spec.ts:146:5 › доступность и снимки: dark, 390px ──────────────────
+    tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку 
+    tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка 
+    tests/ui/market.spec.ts:149:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя 
+    tests/ui/market.spec.ts:165:3 › снимки и доступность: light ────────────────────────────────────
+    tests/ui/market.spec.ts:165:3 › снимки и доступность: dark ─────────────────────────────────────
+    tests/ui/market.spec.ts:205:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём 
+    tests/ui/market.spec.ts:233:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса 
+    tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету 
+  22 passed (1.5m)
+
+# код выхода 1 · 1 мин 28 с

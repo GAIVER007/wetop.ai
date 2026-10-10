@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ActionMenu, type ActionMenuItem } from '../../components/action-menu';
 import { Button } from '../../components/ui';
@@ -13,6 +14,21 @@ import { hospitalityStatus } from '../../lib/status/hospitality';
 import { statusLabel } from '../../lib/status/types';
 
 /** Что предпросмотр знает из клетки сетки ещё до ответа сервера */
+/** Двойной щелчок: первый открывает панель над клеткой, второй попадает уже в неё; открываем полную карточку, как у клетки */
+function openCardOnDouble(
+  router: ReturnType<typeof useRouter>,
+  card: string,
+  close: (restoreFocus: boolean) => void,
+) {
+  return (event: React.MouseEvent<HTMLElement>) => {
+    if ((event.target as HTMLElement).closest('a, button, input, select, textarea, [role="menu"]'))
+      return;
+    event.preventDefault();
+    close(false);
+    router.push(card);
+  };
+}
+
 export interface PreviewTarget {
   number: string;
   itemId: string;
@@ -131,6 +147,7 @@ function StayPanel({
   }, [onClose]);
 
   const card = `/reservations/${encodeURIComponent(target.number)}`;
+  const router = useRouter();
   const expected = EXPECTED.has(target.status);
   const live = expected || target.status === 'CHECKED_IN';
   const balance = data?.money ? BigInt(data.money.balanceMinor) : 0n;
@@ -178,6 +195,7 @@ function StayPanel({
       tabIndex={-1}
       className="stay-panel"
       data-testid="stay-preview"
+      onDoubleClick={openCardOnDouble(router, card, onClose)}
     >
       <div className="stay-panel__top">
         <span className="stay-panel__status" data-status={target.status}>
@@ -384,6 +402,7 @@ function StayWindow({
   }, [target, onClose]);
 
   const card = `/reservations/${encodeURIComponent(target.number)}`;
+  const router = useRouter();
   const expected = EXPECTED.has(target.status);
   const live = expected || target.status === 'CHECKED_IN';
   const balance = data?.money ? BigInt(data.money.balanceMinor) : 0n;
@@ -406,6 +425,7 @@ function StayWindow({
       tabIndex={-1}
       className="stay-preview"
       data-testid="stay-preview"
+      onDoubleClick={openCardOnDouble(router, card, onClose)}
     >
       <div className="stay-preview__head">
         <h2 className="stay-preview__guest" data-testid="preview-guest">

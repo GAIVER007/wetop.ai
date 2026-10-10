@@ -1,0 +1,1669 @@
+# Сквозные (e2e) · 09.10.2026 19:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/sales2-impl), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/sales-hub.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=180000'
+[WebServer] Turbopack build encountered 1 error:
+[WebServer] ./apps/web/src/app
+[WebServer] Error: Could not find the Next.js package (next/package.json)
+[WebServer] Resolved from: /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/src/app
+[WebServer] Filesystem root used for resolution: /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl
+[WebServer] 
+[WebServer] Possible causes:
+[WebServer]   - node_modules is being reorganized by a concurrent install (e.g. pnpm adding a package with a `next` peer dependency). This is transient and should clear once the install completes.
+[WebServer]   - node_modules/next was removed, renamed, or has a broken symlink.
+[WebServer]   - The workspace root is incorrect — see turbopack.root in the Next.js config docs for how to configure it.
+[WebServer]   - In a monorepo, the Next.js package may only exist in a directory above the closest directory containing a package manager lockfile. The workspace root is detected by locating the nearest package manager lockfile.
+[WebServer]   - Next.js is installed globally rather than as a project dependency. This is not supported; install it locally.
+[WebServer] 
+[WebServer] Note: To ensure a hermetic build and a portable cache, files outside of the workspace root are not compiled.
+[WebServer] 
+[WebServer] https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory
+[WebServer] 
+[WebServer] 
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+[WebServer] Error: ENOENT: no such file or directory, open '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer]     at ignore-listed frames {
+[WebServer]   errno: -2,
+[WebServer]   code: 'ENOENT',
+[WebServer]   syscall: 'open',
+[WebServer]   path: '/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/web/.next-ui/dev/server/pages/_app/build-manifest.json'
+[WebServer] }
+Error: Timed out waiting 120000ms from config.webServer.
+
+
+# код выхода 1 · 2 мин 2 с

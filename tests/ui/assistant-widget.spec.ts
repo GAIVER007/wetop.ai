@@ -81,7 +81,7 @@ test('после «Выйти» виджет прежнего человека �
 
 test('на телефоне пузырь чата стоит над нижней навигацией, а не на ней', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/today');
+  await page.goto('/finance');
   const bubble = page.locator('.pmsw-b');
   const nav = page.locator('.bottom-navigation');
   await expect(bubble).toBeVisible();

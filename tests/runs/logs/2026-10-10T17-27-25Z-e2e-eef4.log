@@ -1,0 +1,222 @@
+# Сквозные (e2e) · 10.10.2026 22:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2ddb336 (claude/segments-blog), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 101 tests using 2 workers
+
+  ✓    1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (420ms)
+  ✓    3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (155ms)
+  ✓    2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (652ms)
+  ✓    4 tests/site/homepage-blocks.spec.ts:21:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (169ms)
+  ✓    6 tests/site/homepage-blocks.spec.ts:32:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (175ms)
+  ✓    7 tests/site/homepage-blocks.spec.ts:66:1 › содержимое блоков видно сразу: шесть возможностей, две большие карточки продаж, четыре шага (163ms)
+  ✓    8 tests/site/homepage-blocks.spec.ts:85:1 › первый экран: две кнопки в строку, направления сразу после Hero (163ms)
+  ✓    5 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (718ms)
+  ✓    9 tests/site/homepage-blocks.spec.ts:98:1 › карточки блоков читаются одной фразой, а не абзацем (181ms)
+  ✓   10 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (568ms)
+  ✓   11 tests/site/homepage-blocks.spec.ts:113:1 › «Продажи и ИИ»: примеры подписаны вымышленными, ИИ назван отдельным расширением (470ms)
+  ✓   13 tests/site/homepage-blocks.spec.ts:141:1 › первый экран: дашборд подписан примером и не имитирует кнопки (165ms)
+  ✓   14 tests/site/homepage-blocks.spec.ts:156:1 › на главной нет дорожной карты направлений и слова «пилот» (120ms)
+  ✓   15 tests/site/homepage-blocks.spec.ts:169:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (134ms)
+  ✓   12 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (565ms)
+  ✓   16 tests/site/homepage-blocks.spec.ts:181:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (135ms)
+  ✓   18 tests/site/homepage-blocks.spec.ts:191:1 › карточка призыва и подвал: правовые страницы, контакты, без чисел клиентов (156ms)
+  ✓   19 tests/site/homepage-blocks.spec.ts:217:1 › в текстах главной нет длинного тире и разделителя « · » (141ms)
+  ✓   20 tests/site/homepage-blocks.spec.ts:225:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (232ms)
+  ✓   21 tests/site/homepage-blocks.spec.ts:225:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (244ms)
+  ✓   22 tests/site/homepage-blocks.spec.ts:225:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (249ms)
+  ✓   17 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (1.2s)
+  ✓   23 tests/site/homepage-blocks.spec.ts:225:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (248ms)
+  ✓   24 tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (226ms)
+  ✓   26 tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (192ms)
+  ✓   27 tests/site/auth-dialog.spec.ts:223:1 › на телефоне окно открывается из меню и не шире экрана (569ms)
+  ✓   25 tests/site/homepage-blocks.spec.ts:245:1 › блоки доступны в обеих темах (1.2s)
+  ✓   29 tests/site/homepage-blocks.spec.ts:259:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (260ms)
+  ✓   30 tests/site/homepage-blocks.spec.ts:274:3 › /privacy/: заголовок, редакция, доступность (404ms)
+  ✓   31 tests/site/homepage-blocks.spec.ts:274:3 › /terms/: заголовок, редакция, доступность (397ms)
+  ✓   32 tests/site/hotel-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (124ms)
+  ✓   33 tests/site/hotel-landing.spec.ts:32:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (128ms)
+  ✓   34 tests/site/hotel-landing.spec.ts:49:1 › снимок календаря: настоящий экран с подписью примера и альтернативным текстом (141ms)
+  ✓   35 tests/site/hotel-landing.spec.ts:65:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (191ms)
+  ✓   36 tests/site/hotel-landing.spec.ts:90:3 › доступность и вёрстка: light, 1440 (522ms)
+  ✓   37 tests/site/hotel-landing.spec.ts:90:3 › доступность и вёрстка: dark, 1440 (485ms)
+  ✓   38 tests/site/hotel-landing.spec.ts:90:3 › доступность и вёрстка: light, 390 (422ms)
+  ✓   39 tests/site/hotel-landing.spec.ts:90:3 › доступность и вёрстка: dark, 390 (466ms)
+  ✓   40 tests/site/landing.spec.ts:23:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (153ms)
+  ✓   28 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (4.1s)
+  ✓   41 tests/site/landing.spec.ts:29:3 › / — открывается, доступна и без «TODO» на экране (580ms)
+  ✓   42 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access (559ms)
+  ✓   43 tests/site/landing.spec.ts:44:3 › / — на телефоне нет горизонтальной прокрутки (107ms)
+  ✓   45 tests/site/landing.spec.ts:29:3 › /blog/ — открывается, доступна и без «TODO» на экране (374ms)
+  ✓   46 tests/site/landing.spec.ts:44:3 › /blog/ — на телефоне нет горизонтальной прокрутки (84ms)
+  ✓   44 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (595ms)
+  ✓   48 tests/site/auth-dialog.spec.ts:323:1 › registration: country sets the phone code, language is Russian only (253ms)
+  ✓   47 tests/site/landing.spec.ts:29:3 › /for/hotels/ — открывается, доступна и без «TODO» на экране (538ms)
+  ✓   50 tests/site/landing.spec.ts:44:3 › /for/hotels/ — на телефоне нет горизонтальной прокрутки (132ms)
+  ✓   49 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (570ms)
+  ✓   51 tests/site/landing.spec.ts:29:3 › /for/salons/ — открывается, доступна и без «TODO» на экране (483ms)
+  ✓   53 tests/site/landing.spec.ts:44:3 › /for/salons/ — на телефоне нет горизонтальной прокрутки (96ms)
+  ✓   52 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (488ms)
+  ✓   54 tests/site/landing.spec.ts:29:3 › /for/restaurants/ — открывается, доступна и без «TODO» на экране (445ms)
+  ✓   56 tests/site/landing.spec.ts:44:3 › /for/restaurants/ — на телефоне нет горизонтальной прокрутки (93ms)
+  ✓   55 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (517ms)
+  ✓   57 tests/site/landing.spec.ts:29:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (411ms)
+  ✓   59 tests/site/landing.spec.ts:44:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (94ms)
+  ✓   58 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (498ms)
+  ✓   60 tests/site/landing.spec.ts:29:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (391ms)
+  ✓   62 tests/site/landing.spec.ts:44:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (93ms)
+  ✓   61 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (465ms)
+  ✓   63 tests/site/landing.spec.ts:29:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (380ms)
+  ✓   65 tests/site/landing.spec.ts:44:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (103ms)
+  ✓   64 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (481ms)
+  ✓   66 tests/site/landing.spec.ts:29:3 › /calculator/ — открывается, доступна и без «TODO» на экране (378ms)
+  ✓   68 tests/site/landing.spec.ts:44:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (96ms)
+  ✓   67 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (500ms)
+  ✓   69 tests/site/landing.spec.ts:29:3 › /privacy/ — открывается, доступна и без «TODO» на экране (391ms)
+  ✓   71 tests/site/landing.spec.ts:44:3 › /privacy/ — на телефоне нет горизонтальной прокрутки (90ms)
+  ✓   70 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (504ms)
+  ✓   73 tests/site/public-intro.spec.ts:60:1 › new header registration: keyboard activation and focus return on mobile (145ms)
+  ✓   72 tests/site/landing.spec.ts:29:3 › /terms/ — открывается, доступна и без «TODO» на экране (373ms)
+  ✓   75 tests/site/landing.spec.ts:44:3 › /terms/ — на телефоне нет горизонтальной прокрутки (97ms)
+  ✓   74 tests/site/public-intro.spec.ts:80:1 › direction pages preselect the correct vertical in existing AuthDialog (452ms)
+  ✓   77 tests/site/public-intro.spec.ts:105:1 › hero chips open a description popover with a link to the direction page (340ms)
+  ✓   78 tests/site/public-intro.spec.ts:127:1 › business positioning: three verticals, no maturity labels, five capabilities each (178ms)
+  ✓   76 tests/site/landing.spec.ts:57:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (801ms)
+  ✓   80 tests/site/landing.spec.ts:75:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (14ms)
+  ✓   79 tests/site/restaurant-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (129ms)
+  ✓   82 tests/site/restaurant-landing.spec.ts:30:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (123ms)
+  ✓   83 tests/site/restaurant-landing.spec.ts:47:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (136ms)
+  ✓   84 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 1440 (364ms)
+  ✓   85 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 1440 (371ms)
+  ✓   86 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 390 (352ms)
+  ✓   87 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 390 (350ms)
+  ✓   88 tests/site/restaurants.spec.ts:9:1 › /restaurants/ — hero, мокап с планом зала, разделы и призыв (147ms)
+  ✓   89 tests/site/restaurants.spec.ts:48:3 › /restaurants/ доступна в теме light (654ms)
+  ✓   90 tests/site/restaurants.spec.ts:48:3 › /restaurants/ доступна в теме dark (638ms)
+  ✓   91 tests/site/restaurants.spec.ts:68:1 › с главной на /restaurants/ ведёт карточка ресторанного направления (115ms)
+  ✓   92 tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (120ms)
+  ✓   93 tests/site/salon-landing.spec.ts:34:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (115ms)
+  ✓   94 tests/site/salon-landing.spec.ts:49:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (138ms)
+  ✓   95 tests/site/salon-landing.spec.ts:70:3 › доступность и вёрстка: light, компьютер и телефон (692ms)
+  ✓   96 tests/site/salon-landing.spec.ts:70:3 › доступность и вёрстка: dark, компьютер и телефон (671ms)
+  ✘   97 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (123ms)
+  ✘   98 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (151ms)
+  ✘   99 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (141ms)
+  ✓  100 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (135ms)
+  ✘   81 tests/site/landing.spec.ts:88:1 › главная: регистрация открыта, маркетинговых обещаний trial нет (10.2s)
+  ✓  101 tests/site/landing.spec.ts:142:1 › первый экран объясняет платформу, направления и зрелость (152ms)
+
+
+  1) tests/site/landing.spec.ts:88:1 › главная: регистрация открыта, маркетинговых обещаний trial нет 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' })
+    Expected: 0
+    Received: 1
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' }) with timeout 10000ms
+      - waiting for getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' })
+        24 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      132 |   await expect(
+      133 |     page.getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' }),
+    > 134 |   ).toHaveCount(0);
+          |     ^
+      135 |   expect((await page.request.get('/blog/')).status()).toBe(200);
+      136 |   // Карта разделов на первом экране (01.10.2026): схема продукта, а не снимок системы и не выдуманные показатели
+      137 |   await expect(hero.locator('.dash')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/landing.spec.ts:134:5
+
+    Error Context: test-results/landing-главная-регистраци-76940-тинговых-обещаний-trial-нет/error-context.md
+
+  2) tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main a[data-auth="register"]')
+    Expected: visible
+    Error: strict mode violation: locator('main a[data-auth="register"]') resolved to 2 elements:
+        1) <a data-auth="register" class="btn btn--primary btn--lg" href="https://wetop.ai/?vertical=HOSPITALITY#register">…</a> aka getByRole('link', { name: 'Попробовать бесплатно' })
+        2) <a data-auth="register" class="btn btn--primary btn--lg" href="https://wetop.ai/?vertical=HOSPITALITY#register">…</a> aka locator('#content').getByRole('link', { name: 'Регистрация' })
+
+    Call log:
+      - Expect "toBeVisible" locator('main a[data-auth="register"]') with timeout 10000ms
+      - waiting for locator('main a[data-auth="register"]')
+
+
+      18 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      19 |     expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
+    > 20 |     await expect(page.locator('main a[data-auth="register"]')).toBeVisible();
+         |                                                                ^
+      21 |     await expect(page.locator('main a[href="/"]')).toBeVisible();
+      22 |     const text = await page.locator('body').innerText();
+      23 |     expect(text, 'название стороннего сервиса на странице').not.toMatch(/exely|travelline/i);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/segments.spec.ts:20:64
+
+    Error Context: test-results/segments--for-hostels-—-заголовок-возможности-и-призыв/error-context.md
+
+  3) tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв ────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main a[data-auth="register"]')
+    Expected: visible
+    Error: strict mode violation: locator('main a[data-auth="register"]') resolved to 2 elements:
+        1) <a data-auth="register" class="btn btn--primary btn--lg" href="https://wetop.ai/?vertical=HOSPITALITY#register">…</a> aka getByRole('link', { name: 'Попробовать бесплатно' })
+        2) <a data-auth="register" class="btn btn--primary btn--lg" href="https://wetop.ai/?vertical=HOSPITALITY#register">…</a> aka locator('#content').getByRole('link', { name: 'Регистрация' })
+
+    Call log:
+      - Expect "toBeVisible" locator('main a[data-auth="register"]') with timeout 10000ms
+      - waiting for locator('main a[data-auth="register"]')
+
+
+      18 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      19 |     expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
+    > 20 |     await expect(page.locator('main a[data-auth="register"]')).toBeVisible();
+         |                                                                ^
+      21 |     await expect(page.locator('main a[href="/"]')).toBeVisible();
+      22 |     const text = await page.locator('body').innerText();
+      23 |     expect(text, 'название стороннего сервиса на странице').not.toMatch(/exely|travelline/i);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/segments.spec.ts:20:64
+
+    Error Context: test-results/segments--for-mini-hotels-—-заголовок-возможности-и-призыв/error-context.md
+
+  4) tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв ───────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main a[data-auth="register"]')
+    Expected: visible
+    Error: strict mode violation: locator('main a[data-auth="register"]') resolved to 2 elements:
+        1) <a data-auth="register" class="btn btn--primary btn--lg" href="https://wetop.ai/?vertical=HOSPITALITY#register">…</a> aka getByRole('link', { name: 'Попробовать бесплатно' })
+        2) <a data-auth="register" class="btn btn--primary btn--lg" href="https://wetop.ai/?vertical=HOSPITALITY#register">…</a> aka locator('#content').getByRole('link', { name: 'Регистрация' })
+
+    Call log:
+      - Expect "toBeVisible" locator('main a[data-auth="register"]') with timeout 10000ms
+      - waiting for locator('main a[data-auth="register"]')
+
+
+      18 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      19 |     expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
+    > 20 |     await expect(page.locator('main a[data-auth="register"]')).toBeVisible();
+         |                                                                ^
+      21 |     await expect(page.locator('main a[href="/"]')).toBeVisible();
+      22 |     const text = await page.locator('body').innerText();
+      23 |     expect(text, 'название стороннего сервиса на странице').not.toMatch(/exely|travelline/i);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/segments.spec.ts:20:64
+
+    Error Context: test-results/segments--for-apart-hotels-—-заголовок-возможности-и-призыв/error-context.md
+
+  4 failed
+    tests/site/landing.spec.ts:88:1 › главная: регистрация открыта, маркетинговых обещаний trial нет 
+    tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв ─────────────
+    tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв ─────────
+    tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв ────────
+  97 passed (31.9s)
+
+# код выхода 1 · 33 с

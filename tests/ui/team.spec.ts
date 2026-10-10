@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, openSection } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -21,7 +21,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF') =>
@@ -41,12 +41,9 @@ test('владелец: таблица людей с ролями и датам�
   // «Был в системе» — дата последнего входа (формат displayDate); не входил — слова, а не прочерк
   await expect(rows.nth(1)).toContainText('28 сент.');
   await expect(rows.nth(2)).toContainText('ещё не входил');
-  // в меню группа «Настройки» верхней навигации ведёт сюда (бокового меню на десктопе нет, ADR-134)
-  await page
-    .locator('.workspace-header .topmenu')
-    .getByRole('button', { name: 'Настройки', exact: true })
-    .click();
-  await expect(page.locator('.workspace-header .topmenu a[href="/team"]')).toBeVisible();
+  // в левом меню раздел «Настройки» ведёт сюда (ADR-161)
+  const settings = await openSection(page, 'Настройки');
+  await expect(settings.locator('a[href="/team"]')).toBeVisible();
 });
 
 test('приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа»', async ({ page }) => {

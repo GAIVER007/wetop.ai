@@ -145,18 +145,24 @@ export async function registerAction(input: {
  */
 export async function verifyEmailAction(token: string): Promise<AuthActionResult> {
   let pilot: boolean;
+  let scoped: boolean;
   try {
     const result = await authApi.verifyEmail({ token }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
     const context = await authApi.registrationContext(result.token);
     pilot = Boolean(context && context.vertical !== 'HOSPITALITY');
+    scoped = Boolean(context);
     // Завершение регистрации: единственный филиал новой организации (регистрационный помощник, не выбор входа)
     if (context)
       await setScopeCookie(`business=${context.businessId};location=${context.locationId}`);
   } catch (e) {
     return { error: errorText(e) };
   }
-  redirect(pilot ? '/register/complete' : '/today');
+  // Без регистрационного помощника рабочий филиал не известен: как и вход по паролю, идём через
+  // `/scope/resolve` (SCOPE-HARDENING: «сюда ведут все входы»). Прямой `/today` без указателя
+  // обрывался на полпути: страница успевала отдать каркас до серверного redirect, и человек
+  // оставался на `/today` без филиала (login-access, 09.10.2026).
+  redirect(pilot ? '/register/complete' : scoped ? '/today' : scopeResolvePath('/today'));
 }
 
 export interface ResendState {

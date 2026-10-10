@@ -1,0 +1,16 @@
+# Сквозные (e2e) · 10.10.2026 17:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 07544da (claude/beauty-salons-landing)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'salon-landing'
+[WebServer] Failed to type check.
+[WebServer] 
+[WebServer] npm error Lifecycle script `build` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/beauty-landing/apps/site
+[WebServer] npm error workspace @pms/site@0.0.0
+[WebServer] npm error location /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/beauty-landing/apps/site
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c next build
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 53 с

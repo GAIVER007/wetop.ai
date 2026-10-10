@@ -84,10 +84,13 @@ import {
   MarketInputError,
   buildMarketBoard,
   buildNightHistory,
+  buildPriceBoard,
   marketDates,
   parseCompetitorInput,
   parseOccupancyPercent,
+  parsePriceInput,
   type MarketReading,
+  type PriceReading,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -2776,8 +2779,17 @@ let sellerApplied = false;
 let sellerUpdatedAt: string | null = null;
 /** Инструкция продавцу одним текстом (ADR-097): сохранённая и та, что продавец получил последним «Применить» */
 let sellerPrompt: string | null = null;
+let sellerPromptVersions: Array<{ id: string; text: string; createdAt: string }> = [];
+const recordPromptVersion = (text: string) => {
+  if (sellerPrompt !== text)
+    sellerPromptVersions.push({ id: `00000000-0000-4000-8000-${String(sellerPromptVersions.length + 1).padStart(12, '0')}`, text, createdAt: new Date().toISOString() });
+};
 let sellerAppliedPrompt: string | null = null;
-let sellerDialogs = sellerDialogSeed();
+type SellerDialogRow = ReturnType<typeof sellerDialogSeed>[number] & {
+  handling?: { assignee: { userId: string | null; name: string } | null; nextStep: string | null };
+  notes?: Array<{ id: string; author: string; authorUserId: string | null; text: string; at: string }>;
+};
+let sellerDialogs: SellerDialogRow[] = sellerDialogSeed();
 const sellerKnowledgeSeed = () => [
   { source: 'platform:facts.md', chunks: 2, createdAt: '2026-09-24T06:00:00.000Z' },
   { source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' },
@@ -2858,6 +2870,7 @@ function resetSeller() {
   sellerWhatsApp = null;
   sellerUpdatedAt = null;
   sellerPrompt = null;
+  sellerPromptVersions = [];
   sellerAppliedPrompt = null;
   sellerDialogs = sellerDialogSeed();
   sellerKnowledge = sellerKnowledgeSeed();
@@ -4674,18 +4687,77 @@ interface FixtureCompetitor {
   url: string | null;
   note: string | null;
   active: boolean;
+  district: string | null;
+  category: string | null;
+  address: string | null;
+  dataSource: string | null;
+  monitoring: 'OCCUPANCY' | 'PRICE' | 'BOTH';
+  refreshHours: number | null;
+  autoRefresh: boolean;
 }
 const marketCompetitors: FixtureCompetitor[] = [];
 let marketReadings: MarketReading[] = [];
+let marketRates: PriceReading[] = [];
 const resetMarket = () => {
   marketCompetitors.length = 0;
   marketReadings = [];
+  marketRates = [];
+  salesFixture = { ...SALES_DEFAULT };
 };
 const marketPlus = (iso: string, n: number) => {
   const d = new Date(`${iso}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 };
+/**
+ * Хаб «Продажи» (SALES2.2): сводка периода. Числа по умолчанию задают «текущий» и «прошлый» отрезок;
+ * `POST /__test/sales { offered, booked, revenueMinor, currency }` меняет их (пары [текущий, прошлый]), `reset` возвращает.
+ */
+interface SalesFixture {
+  offered: [number, number];
+  booked: [number, number];
+  revenueMinor: [string, string];
+  currency: string | null;
+}
+const SALES_DEFAULT: SalesFixture = {
+  offered: [8, 10],
+  booked: [3, 2],
+  revenueMinor: ['9000000', '4000000'],
+  currency: 'KZT',
+};
+let salesFixture: SalesFixture = { ...SALES_DEFAULT };
+function salesRoute(path: string, method: string, q: URLSearchParams): [number, unknown] | null {
+  if (path !== '/sales/summary' || method !== 'GET') return null;
+  // синтетический сбой (`POST /__test/control { failPath }`) тот же, что у остальных маршрутов: сюда он доходит раньше общей проверки
+  if (path === failPath || failPath === '*') return [failStatus, { message: 'Синтетический сбой API' }];
+  if (!can(uiRole, 'reports')) return [403, { message: accessDeniedMessage('reports') }];
+  const from = q.get('from') ?? '';
+  const to = q.get('to') ?? '';
+  const dateOk = (v: string) => /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`));
+  if (!dateOk(from) || !dateOk(to) || from > to) return [400, { message: 'Проверьте даты периода' }];
+  const days = (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000 + 1;
+  const [offered, booked, [revenue, revenuePrev]] = emptyFixture
+    ? [[0, 0] as [number, number], [0, 0] as [number, number], ['0', '0'] as [string, string]]
+    : [salesFixture.offered, salesFixture.booked, salesFixture.revenueMinor];
+  const permille = (b: number, o: number) => (o > 0 ? Math.round((b * 1000) / o) : null);
+  const active = marketCompetitors.filter((c) => c.active);
+  const observed = marketReadings
+    .filter((r) => active.some((c) => c.id === r.competitorId))
+    .map((r) => r.observedOn)
+    .sort();
+  return [
+    200,
+    {
+      period: { from, to },
+      previousPeriod: { from: marketPlus(from, -days), to: marketPlus(from, -1) },
+      bookings: { current: booked[0], previous: booked[1] },
+      offers: { current: offered[0], previous: offered[1] },
+      conversionPermille: { current: permille(booked[0], offered[0]), previous: permille(booked[1], offered[1]) },
+      revenue: { currentMinor: revenue, previousMinor: revenuePrev, currency: salesFixture.currency },
+      competitors: { count: active.length, lastObservedOn: observed.at(-1) ?? null, addedLast30: active.length },
+    },
+  ];
+}
 /** null — маршрут не рынка; иначе [код, тело] */
 function marketRoute(
   path: string,
@@ -4717,6 +4789,46 @@ function marketRoute(
       });
       return [200, { today, from, days, board, competitors: active }];
     }
+    if (path === '/market/rates' && method === 'GET') {
+      if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
+      const from = q.get('from') || today;
+      const days = Number(q.get('days') ?? 14);
+      const asOf = q.get('asOf') || today;
+      const compare = Number(q.get('compare') ?? 1);
+      const dates = marketDates(from, days);
+      const active = marketCompetitors.filter((c) => c.active);
+      const b = buildPriceBoard({
+        dates,
+        asOf,
+        compareDays: compare,
+        competitors: active,
+        readings: marketRates.filter((r) => active.some((c) => c.id === r.competitorId)),
+      });
+      const str = (v: bigint | null) => (v === null ? null : v.toString());
+      return [
+        200,
+        {
+          today,
+          from,
+          days,
+          currency: b.currency ?? 'KZT',
+          board: {
+            competitors: b.competitors.map((c) => ({
+              ...c,
+              avgMinor: str(c.avgMinor),
+              cells: c.cells.map((x) => ({ ...x, priceMinor: str(x.priceMinor) })),
+            })),
+            market: b.market.map((m) => ({ ...m, avgMinor: str(m.avgMinor), minMinor: str(m.minMinor), maxMinor: str(m.maxMinor) })),
+            summary: {
+              marketAvgMinor: str(b.summary.marketAvgMinor),
+              minMinor: str(b.summary.minMinor),
+              maxMinor: str(b.summary.maxMinor),
+              competitorsWithData: b.summary.competitorsWithData,
+            },
+          },
+        },
+      ];
+    }
     if (path === '/market/night' && method === 'GET') {
       if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
       const date = q.get('date') ?? '';
@@ -4739,15 +4851,36 @@ function marketRoute(
         url: input.url ?? null,
         note: input.note ?? null,
         active: true,
+        district: input.district ?? null,
+        category: input.category ?? null,
+        address: input.address ?? null,
+        dataSource: input.dataSource ?? null,
+        monitoring: input.monitoring ?? 'BOTH',
+        refreshHours: input.refreshHours ?? null,
+        autoRefresh: input.autoRefresh ?? false,
       };
       marketCompetitors.push(row);
       return [201, row];
     }
-    const m = /^\/market\/competitors\/([^/]+)(\/occupancy)?$/.exec(path);
+    const m = /^\/market\/competitors\/([^/]+)(\/occupancy|\/rates)?$/.exec(path);
     if (m) {
       if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
       const row = marketCompetitors.find((c) => c.id === decodeURIComponent(m[1]!));
-      if (m[2] && method === 'PUT') {
+      if (m[2] === '/rates' && method === 'PUT') {
+        if (!row || !row.active) return [404, { message: 'Конкурент не найден или убран из списка' }];
+        const entries = Array.isArray(body['entries']) ? (body['entries'] as Array<Record<string, unknown>>) : [];
+        if (!entries.length) return [400, { message: 'entries: список { date, price }' }];
+        const parsed = entries.map((e) => ({ date: String(e['date']), priceMinor: parsePriceInput(e['price']) }));
+        for (const e of parsed) {
+          marketRates = marketRates.filter(
+            (r) => !(r.competitorId === row.id && r.stayDate === e.date && r.observedOn === today),
+          );
+          if (e.priceMinor !== null)
+            marketRates.push({ competitorId: row.id, stayDate: e.date, observedOn: today, priceMinor: e.priceMinor, currency: 'KZT', source: 'MANUAL' });
+        }
+        return [200, { saved: parsed.filter((e) => e.priceMinor !== null).length, cleared: parsed.filter((e) => e.priceMinor === null).length }];
+      }
+      if (m[2] === '/occupancy' && method === 'PUT') {
         if (!row || !row.active) return [404, { message: 'Конкурент не найден или убран из списка' }];
         const entries = Array.isArray(body['entries']) ? (body['entries'] as Array<Record<string, unknown>>) : [];
         if (!entries.length) return [400, { message: 'entries: список { date, percent }' }];
@@ -4930,6 +5063,12 @@ createServer(async (req, res) => {
     if (siteResponse) return send(siteResponse.status, siteResponse.data);
     const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (marketResponse) return send(marketResponse[0], marketResponse[1]);
+    const salesResponse = salesRoute(path, req.method ?? 'GET', url.searchParams);
+    if (salesResponse) return send(salesResponse[0], salesResponse[1]);
+    if (path === '/__test/sales' && req.method === 'POST') {
+      salesFixture = { ...salesFixture, ...(body as Partial<SalesFixture>) };
+      return send(200, { ok: true });
+    }
     // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
     if (path === '/__test/market' && req.method === 'POST') {
       resetMarket();
@@ -4942,8 +5081,19 @@ createServer(async (req, res) => {
           url: c.url ?? null,
           note: c.note ?? null,
           active: c.active ?? true,
+          district: c.district ?? null,
+          category: c.category ?? null,
+          address: c.address ?? null,
+          dataSource: c.dataSource ?? null,
+          monitoring: c.monitoring ?? 'BOTH',
+          refreshHours: c.refreshHours ?? null,
+          autoRefresh: c.autoRefresh ?? false,
         });
       marketReadings = ((body['readings'] as MarketReading[] | undefined) ?? []).map((r) => ({ ...r }));
+      // цены: priceMinor приходит строкой (JSON не знает BigInt)
+      marketRates = ((body['rates'] as Array<Omit<PriceReading, 'priceMinor'> & { priceMinor: string }> | undefined) ?? []).map(
+        (r) => ({ ...r, priceMinor: BigInt(r.priceMinor) }),
+      );
       return send(200, { ok: true, today });
     }
     if (path === '/__test/reset') {
@@ -6533,6 +6683,9 @@ createServer(async (req, res) => {
             replies: 3,
             leads: 0,
             slaBreaches: 1,
+            handoffs: 1,
+            automatedPermille: 750,
+            avgFirstReplySeconds: 12,
           });
         if (path === '/platform/support/prompt' && req.method === 'GET')
           return send(200, { text: supportPrompt });
@@ -6697,6 +6850,9 @@ createServer(async (req, res) => {
           sellerAgents.push(created);
           return send(201, agentView(created));
         }
+        // состояние Telegram рабочего агента для сводки каналов (S2.8): не подключён
+        if (path === '/ai-seller/agents/working/telegram')
+          return send(200, { set: false, state: 'NOT_CONNECTED', username: null, allowedUserIds: [], lastReceivedAt: null, lastSentAt: null, error: null });
         const instruction = path.match(/^\/ai-seller\/agents\/([^/]+)\/instruction(\/generate)?$/);
         if (instruction) {
           const id = instruction[1]!;
@@ -6716,7 +6872,7 @@ createServer(async (req, res) => {
         return send(404, { message: 'Маршрут не найден' });
       }
       const dialog = path.match(
-        /^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/,
+        /^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply|handling|notes))?$/,
       );
       if (req.method === 'GET') {
         if (path === '/ai-seller/catalog') {
@@ -6799,6 +6955,14 @@ createServer(async (req, res) => {
             embedAvailable: true,
           });
         if (path === '/ai-seller/profile') return send(200, sellerView());
+        if (path === '/ai-seller/prompt/versions')
+          return send(200, {
+            items: sellerPromptVersions
+              .slice()
+              .reverse()
+              .slice(0, 20)
+              .map((v) => ({ id: v.id, length: v.text.length, preview: v.text.slice(0, 120), createdAt: v.createdAt, author: 'Администратор' })),
+          });
         if (path === '/ai-seller/prompt')
           return send(200, {
             saved: sellerPrompt !== null,
@@ -6845,6 +7009,8 @@ createServer(async (req, res) => {
             mode: d.mode,
             stage: d.stage,
             leadData: d.leadData,
+            handling: d.handling ?? { assignee: null, nextStep: null },
+            notes: d.notes ?? [],
             contact: d.contact,
             messages: d.messages,
           });
@@ -6858,6 +7024,9 @@ createServer(async (req, res) => {
             replies: 5,
             leads: 1,
             slaBreaches: 0,
+            handoffs: sellerDialogs.filter((d) => d.channel !== 'sandbox' && d.mode !== 'bot_active').length,
+            automatedPermille: 667,
+            avgFirstReplySeconds: 42,
           });
         if (path === '/ai-seller/embed')
           // Э4: тег с публичным ключом гостиницы (выводимый, не секрет) и домены её сайтов
@@ -6879,12 +7048,24 @@ createServer(async (req, res) => {
         sellerUpdatedAt = new Date().toISOString();
         return send(200, sellerView());
       }
+      const restore = path.match(/^\/ai-seller\/prompt\/versions\/([^/]+)\/restore$/);
+      if (restore && req.method === 'POST') {
+        const v = sellerPromptVersions.find((x) => x.id === restore[1]);
+        if (!v) return send(404, { message: 'Версия не найдена' });
+        recordPromptVersion(v.text);
+        sellerPrompt = v.text;
+        sellerSaved = true;
+        sellerApplied = false;
+        sellerUpdatedAt = new Date().toISOString();
+        return send(200, { saved: true, text: v.text, updatedAt: sellerUpdatedAt, applied: false });
+      }
       if (path === '/ai-seller/prompt' && req.method === 'PUT') {
         // те же отказы, что у API: пустой и длиннее 20 000 знаков
         const text = typeof body['text'] === 'string' ? body['text'].trim() : '';
         if (!text) return send(400, { message: 'Инструкция: пустой текст' });
         if (text.length > 20_000)
           return send(400, { message: 'Инструкция: не длиннее 20000 знаков' });
+        recordPromptVersion(text);
         sellerPrompt = text;
         sellerSaved = true;
         sellerApplied = false;
@@ -7000,6 +7181,30 @@ createServer(async (req, res) => {
         sellerAppliedProfile = structuredClone(sellerProfile);
         sellerAppliedPrompt = sellerPrompt;
         return send(200, { profileApplied: true, factsApplied: true });
+      }
+      if (dialog && dialog[2] === 'handling' && req.method === 'PATCH') {
+        const d = sellerDialogs.find((x) => x.id === dialog[1]);
+        if (!d) return send(404, { message: 'диалог не найден' });
+        const h = (d.handling ??= { assignee: null, nextStep: null });
+        if ('nextStep' in body) {
+          const text = String(body['nextStep'] ?? '').trim();
+          if (text.length > 200) return send(400, { message: 'Следующий шаг: не длиннее 200 знаков' });
+          h.nextStep = text || null;
+        }
+        if ('assignee' in body)
+          h.assignee = body['assignee'] === 'me' ? { userId: 'ui-user', name: 'Администратор' } : null;
+        if (!('nextStep' in body) && !('assignee' in body)) return send(400, { message: 'Нечего менять' });
+        return send(200, h);
+      }
+      if (dialog && dialog[2] === 'notes' && req.method === 'POST') {
+        const d = sellerDialogs.find((x) => x.id === dialog[1]);
+        if (!d) return send(404, { message: 'диалог не найден' });
+        const text = String(body['text'] ?? '').trim();
+        if (!text) return send(400, { message: 'Заметка: пустой текст' });
+        if (text.length > 2000) return send(400, { message: 'Заметка: не длиннее 2000 знаков' });
+        const note = { id: `n${(d.notes ??= []).length + 1}`, author: 'Администратор', authorUserId: 'ui-user', text, at: new Date().toISOString() };
+        d.notes.push(note);
+        return send(200, note);
       }
       if (dialog && dialog[2] && req.method === 'POST') {
         const d = sellerDialogs.find((x) => x.id === dialog[1]);

@@ -1572,7 +1572,7 @@
   .btn--secondary.is-danger {
     color: var(--danger);
   }
-    /* Цветные кнопки под курсором: рамка цветом подписи. До DS1c их перекрашивало общее `.btn:hover`
+  /* Цветные кнопки под курсором: рамка цветом подписи. До DS1c их перекрашивало общее `.btn:hover`
      в --primary-hover (синий фон под красной или жёлтой подписью), находка DS1c. */
   .btn--danger:hover:not(:disabled),
   .btn--warning:hover:not(:disabled),

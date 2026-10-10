@@ -1,0 +1,300 @@
+/*
+ * «Требуют внимания» и ссылки шапки блоков. До 03.10.2026 здесь жили и остальные блоки старой Главной
+ * (полоса стойки, быстрые действия, заезды и выезды, фонд, уборка, системы), сняты вместе с компонентами;
+ * с 09.10.2026 файл живёт в «Финансах» вместе с очередью внимания (plans/finance-home-merge-2026-10-09.md).
+ *
+ * Разбор 23.09.2026 (находка 6): стили блоков жили в двух файлах: здесь и в premium.css, который
+ * грузится позже и молча перебивал этот. Теперь блоки описаны только здесь, по шкале §3 и §6, а стекло
+ * (радиус и тень) кладёт glass.css, своих литералов радиуса и тени у блоков нет.
+ */ /* §4: ссылка шапки — подпись 13 px, цвет ссылки; раньше premium.css красил её серым, как текст */
+@layer sections {
+  .card-heading__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--primary);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+  }
+  .card-heading__link:hover {
+    text-decoration: underline;
+  } /* ---------- требуют внимания ---------- */
+  .attention-card {
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .attention-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .attention-heading h2 {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .attention-count {
+    display: grid;
+    place-items: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-xs);
+    background: var(--warning-soft);
+    color: var(--warning);
+    font-size: var(--text-xs);
+  } /* Счётчик в шапке: ноль не тревожный — тревожный тон приберегаем для дела */
+  .attention-count[data-state='off'] {
+    color: var(--muted);
+    background: var(--chip-bg);
+  } /* Список целиком, без своей прокрутки: задача не должна прятаться под край блока (находка 6) */
+  .attention-list {
+    padding: 0 var(--space-2) var(--space-2);
+  }
+  .attention-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    color: var(--text);
+    background: transparent;
+  }
+  .attention-item + .attention-item {
+    border-top: 1px solid var(--border-soft);
+  }
+  .attention-item:hover {
+    text-decoration: none;
+    background: var(--surface-muted);
+    border-radius: var(--radius-sm);
+  }
+  .attention-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .attention-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+  .attention-item > svg {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: var(--space-2);
+    margin-left: auto;
+    color: var(--muted);
+  }
+  .attention-item__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  } /* Имя гостя и номер брони — одной строкой: имя 14 px (§6), номер моноширинным (§14) */
+  .attention-item__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-2);
+  }
+  .attention-item strong {
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+  }
+  .attention-item .booking-number {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--text-xs);
+  }
+  .attention-item small {
+    display: block;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    line-height: var(--leading-base);
+  }
+  .attention-item--debt small {
+    color: var(--danger);
+  } /* Не заехали вовремя: тревожнее незаполненной карточки, но это не долг — предупреждение, не ошибка */
+  .attention-item--overdue small {
+    color: var(--warning);
+  }
+  .attention-item--debt .attention-icon {
+    color: var(--danger);
+  }
+  .attention-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-top: 1px solid var(--border-soft);
+    background: var(--surface-muted);
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .attention-footer svg {
+    width: 12px;
+    height: 12px;
+  }
+  .attention-empty {
+    padding: var(--space-4) var(--space-4) var(--space-6);
+    text-align: center;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .attention-empty svg {
+    display: block;
+    margin: 0 auto var(--space-2);
+    color: var(--primary);
+  }
+  .attention-empty strong {
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    color: var(--text);
+  }
+  .attention-empty p {
+    margin-bottom: 0;
+    line-height: var(--leading-relaxed);
+  } /*
+ * Разбивка «Требуют внимания» по причинам (23.09.2026). Три счётчика в ряд: число крупно, причина
+ * подписью. Ноль остаётся тихим — тревожный тон только там, где есть дело; §9: смысл держится
+ * не только цветом, у каждой причины стоит слово.
+ */
+  .attention-tally {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-soft);
+    list-style: none;
+  }
+  .attention-tally li {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+    padding: var(--space-2);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: var(--surface-muted);
+  }
+  .attention-tally strong {
+    color: var(--muted);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-semibold);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .attention-tally span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .attention-tally li[data-state='on'] {
+    border-color: var(--warning-border);
+    background: var(--warning-bg);
+  }
+  .attention-tally li[data-state='on'] strong {
+    color: var(--warning);
+  }
+  .attention-tally li[data-state='on'] span {
+    color: var(--text-2);
+  }
+  @media (max-width: 1279px) {
+    .attention-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-2);
+    }
+    /* в две колонки черта нужна каждой строке, кроме первой пары */
+    .attention-item + .attention-item {
+      border-top: 0;
+    }
+    .attention-item:nth-child(n + 3) {
+      border-top: 1px solid var(--border-soft);
+    }
+  }
+  @media (max-width: 760px) {
+    .attention-list {
+      display: block;
+    }
+    .attention-item:nth-child(n + 3) {
+      border-top: 0;
+    }
+    .attention-item + .attention-item {
+      border-top: 1px solid var(--border-soft);
+    }
+  }
+  /*
+ * ---------- A3: очередь «Требуют внимания» ----------
+ * План `plans/today-a3-2026-09-28.md`. Событие — строка «важность · текст · действие», под ней до трёх броней приёмом
+ * прежних задач (имя 14 px и номер моноширинным, подпись 13 px). Важность держится словом, не только цветом (§9).
+ */
+  .attention-event {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2);
+  }
+  .attention-event + .attention-event {
+    border-top: 1px solid var(--border-soft);
+  }
+  .attention-event__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+  } /* текст строки не сжимается в узкую колонку между словом важности и действием: на телефоне действие уходит
+   своей строкой вправо, а текст берёт всю ширину */
+  .attention-event__text {
+    flex: 1 1 224px;
+    min-width: 0;
+    color: var(--text);
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+  }
+  .attention-event__head > a {
+    margin-left: auto;
+  }
+  .attention-event__more {
+    padding-left: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .attention-event .attention-item {
+    padding-left: var(--space-4);
+  }
+  .attention-item--critical small {
+    color: var(--danger);
+  }
+  .attention-item--warning small {
+    color: var(--warning);
+  }
+  .attention-tally [data-severity='critical'][data-state='on'] {
+    border-color: var(--danger-border);
+    background: var(--danger-soft);
+  }
+  .attention-tally [data-severity='critical'][data-state='on'] strong {
+    color: var(--danger);
+  } /* «К сведению» — не тревога: плитка остаётся спокойной, выделено только число */
+  .attention-tally [data-severity='info'][data-state='on'] {
+    border-color: var(--border-soft);
+    background: var(--surface-muted);
+  }
+  .attention-tally [data-severity='warning'][data-state='on'] strong {
+    color: var(--warning);
+  }
+  .attention-tally [data-severity='info'][data-state='on'] strong {
+    color: var(--text-2);
+  }
+}

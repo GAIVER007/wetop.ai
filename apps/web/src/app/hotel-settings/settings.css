@@ -517,6 +517,20 @@
     .object-settings .obj-banner {
       flex-wrap: wrap;
     }
+    /* цели на телефоне не ниже 44 px (DESIGN.md): поля формы объекта, чипы удобств и кнопка примера */
+    .object-settings .inp {
+      min-height: 44px;
+    }
+    .object-settings .chip {
+      min-height: 44px;
+    }
+    /* невидимый чекбокс растянут по внутренней области чипа, рамки съедают 2 px: цель держит сам вход */
+    .object-settings .chip .chip__input {
+      min-height: 44px;
+    }
+    .object-settings .obj-preview__open {
+      min-height: 44px;
+    }
   }
   /* Окно «Предпросмотр карточки»: то, что гость прочтёт об объекте */
   .obj-sample {

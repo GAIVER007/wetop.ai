@@ -1,4 +1,4 @@
-import type { FoodStatus } from '@pms/domain';
+import type { FoodStatus, OrderStatus } from '@pms/domain';
 import type { StatusRegistry } from './types';
 
 /**
@@ -12,4 +12,14 @@ export const foodStatus: StatusRegistry<FoodStatus> = {
   COMPLETED: { label: 'Завершено', groupLabel: 'Завершено', tone: 'neutral' },
   NO_SHOW: { label: 'Не пришли', groupLabel: 'Не пришли', tone: 'danger' },
   CANCELLED: { label: 'Отменено', groupLabel: 'Отменено', tone: 'danger' },
+};
+
+/** Заказ ресторана (`RestaurantOrderStatus`, §33.2): слова статусов с макета владельца (ADR-159) */
+export const foodOrderStatus: StatusRegistry<OrderStatus> = {
+  NEW: { label: 'Новый', groupLabel: 'Новые', tone: 'info' },
+  COOKING: { label: 'Готовится', groupLabel: 'Готовятся', tone: 'warning' },
+  READY: { label: 'Готово', groupLabel: 'Готово', tone: 'success' },
+  SERVED: { label: 'Подан', groupLabel: 'Поданы', tone: 'neutral' },
+  CLOSED: { label: 'Оплачен', groupLabel: 'Закрыты', tone: 'success' },
+  CANCELLED: { label: 'Отменён', groupLabel: 'Отменены', tone: 'danger' },
 };

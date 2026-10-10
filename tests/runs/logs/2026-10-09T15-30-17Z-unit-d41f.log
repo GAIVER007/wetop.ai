@@ -1,0 +1,50 @@
+# Модульные (unit) · 09.10.2026 20:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит 10d6e79 (claude/market-ai-collector), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-30-17Z-unit-d41f.json' 'tests/unit/launchd-install.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| tests/unit/launchd-install.test.ts (8 tests | 1 failed) 11790ms
+   ❯ launchd install.sh (8)
+     ✓ задачи legacy-sync больше нет: Legacy перестал быть источником (ADR-052) 13ms
+     ✓ службам пул не урезаем: у API он свой 38ms
+     × сборщик market: раз в сутки в 06:00, не держится постоянно и не стартует при входе, ключей в plist нет 9ms
+     ✓ постоянные службы по-прежнему без расписания: держатся и стартуют при входе 25ms
+     ✓ --dry не снимает загруженную задачу 20ms
+     ✓ проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» 4211ms
+     ✓ переустановка работающей задачи ждёт, пока старый процесс освободит порт 3716ms
+     ✓ переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает 3755ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/launchd-install.test.ts > launchd install.sh > сборщик market: раз в сутки в 06:00, не держится постоянно и не стартует при входе, ключей в plist нет
+AssertionError: путь plist не найден в выводе:
+неизвестно: market (есть api, web, tunnel, domain, awake, --takeover, --dry)
+: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ dryPlist tests/unit/launchd-install.test.ts:110:60
+    108|     const out = install(sandbox({ nodeDelaySec: 0, releaseSec: 0 }), […
+    109|     const file = /(\S+\.plist) собран и проверен/.exec(out)?.[1];
+    110|     expect(file, `путь plist не найден в выводе:\n${out}`).toBeTruthy(…
+       |                                                            ^
+    111|     return readFileSync(file!, 'utf8');
+    112|   };
+ ❯ tests/unit/launchd-install.test.ts:131:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  08:30:18
+   Duration  11.91s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-30-17Z-unit-d41f.json
+
+# код выхода 1 · 13 с

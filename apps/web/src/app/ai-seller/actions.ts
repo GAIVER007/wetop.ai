@@ -249,6 +249,17 @@ export async function dialogModeAction(
   }
 }
 
+/** «Вернуть» прежнюю версию инструкции: текст становится текущим и новой последней версией */
+export async function restoreVersionAction(id: string): Promise<SimpleResult> {
+  try {
+    await sellerApi.restorePromptVersion(id);
+    revalidatePath('/ai-seller');
+    return { error: null, message: 'Версия возвращена. Нажмите «Применить», чтобы продавец её получил.', attempt: 0 };
+  } catch (e) {
+    return { error: describe(e), message: null, attempt: 0 };
+  }
+}
+
 /** «Взять себе» и «Снять с себя» */
 export async function assigneeAction(id: string, assignee: 'me' | null): Promise<SimpleResult> {
   try {

@@ -18,6 +18,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'invites',
   'user_errors',
   'seller_profiles',
+  'seller_prompt_versions',
   'organization_extensions',
   'seller_agents',
   'wizard_drafts',

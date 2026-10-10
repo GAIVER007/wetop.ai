@@ -2779,6 +2779,11 @@ let sellerApplied = false;
 let sellerUpdatedAt: string | null = null;
 /** Инструкция продавцу одним текстом (ADR-097): сохранённая и та, что продавец получил последним «Применить» */
 let sellerPrompt: string | null = null;
+let sellerPromptVersions: Array<{ id: string; text: string; createdAt: string }> = [];
+const recordPromptVersion = (text: string) => {
+  if (sellerPrompt !== text)
+    sellerPromptVersions.push({ id: `00000000-0000-4000-8000-${String(sellerPromptVersions.length + 1).padStart(12, '0')}`, text, createdAt: new Date().toISOString() });
+};
 let sellerAppliedPrompt: string | null = null;
 type SellerDialogRow = ReturnType<typeof sellerDialogSeed>[number] & {
   handling?: { assignee: { userId: string | null; name: string } | null; nextStep: string | null };
@@ -2865,6 +2870,7 @@ function resetSeller() {
   sellerWhatsApp = null;
   sellerUpdatedAt = null;
   sellerPrompt = null;
+  sellerPromptVersions = [];
   sellerAppliedPrompt = null;
   sellerDialogs = sellerDialogSeed();
   sellerKnowledge = sellerKnowledgeSeed();
@@ -6949,6 +6955,14 @@ createServer(async (req, res) => {
             embedAvailable: true,
           });
         if (path === '/ai-seller/profile') return send(200, sellerView());
+        if (path === '/ai-seller/prompt/versions')
+          return send(200, {
+            items: sellerPromptVersions
+              .slice()
+              .reverse()
+              .slice(0, 20)
+              .map((v) => ({ id: v.id, length: v.text.length, preview: v.text.slice(0, 120), createdAt: v.createdAt, author: 'Администратор' })),
+          });
         if (path === '/ai-seller/prompt')
           return send(200, {
             saved: sellerPrompt !== null,
@@ -7034,12 +7048,24 @@ createServer(async (req, res) => {
         sellerUpdatedAt = new Date().toISOString();
         return send(200, sellerView());
       }
+      const restore = path.match(/^\/ai-seller\/prompt\/versions\/([^/]+)\/restore$/);
+      if (restore && req.method === 'POST') {
+        const v = sellerPromptVersions.find((x) => x.id === restore[1]);
+        if (!v) return send(404, { message: 'Версия не найдена' });
+        recordPromptVersion(v.text);
+        sellerPrompt = v.text;
+        sellerSaved = true;
+        sellerApplied = false;
+        sellerUpdatedAt = new Date().toISOString();
+        return send(200, { saved: true, text: v.text, updatedAt: sellerUpdatedAt, applied: false });
+      }
       if (path === '/ai-seller/prompt' && req.method === 'PUT') {
         // те же отказы, что у API: пустой и длиннее 20 000 знаков
         const text = typeof body['text'] === 'string' ? body['text'].trim() : '';
         if (!text) return send(400, { message: 'Инструкция: пустой текст' });
         if (text.length > 20_000)
           return send(400, { message: 'Инструкция: не длиннее 20000 знаков' });
+        recordPromptVersion(text);
         sellerPrompt = text;
         sellerSaved = true;
         sellerApplied = false;

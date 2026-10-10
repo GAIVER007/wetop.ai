@@ -172,6 +172,7 @@ beforeEach(() => {
   connection.seller.failWith = null;
   connection.seller.replies = {};
   profiles.rows.clear();
+  profiles.versions = [];
   profiles.audits = [];
   facts.source = factsSource();
   facts.asked = [];
@@ -282,6 +283,42 @@ describe('инструкция продавцу одним текстом (ADR-0
     expect(res.body).toMatchObject({ saved: true, text: 'Отвечай кратко.' });
     expect(profiles.rows.get(ORG_A)?.promptText).toBe('Отвечай кратко.');
     expect(profiles.rows.get(ORG_B)).toBeUndefined();
+  });
+
+  it('версии: каждое изменившее текст сохранение — новая версия, повтор того же текста ничего не множит', async () => {
+    const save = (text: string) => api().put('/ai-seller/prompt').set(as('session-a')).send({ text }).expect(200);
+    await save('Первая');
+    await save('Первая');
+    await save('Вторая');
+    const res = await api().get('/ai-seller/prompt/versions').set(as('session-a')).expect(200);
+    expect(res.body.items.map((v: { preview: string }) => v.preview)).toEqual(['Вторая', 'Первая']);
+    expect(res.body.items[0]).toMatchObject({ length: 6, author: 'Автор' });
+    // версии чужой организации не видны
+    const other = await api().get('/ai-seller/prompt/versions').set(as('session-b')).expect(200);
+    expect(other.body.items).toEqual([]);
+  });
+
+  it('вернуть версию: её текст становится текущим и новой последней версией, в журнале версия и длина без текста', async () => {
+    const save = (text: string) => api().put('/ai-seller/prompt').set(as('session-a')).send({ text }).expect(200);
+    await save('Первая');
+    await save('Вторая');
+    const list = await api().get('/ai-seller/prompt/versions').set(as('session-a')).expect(200);
+    const first = list.body.items[1].id;
+    const res = await api().post(`/ai-seller/prompt/versions/${first}/restore`).set(as('session-a')).expect(200);
+    expect(res.body).toMatchObject({ text: 'Первая', saved: true, applied: false });
+    const after = await api().get('/ai-seller/prompt/versions').set(as('session-a')).expect(200);
+    expect(after.body.items.map((v: { preview: string }) => v.preview)).toEqual(['Первая', 'Вторая', 'Первая']);
+    expect(audit.events.at(-1)).toMatchObject({ action: 'seller.prompt.restored', after: { versionId: first, length: 6 } });
+    expect(JSON.stringify(audit.events.at(-1))).not.toContain('Первая');
+  });
+
+  it('вернуть можно только свою версию; чужая и неизвестная — 404, не uuid — 400, сотруднику — 403', async () => {
+    await api().put('/ai-seller/prompt').set(as('session-b')).send({ text: 'Чужая' }).expect(200);
+    const foreign = (await api().get('/ai-seller/prompt/versions').set(as('session-b'))).body.items[0].id;
+    await api().post(`/ai-seller/prompt/versions/${foreign}/restore`).set(as('session-a')).expect(404);
+    await api().post('/ai-seller/prompt/versions/3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c/restore').set(as('session-a')).expect(404);
+    await api().post('/ai-seller/prompt/versions/not-a-uuid/restore').set(as('session-a')).expect(400);
+    await api().post(`/ai-seller/prompt/versions/${foreign}/restore`).set(as('session-staff')).expect(403);
   });
 
   it('сотрудник текст не меняет — 403', async () => {

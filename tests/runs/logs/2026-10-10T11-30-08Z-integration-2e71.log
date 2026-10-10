@@ -1,0 +1,56 @@
+# Интеграционные (integration) · 10.10.2026 16:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1cb1b93 (claude/sales2-impl), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-30-08Z-integration-2e71.json' 'tests/integration/seller-prompt-versions' 'tests/integration/seller-profiles' 'tests/integration/rls-isolation' 'tests/integration/market-occupancy'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl
+
+No test files found, exiting with code 0
+
+filter: tests/integration/seller-prompt-versions, tests/integration/seller-profiles, tests/integration/rls-isolation, tests/integration/market-occupancy
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-30-08Z-integration-2e71.json
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: копия данных в pms_test не сделана, схема не изменена: column "availability_level" does not exist
+ ❯ copyLiveData tests/tools/test-schema.ts:223:11
+    221|   } catch (e) {
+    222|     await client.query('ROLLBACK');
+    223|     throw new Error(`копия данных в ${TEST_SCHEMA} не сделана, схема н…
+       |           ^
+    224|       cause: e,
+    225|     });
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:102:39
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+Caused by: error: column "availability_level" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ copyLiveData tests/tools/test-schema.ts:210:19
+ ❯ ensureTestSchema tests/tools/test-schema.ts:102:39
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ ../../../../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/sales2-impl/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 255, severity: 'ERROR', code: '42703', detail: 'There is a column named "availability_level" in table "competitor_occupancy", but it cannot be referenced from this part of the query.', hint: undefined, position: '373', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', routine: 'errorMissingColumn' }
+
+
+
+
+# код выхода 1 · 3 с

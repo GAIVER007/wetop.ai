@@ -2655,6 +2655,15 @@ export interface SellerWhatsAppView {
 }
 
 /** Инструкция продавцу одним текстом (ADR-097) */
+/** Версия инструкции (DATA_MODEL §33): текст целиком не отдаётся, только начало и длина */
+export interface SellerPromptVersion {
+  id: string;
+  length: number;
+  preview: string;
+  createdAt: string;
+  author: string | null;
+}
+
 export interface SellerPromptView {
   saved: boolean;
   text: string;
@@ -2777,6 +2786,9 @@ export const sellerApi = {
   catalog: () => getJson<AgentCatalogView>('/ai-seller/catalog'),
   prompt: () => getJson<SellerPromptView>('/ai-seller/prompt'),
   savePrompt: (text: string) => sendJson<SellerPromptView>('PUT', '/ai-seller/prompt', { text }),
+  promptVersions: () => getJson<{ items: SellerPromptVersion[] }>('/ai-seller/prompt/versions'),
+  restorePromptVersion: (id: string) =>
+    sendJson<SellerPromptView>('POST', `/ai-seller/prompt/versions/${encodeURIComponent(id)}/restore`, {}),
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
   extract: (story: string) =>
     sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),

@@ -12,6 +12,7 @@ import {
 } from '../../components/ui';
 import type { SellerWhatsAppView } from '../../lib/api';
 import {
+  restoreVersionAction,
   assigneeAction,
   dialogModeAction,
   nextStepAction,
@@ -206,6 +207,30 @@ export function DialogReplyForm({
       {state?.error && <Alert>{state.error}</Alert>}
       {state?.message && <Notice data-testid="dialog-reply-result">{state.message}</Notice>}
     </form>
+  );
+}
+
+/** Вернуть версию инструкции (SALES2.7): одна кнопка в строке истории, результат словами рядом */
+export function RestoreVersionButton({ id, label }: { id: string; label: string }) {
+  const [result, setResult] = useState<SimpleResult | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <span>
+      <Button
+        type="button"
+        tone="secondary"
+        size="sm"
+        disabled={pending}
+        aria-busy={pending}
+        aria-label={`Вернуть версию: ${label}`}
+        data-testid={`prompt-restore-${id}`}
+        onClick={() => start(async () => setResult(await restoreVersionAction(id)))}
+      >
+        {pending ? 'Возвращаю…' : 'Вернуть'}
+      </Button>
+      {result?.error && <Alert>{result.error}</Alert>}
+      {result?.message && <Notice data-testid="prompt-restore-result">{result.message}</Notice>}
+    </span>
   );
 }
 

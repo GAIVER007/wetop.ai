@@ -2104,6 +2104,7 @@ model Organization {
   businesses       Business[]
   userErrors       UserError[]
   sellerProfiles   SellerProfile[]
+  sellerPromptVersions SellerPromptVersion[]
   agents           SellerAgent[]
   wizardDrafts     WizardDraft[]
   extensions       OrganizationExtension[]
@@ -2159,6 +2160,7 @@ model User {
   beautyEmployees              Employee[]
   appointmentsCreated          Appointment[]
   sellerProfileEdits           SellerProfile[]
+  sellerPromptVersions         SellerPromptVersion[]
   platformAdmin                PlatformAdmin?
   extensionEdits               OrganizationExtension[]
   foodReservationsCreated      RestaurantReservation[]
@@ -2363,6 +2365,22 @@ enum SellerReplyLength {
 /// Профиль ИИ-продавца: одна строка на АГЕНТА (SA2.5; до сужения — на организацию; DATA_MODEL §15, ТЗ ред. 1 П5, ADR-079, ADR-081). Поля экрана
 /// «Настройки», не текст промпта: ядро правил держит бот. Перечисления и пределы — модели бота `SellerProfile`. Поля
 /// доставки (П8) ведёт платформа. CHECK на число языков и строк в списках — в миграции.
+/// Версия инструкции продавца (DATA_MODEL §33): строка на каждое изменившее текст сохранение, только добавляется
+model SellerPromptVersion {
+  id             String       @id @default(uuid()) @db.Uuid
+  agentId        String       @map("agent_id") @db.Uuid
+  agent          SellerAgent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  organizationId String       @map("organization_id") @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  text           String       @db.VarChar(20000)
+  createdBy      String?      @map("created_by") @db.Uuid
+  author         User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([agentId, createdAt(sort: Desc)], map: "seller_prompt_versions_agent_created_idx")
+  @@map("seller_prompt_versions")
+}
+
 model SellerProfile {
   /// Агент, которому принадлежит профиль (DATA_MODEL §20.2, сужение SA2.5 — миграция 036): первичный ключ. У перенесённого
   /// продавца равен `organization_id`; у организации может быть по профилю на каждого агента
@@ -2474,6 +2492,7 @@ model SellerAgent {
   draft          WizardDraft?
   /// Рабочий профиль продавца этого агента (`seller_profiles`, DATA_MODEL §20.2); у агентов мастера пусто
   workingProfile SellerProfile?
+  promptVersions SellerPromptVersion[]
 
   bookingIntents SellerBookingIntent[]
 

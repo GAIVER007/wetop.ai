@@ -69,6 +69,19 @@ export class AiSellerController {
     return this.seller.prompt();
   }
 
+  /** История инструкции: последние версии без полного текста */
+  @Get('prompt/versions')
+  @Header('Cache-Control', 'no-store')
+  promptVersions() {
+    return this.seller.promptVersions();
+  }
+
+  @Post('prompt/versions/:id/restore')
+  @HttpCode(200)
+  restorePromptVersion(@Param('id') id: string) {
+    return this.seller.restorePromptVersion(id);
+  }
+
   @Put('prompt')
   savePrompt(@Body() body: { text?: unknown } | undefined) {
     return this.seller.savePrompt(body?.text);

@@ -54,6 +54,7 @@ import { pluralRu } from '../../../lib/plural';
 import { CopyButton } from '../../website/forms';
 import {
   DialogHandling,
+  RestoreVersionButton,
   DialogModeButtons,
   DialogNoteForm,
   DialogReplyForm,
@@ -285,6 +286,7 @@ async function SetupView({ status }: { status: SellerStatus }) {
             <Link href="/ai-seller/knowledge">Посмотреть данные и дополнительные знания</Link>
           </p>
         </Panel>
+        <Stack>
         <Panel data-testid="seller-setup" aria-labelledby="seller-prompt-title">
           <SectionTitle first id="seller-prompt-title">
             Инструкция продавцу
@@ -305,6 +307,8 @@ async function SetupView({ status }: { status: SellerStatus }) {
             администратора, зовёт человека.
           </p>
         </Panel>
+        <PromptVersions canRestore={!readOnly} />
+        </Stack>
         <ConnectionsView status={status} />
         <Panel data-testid="seller-check" aria-labelledby="seller-check-title">
           <SectionTitle first id="seller-check-title">
@@ -335,6 +339,57 @@ async function SetupView({ status }: { status: SellerStatus }) {
         </Panel>
       </SetupWizard>
     </Stack>
+  );
+}
+
+/** История инструкции (SALES2.7, DATA_MODEL §33): последние версии с возвратом. Нет версий: честная подсказка, не пустота */
+async function PromptVersions({ canRestore }: { canRestore: boolean }) {
+  const clock = await hotelClock();
+  const loaded = await settle(sellerApi.promptVersions());
+  if (!loaded.ok) return null;
+  const items = loaded.value.items;
+  return (
+    <Panel data-testid="seller-prompt-versions" aria-labelledby="seller-versions-title">
+      <SectionTitle first id="seller-versions-title">
+        Прежние версии инструкции
+      </SectionTitle>
+      {items.length === 0 ? (
+        <p className="settings-note" data-testid="seller-prompt-versions-empty">
+          Версий пока нет. Каждое сохранение с изменённым текстом появится здесь, и к нему можно будет вернуться.
+        </p>
+      ) : (
+        <Table size="sm" aria-label="Версии инструкции продавца" data-testid="seller-prompt-versions-table">
+          <thead>
+            <tr>
+              <th scope="col">Сохранена</th>
+              <th scope="col">Кто</th>
+              <th scope="col">Начало текста</th>
+              <th scope="col">Знаков</th>
+              {canRestore && (
+                <th scope="col">
+                  <span className="sr-only">Действие</span>
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((v, i) => (
+              <tr key={v.id} data-testid={`seller-prompt-version-${i}`}>
+                <td>{clock.moment(v.createdAt)}</td>
+                <td>{v.author ?? 'не указан'}</td>
+                <td>{v.preview}</td>
+                <td>{v.length}</td>
+                {canRestore && (
+                  <td>
+                    {i === 0 ? <span className="sub">текущая</span> : <RestoreVersionButton id={v.id} label={clock.moment(v.createdAt)} />}
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+    </Panel>
   );
 }
 

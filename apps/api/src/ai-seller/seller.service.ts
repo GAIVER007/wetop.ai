@@ -218,6 +218,10 @@ export interface SellerStatus {
   canConfigure: boolean;
 }
 
+export interface SellerPromptVersionsView {
+  items: Array<{ id: string; length: number; preview: string; createdAt: string; author: string | null }>;
+}
+
 export interface SellerPromptView {
   saved: boolean;
   text: string;
@@ -507,6 +511,38 @@ export class SellerService {
         now,
       ),
     );
+    return this.savedPrompt();
+  }
+
+  /** История инструкции (DATA_MODEL §33): последние 20, читать можно и после срока расширения */
+  async promptVersions(now: Date = new Date()): Promise<SellerPromptVersionsView> {
+    this.checkUse((await this.gate(now)).extension, 'read');
+    const rows = await this.profiles.promptVersions(workingSellerScope(this.profileOrganization()).agentId, 20);
+    return {
+      items: rows.map((r) => ({
+        id: r.id,
+        length: r.length,
+        preview: r.preview,
+        createdAt: r.createdAt.toISOString(),
+        author: r.author,
+      })),
+    };
+  }
+
+  /** Вернуть версию: её текст сохраняется обычной правкой и становится новой последней версией */
+  async restorePromptVersion(rawId: string, now: Date = new Date()): Promise<SellerPromptView> {
+    this.checkUse((await this.gate(now)).extension, 'configure');
+    const id = conversationId(rawId);
+    const scope = workingSellerScope(this.profileOrganization());
+    const text = await this.profiles.promptVersionText(scope.agentId, id);
+    if (text === null) throw new NotFoundException('Версия не найдена');
+    await this.saved(() => this.profiles.savePrompt(scope, text, currentUserId(), now));
+    await this.audit.record({
+      entityType: 'SellerProfile',
+      entityId: scope.agentId,
+      action: 'seller.prompt.restored',
+      after: { versionId: id, length: text.length },
+    });
     return this.savedPrompt();
   }
 

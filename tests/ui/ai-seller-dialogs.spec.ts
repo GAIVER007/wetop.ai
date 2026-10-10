@@ -135,3 +135,43 @@ for (const theme of ['light', 'dark'] as const) {
     });
   }
 }
+
+// ── версии инструкции (SALES2.7, DATA_MODEL §33) ───────────────────────────────────────────────
+const savePrompt = (request: APIRequestContext, text: string) =>
+  request.put(`${API}/ai-seller/prompt`, { headers: { 'x-wetop-test-client': '1' }, data: { text } });
+
+test('версии инструкции: пока их нет, сказано словами', async ({ page }) => {
+  await page.goto('/ai-seller');
+  await page.getByRole('button', { name: 'Инструкция' }).click();
+  await expect(page.getByTestId('seller-prompt-versions-empty')).toContainText('Версий пока нет');
+});
+
+test('версии инструкции: новые сверху, текущая без кнопки, возврат делает прежний текст текущим', async ({ page, request }) => {
+  await savePrompt(request, 'Первая инструкция');
+  await savePrompt(request, 'Первая инструкция'); // повтор не множит
+  await savePrompt(request, 'Вторая инструкция');
+  await page.goto('/ai-seller');
+  await page.getByRole('button', { name: 'Инструкция' }).click();
+  const rows = page.getByTestId('seller-prompt-versions-table').locator('tbody tr');
+  await expect(rows).toHaveCount(2);
+  await expect(rows.nth(0)).toContainText('Вторая инструкция');
+  await expect(rows.nth(0)).toContainText('текущая');
+  await expect(rows.nth(0).getByRole('button')).toHaveCount(0);
+  await expect(rows.nth(1)).toContainText('Первая инструкция');
+  await rows.nth(1).getByRole('button', { name: /Вернуть версию/ }).click();
+  await expect(page.getByTestId('prompt-restore-result')).toContainText('Версия возвращена');
+  await page.reload();
+  await page.getByRole('button', { name: 'Инструкция' }).click();
+  await expect(page.getByTestId('seller-prompt-versions-table').locator('tbody tr')).toHaveCount(3);
+  await expect(page.getByTestId('seller-prompt-versions-table').locator('tbody tr').nth(0)).toContainText('Первая инструкция');
+});
+
+test('срок расширения вышел: версии видно, вернуть нельзя', async ({ page, request }) => {
+  await savePrompt(request, 'Первая инструкция');
+  await savePrompt(request, 'Вторая инструкция');
+  await control(request, { sellerExtension: 'expired' });
+  await page.goto('/ai-seller');
+  await page.getByRole('button', { name: 'Инструкция' }).click();
+  await expect(page.getByTestId('seller-prompt-versions-table').locator('tbody tr')).toHaveCount(2);
+  await expect(page.getByRole('button', { name: /Вернуть версию/ })).toHaveCount(0);
+});

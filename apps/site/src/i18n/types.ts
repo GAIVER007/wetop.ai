@@ -263,6 +263,34 @@ export type Dictionary = {
     ctaTitle: string;
     ctaText: string;
   };
+  /** Лендинг «Для ресторанов»: тот же каркас, что у гостиниц; в герое фото вместо мокапа. */
+  restaurant: {
+    metaTitle: string;
+    description: string;
+    badge: string;
+    title: string;
+    lead: string;
+    primary: string;
+    secondary: string;
+    chips: string[];
+    photoAlt: string;
+    facts: Array<{ value: string; text: string }>;
+    featuresTitle: string;
+    featuresLead: string;
+    features: Array<{ icon: IconName; title: string; text: string }>;
+    growth: {
+      badge: string;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
+      float: { value: string; text: string };
+    };
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
+    ctaTitle: string;
+    ctaText: string;
+  };
   /** Страница «Для ресторанов» (`/restaurants/`, макет владельца 10.10.2026): блок `.restl` + блоки §19.5. */
   restaurants: {
     metaTitle: string;

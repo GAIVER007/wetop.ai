@@ -1,0 +1,194 @@
+# Сквозные (e2e) · 10.10.2026 21:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0f28033 (claude/hotels-landing), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/restaurant-landing.spec.ts'
+
+Running 7 tests using 1 worker
+
+  ✘  1 tests/site/restaurant-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (10.2s)
+  ✘  2 tests/site/restaurant-landing.spec.ts:30:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (10.3s)
+  ✘  3 tests/site/restaurant-landing.spec.ts:47:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (10.1s)
+  ✘  4 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 1440 (243ms)
+  ✘  5 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 1440 (231ms)
+  ✘  6 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 390 (286ms)
+  ✘  7 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 390 (235ms)
+
+
+  1) tests/site/restaurant-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected: "Управляйте рестораном в одном сервисе"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      11 | test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({ page }) => {
+      12 |   await page.goto(PATH);
+    > 13 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+         |                                                         ^
+      14 |     'Управляйте рестораном в одном сервисе',
+      15 |   );
+      16 |   const hero = page.locator('.hotel-hero');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/restaurant-landing.spec.ts:13:57
+
+    Error Context: test-results/restaurant-landing-герой-з-0dfdf--и-мокап-с-подписью-примера/error-context.md
+
+  2) tests/site/restaurant-landing.spec.ts:30:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.hotel-facts__item')
+    Expected: 4
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.hotel-facts__item') with timeout 10000ms
+      - waiting for locator('.hotel-facts__item')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      30 | test('полоса фактов и возможности: восемь карточек, без выдуманных чисел', async ({ page }) => {
+      31 |   await page.goto(PATH);
+    > 32 |   await expect(page.locator('.hotel-facts__item')).toHaveCount(4);
+         |                                                    ^
+      33 |   const features = page.locator('#restaurant-features .card');
+      34 |   await expect(features).toHaveCount(8);
+      35 |   await expect(features.first()).toContainText('План зала');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/restaurant-landing.spec.ts:32:52
+
+    Error Context: test-results/restaurant-landing-полоса--d33ff-рточек-без-выдуманных-чисел/error-context.md
+
+  3) tests/site/restaurant-landing.spec.ts:47:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.hotel-growth')
+    Expected substring: "Полный зал. Меньше хаоса на смене."
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" locator('.hotel-growth') with timeout 10000ms
+      - waiting for locator('.hotel-growth')
+
+
+      50 |   await page.goto(PATH);
+      51 |   const growth = page.locator('.hotel-growth');
+    > 52 |   await expect(growth).toContainText('Полный зал. Меньше хаоса на смене.');
+         |                        ^
+      53 |   await expect(growth.locator('.hotel-growth__points li')).toHaveCount(4);
+      54 |   expect(await growth.innerText()).not.toMatch(/%/);
+      55 |   const faq = page.locator('.faq details');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/restaurant-landing.spec.ts:52:24
+
+    Error Context: test-results/restaurant-landing-рост-во-29c6b--работают-регистрация-в-cta/error-context.md
+
+  4) tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 1440 ───────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "html-has-lang: 1",
+    + ]
+
+      84 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      85 |       .analyze();
+    > 86 |     expect(axe.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+         |                                                                     ^
+      87 |   });
+      88 | }
+      89 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/restaurant-landing.spec.ts:86:69
+
+    Error Context: test-results/restaurant-landing-доступность-и-вёрстка-light-1440/error-context.md
+
+  5) tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 1440 ────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "html-has-lang: 1",
+    + ]
+
+      84 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      85 |       .analyze();
+    > 86 |     expect(axe.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+         |                                                                     ^
+      87 |   });
+      88 | }
+      89 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/restaurant-landing.spec.ts:86:69
+
+    Error Context: test-results/restaurant-landing-доступность-и-вёрстка-dark-1440/error-context.md
+
+  6) tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 390 ────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "html-has-lang: 1",
+    + ]
+
+      84 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      85 |       .analyze();
+    > 86 |     expect(axe.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+         |                                                                     ^
+      87 |   });
+      88 | }
+      89 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/restaurant-landing.spec.ts:86:69
+
+    Error Context: test-results/restaurant-landing-доступность-и-вёрстка-light-390/error-context.md
+
+  7) tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 390 ─────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "html-has-lang: 1",
+    + ]
+
+      84 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      85 |       .analyze();
+    > 86 |     expect(axe.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+         |                                                                     ^
+      87 |   });
+      88 | }
+      89 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/restaurant-landing.spec.ts:86:69
+
+    Error Context: test-results/restaurant-landing-доступность-и-вёрстка-dark-390/error-context.md
+
+  7 failed
+    tests/site/restaurant-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера 
+    tests/site/restaurant-landing.spec.ts:30:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел 
+    tests/site/restaurant-landing.spec.ts:47:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta 
+    tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 1440 ────────────────
+    tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 1440 ─────────────────
+    tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 390 ─────────────────
+    tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 390 ──────────────────
+
+# код выхода 1 · 41 с

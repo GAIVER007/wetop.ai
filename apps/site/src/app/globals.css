@@ -2697,7 +2697,7 @@ button {
 .dash__bar {
   width: 100%;
   max-width: 22px;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
   background: var(--public-selected);
   align-self: end;
 }
@@ -2719,6 +2719,80 @@ button {
 .dash__day {
   color: var(--public-muted);
   font-size: 0.75rem;
+}
+/* Ресторанный вариант дашборда (/restaurants/): мини-план зала и легенда статусов столов */
+.dash__tables {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+.dash__table {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--public-border);
+  color: var(--text-2);
+  background: var(--public-surface);
+}
+.dash__table[data-kind='busy'],
+.dash__legend i[data-kind='busy'] {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.dash__table[data-kind='free'],
+.dash__legend i[data-kind='free'] {
+  background: var(--success-soft);
+  color: var(--success);
+  border-color: var(--success);
+}
+.dash__table[data-kind='reserved'],
+.dash__legend i[data-kind='reserved'] {
+  background: var(--st-confirmed);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.dash__table[data-kind='cleaning'],
+.dash__legend i[data-kind='cleaning'] {
+  background: var(--warning-soft);
+  color: var(--warning);
+  border-color: var(--warning);
+}
+.dash__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 10px;
+  color: var(--public-muted);
+  font-size: 0.75rem;
+}
+.dash__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.dash__legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border-width: 1px;
+  border-style: solid;
+}
+/* Мини-экран внутри карточки «Возможности в действии»: те же строки, что в мокапе дашборда */
+.dash__arrivals--card {
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+.dash__arrivals--card .dash__arrival {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 /* Рукописная пометка у мокапа, как на снимке. Деталь: на узком экране не показывается. */
@@ -3198,6 +3272,433 @@ button {
   }
   .verticals__art svg {
     width: 84px;
+  }
+}
+
+/* ── /restaurants/ (.restl, макет владельца 10.10.2026): сцена с ноутбуком и телефоном,
+   полоса показателей, процессы, мини-экраны, результаты, шаги с вопросами ── */
+.restl__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--public-muted);
+  font-size: 0.875rem;
+}
+.restl__chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.restl__chips .icon {
+  color: var(--primary);
+}
+.restl__note {
+  display: none;
+  color: var(--primary);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  max-width: 140px;
+}
+@media (min-width: 80rem) {
+  .restl__note {
+    display: block;
+    position: absolute;
+  }
+  .restl__note--left {
+    left: -24px;
+    bottom: -40px;
+    transform: rotate(-5deg);
+  }
+  .restl__note--right {
+    right: -16px;
+    top: -28px;
+    transform: rotate(3deg);
+  }
+}
+.public-intro__copy {
+  position: relative;
+}
+.restl__scene {
+  position: relative;
+}
+.restl__laptop {
+  border: 10px solid var(--surface-solid);
+  border-bottom-width: 22px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-floating);
+  overflow: hidden;
+  background: var(--public-surface);
+}
+.restl__phone {
+  display: none;
+}
+@media (min-width: 80rem) {
+  .restl__phone {
+    display: grid;
+    gap: 8px;
+    position: absolute;
+    right: -28px;
+    bottom: -24px;
+    width: 168px;
+    padding: 14px 12px;
+    border: 6px solid var(--surface-solid);
+    border-radius: var(--radius);
+    background: var(--public-surface);
+    box-shadow: var(--shadow-floating);
+  }
+}
+.restl__phone-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+.restl__phone-greeting {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--public-muted);
+}
+.restl__phone-revenue {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  font-size: 0.75rem;
+}
+.restl__phone-revenue strong {
+  font-size: 1rem;
+}
+.restl__phone-revenue em {
+  font-style: normal;
+  color: var(--success);
+  font-weight: 700;
+}
+.restl__phone-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.restl__phone-tiles span {
+  padding: 8px 6px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--primary);
+  background: var(--public-selected);
+}
+.restl__band {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 24px;
+  padding: 20px 24px;
+  list-style: none;
+  border-radius: var(--radius);
+  border: 1px solid var(--public-border);
+  background: var(--public-surface);
+}
+.restl__band li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.restl__band strong {
+  display: block;
+  font-size: 1.375rem;
+  line-height: 1.2;
+}
+.restl__band p {
+  margin: 2px 0 0;
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+}
+.restl__processes {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.restl__shots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.restl__shot {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.restl__shot-title {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+.restl__shot-floor {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.restl__shot-kds {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.restl__shot-kds i {
+  height: 8px;
+  border-radius: 999px;
+}
+.restl__shot-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 56px;
+}
+.restl__shot-bars i {
+  flex: 1;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  min-height: 6px;
+}
+.restl__shot-kds [data-tone='blue'],
+.restl__shot-bars [data-tone='blue'] {
+  background: var(--primary);
+}
+.restl__shot-kds [data-tone='orange'],
+.restl__shot-bars [data-tone='orange'] {
+  background: var(--warning);
+}
+.restl__shot-kds [data-tone='green'],
+.restl__shot-bars [data-tone='green'] {
+  background: var(--success);
+}
+.restl__shot-bars [data-tone='purple'] {
+  background: var(--violet);
+}
+.restl__shot-rows {
+  display: grid;
+  gap: 8px;
+}
+.restl__shot-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+}
+.restl__shot-row strong {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+.restl__shot-row span:last-child {
+  color: var(--public-muted);
+  white-space: nowrap;
+}
+.restl__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: var(--public-selected);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.restl__thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  flex: 0 0 auto;
+  background: var(--warning-soft);
+  border: 1px solid var(--public-border);
+}
+.restl__split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+  gap: 24px;
+  align-items: start;
+}
+.restl__more {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.restl__more li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.restl__more h3 {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+.restl__more p {
+  margin: 2px 0 0;
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+}
+.restl__results {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.restl__results .card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.restl__results strong {
+  font-size: 0.9375rem;
+}
+.restl__results p {
+  margin: 0;
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+}
+.restl__result-chart {
+  height: 44px;
+}
+.restl__result-line {
+  width: 100%;
+  height: 44px;
+}
+.restl__result-line[data-tone='green'] {
+  color: var(--success);
+}
+.restl__result-line[data-tone='blue'] {
+  color: var(--primary);
+}
+.restl__result-line[data-tone='orange'] {
+  color: var(--warning);
+}
+.restl__result-line[data-tone='purple'] {
+  color: var(--violet);
+}
+.restl__tile[data-tone='green'] {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.restl__tile[data-tone='orange'] {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.restl__tile[data-tone='purple'] {
+  background: var(--violet-soft);
+  color: var(--violet);
+}
+.restl__start {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.restl__steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.restl__steps li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.restl__steps h3 {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+.restl__steps p {
+  margin: 2px 0 0;
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+}
+.restl__cta {
+  position: relative;
+}
+.restl__note--cta {
+  display: block;
+  position: static;
+  margin-top: 12px;
+  transform: rotate(-2deg);
+}
+@media (max-width: 64rem) {
+  .restl__band,
+  .restl__shots,
+  .restl__results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .restl__processes,
+  .restl__more {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .restl__split,
+  .restl__start {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 40rem) {
+  .restl__band,
+  .restl__shots,
+  .restl__results,
+  .restl__processes,
+  .restl__more,
+  .restl__steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Мобильная сцена /restaurants/: дашборд без сайдбара, метрики 2×2, телефон карточкой под ноутбуком */
+@media (max-width: 40rem) {
+  .restl .restl__laptop {
+    border-width: 6px;
+    border-bottom-width: 14px;
+  }
+  .restl .dash--restaurant {
+    grid-template-columns: 1fr;
+  }
+  .restl .dash--restaurant .dash__sidebar {
+    display: none;
+  }
+  .restl .dash--restaurant .dash__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .restl .dash--restaurant .dash__columns {
+    grid-template-columns: 1fr;
+  }
+  .restl__phone {
+    display: grid;
+    gap: 8px;
+    position: static;
+    width: auto;
+    margin-top: 12px;
+    padding: 14px 12px;
+    border: 6px solid var(--surface-solid);
+    border-radius: var(--radius);
+    background: var(--public-surface);
+    box-shadow: var(--shadow-floating);
   }
 }
 

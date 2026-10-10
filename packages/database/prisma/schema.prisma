@@ -57,6 +57,8 @@ model Business {
   customers        CustomerBusiness[]
   employees        Employee[]
   beautyServices   BeautyService[]
+  menuCategories   MenuCategory[]
+  menuItems        MenuItem[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -87,6 +89,7 @@ model Location {
   diningAreas            DiningArea[]
   servicePeriods         ServicePeriod[]
   restaurantReservations RestaurantReservation[]
+  restaurantOrders       RestaurantOrder[]
   onboardingProgress     OnboardingProgress?
   business               Business                @relation(fields: [businessId], references: [id])
   property               Property?
@@ -2174,6 +2177,9 @@ model User {
   extensionEdits               OrganizationExtension[]
   foodReservationsCreated      RestaurantReservation[]
   foodAssignmentsCreated       TableAssignment[]
+  restaurantOrdersCreated      RestaurantOrder[]
+  paySettingsEdited            EmployeePaySetting[]
+  payAdjustmentsCreated        EmployeePayAdjustment[]
   marketingSitesCreated        MarketingSite[]
   marketingSiteVersionsCreated MarketingSiteVersion[]
   generationRunsRequested      GenerationRun[]
@@ -2713,13 +2719,16 @@ model Employee {
   createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  business     Business           @relation(fields: [businessId], references: [id])
-  user         User?              @relation(fields: [userId], references: [id])
-  locations    EmployeeLocation[]
-  services     EmployeeService[]
-  workingHours WorkingHours[]
-  timeOffs     TimeOff[]
-  appointments Appointment[]
+  business         Business                @relation(fields: [businessId], references: [id])
+  user             User?                   @relation(fields: [userId], references: [id])
+  locations        EmployeeLocation[]
+  services         EmployeeService[]
+  workingHours     WorkingHours[]
+  timeOffs         TimeOff[]
+  appointments     Appointment[]
+  restaurantOrders RestaurantOrder[]
+  paySetting       EmployeePaySetting?
+  payAdjustments   EmployeePayAdjustment[]
 
   @@index([businessId])
   @@map("employees")
@@ -2903,16 +2912,18 @@ model DiningArea {
 }
 
 model DiningTable {
-  id          String            @id @default(uuid()) @db.Uuid
-  areaId      String            @map("area_id") @db.Uuid
-  name        String            @db.VarChar(100)
-  capacity    Int
-  sortOrder   Int               @default(0) @map("sort_order")
-  active      Boolean           @default(true)
-  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
-  area        DiningArea        @relation(fields: [areaId], references: [id])
-  assignments TableAssignment[]
+  id            String            @id @default(uuid()) @db.Uuid
+  areaId        String            @map("area_id") @db.Uuid
+  name          String            @db.VarChar(100)
+  capacity      Int
+  sortOrder     Int               @default(0) @map("sort_order")
+  active        Boolean           @default(true)
+  needsCleaning Boolean           @default(false) @map("needs_cleaning")
+  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  area          DiningArea        @relation(fields: [areaId], references: [id])
+  assignments   TableAssignment[]
+  orders        RestaurantOrder[]
 
   @@unique([areaId, name])
   @@map("dining_tables")
@@ -2979,4 +2990,162 @@ model TableAssignment {
 
   @@index([tableId])
   @@map("table_assignments")
+}
+
+enum RestaurantOrderStatus {
+  NEW
+  COOKING
+  READY
+  SERVED
+  CLOSED
+  CANCELLED
+}
+
+enum EmployeePayModel {
+  FIXED
+  PERCENT
+  FIXED_PLUS_PERCENT
+  BONUS_ONLY
+}
+
+/// Меню ресторана: каталог сети, принадлежит бизнесу FOOD_SERVICE (§33.1, ADR-159)
+model MenuCategory {
+  id         String     @id @default(uuid()) @db.Uuid
+  businessId String     @map("business_id") @db.Uuid
+  name       String     @db.VarChar(100)
+  sortOrder  Int        @default(0) @map("sort_order")
+  active     Boolean    @default(true)
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  business   Business   @relation(fields: [businessId], references: [id])
+  items      MenuItem[]
+
+  @@unique([businessId, name])
+  @@map("menu_categories")
+}
+
+/// Блюдо: цена в minor units, `active` — переключатель «в меню», `techNotes` — вкладка «Технология»
+model MenuItem {
+  id          String                @id @default(uuid()) @db.Uuid
+  businessId  String                @map("business_id") @db.Uuid
+  categoryId  String                @map("category_id") @db.Uuid
+  name        String                @db.VarChar(200)
+  weightGrams Int?                  @map("weight_grams")
+  price       BigInt
+  currency    String                @db.Char(3)
+  active      Boolean               @default(true)
+  techNotes   String?               @map("tech_notes")
+  sortOrder   Int                   @default(0) @map("sort_order")
+  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+  business    Business              @relation(fields: [businessId], references: [id])
+  category    MenuCategory          @relation(fields: [categoryId], references: [id])
+  ingredients MenuItemIngredient[]
+  orderItems  RestaurantOrderItem[]
+
+  @@index([businessId])
+  @@index([categoryId])
+  @@map("menu_items")
+}
+
+/// Строка техкарты: норма в г/мл/шт, `unitCost` — minor units за кг, л или штуку; стоимость вычисляется (§33.1)
+model MenuItemIngredient {
+  id         String   @id @default(uuid()) @db.Uuid
+  menuItemId String   @map("menu_item_id") @db.Uuid
+  name       String   @db.VarChar(200)
+  normQty    Decimal  @map("norm_qty") @db.Decimal(12, 3)
+  unit       String   @db.VarChar(8)
+  unitCost   BigInt   @map("unit_cost")
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([menuItemId])
+  @@map("menu_item_ingredients")
+}
+
+/// Заказ: номер по филиалу, статусная машина §33.2, `total` — снимок суммы строк
+model RestaurantOrder {
+  id          String                @id @default(uuid()) @db.Uuid
+  locationId  String                @map("location_id") @db.Uuid
+  number      Int
+  tableId     String?               @map("table_id") @db.Uuid
+  waiterId    String?               @map("waiter_id") @db.Uuid
+  guestCount  Int                   @default(1) @map("guest_count")
+  status      RestaurantOrderStatus @default(NEW)
+  notes       String?
+  total       BigInt                @default(0)
+  currency    String                @db.Char(3)
+  openedAt    DateTime              @default(now()) @map("opened_at") @db.Timestamptz(6)
+  cookingAt   DateTime?             @map("cooking_at") @db.Timestamptz(6)
+  readyAt     DateTime?             @map("ready_at") @db.Timestamptz(6)
+  servedAt    DateTime?             @map("served_at") @db.Timestamptz(6)
+  closedAt    DateTime?             @map("closed_at") @db.Timestamptz(6)
+  createdById String?               @map("created_by_id") @db.Uuid
+  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location    Location              @relation(fields: [locationId], references: [id])
+  table       DiningTable?          @relation(fields: [tableId], references: [id])
+  waiter      Employee?             @relation(fields: [waiterId], references: [id])
+  createdBy   User?                 @relation(fields: [createdById], references: [id])
+  items       RestaurantOrderItem[]
+
+  @@unique([locationId, number])
+  @@index([locationId, openedAt])
+  @@index([locationId, status])
+  @@index([tableId])
+  @@index([waiterId])
+  @@map("restaurant_orders")
+}
+
+/// Строка заказа: снимок имени и цены (блюдо могло уйти из меню, снимок остаётся)
+model RestaurantOrderItem {
+  id         String          @id @default(uuid()) @db.Uuid
+  orderId    String          @map("order_id") @db.Uuid
+  menuItemId String?         @map("menu_item_id") @db.Uuid
+  name       String          @db.VarChar(200)
+  price      BigInt
+  qty        Int
+  notes      String?         @db.VarChar(500)
+  sortOrder  Int             @default(0) @map("sort_order")
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  order      RestaurantOrder @relation(fields: [orderId], references: [id])
+  menuItem   MenuItem?       @relation(fields: [menuItemId], references: [id])
+
+  @@index([orderId])
+  @@index([menuItemId])
+  @@map("restaurant_order_items")
+}
+
+/// Оплата труда сотрудника (§33.4, форма §19.2): настройка 1:1 к employees
+model EmployeePaySetting {
+  employeeId  String           @id @map("employee_id") @db.Uuid
+  model       EmployeePayModel @default(FIXED)
+  fixedMinor  BigInt           @default(0) @map("fixed_minor")
+  percent     Int              @default(0) @db.SmallInt
+  currency    String           @db.Char(3)
+  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedById String?          @map("updated_by_id") @db.Uuid
+  employee    Employee         @relation(fields: [employeeId], references: [id])
+  updatedBy   User?            @relation(fields: [updatedById], references: [id])
+
+  @@map("employee_pay_settings")
+}
+
+/// Премии и штрафы: журнал только дописывается, знак в `amountMinor` (бонус плюс, штраф минус)
+model EmployeePayAdjustment {
+  id          String   @id @default(uuid()) @db.Uuid
+  employeeId  String   @map("employee_id") @db.Uuid
+  period      DateTime @db.Date
+  amountMinor BigInt   @map("amount_minor")
+  reason      String   @db.VarChar(200)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdById String?  @map("created_by_id") @db.Uuid
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  createdBy   User?    @relation(fields: [createdById], references: [id])
+
+  @@index([employeeId, period])
+  @@map("employee_pay_adjustments")
 }

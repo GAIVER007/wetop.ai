@@ -46,6 +46,8 @@
   --warning-soft: #fff3dd;
   --danger: #b42336;
   --danger-soft: #fde8eb;
+  --violet: #6d4fd0;
+  --violet-soft: #efeafc;
   --purple: #7860cb;
   --purple-soft: #f1eeff;
   --chip-bg: rgba(255, 255, 255, 0.62);
@@ -147,6 +149,8 @@
     --warning: #f6ba52;
     --warning-soft: rgba(62, 47, 24, 0.7);
     --danger: #ff8a98;
+    --violet: #a68bff;
+    --violet-soft: rgba(52, 40, 92, 0.7);
     --danger-soft: rgba(84, 26, 36, 0.7);
     --purple: #b4a0f2;
     --purple-soft: rgba(43, 35, 66, 0.7);
@@ -221,6 +225,8 @@
   --warning: #f6ba52;
   --warning-soft: rgba(62, 47, 24, 0.7);
   --danger: #ff8a98;
+  --violet: #a68bff;
+  --violet-soft: rgba(52, 40, 92, 0.7);
   --danger-soft: rgba(84, 26, 36, 0.7);
   --purple: #b4a0f2;
   --purple-soft: rgba(43, 35, 66, 0.7);

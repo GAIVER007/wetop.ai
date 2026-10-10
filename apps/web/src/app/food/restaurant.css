@@ -1,0 +1,334 @@
+@layer sections {
+  /* ── Главная ресторана (макет ADR-159): плитки, график, последние заказы ── */
+  .rest-dash {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .rest-dash-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .rest-latest {
+    display: grid;
+    gap: 0;
+  }
+  .rest-latest-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--border);
+  }
+  .rest-latest-row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .rest-latest-row strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .rest-latest-row .rest-latest-sum {
+    margin-left: auto;
+    display: grid;
+    justify-items: end;
+    gap: var(--space-1);
+  }
+  .rest-latest-row time,
+  .rest-latest-row small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+
+  /* ── Кухня (KDS): четыре колонки по макету ── */
+  .rest-kds {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .rest-kds-col {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+    min-height: 160px;
+    align-content: start;
+  }
+  .rest-kds-col > h2 {
+    margin: 0;
+    font-size: var(--text-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rest-kds-card {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-left-width: 3px;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    text-align: left;
+  }
+  .rest-kds-card[data-status='NEW'] {
+    border-left-color: var(--info);
+  }
+  .rest-kds-card[data-status='COOKING'] {
+    border-left-color: var(--warning);
+  }
+  .rest-kds-card[data-status='READY'] {
+    border-left-color: var(--success);
+  }
+  .rest-kds-card[data-delayed='true'] {
+    border-left-color: var(--danger);
+  }
+  .rest-kds-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .rest-kds-head small,
+  .rest-kds-card small {
+    color: var(--text-2);
+  }
+  .rest-kds-items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+  }
+  .rest-kds-card .btn {
+    justify-self: start;
+  }
+
+  /* ── Меню: строки блюд по макету ── */
+  .rest-menu-list {
+    display: grid;
+  }
+  .rest-menu-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--border);
+  }
+  .rest-menu-row:first-child {
+    border-top: 0;
+  }
+  .rest-menu-thumb {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+  }
+  .rest-menu-main {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+    flex: 1;
+  }
+  .rest-menu-main small {
+    color: var(--text-2);
+  }
+  .rest-menu-row .rest-menu-price {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .rest-menu-row .rest-menu-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  /* ── Техкарта: строки состава и итоги ── */
+  .rest-tech-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 0.8fr 0.7fr 1fr 0.9fr auto;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .rest-tech-grid .field {
+    min-width: 0;
+  }
+  .rest-tech-head {
+    font-size: var(--text-xs);
+    color: var(--text-2);
+  }
+  .rest-tech-cost {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .rest-tech-totals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+  }
+  .rest-tech-totals div {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .rest-tech-totals small {
+    color: var(--text-2);
+  }
+  .rest-tech-totals strong {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── План зала: легенда и статусы столов по макету ── */
+  .rest-floor-legend {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: var(--text-xs);
+    color: var(--text-2);
+  }
+  .rest-floor-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .rest-floor-legend i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .rest-floor-dot--free {
+    background: var(--success);
+  }
+  .rest-floor-dot--occupied {
+    background: var(--danger);
+  }
+  .rest-floor-dot--reserved {
+    background: var(--info);
+  }
+  .rest-floor-dot--cleaning {
+    background: var(--warning);
+  }
+  /* Карточка стола теперь контейнер: главная кнопка внутри, рядом переключатель уборки */
+  .food-table-card .food-table-main {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: var(--space-2);
+    flex: 1;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    min-height: 0;
+    width: 100%;
+  }
+  .food-table-card .food-table-main .badge {
+    margin-top: auto;
+  }
+  .food-table-card[data-kind='FREE'] {
+    border-left: 3px solid var(--success);
+  }
+  /* Только кромка и бейдж: заливка карточки роняла контраст подписей (axe, прогон …11-29-59Z) */
+  .food-table-card[data-kind='OCCUPIED'] {
+    border-left: 3px solid var(--danger);
+  }
+  .food-table-card[data-kind='RESERVED'] {
+    border-left: 3px solid var(--info);
+  }
+  .food-table-card[data-kind='CLEANING'] {
+    border-left: 3px solid var(--warning);
+  }
+
+  /* ── Заказы: состав в ячейке и форма нового заказа ── */
+  .rest-order-dishes {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    overflow-wrap: anywhere;
+  }
+  .rest-order-items {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .rest-order-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .rest-order-item strong {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-weight: 500;
+  }
+  .rest-order-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .rest-order-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-4);
+  }
+
+  /* ── Зарплата ── */
+  .rest-pay-model small {
+    color: var(--text-2);
+    display: block;
+  }
+
+  @media (max-width: 960px) {
+    .rest-dash-grid {
+      grid-template-columns: 1fr;
+    }
+    .rest-kds {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .rest-kds {
+      grid-template-columns: 1fr;
+    }
+    .rest-tech-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .rest-menu-row {
+      flex-wrap: wrap;
+    }
+    .rest-menu-row .rest-menu-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+}
+
+@layer sections {
+  /* Таблица во вкладках прокручивается сама и не растягивает страницу на телефоне */
+  .food-workspace .tabs-local,
+  .food-workspace .tabs__panel {
+    min-width: 0;
+    max-width: 100%;
+  }
+}

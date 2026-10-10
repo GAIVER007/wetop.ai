@@ -1,12 +1,13 @@
 import { requireVertical } from '../../lib/vertical-guard';
 import { deskShell } from '../../lib/desk-shell';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
-import { foodApi } from '../../lib/food-api';
+import { foodApi, restaurantApi } from '../../lib/food-api';
 import { completeFoodList, previousDate, validFoodReservation } from '../../lib/food-data';
 import type {
   DiningArea,
   DiningTable,
   FoodCustomer,
+  OrderView,
   ServicePeriod,
   RestaurantReservation,
   FoodWorkspace,
@@ -17,6 +18,7 @@ export async function loadFood(
   dateParam?: string,
   timeParam?: string,
   day = false,
+  withOrders = false,
 ): Promise<FoodWorkspace> {
   const me = await requireVertical(['FOOD_SERVICE']);
   if (me.context?.vertical !== 'FOOD_SERVICE' || !me.context.businessId || !me.context.locationId)
@@ -46,15 +48,21 @@ export async function loadFood(
         ? local.slice(11, 16)
         : (first?.timeFrom ?? '12:00');
   const days = day ? [date] : [date, previousDate(date)];
-  const lists = await Promise.all(
-    days.map((d) =>
-      completeFoodList<RestaurantReservation>(
-        (cursor) => foodApi.reservations(d, cursor),
-        validFoodReservation,
+  const [lists, orders] = await Promise.all([
+    Promise.all(
+      days.map((d) =>
+        completeFoodList<RestaurantReservation>(
+          (cursor) => foodApi.reservations(d, cursor),
+          validFoodReservation,
+        ),
       ),
     ),
-  );
+    withOrders
+      ? completeFoodList<OrderView>((cursor) => restaurantApi.openOrders(cursor))
+      : Promise.resolve(undefined),
+  ]);
   return {
+    ...(orders ? { orders } : {}),
     areas,
     tables,
     periods,

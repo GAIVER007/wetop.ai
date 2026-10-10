@@ -29,6 +29,8 @@ import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from './ari-publ
 import { CHANNEX_GATEWAY, type ChannexGateway } from './channels.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { runIntegrationCommand } from './integration-command';
+import { withIntegrationPropertyScope } from '../auth/request-context';
+import { localPropertyForChannex, mappedChannexProperties } from './mapped-properties';
 import { PROVIDER } from './sync.service';
 
 export interface RevisionOutcome {
@@ -217,9 +219,17 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     if (this.pulling) return;
     this.pulling = true;
     try {
-      const r = await this.pull();
-      if (r.received > 0)
-        this.log.log(`опрос ленты: получено ${r.received}, подтверждено ${r.acknowledged}`);
+      for (const mapping of await mappedChannexProperties(this.prisma.db)) {
+        try {
+          const r = await withIntegrationPropertyScope(mapping.localPropertyId, () =>
+            this.pull(mapping.providerPropertyId),
+          );
+          if (r.received > 0)
+            this.log.log(`опрос ленты объекта ${mapping.localPropertyId}: получено ${r.received}, подтверждено ${r.acknowledged}`);
+        } catch (e) {
+          this.log.warn(`опрос ленты объекта ${mapping.localPropertyId} не удался: ${redactText((e as Error).message, 1000)}`);
+        }
+      }
     } catch (e) {
       this.log.warn(`опрос ленты Channex не удался: ${redactText((e as Error).message, 1000)}`);
     } finally {
@@ -269,6 +279,10 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       const p = body.payload as { revision_id?: string } | undefined;
       if (!p?.revision_id) throw new BadRequestException('Нет payload.revision_id');
     }
+    const payload = body.payload as { property_id?: string } | undefined;
+    const providerPropertyId = body.property_id ?? payload?.property_id;
+    if (!providerPropertyId || !await localPropertyForChannex(this.prisma.db, providerPropertyId))
+      throw new ServiceUnavailableException('Объект webhook Channex не сопоставлен: событие требуется повторить');
     const event = body.event;
     const run = () =>
       this.processWebhookEvent(body).catch((e) =>
@@ -284,11 +298,26 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     property_id?: string;
     timestamp?: string;
   }): Promise<void> {
+    const payload = body.payload as { property_id?: string } | undefined;
+    const providerPropertyId = body.property_id ?? payload?.property_id;
+    if (!providerPropertyId) throw new BadRequestException('Webhook Channex без property_id');
+    const localPropertyId = await localPropertyForChannex(this.prisma.db, providerPropertyId);
+    if (!localPropertyId) throw new NotFoundException('Объект webhook Channex не сопоставлен');
+    return withIntegrationPropertyScope(localPropertyId, () =>
+      this.processMappedWebhookEvent(body, providerPropertyId),
+    );
+  }
+
+  private async processMappedWebhookEvent(body: {
+    event?: string;
+    payload?: unknown;
+    property_id?: string;
+    timestamp?: string;
+  }, providerPropertyId: string): Promise<void> {
     if (body.event!.startsWith('booking')) {
       // Событие — сигнал забрать ревизию: читаем ленту своего объекта целиком (в ней и эта ревизия, и всё, что
       // не подтвердилось раньше), разбираем по порядку inserted_at и подтверждаем каждую разобранную
-      const p = body.payload as { property_id?: string } | undefined;
-      await this.pull(body.property_id ?? p?.property_id, 'WEBHOOK');
+      await this.pull(providerPropertyId, 'WEBHOOK');
       return;
     }
     // Остальные события журналируем и считаем обработанными (sync_error и т.п. — для человека)
@@ -495,6 +524,9 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     const outcomes: RevisionOutcome[] = [];
     let acknowledged = 0;
     for (const rev of feed) {
+      if (propertyId && rev.attributes.property_id !== propertyId) {
+        throw new BadRequestException('Лента Channex вернула ревизию другого объекта: подтверждение остановлено');
+      }
       // Одна плохая ревизия не должна обрывать ленту: без этого следующие брони не будут ни обработаны,
       // ни подтверждены, а неподтверждённая ревизия останется во главе ленты и заблокирует каждый опрос.
       // Событие уже помечено FAILED внутри processRevision, ack не отправляется — Channex вернёт её снова.

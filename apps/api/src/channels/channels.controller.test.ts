@@ -188,6 +188,12 @@ function makeFakes() {
     return x.toISOString().slice(0, 10);
   };
   const repo: ChannelsRepository = {
+    async connectedProperties() {
+      return [{ localPropertyId: 'P', providerPropertyId: 'chx-property' }];
+    },
+    async currentPropertyId() {
+      return 'P';
+    },
     async today() {
       // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
       return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -207,6 +213,7 @@ function makeFakes() {
           timezone: 'Asia/Almaty',
           country: 'KZ',
           city: 'Алматы',
+          propertyType: 'hostel',
           address: null,
           email: null,
           phone: null,
@@ -556,6 +563,12 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     await app.close();
   });
 
+  it('refuses to create an external property when an active category has no price today', async () => {
+    fakes.repo.dailyRates = async () => [];
+    await request(app.getHttpServer()).post('/channels/channex/setup').expect(422);
+    expect(fakes.calls.filter((call) => call.op === 'createProperty')).toHaveLength(0);
+  });
+
   it('setup creates property, room types and one rate plan per category, saves mapping; second run creates nothing', async () => {
     const first = await request(app.getHttpServer()).post('/channels/channex/setup').expect(200);
     expect(first.body.created).toEqual({ property: true, roomTypes: 2, ratePlans: 2 });
@@ -709,6 +722,7 @@ describe('Channex setup and full sync (contract on fakes)', () => {
         timezone: 'Asia/Almaty',
         country: 'KZ',
         city: 'A',
+        propertyType: 'hostel',
         address: null,
         email: null,
         phone: null,

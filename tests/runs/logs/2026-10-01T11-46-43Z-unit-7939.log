@@ -1,0 +1,17 @@
+# Модульные (unit) · 01.10.2026 16:46 Алматы · MacBook-Air-Urij.local
+# коммит 5880f14 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 76
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T11-46-43Z-unit-7939.json' 'apps/api/src/hotel/branches.test.ts' 'apps/api/src/hotel/branch-context.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (4 tests) 10ms
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (3 tests) 5ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  15:46:45
+   Duration  1.14s (transform 53%, import 46%, tests 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T11-46-43Z-unit-7939.json
+
+# код выхода 0 · 3 с

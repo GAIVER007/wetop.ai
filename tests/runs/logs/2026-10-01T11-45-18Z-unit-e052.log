@@ -1,0 +1,50 @@
+# Модульные (unit) · 01.10.2026 16:45 Алматы · MacBook-Air-Urij.local
+# коммит 5880f14 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 71
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T11-45-18Z-unit-e052.json' 'apps/api/src/hotel/branches.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/api/src/hotel/branches.test.ts (4 tests | 1 failed) 12ms
+   ❯ создание филиала (4)
+     ✓ сотрудник не создаёт филиал, даже вызывая сервис напрямую 3ms
+     ✓ не принимает неверный часовой пояс до записи 2ms
+     ✓ повтор с тем же UUID возвращает исходный объект 3ms
+     × UUID другой формы не притворяется успешным созданием 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/branches.test.ts > создание филиала > UUID другой формы не притворяется успешным созданием
+AssertionError: promise resolved "{ …(5) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "address": "",
++   "currency": "KZT",
++   "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
++   "name": "Другой филиал",
++   "timezone": "Asia/Almaty",
+  }
+
+ ❯ apps/api/src/hotel/branches.test.ts:33:51
+     31|   it('UUID другой формы не притворяется успешным созданием', async () …
+     32|     const { service } = setup({ ...input, name: 'Другой филиал' });
+     33|     await expect(run(() => service.create(input))).rejects.toThrow('по…
+       |                                                   ^
+     34|   });
+     35| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  15:45:20
+   Duration  730ms (import 49%, transform 49%, tests 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T11-45-18Z-unit-e052.json
+
+# код выхода 1 · 2 с

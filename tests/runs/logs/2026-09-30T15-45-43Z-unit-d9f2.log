@@ -1,0 +1,30 @@
+# Модульные (unit) · 30.09.2026 20:45 Алматы · MacBook-Air-Urij.local
+# коммит 0110f56 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T15-45-43Z-unit-d9f2.json' 'apps/api/src/web-booking/seller-booking-rules.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/api/src/web-booking/seller-booking-rules.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/web-booking/seller-booking-rules.test.ts [ apps/api/src/web-booking/seller-booking-rules.test.ts ]
+Error: Cannot find module './seller-booking-rules' imported from /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/api/src/web-booking/seller-booking-rules.test.ts
+ ❯ apps/api/src/web-booking/seller-booking-rules.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { assertBookingConfirmation, bookingRequestHash } from './selle…
+       | ^
+      3|
+      4| const intent = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  19:45:46
+   Duration  137ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T15-45-43Z-unit-d9f2.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 21:40 Алматы · vm
+# коммит 068cf57 (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-40-22Z-unit-8733.json' 'apps/web/src/lib/ai-agents.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (8 tests) 6ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  16:40:23
+   Duration  711ms (transform 87%, import 11%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-40-22Z-unit-8733.json
+
+# код выхода 0 · 1 с

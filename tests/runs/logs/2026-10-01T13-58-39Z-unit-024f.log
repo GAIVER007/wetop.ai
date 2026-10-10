@@ -1,0 +1,17 @@
+# Модульные (unit) · 01.10.2026 18:58 Алматы · MacBook-Air-Urij.local
+# коммит df6723c (codex/unified-workspace-20260929), незакоммиченных файлов набора: 70
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T13-58-39Z-unit-024f.json' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+[Nest] 22916  - 09/10/2026, 10:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (46 tests) 388ms
+
+ Test Files  1 passed (1)
+      Tests  46 passed (46)
+   Start at  17:58:40
+   Duration  1.71s (transform 42%, import 34%, tests 24%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T13-58-39Z-unit-024f.json
+
+# код выхода 0 · 3 с

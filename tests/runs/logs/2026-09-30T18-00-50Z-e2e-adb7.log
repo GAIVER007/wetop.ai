@@ -1,0 +1,291 @@
+# Сквозные (e2e) · 30.09.2026 23:00 Алматы · MacBook-Air-Urij.local
+# коммит 4800dfe (codex/unified-workspace-20260929), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/channex-screens.spec.ts' '--workers=1'
+[WebServer] (node:64384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64423) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+(node:64577) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]       <RedirectBoundary>
+[WebServer]         <RedirectErrorBoundary router={{...}}>
+[WebServer]           <InnerLayoutRouter url="/channels" tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]             <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]               <SegmentTrieNode>
+[WebServer]               <ChannelSalesPage>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                     <header>
+[WebServer]                     <nav>
+[WebServer]                     <Overview>
+[WebServer]                       <div className="stack chan...">
+[WebServer]                         <div>
+[WebServer]                         <div>
+[WebServer]                         <ChannelReport>
+[WebServer]                           <section className="stack stac..." aria-labelledby="channel-re...">
+[WebServer]                             <h2>
+[WebServer]                             <p>
+[WebServer]                             <form method="get" action="/channels" className="row toolba..." data-testid="channel-pe...">
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field">
+[WebServer]                                   <DateInput name="from" defaultValue="2026-09-01" required={true}>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-09-01"
+[WebServer]                                         required={true}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field">
+[WebServer]                                   <DateInput name="to" rangeFromName="from" defaultValue="2026-09-30" required={true}>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-09-30"
+[WebServer]                                         required={true}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                         ...
+[WebServer]             ...
+[WebServer]           ...
+[WebServer]  
+[
+  { c: 'page__head', h: 34, y: 90 },
+  { c: 'settings-tabs channels-tabs', h: 49, y: 136 },
+  { c: 'stack channels-overview', h: 710, y: 199 },
+  { c: 'panel state-bar state-bar--wide', h: 120, y: 199 },
+  { c: 'alert alert--boxed', h: 54, y: 330 },
+  { c: 'stack stack--sm channels-report', h: 440, y: 396 },
+  { c: 'section-title', h: 20, y: 396 },
+  { c: 'note', h: 18, y: 397 },
+  { c: 'row toolbar channels-period', h: 64, y: 425 },
+  { c: 'stats', h: 124, y: 498 },
+  { c: 'table-scroll', h: 173, y: 631 },
+  { c: 'context-help', h: 24, y: 813 },
+  { c: 'context-help', h: 24, y: 849 },
+  { c: 'context-help', h: 24, y: 884 }
+]
+  ✘   1 tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (4.5s)
+(node:64705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64722) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/channels-compact.spec.ts:16:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (2.4s)
+[WebServer] (node:64726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/channels-compact.spec.ts:22:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (2.3s)
+[WebServer] (node:64733) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм (4.0s)
+[WebServer] (node:64755) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой (3.7s)
+[WebServer] (node:64775) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64782) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/channex-screens.spec.ts:108:1 › подключения каналов: настройка подключения только владельцу (9.0s)
+[WebServer] (node:64791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64797) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/channex-screens.spec.ts:140:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» (32.7s)
+  ✓   8 tests/ui/channex-screens.spec.ts:210:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (7.3s)
+  ✓   9 tests/ui/channex-screens.spec.ts:270:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (4.6s)
+[WebServer] (node:65181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/channex-screens.spec.ts:289:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» (3.9s)
+[WebServer] (node:65198) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/channex-screens.spec.ts:318:1 › события: фильтры, поиск и постраничность на своей вкладке (7.0s)
+[WebServer] (node:65223) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65227) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/channex-screens.spec.ts:354:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку (6.7s)
+[WebServer] (node:65239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/channex-screens.spec.ts:363:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (5.9s)
+[WebServer] (node:65251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/channex-screens.spec.ts:412:1 › приём брони: ревизия с двоеточиями в номере открывается (2.3s)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:152:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:58:12)
+[WebServer]   150 |         /* тело не JSON */
+[WebServer]   151 |       }
+[WebServer] > 152 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   153 |   }
+[WebServer]   154 |   return (await res.json()) as T;
+[WebServer]   155 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] (node:65255) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/ui/channex-screens.spec.ts:426:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (2.3s)
+  ✘  16 tests/ui/channex-screens.spec.ts:446:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (18.0s)
+(node:65300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65330) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/ui/channex-screens.spec.ts:514:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (14.0s)
+[WebServer] (node:65374) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/ui/channex-screens.spec.ts:606:1 › отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (11.1s)
+
+
+  1) tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      11 |   await page.screenshot({ path: 'reports/channels-compact-desktop.png', fullPage: true });
+      12 |   console.log(await page.locator('main > *, .channels-overview > *, .channels-report > *').evaluateAll(es => es.map(e => ({c:e.className,h:Math.round(e.getBoundingClientRect().height),y:Math.round(e.getBoundingClientRect().top)}))));
+    > 13 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(true);
+         |                                                                                               ^
+      14 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+      15 | });
+      16 | test('нет подключения: пустая очередь не выдаётся за успешную отправку', async ({ page, request }) => {
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/channels-compact.spec.ts:13:95
+
+    Error Context: test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/channex-screens.spec.ts:446:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('navigation', { name: 'Категория' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('navigation', { name: 'Категория' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('navigation', { name: 'Категория' })
+
+
+      460 |   await page.goto('/rates?month=2026-10');
+      461 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
+    > 462 |   await expect(main.getByRole('navigation', { name: 'Категория' })).toBeVisible();
+          |                                                                     ^
+      463 |   await main.getByTestId('rates-edit-open').click();
+      464 |   await expect(main.getByTestId('bulk-editor')).toBeVisible();
+      465 |   await page.keyboard.press('Escape');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/channex-screens.spec.ts:462:69
+
+    Error Context: test-results/channex-screens-цены-сбой--d7b48-чник-назван-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-цены-сбой--d7b48-чник-назван-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-цены-сбой--d7b48-чник-назван-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+    tests/ui/channex-screens.spec.ts:446:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом 
+  16 passed (2.7m)
+
+# код выхода 1 · 2 мин 45 с

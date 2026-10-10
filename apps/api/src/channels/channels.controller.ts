@@ -138,7 +138,7 @@ export class ChannelsController {
       Number(process.env.CHANNEX_STATUS_TIMEOUT_MS ?? 10_000),
       'Менеджер каналов не ответил на запрос webhook вовремя — повторите проверку позже',
     );
-    const health = this.health.snapshot();
+    const health = this.health.snapshot(await this.repo.currentPropertyId());
     return {
       ...status,
       ...health,

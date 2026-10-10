@@ -1,0 +1,102 @@
+# Сквозные (e2e) · 29.09.2026 20:59 Алматы · MacBook-Air-Urij.local
+# коммит 9fbab19 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.widget.config.ts'
+
+Running 3 tests using 1 worker
+
+(node:31671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return (30.6s)
+(node:32007) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/widget-design.spec.ts:28:1 › multiline, failure retains draft and attachment, no duplicate sends (30.4s)
+(node:32119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/widget-design.spec.ts:41:1 › themes and mobile layout (19.2s)
+
+
+  1) tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return ──────
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      3 | const script = readFileSync('apps/ai-seller/src/site/widget.js', 'utf8');
+      4 | let sent: unknown[];
+    > 5 | test.beforeEach(async ({ page }) => {
+        |      ^
+      6 |   sent = [];
+      7 |   await page.route('https://widget.test/**', async route => {
+      8 |     const path = new URL(route.request().url()).pathname;
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:5:6
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Открыть чат', exact: true })
+
+
+      15 |   });
+      16 |   await page.goto('https://widget.test/');
+    > 17 |   await page.getByRole('button', { name: 'Открыть чат', exact: true }).click();
+         |                                                                        ^
+      18 | });
+      19 | test('welcome, draft suggestions, close and focus return', async ({ page }) => {
+      20 |   await expect(page.getByText('Помощник WETOP', { exact: true })).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:17:72
+
+    Error Context: test-results/widget-design-welcome-draf-5e382-ions-close-and-focus-return/error-context.md
+
+  2) tests/ui/widget-design.spec.ts:28:1 › multiline, failure retains draft and attachment, no duplicate sends 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      3 | const script = readFileSync('apps/ai-seller/src/site/widget.js', 'utf8');
+      4 | let sent: unknown[];
+    > 5 | test.beforeEach(async ({ page }) => {
+        |      ^
+      6 |   sent = [];
+      7 |   await page.route('https://widget.test/**', async route => {
+      8 |     const path = new URL(route.request().url()).pathname;
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:5:6
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Открыть чат', exact: true })
+
+
+      15 |   });
+      16 |   await page.goto('https://widget.test/');
+    > 17 |   await page.getByRole('button', { name: 'Открыть чат', exact: true }).click();
+         |                                                                        ^
+      18 | });
+      19 | test('welcome, draft suggestions, close and focus return', async ({ page }) => {
+      20 |   await expect(page.getByText('Помощник WETOP', { exact: true })).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:17:72
+
+    Error Context: test-results/widget-design-multiline-fa-6e996-tachment-no-duplicate-sends/error-context.md
+
+  3) tests/ui/widget-design.spec.ts:41:1 › themes and mobile layout ────────────────────────────────
+
+    Test was interrupted.
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: 'Открыть чат', exact: true })
+
+
+      15 |   });
+      16 |   await page.goto('https://widget.test/');
+    > 17 |   await page.getByRole('button', { name: 'Открыть чат', exact: true }).click();
+         |                                                                        ^
+      18 | });
+      19 | test('welcome, draft suggestions, close and focus return', async ({ page }) => {
+      20 |   await expect(page.getByText('Помощник WETOP', { exact: true })).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:17:72
+
+    Error Context: test-results/widget-design-themes-and-mobile-layout/error-context.md
+
+  2 failed
+    tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return ───────
+    tests/ui/widget-design.spec.ts:28:1 › multiline, failure retains draft and attachment, no duplicate sends 
+  1 interrupted
+    tests/ui/widget-design.spec.ts:41:1 › themes and mobile layout ─────────────────────────────────
+
+# код выхода 130 · 1 мин 46 с

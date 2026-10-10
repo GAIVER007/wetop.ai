@@ -1,0 +1,31 @@
+--- бот 0009 на настоящей PostgreSQL 16 (pgvector подменён: колонка vector → float8[], hnsw пропущен; остальное — как на рабочей базе)
+ok up 0008
+--- до 0009: агентов | клиентов организации без agent_id
+     1 |     1
+
+ok up 0009
+--- после 0009: агентов | клиентов без agent_id | строк помощника без агента
+     2 |     0 |     1
+
+--- индексы: новые есть, прежние по организации на месте
+ idx_conversations_agent_activity
+ uq_clients_agent_channel_external
+ uq_clients_org_channel_external
+ uq_documents_agent_hash
+ uq_documents_org_hash
+ uq_whatsapp_connections_agent
+
+--- ограничения подключения WhatsApp: первичный ключ — прежний (по организации)
+ fk_whatsapp_connections_agent            | f
+ fk_whatsapp_connections_organization     | f
+ whatsapp_connections_phone_number_id_key | u
+ whatsapp_connections_pkey                | p
+
+ok down 0008
+--- после отката: агентов | клиентов | документов | подключений | добавленных индексов
+     2 |     3 |     1 |     1 |     0
+
+ok up 0009
+--- повторный up: добавленных индексов
+     3
+

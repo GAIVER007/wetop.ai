@@ -1,121 +1,71 @@
 import 'reflect-metadata';
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
-import { describe, expect, it, vi } from 'vitest';
-import { databaseTenant, withSignedInUser } from '../auth/request-context';
+import { BadRequestException } from '@nestjs/common';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { currentIntegrationPropertyId, databaseTenant, withSignedInUser } from '../auth/request-context';
+import { forgetPropertyRef } from '../database/property-ref';
 import type { PrismaService } from '../database/prisma.provider';
 import { runIntegrationCommand, FOREIGN_CHANNEX_PROPERTY } from './integration-command';
-import { CHANNEL_OPERATOR_FOREIGN_MESSAGE } from './operator-access';
 
-/**
- * Q-225 (а*): служебная роль получает не запрос человека, а интеграционную команду. Проверки — организация и объект
- * интеграции — идут на роли организации до перехода, идентификатор объекта Channex сверяется с сопоставлениями объекта,
- * который выбрал сервер (`INTEGRATION_PROPERTY_ID`), а не с тем, что прислал клиент.
- */
-const ORG_A = '11111111-1111-4111-8111-111111111111';
-const ORG_B = '22222222-2222-4222-8222-222222222222';
-const PROPERTY = '33333333-3333-4333-8333-333333333333';
-const ENV_KEY = 'INTEGRATION_PROPERTY_ID';
+const ORG = '11111111-1111-4111-8111-111111111111';
+const A = '33333333-3333-4333-8333-333333333333';
+const B = '44444444-4444-4444-8444-444444444444';
+const rows = [
+  { propertyId: A, providerPropertyId: 'chx-a' },
+  { propertyId: B, providerPropertyId: 'chx-b' },
+];
 
-function prismaOf(organizationId: string | null, providerIds: string[] = ['chx-1']) {
-  const tenantsSeen: Array<string | null> = [];
+function setup(mappingRows = rows) {
   const db = {
     property: {
-      findUnique: vi.fn(async () => {
-        tenantsSeen.push(databaseTenant());
-        return organizationId === null ? null : { id: PROPERTY, organizationId };
-      }),
+      findFirst: vi.fn(async ({ where }: { where: { locationId?: string } }) => ({
+        id: where.locationId === 'location-b' ? B : A,
+        name: 'Same hotel', organizationId: ORG, timezone: 'Asia/Almaty',
+      })),
     },
-    channelMapping: {
-      findMany: vi.fn(async () => {
-        tenantsSeen.push(databaseTenant());
-        return providerIds.map((providerPropertyId) => ({ providerPropertyId }));
-      }),
-    },
+    channelMapping: { findMany: vi.fn(async () => mappingRows) },
   };
-  return { prisma: { db } as unknown as PrismaService, db, tenantsSeen };
+  return { prisma: { db } as unknown as PrismaService, db };
 }
 
-async function withServerProperty<T>(fn: () => Promise<T>): Promise<T> {
-  const before = process.env[ENV_KEY];
-  process.env[ENV_KEY] = PROPERTY;
-  try {
-    return await fn();
-  } finally {
-    if (before === undefined) delete process.env[ENV_KEY];
-    else process.env[ENV_KEY] = before;
-  }
-}
+const asBranch = <T>(locationId: string, fn: () => Promise<T>) =>
+  withSignedInUser({ userId: 'user', organizationId: ORG, scope: 'LOCATION', locationId }, fn);
 
-const asOrg = <T>(organizationId: string, fn: () => Promise<T>) =>
-  withSignedInUser({ userId: 'user-1', organizationId }, fn);
+beforeEach(() => forgetPropertyRef());
 
-describe('интеграционная команда (Q-225 а*)', () => {
-  it('запрос организации-оператора: сама операция идёт служебной ролью, проверки — до перехода', async () => {
-    const { prisma, tenantsSeen } = prismaOf(ORG_A);
-    const inside: Array<string | null> = [];
-    const answer = await withServerProperty(() =>
-      asOrg(ORG_A, () =>
-        runIntegrationCommand(prisma, undefined, async () => {
-          inside.push(databaseTenant());
-          return 'ok';
-        }),
-      ),
-    );
-    expect(answer).toBe('ok');
-    expect(inside).toEqual([null]);
-    // объект интеграции и сопоставления читаются служебной ролью: под ролью организации чужие объекты не видны (RLS)
-    expect(tenantsSeen.every((t) => t === null)).toBe(true);
+describe('Channex command property isolation', () => {
+  it('uses the selected branch and service DB only after branch validation', async () => {
+    const { prisma } = setup();
+    const run = vi.fn(async (providerId: string | undefined) => ({
+      providerId, localId: currentIntegrationPropertyId(), tenant: databaseTenant(),
+    }));
+    expect(await asBranch('location-a', () => runIntegrationCommand(prisma, undefined, run)))
+      .toEqual({ providerId: 'chx-a', localId: A, tenant: null });
+    expect(await asBranch('location-b', () => runIntegrationCommand(prisma, undefined, run)))
+      .toEqual({ providerId: 'chx-b', localId: B, tenant: null });
   });
 
-  it('организация не оператор интеграции: отказ, операция не выполняется', async () => {
-    const { prisma } = prismaOf(ORG_B);
-    const run = vi.fn(async () => 'нельзя');
-    await expect(
-      withServerProperty(() => asOrg(ORG_A, () => runIntegrationCommand(prisma, undefined, run))),
-    ).rejects.toThrow(new ForbiddenException(CHANNEL_OPERATOR_FOREIGN_MESSAGE));
+  it('rejects a foreign provider ID and never executes the command', async () => {
+    const { prisma } = setup();
+    const run = vi.fn(async () => 'wrong');
+    await expect(asBranch('location-a', () => runIntegrationCommand(prisma, 'chx-b', run)))
+      .rejects.toThrow(new BadRequestException(FOREIGN_CHANNEX_PROPERTY));
     expect(run).not.toHaveBeenCalled();
   });
 
-  it('объекта интеграции нет: отказ', async () => {
-    const { prisma } = prismaOf(null);
-    const run = vi.fn(async () => 'нельзя');
-    await expect(
-      withServerProperty(() => asOrg(ORG_A, () => runIntegrationCommand(prisma, undefined, run))),
-    ).rejects.toBeInstanceOf(ForbiddenException);
-    expect(run).not.toHaveBeenCalled();
+  it('refuses an unmapped branch and ambiguous unscoped service command', async () => {
+    const { prisma } = setup([rows[0]!]);
+    await expect(asBranch('location-b', () => runIntegrationCommand(prisma, undefined, async () => 'wrong')))
+      .rejects.toBeInstanceOf(BadRequestException);
+    const two = setup();
+    await expect(runIntegrationCommand(two.prisma, undefined, async () => 'wrong'))
+      .rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('идентификатор объекта Channex от клиента: чужой отклоняется, свой проходит', async () => {
-    const { prisma } = prismaOf(ORG_A, ['chx-1', 'chx-2']);
-    const run = vi.fn(async (id: string | undefined) => id);
-    await expect(
-      withServerProperty(() => asOrg(ORG_A, () => runIntegrationCommand(prisma, 'chx-чужой', run))),
-    ).rejects.toThrow(new BadRequestException(FOREIGN_CHANNEX_PROPERTY));
-    expect(run).not.toHaveBeenCalled();
-    const ok = await withServerProperty(() =>
-      asOrg(ORG_A, () => runIntegrationCommand(prisma, 'chx-2', run)),
-    );
-    expect(ok).toBe('chx-2');
-  });
-
-  it('фоновый путь без организации (опрос, вебхук, сторож): ничего не проверяется и не читается, идентификатор как есть', async () => {
-    const { prisma, db } = prismaOf(ORG_B);
-    const run = vi.fn(async (id: string | undefined) => id);
-    const answer = await runIntegrationCommand(prisma, 'что-угодно-из-вебхука', run);
-    expect(answer).toBe('что-угодно-из-вебхука');
-    expect(db.property.findUnique).not.toHaveBeenCalled();
-    expect(db.channelMapping.findMany).not.toHaveBeenCalled();
-  });
-
-  it('вложенный вызов внутри команды повторно не проверяется', async () => {
-    const { prisma, db } = prismaOf(ORG_A);
-    await withServerProperty(() =>
-      asOrg(ORG_A, () =>
-        runIntegrationCommand(prisma, undefined, () =>
-          runIntegrationCommand(prisma, undefined, async () => 'вложенный'),
-        ),
-      ),
-    );
-    expect(db.property.findUnique).toHaveBeenCalledTimes(1);
+  it('keeps the same property through nested commands', async () => {
+    const { prisma } = setup();
+    const result = await asBranch('location-b', () => runIntegrationCommand(prisma, undefined, () =>
+      runIntegrationCommand(prisma, 'chx-b', async (id) => ({ id, property: currentIntegrationPropertyId() })),
+    ));
+    expect(result).toEqual({ id: 'chx-b', property: B });
   });
 });

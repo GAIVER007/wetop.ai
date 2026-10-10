@@ -1,0 +1,98 @@
+# Сквозные (e2e) · 01.10.2026 16:19 Алматы · MacBook-Air-Urij.local
+# коммит a1b240e (codex/unified-workspace-20260929), незакоммиченных файлов набора: 94
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/staff.spec.ts' 'tests/ui/navigation.spec.ts' '--workers=1'
+[WebServer] (node:71183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71266) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71269) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:71313) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:71319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/navigation.spec.ts:32:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (6.3s)
+  ✓   2 tests/ui/navigation.spec.ts:46:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.0s)
+[WebServer] (node:71369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/navigation.spec.ts:85:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (4.0s)
+  ✘   4 tests/ui/navigation.spec.ts:112:1 › все пункты меню открывают существующие страницы (5.8s)
+(node:71398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/navigation.spec.ts:141:3 › навигация ровная, адаптивная и доступная: light (9.5s)
+  ✓   6 tests/ui/navigation.spec.ts:141:3 › навигация ровная, адаптивная и доступная: dark (4.8s)
+[WebServer] (node:71478) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/staff.spec.ts:13:1 › сотрудники: приглашение управляющего сохраняется после перезагрузки и сразу отзывается (7.9s)
+[WebServer] (node:71664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/staff.spec.ts:38:1 › сотрудники: компактный экран и доступность на desktop и mobile (3.9s)
+[WebServer] (node:71683) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/staff.spec.ts:54:1 › администратор не получает список сотрудников по прямому адресу (1.5s)
+[WebServer] (node:71692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/staff.spec.ts:64:1 › выбор роли показывает конкретные разрешения (1.2s)
+[WebServer] (node:71697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/staff.spec.ts:81:1 › навигация разделяет задачи и сохраняет единый экран подключения (3.0s)
+
+
+  1) tests/ui/navigation.spec.ts:112:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('heading', { level: 1 })
+    Expected: visible
+    Error: strict mode violation: getByRole('main').getByRole('heading', { level: 1 }) resolved to 2 elements:
+        1) <h1 class="page__title">Номерной фонд</h1> aka getByRole('heading', { name: 'Номерной фонд' }).first()
+        2) <h1 class="page__title">Номерной фонд</h1> aka getByRole('heading', { name: 'Номерной фонд' }).nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+
+
+      130 |       await link.click();
+      131 |       await expect(page).toHaveURL(new RegExp(`${href}$`));
+    > 132 |       await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
+          |                                                                               ^
+      133 |       await expect(page.getByRole('main')).not.toContainText('Не удалось загрузить данные');
+      134 |       await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
+      135 |       await expect(link).toHaveAttribute('aria-current', 'page');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/navigation.spec.ts:132:79
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/navigation.spec.ts:112:1 › все пункты меню открывают существующие страницы ────────────
+  10 passed (1.1m)
+
+# код выхода 1 · 1 мин 8 с

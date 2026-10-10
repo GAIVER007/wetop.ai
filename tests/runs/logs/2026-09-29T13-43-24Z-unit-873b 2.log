@@ -1,0 +1,88 @@
+# Модульные (unit) · 29.09.2026 18:43 Алматы · vm
+# коммит b8c2794 (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-43-24Z-unit-873b.json' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 14ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (7 tests) 463ms
+ ❯ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (22 tests | 2 failed) 474ms
+   ❯ виджет бронирования /w/* (22)
+     ✓ скрипт виджета и CORS: свой домен получает заголовки, чужой — нет; preflight — 204 28ms
+     ✓ цены и места: категории с тарифом, цена за период, «мест нет», закрытая ограничением, без тарифа не показана 12ms
+     ✓ чужой Origin → 403 3ms
+     ✓ неизвестный ключ → 404 3ms
+     ✓ бронирование выключено → 404 8ms
+     ✓ заезд вчера → 400 5ms
+     × промокод: цены со скидкой, ответ называет код; неверный, выключенный и не на эти даты — 400 словами; в бронь уходит код 7ms
+     × производный тариф сайта: окно продаж закрывает продажу, как ограничение; правило в окне — цены есть 5ms
+     ✓ расчёт и бронь идут от имени организации сайта, а не объекта Luxx по имени 11ms
+     ✓ бронь: DTO для ReservationsService — WEBSITE, тариф сайта, autoAssign, псевдоним гостя; сессия связана; журнал 6ms
+     ✓ бронь сразу после первого просмотра: очередь счётчика записана до привязки, источник брони не теряется (гонка 15.09.2026) 4ms
+     ✓ honeypot, кривая форма и чужой домен — без брони 8ms
+     ✓ сайт другого объекта: ни цен, ни брони в чужом фонде — понятный отказ 4ms
+     ✓ неудачные попытки не расходуют лимит сайта 76ms
+     ✓ одновременные брони с разных адресов не выходят за предел сайта в час 23ms
+     ✓ сбой после записи брони не превращается в ошибку для гостя 3ms
+     ✓ цены: больше 60 запросов в минуту с одного адреса — 429 120ms
+     ✓ лимит: шестая бронь с одного адреса за час — 429 18ms
+     ✓ Д3: за туннелем Cloudflare все запросы приходят с 127.0.0.1 — лимит считается по CF-Connecting-IP посетителя 24ms
+     ✓ С-7: предел броней за час держит журнал, а не память — после «перезапуска» он не обнуляется 3ms
+     ✓ С-7: упёршийся предел записывает неисправность booking.flood — сторож разбудит; адреса в ней нет 15ms
+     ✓ демо-страница: виджет и счётчик по ключу; сайт без бронирования — 404 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > промокод: цены со скидкой, ответ называет код; неверный, выключенный и не на эти даты — 400 словами; в бронь уходит код
+AssertionError: expected undefined to deeply equal { code: 'SUMMER10', …(1) }
+
+- Expected:
+{
+  "code": "SUMMER10",
+  "discountPercent": 10,
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/web-booking/web-booking.controller.test.ts:386:27
+    384|       get(`/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&depa…
+    385|     const ok = await q('summer10').expect(200);
+    386|     expect(ok.body.promo).toEqual({ code: 'SUMMER10', discountPercent:…
+       |                           ^
+    387|     expect(fakeRepo.lastPromoPercent).toBe(10);
+    388|     const none = await get(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > производный тариф сайта: окно продаж закрывает продажу, как ограничение; правило в окне — цены есть
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/api/src/web-booking/web-booking.controller.test.ts:417:91
+    415|       `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departur…
+    416|     ).expect(200);
+    417|     expect((closed.body.categories as Array<{ closed: boolean }>).ever…
+       |                                                                                           ^
+    418|     (plan as { derivedRule?: unknown }).derivedRule = {
+    419|       discountPercent: 15,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 31 passed (33)
+   Start at  13:43:25
+   Duration  2.90s (transform 56%, import 26%, tests 17%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-43-24Z-unit-873b.json
+
+# код выхода 1 · 4 с

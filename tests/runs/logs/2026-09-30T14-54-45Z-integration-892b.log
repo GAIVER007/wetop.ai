@@ -1,0 +1,24 @@
+# Интеграционные (integration) · 30.09.2026 19:54 Алматы · MacBook-Air-Urij.local
+# коммит c4079cc (codex/unified-workspace-20260929), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T14-54-45Z-integration-892b.json' 'tests/integration/inventory-editor.test.ts' 'tests/integration/onboarding-without-property.test.ts' 'tests/integration/onboarding-concurrency.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 515ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 514ms
+ ✓ |integration| tests/integration/onboarding-without-property.test.ts (1 test) 353ms
+   ✓ онбординг организации без объекта (после сброса) (1)
+     ✓ status просит онбординг, provision создаёт объект в цепочке и номера под ним 352ms
+ ✓ |integration| tests/integration/onboarding-concurrency.test.ts (1 test) 323ms
+   ✓ онбординг без объекта: два одновременных сохранения (1)
+     ✓ объект один, одно сохранение проходит, второе — «отель уже настроен» 322ms
+
+ Test Files  3 passed (3)
+      Tests  3 passed (3)
+   Start at  18:54:46
+   Duration  3.20s (tests 48%, import 33%, transform 19%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T14-54-45Z-integration-892b.json
+
+# код выхода 0 · 4 с

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ChannelsRepository } from './channels.repository';
 import type { InboundBookingsService } from './inbound.service';
 import { WebhookHealthService } from './webhook-health.service';
+import { currentIntegrationPropertyId } from '../auth/request-context';
 
 const utc = (s: string) => new Date(s);
 function make(events: { webhook: Date | null; pullBooking: Date | null }) {
@@ -67,6 +68,33 @@ function makeWithProbe(opts: {
 }
 
 describe('WebhookHealthService', () => {
+  it('checks and reports each mapped branch independently', async () => {
+    const pulls: string[] = [];
+    const repo = {
+      async connectedProperties() {
+        return [
+          { localPropertyId: 'branch-a', providerPropertyId: 'external-a' },
+          { localPropertyId: 'branch-b', providerPropertyId: 'external-b' },
+        ];
+      },
+      async lastEventAt(_provider: string, via: string) {
+        const branch = currentIntegrationPropertyId();
+        if (via === 'WEBHOOK') return utc('2026-09-11T10:00:00Z');
+        return branch === 'branch-a' ? utc('2026-09-11T13:57:28Z') : null;
+      },
+    } as unknown as ChannelsRepository;
+    const inbound = {
+      async pull() {
+        pulls.push(currentIntegrationPropertyId() ?? 'missing');
+        return { received: 0, outcomes: [], acknowledged: 0 };
+      },
+    } as unknown as InboundBookingsService;
+    const svc = new WebhookHealthService(repo, inbound);
+    await svc.tickConnectedProperties(utc('2026-09-11T14:00:00Z'));
+    expect(pulls).toEqual(['branch-a']);
+    expect(svc.snapshot('branch-a').webhookSuspect).toBe(true);
+    expect(svc.snapshot('branch-b').webhookSuspect).toBe(false);
+  });
   it('спокойствие: бронь опросом не приходила — ленту сверх расписания не дёргаем', async () => {
     const { svc, pulls } = make({ webhook: utc('2026-09-11T10:11:00Z'), pullBooking: null });
     const h = await svc.tick(utc('2026-09-11T12:00:00Z'));

@@ -106,7 +106,7 @@ test('переключатель филиалов сохраняет разде�
   // объект и филиал стоят в шапке рядом со знаком (ADR-134); список не сдвигает строку разделов
   const sidebar = page.locator('.workspace-header');
   const trigger = sidebar.getByRole('button', { name: 'Выбрать филиал', exact: true });
-  const navigation = sidebar.locator('.topmenu');
+  const navigation = page.getByRole('main');
   const before = await navigation.boundingBox();
   await trigger.click();
   const choices = sidebar.getByRole('region', { name: 'Выбор филиала' });

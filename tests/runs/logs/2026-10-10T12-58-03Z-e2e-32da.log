@@ -1,0 +1,159 @@
+# Сквозные (e2e) · 10.10.2026 17:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 07544da (claude/sidebar-navigation), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/side-nav.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 918ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/ui/side-nav.spec.ts:56:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (48.2s)
+  ✘  2 tests/ui/side-nav.spec.ts:106:1 › ТЗ §9: клавиатура — ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (49.4s)
+  ✘  3 tests/ui/side-nav.spec.ts:143:1 › вложенные адреса показывают свой раздел (46.5s)
+  ✘  4 tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: light (2.0m)
+  ✓  5 tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: dark (46.5s)
+
+
+  1) tests/ui/side-nav.spec.ts:56:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/market$/
+    Received string:  "http://127.0.0.1:3142/finance"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3142/finance"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      85 |   // 4. щелчок: переход на страницу, панель закрыта
+      86 |   await items.getByRole('link', { name: 'Загрузка конкурентов', exact: true }).click();
+    > 87 |   await expect(page).toHaveURL(/\/market$/);
+         |                      ^
+      88 |   await expect(panel).toBeHidden();
+      89 |   // 5. меню слева обновилось: новый раздел и его подразделы
+      90 |   await expect(trigger).toHaveText('Продажи');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/side-nav.spec.ts:87:22
+
+    Error Context: test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/side-nav.spec.ts:106:1 › ТЗ §9: клавиатура — ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/bar$/
+    Received string:  "http://127.0.0.1:3142/finance"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        9 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3142/finance"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      137 |   await expect(items.getByRole('link', { name: 'Бар', exact: true })).toBeFocused();
+      138 |   await page.keyboard.press('Enter');
+    > 139 |   await expect(page).toHaveURL(/\/bar$/);
+          |                      ^
+      140 |   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      141 | });
+      142 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/side-nav.spec.ts:139:22
+
+    Error Context: test-results/side-nav-ТЗ-§9-клавиатура--10926-лы-←-назад-Escape-закрывает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-ТЗ-§9-клавиатура--10926-лы-←-назад-Escape-закрывает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-ТЗ-§9-клавиатура--10926-лы-←-назад-Escape-закрывает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/side-nav.spec.ts:143:1 › вложенные адреса показывают свой раздел ─────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.sidenav').locator('.sidenav__current')
+    Expected: "Настройки"
+    Received: ""
+
+
+      146 |   const current = nav.locator('.sidenav__sub [aria-current="page"]');
+      147 |   await page.goto('/hotel-settings/services');
+    > 148 |   await expect(trigger).toHaveText('Настройки');
+          |                         ^
+      149 |   await expect(current).toHaveText('Объект');
+      150 |   // «Номерной фонд»: раздел из одного пункта, подразделов под кнопкой нет (ADR-108)
+      151 |   await page.goto('/rooms/categories');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/side-nav.spec.ts:148:25
+
+    Error Context: test-results/side-nav-вложенные-адреса-показывают-свой-раздел/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-вложенные-адреса-показывают-свой-раздел/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-вложенные-адреса-показывают-свой-раздел/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: light ──────────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.screenshot: Test timeout of 120000ms exceeded.
+    Call log:
+      - taking page screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+
+
+      200 |       await page.mouse.move(width - 10, 880);
+      201 |       await expect(nav.locator('.sidenav__panel')).toBeHidden();
+    > 202 |       if (width === 1440) await page.screenshot({ path: `${SHOTS}/sales-${theme}-${width}.png` });
+          |                                      ^
+      203 |     }
+      204 |     // телефон: колонки нет, работают выдвижное меню и нижняя панель
+      205 |     await page.setViewportSize({ width: 390, height: 844 });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/side-nav.spec.ts:202:38
+
+    Error Context: test-results/side-nav-меню-без-прокрутки-вбок-и-доступное-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-меню-без-прокрутки-вбок-и-доступное-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-меню-без-прокрутки-вбок-и-доступное-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/side-nav.spec.ts:56:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню 
+    tests/ui/side-nav.spec.ts:106:1 › ТЗ §9: клавиатура — ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает 
+    tests/ui/side-nav.spec.ts:143:1 › вложенные адреса показывают свой раздел ──────────────────────
+    tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: light ───────────────────
+  1 passed (7.9m)
+
+# код выхода 1 · 8 мин 32 с

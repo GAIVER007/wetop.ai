@@ -2434,14 +2434,14 @@ enum SellerReplyLength {
 /// доставки (П8) ведёт платформа. CHECK на число языков и строк в списках — в миграции.
 /// Версия инструкции продавца (DATA_MODEL §33): строка на каждое изменившее текст сохранение, только добавляется
 model SellerPromptVersion {
-  id             String       @id @default(uuid()) @db.Uuid
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   agentId        String       @map("agent_id") @db.Uuid
-  agent          SellerAgent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  agent          SellerAgent  @relation(fields: [agentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "seller_prompt_versions_agent_fkey")
   organizationId String       @map("organization_id") @db.Uuid
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "seller_prompt_versions_org_fkey")
   text           String       @db.VarChar(20000)
   createdBy      String?      @map("created_by") @db.Uuid
-  author         User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  author         User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "seller_prompt_versions_user_fkey")
   createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([agentId, createdAt(sort: Desc)], map: "seller_prompt_versions_agent_created_idx")

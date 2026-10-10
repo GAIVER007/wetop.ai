@@ -61,8 +61,13 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   page,
 }) => {
   await page.goto('/finance');
-  await page.locator('.topmenu').getByRole('button', { name: 'Продажи' }).click();
-  await page.locator('.topmenu').getByRole('link', { name: 'Загрузка конкурентов' }).click();
+  // клик по группе до гидрации теряется: повторяем, пока ссылка не появится
+  const link = page.locator('.topmenu').getByRole('link', { name: 'Загрузка конкурентов' });
+  await expect(async () => {
+    if (!(await link.isVisible())) await page.locator('.topmenu').getByRole('button', { name: 'Продажи' }).click();
+    await expect(link).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 20_000 });
+  await link.click();
   await page.waitForURL('**/market');
   const main = page.getByRole('main');
   const grid = page.getByTestId('market-table');

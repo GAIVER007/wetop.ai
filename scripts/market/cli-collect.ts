@@ -27,6 +27,10 @@ async function main(): Promise<void> {
   const url = process.env['MARKET_COLLECT_URL'];
   const key = process.env['MARKET_COLLECT_KEY'];
   if (!url || !key) throw new Error('Нужны MARKET_COLLECT_URL и MARKET_COLLECT_KEY');
+  // ключ уходит заголовком HTTP: там только латиница, цифры и знаки; иначе вместо ключа подставлена заглушка
+  if (!/^[\x21-\x7e]+$/.test(key))
+    throw new Error('MARKET_COLLECT_KEY: подставьте настоящий ключ из .env API на сервере (латиница, цифры, знаки)');
+  if (!/^https?:\/\//.test(url)) throw new Error('MARKET_COLLECT_URL: адрес API, например https://api.wetop.ai');
   const nights = Math.min(Math.max(Number(arg('--nights') ?? 14), 1), 62);
   // Ostrovok читается правилами без модели (ADR-142 п. 16); модель и её ключ нужны только остальным площадкам
   let claude: ExtractNight | undefined;

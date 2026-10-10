@@ -158,11 +158,10 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(rows).toHaveCount(m.upcoming.length);
     if (m.upcoming.some((u) => u.master === UNAVAILABLE_MASTER))
       await expect(page.getByTestId('today-upcoming')).toContainText(UNAVAILABLE_MASTER);
-    // меню салона: «Сегодня» первым пунктом и текущим
-    await expect(page.getByRole('link', { name: 'Сегодня', exact: true }).first()).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    // меню салона (левое меню, ADR-161): «Сегодня» первым разделом и текущим
+    await expect(page.locator('.sidenav__section').first()).toHaveText('Сегодня');
+    await expect(page.locator('.sidenav__current')).toHaveText('Сегодня');
+    await expect(page.locator('.sidenav__items a[aria-current="page"]')).toHaveText('Сегодня');
     const calls = await callsSince(request, from);
     expect(calls.filter((c) => c.startsWith('/beauty/'))).toEqual(
       calls.filter((c) => c === '/beauty/appointments'),
@@ -201,9 +200,12 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('today-attention-no-table')).toContainText(
       String(m.withoutTable),
     );
+    // раздел ресторана в панели левого меню (ADR-161): панель закрыта, ищем с учётом скрытых
     await expect(
-      page.getByRole('link', { name: 'Бронирования', exact: true }).first(),
-    ).toBeVisible();
+      page
+        .locator('.sidenav__sections')
+        .getByRole('link', { name: 'Бронирования', exact: true, includeHidden: true }),
+    ).toHaveCount(1);
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);
     expect(calls.filter((c) => c === '/food-service/reservations').length).toBeGreaterThanOrEqual(

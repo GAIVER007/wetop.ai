@@ -44,7 +44,9 @@ export function FAQ() {
               {t.final.badgeBottom}
             </span>
           </span>
-          <FinalArt />
+          <span className="final-card__art final-card__art--photo">
+            <img src="/photos/building.jpg" alt="" loading="lazy" width={592} height={432} />
+          </span>
           <div className="final-card__actions">
             <a className="btn btn--primary" href={registerLink().href} data-auth="register">
               {t.nav.register}
@@ -62,22 +64,5 @@ export function FAQ() {
         </aside>
       </div>
     </section>
-  );
-}
-
-/** Здание со снимка — рисунок на SVG в фирменных тонах (§19.9: вместо фото и стоков). */
-function FinalArt() {
-  return (
-    <span className="final-card__art" aria-hidden="true">
-      <svg viewBox="0 0 140 110" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round">
-        <path d="M30 104V34l28-14v84" />
-        <path d="M58 104V44h44v60" />
-        <path d="M14 104h116" />
-        <path d="M40 44h8M40 58h8M40 72h8M40 86h8" strokeWidth="2" />
-        <path d="M68 56h8M84 56h8M68 70h8M84 70h8M68 84h8M84 84h8" strokeWidth="2" />
-        <path d="M112 104V64l14 8v32" opacity="0.6" />
-        <circle cx="120" cy="30" r="9" opacity="0.5" strokeWidth="2" />
-      </svg>
-    </span>
   );
 }

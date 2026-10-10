@@ -46,6 +46,22 @@ test('полоса фактов и возможности: восемь карт
   expect(body).not.toMatch(/₸\s*\/\s*мес|в месяц за|истории успеха|отзыв/i);
 });
 
+test('снимок календаря: настоящий экран с подписью примера и альтернативным текстом', async ({
+  page,
+}) => {
+  await page.goto(PATH);
+  const shot = page.locator('.hotel-shot');
+  await expect(shot).toContainText('Номера и койки на одной сетке');
+  const img = shot.locator('img');
+  await expect(img).toHaveAttribute('src', '/screens/calendar-week-light.png');
+  await expect(img).toHaveAttribute('alt', /Календарь размещений WETOP/);
+  await expect(shot).toContainText('Интерфейс WETOP. Данные вымышленные.');
+  const res = await page.request.get('/screens/calendar-week-light.png');
+  expect(res.status()).toBe(200);
+  const dark = await page.request.get('/screens/calendar-week-dark.png');
+  expect(dark.status()).toBe(200);
+});
+
 test('рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta', async ({
   page,
 }) => {

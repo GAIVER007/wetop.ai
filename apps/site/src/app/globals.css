@@ -3342,7 +3342,8 @@ button {
     display: grid;
     gap: 8px;
     position: absolute;
-    right: -28px;
+    /* на 1280 поле справа от макета около 20 px: телефон вровень с краем, иначе страница шире окна (шрифты Linux) */
+    right: 0;
     bottom: -24px;
     width: 168px;
     padding: 14px 12px;
@@ -3350,6 +3351,11 @@ button {
     border-radius: var(--radius);
     background: var(--public-surface);
     box-shadow: var(--shadow-floating);
+  }
+}
+@media (min-width: 90rem) {
+  .restl__phone {
+    right: -28px;
   }
 }
 .restl__phone-brand {

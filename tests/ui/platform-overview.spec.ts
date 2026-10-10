@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 
 /**
  * Обзор платформы и таблица клиентов (срез P1, план `plans/platform-superadmin-2026-10-10.md`, макет владельца).
- * Числа — из стенда: своя «Тестовая сеть» (ui-org, работает, три направления) и «Хостел «Пример»» (ui-org-2,
+ * Числа — из стенда: своя «Luxx Aparts» (ui-org, работает, три направления) и «Хостел «Пример»» (ui-org-2,
  * пробный, подключён два дня назад). Денег на экране нет: платежи платформе не ведутся (ADR-102, Q-PA-1, Q-PA-2).
  * Доступность /platform в двух темах сторожит platform-access.spec.ts, сюда не дублируется.
  */
@@ -60,7 +60,7 @@ test('таблица клиентов: направления, филиалы, �
   await expect(table.getByRole('columnheader', { name: 'Направление' })).toBeVisible();
   await expect(table.getByRole('columnheader', { name: 'Филиалы' })).toBeVisible();
   await expect(table.getByRole('columnheader', { name: 'Подключена' })).toBeVisible();
-  const own = table.getByRole('row', { name: /Тестовая сеть/ });
+  const own = table.getByRole('row', { name: /Luxx Aparts/ });
   await expect(own).toContainText('Гостиница, Салон, Ресторан');
   await expect(table.getByRole('row', { name: /Хостел «Пример»/ })).toContainText('Гостиница');
 
@@ -68,7 +68,7 @@ test('таблица клиентов: направления, филиалы, �
   await page.getByTestId('platform-clients-search').fill('Пример');
   await expect(page.getByTestId('platform-clients-count')).toHaveText('Показано 1 из 2');
   await expect(table.getByRole('link', { name: 'Хостел «Пример»' })).toBeVisible();
-  await expect(table.getByRole('link', { name: 'Тестовая сеть' })).toHaveCount(0);
+  await expect(table.getByRole('link', { name: 'Luxx Aparts' })).toHaveCount(0);
 
   // поиск по почте владельца
   await page.getByTestId('platform-clients-search').fill('owner@example.com');
@@ -78,12 +78,12 @@ test('таблица клиентов: направления, филиалы, �
   await page.getByTestId('platform-clients-search').fill('');
   await page.getByTestId('platform-filter-status').selectOption('TRIAL');
   await expect(page.getByTestId('platform-clients-count')).toContainText('статус «пробный»');
-  await expect(table.getByRole('link', { name: 'Тестовая сеть' })).toHaveCount(0);
+  await expect(table.getByRole('link', { name: 'Luxx Aparts' })).toHaveCount(0);
 
   // отбор по направлению: салон есть только у своей сети
   await page.getByTestId('platform-filter-status').selectOption('');
   await page.getByTestId('platform-filter-vertical').selectOption('BEAUTY');
-  await expect(table.getByRole('link', { name: 'Тестовая сеть' })).toBeVisible();
+  await expect(table.getByRole('link', { name: 'Luxx Aparts' })).toBeVisible();
   await expect(table.getByRole('link', { name: 'Хостел «Пример»' })).toHaveCount(0);
 
   // под отбор никто не попал — пустое состояние вместо пустой таблицы

@@ -19,7 +19,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7)', async ({
@@ -32,13 +32,13 @@ test('пробный период виден в меню на рабочих э�
   await expect(line).toHaveCount(0);
 
   await control(request, { orgTrialDays: 7 });
-  for (const path of ['/today', '/chessboard', '/reservations']) {
+  for (const path of ['/finance', '/chessboard', '/reservations']) {
     await page.goto(path);
     await expect(line).toHaveText('Пробный период: ещё 7 дн.');
   }
 
   await control(request, { orgTrialDays: 'ended' });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(line).toHaveText('Пробный период закончился');
 });
 
@@ -72,17 +72,18 @@ test('новая бронь: источник по умолчанию «стой
 
 test('нижняя панель телефона — в порядке бокового меню (п. 1.6)', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(
     page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link'),
-  ).toHaveText(['Главная', 'Календарь', 'Брони', 'Финансы']);
+  // у «Гостей и бронирований» на панели телефона короткая подпись shortLabel «Брони»
+  ).toHaveText(['Финансы', 'Календарь', 'Брони', 'Продажи']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
   });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(page.locator('.workspace-search kbd')).toHaveText('Ctrl K');
 });
 
@@ -101,7 +102,8 @@ test('владелец и управляющий правят сведения �
   const form = page.getByTestId('hotel-settings-form');
   const save = page.getByRole('main').getByRole('button', { name: 'Сохранить изменения' });
   await expect(form.getByLabel('Название объекта', { exact: true })).toHaveValue('Luxx Aparts');
-  await expect(form.getByLabel('Валюта')).toHaveCount(0);
+  // валюта стоит полем только для чтения (ADR-156)
+  await expect(form.getByLabel('Валюта')).toHaveAttribute('readonly', '');
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
   await save.click();
   await expect(page.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');

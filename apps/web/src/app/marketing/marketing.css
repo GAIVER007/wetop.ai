@@ -1,100 +1,355 @@
 @layer sections {
-  /* Хаб «Маркетинг» (MKT2, DESIGN.md §8): одна рабочая карточка продукта и ряд будущих.
-   Рабочая отличается рамкой акцента и плиткой иконки на `--primary-soft`; будущие приглушены и без ссылок. */
-  .marketing-product {
+  /* Хаб «Маркетинг» (MKT2; макет Marketing 2.0 09.10.2026, DESIGN.md §8): слева три модуля одного вида, справа
+   колонка результатов. У модуля своя цветная плитка значка, кнопка «Открыть» внизу. До 1279 px колонка уходит под
+   модули, до 960 px модули встают в столбец */
+  .marketing-hub {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .marketing-hub__modules {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .marketing-hub__aside {
     display: grid;
     gap: var(--space-4);
-    border-color: var(--primary);
   }
-  .marketing-product__head {
-    display: flex;
-    align-items: center;
+  .marketing-module {
+    display: grid;
+    --module-fill: var(--primary-soft);
+    --module-ink: var(--primary);
+  }
+  .marketing-module--ads {
+    --module-fill: var(--success-soft);
+    --module-ink: var(--success);
+  }
+  .marketing-module--content {
+    --module-fill: var(--warning-soft);
+    --module-ink: var(--warning);
+  }
+  .marketing-module__body {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
     gap: var(--space-4);
   }
-  .marketing-product__icon,
-  .marketing-soon__icon {
+  .marketing-module__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+  .marketing-module__icon,
+  .marketing-start__icon {
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
     border-radius: var(--radius-control);
-    background: var(--primary-soft);
-    color: var(--primary);
+    background: var(--module-fill, var(--primary-soft));
+    color: var(--module-ink, var(--primary));
   }
-  .marketing-product__title {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2);
-    min-width: 0;
-  }
-  .marketing-product__title h2 {
+  .marketing-module__head h2 {
     margin: 0;
-    font-size: var(--text-xl);
+    font-size: var(--text-lg);
     font-weight: var(--weight-semibold);
   }
-  .marketing-product__text {
+  .marketing-module__text {
     margin: 0;
-    max-width: 64ch;
     color: var(--text-2);
+    font-size: var(--text-sm);
   }
-  .marketing-product__caps {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-6);
+  .marketing-module__caps {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
     font-size: var(--text-sm);
   }
-  .marketing-product__caps li {
-    display: inline-flex;
+  .marketing-module__caps li {
+    display: flex;
     align-items: center;
     gap: var(--space-2);
   }
-  .marketing-product__caps svg {
+  .marketing-module__caps svg {
+    flex-shrink: 0;
     color: var(--primary);
   }
-  .marketing-product__foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-4);
-  }
-  .marketing-soon {
-    display: grid;
-    align-content: start;
-    gap: var(--space-2);
-  }
-  .marketing-soon__head {
+  .marketing-module__foot {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: var(--space-2);
+    min-height: 44px;
   }
-  .marketing-soon__icon {
-    width: 32px;
-    height: 32px;
-    background: var(--surface-muted);
-    color: var(--muted);
-  }
-  .marketing-soon__head h3 {
-    flex: 1;
+  .marketing-results h2,
+  .marketing-start h2 {
     margin: 0;
     font-size: var(--text-md);
     font-weight: var(--weight-semibold);
-    color: var(--text-2);
   }
-  .marketing-soon p {
+  .marketing-results {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .marketing-results__list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .marketing-results__row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-sm);
+  }
+  .marketing-results__mark {
+    width: 24px;
+    height: 12px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-soft);
+    border: 1px dashed var(--primary);
+  }
+  .marketing-results__row dd {
+    margin: 0;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .marketing-results__note {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .marketing-results__note a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .marketing-start {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .marketing-start__head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+  .marketing-start__body {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .marketing-start__body p {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .marketing-start__cta {
+    justify-content: center;
+    width: 100%;
+  }
+  @media (max-width: 1279px) {
+    .marketing-hub {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 960px) {
+    .marketing-hub__modules {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .marketing-module__foot .btn:not(.action-menu__button) {
+      flex: 1 1 auto;
+    }
+  }
+  /* Экраны модулей «Реклама» и «Контент» (макет Marketing 2.0, экраны 2 и 3): плашка «Скоро», вкладки, пустые
+   состояния. Чисел и постов нет, пока модули не построены */
+  .marketing-back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+  }
+  .marketing-screen,
+  .marketing-screen__stack {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  .marketing-soon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .marketing-screen__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .marketing-screen__period {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .marketing-screen__empty-row {
+    padding: var(--space-6) var(--space-4);
+    color: var(--muted);
+    text-align: center;
+  }
+  .marketing-screen__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .marketing-screen__title,
+  .marketing-assistant h2 {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .marketing-assistant {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+  }
+  .marketing-assistant p {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .marketing-assistant__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .marketing-assistant__icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .marketing-facts {
+    display: grid;
+    gap: var(--space-2);
     margin: 0;
     font-size: var(--text-sm);
+  }
+  .marketing-facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .marketing-facts dt {
     color: var(--muted);
   }
-  @media (max-width: 600px) {
-    .marketing-product__foot .btn {
-      flex: 1 1 100%;
+  .marketing-facts dd {
+    margin: 0;
+  }
+  .marketing-kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .marketing-kinds li {
+    padding: var(--space-1) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .marketing-formats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .marketing-format {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    font-size: var(--text-sm);
+  }
+  .marketing-format span:last-child {
+    color: var(--muted);
+  }
+  .marketing-format__art {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    margin-bottom: var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--surface-muted);
+    color: var(--muted);
+  }
+  .marketing-format--create {
+    place-items: center;
+    align-content: center;
+    text-align: center;
+    border-style: dashed;
+    color: var(--primary);
+  }
+  .marketing-week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .marketing-week__day {
+    display: grid;
+    gap: var(--space-2);
+    min-height: 88px;
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+  }
+  .marketing-week__empty {
+    align-self: end;
+    color: var(--muted);
+  }
+  @media (max-width: 1279px) {
+    .marketing-formats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-  } /* Публикация сайта (MKT7, DESIGN.md §8): факты сайта списком и ряд действий. Только управление, не редактор */
+  }
+  @media (max-width: 960px) {
+    .marketing-formats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .marketing-screen__pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .marketing-week {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  /* Публикация сайта (MKT7, DESIGN.md §8): факты сайта списком и ряд действий. Только управление, не редактор */
   .publication-facts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

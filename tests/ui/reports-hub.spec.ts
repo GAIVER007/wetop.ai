@@ -136,7 +136,7 @@ test('карточки ведут в готовые экраны с тем же 
     'href',
     '/reservations?view=inhouse',
   );
-  await expect(main.getByTestId('report-day')).toHaveAttribute('href', '/today');
+  await expect(main.getByTestId('report-day')).toHaveAttribute('href', '/finance');
   await expect(main.getByTestId('report-website')).toHaveAttribute('href', '/website/analytics');
   // загрузка конкурентов (ADR-142): карточка-ссылка без своего запроса, бюджет хаба не растёт
   await expect(main.getByTestId('report-market')).toHaveAttribute('href', '/market');

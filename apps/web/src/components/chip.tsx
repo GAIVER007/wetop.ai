@@ -70,3 +70,39 @@ export function ChipGroup({
     </Tag>
   );
 }
+
+/**
+ * Чип-флажок (ADR-158, DESIGN.md §8.3): выбор «есть / нет» в форме, например удобства объекта. Родной флажок внутри
+ * подписи: клавиатура и состояние браузерные, значение уходит с формой (`name`, `value`). Выбранный чип выглядит
+ * как выбранный `Chip`: бледный акцент, не главная кнопка.
+ */
+export function CheckChip({
+  name,
+  value,
+  defaultChecked,
+  disabled,
+  icon,
+  children,
+}: {
+  name: string;
+  value: string;
+  defaultChecked?: boolean | undefined;
+  disabled?: boolean | undefined;
+  icon?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <label className="chip chip--check">
+      <input
+        className="chip__input"
+        type="checkbox"
+        name={name}
+        value={value}
+        defaultChecked={defaultChecked}
+        disabled={disabled}
+      />
+      {icon}
+      {children}
+    </label>
+  );
+}

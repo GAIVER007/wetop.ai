@@ -35,11 +35,14 @@ export function AnalyticsToolbar({
   query,
   today,
   noCompare = false,
+  noFund = false,
 }: {
   query: AnalyticsQuery;
   today: string;
   /** «По номерам» (REP3) не считает прошлый отрезок — переключателя сравнения у неё нет */
   noCompare?: boolean;
+  /** «Финансы» (RPT2.4a): деньги по объекту не делятся на номера и койки, выбора фонда нет */
+  noFund?: boolean;
 }) {
   const { period, fund, compare } = query;
   const prev = previousPeriod(period.from, period.to);
@@ -114,18 +117,20 @@ export function AnalyticsToolbar({
             </Button>
           </form>
         </details>
-        <nav className="seg pa-fund" aria-label="Тип фонда" data-testid="pa-fund">
-          {(['all', 'rooms', 'beds'] as const).map((f) => (
-            <Link
-              key={f}
-              href={analyticsHref(query, { fund: f })}
-              className={cx(fund === f && 'is-on')}
-              aria-current={fund === f ? 'page' : undefined}
-            >
-              {FUND_LABELS[f]}
-            </Link>
-          ))}
-        </nav>
+        {!noFund && (
+          <nav className="seg pa-fund" aria-label="Тип фонда" data-testid="pa-fund">
+            {(['all', 'rooms', 'beds'] as const).map((f) => (
+              <Link
+                key={f}
+                href={analyticsHref(query, { fund: f })}
+                className={cx(fund === f && 'is-on')}
+                aria-current={fund === f ? 'page' : undefined}
+              >
+                {FUND_LABELS[f]}
+              </Link>
+            ))}
+          </nav>
+        )}
         {!noCompare && (
           <Link
             href={analyticsHref(query, { compare: !compare })}

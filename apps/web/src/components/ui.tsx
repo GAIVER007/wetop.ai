@@ -208,6 +208,12 @@ const DELTA_GLYPH = { up: '\u2191', down: '\u2193', flat: '\u2192' } as const;
 type StatProps = {
   label: ReactNode;
   value: ReactNode;
+  /**
+   * Значок слева от подписи: круг цвета тона, плитка по-прежнему не заливается («Гости и
+   * бронирования» и «Обзор бизнеса», 09.10.2026). Готовый элемент, обычно `<Icon name=…/>`;
+   * смысл держит label, круг скрыт от программы чтения.
+   */
+  icon?: ReactNode | undefined;
   hint?: ReactNode;
   hintTone?: 'warn' | undefined;
   testId?: string | undefined;
@@ -224,6 +230,7 @@ type StatProps = {
 export function Stat({
   label,
   value,
+  icon,
   hint,
   hintTone,
   testId,
@@ -240,8 +247,8 @@ export function Stat({
         : `stat--tone-${tone}`
       : false;
   const sizeClass = size && size !== 'md' && `stat--${size}`;
-  const className = cx('stat', toneClass, sizeClass, href && 'stat--link');
-  const body = (
+  const className = cx('stat', toneClass, sizeClass, href && 'stat--link', icon ? 'stat--icon' : false);
+  const text = (
     <>
       <div className="stat__label">{label}</div>
       <div className="stat__value" data-testid={testId}>
@@ -255,6 +262,16 @@ export function Stat({
       )}
       {hint && <div className={cx('stat__hint', hintTone === 'warn' && 'warn-text')}>{hint}</div>}
     </>
+  );
+  const body = icon ? (
+    <>
+      <span className="stat__icon" aria-hidden="true">
+        {icon}
+      </span>
+      <div className="stat__text">{text}</div>
+    </>
+  ) : (
+    text
   );
   if (href)
     return (
@@ -352,7 +369,9 @@ export function Table(props: LegacyTableProps | CanonicalTableProps) {
         )}
         {...rest}
       >
-        {caption && <caption className={captionHidden ? 'sr-only' : 'tbl__caption'}>{caption}</caption>}
+        {caption && (
+          <caption className={captionHidden ? 'sr-only' : 'tbl__caption'}>{caption}</caption>
+        )}
         {children}
       </table>
     </div>

@@ -477,7 +477,6 @@
   @media (min-width: 961px) {
     .workspace .page:has(> .reservations-results),
     .workspace .page:has(> .inventory-content),
-    .workspace .page:has(> .guests-bar),
     .workspace .page:has(> .fund-availability) {
       display: flex;
       flex-direction: column;
@@ -487,7 +486,6 @@
     /* остаток высоты — последнему блоку, и он передаёт его своей таблице */
     .workspace .page > .reservations-results,
     .workspace .page > .inventory-content,
-    .workspace .page:has(> .guests-bar) > section:last-of-type,
     .workspace .page > .fund-availability {
       flex: 1 1 0;
       min-height: 0;
@@ -501,8 +499,7 @@
       flex-direction: column;
     }
     .workspace .page .reservations-results .table-scroll,
-    .workspace .page .inventory-content .table-scroll,
-    .workspace .page:has(> .guests-bar) > section:last-of-type .table-scroll {
+    .workspace .page .inventory-content .table-scroll {
       flex: 1 1 0;
       min-height: 0;
       max-height: none;
@@ -696,22 +693,6 @@
   }
   .board-date-nav {
     gap: 6px;
-  }
-  .board-period .seg {
-    padding: 3px;
-    background: var(--surface-muted);
-    border: 1px solid var(--border);
-    gap: 2px;
-  }
-  .board-period .seg a {
-    border: 0;
-    border-radius: 5px;
-    padding: 7px 13px;
-  }
-  .board-period .seg a.is-on {
-    background: var(--surface);
-    color: var(--text);
-    box-shadow: 0 1px 3px var(--overlay);
   }
   .rotate-left {
     transform: rotate(180deg);

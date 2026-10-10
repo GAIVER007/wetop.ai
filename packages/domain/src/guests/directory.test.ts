@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { GUEST_RECENT_DAYS, countGuestNights, shiftDate, summarizeGuestStays } from './directory';
+import {
+  GUEST_RECENT_DAYS,
+  countGuestNights,
+  pickMainStay,
+  shiftDate,
+  summarizeGuestStays,
+} from './directory';
 
 const TODAY = '2026-09-27';
 const stay = (
@@ -118,6 +124,82 @@ describe('summarizeGuestStays — состояние гостя из его пр
       next: null,
       last: null,
       lastCancelledAt: null,
+    });
+  });
+});
+
+describe('pickMainStay: основное проживание строки «Гости и бронирования» (09.10.2026)', () => {
+  it('заселён важнее ожидаемого, ожидаемый важнее выехавшего; приоритет тот же, что у summarizeGuestStays', () => {
+    const stays = [
+      { ...stay('CHECKED_OUT', '2026-08-12', '2026-08-15', 'M03'), confirmationNumber: 'OLD' },
+      { ...stay('CONFIRMED', '2026-10-04', '2026-10-06'), confirmationNumber: 'SOON' },
+      { ...stay('CHECKED_IN', '2026-09-25', '2026-09-30'), confirmationNumber: 'NOW' },
+    ];
+    expect(pickMainStay(stays, TODAY)).toMatchObject({ kind: 'current', confirmationNumber: 'NOW', nights: 5 });
+    expect(pickMainStay(stays.slice(0, 2), TODAY)).toMatchObject({ kind: 'next', confirmationNumber: 'SOON' });
+    expect(pickMainStay(stays.slice(0, 1), TODAY)).toMatchObject({ kind: 'last', confirmationNumber: 'OLD' });
+    // сходится с колонкой «Сейчас / ближайший»: то же состояние и тот же номер брони
+    expect(summarizeGuestStays(stays, TODAY).current?.confirmationNumber).toBe('NOW');
+  });
+
+  it('из нескольких ожидаемых берётся ближайший заезд, из выехавших последний выезд, из заселённых поздний заезд', () => {
+    expect(
+      pickMainStay(
+        [
+          { ...stay('CONFIRMED', '2026-11-10', '2026-11-12'), confirmationNumber: 'LATE' },
+          { ...stay('TENTATIVE', '2026-10-02', '2026-10-03'), confirmationNumber: 'EARLY' },
+        ],
+        TODAY,
+      )?.confirmationNumber,
+    ).toBe('EARLY');
+    expect(
+      pickMainStay(
+        [
+          { ...stay('CHECKED_OUT', '2026-06-01', '2026-06-03'), confirmationNumber: 'A' },
+          { ...stay('CHECKED_OUT', '2026-07-01', '2026-07-03'), confirmationNumber: 'B' },
+        ],
+        TODAY,
+      )?.confirmationNumber,
+    ).toBe('B');
+    expect(
+      pickMainStay(
+        [
+          { ...stay('CHECKED_IN', '2026-09-20', '2026-09-28'), confirmationNumber: 'FIRST' },
+          { ...stay('CHECKED_IN', '2026-09-26', '2026-09-29'), confirmationNumber: 'SECOND' },
+        ],
+        TODAY,
+      )?.confirmationNumber,
+    ).toBe('SECOND');
+  });
+
+  it('отменённые, незаезды и целиком прошедшие неподтверждённые брони основными не бывают', () => {
+    expect(
+      pickMainStay(
+        [
+          stay('CANCELLED', '2026-10-04', '2026-10-06'),
+          stay('NO_SHOW', '2026-09-01', '2026-09-03'),
+          stay('CONFIRMED', '2026-08-01', '2026-08-03'),
+        ],
+        TODAY,
+      ),
+    ).toBeNull();
+    expect(pickMainStay([], TODAY)).toBeNull();
+  });
+
+  it('гости, источник, валюта и счёт доезжают как есть; без счёта money равен null', () => {
+    const money = { chargedMinor: '15000000', paidMinor: '15000000', refundedMinor: '0', balanceMinor: '0' };
+    expect(
+      pickMainStay(
+        [{ ...stay('CHECKED_IN', '2026-09-25', '2026-09-30'), adults: 2, children: 1, source: 'OTA', channel: 'Booking.com', currency: 'KZT', money }],
+        TODAY,
+      ),
+    ).toMatchObject({ adults: 2, children: 1, source: 'OTA', channel: 'Booking.com', currency: 'KZT', money });
+    expect(pickMainStay([stay('CHECKED_IN', '2026-09-25', '2026-09-30')], TODAY)).toMatchObject({
+      adults: 1,
+      children: 0,
+      source: 'DESK',
+      channel: null,
+      money: null,
     });
   });
 });

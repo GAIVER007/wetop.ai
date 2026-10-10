@@ -23,6 +23,8 @@ export interface OrganizationSummary {
   createdAt: Date;
   members: number;
   owners: string[];
+  /** Владелец заведён, но пароль ещё не задал (организацию создал главный администратор): ему можно выслать ссылку */
+  ownerPending: boolean;
   aiSeller: ExtensionRow | null;
 }
 
@@ -230,7 +232,8 @@ const SUMMARY = {
   memberships: {
     where: { role: 'OWNER' as const },
     orderBy: { createdAt: 'asc' as const },
-    select: { user: { select: { email: true } } },
+    // хеш пароля в ответ не идёт: из него считается только «задан или нет»
+    select: { user: { select: { email: true, passwordHash: true } } },
   },
   extensions: {
     where: { extension: KIND },
@@ -245,7 +248,7 @@ function summary(row: {
   trialEndsAt: Date | null;
   createdAt: Date;
   _count: { memberships: number };
-  memberships: Array<{ user: { email: string } }>;
+  memberships: Array<{ user: { email: string; passwordHash: string } }>;
   extensions: ExtensionRow[];
 }): OrganizationSummary {
   return {
@@ -256,6 +259,7 @@ function summary(row: {
     createdAt: row.createdAt,
     members: row._count.memberships,
     owners: row.memberships.map((m) => m.user.email),
+    ownerPending: row.memberships.some((m) => m.user.passwordHash === ''),
     aiSeller: row.extensions[0] ?? null,
   };
 }

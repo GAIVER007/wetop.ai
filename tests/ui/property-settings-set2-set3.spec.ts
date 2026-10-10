@@ -25,7 +25,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('«Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00', async ({
@@ -152,7 +152,7 @@ test('«только чтение»: каталог виден, добавить
   await expect(main.getByRole('button', { name: 'Добавить услугу' })).toHaveCount(0);
   await expect(main.getByTestId('services-table').getByRole('button')).toHaveCount(0);
   await page.goto('/hotel-settings/stay');
-  await expect(main.locator('input')).toHaveCount(0);
+  await expect(main.locator('input:enabled:not([readonly]):not([type=hidden])')).toHaveCount(0);
 });
 
 for (const theme of ['light', 'dark'] as const) {

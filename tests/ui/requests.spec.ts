@@ -14,6 +14,9 @@ import { FIXTURE_API, expect, test } from './fixtures';
  * рисуется в двух местах оболочки (панель и меню профиля); плюс стенд работает на `next dev`, где React
  * умышленно вызывает эффекты и рендер по два раза — это шум разработки, а не рейсы живой стойки.
  *
+ * У «Номерного фонда» семь источников (сводка, места, категории, динамика, занятость, каналы и их сопоставление,
+ * 09.10.2026) плюс оболочка: бюджет 12 и отсутствие повторов, как у «Каналов».
+ *
  * Старые адреса `/hotel-settings/{check-in,description,penalties,photos,amenities}` здесь не считаются: это не
  * экраны, а redirect() на «Настройки объекта», «Цены» и «Интеграции». Переадресация по определению проходит
  * оболочку дважды — уходящий рендер и целевой, — и удвоение видно даже там, где экран берёт данные
@@ -37,7 +40,6 @@ async function hits(request: import('@playwright/test').APIRequestContext): Prom
 }
 
 for (const screen of [
-  '/today',
   '/chessboard',
   '/reservations',
   '/guests',
@@ -88,8 +90,12 @@ for (const screen of [
       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
     );
     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+    // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+    // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+    // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+    // каждый путь по-прежнему спрашивается один раз
     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
-      ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      screen === '/finance' ? 15 : ['/channels', '/channels/sync', '/inventory'].includes(screen) ? 12 : 10,
     );
   });
 }

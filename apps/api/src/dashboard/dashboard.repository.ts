@@ -141,7 +141,13 @@ export class PrismaDashboardRepository implements DashboardRepository {
     const rows = await this.prisma.db.reservationItem.findMany({
       where: {
         reservation: { propertyId },
-        OR: [{ arrivalDate: range }, { departureDate: range }],
+        // заезд или выезд в периоде, а также проживание поверх всего периода: оно не заезжает и не выезжает в нём,
+        // но даёт ночи выручке за ночи (ADR-155, Q-290); остальные расчёты отбирают заезды и выезды сами
+        OR: [
+          { arrivalDate: range },
+          { departureDate: range },
+          { arrivalDate: { lt: asDate(from) }, departureDate: { gt: asDate(to) } },
+        ],
       },
       select: {
         arrivalDate: true,

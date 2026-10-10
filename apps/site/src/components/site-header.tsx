@@ -13,7 +13,7 @@ export function SiteHeader() {
     { href: '/#product', label: t.nav.product },
     { href: '/#audience', label: t.nav.audience },
     { href: '/#features', label: t.nav.features },
-    { href: '/#ai-sellers', label: t.nav.ai },
+    { href: '/#sales', label: t.nav.sales },
     { href: '/#start', label: t.nav.start },
   ];
 

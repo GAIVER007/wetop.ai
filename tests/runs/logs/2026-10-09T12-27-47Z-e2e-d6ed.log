@@ -1,0 +1,108 @@
+# Сквозные (e2e) · 09.10.2026 17:27 Алматы · vm
+# коммит feba666 (claude/mv8-5-ds2a-navigation-registry), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/staff.spec.ts' 'tests/ui/settings-simplification.spec.ts' 'tests/ui/beauty-branch.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 26 tests using 1 worker
+
+  ✓   1 tests/ui/beauty-branch.spec.ts:46:1 › салон заводится той же формой и открывается своим рабочим местом (9.3s)
+  ✓   2 tests/ui/beauty-branch.spec.ts:59:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (5.7s)
+  ✘   3 tests/ui/beauty-branch.spec.ts:93:1 › DS2a: меню салона подсвечивает свой раздел на компьютере и телефоне (7.8s)
+  ✓   4 tests/ui/beauty-branch.spec.ts:133:1 › карточка объекта показывает имя салона, а не «объект не загружен» (5.4s)
+  ✓   5 tests/ui/beauty-branch.spec.ts:145:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (5.5s)
+  ✓   6 tests/ui/beauty-branch.spec.ts:159:3 › салон доступен и в светлой теме (7.1s)
+  ✓   7 tests/ui/beauty-branch.spec.ts:159:3 › салон доступен и в тёмной теме (7.3s)
+  ✓   8 tests/ui/navigation.spec.ts:53:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (5.6s)
+  ✓   9 tests/ui/navigation.spec.ts:94:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (4.4s)
+  ✓  10 tests/ui/navigation.spec.ts:122:1 › меню телефона: «Ещё» горит, когда раздел живёт за ней; панель — когда в ней (5.1s)
+  ✓  11 tests/ui/navigation.spec.ts:141:1 › все пункты меню открывают существующие страницы (22.9s)
+  ✓  12 tests/ui/navigation.spec.ts:189:3 › меню телефона и планшета ровное и доступное: light (4.9s)
+  ✓  13 tests/ui/navigation.spec.ts:189:3 › меню телефона и планшета ровное и доступное: dark (4.8s)
+  ✓  14 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (2.7s)
+  ✓  15 tests/ui/settings-simplification.spec.ts:41:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (7.1s)
+  ✓  16 tests/ui/settings-simplification.spec.ts:62:1 › поиск услуг работает без повторной загрузки каталога (1.7s)
+  ✓  17 tests/ui/settings-simplification.spec.ts:81:1 › ошибка каталога сохраняет навигацию и исправляется повтором (2.0s)
+  ✓  18 tests/ui/settings-simplification.spec.ts:95:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (9.9s)
+  ✓  19 tests/ui/settings-simplification.spec.ts:95:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (8.8s)
+  ✓  20 tests/ui/settings-simplification.spec.ts:162:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (1.3s)
+  ✓  21 tests/ui/staff.spec.ts:12:1 › /staff ведёт на «Сотрудников»: старые ссылки живут (2.6s)
+  ✓  22 tests/ui/top-menu.spec.ts:56:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (6.1s)
+  ✓  23 tests/ui/top-menu.spec.ts:129:1 › вложенные адреса подсвечивают свою вкладку (8.6s)
+  ✘  24 tests/ui/top-menu.spec.ts:168:1 › DS2a: адреса без своего пункта подсвечивают раздел, скрытый пункт зажигает только группу (23.8s)
+  ✓  25 tests/ui/top-menu.spec.ts:216:3 › шапка ровная, без прокрутки вбок и доступная: light (5.3s)
+  ✓  26 tests/ui/top-menu.spec.ts:216:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.3s)
+
+
+  1) tests/ui/beauty-branch.spec.ts:93:1 › DS2a: меню салона подсвечивает свой раздел на компьютере и телефоне 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3100/beauty
+    Call log:
+      - navigating to "http://127.0.0.1:3100/beauty", waiting until "load"
+
+
+       at fixtures.ts:111
+
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+    > 111 |       const response = await goto(url, options);
+          |                              ^
+      112 |       await settleStreaming(page);
+      113 |       return response;
+      114 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:111:30)
+        at /home/user/wetop.ai/tests/ui/beauty-branch.spec.ts:110:16
+
+    Error Context: test-results/beauty-branch-DS2a-меню-са-8591b-ел-на-компьютере-и-телефоне/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-DS2a-меню-са-8591b-ел-на-компьютере-и-телефоне/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-DS2a-меню-са-8591b-ел-на-компьютере-и-телефоне/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/top-menu.spec.ts:168:1 › DS2a: адреса без своего пункта подсвечивают раздел, скрытый пункт зажигает только группу 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Платформа', exact: true })
+    Expected pattern: /has-current-page/
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveClass" locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Платформа', exact: true }) with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Платформа', exact: true })
+
+
+      201 |   ] as const) {
+      202 |     await page.goto(path);
+    > 203 |     await expect(menu.getByRole('button', { name: group, exact: true })).toHaveClass(/has-current-page/);
+          |                                                                          ^
+      204 |     await expect(menu.locator('.has-current-page')).toHaveCount(1);
+      205 |     await expect(current).toHaveCount(0);
+      206 |   }
+        at /home/user/wetop.ai/tests/ui/top-menu.spec.ts:203:74
+
+    Error Context: test-results/top-menu-DS2a-адреса-без-с-17d8b-ункт-зажигает-только-группу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/top-menu-DS2a-адреса-без-с-17d8b-ункт-зажигает-только-группу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/top-menu-DS2a-адреса-без-с-17d8b-ункт-зажигает-только-группу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/beauty-branch.spec.ts:93:1 › DS2a: меню салона подсвечивает свой раздел на компьютере и телефоне 
+    tests/ui/top-menu.spec.ts:168:1 › DS2a: адреса без своего пункта подсвечивают раздел, скрытый пункт зажигает только группу 
+  24 passed (3.3m)
+
+# код выхода 1 · 3 мин 18 с

@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 09.10.2026 17:32 Алматы · vm
+# коммит feba666 (claude/mv8-5-ds2a-navigation-registry), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/beauty-branch.spec.ts' '--workers=1' '-g' 'DS2a'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/beauty-branch.spec.ts:93:1 › DS2a: меню салона подсвечивает свой раздел на компьютере и телефоне (17.4s)
+
+  1 passed (29.2s)
+
+# код выхода 0 · 31 с

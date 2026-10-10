@@ -1,0 +1,1379 @@
+{
+  "base": "5b1348cc6 (снят на d0eb1e623; из main пришли подписи /team, /guests, /today, /finance и удаление /guests/[id]/preview, решения AccessGate прежние)",
+  "paths": [
+    "/",
+    "/ai-agents",
+    "/ai-agents/123",
+    "/ai-agents/new",
+    "/ai-seller",
+    "/ai-seller/agents",
+    "/ai-seller/agents/123",
+    "/ai-seller/agents/new",
+    "/ai-seller/sample",
+    "/appointments",
+    "/bar",
+    "/beauty",
+    "/beauty/masters",
+    "/beauty/schedule",
+    "/beauty/services",
+    "/branches",
+    "/calendar",
+    "/channel-manager",
+    "/channels",
+    "/channels/events/rev-1",
+    "/channels/sample",
+    "/chessboard",
+    "/connections",
+    "/connections/channex",
+    "/create",
+    "/customers",
+    "/design-system",
+    "/dining-areas",
+    "/employees",
+    "/finance",
+    "/floor-plan",
+    "/guests",
+    "/guests/123",
+    "/guests/birthdays",
+    "/help",
+    "/hotel-settings",
+    "/hotel-settings/sample",
+    "/incidents",
+    "/inventory",
+    "/invite/tok",
+    "/journal",
+    "/login",
+    "/login/check-email",
+    "/login/reset",
+    "/login/set-password",
+    "/login/verify",
+    "/management",
+    "/management/analytics",
+    "/management/analytics/channels",
+    "/management/analytics/occupancy",
+    "/management/analytics/units",
+    "/management/sample",
+    "/market",
+    "/marketing",
+    "/marketing/site",
+    "/marketing/site/assets",
+    "/marketing/site/editor",
+    "/onboarding",
+    "/platform",
+    "/platform/support",
+    "/platform/support/sample",
+    "/profile",
+    "/profile/access",
+    "/rates",
+    "/rates/sample",
+    "/register",
+    "/register/complete",
+    "/register/setup",
+    "/reports",
+    "/reports/form-910",
+    "/reports/print",
+    "/reservations",
+    "/reservations/ABC",
+    "/reservations/ABC/print",
+    "/reservations/ABC/print/contract",
+    "/reservations/ABC/print/invoice",
+    "/reservations/new",
+    "/rooms",
+    "/rooms/sample",
+    "/services",
+    "/staff",
+    "/status",
+    "/table-reservations",
+    "/tasks",
+    "/team",
+    "/today",
+    "/units/R01",
+    "/website",
+    "/website/analytics",
+    "/website/booking",
+    "/website/settings"
+  ],
+  "snapshot": {
+    "/": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/ai-agents": {
+      "rule": {
+        "href": "/ai-agents",
+        "label": "ИИ-агенты",
+        "requires": "dialogs"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/ai-agents/123": {
+      "rule": {
+        "href": "/ai-agents",
+        "label": "ИИ-агенты",
+        "requires": "dialogs"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/ai-agents/new": {
+      "rule": {
+        "href": "/ai-agents",
+        "label": "ИИ-агенты",
+        "requires": "dialogs"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/ai-seller": {
+      "rule": {
+        "href": "/ai-agents",
+        "label": "ИИ-агенты",
+        "requires": "dialogs"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/ai-seller/agents": {
+      "rule": {
+        "href": "/ai-seller/agents",
+        "label": "Агенты ИИ-продавца",
+        "requires": "seller"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/ai-seller/agents/123": {
+      "rule": {
+        "href": "/ai-seller/agents",
+        "label": "Агенты ИИ-продавца",
+        "requires": "seller"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/ai-seller/agents/new": {
+      "rule": {
+        "href": "/ai-seller/agents",
+        "label": "Агенты ИИ-продавца",
+        "requires": "seller"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/ai-seller/sample": {
+      "rule": {
+        "href": "/ai-agents",
+        "label": "ИИ-агенты",
+        "requires": "dialogs"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/appointments": {
+      "rule": {
+        "href": "/appointments",
+        "label": "Записи",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/bar": {
+      "rule": {
+        "href": "/bar",
+        "label": "Бар",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/beauty": {
+      "rule": {
+        "href": "/beauty",
+        "label": "Салон",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/beauty/masters": {
+      "rule": {
+        "href": "/beauty/masters",
+        "label": "Мастера",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/beauty/schedule": {
+      "rule": {
+        "href": "/beauty/schedule",
+        "label": "График",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/beauty/services": {
+      "rule": {
+        "href": "/beauty/services",
+        "label": "Услуги салона",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/branches": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/calendar": {
+      "rule": {
+        "href": "/calendar",
+        "label": "Календарь",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/channel-manager": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/channels": {
+      "rule": {
+        "href": "/channels",
+        "label": "Каналы продаж",
+        "requires": "channels"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/channels/events/rev-1": {
+      "rule": {
+        "href": "/channels/events",
+        "label": "События",
+        "requires": "channels"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/channels/sample": {
+      "rule": {
+        "href": "/channels",
+        "label": "Каналы продаж",
+        "requires": "channels"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/chessboard": {
+      "rule": {
+        "href": "/chessboard",
+        "label": "Календарь",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/connections": {
+      "rule": {
+        "href": "/connections",
+        "label": "Интеграции",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/connections/channex": {
+      "rule": {
+        "href": "/connections",
+        "label": "Интеграции",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/create": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/customers": {
+      "rule": {
+        "href": "/customers",
+        "label": "Клиенты",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/design-system": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/dining-areas": {
+      "rule": {
+        "href": "/dining-areas",
+        "label": "Залы и столы",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/employees": {
+      "rule": {
+        "href": "/employees",
+        "label": "Мастера",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/finance": {
+      "rule": {
+        "href": "/finance",
+        "label": "Финансы",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/floor-plan": {
+      "rule": {
+        "href": "/floor-plan",
+        "label": "План зала",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/guests": {
+      "rule": {
+        "href": "/guests",
+        "label": "Гости и бронирования",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/guests/123": {
+      "rule": {
+        "href": "/guests",
+        "label": "Гости и бронирования",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/guests/birthdays": {
+      "rule": {
+        "href": "/guests",
+        "label": "Гости и бронирования",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/help": {
+      "rule": {
+        "href": "/help",
+        "label": "Помощь",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/hotel-settings": {
+      "rule": {
+        "href": "/hotel-settings",
+        "label": "Настройки объекта",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/hotel-settings/sample": {
+      "rule": {
+        "href": "/hotel-settings",
+        "label": "Настройки объекта",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/incidents": {
+      "rule": {
+        "href": "/incidents",
+        "label": "Неисправности",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/inventory": {
+      "rule": {
+        "href": "/inventory",
+        "label": "Номерной фонд",
+        "requires": "property"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/invite/tok": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/journal": {
+      "rule": {
+        "href": "/journal",
+        "label": "Журнал",
+        "requires": "journal"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "denied",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/login": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/login/check-email": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/login/reset": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/login/set-password": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/login/verify": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/management": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/management/analytics": {
+      "rule": {
+        "href": "/management/analytics",
+        "label": "Аналитика",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/management/analytics/channels": {
+      "rule": {
+        "href": "/management/analytics",
+        "label": "Аналитика",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/management/analytics/occupancy": {
+      "rule": {
+        "href": "/management/analytics",
+        "label": "Аналитика",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/management/analytics/units": {
+      "rule": {
+        "href": "/management/analytics",
+        "label": "Аналитика",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/management/sample": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/market": {
+      "rule": {
+        "href": "/market",
+        "label": "Загрузка конкурентов",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/marketing": {
+      "rule": {
+        "href": "/marketing",
+        "label": "Маркетинг",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/marketing/site": {
+      "rule": {
+        "href": "/marketing",
+        "label": "Маркетинг",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/marketing/site/assets": {
+      "rule": {
+        "href": "/marketing",
+        "label": "Маркетинг",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/marketing/site/editor": {
+      "rule": {
+        "href": "/marketing",
+        "label": "Маркетинг",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/onboarding": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/platform": {
+      "rule": {
+        "href": "/platform",
+        "label": "Организации",
+        "requires": "platform"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/platform/support": {
+      "rule": {
+        "href": "/platform/support",
+        "label": "Техподдержка WETOP",
+        "requires": "platform"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/platform/support/sample": {
+      "rule": {
+        "href": "/platform/support",
+        "label": "Техподдержка WETOP",
+        "requires": "platform"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/profile": {
+      "rule": {
+        "href": "/profile",
+        "label": "Профиль",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/profile/access": {
+      "rule": {
+        "href": "/profile",
+        "label": "Профиль",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/rates": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/rates/sample": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/register": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/register/complete": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/register/setup": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/reports": {
+      "rule": {
+        "href": "/reports",
+        "label": "Отчёты",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/reports/form-910": {
+      "rule": {
+        "href": "/reports",
+        "label": "Отчёты",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/reports/print": {
+      "rule": {
+        "href": "/reports",
+        "label": "Отчёты",
+        "requires": "reports"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/reservations": {
+      "rule": {
+        "href": "/reservations",
+        "label": "Брони",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/reservations/ABC": {
+      "rule": {
+        "href": "/reservations",
+        "label": "Брони",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/reservations/ABC/print": {
+      "rule": {
+        "href": "/reservations",
+        "label": "Брони",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/reservations/ABC/print/contract": {
+      "rule": {
+        "href": "/reservations",
+        "label": "Брони",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/reservations/ABC/print/invoice": {
+      "rule": {
+        "href": "/reservations",
+        "label": "Брони",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/reservations/new": {
+      "rule": {
+        "href": "/reservations",
+        "label": "Брони",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/rooms": {
+      "rule": {
+        "href": "/rooms",
+        "label": "Управление номерами",
+        "requires": "property"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/rooms/sample": {
+      "rule": {
+        "href": "/rooms",
+        "label": "Управление номерами",
+        "requires": "property"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/services": {
+      "rule": {
+        "href": "/services",
+        "label": "Услуги",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/staff": {
+      "rule": {
+        "href": "/staff",
+        "label": "Сотрудники и доступ",
+        "requires": "staff"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/status": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/table-reservations": {
+      "rule": {
+        "href": "/table-reservations",
+        "label": "Бронирования",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/tasks": {
+      "rule": {
+        "href": "/tasks",
+        "label": "Задачи",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/team": {
+      "rule": {
+        "href": "/team",
+        "label": "Сотрудники и доступ",
+        "requires": "staff"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/today": {
+      "rule": {
+        "href": "/today",
+        "label": "Сегодня",
+        "requires": "desk"
+      },
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/units/R01": {
+      "rule": null,
+      "gate": {
+        "owner": "unchecked",
+        "manager": "unchecked",
+        "staff": "unchecked",
+        "signedOut": "unchecked",
+        "unknown": "unchecked",
+        "platformAdmin": "unchecked"
+      }
+    },
+    "/website": {
+      "rule": {
+        "href": "/website",
+        "label": "Сайт и онлайн-бронирование",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/website/analytics": {
+      "rule": {
+        "href": "/website",
+        "label": "Сайт и онлайн-бронирование",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/website/booking": {
+      "rule": {
+        "href": "/website",
+        "label": "Сайт и онлайн-бронирование",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    },
+    "/website/settings": {
+      "rule": {
+        "href": "/website",
+        "label": "Сайт и онлайн-бронирование",
+        "requires": "settings"
+      },
+      "gate": {
+        "owner": "open",
+        "manager": "open",
+        "staff": "denied",
+        "signedOut": "open",
+        "unknown": "open",
+        "platformAdmin": "open"
+      }
+    }
+  }
+}

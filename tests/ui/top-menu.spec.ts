@@ -152,6 +152,63 @@ test('вложенные адреса подсвечивают свою вкла
   );
 });
 
+/**
+ * DS2a (план mv8-5-ds2-shell-navigation §12): одно правило активного пункта. Адреса, где раньше не горело ничего,
+ * подсвечивают свой раздел; пункты, которых в меню ещё нет («Филиалы», «Техподдержка»), зажигают только группу.
+ */
+test('DS2a: адреса без своего пункта подсвечивают раздел, скрытый пункт зажигает только группу', async ({
+  page,
+  request,
+}) => {
+  // «Организации» и «Техподдержка» видны только вошедшему главному администратору
+  await page.goto('/auth/fallback');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
+  await request.post(`${fixture}/__test/control`, { data: { platformAdmin: true } });
+  const menu = menuOf(page);
+  const current = menu.locator('[aria-current="page"]');
+  // карточка единицы относится к номерному фонду
+  await page.goto('/units/R01');
+  await expect(current).toHaveCount(1);
+  await expect(current).toHaveText('Номерной фонд');
+  // подключение Channex подсвечивает «Каналы продаж», а не «Подключения» настроек
+  await page.goto('/connections/channex');
+  await expect(current).toHaveCount(1);
+  await expect(current).toHaveText('Каналы продаж');
+  await expect(menu.getByRole('button', { name: 'Продажи', exact: true })).toHaveClass(/has-current-page/);
+  await expect(menu.getByRole('button', { name: 'Настройки', exact: true })).not.toHaveClass(
+    /has-current-page/,
+  );
+  // задачи смены живут в «Финансах», которые заменили Главную
+  await page.goto('/tasks');
+  await expect(current).toHaveCount(1);
+  await expect(current).toHaveText('Оплаты и касса');
+  // старая закладка /staff и ссылка меню ведут в одно место
+  await page.goto('/staff');
+  await expect(page).toHaveURL(/\/team$/);
+  await expect(current).toHaveText('Сотрудники и доступ');
+  // ссылка живёт в закрытом списке «Настроек», поэтому без `getByRole`: он скрытое не видит
+  await expect(menu.locator('a', { hasText: 'Сотрудники и доступ' })).toHaveAttribute('href', '/team');
+  // «Филиалы» и «Техподдержка» уже в реестре, но пункта меню у них до DS2b нет: горит группа, ссылки нет
+  for (const [path, group] of [
+    ['/branches', 'Настройки'],
+    ['/platform/support', 'Настройки'],
+  ] as const) {
+    await page.goto(path);
+    await expect(menu.getByRole('button', { name: group, exact: true })).toHaveClass(/has-current-page/);
+    await expect(menu.locator('.has-current-page')).toHaveCount(1);
+    await expect(current).toHaveCount(0);
+  }
+  // граница сегмента: соседний адрес с тем же началом не подсвечивает «Гости и бронирования»
+  await page.goto('/reservations-old');
+  await expect(menu.getByRole('link', { name: 'Гости и бронирования', exact: true })).not.toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+});
+
 for (const theme of ['light', 'dark'] as const) {
   test(`шапка ровная, без прокрутки вбок и доступная: ${theme}`, async ({ page }) => {
     test.setTimeout(120_000);

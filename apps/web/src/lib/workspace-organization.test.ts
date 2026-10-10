@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { activeMenuRoute, menuSections, phoneNavigation } from './navigation';
+import { CLOSED_ACCESS, activeItem, menuSections, phoneNavigation } from './navigation';
 // Строка вкладок (ADR-134): работа смены одним щелчком, группы только там, где экранов несколько
 it('organizes the menu by tasks: desk screens first, groups only for multi-screen areas', () => {
   expect(menuSections.map((s) => s.id)).toEqual([
@@ -58,9 +58,6 @@ it('guests and bookings are one menu tab: the reservations list has no tab of it
   const hrefs = menuSections.flatMap((s) => s.items.map((i) => i.href));
   expect(hrefs).toContain('/guests');
   expect(hrefs).not.toContain('/reservations');
-  expect(activeMenuRoute('/guests')).toBe('/guests');
-  expect(activeMenuRoute('/guests/birthdays')).toBe('/guests');
-  expect(activeMenuRoute('/guests/42')).toBe('/guests');
-  expect(activeMenuRoute('/reservations')).toBe('/guests');
-  expect(activeMenuRoute('/reservations/20260927-ABC123')).toBe('/guests');
+  for (const path of ['/guests', '/guests/birthdays', '/guests/42', '/reservations', '/reservations/20260927-ABC123'])
+    expect(activeItem(path, 'HOSPITALITY', CLOSED_ACCESS), path).toMatchObject({ sectionId: 'guests', href: '/guests' });
 });

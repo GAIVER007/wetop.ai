@@ -415,27 +415,63 @@ export const navigationItems = navigation.flatMap((group) =>
   group.items.flatMap((item) => [item, ...(item.children ?? [])]),
 );
 
+/**
+ * Пункт меню направления (DS2a, план mv8-5-ds2-shell-navigation §12): канонический адрес `href`, свой `id` и префиксы
+ * `match`, на которых он подсвечен (по умолчанию `[href]`). `hidden`: пункт уже есть в реестре и подсвечивается, но
+ * в меню виден только с DS2b («График», «Филиалы», «Техподдержка», профиль гостиницы). Права `match` не даёт:
+ * `routeRule` его не читает.
+ */
+export interface MenuItem extends NavigationItem {
+  id: string;
+  match?: string[];
+  hidden?: true;
+}
+
 export interface MenuSection {
   id: string;
   label: string;
   icon: IconName;
-  items: NavigationItem[];
+  items: MenuItem[];
   /** Раздел из одного пункта: вкладка в шапке и прямая ссылка в меню телефона без раскрывашки (ADR-108) */
   direct?: boolean;
 }
 
-// Метаданные и дочерние ссылки нужны страницам-обзорам. Меню группирует тот же
-// реестр по задачам сотрудника, не меняя заголовки страниц и их маршруты.
-function menuItem(href: string, label?: string): NavigationItem {
-  const item = navigationItems.find((entry) => entry.href === href);
-  if (!item) throw new Error(`Unknown navigation route: ${href}`);
-  return label ? { ...item, label } : item;
+interface MenuOptions {
+  label?: string;
+  match?: string[];
+  hidden?: true;
 }
 
-function direct(id: string, href: string, icon: IconName, label?: string): MenuSection {
-  const item = menuItem(href, label);
+// Метаданные и дочерние ссылки нужны страницам-обзорам. Меню группирует тот же
+// реестр по задачам сотрудника, не меняя заголовки страниц и их маршруты.
+function menuItem(id: string, href: string, options: MenuOptions = {}): MenuItem {
+  const item = navigationItems.find((entry) => entry.href === href);
+  if (!item) throw new Error(`Unknown navigation route: ${href}`);
+  const { label, ...rest } = options;
+  return { ...item, ...(label ? { label } : {}), id, ...rest };
+}
+
+function direct(id: string, href: string, icon: IconName, options: MenuOptions = {}): MenuSection {
+  const item = menuItem(id, href, options);
   return { id, label: item.label, icon, direct: true, items: [item] };
 }
+
+/**
+ * «Филиалы» (DS2 §13): страница общая для трёх направлений, в `navigation` её нет, поэтому `routeRule` для `/branches`
+ * пуст, как и раньше (F7). Право `desk` есть у всех ролей: подсветка видна каждому, кто видит страницу.
+ */
+const branchesItem: MenuItem = {
+  id: 'branches',
+  href: '/branches',
+  label: 'Филиалы',
+  icon: 'inventory',
+  description: 'Филиалы организации и переход между ними.',
+  requires: 'desk',
+  hidden: true,
+};
+
+/** «Сотрудники и доступ» трёх направлений ведут сразу на `/team`; старый `/staff` остаётся перенаправлением (§14) */
+const TEAM: MenuOptions = { label: 'Сотрудники и доступ', match: ['/team', '/staff'] };
 
 /**
  * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
@@ -446,91 +482,142 @@ function direct(id: string, href: string, icon: IconName, label?: string): MenuS
 // раздел вместо Главной (день объекта и касса вместе, plans/finance-home-merge-2026-10-09.md), поэтому
 // стоит первым; дальше работа смены, продажи, отчётность; фонд и настройки реже всего.
 // «Отчёты» и «Аналитика» объединены в одну группу: оба раздела — «посмотреть цифры».
-export const menuSections: MenuSection[] = [
+const hospitalityRegistry: MenuSection[] = [
   {
     // «Бар» живёт внутри «Финансов» (ADR-157, поручение владельца 09.10.2026): товарно-денежный учёт
-    // рядом с кассой, своей вкладки у него нет. Маршруты и права не менялись.
+    // рядом с кассой, своей вкладки у него нет. Маршруты и права не менялись. «Финансы» заменили Главную:
+    // `/today` гостиницы ведёт сюда, задачи смены (`/tasks`) подсвечивают тот же раздел
     id: 'finance',
     label: 'Финансы',
     icon: 'money',
-    items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar')],
+    items: [
+      menuItem('payments', '/finance', { label: 'Оплаты и касса', match: ['/finance', '/today', '/tasks'] }),
+      menuItem('bar', '/bar'),
+    ],
   },
   direct('chessboard', '/chessboard', 'board'),
   // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список
   // броней со всеми отборами и экспортом открывается кнопкой на нём, адреса и права страниц прежние
-  direct('guests', '/guests', 'guests'),
+  direct('guests', '/guests', 'guests', { match: ['/guests', '/reservations'] }),
   {
     id: 'sales',
     label: 'Продажи',
     icon: 'rates',
     items: [
       // «Тарифы и цены» сняты 06.10.2026: цена категории — в «Категориях номеров»
-      menuItem('/market'),
-      menuItem('/channels'),
-      menuItem('/ai-agents', 'ИИ-продавцы'),
+      menuItem('market', '/market'),
+      // подключение Channex относится к каналам, хоть и лежит под `/connections` (ADR-112)
+      menuItem('channels', '/channels', {
+        match: ['/channels', '/channel-manager', '/connections/channex'],
+      }),
+      menuItem('ai-agents', '/ai-agents', { label: 'ИИ-продавцы', match: ['/ai-agents', '/ai-seller'] }),
     ],
   },
   {
-    // MKT2: «Сайт и SEO» ведёт в хаб; страницы сайта (`/website/*`) подсвечивают его же (`activeMenuRoute`)
+    // MKT2: «Сайт и SEO» ведёт в хаб; страницы сайта (`/website/*`) подсвечивают его же
     id: 'marketing',
     label: 'Маркетинг',
     icon: 'send',
-    items: [menuItem('/marketing', 'Сайт и SEO')],
+    items: [menuItem('site', '/marketing', { label: 'Сайт и SEO', match: ['/marketing', '/website'] })],
   },
   {
     // хаб REP1 плюс «Аналитика» одной группой; «Оплаты» — вкладка «Финансов» (ADR-134)
     id: 'reports',
     label: 'Отчёты',
     icon: 'analytics',
-    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics')],
+    items: [
+      menuItem('reports', '/reports', { label: 'Все отчёты' }),
+      // старые `/management/*` перенаправляют в аналитику
+      menuItem('analytics', '/management/analytics', { match: ['/management'] }),
+    ],
   },
-  direct('inventory', '/inventory', 'bed'),
+  // вкладки номерного фонда (ADR-108), старые `/rates` и карточка единицы `/units/*`
+  direct('inventory', '/inventory', 'bed', { match: ['/inventory', '/rooms', '/rates', '/units'] }),
   {
     id: 'settings',
     label: 'Настройки',
     icon: 'settings',
     items: [
-      menuItem('/hotel-settings', 'Объект'),
-      menuItem('/team', 'Сотрудники и доступ'),
-      menuItem('/connections', 'Подключения'),
-      menuItem('/journal', 'Журнал операций'),
+      menuItem('property', '/hotel-settings', { label: 'Объект' }),
+      menuItem('team', '/team', TEAM),
+      menuItem('connections', '/connections', { label: 'Подключения' }),
+      branchesItem,
+      menuItem('journal', '/journal', { label: 'Журнал операций' }),
       // право `desk`: администратор видит неисправности (ADR-107) — для него группа сводится к этому пункту
-      menuItem('/incidents'),
+      menuItem('incidents', '/incidents'),
       // Вкладка «Платформа» снята по поручению владельца 09.10.2026: «Организации» главного администратора живут
       // в «Настройках», пункт виден только по его отметке. «Техподдержка» по-прежнему под переключателем агентов
-      // на «ИИ-продавце»: своего пункта меню у неё нет, маршрут /platform/support остаётся в реестре ради прав
-      menuItem('/platform'),
+      // на «ИИ-продавце»: видимого пункта у неё нет, в реестре она скрытым пунктом той же группы (DS2a)
+      menuItem('organizations', '/platform'),
+      menuItem('support', '/platform/support', { hidden: true }),
+    ],
+  },
+  {
+    // профиль и справка гостиницы открываются из меню профиля, вкладки у них нет; в DS2b переезжают в общее меню профиля
+    id: 'account',
+    label: 'Профиль',
+    icon: 'guests',
+    items: [
+      menuItem('profile', '/profile', { hidden: true }),
+      menuItem('help', '/help', { hidden: true }),
     ],
   },
 ];
 
 /** Verified Business.vertical selects the working Beauty routes (MV5). */
-export const beautyMenuSections: MenuSection[] = [
-  direct('today', '/today', 'today', 'Сегодня'),
-  direct('calendar', '/calendar', 'board'),
+const beautyRegistry: MenuSection[] = [
+  direct('today', '/today', 'today', { label: 'Сегодня' }),
+  // `/beauty` это прежний вход салона, в DS2c станет перенаправлением на календарь (§14)
+  direct('calendar', '/calendar', 'board', { match: ['/calendar', '/beauty'] }),
   direct('appointments', '/appointments', 'booking'),
   direct('customers', '/customers', 'guests'),
-  direct('employees', '/employees', 'guests'),
-  direct('services', '/services', 'rates'),
-  direct('team', '/staff', 'guests'),
+  direct('employees', '/employees', 'guests', { match: ['/employees', '/beauty/masters'] }),
+  // график мастера: канонический адрес, вкладка появится в DS2b (В1)
+  direct('schedule', '/beauty/schedule', 'clock', { hidden: true }),
+  direct('services', '/services', 'rates', { match: ['/services', '/beauty/services'] }),
+  direct('team', '/team', 'guests', TEAM),
   direct('analytics', '/management/analytics', 'analytics'),
   direct('journal', '/journal', 'journal'),
   direct('help', '/help', 'help'),
   direct('profile', '/profile', 'guests'),
+  { id: 'settings', label: 'Настройки', icon: 'settings', items: [branchesItem] },
 ];
 
-export const foodMenuSections: MenuSection[] = [
-  direct('today', '/today', 'today', 'Сегодня'),
+const foodRegistry: MenuSection[] = [
+  direct('today', '/today', 'today', { label: 'Сегодня' }),
   direct('floor-plan', '/floor-plan', 'board'),
   direct('table-reservations', '/table-reservations', 'booking'),
-  direct('customers', '/customers', 'guests', 'Гости'),
+  direct('customers', '/customers', 'guests', { label: 'Гости' }),
   direct('dining-areas', '/dining-areas', 'settings'),
-  direct('staff', '/staff', 'guests'),
+  direct('staff', '/team', 'guests', TEAM),
   direct('analytics', '/management/analytics', 'analytics'),
   direct('journal', '/journal', 'journal'),
   direct('help', '/help', 'help'),
   direct('profile', '/profile', 'guests'),
+  { id: 'settings', label: 'Настройки', icon: 'settings', items: [branchesItem] },
 ];
+
+const REGISTRY: Record<WebVertical, MenuSection[]> = {
+  HOSPITALITY: hospitalityRegistry,
+  BEAUTY: beautyRegistry,
+  FOOD_SERVICE: foodRegistry,
+};
+
+/** Полный реестр направления, со скрытыми до DS2b пунктами: из него `activeItem` и тесты реестра */
+export function menuRegistry(vertical: WebVertical): MenuSection[] {
+  return REGISTRY[vertical];
+}
+
+/** Видимое меню: без скрытых пунктов и без разделов, в которых ничего не осталось */
+function visible(sections: MenuSection[]): MenuSection[] {
+  return sections
+    .map((section) => ({ ...section, items: section.items.filter((item) => !item.hidden) }))
+    .filter((section) => section.items.length > 0);
+}
+
+export const menuSections: MenuSection[] = visible(hospitalityRegistry);
+export const beautyMenuSections: MenuSection[] = visible(beautyRegistry);
+export const foodMenuSections: MenuSection[] = visible(foodRegistry);
 
 /**
  * Нижняя панель телефона: первые четыре вкладки шапки и кнопка «Ещё» (ADR-050, ADR-134).
@@ -555,6 +642,40 @@ export function phoneNavigationFor(
     .filter((section) => section.direct)
     .slice(0, 4)
     .map((section) => section.items[0]!);
+}
+
+/** Какой пункт меню подсвечен: его раздел, `id` и канонический адрес */
+export interface ActiveItem {
+  sectionId: string;
+  itemId: string;
+  href: string;
+}
+
+/**
+ * Единственное правило активного пункта (DS2 §12). Путь без `?…`, `#…` и хвостового `/`; пункты только этого
+ * направления и только открытые этой роли; префикс совпадает целым сегментом (`/reservations` с `/reservations/ABC`,
+ * но не с `/reservations-old`); самый длинный выигрывает, при равенстве первый по порядку меню. Направление
+ * незнакомо: ничего не подсвечено, гостиница по умолчанию здесь не угадывается.
+ */
+export function activeItem(
+  path: string,
+  vertical: WebVertical | null | undefined,
+  access: NavigationAccess,
+): ActiveItem | null {
+  const sections = vertical && Object.hasOwn(REGISTRY, vertical) ? REGISTRY[vertical] : null;
+  if (!sections) return null;
+  const bare = path.split(/[?#]/, 1)[0]!.replace(/\/+$/, '') || '/';
+  let best: (ActiveItem & { length: number }) | null = null;
+  for (const section of sections)
+    for (const item of section.items) {
+      if (!allowedItem(item, access)) continue;
+      for (const prefix of item.match ?? [item.href]) {
+        const hit = bare === prefix || bare.startsWith(`${prefix}/`);
+        if (hit && (!best || prefix.length > best.length))
+          best = { sectionId: section.id, itemId: item.id, href: item.href, length: prefix.length };
+      }
+    }
+  return best && { sectionId: best.sectionId, itemId: best.itemId, href: best.href };
 }
 
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
@@ -643,23 +764,6 @@ export function deskAccessOf(
     role: (me.user.role && parseMembershipRole(me.user.role)) || 'STAFF',
     ...(me.user.restricted === true ? { restricted: true as const } : {}),
   };
-}
-
-/**
- * Какой пункт меню подсвечен на этом адресе: вкладки модулей не пункты меню, активен их корень
- * («Настройки объекта» ADR-115, «Номерной фонд» ADR-108, «Каналы продаж» ADR-112, «Сайт и SEO» MKT2)
- */
-export function activeMenuRoute(path: string): string | undefined {
-  const route = activeNavigation(path)?.href;
-  if (!route) return undefined;
-  if (route.startsWith('/hotel-settings')) return '/hotel-settings';
-  if (route.startsWith('/rooms')) return '/inventory';
-  if (route.startsWith('/channels')) return '/channels';
-  // «Гости и бронирования» (09.10.2026): брони и карточка брони подсвечивают тот же единственный пункт
-  if (route === '/reservations') return '/guests';
-  // сайт объекта, продукт «Маркетинга»: в меню один пункт «Сайт и SEO» (MKT2)
-  if (route === '/website') return '/marketing';
-  return route;
 }
 
 /** Страницы агентов лежат под своими адресами, но в меню это один пункт «ИИ-агенты» */

@@ -1,0 +1,788 @@
+# Сквозные (e2e) · 09.10.2026 19:22 Алматы · vm
+# коммит c57a637 (claude/mv8-5-ds2a-navigation-registry)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/property-settings.spec.ts' 'tests/ui/reservations-v2-r2.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/settings-simplification.spec.ts' 'tests/ui/status-page.spec.ts' 'tests/ui/support-kb.spec.ts' 'tests/ui/support-queue.spec.ts' 'tests/ui/system-screens.spec.ts' 'tests/ui/team.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/ux-retention.spec.ts' 'tests/ui/website.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/staff.spec.ts' 'tests/ui/accessibility.spec.ts' 'tests/ui/login-access.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 232 tests using 1 worker
+
+  ✓    1 tests/ui/accessibility.spec.ts:59:5 › доступность всех разделов: light, 1440px (1.8m)
+  ✓    2 tests/ui/accessibility.spec.ts:59:5 › доступность всех разделов: dark, 1440px (1.5m)
+  ✓    3 tests/ui/accessibility.spec.ts:59:5 › доступность всех разделов: light, 390px (1.5m)
+  ✓    4 tests/ui/accessibility.spec.ts:59:5 › доступность всех разделов: dark, 390px (1.5m)
+  ✓    5 tests/ui/accessibility.spec.ts:130:5 › доступность открытых форм и drawer: light, 1440px (9.8s)
+  ✓    6 tests/ui/accessibility.spec.ts:130:5 › доступность открытых форм и drawer: dark, 1440px (8.4s)
+  ✓    7 tests/ui/accessibility.spec.ts:130:5 › доступность открытых форм и drawer: light, 390px (8.0s)
+  ✓    8 tests/ui/accessibility.spec.ts:130:5 › доступность открытых форм и drawer: dark, 390px (7.6s)
+  ✓    9 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (3.3s)
+  ✓   10 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (4.9s)
+  ✓   11 tests/ui/login-access.spec.ts:55:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (2.2s)
+  ✓   12 tests/ui/login-access.spec.ts:62:1 › сбой API сохраняет поля, повтор после восстановления работает (3.3s)
+  ✓   13 tests/ui/login-access.spec.ts:73:1 › клавиатура, показ пароля и блокировка повторной отправки (3.3s)
+  ✓   14 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — light (8.1s)
+  ✓   15 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — dark (8.5s)
+  ✓   16 tests/ui/login-access.spec.ts:124:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.8s)
+  ✓   17 tests/ui/login-access.spec.ts:135:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (4.7s)
+  ✓   18 tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение (2.0s)
+  ✓   19 tests/ui/login-access.spec.ts:160:1 › старая ссылка mode=register открывает регистрацию на главной (1.7s)
+  ✓   20 tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (4.1s)
+  ✓   21 tests/ui/login-access.spec.ts:178:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (806ms)
+  ✓   22 tests/ui/login-access.spec.ts:183:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (3.0s)
+  ✓   23 tests/ui/login-access.spec.ts:194:1 › занятая почта и короткий пароль не создают сессию (3.1s)
+  ✓   24 tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (4.8s)
+  ✓   25 tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.6s)
+  ✓   26 tests/ui/navigation.spec.ts:121:1 › меню телефона: «Ещё» горит, когда раздел живёт за ней, панель горит, когда в ней (3.5s)
+  ✓   27 tests/ui/navigation.spec.ts:140:1 › все пункты меню открывают существующие страницы (14.2s)
+  ✓   28 tests/ui/navigation.spec.ts:188:3 › меню телефона и планшета ровное и доступное: light (4.6s)
+  ✓   29 tests/ui/navigation.spec.ts:188:3 › меню телефона и планшета ровное и доступное: dark (4.5s)
+  ✓   30 tests/ui/navigation.spec.ts:243:1 › «Гости» открываются вкладкой раздела «Брони», меню подсвечивает «Брони» (2.4s)
+  ✓   31 tests/ui/owner-dashboard.spec.ts:9:1 › owner dashboard: compact owner metrics and operational widgets (2.4s)
+  ✓   32 tests/ui/owner-dashboard.spec.ts:34:1 › dashboard period changes and mobile retains content (2.1s)
+  ✓   33 tests/ui/owner-dashboard.spec.ts:45:1 › owner dashboard keeps attention available when finance fails (1.4s)
+  ✓   34 tests/ui/owner-dashboard.spec.ts:57:1 › owner dashboard dark desktop and mobile remain usable (4.6s)
+  ✓   35 tests/ui/owner-dashboard.spec.ts:88:1 › owner mobile overview fits above navigation and omits refund metrics (1.9s)
+  ✓   36 tests/ui/owner-dashboard.spec.ts:115:1 › owner overview stays usable at narrow widths and custom dates remain accessible (3.0s)
+  ✓   37 tests/ui/owner-dashboard.spec.ts:135:1 › approved owner concept groups forecast with occupancy and matches attention count (2.1s)
+  ✓   38 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.5s)
+  ✓   39 tests/ui/platform-access.spec.ts:81:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (4.0s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✓   40 tests/ui/platform-access.spec.ts:103:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (8.0s)
+  ✓   41 tests/ui/platform-access.spec.ts:142:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (6.5s)
+  ✓   42 tests/ui/platform-access.spec.ts:170:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (3.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   43 tests/ui/platform-access.spec.ts:190:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (7.1s)
+  ✓   44 tests/ui/platform-access.spec.ts:213:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (9.2s)
+  ✓   45 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 1440px (15.2s)
+  ✓   46 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 1440px (15.1s)
+  ✓   47 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 390px (15.4s)
+  ✓   48 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 390px (14.9s)
+  ✓   49 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (6.9s)
+  ✓   50 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (9.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="platform/s...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <SupportPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SupportScreen>
+[WebServer]                 <KnowledgeView>
+[WebServer]                   <Stack>
+[WebServer]                     <div className="stack">
+[WebServer]                       ...
+[WebServer]                         <KnowledgeUploadForm upload={function supportUploadAction}>
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                             <Field label="Документ: ...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="file"
+[WebServer]                                     name="file"
+[WebServer]                                     accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                     required={true}
+[WebServer]                                     data-testid="knowledge-file"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]     ...
+[WebServer]  
+  ✓   51 tests/ui/platform-support.spec.ts:100:1 › знания помощника: список и загрузка документа (5.8s)
+  ✓   52 tests/ui/platform-support.spec.ts:120:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (11.6s)
+  ✓   53 tests/ui/platform-support.spec.ts:172:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (3.4s)
+  ✓   54 tests/ui/platform-support.spec.ts:189:1 › помощник не подключён — раздел говорит, что вписать владельцу (3.0s)
+  ✓   55 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 1440px (19.4s)
+  ✓   56 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 1440px (19.3s)
+  ✓   57 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 390px (18.1s)
+  ✓   58 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 390px (18.7s)
+  ✓   59 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (5.1s)
+  ✓   60 tests/ui/premium.spec.ts:27:1 › shell: панель, меню профиля, поиск (2.7s)
+  ✓   61 tests/ui/premium.spec.ts:45:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (9.4s)
+  ✓   62 tests/ui/premium.spec.ts:78:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (11.7s)
+  ✓   63 tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (2.4m)
+  ✓   64 tests/ui/premium.spec.ts:179:1 › вход не пускает с чужой почтой и чужим паролем (812ms)
+  ✓   65 tests/ui/premium.spec.ts:196:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (6.7s)
+  ✓   66 tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов (4.4s)
+  ✓   67 tests/ui/property-settings.spec.ts:68:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy (6.1s)
+  ✓   68 tests/ui/property-settings.spec.ts:83:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (10.7s)
+  ✓   69 tests/ui/property-settings.spec.ts:142:1 › администратор и «только чтение» видят сведения без формы и без кнопки сохранения (5.5s)
+  ✓   70 tests/ui/property-settings.spec.ts:166:1 › данные объекта и каналов помещаются на экране ноутбука (3.3s)
+  ✓   71 tests/ui/property-settings.spec.ts:179:3 › снимки SET1 и доступность: light (14.4s)
+  ✓   72 tests/ui/property-settings.spec.ts:179:3 › снимки SET1 и доступность: dark (14.1s)
+  ✓   73 tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе (3.6s)
+  ✓   74 tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса (8.2s)
+  ✓   75 tests/ui/reservations-v2-r2.spec.ts:139:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день (6.0s)
+  ✓   76 tests/ui/reservations-v2-r2.spec.ts:172:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка (3.0s)
+  ✘   77 tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране (2.1s)
+  ✓   78 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, light (14.0s)
+  ✓   79 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, dark (14.8s)
+  ✘   80 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (17.2s)
+  ✓   81 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (9.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   82 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (5.6s)
+  ✓   83 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (8.5s)
+  ✓   84 tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (10.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   85 tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (6.2s)
+  ✓   86 tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль (3.9s)
+  ✓   87 tests/ui/roles.spec.ts:304:1 › администратор: сотрудниками ведают владелец и управляющий (2.5s)
+  ✓   88 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 1440px (7.2s)
+  ✓   89 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 1440px (7.2s)
+  ✓   90 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 390px (9.6s)
+  ✓   91 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 390px (7.1s)
+  ✓   92 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (4.0s)
+  ✓   93 tests/ui/settings-simplification.spec.ts:41:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (7.9s)
+  ✓   94 tests/ui/settings-simplification.spec.ts:62:1 › поиск услуг работает без повторной загрузки каталога (2.0s)
+  ✓   95 tests/ui/settings-simplification.spec.ts:81:1 › ошибка каталога сохраняет навигацию и исправляется повтором (2.6s)
+  ✓   96 tests/ui/settings-simplification.spec.ts:95:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (9.5s)
+  ✓   97 tests/ui/settings-simplification.spec.ts:95:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (9.9s)
+  ✓   98 tests/ui/settings-simplification.spec.ts:162:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (2.0s)
+  ✓   99 tests/ui/staff.spec.ts:12:1 › /staff ведёт на «Сотрудников»: старые ссылки живут (3.9s)
+  ✓  100 tests/ui/status-page.spec.ts:14:1 › без входа: всё работает, четыре части словами (1.3s)
+  ✓  101 tests/ui/status-page.spec.ts:27:1 › каналы с перебоями: общая плашка и строка каналов (819ms)
+  ✓  102 tests/ui/status-page.spec.ts:37:5 › доступность: light, 1440px (1.6s)
+  ✓  103 tests/ui/status-page.spec.ts:37:5 › доступность: light, 390px (1.6s)
+  ✓  104 tests/ui/status-page.spec.ts:37:5 › доступность: dark, 1440px (1.7s)
+  ✓  105 tests/ui/status-page.spec.ts:37:5 › доступность: dark, 390px (1.4s)
+  ✓  106 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (4.7s)
+  ✓  107 tests/ui/support-kb.spec.ts:68:1 › не главный администратор: раздела нет, данных базы знаний не видно (2.8s)
+  ✓  108 tests/ui/support-kb.spec.ts:76:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (6.2s)
+  ✓  109 tests/ui/support-kb.spec.ts:105:1 › публикация отменяется: без «да» запись остаётся черновиком (4.0s)
+  ✘  110 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (21.0s)
+  ✓  111 tests/ui/support-kb.spec.ts:134:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (7.7s)
+  ✓  112 tests/ui/support-kb.spec.ts:155:1 › у открытого обращения кнопки «Создать знание» нет (3.7s)
+  ✓  113 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 1440 (7.6s)
+  ✓  114 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 390 (6.8s)
+  ✓  115 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 (7.2s)
+  ✓  116 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 390 (7.8s)
+  ✓  117 tests/ui/support-kb.spec.ts:181:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (5.1s)
+  ✓  118 tests/ui/support-queue.spec.ts:48:1 › очередь: без пустых диалогов, срочные первыми, последнее сообщение и сколько ждёт (5.1s)
+  ✓  119 tests/ui/support-queue.spec.ts:87:1 › переписка открывается рядом со списком; забрать, ответить, вернуть ИИ (8.0s)
+  ✓  120 tests/ui/support-queue.spec.ts:128:1 › закрыть обращение: с подтверждением, уходит в «Закрытые», переписка только для чтения (6.2s)
+  ✓  121 tests/ui/support-queue.spec.ts:158:1 › помощник не отвечает — отдельно от «не подключён», с повтором (2.8s)
+  ✓  122 tests/ui/support-queue.spec.ts:168:1 › телефон: список на весь экран, переписка вместо него и «К списку» (5.3s)
+  ✓  123 tests/ui/support-queue.spec.ts:196:1 › снимки для владельца: тёмная тема, компьютер и телефон (5.5s)
+  ✓  124 tests/ui/support-queue.spec.ts:215:1 › проверки агента в очередь не попадают; категория второй строкой чипов, статус держится (8.5s)
+  ✓  125 tests/ui/support-queue.spec.ts:255:1 › категории на телефоне и в тёмной теме (4.3s)
+  ✓  126 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (9.6s)
+  ✓  127 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (7.3s)
+  ✓  128 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (16.8s)
+  ✓  129 tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (11.5s)
+  ✓  130 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (8.5s)
+  ✓  131 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (2.7s)
+  ✓  132 tests/ui/team.spec.ts:54:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (3.5s)
+  ✓  133 tests/ui/team.spec.ts:71:1 › ошибка приглашения — словами в панели, ввод не стирается (3.7s)
+  ✓  134 tests/ui/team.spec.ts:83:1 › «Отключить» — только после подтверждения с последствием (3.0s)
+  ✓  135 tests/ui/team.spec.ts:95:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке (3.5s)
+  ✓  136 tests/ui/team.spec.ts:116:1 › неверный телефон: словами в панели, введённое не стирается (3.4s)
+  ✓  137 tests/ui/team.spec.ts:130:1 › управляющий: роль не меняет, приглашает только администраторов (2.7s)
+  ✓  138 tests/ui/team.spec.ts:143:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (1.3s)
+  ✓  139 tests/ui/team.spec.ts:154:1 › администратору раздел закрыт: гейт и меню без пункта (2.5s)
+  ✓  140 tests/ui/team.spec.ts:163:3 › снимки TEAM1 и доступность: light (5.2s)
+  ✓  141 tests/ui/team.spec.ts:163:3 › снимки TEAM1 и доступность: dark (5.4s)
+  ✓  142 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (8.4s)
+  ✓  143 tests/ui/top-menu.spec.ts:128:1 › вложенные адреса подсвечивают свою вкладку (5.5s)
+  ✓  144 tests/ui/top-menu.spec.ts:167:1 › DS2a: адреса без своего пункта подсвечивают раздел, скрытый пункт зажигает только группу (10.6s)
+  ✓  145 tests/ui/top-menu.spec.ts:221:3 › шапка ровная, без прокрутки вбок и доступная: light (6.4s)
+  ✓  146 tests/ui/top-menu.spec.ts:221:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.9s)
+  ✓  147 tests/ui/ux-retention.spec.ts:25:1 › пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7) (7.5s)
+  ✓  148 tests/ui/ux-retention.spec.ts:45:1 › пустые экраны без «Legacy» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3) (4.0s)
+  ✓  149 tests/ui/ux-retention.spec.ts:66:1 › новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4) (1.3s)
+  ✓  150 tests/ui/ux-retention.spec.ts:73:1 › нижняя панель телефона — в порядке бокового меню (п. 1.6) (1.6s)
+  ✓  151 tests/ui/ux-retention.spec.ts:81:1 › подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7) (2.4s)
+  ✓  152 tests/ui/ux-retention.spec.ts:94:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) (10.0s)
+  ✓  153 tests/ui/website.spec.ts:29:1 › старые адреса ведут во вкладки модуля и сохраняют период (2.5s)
+  ✓  154 tests/ui/website.spec.ts:40:1 › одна точка входа в меню и четыре вкладки со своим адресом (2.8s)
+  ✓  155 tests/ui/website.spec.ts:73:1 › домен-заглушка — «Сайт ещё не подключён», а не зелёный сайт (3.3s)
+  ✓  156 tests/ui/website.spec.ts:96:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц (3.3s)
+  ✓  157 tests/ui/website.spec.ts:127:1 › «Интеграции» больше не показывают сайт (1.4s)
+  ✓  158 tests/ui/website.spec.ts:135:1 › настройки: пауза и удаление — в «Опасной зоне», с подтверждением (1.7s)
+  ✓  159 tests/ui/website.spec.ts:148:1 › MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409 (2.2s)
+  ✓  160 tests/ui/website.spec.ts:171:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок (27.5s)
+  ✓  161 tests/ui/website.spec.ts:202:1 › WEB2 · домены списком: заглушка уходит, неверный адрес словами, последний не убирается (2.7s)
+  ✓  162 tests/ui/website.spec.ts:245:1 › WEB2 · счётчик: состояние словами и одно действие (4.1s)
+  ✓  163 tests/ui/website.spec.ts:280:1 › WEB2 · окно установки: код, GTM, конструкторы; доступно, закрывается Escape (3.4s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/website/s..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="website/se...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <WebsiteSettingsPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page">
+[WebServer]               <div>
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <div className="settings-site">
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     <section>
+[WebServer]                     <Panel>
+[WebServer]                       <section className="panel pane...">
+[WebServer]                         ...
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac..." ...>
+[WebServer]                             <Field label="Название">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="name" defaultValue="" required={true} placeholder="Сайт хостела" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="name"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     placeholder="Сайт хостела"
+[WebServer]                                     data-testid="site-name"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Адрес сайта">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="hosts" defaultValue="" required={true} inputMode="url" autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="hosts"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     inputMode="url"
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="myhotel.kz"
+[WebServer]                                     data-testid="site-hosts"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/website/s..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="website/se...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <WebsiteSettingsPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page">
+[WebServer]               <div>
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <div className="settings-site">
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     <section>
+[WebServer]                     <Panel>
+[WebServer]                       <section className="panel pane...">
+[WebServer]                         ...
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac..." ...>
+[WebServer]                             <Field label="Название">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="name" defaultValue="" required={true} placeholder="Сайт хостела" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="name"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     placeholder="Сайт хостела"
+[WebServer]                                     data-testid="site-name"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Адрес сайта">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input name="hosts" defaultValue="" required={true} inputMode="url" autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="hosts"
+[WebServer]                                     defaultValue=""
+[WebServer]                                     required={true}
+[WebServer]                                     inputMode="url"
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="myhotel.kz"
+[WebServer]                                     data-testid="site-hosts"
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]       ...
+[WebServer]  
+  ✓  164 tests/ui/website.spec.ts:305:1 › снимки WEB2 (13.0s)
+  ✓  165 tests/ui/website.spec.ts:355:1 › WEB3 · бронирование: состояние, демо только у работающего, что увидит гость (5.2s)
+  ✓  166 tests/ui/website.spec.ts:387:1 › WEB3 · без адреса сайта демо не предлагается, код виджета — есть (1.6s)
+  ✓  167 tests/ui/website.spec.ts:401:1 › WEB3 · тариф сайта: смена видна в состоянии и в «Что увидит гость» (3.0s)
+  ✓  168 tests/ui/website.spec.ts:419:1 › WEB3 · окно установки виджета: код, место и цвет, проверка; доступно, закрывается Escape (3.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="website/bo...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <WebsiteBookingPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   ...
+[WebServer]                     <h2>
+[WebServer]                     <BookingSettings id="ui-site" enabled={true} ratePlanCode="BASE" plans={[...]}>
+[WebServer]                       <Stack gap="sm" data-testid="booking-se...">
+[WebServer]                         <div className="stack stac..." data-testid="booking-se...">
+[WebServer]                           <Row gap="lg">
+[WebServer]                             <div className="row row--lg">
+[WebServer]                               <label className="check">
+[WebServer]                                 <input
+[WebServer]                                   type="checkbox"
+[WebServer]                                   checked={true}
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   data-testid="booking-enabled"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  169 tests/ui/website.spec.ts:445:1 › снимки WEB3 (13.6s)
+  ✓  170 tests/ui/website.spec.ts:494:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором (1.9s)
+  ✓  171 tests/ui/website.spec.ts:517:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия (1.9s)
+  ✓  172 tests/ui/website.spec.ts:539:1 › снимки WEB4 (6.7s)
+  ✓  173 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (1.0m)
+  ✓  174 tests/ui/workspace.spec.ts:117:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (6.5s)
+  ✓  175 tests/ui/workspace.spec.ts:165:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (4.8s)
+  ✓  176 tests/ui/workspace.spec.ts:188:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (5.8s)
+  ✓  177 tests/ui/workspace.spec.ts:213:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (7.1s)
+  ✓  178 tests/ui/workspace.spec.ts:242:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (8.0s)
+  ✓  179 tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (4.7s)
+  ✓  180 tests/ui/workspace.spec.ts:327:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (4.3s)
+  ✓  181 tests/ui/workspace.spec.ts:350:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (3.5s)
+  ✓  182 tests/ui/workspace.spec.ts:387:1 › карточка: профиль гостя и заселение проходят через server actions (5.2s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:16:40)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:16:40)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  183 tests/ui/workspace.spec.ts:432:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.5s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:42:13)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  184 tests/ui/workspace.spec.ts:449:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (4.0s)
+  ✓  185 tests/ui/workspace.spec.ts:466:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (3.2s)
+  ✓  186 tests/ui/workspace.spec.ts:486:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (3.5s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:16:40)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  187 tests/ui/workspace.spec.ts:512:1 › сбой API показывает ошибку, повтор восстанавливает страницу (2.5s)
+  ✓  188 tests/ui/workspace.spec.ts:521:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (3.3s)
+  ✓  189 tests/ui/workspace.spec.ts:548:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (1.2s)
+  ✓  190 tests/ui/workspace.spec.ts:560:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.6s)
+  ✓  191 tests/ui/workspace.spec.ts:569:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (5.3s)
+  ✓  192 tests/ui/workspace.spec.ts:578:1 › групповая бронь: разные категории сохраняются при конфликте (2.5s)
+  ✓  193 tests/ui/workspace.spec.ts:609:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (3.4s)
+  ✓  194 tests/ui/workspace.spec.ts:636:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (4.0s)
+  ✓  195 tests/ui/workspace.spec.ts:668:1 › ошибка буфера обмена видна, код остаётся доступен (2.1s)
+  ✓  196 tests/ui/workspace.spec.ts:686:1 › финансы: неверные даты можно исправить без падения страницы (2.4s)
+  ✓  197 tests/ui/workspace.spec.ts:702:1 › ошибка загрузки тарифов не позволяет включить виджет (1.3s)
+  ✓  198 tests/ui/workspace.spec.ts:711:1 › номера: статус уборки, блокировка и снятие сохраняются (5.6s)
+  ✓  199 tests/ui/workspace.spec.ts:741:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (4.2s)
+  ✓  200 tests/ui/workspace.spec.ts:768:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.8s)
+  ✓  201 tests/ui/workspace.spec.ts:780:1 › групповая бронь: три места показывают трёх гостей в итогах (2.2s)
+  ✓  202 tests/ui/workspace.spec.ts:804:1 › неисправности: когда история обрезана, это написано (2.6s)
+  ✓  203 tests/ui/workspace.spec.ts:812:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (3.4s)
+  ✓  204 tests/ui/workspace.spec.ts:824:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (5.9s)
+  ✓  205 tests/ui/workspace.spec.ts:869:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (8.1s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  206 tests/ui/workspace.spec.ts:925:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (17.5s)
+  ✓  207 tests/ui/workspace.spec.ts:995:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (4.1s)
+  ✓  208 tests/ui/workspace.spec.ts:1024:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (3.6s)
+  ✓  209 tests/ui/workspace.spec.ts:1048:1 › гости на сегодня: в списке все, а не первые двадцать пять (4.2s)
+  ✓  210 tests/ui/workspace.spec.ts:1067:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (2.6s)
+  ✓  211 tests/ui/workspace.spec.ts:1080:1 › общие настройки показывают адрес PMS без дублирования контента Channex (2.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  212 tests/ui/workspace.spec.ts:1087:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (4.7s)
+  ✓  213 tests/ui/workspace.spec.ts:1119:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (3.0s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:28:28)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  214 tests/ui/workspace.spec.ts:1141:1 › фонд и категории открываются независимо от сбоя шахматки (5.9s)
+  ✓  215 tests/ui/workspace.spec.ts:1162:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.6s)
+  ✓  216 tests/ui/workspace.spec.ts:1178:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.7s)
+  ✓  217 tests/ui/workspace.spec.ts:1197:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (3.1s)
+  ✓  218 tests/ui/workspace.spec.ts:1212:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (1.3s)
+  ✓  219 tests/ui/workspace.spec.ts:1225:1 › счета: приём оплаты подтверждается суммой на экране (3.3s)
+  ✓  220 tests/ui/workspace.spec.ts:1242:1 › деньги за период: период длиннее года объясняется на странице (1.7s)
+  ✓  221 tests/ui/workspace.spec.ts:1261:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (3.3s)
+  ✓  222 tests/ui/workspace.spec.ts:1283:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (2.4s)
+  ✓  223 tests/ui/workspace.spec.ts:1310:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (3.1s)
+  ✓  224 tests/ui/workspace.spec.ts:1330:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.9s)
+  ✓  225 tests/ui/workspace.spec.ts:1346:1 › каналы: входящая бронь ведёт на карточку брони (3.3s)
+  ✓  226 tests/ui/workspace.spec.ts:1364:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (2.8s)
+  ✓  227 tests/ui/workspace.spec.ts:1382:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  228 tests/ui/workspace.spec.ts:1420:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (3.4s)
+  ✓  229 tests/ui/workspace.spec.ts:1487:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (6.1s)
+  ✓  230 tests/ui/workspace.spec.ts:1566:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (4.6s)
+  ✓  231 tests/ui/workspace.spec.ts:1620:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (6.9s)
+  ✓  232 tests/ui/workspace.spec.ts:1647:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (2.7s)
+
+
+  1) tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 450
+    Received:    509
+
+      201 |   const main = page.getByRole('main');
+      202 |   await expect(main.getByLabel('Оплата', { exact: true })).toBeHidden();
+    > 203 |   expect((await rows(page).first().boundingBox())!.y).toBeLessThanOrEqual(450);
+          |                                                       ^
+      204 |   expect(
+      205 |     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+      206 |   ).toBeLessThanOrEqual(1);
+        at /home/user/wetop.ai/tests/ui/reservations-v2-r2.spec.ts:203:55
+
+    Error Context: test-results/reservations-v2-r2-R2-теле-10025-ми»-таблица-в-первом-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r2-R2-теле-10025-ми»-таблица-в-первом-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r2-R2-теле-10025-ми»-таблица-в-первом-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 0
+
+    @@ -1,10 +1,9 @@
+      Array [
+        "/today",
+        "/chessboard",
+        "/reservations",
+    -   "/guests",
+        "/finance",
+        "/bar",
+        "/market",
+        "/ai-agents",
+        "/reports",
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      43 |   await expect
+      44 |     .poll(() => menuLinks(page))
+    > 45 |     .toEqual([
+         |      ^
+      46 |       '/today',
+      47 |       '/chessboard',
+      48 |       '/reservations',
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:45:6
+
+    Error Context: test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('kb-result')
+    Expected substring: "Сохранено"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('kb-result') with timeout 15000ms
+      - waiting for getByTestId('kb-result')
+
+
+      128 |   await form.getByLabel('Название').fill('Как закрыть смену');
+      129 |   await form.getByRole('button', { name: 'Сохранить' }).click();
+    > 130 |   await expect(page.getByTestId('kb-result')).toContainText('Сохранено');
+          |                                               ^
+      131 |   await expect(page.getByTestId('kb-entry')).toContainText('Черновик');
+      132 | });
+      133 |
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:130:47
+
+    Error Context: test-results/support-kb-создание-записи-7ab3d--остаётся-верное-—-черновик/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-создание-записи-7ab3d--остаётся-верное-—-черновик/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-создание-записи-7ab3d--остаётся-верное-—-черновик/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/accessibility.spec.ts (6.9m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  3 failed
+    tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране 
+    tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+    tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик 
+  229 passed (31.4m)
+
+# код выхода 1 · 31 мин 24 с

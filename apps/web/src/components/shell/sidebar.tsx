@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { Suspense, use, useEffect, useId, useState } from 'react';
 import {
   CLOSED_ACCESS,
-  activeMenuRoute,
-  menuSections,
+  activeItem,
   menuSectionsFor,
+  type ActiveItem,
   type MenuSection,
 } from '../../lib/navigation';
 import type { DeskPerson, DeskShell } from '../../lib/desk-person';
@@ -32,16 +32,8 @@ export function Sidebar({
   /** Что открыто вошедшему и кто он (ADR-083); пока API не ответил — меню без закрытых пунктов */
   desk?: Promise<DeskShell> | undefined;
 }) {
-  const active = activeMenuRoute(path);
-  const activeSection = menuSections.find((section) =>
-    section.items.some((item) => item.href === active),
-  )?.id;
-  const [expanded, setExpanded] = useState<string | null>(activeSection ?? null);
   const id = useId();
-  useEffect(() => {
-    if (activeSection) setExpanded(activeSection);
-  }, [activeSection, path]);
-  const links: LinksProps = { id, active, activeSection, expanded, setExpanded, close };
+  const links: LinksProps = { id, path, close };
   return (
     <div className="sidebar-shell">
       <Suspense fallback={<PropertyBlock property={property} settings={false} close={close} />}>
@@ -74,21 +66,35 @@ export function Sidebar({
 
 interface LinksProps {
   id: string;
-  active: string | undefined;
-  activeSection: string | undefined;
-  expanded: string | null;
-  setExpanded: (value: string | null) => void;
+  path: string;
   close: (() => void) | undefined;
 }
 
+/**
+ * Подсветка и раскрытая группа считаются по меню направления вошедшего (DS2a): раньше раздел искали в гостиничном
+ * меню, и у салона и ресторана группа не раскрывалась и не горела.
+ */
 function GrantedSectionLinks({
   desk,
+  path,
   ...props
 }: LinksProps & { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
+  const access = shell?.access ?? CLOSED_ACCESS;
+  // вертикаль та же, что у самого меню: без ответа API меню гостиничное (`menuSectionsFor`), подсветка тоже
+  const vertical = shell?.vertical ?? 'HOSPITALITY';
+  const active = activeItem(path, vertical, access);
+  const activeSection = active?.sectionId;
+  const [expanded, setExpanded] = useState<string | null>(activeSection ?? null);
+  useEffect(() => {
+    if (activeSection) setExpanded(activeSection);
+  }, [activeSection, path]);
   return (
     <SectionLinks
-      sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)}
+      sections={menuSectionsFor(access, vertical)}
+      active={active}
+      expanded={expanded}
+      setExpanded={setExpanded}
       {...props}
     />
   );
@@ -98,16 +104,20 @@ function SectionLinks({
   sections,
   id,
   active,
-  activeSection,
   expanded,
   setExpanded,
   close,
-}: LinksProps & { sections: MenuSection[] }) {
+}: Omit<LinksProps, 'path'> & {
+  sections: MenuSection[];
+  active: ActiveItem | null;
+  expanded: string | null;
+  setExpanded: (value: string | null) => void;
+}) {
   return (
     <>
       {sections.map((section) => {
         const open = expanded === section.id;
-        const selected = activeSection === section.id;
+        const selected = active?.sectionId === section.id;
         const panelId = `${id}-${section.id}`;
         // Раздел из одного пункта (ADR-108): прямая ссылка вместо раскрывашки с единственной строкой
         const single = section.direct ? section.items[0] : undefined;
@@ -119,7 +129,7 @@ function SectionLinks({
                 prefetch={false}
                 onClick={() => close?.()}
                 className={cx('sidebar-section-toggle', selected && 'has-current-page')}
-                aria-current={single.href === active ? 'page' : undefined}
+                aria-current={single.href === active?.href ? 'page' : undefined}
               >
                 <Icon name={section.icon} />
                 <span>{section.label}</span>
@@ -148,8 +158,8 @@ function SectionLinks({
                   prefetch={false}
                   onClick={() => close?.()}
                   title={item.label}
-                  className={cx('workspace-link', item.href === active && 'is-active')}
-                  aria-current={item.href === active ? 'page' : undefined}
+                  className={cx('workspace-link', item.href === active?.href && 'is-active')}
+                  aria-current={item.href === active?.href ? 'page' : undefined}
                 >
                   <Icon name={item.icon} />
                   <span>{item.label}</span>

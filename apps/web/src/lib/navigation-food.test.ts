@@ -13,7 +13,7 @@ describe('Food workspace isolation', () => {
       '/table-reservations',
       '/customers',
       '/dining-areas',
-      '/staff',
+      '/team',
       '/management/analytics',
       '/journal',
       '/help',

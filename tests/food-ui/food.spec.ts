@@ -542,6 +542,46 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   expect((await request.get(`${api}/food-service/service-periods`, { headers })).ok()).toBe(true);
   expect(period.id).toBeTruthy();
 });
+// DS2a (план mv8-5-ds2-shell-navigation §12): меню ресторана подсвечивает свой раздел по своему реестру
+test('DS2a: Food menu highlights its own sections on desktop and phone', async ({ page, request }) => {
+  await reset(page, request);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const menu = page.locator('.topmenu');
+  const current = menu.locator('[aria-current="page"]');
+  await page.goto('/customers');
+  await expect(current).toHaveText('Гости');
+  await expect(menu.getByRole('link', { name: 'Сотрудники и доступ', exact: true })).toHaveAttribute(
+    'href',
+    '/team',
+  );
+  for (const path of ['/team', '/staff']) {
+    await page.goto(path);
+    // `/staff` переводит на `/team` потоком: без ожидания адреса переход обрывает следующий `goto`
+    if (path === '/staff') await expect(page).toHaveURL(/\/team$/);
+    await expect(current, path).toHaveCount(1);
+    await expect(current, path).toHaveText('Сотрудники и доступ');
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  const bar = page.getByRole('navigation', { name: 'Основная навигация' });
+  const more = bar.getByRole('button', { name: 'Ещё разделы' });
+  await page.goto('/table-reservations');
+  await expect(bar.locator('[aria-current="page"]')).toHaveText('Бронирования');
+  await expect(more).not.toHaveClass(/is-active/);
+  for (const theme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.goto('/team');
+    await expect(bar.locator('[aria-current="page"]')).toHaveCount(0);
+    await expect(more).toHaveClass(/is-active/);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await more.click();
+    const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
+    await expect(drawer.locator('[aria-current="page"]')).toHaveText('Сотрудники и доступ');
+    await settled(page);
+    expect((await new AxeBuilder({ page }).analyze()).violations, theme).toEqual([]);
+    await page.keyboard.press('Escape');
+  }
+});
+
 test('API unavailable renders LoadError instead of free tables', async ({ page, request }) => {
   await seed(page, request);
   await request.post(`${api}/__test/control`, { data: { unavailable: true } });

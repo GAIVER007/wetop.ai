@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { Suspense, use, useEffect, useId, useRef, useState } from 'react';
 import {
   CLOSED_ACCESS,
-  activeMenuRoute,
+  activeItem,
   menuSectionsFor,
+  type ActiveItem,
   type MenuSection,
 } from '../../lib/navigation';
 import type { DeskShell } from '../../lib/desk-person';
@@ -27,7 +28,6 @@ export function TopMenu({
   /** Что открыто вошедшему (ADR-083): меню получает обещание и не задерживает страницу */
   desk?: Promise<DeskShell> | undefined;
 }) {
-  const active = activeMenuRoute(path);
   const [open, setOpen] = useState<string | null>(null);
   const root = useRef<HTMLElement>(null);
   const id = useId();
@@ -42,7 +42,7 @@ export function TopMenu({
     document.addEventListener('pointerdown', outside);
     return () => document.removeEventListener('pointerdown', outside);
   }, [open]);
-  const tabs: TabsProps = { id, active, open, setOpen };
+  const tabs: TabsProps = { id, path, open, setOpen };
   return (
     <nav
       className="topmenu"
@@ -86,21 +86,37 @@ export function TopMenu({
 
 interface TabsProps {
   id: string;
-  active: string | undefined;
+  path: string;
   open: string | null;
   setOpen: (value: string | null) => void;
 }
 
-function GrantedTabs({ desk, ...props }: TabsProps & { desk: Promise<DeskShell> | undefined }) {
+function GrantedTabs({ desk, path, ...props }: TabsProps & { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
-  return <Tabs sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)} {...props} />;
+  const access = shell?.access ?? CLOSED_ACCESS;
+  // вертикаль та же, что у самого меню: без ответа API меню гостиничное (`menuSectionsFor`), подсветка тоже
+  const vertical = shell?.vertical ?? 'HOSPITALITY';
+  return (
+    <Tabs
+      sections={menuSectionsFor(access, vertical)}
+      active={activeItem(path, vertical, access)}
+      {...props}
+    />
+  );
 }
 
-function Tabs({ sections, id, active, open, setOpen }: TabsProps & { sections: MenuSection[] }) {
+/** Подсветка одна на всю оболочку (DS2a): раздел горит, если активен его пункт, даже ещё скрытый в меню */
+function Tabs({
+  sections,
+  id,
+  active,
+  open,
+  setOpen,
+}: Omit<TabsProps, 'path'> & { sections: MenuSection[]; active: ActiveItem | null }) {
   return (
     <>
       {sections.map((section) => {
-        const current = section.items.some((item) => item.href === active);
+        const current = active?.sectionId === section.id;
         // Раздел из одного пункта: вкладка и есть ссылка
         const single = section.direct ? section.items[0] : undefined;
         if (single)
@@ -137,8 +153,8 @@ function Tabs({ sections, id, active, open, setOpen }: TabsProps & { sections: M
                   key={item.href}
                   href={item.href}
                   prefetch={false}
-                  className={cx('topmenu__link', item.href === active && 'is-active')}
-                  aria-current={item.href === active ? 'page' : undefined}
+                  className={cx('topmenu__link', item.href === active?.href && 'is-active')}
+                  aria-current={item.href === active?.href ? 'page' : undefined}
                   onClick={() => setOpen(null)}
                 >
                   <Icon name={item.icon} />

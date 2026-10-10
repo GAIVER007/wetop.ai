@@ -45,6 +45,10 @@ import {
   ClipboardCheck,
   MessagesSquare,
   CircleHelp,
+  Scissors,
+  UtensilsCrossed,
+  Download,
+  Copy,
   Wifi,
   SquareParking,
   Snowflake,
@@ -145,6 +149,11 @@ const icons = {
   // переписка: раздел «ИИ-продавец» (DESIGN.md §7, «добавить при первом использовании»; ТЗ ред. 1 П6)
   chat: MessagesSquare,
   help: CircleHelp,
+  // направления организации и экспорт: «Платформа → Организации» (DESIGN.md §7, добавлены при первом использовании)
+  salon: Scissors,
+  restaurant: UtensilsCrossed,
+  download: Download,
+  copy: Copy,
   // «Настройки объекта» по верстке владельца (ADR-158): поля с значком, удобства, правила проживания
   wifi: Wifi,
   parking: SquareParking,

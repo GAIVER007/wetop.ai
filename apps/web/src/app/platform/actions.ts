@@ -199,38 +199,27 @@ export async function restoreOrganizationAction(
 }
 
 /**
- * Создание организации и ссылка владельцу ещё раз (ORG2, ADR-ORG2, Q-283). Владелец сам задаёт пароль по ссылке из
- * письма; токен наружу не идёт. Письмо не ушло: организация создана, на карточке можно отправить ссылку ещё раз.
+ * Окно «Создать организацию» («Платформа → Организации», ADR-159): сохраняется сразу и целиком, черновиков нет. Проверку
+ * полей ведёт API; его слова возвращаются в окно, введённое остаётся на месте. Владелец сам задаёт пароль по ссылке
+ * из письма, токен наружу не идёт; письмо не ушло: организация создана, ссылку можно отправить ещё раз с её карточки.
  */
-export interface CreateOrganizationResult extends OrganizationActionResult {
-  /** id созданной организации: форма ведёт на её карточку */
-  organizationId?: string;
-}
+export type CreateOrganizationResult =
+  | { ok: true; organizationId: string; replay: boolean; ownerLinkSent: boolean }
+  | { ok: false; error: string };
 
-export async function createOrganizationAction(
-  prev: CreateOrganizationResult | null,
-  form: FormData,
-): Promise<CreateOrganizationResult> {
-  const attempt = (prev?.attempt ?? 0) + 1;
-  const vertical = form.get('vertical') === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
+export async function createOrganizationAction(payload: Record<string, unknown>): Promise<CreateOrganizationResult> {
   try {
-    const made = await platformApi.create({
-      name: String(form.get('name') ?? ''),
-      ownerEmail: String(form.get('ownerEmail') ?? ''),
-      vertical,
-    });
+    const made = await platformApi.createOrganization(payload);
     revalidatePath('/platform');
-    const owner = made.organization.owners[0] ?? 'владельцу';
-    return {
-      error: null,
-      message: made.ownerLinkSent
-        ? `Организация «${made.organization.name}» создана. Ссылка для пароля отправлена на ${owner}.`
-        : `Организация «${made.organization.name}» создана, но письмо не ушло. Откройте её карточку и отправьте ссылку ещё раз.`,
-      attempt,
-      organizationId: made.organization.id,
-    };
+    return { ok: true, organizationId: made.organization.id, replay: made.replay, ownerLinkSent: made.ownerLinkSent };
   } catch (e) {
-    return failed(e, attempt);
+    return {
+      ok: false,
+      error:
+        e instanceof ApiError
+          ? e.message
+          : 'Не удалось сохранить. Проверьте связь и обновите страницу перед повтором.',
+    };
   }
 }
 

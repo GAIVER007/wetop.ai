@@ -15,6 +15,7 @@ import {
 } from './extensions.repository';
 import { ExtensionsService } from './extensions.service';
 import { OrganizationCreation, type OrganizationCreateInput } from './organization-creation';
+import { OrganizationsService } from './organizations.service';
 import { SiteBuilderLicenses } from './site-builder-licenses';
 import {
   PLATFORM_ADMIN_ONLY,
@@ -23,7 +24,6 @@ import {
   PLATFORM_NOT_ARCHIVED,
   PLATFORM_NO_ORGANIZATION,
   PLATFORM_OWN_ORGANIZATION,
-  PLATFORM_OWNER_EMAIL_MESSAGE,
   PlatformController,
 } from './platform.controller';
 
@@ -101,15 +101,15 @@ class FakeCreation {
     repo.orgs.push({
       id: NEW_ORG,
       name: input.name,
-      status: 'TRIAL',
-      trialEndsAt: new Date('2026-10-23T00:00:00.000Z'),
+      status: 'ACTIVE',
+      trialEndsAt: null,
       createdAt: new Date('2026-10-09T00:00:00.000Z'),
       members: 1,
-      owners: [input.ownerEmail],
+      owners: [input.owner.email],
       ownerPending: true,
       aiSeller: null,
     });
-    return { organizationId: NEW_ORG, ownerLinkSent: this.sent };
+    return { organizationId: NEW_ORG, ownerLinkSent: this.sent, replay: false };
   }
   async resendOwnerLink(organizationId: string) {
     if (this.failWith) throw this.failWith;
@@ -118,6 +118,12 @@ class FakeCreation {
   }
 }
 const creation = new FakeCreation();
+
+/** Сквозной обзор: настоящая арифметика проверена в organizations.service.test.ts, здесь только замок и маршруты */
+const overviews = {
+  overview: vi.fn<(month?: string) => Promise<{ organizations: unknown[] }>>(async () => ({ organizations: [] })),
+  series: vi.fn<(month?: string) => Promise<unknown[]>>(async () => []),
+};
 
 /** Лицензии конструктора сайта (MKT9.2): один гостиничный филиал организации, запись только в памяти */
 const LOCATION = '7e3a1c2b-9d4f-4e5a-8b6c-0a1b2c3d4e5f';
@@ -171,6 +177,7 @@ beforeAll(async () => {
       ExtensionsService,
       { provide: SiteBuilderLicenses, useValue: licenses },
       { provide: OrganizationCreation, useValue: creation },
+      { provide: OrganizationsService, useValue: overviews },
       { provide: AuthService, useValue: auth },
       { provide: APP_GUARD, useClass: SessionGuard },
       { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
@@ -185,6 +192,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
+  vi.clearAllMocks();
   vi.stubEnv('AUTH_REQUIRED', '1');
   vi.stubEnv('SERVICE_API_KEY', SERVICE_KEY);
   repo.saved = [];
@@ -242,8 +250,7 @@ describe('раздел «Платформа» — только главный а
       {
         id: ORG,
         name: 'Хостел «Пример»',
-        status: 'TRIAL',
-        trialEndsAt: '2026-10-02T00:00:00.000Z',
+        status: 'READ_ONLY',
         createdAt: '2026-09-25T00:00:00.000Z',
         members: 2,
         owners: ['vladelec@example.invalid'],
@@ -452,7 +459,8 @@ describe('организация: название, архив и возврат
     repo.orgs.find((o) => o.id === OTHER)!.status = 'TRIAL';
     await api().post(`/platform/organizations/${OTHER}/archive`).set(as('session-admin')).expect(201);
     const res = await api().post(`/platform/organizations/${OTHER}/restore`).set(as('session-admin')).expect(201);
-    expect(res.body.status).toBe('TRIAL');
+    // на экране платформы пробная без срока выглядит как «работает»: слова «пробный» там нет
+    expect(res.body.status).toBe('ACTIVE');
     expect(repo.restored).toEqual([{ organizationId: OTHER, status: 'TRIAL', by: ADMIN }]);
   });
 
@@ -476,33 +484,81 @@ describe('организация: название, архив и возврат
  * пароля одной транзакцией, владельцу уходит ссылка «задайте пароль». Токен наружу не отдаётся. Настоящая служба
  * проверена на PostgreSQL (`tests/integration/platform-organization-create.test.ts`), здесь контракт контроллера.
  */
+/** Полная форма окна «Создать организацию»; поля переопределяются в тесте */
+const FORM = {
+  id: NEW_ORG,
+  name: 'Хостел «Новый»',
+  brand: 'Новый',
+  vertical: 'HOSPITALITY',
+  ownerName: 'Вера Образцова',
+  ownerEmail: 'vladelec.new@example.invalid',
+  phoneCountry: 'KZ',
+  ownerPhone: '700 123 45 67',
+  country: 'KZ',
+  city: 'Алматы',
+  timezone: 'Asia/Almaty',
+  currency: 'KZT',
+  createFirstBranch: true,
+  branchName: 'Новый Центр',
+  branchAddress: 'Алматы, ул. Пример, 1',
+};
+
+describe('сквозной обзор', () => {
+  it('владелец организации получает 403 на обзор и ряд, ничего не вызвано', async () => {
+    await api().get('/platform/overview').set(as('session-owner')).expect(403);
+    await api().get('/platform/overview/series').set(as('session-owner')).expect(403);
+    expect(overviews.overview).not.toHaveBeenCalled();
+  });
+
+  it('обзор принимает месяц ГГГГ-ММ и отвергает всё остальное', async () => {
+    await api().get('/platform/overview?month=2026-09').set(as('session-admin')).expect(200);
+    expect(overviews.overview).toHaveBeenCalledWith('2026-09');
+    await api().get('/platform/overview?month=2026-13').set(as('session-admin')).expect(400);
+    await api().get('/platform/overview/series?month=сентябрь').set(as('session-admin')).expect(400);
+  });
+
+  it('пробного периода в ответах платформы нет: пробная работает до срока, потом только чтение', async () => {
+    const res = await api().get('/platform/organizations').set(as('session-admin')).expect(200);
+    expect(JSON.stringify(res.body)).not.toMatch(/trialEndsAt/);
+    expect(res.body.items[0].status).toBe('READ_ONLY');
+  });
+});
+
 describe('создание организации', () => {
-  it('главный администратор создаёт: 201, название и почта приведены к одному виду, автор записан', async () => {
+  it('главный администратор создаёт: 201, ввод приведён к одному виду, автор записан, организация работает сразу', async () => {
     const res = await api()
       .post('/platform/organizations')
       .set(as('session-admin'))
-      .send({ name: '  Хостел   «Новый»  ', ownerEmail: '  Vladelec.NEW@Example.invalid ' })
+      .send({ ...FORM, name: '  Хостел   «Новый»  ', ownerEmail: '  Vladelec.NEW@Example.invalid ' })
       .expect(201);
-    expect(creation.created).toEqual([
-      { name: 'Хостел «Новый»', ownerEmail: 'vladelec.new@example.invalid', vertical: 'HOSPITALITY', by: ADMIN },
-    ]);
+    expect(creation.created).toHaveLength(1);
+    expect(creation.created[0]).toMatchObject({
+      id: NEW_ORG,
+      name: 'Хостел «Новый»',
+      brand: 'Новый',
+      vertical: 'HOSPITALITY',
+      owner: { name: 'Вера Образцова', email: 'vladelec.new@example.invalid', phone: '+77001234567' },
+      firstBranch: { name: 'Новый Центр', address: 'Алматы, ул. Пример, 1' },
+      by: ADMIN,
+    });
     expect(res.body.ownerLinkSent).toBe(true);
     expect(res.body.organization).toMatchObject({
       id: NEW_ORG,
       name: 'Хостел «Новый»',
-      status: 'TRIAL',
+      status: 'ACTIVE',
       owners: ['vladelec.new@example.invalid'],
       ownerPending: true,
     });
-    expect(JSON.stringify(res.body)).not.toMatch(/token|link=|password/i);
+    // пробного периода нет ни в запросе, ни в ответе; ссылки и пароля в ответе тоже нет
+    expect(JSON.stringify(res.body)).not.toMatch(/token|link=|password|trial/i);
   });
 
-  it('направление салона принимается; письмо не ушло — организация создана, ownerLinkSent false', async () => {
+  it('направление салона принимается; письмо не ушло: организация создана, ownerLinkSent false', async () => {
     creation.sent = false;
     const res = await api()
       .post('/platform/organizations')
       .set(as('session-admin'))
-      .send({ name: 'Салон «Лотос»', ownerEmail: 'lotos@example.invalid', vertical: 'BEAUTY' })
+      .send({ ...FORM, name: 'Салон «Лотос»', vertical: 'BEAUTY' })
       .expect(201);
     expect(creation.created[0]).toMatchObject({ vertical: 'BEAUTY' });
     expect(res.body.ownerLinkSent).toBe(false);
@@ -510,46 +566,30 @@ describe('создание организации', () => {
 
   it('пустое, слишком длинное и не строка: 400 словами названия, ничего не создано', async () => {
     for (const name of ['', '   ', 'я'.repeat(201), 42, null, undefined]) {
-      const res = await api()
-        .post('/platform/organizations')
-        .set(as('session-admin'))
-        .send({ name, ownerEmail: 'a@example.invalid' })
-        .expect(400);
-      expect(res.body.message).toBe(PLATFORM_NAME_MESSAGE);
+      const res = await api().post('/platform/organizations').set(as('session-admin')).send({ ...FORM, name }).expect(400);
+      expect(res.body.message).toContain(PLATFORM_NAME_MESSAGE);
     }
     expect(creation.created).toHaveLength(0);
   });
 
   it('почта владельца не адрес и неизвестное направление: 400, ничего не создано', async () => {
     for (const ownerEmail of ['', 'без-собаки', 'a@', 7, undefined]) {
-      const res = await api()
-        .post('/platform/organizations')
-        .set(as('session-admin'))
-        .send({ name: 'Х', ownerEmail })
-        .expect(400);
-      expect(res.body.message).toBe(PLATFORM_OWNER_EMAIL_MESSAGE);
+      const res = await api().post('/platform/organizations').set(as('session-admin')).send({ ...FORM, ownerEmail }).expect(400);
+      expect(res.body.message).toContain('Почта владельца');
     }
-    await api()
-      .post('/platform/organizations')
-      .set(as('session-admin'))
-      .send({ name: 'Х', ownerEmail: 'a@example.invalid', vertical: 'SPACE' })
-      .expect(400);
+    await api().post('/platform/organizations').set(as('session-admin')).send({ ...FORM, vertical: 'SPACE' }).expect(400);
     expect(creation.created).toHaveLength(0);
   });
 
-  it('отказ службы (почта занята, направление только для пилота) идёт наружу её словами', async () => {
+  it('отказ службы (почта занята, название занято) идёт наружу её словами', async () => {
     creation.failWith = new ConflictException('Эта почта уже зарегистрирована');
-    const res = await api()
-      .post('/platform/organizations')
-      .set(as('session-admin'))
-      .send({ name: 'Х', ownerEmail: 'a@example.invalid' })
-      .expect(409);
+    const res = await api().post('/platform/organizations').set(as('session-admin')).send(FORM).expect(409);
     expect(res.body.message).toBe('Эта почта уже зарегистрирована');
   });
 
   it('владелец организации не создаёт чужие организации: 403; без входа 401', async () => {
-    await api().post('/platform/organizations').set(as('session-owner')).send({ name: 'Х', ownerEmail: 'a@example.invalid' }).expect(403);
-    await api().post('/platform/organizations').send({ name: 'Х', ownerEmail: 'a@example.invalid' }).expect(401);
+    await api().post('/platform/organizations').set(as('session-owner')).send(FORM).expect(403);
+    await api().post('/platform/organizations').send(FORM).expect(401);
     expect(creation.created).toHaveLength(0);
   });
 

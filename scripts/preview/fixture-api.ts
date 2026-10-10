@@ -31,7 +31,6 @@ import {
   isOrganizationNameShaped,
   normalizeOrganizationName,
   parseExtensionChange,
-  validEmail,
   INVITE_STAFF_ONLY_MESSAGE,
   INVITE_MANAGER_OWNER_ONLY_MESSAGE,
   INVITE_ROLE_MESSAGE,
@@ -63,6 +62,13 @@ import {
   membershipRoleFor,
   type ScopeAssignment,
   parseHotelSettingsPatch,
+  parseOrganizationCreate,
+  visibleStatus,
+  EMPTY_METRICS,
+  type OverviewBranch,
+  type OverviewOrganization,
+  type PlatformOverview,
+  type OverviewSeriesPoint,
   parseServiceInput,
   type ExtensionStatus,
   type InviteRole,
@@ -2275,6 +2281,12 @@ interface FixtureCreatedOrg {
   name: string;
   ownerEmail: string;
   createdAt: string;
+  /** Окно «Создать организацию» (ADR-159): бизнес и первый филиал; их нет у организаций, заведённых иначе */
+  brand?: string;
+  vertical?: OverviewOrganization['businesses'][number]['vertical'];
+  currency?: string;
+  timezone?: string;
+  branch?: { name: string; address: string } | null;
 }
 const platformCreated: FixtureCreatedOrg[] = [];
 const platformLinkAt = new Map<string, number>();
@@ -2348,8 +2360,9 @@ const platformOrganizations = () => [
   ...platformCreated.map((c) => ({
     id: c.id,
     name: platformNames.get(c.id) ?? c.name,
-    status: platformArchived.has(c.id) ? 'SUSPENDED' : (platformStatuses.get(c.id) ?? 'TRIAL'),
-    trialEndsAt: new Date(Date.now() + 14 * DAY_MS).toISOString(),
+    // организации создаются сразу рабочими, пробного периода нет (ADR-159)
+    status: platformArchived.has(c.id) ? 'SUSPENDED' : (platformStatuses.get(c.id) ?? 'ACTIVE'),
+    trialEndsAt: null as string | null,
     createdAt: c.createdAt,
     members: 1,
     owners: [c.ownerEmail],
@@ -2630,14 +2643,189 @@ function resetSupport() {
 
 const platformOrganizationJson = (o: ReturnType<typeof platformOrganizations>[number]) => {
   const row = platformExtensions.get(o.id);
+  const { trialEndsAt, ...rest } = o;
   return {
-    ...o,
+    ...rest,
+    // как у API: пробного периода на экране платформы нет, пробная работает до срока и затем только читает
+    status: visibleStatus(o.status, trialEndsAt ? new Date(trialEndsAt) : null, new Date()),
     aiSeller: {
       ...aiSellerView(o.id),
       note: row?.note ?? null,
       updatedAt: row?.updatedAt.toISOString() ?? null,
     },
   };
+};
+
+/**
+ * Сквозной обзор платформы на стенде («Платформа → Организации», ADR-159): цифры вымышленные (ADR-010), формы те же, что у
+ * API. Своя организация стенда с её филиалами, «Хостел» с одним отелем, салон и ресторан для покрытия трёх направлений
+ * (у ресторана денег в модели нет: null) и организации, созданные окном «Создать организацию».
+ */
+const fixtureMetrics = (over: Partial<OverviewBranch['metrics']>) => ({ ...EMPTY_METRICS, ...over });
+function platformOverviewFixture(month: string): PlatformOverview {
+  const own = [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches] as Array<typeof DEFAULT_FIXTURE_BRANCH>;
+  const branch = (b: Partial<OverviewBranch> & Pick<OverviewBranch, 'id' | 'name' | 'vertical'>): OverviewBranch => ({
+    address: null,
+    currency: 'KZT',
+    timezone: 'Asia/Almaty',
+    businessId: `business-${b.id}`,
+    metrics: EMPTY_METRICS,
+    previous: EMPTY_METRICS,
+    ...b,
+  });
+  const base = platformOrganizations();
+  const statusOf = (id: string) => platformOrganizationJson(base.find((o) => o.id === id)!).status;
+  const organizations: OverviewOrganization[] = [
+    {
+      id: 'ui-org',
+      name: platformNames.get('ui-org') ?? uiUser.organization.name,
+      status: statusOf('ui-org'),
+      createdAt: '2026-09-01T04:00:00.000Z',
+      owners: ['admin@wetop.test'],
+      businesses: [{ id: 'ui-business', name: uiUser.organization.name, vertical: 'HOSPITALITY' }],
+      branches: own.map((b, i) =>
+        branch({
+          id: b.locationId,
+          name: b.name,
+          address: i === 0 ? 'Алматы, ул. Пример, 1' : (b.address as string | null),
+          vertical: b.vertical === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY',
+          metrics:
+            b.vertical === 'BEAUTY'
+              ? fixtureMetrics({ revenueMinor: 150_000_000, guests: 420, bookings: 510 })
+              : fixtureMetrics({ revenueMinor: 432_000_000, occupiedNights: 680, unitNights: 1000, guests: 90, bookings: 61 }),
+          previous: fixtureMetrics({ revenueMinor: 385_000_000, occupiedNights: 600, unitNights: 1000, guests: 80, bookings: 55 }),
+        }),
+      ),
+    },
+    {
+      id: 'ui-org-2',
+      name: platformNames.get('ui-org-2') ?? 'Хостел «Пример»',
+      status: statusOf('ui-org-2'),
+      createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
+      owners: ['owner@example.com'],
+      businesses: [{ id: 'ui-business-2', name: 'Хостел «Пример»', vertical: 'HOSPITALITY' }],
+      branches: [
+        branch({
+          id: 'ui-location-2',
+          name: 'Хостел «Пример»',
+          address: 'Астана, пр. Образцовый, 5',
+          vertical: 'HOSPITALITY',
+          metrics: fixtureMetrics({ revenueMinor: 98_000_000, occupiedNights: 210, unitNights: 600, guests: 44, bookings: 30 }),
+          previous: fixtureMetrics({ revenueMinor: 90_000_000, occupiedNights: 200, unitNights: 600, guests: 40, bookings: 28 }),
+        }),
+      ],
+    },
+    {
+      id: 'ui-org-salon',
+      name: 'Салон «Пример»',
+      status: 'ACTIVE',
+      createdAt: '2026-09-10T04:00:00.000Z',
+      owners: ['salon@example.com'],
+      businesses: [{ id: 'ui-business-salon', name: 'Салон «Пример»', vertical: 'BEAUTY' }],
+      branches: [
+        branch({
+          id: 'ui-location-salon',
+          name: 'Салон «Пример» Центр',
+          address: 'Алматы, ул. Образцовая, 10',
+          vertical: 'BEAUTY',
+          metrics: fixtureMetrics({ revenueMinor: 398_000_000, guests: 1240, bookings: 1500 }),
+          previous: fixtureMetrics({ revenueMinor: 320_000_000, guests: 1100, bookings: 1300 }),
+        }),
+      ],
+    },
+    {
+      id: 'ui-org-food',
+      name: 'Ресторан «Пример»',
+      status: 'ACTIVE',
+      createdAt: '2026-09-15T04:00:00.000Z',
+      owners: ['food@example.com'],
+      businesses: [{ id: 'ui-business-food', name: 'Ресторан «Пример»', vertical: 'FOOD_SERVICE' }],
+      branches: [
+        branch({
+          id: 'ui-location-food',
+          name: 'Ресторан «Пример»',
+          address: 'Алматы, пр. Вымышленный, 3',
+          vertical: 'FOOD_SERVICE',
+          // у ресторана денег в модели нет: null, а не ноль
+          metrics: fixtureMetrics({ guests: 640, bookings: 210 }),
+          previous: fixtureMetrics({ guests: 600, bookings: 190 }),
+        }),
+      ],
+    },
+    ...platformCreated.map(
+      (c): OverviewOrganization => ({
+        id: c.id,
+        name: platformNames.get(c.id) ?? c.name,
+        status: statusOf(c.id),
+        createdAt: c.createdAt,
+        owners: [c.ownerEmail],
+        businesses: [{ id: `business-${c.id}`, name: c.brand ?? c.name, vertical: c.vertical ?? 'HOSPITALITY' }],
+        branches: c.branch
+          ? [
+              branch({
+                id: `location-${c.id}`,
+                name: c.branch.name,
+                address: c.branch.address || null,
+                currency: c.currency ?? 'KZT',
+                timezone: c.timezone ?? 'Asia/Almaty',
+                vertical: c.vertical ?? 'HOSPITALITY',
+                businessId: `business-${c.id}`,
+              }),
+            ]
+          : [],
+      }),
+    ),
+  ];
+  const [y, m] = month.split('-').map(Number) as [number, number];
+  const today = new Date().toISOString().slice(0, 10);
+  const first = new Date(Date.UTC(y, m - 1, 1)).toISOString().slice(0, 10);
+  const last = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
+  const to = today >= first && today < last ? today : last;
+  return {
+    period: { from: first, to, previousFrom: first, previousTo: first, month },
+    organizations,
+    series: [],
+    activity: [
+      ...platformCreated.map((c, i) => ({
+        id: `created-${i}`,
+        at: new Date(Date.now() - 60_000).toISOString(),
+        label: 'Новая организация',
+        detail: c.name,
+        organizationId: c.id,
+        organizationName: c.name,
+      })),
+      {
+        id: 'seed-1',
+        at: new Date(Date.now() - 3 * 3_600_000).toISOString(),
+        label: 'Новый филиал',
+        detail: 'Салон «Пример» Центр',
+        organizationId: 'ui-org-salon',
+        organizationName: 'Салон «Пример»',
+      },
+      {
+        id: 'seed-2',
+        at: new Date(Date.now() - 30 * 3_600_000).toISOString(),
+        label: 'Оплата получена',
+        detail: null,
+        organizationId: 'ui-org-2',
+        organizationName: 'Хостел «Пример»',
+      },
+    ],
+    newOrganizations: organizations.filter((o) => Date.now() - Date.parse(o.createdAt) < 30 * DAY_MS).length,
+  };
+}
+const platformSeriesFixture = (month: string): OverviewSeriesPoint[] => {
+  const [y, m] = month.split('-').map(Number) as [number, number];
+  return Array.from({ length: 6 }, (_, i) => {
+    const key = new Date(Date.UTC(y, m - 1 - (5 - i), 1)).toISOString().slice(0, 7);
+    return {
+      month: key,
+      revenue: { KZT: (400 + i * 35) * 1_000_000 },
+      occupiedNights: 500 + i * 30,
+      unitNights: 1000,
+      guests: 800 + i * 60,
+    };
+  });
 };
 
 /** Секрет подписи помощника на стенде (ТЗ П1): вымышленный, как и всё в фикстуре */
@@ -6192,28 +6380,47 @@ createServer(async (req, res) => {
           platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),
         );
       }
-      // ORG2 (ADR-ORG2, Q-283): создание организации и ссылка владельцу, те же слова отказа, что у API
+      // ORG2 (ADR-ORG2, Q-283) и окно «Создать организацию» (ADR-159): те же правила ввода и слова отказа, что у API
       if (path === '/platform/organizations' && req.method === 'POST') {
-        const name = body['name'];
-        if (typeof name !== 'string' || !isOrganizationNameShaped(name))
-          return send(400, { message: 'Название организации: от 1 до 200 знаков' });
-        const rawEmail = body['ownerEmail'];
-        const ownerEmail = typeof rawEmail === 'string' ? validEmail(rawEmail) : null;
-        if (!ownerEmail) return send(400, { message: 'Почта владельца: введите адрес вида имя@домен' });
-        const vertical = body['vertical'] ?? 'HOSPITALITY';
-        if (vertical !== 'HOSPITALITY' && vertical !== 'BEAUTY' && vertical !== 'FOOD_SERVICE')
-          return send(400, { message: 'Выберите направление бизнеса' });
-        if (vertical !== 'HOSPITALITY')
-          return send(403, { message: 'Направление пока доступно только участникам пилота' });
+        const parsed = parseOrganizationCreate(body);
+        if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
+        const input = parsed.value;
+        const known = platformOrganizations().find((o) => o.id === input.id);
+        if (known) {
+          if (known.name !== input.name)
+            return send(409, { message: 'Этот запрос уже сохранён с другими данными. Обновите страницу перед повтором.' });
+          return send(201, { organization: platformOrganizationJson(known), ownerLinkSent: false, replay: true });
+        }
+        if (platformOrganizations().some((o) => o.name.toLowerCase() === input.name.toLowerCase()))
+          return send(409, { message: 'Организация с таким названием уже есть' });
         const taken = ['admin@wetop.test', 'owner@example.com', ...platformCreated.map((c) => c.ownerEmail)];
-        if (taken.includes(ownerEmail)) return send(409, { message: 'Эта почта уже зарегистрирована' });
-        const id = `ui-org-new-${platformCreated.length + 1}`;
-        platformCreated.push({ id, name: normalizeOrganizationName(name), ownerEmail, createdAt: new Date().toISOString() });
-        if (platformMailOn) platformLinkAt.set(id, Date.now());
-        return send(201, {
-          organization: platformOrganizationJson(platformOrganizations().find((o) => o.id === id)!),
-          ownerLinkSent: platformMailOn,
+        if (taken.includes(input.owner.email)) return send(409, { message: 'Эта почта уже зарегистрирована' });
+        platformCreated.push({
+          id: input.id,
+          name: input.name,
+          ownerEmail: input.owner.email,
+          createdAt: new Date().toISOString(),
+          brand: input.brand,
+          vertical: input.vertical,
+          currency: input.currency,
+          timezone: input.timezone,
+          branch: input.firstBranch,
         });
+        if (platformMailOn) platformLinkAt.set(input.id, Date.now());
+        return send(201, {
+          organization: platformOrganizationJson(platformOrganizations().find((o) => o.id === input.id)!),
+          ownerLinkSent: platformMailOn,
+          replay: false,
+        });
+      }
+      if (path === '/platform/overview' && req.method === 'GET') {
+        const month = url.searchParams.get('month') || new Date().toISOString().slice(0, 7);
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) return send(400, { message: 'Месяц: ожидается ГГГГ-ММ' });
+        return send(200, platformOverviewFixture(month));
+      }
+      if (path === '/platform/overview/series' && req.method === 'GET') {
+        const month = url.searchParams.get('month') || new Date().toISOString().slice(0, 7);
+        return send(200, { items: platformSeriesFixture(month) });
       }
       const ownerLink = /^\/platform\/organizations\/([^/]+)\/owner-link$/.exec(path);
       if (ownerLink && req.method === 'POST') {

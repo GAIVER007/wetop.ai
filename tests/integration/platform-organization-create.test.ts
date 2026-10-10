@@ -2,13 +2,14 @@ import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { ConflictException, ForbiddenException, HttpException } from '@nestjs/common';
+import { ConflictException, HttpException } from '@nestjs/common';
 import { createPrismaClient, type Db } from '@pms/database';
-import { hashSessionToken } from '@pms/domain';
+import { hashSessionToken, parseOrganizationCreate, type OrganizationCreate } from '@pms/domain';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { PasswordResetService } from '../../apps/api/src/auth/password-reset.service';
 import {
   HOTEL_NAME_TAKEN,
+  ORGANIZATION_NAME_TAKEN,
   OWNER_EMAIL_TAKEN,
   OWNER_HAS_PASSWORD,
   OrganizationCreation,
@@ -48,7 +49,6 @@ describe.skipIf(!url)('создание организации главным а
     return value;
   };
   const tokenOf = (letter: { text: string }) => decodeURIComponent(/token=([^\s]+)/.exec(letter.text)![1]!.replace(/\+/g, ' '));
-  const env = { ...process.env };
 
   beforeAll(async () => {
     db = createPrismaClient(url);
@@ -60,12 +60,9 @@ describe.skipIf(!url)('создание организации главным а
 
   afterEach(() => {
     mailer.failing = false;
-    delete process.env.REGISTRATION_BEAUTY_PILOT_EMAILS;
   });
 
   afterAll(async () => {
-    process.env.REGISTRATION_BEAUTY_PILOT_EMAILS = env.REGISTRATION_BEAUTY_PILOT_EMAILS;
-    if (env.REGISTRATION_BEAUTY_PILOT_EMAILS === undefined) delete process.env.REGISTRATION_BEAUTY_PILOT_EMAILS;
     if (!db) return;
     const users = (await db.user.findMany({ where: { email: { in: emails } }, select: { id: true } })).map((u) => u.id);
     await purgeAuditRows(db, { organizationId: { in: orgs } });
@@ -81,32 +78,60 @@ describe.skipIf(!url)('создание организации главным а
     await db.$disconnect();
   });
 
+  /** Форма окна «Создать организацию» (ADR-159), приведённая тем же разбором, что у API */
+  const form = (over: Record<string, unknown>): OrganizationCreate & { by: string } => {
+    const parsed = parseOrganizationCreate({
+      id: randomUUID(),
+      brand: 'Бренд',
+      vertical: 'HOSPITALITY',
+      ownerName: 'Владелец Пример',
+      phoneCountry: 'KZ',
+      ownerPhone: '700 123 45 67',
+      country: 'KZ',
+      city: 'Алматы',
+      timezone: 'Asia/Almaty',
+      currency: 'KZT',
+      bin: '1234567890',
+      website: 'example.kz',
+      createFirstBranch: true,
+      branchAddress: 'Алматы, ул. Пример, 1',
+      // название филиала по умолчанию своё у каждой организации: гостиничные названия не повторяются
+      branchName: String(over.name ?? ''),
+      ...over,
+    });
+    if (!parsed.ok) throw new Error(parsed.errors.join('; '));
+    return { ...parsed.value, by: admin };
+  };
+
   const track = (id: string) => {
     orgs.push(id);
     return id;
   };
 
   it('гостиница: организация, филиал, владелец без пароля, ссылка и журнал; токен только хешем', async () => {
-    const before = Date.now();
     const owner = email('hotel');
-    const made = await creation.create({ name: `Хостел Новый ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY', by: admin });
+    const made = await creation.create(form({ name: `Хостел Новый ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY' }));
     track(made.organizationId);
     expect(made.ownerLinkSent).toBe(true);
 
     const org = await db.organization.findUniqueOrThrow({ where: { id: made.organizationId } });
-    expect(org).toMatchObject({ name: `Хостел Новый ${mark}`, status: 'TRIAL' });
-    expect(org.trialEndsAt!.getTime()).toBeGreaterThan(before);
+    // пробного периода нет: организация работает сразу и без срока
+    expect(org).toMatchObject({ name: `Хостел Новый ${mark}`, status: 'ACTIVE', trialEndsAt: null, reportingCurrency: 'KZT' });
 
     const property = await db.property.findFirstOrThrow({ where: { organizationId: made.organizationId } });
     expect(property).toMatchObject({ name: `Хостел Новый ${mark}`, timezone: 'Asia/Almaty', currency: 'KZT' });
     expect(property.locationId).toBeTruthy();
-    expect(await db.business.count({ where: { organizationId: made.organizationId, vertical: 'HOSPITALITY' } })).toBe(1);
+    // бизнес с публичным названием, а не с названием организации
+    expect(await db.business.findMany({ where: { organizationId: made.organizationId }, select: { name: true, vertical: true } })).toEqual([
+      { name: 'Бренд', vertical: 'HOSPITALITY' },
+    ]);
 
     const user = await db.user.findUniqueOrThrow({ where: { email: owner } });
     expect(user).toMatchObject({ passwordHash: '', status: 'ACTIVE', emailVerifiedAt: null });
-    expect(await db.membership.findMany({ where: { organizationId: made.organizationId }, select: { userId: true, role: true } })).toEqual([
-      { userId: user.id, role: 'OWNER' },
+    expect(await db.membership.findMany({ where: { organizationId: made.organizationId }, select: { userId: true, role: true, phone: true } })).toEqual([
+      { userId: user.id, role: 'OWNER', phone: '+77001234567' },
     ]);
+    expect(user.name).toBe('Владелец Пример');
 
     const resets = await db.passwordReset.findMany({ where: { userId: user.id } });
     expect(resets).toHaveLength(1);
@@ -126,17 +151,17 @@ describe.skipIf(!url)('создание организации главным а
     expect(audit[0]).toMatchObject({
       userId: admin,
       entityId: made.organizationId,
-      after: { name: `Хостел Новый ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY' },
+      after: { name: `Хостел Новый ${mark}`, brand: 'Бренд', ownerEmail: owner, vertical: 'HOSPITALITY', bin: '1234567890', website: 'https://example.kz' },
     });
 
     const summary = await repo.organization(made.organizationId);
-    expect(summary).toMatchObject({ members: 1, owners: [owner], ownerPending: true, status: 'TRIAL' });
+    expect(summary).toMatchObject({ members: 1, owners: [owner], ownerPending: true, status: 'ACTIVE' });
     expect(JSON.stringify(summary)).not.toContain(resets[0]!.tokenHash);
   });
 
   it('ссылка из письма ставит пароль и подтверждает почту; потом ownerPending false, а повторная ссылка 409', async () => {
     const owner = email('confirm');
-    const made = await creation.create({ name: `Хостел Пароль ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY', by: admin });
+    const made = await creation.create(form({ name: `Хостел Пароль ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY' }));
     track(made.organizationId);
     const token = tokenOf(mailbox.filter((l) => l.to === owner).at(-1)!);
 
@@ -155,44 +180,68 @@ describe.skipIf(!url)('создание организации главным а
 
   it('почта занята: 409, транзакция откатилась, организации и филиала нет', async () => {
     const owner = email('taken');
-    const first = await creation.create({ name: `Хостел Первый ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY', by: admin });
+    const first = await creation.create(form({ name: `Хостел Первый ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY' }));
     track(first.organizationId);
     await expect(
-      creation.create({ name: `Хостел Второй ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY', by: admin }),
+      creation.create(form({ name: `Хостел Второй ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY' })),
     ).rejects.toThrow(new ConflictException(OWNER_EMAIL_TAKEN));
     expect(await db.organization.count({ where: { name: `Хостел Второй ${mark}` } })).toBe(0);
     expect(await db.property.count({ where: { name: `Хостел Второй ${mark}` } })).toBe(0);
   });
 
-  it('название гостиницы занято (без учёта регистра): 409; остальным направлениям название не мешает', async () => {
-    const made = await creation.create({ name: `Хостел Занят ${mark}`, ownerEmail: email('name1'), vertical: 'HOSPITALITY', by: admin });
+  it('название организации занято (без учёта регистра): 409; название гостиницы занято: 409 своими словами', async () => {
+    const made = await creation.create(form({ name: `Хостел Занят ${mark}`, ownerEmail: email('name1') }));
     track(made.organizationId);
-    await expect(
-      creation.create({ name: `хостел занят ${mark}`, ownerEmail: email('name2'), vertical: 'HOSPITALITY', by: admin }),
-    ).rejects.toThrow(new ConflictException(HOTEL_NAME_TAKEN));
+    await expect(creation.create(form({ name: `хостел занят ${mark}`, ownerEmail: email('name2') }))).rejects.toThrow(
+      new ConflictException(ORGANIZATION_NAME_TAKEN),
+    );
     expect(await db.organization.count({ where: { name: `хостел занят ${mark}` } })).toBe(0);
+    // другая организация, но гостиница с тем же названием (служебные пути ищут объект по названию)
+    await expect(
+      creation.create(form({ name: `Другая Группа ${mark}`, branchName: `ХОСТЕЛ ЗАНЯТ ${mark}`, ownerEmail: email('name3') })),
+    ).rejects.toThrow(new ConflictException(HOTEL_NAME_TAKEN));
+    expect(await db.organization.count({ where: { name: `Другая Группа ${mark}` } })).toBe(0);
   });
 
-  it('салон без пилота: 403 и ничего не создано; почта из списка пилота: бизнес и филиал без объекта', async () => {
-    const owner = email('beauty');
-    await expect(
-      creation.create({ name: `Салон Лотос ${mark}`, ownerEmail: owner, vertical: 'BEAUTY', by: admin }),
-    ).rejects.toThrow(ForbiddenException);
-    expect(await db.organization.count({ where: { name: `Салон Лотос ${mark}` } })).toBe(0);
-    expect(await db.user.count({ where: { email: owner } })).toBe(0);
+  it('салон и ресторан создаёт главный администратор без списка пилота: бизнес направления и филиал без объекта', async () => {
+    for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const) {
+      const made = await creation.create(form({ name: `Лотос ${vertical} ${mark}`, ownerEmail: email(vertical), vertical }));
+      track(made.organizationId);
+      expect(await db.business.findMany({ where: { organizationId: made.organizationId }, select: { name: true, vertical: true } })).toEqual([
+        { name: 'Бренд', vertical },
+      ]);
+      const locations = await db.location.findMany({ where: { business: { organizationId: made.organizationId } } });
+      expect(locations).toHaveLength(1);
+      expect(locations[0]).toMatchObject({ name: `Лотос ${vertical} ${mark}`, currency: 'KZT', timezone: 'Asia/Almaty' });
+      expect(await db.property.count({ where: { organizationId: made.organizationId } })).toBe(0);
+    }
+  });
 
-    process.env.REGISTRATION_BEAUTY_PILOT_EMAILS = owner;
-    const made = await creation.create({ name: `Салон Лотос ${mark}`, ownerEmail: owner, vertical: 'BEAUTY', by: admin });
+  it('без первого филиала: только организация и бизнес', async () => {
+    const made = await creation.create(form({ name: `Без Филиала ${mark}`, ownerEmail: email('nobranch'), createFirstBranch: false }));
     track(made.organizationId);
-    expect(await db.business.count({ where: { organizationId: made.organizationId, vertical: 'BEAUTY' } })).toBe(1);
-    expect(await db.location.count({ where: { business: { organizationId: made.organizationId } } })).toBe(1);
-    expect(await db.property.count({ where: { organizationId: made.organizationId } })).toBe(0);
+    expect(await db.business.count({ where: { organizationId: made.organizationId } })).toBe(1);
+    expect(await db.location.count({ where: { business: { organizationId: made.organizationId } } })).toBe(0);
+  });
+
+  it('повтор того же запроса возвращает созданное, дубля и второго письма нет; тот же id с другим названием 409', async () => {
+    const owner = email('replay');
+    const input = form({ name: `Повтор ${mark}`, ownerEmail: owner });
+    const first = await creation.create(input);
+    track(first.organizationId);
+    const letters = mailbox.filter((l) => l.to === owner).length;
+    const again = await creation.create(input);
+    expect(again).toMatchObject({ organizationId: input.id, replay: true, ownerLinkSent: false });
+    expect(await db.organization.count({ where: { id: input.id } })).toBe(1);
+    expect(await db.membership.count({ where: { organizationId: input.id } })).toBe(1);
+    expect(mailbox.filter((l) => l.to === owner)).toHaveLength(letters);
+    await expect(creation.create({ ...input, name: `${input.name} другая` })).rejects.toThrow(/другими данными/);
   });
 
   it('письмо не ушло: организация создана; ссылка ещё раз гасит прежнюю, чаще раза в пять минут нельзя', async () => {
     const owner = email('resend');
     mailer.failing = true;
-    const made = await creation.create({ name: `Хостел Письмо ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY', by: admin });
+    const made = await creation.create(form({ name: `Хостел Письмо ${mark}`, ownerEmail: owner, vertical: 'HOSPITALITY' }));
     track(made.organizationId);
     expect(made.ownerLinkSent).toBe(false);
     expect(await repo.organization(made.organizationId)).toMatchObject({ ownerPending: true });

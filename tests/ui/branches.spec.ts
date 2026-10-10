@@ -46,22 +46,26 @@ test('организации: филиал создаётся прямо в ра
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
   await page.reload();
   const main = page.getByRole('main');
-  // одна страница: организация, итоги, филиалы и таблица всех организаций видны сразу, без раскрывашек
-  await expect(main.getByRole('heading', { name: 'Организации', level: 1 })).toBeVisible();
-  await expect(main.getByRole('region', { name: 'Итоги по филиалам' })).toBeVisible();
-  await expect(main.getByTestId('platform-organizations')).toBeVisible();
+  // одна страница: итоги, карточки организаций с филиалами и показателями видны сразу, подписки раскрываются ниже
+  await expect(main.getByRole('heading', { name: 'Организации и филиалы', level: 1 })).toBeVisible();
+  await expect(main.getByTestId('platform-totals')).toBeVisible();
+  await expect(main.getByTestId('platform-organization-cards')).toBeVisible();
   // служебные ID на экран не выводятся, «реквизитов» и «объекта / филиала» в словах нет
   await expect(main).not.toContainText('ID филиала');
   await expect(main).not.toContainText('ID:');
   await expect(main).not.toContainText('Реквизиты организации');
   await expect(main).not.toContainText('объект / филиал');
-  await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
+  await main.locator('summary').filter({ hasText: 'Добавить филиал в' }).click();
   await main.getByLabel('Название филиала').fill('Тестовый объект Север');
   await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
   await expect(main.getByRole('status')).toContainText('Филиал создан');
   await page.reload();
+  // филиал виден строкой в карточке своей организации
   await expect(
-    main.getByRole('heading', { name: 'Тестовый объект Север', exact: true }),
+    page
+      .getByTestId('platform-organization-card')
+      .filter({ hasText: 'Luxx Aparts' })
+      .getByText('Тестовый объект Север', { exact: true }),
   ).toBeVisible();
   // показатели стоят прямо в карточке филиала
   await expect(main.getByText('Загрузка').first()).toBeVisible();
@@ -77,7 +81,11 @@ test('организации: филиал создаётся прямо в ра
     });
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await main.getByRole('button', { name: 'Открыть филиал', exact: true }).click();
+  await page
+    .getByTestId('platform-organization-card')
+    .filter({ hasText: 'Luxx Aparts' })
+    .getByRole('button', { name: 'Открыть', exact: true })
+    .click();
   await page.waitForURL('**/today');
 });
 

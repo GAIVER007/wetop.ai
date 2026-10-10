@@ -82,12 +82,15 @@ test('главный администратор: «Оплата получена
   await page.goto('/platform?org=ui-org-2');
   const form = page.getByTestId('platform-status-form');
   await expect(form).toBeVisible();
+  // пробного периода организации в разделе нет: стоит «работает» (расширения «ИИ-продавец» и сайта живут отдельно)
+  await expect(page.getByTestId('platform-organization')).toContainText('работает');
+  await form.getByTestId('platform-status-readonly').click();
+  await expect(page.getByTestId('platform-organization')).toContainText('только чтение');
+
   await form.getByLabel('Заметка — номер счёта').fill('Счёт № 1, WETOP Core');
   await form.getByTestId('platform-status-active').click();
   await expect(form.getByTestId('platform-status-result')).toContainText('Оплата подтверждена');
   await expect(page.getByTestId('platform-organization')).toContainText('работает');
   await page.screenshot({ path: 'test-results/trial-platform-paid.png', fullPage: true });
-
-  await page.getByTestId('platform-status-form').getByTestId('platform-status-readonly').click();
-  await expect(page.getByTestId('platform-organization')).toContainText('только чтение');
 });
+

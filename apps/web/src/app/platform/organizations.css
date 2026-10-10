@@ -1,70 +1,553 @@
 @layer sections {
-  /* «Организации» главного администратора (09.10.2026): своя организация с филиалами и показателями,
-     ниже все организации платформы. Отступы и размеры только из токенов. */
-  .org-own {
+  .platform-add-branch label {
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-1);
+    min-width: 0;
+    font-size: var(--text-sm);
+  }
+  .platform-add-branch .inp {
+    width: 100%;
     min-width: 0;
   }
-  .org-own__head {
+  /* «Платформа → Организации»: плитки, карточки, виджеты и окно создания. Только токены, без градиентов и стекла. */
+  .org-tiles {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .org-tiles .stat__hint {
+    overflow-wrap: anywhere;
+  }
+  .org-toolbar {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
   }
-  .org-own__title {
-    margin: 0;
-    font-size: var(--text-xl);
-  }
-  .org-own .stats {
-    margin: 0;
-  }
-  .org-period {
+  .org-toolbar__tabs,
+  .org-toolbar__tools {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .org-toolbar__label {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .org-search {
+    display: flex;
+    flex: 1 1 260px;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .org-search .inp {
+    flex: 1 1 180px;
+    min-width: 0;
+  }
+  .org-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
     gap: var(--space-4);
   }
-  /* `.branches-page summary` обнуляет боковой отступ: кнопке из summary возвращаем отступ `.btn` */
-  .branches-page .org-add > summary {
-    display: inline-flex;
-    list-style: none;
-    padding: 0 var(--space-4);
+  .org-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
   }
-  .org-add > summary::-webkit-details-marker {
-    display: none;
+  .org-card__cover {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4);
+    min-height: 64px;
+    background: var(--primary-soft);
+    color: var(--primary);
   }
-  .org-add > .stack {
-    margin-top: var(--space-4);
+  .org-card[data-vertical='BEAUTY'] .org-card__cover {
+    background: var(--purple-soft);
+    color: var(--purple);
+  }
+  .org-card[data-vertical='FOOD_SERVICE'] .org-card__cover {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .org-card__count {
+    padding: var(--space-1) var(--space-2);
+    background: var(--surface-solid);
+    border-radius: var(--radius-full);
+    color: var(--text);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .org-card__body {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    flex: 1;
+  }
+  .org-card__title {
+    margin: 0;
+    font-size: var(--text-lg);
+    line-height: var(--leading-tight);
+    overflow-wrap: anywhere;
+  }
+  .org-card__sub {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .org-card__place {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    overflow-wrap: anywhere;
+  }
+  .org-figures {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+  }
+  .org-figures dt {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .org-figures dd {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    overflow-wrap: anywhere;
+  }
+  .org-figures dd small {
+    display: block;
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
   }
   .org-branches {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-    gap: var(--space-4);
+    gap: var(--space-2);
   }
-  .org-branch__top {
+  .org-branches__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+  .org-branches ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .org-branches li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: var(--text-sm);
+  }
+  .org-branches li small {
+    display: block;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .org-branches__figure {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--weight-semibold);
+  }
+  .org-card__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 0 var(--space-4) var(--space-4);
+  }
+  .org-widgets {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1.3fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .org-panel {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    min-width: 0;
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .org-panel__head {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
   }
-  .org-branch__name {
-    overflow-wrap: anywhere;
+  .org-panel h2 {
+    margin: 0;
+    font-size: var(--text-md);
   }
-  .org-branch__stats {
-    margin-top: var(--space-2);
+  .org-panel__empty,
+  .org-panel__note {
+    margin: 0;
+    font-size: var(--text-sm);
   }
-  .org-branch__action {
-    margin-top: var(--space-2);
+  .org-dynamics__currencies {
+    display: flex;
+    gap: var(--space-2);
   }
-  .org-note {
+  .org-dynamics__bars {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-2);
+    height: 180px;
+  }
+  .org-dynamics__col {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    justify-items: center;
+    align-items: end;
+    gap: var(--space-1);
+    height: 100%;
+    min-width: 0;
+  }
+  .org-dynamics__bar {
+    display: block;
+    width: 100%;
+    max-width: 36px;
+    background: var(--chart-1);
+    border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  }
+  .org-dynamics__bar[data-empty] {
+    background: var(--border);
+  }
+  .org-dynamics__value,
+  .org-dynamics__month {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .org-donut {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .org-donut svg {
+    flex: none;
+  }
+  .org-donut__legend {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-sm);
+  }
+  .org-donut__legend li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .org-donut__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+    flex: none;
+    background: var(--primary);
+  }
+  .org-donut__dot[data-vertical='BEAUTY'] {
+    background: var(--purple);
+  }
+  .org-donut__dot[data-vertical='FOOD_SERVICE'] {
+    background: var(--warning);
+  }
+  .org-activity {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .org-activity li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .org-activity small {
+    display: block;
     color: var(--muted);
   }
+  .org-activity time {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+  }
+  .org-admin {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  /* Окно «Создать организацию» */
+  /*
+   * Окно по макету владельца шире ступени lg (760): три колонки полей и справа панель «Что будет создано».
+   * Единственное место, где раздел задаёт ширину окна сам; на телефоне окно во всю ширину, как у всех (DESIGN.md §8.2).
+   */
+  .org-create.ui-overlay {
+    width: min(1040px, calc(100vw - var(--space-8)));
+    max-width: none;
+  }
+  .org-create .overlay-content {
+    padding: 0;
+  }
+  .org-create__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    grid-template-areas:
+      'steps steps'
+      'body aside';
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  .org-create__steps {
+    grid-area: steps;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .org-create__steps li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .org-create__steps li[aria-current='step'] {
+    color: var(--text);
+    font-weight: var(--weight-semibold);
+  }
+  .org-create__num,
+  .org-create__badge {
+    display: inline-grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .org-create__steps li[aria-current='step'] .org-create__num,
+  .org-create__badge {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--on-primary);
+  }
+  .org-create__body {
+    grid-area: body;
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .org-create__section {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: var(--space-4);
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .org-create__section legend {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 var(--space-2);
+    font-weight: var(--weight-semibold);
+  }
+  .org-create__verticals > div {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+  }
+  .org-create__vertical {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--target-min);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .org-create__vertical[data-selected] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  .org-create__phone {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .org-create__switch {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .org-create__switch small {
+    display: block;
+    color: var(--muted);
+  }
+  .org-create__summary {
+    display: grid;
+    align-content: start;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  .org-create__summary dt {
+    color: var(--muted);
+  }
+  .org-create__summary dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .org-create__aside {
+    grid-area: aside;
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: var(--surface-muted);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+  }
+  .org-create__aside h3,
+  .org-create__aside p {
+    margin: 0;
+  }
+  .org-create__aside ul {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .org-create__aside li {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-start;
+    font-size: var(--text-sm);
+  }
+  .org-create__aside li > svg {
+    flex: none;
+    color: var(--primary);
+  }
+  .org-create__aside li small {
+    display: block;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .org-create__note {
+    display: flex;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: var(--primary-soft);
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+  }
+  .org-create__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-top: 1px solid var(--border-soft);
+  }
+  .org-create__footer-end {
+    display: flex;
+    gap: var(--space-2);
+  }
+  .org-create__done {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    color: var(--text);
+  }
+  .org-create__done svg {
+    color: var(--success);
+  }
+  .org-create__done h3,
+  .org-create__done p {
+    margin: 0;
+  }
+
+  @media (max-width: 960px) {
+    .org-tiles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .org-widgets {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 960px) {
+    .org-create__layout {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'steps'
+        'body'
+        'aside';
+    }
+    .org-create__steps {
+      justify-content: flex-start;
+      gap: var(--space-4);
+    }
+    .org-create__footer {
+      flex-wrap: wrap;
+    }
+  }
   @media (max-width: 600px) {
-    .org-period label {
-      flex: 1 1 130px;
+    .org-create__phone {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .org-tiles {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .org-figures {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 }

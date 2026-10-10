@@ -12,16 +12,17 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
 import {
+  isMonth,
   isOrganizationNameShaped,
   normalizeOrganizationName,
-  parseBusinessVertical,
   parseExtensionChange,
-  validEmail,
-  type BusinessVertical,
+  parseOrganizationCreate,
+  visibleStatus,
 } from '@pms/domain';
 import { currentOrganizationId, currentUserId } from '../auth/request-context';
 import { requirePlatformAdmin } from './admin';
@@ -32,6 +33,7 @@ import {
 } from './extensions.repository';
 import { ExtensionsService, aiSellerView } from './extensions.service';
 import { OrganizationCreation } from './organization-creation';
+import { OrganizationsService } from './organizations.service';
 import { SiteBuilderLicenses, licenseLocationView } from './site-builder-licenses';
 import { Access } from '../auth/access.decorator';
 
@@ -59,6 +61,7 @@ export class PlatformController {
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
     @Inject(SiteBuilderLicenses) private readonly licenses: SiteBuilderLicenses,
     @Inject(OrganizationCreation) private readonly creation: OrganizationCreation,
+    @Inject(OrganizationsService) private readonly overviews: OrganizationsService,
   ) {}
 
   @Get('organizations')
@@ -76,12 +79,33 @@ export class PlatformController {
   @Post('organizations')
   async create(@Body() body: unknown) {
     requirePlatformAdmin();
-    const parsed = parseCreate(body);
-    if (!parsed.ok) throw new BadRequestException(parsed.message);
+    const parsed = parseOrganizationCreate(body);
+    if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
     const now = new Date();
     const made = await this.creation.create({ ...parsed.value, by: currentUserId() }, now);
     const saved = await this.repo.organization(made.organizationId);
-    return { organization: organizationJson(saved!, now), ownerLinkSent: made.ownerLinkSent };
+    return { organization: organizationJson(saved!, now), ownerLinkSent: made.ownerLinkSent, replay: made.replay };
+  }
+
+  /**
+   * Сквозной обзор платформы: организации с бизнесами и филиалами, цифры за месяц (`?month=ГГГГ-ММ`, по умолчанию
+   * текущий) и последние действия. Деньги разных валют не складываются, показатель без источника это `null`.
+   */
+  @Get('overview')
+  @Header('Cache-Control', 'no-store')
+  async overview(@Query('month') month?: string) {
+    requirePlatformAdmin();
+    if (month !== undefined && !isMonth(month)) throw new BadRequestException('Месяц: ожидается ГГГГ-ММ');
+    return this.overviews.overview(month);
+  }
+
+  /** Помесячный ряд по всем филиалам для диаграммы «Динамика»: отдельным запросом, он тяжелее обзора */
+  @Get('overview/series')
+  @Header('Cache-Control', 'no-store')
+  async overviewSeries(@Query('month') month?: string) {
+    requirePlatformAdmin();
+    if (month !== undefined && !isMonth(month)) throw new BadRequestException('Месяц: ожидается ГГГГ-ММ');
+    return { items: await this.overviews.series(month) };
   }
 
   /** Ссылка «задайте пароль» ещё раз: только владельцу без пароля, прежняя ссылка гаснет */
@@ -206,24 +230,12 @@ export class PlatformController {
   }
 }
 
-function parseCreate(
-  body: unknown,
-): { ok: true; value: { name: string; ownerEmail: string; vertical: BusinessVertical } } | { ok: false; message: string } {
-  const input = (body ?? {}) as { name?: unknown; ownerEmail?: unknown; vertical?: unknown };
-  if (typeof input.name !== 'string' || !isOrganizationNameShaped(input.name)) return { ok: false, message: PLATFORM_NAME_MESSAGE };
-  const ownerEmail = typeof input.ownerEmail === 'string' ? validEmail(input.ownerEmail) : null;
-  if (!ownerEmail) return { ok: false, message: PLATFORM_OWNER_EMAIL_MESSAGE };
-  const vertical = input.vertical === undefined ? 'HOSPITALITY' : parseBusinessVertical(input.vertical);
-  if (!vertical) return { ok: false, message: 'Выберите направление бизнеса' };
-  return { ok: true, value: { name: normalizeOrganizationName(input.name), ownerEmail, vertical } };
-}
-
 function organizationJson(o: OrganizationSummary, now: Date) {
   return {
     id: o.id,
     name: o.name,
-    status: o.status,
-    trialEndsAt: o.trialEndsAt?.toISOString() ?? null,
+    // пробного периода для экрана платформы нет: пробная работает до срока, затем только читает
+    status: visibleStatus(o.status, o.trialEndsAt, now),
     createdAt: o.createdAt.toISOString(),
     members: o.members,
     owners: o.owners,

@@ -232,6 +232,25 @@ export function scopeView() {
   };
 }
 
+/**
+ * Сквозной обзор платформы: те же отчёты, что у филиала, но по любой организации. Только главному администратору
+ * (проверка внутри, а не у вызывающего): организация, бизнес и филиал подставляются как у вошедшего владельца, база
+ * читается служебной ролью. Автор запроса не меняется.
+ */
+export function withPlatformReport<T>(
+  organizationId: string,
+  businessId: string,
+  locationId: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const actor = storage.getStore();
+  if (!actor?.userId || !actor.platformAdmin) throw new Error('Сквозной отчёт доступен только главному администратору');
+  return runAwaited(
+    { ...actor, organizationId, scope: 'LOCATION', businessId, locationId, serviceDatabase: true },
+    fn,
+  );
+}
+
 /** Только для внутренних отчётов по филиалам, уже выбранным запросом своей организации. */
 export function withReportLocation<T>(
   businessId: string,

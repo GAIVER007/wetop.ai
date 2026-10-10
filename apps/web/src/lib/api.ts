@@ -2829,7 +2829,6 @@ export interface PlatformOrganization {
   id: string;
   name: string;
   status: SignedInOrganization['status'];
-  trialEndsAt: string | null;
   createdAt: string;
   members: number;
   owners: string[];
@@ -2856,8 +2855,24 @@ export interface PlatformSiteBuilderLocation {
   license: { access: 'active' | 'expired' | 'off'; status: 'TRIAL' | 'ACTIVE' | 'OFF' | null; activeUntil: string | null; note: string | null; updatedAt: string | null };
 }
 
+/** Ответ на «Создать организацию»: организация, ушла ли владельцу ссылка «задайте пароль», повтор ли это */
+export interface CreatedOrganizationResult {
+  organization: PlatformOrganization;
+  ownerLinkSent: boolean;
+  replay: boolean;
+}
+
 export const platformApi = {
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
+  /** Сквозной обзор платформы за месяц `ГГГГ-ММ` (текущий, если не задан) */
+  overview: (month?: string) =>
+    getJson<import('@pms/domain').PlatformOverview>(`/platform/overview${month ? `?month=${encodeURIComponent(month)}` : ''}`),
+  overviewSeries: (month?: string) =>
+    getJson<{ items: import('@pms/domain').OverviewSeriesPoint[] }>(
+      `/platform/overview/series${month ? `?month=${encodeURIComponent(month)}` : ''}`,
+    ),
+  createOrganization: (body: Record<string, unknown>) =>
+    sendJson<CreatedOrganizationResult>('POST', '/platform/organizations', body),
   siteBuilder: (organizationId: string) =>
     getJson<{ items: PlatformSiteBuilderLocation[] }>(`/platform/organizations/${encodeURIComponent(organizationId)}/site-builder`),
   changeSiteBuilder: (organizationId: string, locationId: string, body: ExtensionChangeBody) =>
@@ -2872,9 +2887,6 @@ export const platformApi = {
       `/platform/organizations/${encodeURIComponent(organizationId)}/extensions/ai-seller`,
       body,
     ),
-  /** Создание организации главным администратором (ORG2, ADR-ORG2, Q-283): владельцу уходит ссылка «задайте пароль» */
-  create: (body: { name: string; ownerEmail: string; vertical: 'HOSPITALITY' | 'BEAUTY' }) =>
-    sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>('POST', '/platform/organizations', body),
   /** Ссылка владельцу ещё раз: только тому, кто пароль ещё не задал */
   ownerLink: (organizationId: string) =>
     sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>(

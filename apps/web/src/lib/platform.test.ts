@@ -37,14 +37,11 @@ describe('«Платформа → Организации»: слова табл
     expect(extensionLine(seller({ access: 'off', status: 'OFF' })).detail).toBe('выключен');
   });
 
-  it('состояние организации словами; пробный — по какой день', () => {
-    expect(organizationStatusLine({ status: 'TRIAL', trialEndsAt: UNTIL }).label).toBe(
-      'пробный по 02.10.2026',
-    );
-    expect(organizationStatusLine({ status: 'ACTIVE', trialEndsAt: null }).label).toBe('работает');
-    expect(organizationStatusLine({ status: 'READ_ONLY', trialEndsAt: null }).label).toBe(
-      'только чтение',
-    );
+  it('состояние организации словами, без пробного периода', () => {
+    expect(organizationStatusLine({ status: 'ACTIVE' }).label).toBe('работает');
+    expect(organizationStatusLine({ status: 'READ_ONLY' }).label).toBe('только чтение');
+    expect(organizationStatusLine({ status: 'SUSPENDED' }).label).toBe('в архиве');
+    expect(organizationStatusLine({ status: 'TRIAL' }).label).not.toMatch(/пробн/);
   });
 
   it('форма подставляет то, что стоит сейчас; не подключали — «оплачен» без срока', () => {

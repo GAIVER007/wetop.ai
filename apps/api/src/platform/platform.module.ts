@@ -13,9 +13,14 @@ import { SupportController } from './support.controller';
 import { SupportKnowledgeService } from './support-kb.service';
 import { SupportService } from './support.service';
 import { SiteBuilderLicenses } from './site-builder-licenses';
+import { DashboardModule } from '../dashboard/dashboard.module';
+import { OrganizationsRepository } from './organizations.repository';
+import { OrganizationsService } from './organizations.service';
 
 /** Раздел «Платформа»: организации и их расширения, техподдержка — панель ИИ-помощника (DATA_MODEL §16, ADR-083) */
 @Module({
+  // отчёт объекта для сквозного обзора берётся у самого дашборда: одни формулы на объект и на платформу
+  imports: [DashboardModule],
   controllers: [PlatformController, SupportController],
   providers: [
     PrismaService,
@@ -26,6 +31,8 @@ import { SiteBuilderLicenses } from './site-builder-licenses';
     SupportService,
     SupportKnowledgeService,
     SiteBuilderLicenses,
+    OrganizationsRepository,
+    OrganizationsService,
     // создание организации (ORG2): письмо владельцу уходит тем же отправителем и на тот же адрес стойки, что сброс пароля
     OrganizationCreation,
     {

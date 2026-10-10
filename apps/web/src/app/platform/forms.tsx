@@ -9,11 +9,9 @@ import {
   archiveOrganizationAction,
   changeAiSellerAction,
   changeStatusAction,
-  createOrganizationAction,
   renameOrganizationAction,
   restoreOrganizationAction,
   sendOwnerLinkAction,
-  type CreateOrganizationResult,
   type ExtensionFormResult,
   type OrganizationActionResult,
   type StatusFormResult,
@@ -252,52 +250,6 @@ export function ArchiveForm({
       </Row>
       {dialog}
     </div>
-  );
-}
-
-/**
- * Создание организации главным администратором (ORG2, ADR-ORG2, Q-283): название, почта владельца и направление.
- * Владелец сам задаёт пароль по ссылке из письма, главному администратору токен не виден. Проверяет API.
- */
-export function CreateOrganizationForm() {
-  const [state, action, pending] = useActionState<CreateOrganizationResult | null, FormData>(
-    createOrganizationAction,
-    null,
-  );
-  return (
-    <form
-      key={state?.attempt ?? 0}
-      action={action}
-      className="stack"
-      aria-label="Новая организация"
-      data-testid="platform-create-form"
-    >
-      <Grid min={240}>
-        <Field label="Название организации">
-          <Input name="name" required maxLength={200} placeholder="Например, Хостел «Пример»" />
-        </Field>
-        <Field label="Почта владельца">
-          <Input name="ownerEmail" type="email" required maxLength={320} placeholder="vladelec@example.com" />
-        </Field>
-        <Field label="Направление">
-          <Select name="vertical" defaultValue="HOSPITALITY">
-            <option value="HOSPITALITY">Гостиница, хостел или апартаменты</option>
-            <option value="BEAUTY">Салон красоты или студия</option>
-          </Select>
-        </Field>
-      </Grid>
-      <p className="settings-note">
-        Организация создаётся с пробным периодом и одним филиалом. Владельцу уйдёт письмо со ссылкой: по ней он сам
-        задаёт пароль и подтверждает почту. Ссылка действует 24 часа, один раз; вам она не показывается.
-      </p>
-      {state?.error && <Alert data-testid="platform-create-error">{state.error}</Alert>}
-      {state?.message && <Notice data-testid="platform-create-result">{state.message}</Notice>}
-      <Row>
-        <Button type="submit" disabled={pending} aria-busy={pending}>
-          {pending ? 'Создаю…' : 'Создать организацию'}
-        </Button>
-      </Row>
-    </form>
   );
 }
 

@@ -218,6 +218,8 @@ export type Dictionary = {
       text: string;
       points: string[];
       action: string;
+      /** Плавающая карточка на иллюстрации: вымышленное число с пометкой примера (§19.9). */
+      float: { value: string; text: string };
     };
     faqTitle: string;
     faq: Array<{ q: string; a: string }>;

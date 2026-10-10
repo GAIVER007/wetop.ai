@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import type { APIRequestContext } from '@playwright/test';
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, goViaMenu } from './fixtures';
 
 /**
  * Хаб «Продажи» по макету владельца (экран 1): шесть плиток показателей и три карточки (конкуренты, ИИ-продавец,
@@ -47,9 +47,7 @@ async function seedMarket(request: APIRequestContext): Promise<string> {
 test('пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету', async ({ page, request }) => {
   await seedMarket(request);
   await page.goto('/today');
-  const menu = page.locator('.topmenu');
-  await menu.getByRole('button', { name: 'Продажи', exact: true }).click();
-  await menu.getByRole('link', { name: 'Обзор продаж', exact: true }).click();
+  await goViaMenu(page, 'Продажи', 'Обзор продаж');
   await expect(page).toHaveURL(/\/sales$/);
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Продажи');
 
@@ -151,9 +149,7 @@ test('администратор смены открывает хаб', async ({
   // переход может быть прерван разворотом стойки на стартовую страницу роли: ждём, пока она откроется
   await page.goto('/finance').catch(() => undefined);
   await page.waitForURL('**/finance');
-  const menu = page.locator('.topmenu');
-  await menu.getByRole('button', { name: 'Продажи', exact: true }).click();
-  await menu.getByRole('link', { name: 'Обзор продаж', exact: true }).click();
+  await goViaMenu(page, 'Продажи', 'Обзор продаж');
   await expect(page).toHaveURL(/\/sales$/);
   await expect(page.getByTestId('sales-kpis')).toBeVisible();
 });

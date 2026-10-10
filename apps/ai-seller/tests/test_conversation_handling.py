@@ -120,3 +120,28 @@ def test_note_rejects_empty_long_and_anonymous(board, sync_db) -> None:
     ).status_code == 404
     with sync_db() as session:
         assert session.execute(sa.select(sa.func.count()).select_from(ConversationNote)).scalar() == 0
+
+
+def test_handling_migration_does_not_need_the_contraction(alembic_config) -> None:
+    """0012 ветка от 0009: рабочая база стоит на 0009, 0010 и 0011 выкладываются отдельно и вручную."""
+    from alembic import command
+
+    command.upgrade(alembic_config, "0009")
+    command.upgrade(alembic_config, "0012")
+    engine = sa.create_engine(alembic_config.get_main_option("sqlalchemy.url"))
+    try:
+        inspector = sa.inspect(engine)
+        assert {"assignee_user_id", "assignee_name", "next_step"} <= {c["name"] for c in inspector.get_columns("conversations")}
+        assert "conversation_notes" in inspector.get_table_names()
+        with engine.connect() as conn:
+            assert [r[0] for r in conn.execute(sa.text("SELECT version_num FROM alembic_version"))] == ["0012"]
+    finally:
+        engine.dispose()
+    # сужение остаётся отдельным шагом и применяется поверх, не мешая
+    command.upgrade(alembic_config, "0010")
+    engine = sa.create_engine(alembic_config.get_main_option("sqlalchemy.url"))
+    try:
+        with engine.connect() as conn:
+            assert sorted(r[0] for r in conn.execute(sa.text("SELECT version_num FROM alembic_version"))) == ["0010", "0012"]
+    finally:
+        engine.dispose()

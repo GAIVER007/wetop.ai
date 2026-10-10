@@ -71,7 +71,7 @@ def alembic_config(settings_env: Path) -> Config:
 @pytest.fixture
 def migrated_db(alembic_config: Config) -> str:
     """Накатывает alembic upgrade head на sqlite теста. Возвращает синхронный URL."""
-    command.upgrade(alembic_config, "head")
+    command.upgrade(alembic_config, "heads")  # у цепочки две головы: 0011 и 0012 (ветка от 0009)
     return alembic_config.get_main_option("sqlalchemy.url")
 
 

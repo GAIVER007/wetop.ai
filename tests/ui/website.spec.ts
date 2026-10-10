@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, devNoise, expect, test, type APIRequestContext, type Page } from './fixtures';
+import { FIXTURE_API, devNoise, expect, test, type APIRequestContext, type Page, menuLinks } from './fixtures';
 
 /**
  * «Продажи → Сайт и онлайн-бронирование» (ADR-117, срез WEB1): сайт объекта — одно место вместо трёх («Аналитика
@@ -39,10 +39,7 @@ test('старые адреса ведут во вкладки модуля и �
 
 test('одна точка входа в меню и четыре вкладки со своим адресом', async ({ page }) => {
   await page.goto('/website');
-  const sidebar = page.locator('.workspace-header .topmenu');
-  const hrefs = await sidebar
-    .locator('a')
-    .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+  const hrefs = await menuLinks(page);
   // MKT2: вход в сайт один, пункт «Маркетинг → Сайт и SEO» ведёт в хаб; у страниц /website/* пункта меню нет
   expect(hrefs.filter((href) => href?.startsWith('/website'))).toEqual([]);
   expect(hrefs.filter((href) => href?.startsWith('/marketing'))).toEqual(['/marketing']);
@@ -66,7 +63,7 @@ test('одна точка входа в меню и четыре вкладки 
       'aria-current',
       'page',
     );
-    await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
+    await expect(page.locator('.sidenav__items [aria-current="page"]')).toHaveText('Сайт и SEO');
   }
 });
 

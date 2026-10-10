@@ -313,11 +313,12 @@ test('гости и бронирования: пустые состояния, �
 
 test('гости и бронирования: одна вкладка меню, ссылка в классический список и новая бронь', async ({ page }) => {
   await page.goto('/guests');
-  const menu = page.getByRole('navigation', { name: 'Разделы' }).first();
-  const tab = menu.getByRole('link', { name: 'Гости и бронирования', exact: true });
+  // подразделы левого меню (ADR-161) в панели, она закрыта: ищем с учётом скрытых
+  const menu = page.locator('.sidenav__items');
+  const tab = menu.locator('a[href="/guests"]');
   await expect(tab).toHaveAttribute('aria-current', 'page');
-  await expect(menu.getByRole('link', { name: 'Гости', exact: true })).toHaveCount(0);
-  await expect(menu.getByRole('link', { name: 'Брони', exact: true })).toHaveCount(0);
+  await expect(menu.getByRole('link', { name: 'Гости', exact: true, includeHidden: true })).toHaveCount(0);
+  await expect(menu.getByRole('link', { name: 'Брони', exact: true, includeHidden: true })).toHaveCount(0);
 
   // классический список броней живёт по прежнему адресу, и меню там подсвечивает ту же вкладку
   await page.getByRole('main').getByRole('link', { name: 'Список броней', exact: true }).click();

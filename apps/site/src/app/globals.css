@@ -2720,6 +2720,80 @@ button {
   color: var(--public-muted);
   font-size: 0.75rem;
 }
+/* Ресторанный вариант дашборда (/restaurants/): мини-план зала и легенда статусов столов */
+.dash__tables {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+.dash__table {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--public-border);
+  color: var(--text-2);
+  background: var(--public-surface);
+}
+.dash__table[data-kind='busy'],
+.dash__legend i[data-kind='busy'] {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.dash__table[data-kind='free'],
+.dash__legend i[data-kind='free'] {
+  background: var(--success-soft);
+  color: var(--success);
+  border-color: var(--success);
+}
+.dash__table[data-kind='reserved'],
+.dash__legend i[data-kind='reserved'] {
+  background: var(--st-confirmed);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.dash__table[data-kind='cleaning'],
+.dash__legend i[data-kind='cleaning'] {
+  background: var(--warning-soft);
+  color: var(--warning);
+  border-color: var(--warning);
+}
+.dash__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 10px;
+  color: var(--public-muted);
+  font-size: 0.75rem;
+}
+.dash__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.dash__legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border-width: 1px;
+  border-style: solid;
+}
+/* Мини-экран внутри карточки «Возможности в действии»: те же строки, что в мокапе дашборда */
+.dash__arrivals--card {
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+.dash__arrivals--card .dash__arrival {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
 
 /* Рукописная пометка у мокапа, как на снимке. Деталь: на узком экране не показывается. */
 .public-intro__annotation {

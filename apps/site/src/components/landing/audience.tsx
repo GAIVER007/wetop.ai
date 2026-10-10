@@ -62,6 +62,11 @@ export function Audience() {
                     ))}
                   </div>
                 ) : null}
+                {card.id === 'FOOD_SERVICE' ? (
+                  <div className="verticals__segments">
+                    <Link href="/restaurants/">{t.restaurants.homeCardLink}</Link>
+                  </div>
+                ) : null}
               </article>
             );
           })}

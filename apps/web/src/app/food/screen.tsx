@@ -6,6 +6,7 @@ import { loadFood } from './load';
 import { WorkspaceBoard } from './workspace-board';
 import { CatalogBoard } from './catalog-board';
 import './food.css';
+import './restaurant.css';
 export async function FoodScreen({
   kind,
   date,
@@ -17,7 +18,7 @@ export async function FoodScreen({
 }) {
   const title = kind === 'floor' ? 'План зала' : kind === 'list' ? 'Бронирования' : 'Залы и столы';
   try {
-    const data = await loadFood(date, time, kind !== 'floor');
+    const data = await loadFood(date, time, kind !== 'floor', kind === 'floor');
     return (
       <Page title={title} subtitle="Рабочее место ресторана">
         <div key={data.scopeKey}>

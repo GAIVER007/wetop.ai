@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 10.10.2026 16:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 58
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/food.spec.ts:447' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:50680) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (8.6s)
+
+
+  1) tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').locator('dl')
+    Expected substring: "Основной зал, Стол 7"
+    Received string:    "Телефон+700000817025Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей2Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').locator('dl') with timeout 5000ms
+      - waiting for getByRole('dialog').locator('dl')
+        2 × locator resolved to <dl>…</dl>
+          - unexpected value "Телефон+700000817025Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей5Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+          - locator resolved to <dl>…</dl>
+          - unexpected value "Телефон+700000817025Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей5Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+          - locator resolved to <dl>…</dl>
+          - unexpected value "Телефон+700000817025Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей2Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+        8 × locator resolved to <dl>…</dl>
+          - unexpected value "Телефон+700000817025Дата / время2026-10-12, 19:00–21:00ПериодУжинГостей2Стол / залБез столаИсточникСотрудникЗаметкаОбновлено"
+
+
+      502 |   await d.getByRole('combobox', { name: 'Назначить стол', exact: true }).selectOption(table.id);
+      503 |   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
+    > 504 |   await expect(d.locator('dl')).toContainText('Основной зал, Стол 7');
+          |                                 ^
+      505 |   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
+      506 |   await page.goto('/dining-areas');
+      507 |   await page.getByRole('button', { name: 'Изменить стол Стол 7', exact: true }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/food.spec.ts:504:33
+
+    Error Context: test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+
+# код выхода 1 · 16 с

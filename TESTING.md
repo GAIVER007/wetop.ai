@@ -371,3 +371,17 @@ npm run test:record -- e2e --workers=1
   закоммичено в момент запуска.
 - Код журнала: `tests/tools/journal.ts` (логика, покрыта тестом), `journal-files.ts` (запись и чтение
   файлов), `git-state.ts` (только чтение git), `cli-record.ts`, `cli-status.ts`, `cli-journal.ts`.
+
+## Грабли от 10.10.2026: две сессии в одном дереве и стенды сайта
+
+- Набор `tests/site` по умолчанию живёт на порту 4320. Когда в дереве работают две сессии, чужой
+  осиротевший `static-server.mjs` на 4320 отдаёт **старую** сборку (нет новых страниц, массовые красные),
+  а снятие своего сервера соседом роняет весь прогон (`EADDRINUSE`, `Killed: 9`, `ERR_CONNECTION_REFUSED`).
+  Лекарство: `SITE_CHECK_PORT=4321 npm run test:record -- e2e --config tests/site/playwright.config.ts` —
+  порт читают и конфиг, и `SITE_ORIGIN` в `auth-dialog.spec.ts`.
+- В `tests/food-ui` спек `food.spec.ts` заканчивается «marker guarded cleanup», который сносит организацию
+  фикстуры; `/__test/reset` теперь пересоздаёт её (upsert), поэтому спеки, идущие после (`restaurant.spec.ts`),
+  работают. Если reset отвечает 500 «organization not found» — это снова та грабля.
+- Ops-тесты (`auto-deploy`, `db-backup-offsite`, `db-restore-prod`, `guard-run`, `launchd-status`) под
+  двойной нагрузкой машины валятся таймаутами 5 с пачками (прогон 50 минут вместо трёх). Красные под
+  нагрузкой регрессией не считать, повторять на спокойной машине (правило уже было, подтверждено).

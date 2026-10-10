@@ -14,7 +14,7 @@ import { cloneElement, isValidElement } from 'react';
 import type { Delta } from '../lib/dashboard-format';
 import { Icon, type IconName } from './icon';
 import { beautyStatus } from '../lib/status/beauty';
-import { foodStatus } from '../lib/status/food';
+import { foodOrderStatus, foodStatus } from '../lib/status/food';
 import { hospitalityStatus } from '../lib/status/hospitality';
 import { housekeepingStatus } from '../lib/status/housekeeping';
 import { paymentStatus } from '../lib/status/payment';
@@ -398,6 +398,7 @@ const STATUS_REGISTRY = {
   payment: paymentStatus,
   beauty: beautyStatus,
   food: foodStatus,
+  foodOrder: foodOrderStatus,
 } as const satisfies Record<string, StatusRegistry<string>>;
 export type StatusKind = keyof typeof STATUS_REGISTRY;
 

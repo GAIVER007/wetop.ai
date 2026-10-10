@@ -123,13 +123,13 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     // MV8: рабочий экран дня один на все направления
     await choose(page, 'Тестовый филиал Центр');
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     await choose(page, 'Тестовый салон');
     await expect(page).toHaveURL(/\/today$/);
     await expect(page.getByTestId('beauty-today')).toBeVisible();
     await choose(page, 'Тестовый филиал Парк');
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     expect(await scopeCookie(page)).toBe(`business=${f.business};location=${f.locations[1]}`);
     await choose(page, 'Тестовый отель');
     await expect(page).toHaveURL(/\/today$/);
@@ -183,7 +183,7 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
     ),
   ).toBe(`business=${f.business};location=${f.locations[1]}`);
   await page.reload();
-  await expect(page.getByTestId('food-today')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
   await page.goto('/floor-plan');
   await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
   await choose(page, 'Другой тестовый бизнес');

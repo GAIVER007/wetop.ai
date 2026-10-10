@@ -7,6 +7,7 @@ import {
   UNAVAILABLE_MASTER,
 } from '../../apps/web/src/app/today/vertical-metrics';
 import { previousDate } from '../../apps/web/src/lib/food-data';
+import { formatMoney } from '../../apps/web/src/lib/money';
 import { instantOf } from '../../apps/web/src/app/beauty/time';
 
 /**
@@ -140,20 +141,29 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('beauty-today')).toBeVisible();
     const { m } = await expectedBeauty(request, f.salon);
     expect(m.masters).toBe(2);
-    for (const [id, n] of [
-      ['today-planned', m.planned],
-      ['today-confirmed', m.confirmed],
-      ['today-done', m.done],
-      ['today-masters', m.masters],
+    // плитки макета «Главная» (ТЗ салона 09.10.2026): записи, выручка DONE, клиенты, смена
+    for (const [id, text] of [
+      ['today-total', String(m.total)],
+      [
+        'today-revenue',
+        formatMoney(m.revenue[0]?.minor ?? '0', m.revenue[0]?.currency ?? 'KZT'),
+      ],
+      ['today-clients', String(m.clients)],
+      ['today-shift', `${m.onShift} из ${m.masters}`],
     ] as const)
-      await expect(value(page, id), id).toHaveText(String(n));
+      await expect(value(page, id), id).toHaveText(text);
     if (m.awaitingConfirmation > 0)
       await expect(page.getByTestId('today-attention-unconfirmed')).toContainText(
         String(m.awaitingConfirmation),
       );
     if (m.noShow > 0)
       await expect(page.getByTestId('today-attention-no-show')).toContainText(String(m.noShow));
-    await expect(page.getByText('Мастеров', { exact: true })).toBeVisible();
+    // панель «Мастера на смене»: строк столько, сколько мастеров с интервалами без отсутствия
+    if (m.shift.length > 0) {
+      await expect(page.getByTestId('today-shift-list').locator('li')).toHaveCount(m.shift.length);
+      await expect(page.getByTestId('today-shift-list')).toContainText(m.shift[0]!.name);
+    }
+    await expect(page.getByRole('link', { name: 'Новая запись', exact: true })).toBeVisible();
     const rows = page.getByTestId('today-upcoming').locator('li');
     await expect(rows).toHaveCount(m.upcoming.length);
     if (m.upcoming.some((u) => u.master === UNAVAILABLE_MASTER))
@@ -180,24 +190,21 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await setScope(page, f.food);
     const from = await callCount(request);
     await page.goto('/today');
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     const m = await expectedFood(request, f.food, f.localDay, f.timezone);
     expect(m.planned).toBeGreaterThan(100);
     expect(m.seatedNow).toBeGreaterThanOrEqual(2);
     expect(m.activeTables).toBe(3);
-    for (const [id, n] of [
-      ['today-planned', m.planned],
-      ['today-seated', m.seatedNow],
-      ['today-completed', m.completed],
-      ['today-free', m.freeNow],
-    ] as const)
-      await expect(value(page, id), id).toHaveText(String(n));
+    // «Главная» ресторана по макету (ADR-159): счётчик дня и плитка занятости вместо прежних четырёх плиток
+    await expect(value(page, 'today-planned'), 'today-planned').toHaveText(String(m.planned));
+    await expect(value(page, 'today-tables'), 'today-tables').toHaveText(
+      `${m.activeTables - m.freeNow} / ${m.activeTables}`,
+    );
     for (const [id, n] of [
       ['today-attention-unconfirmed', m.awaitingConfirmation],
       ['today-attention-no-show', m.noShow],
     ] as const)
       await expect(page.getByTestId(id), id).toContainText(String(n));
-    await expect(page.getByText(`из ${m.activeTables}`, { exact: true })).toBeVisible();
     await expect(page.getByTestId('today-attention-no-table')).toContainText(
       String(m.withoutTable),
     );
@@ -220,7 +227,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const f = await prepare(request, 'Pacific/Kiritimati');
     await setScope(page, f.food);
     await page.goto('/today');
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     const local = new Intl.DateTimeFormat('en-CA', { timeZone: 'Pacific/Kiritimati' }).format(
       new Date(),
     );
@@ -240,7 +247,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('beauty-today')).toBeVisible();
     await choose(page, 'Тестовый филиал Центр');
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
     expect(await scopeCookie(page)).toBe(f.food);
     await choose(page, 'Тестовый отель');
@@ -312,11 +319,11 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     } finally {
       release();
     }
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
     expect(await scopeCookie(page)).toBe(f.food);
     await page.reload();
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
   });
 
   test('pending Hospitality selection stops previous branch freshness polling', async ({
@@ -364,7 +371,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     } finally {
       release();
     }
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     expect(await scopeCookie(page)).toBe(f.food);
   });
 
@@ -450,7 +457,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
       await page.evaluate(() => localStorage.clear());
       await setScope(page, scope);
       await page.goto('/today');
-      await expect(page.getByTestId(testId)).toBeVisible();
+      await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
       // обучение стартует через 600 мс после отрисовки: ждём с запасом и проверяем, что окна нет
       await page.waitForTimeout(1500);
       await expect(page.getByRole('dialog')).toHaveCount(0);

@@ -89,7 +89,7 @@ test('vertical card buttons preselect the correct vertical in existing AuthDialo
     await page
       .locator('.verticals__card')
       .nth(index)
-      .getByRole('link', { name: action })
+      .getByRole('link', { name: action, exact: true })
       .click();
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByRole('radio', { name: new RegExp(name) })).toBeChecked();

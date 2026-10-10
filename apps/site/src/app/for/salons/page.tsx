@@ -138,7 +138,10 @@ export default function SalonLandingPage() {
 
         <section className="salon-growth" aria-labelledby="salon-growth-title">
           <div className="salon-growth__art">
-            <SalonArt />
+            <span className="salon-growth__photo">
+              {/* Фото сгенерировано через KIE по решению владельца 10.10.2026: тёплая палитра макета */}
+              <img src="/photos/salon-warm.jpg" alt="" loading="lazy" width={1184} height={864} />
+            </span>
             <span className="salon-growth__float">
               <strong>{s.growth.float.value}</strong>
               {s.growth.float.text}
@@ -204,41 +207,5 @@ export default function SalonLandingPage() {
         </div>
       </div>
     </div>
-  );
-}
-
-/** Интерьер салона со снимка — рисунок на SVG в фирменных тонах (§19.9: вместо фото и стоков). */
-function SalonArt() {
-  return (
-    <span aria-hidden="true">
-      <svg
-        viewBox="0 0 240 200"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* зеркало с подсветкой */}
-        <rect x="28" y="20" width="64" height="88" rx="10" />
-        <circle cx="42" cy="34" r="3" strokeWidth="2" opacity="0.6" />
-        <circle cx="60" cy="28" r="3" strokeWidth="2" opacity="0.6" />
-        <circle cx="78" cy="34" r="3" strokeWidth="2" opacity="0.6" />
-        {/* столик под зеркалом */}
-        <path d="M16 124h88M24 124v52M96 124v52" />
-        <path d="M40 124v-8h24v8" strokeWidth="2" opacity="0.6" />
-        {/* кресло */}
-        <path d="M150 84a22 22 0 0 1 44 0v28h-44z" />
-        <path d="M144 112h56v14h-56z" />
-        <path d="M172 126v30M154 176h36" />
-        <path d="M150 96h-8M202 96h-6" strokeWidth="2" opacity="0.6" />
-        {/* растение */}
-        <path d="M222 176v-28" strokeWidth="2" />
-        <path d="M222 152c-8-4-12-12-10-20 8 2 12 10 10 20Z" strokeWidth="2" opacity="0.6" />
-        <path d="M222 156c8-4 12-12 10-20-8 2-12 10-10 20Z" strokeWidth="2" opacity="0.6" />
-        <path d="M214 176h16" strokeWidth="2" />
-        <path d="M16 176h208" opacity="0.4" strokeWidth="2" />
-      </svg>
-    </span>
   );
 }

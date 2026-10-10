@@ -4267,3 +4267,76 @@ button {
   flex-shrink: 0;
   margin-top: 4px;
 }
+
+/* Снимок календаря на лендинге гостиниц: настоящий экран стойки с демо-данными, рамкой и тенью. */
+.hotel-shot {
+  padding: clamp(24px, 3.5vw, 44px) 0;
+}
+.hotel-shot__frame {
+  margin: clamp(20px, 2.4vw, 28px) auto 0;
+  max-width: 1120px;
+}
+.hotel-shot__frame picture img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating);
+}
+.hotel-shot__frame figcaption {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  margin-top: 12px;
+}
+
+
+/* Цветные фото направлений (10.10.2026, решение владельца; сгенерированы через KIE, свои файлы). */
+.verticals__art--photo {
+  padding: 0;
+  overflow: hidden;
+  background: none;
+}
+.verticals__art--photo img {
+  display: block;
+  width: 148px;
+  height: 108px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+.hotel-growth__art--photo {
+  padding: 0;
+  overflow: hidden;
+  background: none;
+}
+.hotel-growth__art--photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+}
+.final-card__art--photo {
+  margin-top: 0;
+  opacity: 1;
+}
+.final-card__art--photo img {
+  display: block;
+  width: clamp(160px, 18vw, 240px);
+  height: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+}
+@media (max-width: 40rem) {
+  .verticals__art--photo img {
+    width: 112px;
+    height: 84px;
+  }
+}
+
+.salon-growth__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+}

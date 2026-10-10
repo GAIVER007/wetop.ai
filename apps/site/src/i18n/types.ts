@@ -245,6 +245,8 @@ export type Dictionary = {
     secondary: string;
     chips: string[];
     facts: Array<{ value: string; text: string }>;
+    /** Снимок настоящего календаря стойки с демо-данными (светлая и тёмная темы). */
+    calendar: { eyebrow: string; title: string; lead: string; alt: string; note: string };
     featuresTitle: string;
     featuresLead: string;
     features: Array<{ icon: IconName; title: string; text: string }>;

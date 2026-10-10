@@ -14,7 +14,7 @@ async function signInAsPlatformAdmin(page: Page, request: import('@playwright/te
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance'); // /today у отеля сразу ведёт на /finance (ADR-152)
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
 }
 

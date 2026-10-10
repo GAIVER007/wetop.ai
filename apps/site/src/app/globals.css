@@ -1463,7 +1463,7 @@ button {
  * `.glass` ставит `position: relative` и сбивает окну место в верхнем слое. На телефоне — ширина экрана минус 2×16 px.
  */
 .auth-dialog {
-  width: min(440px, calc(100vw - 32px));
+  width: min(480px, calc(100vw - 32px));
   max-height: calc(100dvh - 32px);
   margin: auto;
   padding: 0;
@@ -1691,11 +1691,21 @@ button {
 .auth-field__toggle:hover {
   color: var(--text);
 }
-/* Регистрация 29.09.2026: код страны и номер в одной строке, согласие с политикой под полями */
-.auth-phone {
+/* Регистрация 10.10.2026: страна и язык одной строкой, код телефона внутри рамки поля по выбранной стране */
+.auth-row {
   display: grid;
-  grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.auth-phone__code {
+  flex: none;
+  padding-left: 14px;
+  color: var(--text-2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.auth-phone .auth-field__input {
+  padding-left: 8px;
 }
 .auth-consent {
   display: flex;
@@ -1958,38 +1968,80 @@ button {
   font-weight: 800;
 }
 
-/* Registration uses the existing site tokens; pilot access is verified by API. */
+/* Направление при регистрации (10.10.2026): на главной три плитки в строку, на странице направления плашка.
+   Доступ к пилотным направлениям всё равно проверяет API. */
 .auth-verticals {
   border: 0;
   padding: 0;
   margin: 0;
-  display: grid;
-  gap: 0.5rem;
 }
 .auth-verticals legend {
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
   font-weight: 600;
 }
+.auth-verticals__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
 .auth-vertical {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border: 1px solid var(--border);
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 14px 6px 12px;
+  border: 1px solid var(--border-input);
   border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text-2);
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.auth-vertical input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
   cursor: pointer;
 }
-.auth-vertical:has(input:checked) {
-  border-color: var(--text);
-  background: var(--surface);
+.auth-vertical:hover {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--border-input));
 }
-.auth-vertical:focus-within {
-  outline: 2px solid var(--text);
+.auth-vertical:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.auth-vertical:has(input:focus-visible) {
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
-.auth-vertical small {
+.auth-vertical span {
+  color: var(--text);
+}
+.auth-vertical small,
+.auth-vertical-fixed small {
   display: block;
   color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.auth-vertical-fixed {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-weight: 600;
+}
+.auth-vertical-fixed small {
   font-size: 0.875rem;
 }
 

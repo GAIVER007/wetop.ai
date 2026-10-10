@@ -315,3 +315,56 @@
   --public-available: #a0d7b8;
   --public-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
 }
+
+/* Лендинг салонов (/for/salons/): палитра макета владельца 10.10.2026 — тёплый светлый фон,
+   белые карточки, чёрная кнопка, бежевые плашки. Живёт только внутри .salon-page. */
+:root {
+  --salon-bg: #faf8f5;
+  --salon-surface: #ffffff;
+  --salon-text: #15130f;
+  --salon-muted: #5f5a52;
+  --salon-border: #e7e2da;
+  --salon-chip: #f1ebe2;
+  --salon-accent: #16140f;
+  --salon-accent-hover: #2c2920;
+  --salon-on-accent: #ffffff;
+  --salon-band: #15130f;
+  --salon-band-text: #f5f2ec;
+  --salon-band-muted: #beb8ad;
+  --salon-band-hover: #ffffff;
+  --salon-shadow: 0 10px 30px rgba(21, 19, 15, 0.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --salon-bg: #15130f;
+    --salon-surface: #1e1b16;
+    --salon-text: #f4f0e9;
+    --salon-muted: #b5aea3;
+    --salon-border: #37322a;
+    --salon-chip: #2b2620;
+    --salon-accent: #f4f0e9;
+    --salon-accent-hover: #ffffff;
+    --salon-on-accent: #16140f;
+    --salon-band: #0b0a07;
+    --salon-band-text: #f4f0e9;
+    --salon-band-muted: #b5aea3;
+    --salon-band-hover: #ffffff;
+    --salon-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+}
+:root[data-theme='dark'] {
+  --salon-bg: #15130f;
+  --salon-surface: #1e1b16;
+  --salon-text: #f4f0e9;
+  --salon-muted: #b5aea3;
+  --salon-border: #37322a;
+  --salon-chip: #2b2620;
+  --salon-accent: #f4f0e9;
+  --salon-accent-hover: #ffffff;
+  --salon-on-accent: #16140f;
+  --salon-band: #0b0a07;
+  --salon-band-text: #f4f0e9;
+  --salon-band-muted: #b5aea3;
+  --salon-band-hover: #ffffff;
+  --salon-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}

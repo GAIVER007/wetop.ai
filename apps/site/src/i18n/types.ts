@@ -185,6 +185,47 @@ export type Dictionary = {
     ctaText: string;
     link: string;
   };
+  /**
+   * Лендинг «Для салонов красоты» (`/for/salons/`, ТЗ владельца 10.10.2026,
+   * план `plans/salon-landing-2026-10-10.md`). Текст только из продукта (§19.9).
+   */
+  salon: {
+    metaTitle: string;
+    description: string;
+    badge: string;
+    title: string;
+    lead: string;
+    primary: string;
+    secondary: string;
+    /** Чипы под кнопками героя: «7 дней бесплатно» и т.п. (ADR-098). */
+    chips: string[];
+    /** Мокап «Записи на сегодня»: только вымышленные данные, подпись примера обязательна. */
+    mock: {
+      label: string;
+      title: string;
+      date: string;
+      summary: Array<{ name: string; value: string }>;
+      rows: Array<{ time: string; client: string; service: string; master: string }>;
+    };
+    /** Полоса фактов: только числа продукта (§19.9), чисел клиентов не бывает. */
+    facts: Array<{ value: string; text: string }>;
+    featuresTitle: string;
+    featuresLead: string;
+    features: Array<{ icon: IconName; title: string; text: string }>;
+    growth: {
+      badge: string;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
+      /** Плавающая карточка на иллюстрации: вымышленное число с пометкой примера (§19.9). */
+      float: { value: string; text: string };
+    };
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
+    ctaTitle: string;
+    ctaText: string;
+  };
   /** Страницы по типам объектов (`/for/<slug>/`, срез D2 плана прямых продаж). */
   segments: {
     eyebrow: string;
@@ -194,7 +235,8 @@ export type Dictionary = {
     ctaText: string;
     home: string;
     items: Record<
-      SegmentSlug,
+      /** У салонов своя страница со своим словарём (`salon`), общего шаблона у них нет. */
+      Exclude<SegmentSlug, 'salons'>,
       {
         title: string;
         metaTitle: string;

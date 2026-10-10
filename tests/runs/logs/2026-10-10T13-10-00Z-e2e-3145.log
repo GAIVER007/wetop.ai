@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 10.10.2026 18:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 07544da (claude/sidebar-navigation), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/side-nav.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/side-nav.spec.ts:56:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (6.5s)
+  ✓  2 tests/ui/side-nav.spec.ts:106:1 › ТЗ §9: клавиатура — ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (2.5s)
+  ✓  3 tests/ui/side-nav.spec.ts:143:1 › вложенные адреса показывают свой раздел (6.6s)
+  ✓  4 tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: light (6.0s)
+  ✓  5 tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: dark (4.3s)
+
+  5 passed (32.2s)
+
+# код выхода 0 · 33 с

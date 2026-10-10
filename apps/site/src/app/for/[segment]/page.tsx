@@ -19,9 +19,8 @@ export const dynamicParams = false;
 
 type Props = { params: Promise<{ segment: string }> };
 
-/** Без salons: у салонов свой лендинг `app/for/salons/page.tsx` (план plans/salon-landing-2026-10-10.md). */
-const SLUGS: Exclude<SegmentSlug, 'salons'>[] = [
-  'hotels',
+/** Без salons и hotels: у них свои лендинги `app/for/salons/page.tsx` и `app/for/hotels/page.tsx`. */
+const SLUGS: Exclude<SegmentSlug, 'salons' | 'hotels'>[] = [
   'restaurants',
   'hostels',
   'mini-hotels',

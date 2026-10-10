@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import type { APIRequestContext } from '@playwright/test';
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, goViaMenu } from './fixtures';
 
 /**
  * Хаб «Продажи» по макету владельца (экран 1): шесть плиток показателей и три карточки (конкуренты, ИИ-продавец,
@@ -28,22 +28,6 @@ async function signIn(page: Page) {
   await page.waitForURL('**/today');
 }
 
-
-/**
- * Открыть пункт группы «Продажи» верхнего меню. Клик по кнопке группы до гидрации страницы теряется (список не
- * раскрывается, ссылка не появляется): повторяем клик, пока ссылка не видна; видимая ссылка повторов не требует.
- * Падение гейта 10.10.2026: `sales-hub.spec.ts:47` ждал ссылку 45 с.
- */
-async function openSalesItem(page: Page, name: string) {
-  const menu = page.locator('.topmenu');
-  const link = menu.getByRole('link', { name, exact: true });
-  await expect(async () => {
-    if (!(await link.isVisible())) await menu.getByRole('button', { name: 'Продажи', exact: true }).click();
-    await expect(link).toBeVisible({ timeout: 1_000 });
-  }).toPass({ timeout: 20_000 });
-  await link.click();
-}
-
 const A = '00000000-0000-4000-8000-00000000000a';
 const plus = (iso: string, n: number) =>
   new Date(Date.parse(`${iso}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
@@ -63,7 +47,7 @@ async function seedMarket(request: APIRequestContext): Promise<string> {
 test('пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету', async ({ page, request }) => {
   await seedMarket(request);
   await page.goto('/today');
-  await openSalesItem(page, 'Обзор продаж');
+  await goViaMenu(page, 'Продажи', 'Обзор продаж');
   await expect(page).toHaveURL(/\/sales$/);
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Продажи');
 
@@ -165,7 +149,7 @@ test('администратор смены открывает хаб', async ({
   // переход может быть прерван разворотом стойки на стартовую страницу роли: ждём, пока она откроется
   await page.goto('/finance').catch(() => undefined);
   await page.waitForURL('**/finance');
-  await openSalesItem(page, 'Обзор продаж');
+  await goViaMenu(page, 'Продажи', 'Обзор продаж');
   await expect(page).toHaveURL(/\/sales$/);
   await expect(page.getByTestId('sales-kpis')).toBeVisible();
 });

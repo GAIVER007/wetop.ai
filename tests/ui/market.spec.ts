@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import type { APIRequestContext } from '@playwright/test';
-import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page, goViaMenu } from './fixtures';
 
 /**
  * «Загрузка конкурентов» (ADR-142, план `plans/market-competitor-occupancy-2026-10-03.md`): пункт «Продажи»,
@@ -61,13 +61,7 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   page,
 }) => {
   await page.goto('/finance');
-  // клик по группе до гидрации теряется: повторяем, пока ссылка не появится
-  const link = page.locator('.topmenu').getByRole('link', { name: 'Загрузка конкурентов' });
-  await expect(async () => {
-    if (!(await link.isVisible())) await page.locator('.topmenu').getByRole('button', { name: 'Продажи' }).click();
-    await expect(link).toBeVisible({ timeout: 1_000 });
-  }).toPass({ timeout: 20_000 });
-  await link.click();
+  await goViaMenu(page, 'Продажи', 'Загрузка конкурентов');
   await page.waitForURL('**/market');
   const main = page.getByRole('main');
   const grid = page.getByTestId('market-table');

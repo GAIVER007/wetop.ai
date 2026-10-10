@@ -218,6 +218,35 @@ export type Dictionary = {
       text: string;
       points: string[];
       action: string;
+      /** Плавающая карточка на иллюстрации: вымышленное число с пометкой примера (§19.9). */
+      float: { value: string; text: string };
+    };
+    faqTitle: string;
+    faq: Array<{ q: string; a: string }>;
+    ctaTitle: string;
+    ctaText: string;
+  };
+  /** Лендинг «Для гостиниц» (/for/hotels/): тот же каркас, что у салона; мокап общий `hero.dash`. */
+  hotel: {
+    metaTitle: string;
+    description: string;
+    badge: string;
+    title: string;
+    lead: string;
+    primary: string;
+    secondary: string;
+    chips: string[];
+    facts: Array<{ value: string; text: string }>;
+    featuresTitle: string;
+    featuresLead: string;
+    features: Array<{ icon: IconName; title: string; text: string }>;
+    growth: {
+      badge: string;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
+      float: { value: string; text: string };
     };
     faqTitle: string;
     faq: Array<{ q: string; a: string }>;

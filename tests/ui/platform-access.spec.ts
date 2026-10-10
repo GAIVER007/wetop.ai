@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, menuLinks, openSection } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -30,11 +30,6 @@ const control = (
 const shot = (page: Page, name: string) =>
   page.screenshot({ path: `reports/platform-access-2026-09-25/${name}.png`, fullPage: true });
 
-const menuLinks = (page: Page) =>
-  page
-    .locator('.workspace-header .topmenu a')
-    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
-
 test('меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора', async ({
   page,
   request,
@@ -57,7 +52,7 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   await expect.poll(() => menuLinks(page)).toContain('/platform');
   // расширение выключено, а пункт остаётся (ADR-090): закрытый доступ объясняет сам раздел
   expect(await menuLinks(page)).toContain('/ai-agents');
-  await expect(page.locator('.workspace-header .topmenu__tab')).toHaveText([
+  await expect(page.locator('.sidenav__section')).toHaveText([
     'Финансы',
     'Календарь',
     'Гости и бронирования',
@@ -69,16 +64,9 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   ]);
   await expect(footer).toContainText('Владелец · главный администратор');
   // «Организации» лежат в «Настройках» (поручение владельца 09.10.2026), вкладки «Платформа» больше нет
-  await expect(
-    page.locator('.workspace-header').getByRole('button', { name: 'Платформа', exact: true }),
-  ).toHaveCount(0);
-  await page
-    .locator('.workspace-header')
-    .getByRole('button', { name: 'Настройки', exact: true })
-    .click();
-  await expect(
-    page.locator('.workspace-header .topmenu').getByRole('link', { name: 'Организации' }),
-  ).toBeVisible();
+  await expect(page.locator('.sidenav__section', { hasText: /^Платформа$/ })).toHaveCount(0);
+  const settings = await openSection(page, 'Настройки');
+  await expect(settings.getByRole('link', { name: 'Организации' })).toBeVisible();
   await shot(page, 'menu-platform-admin');
 });
 

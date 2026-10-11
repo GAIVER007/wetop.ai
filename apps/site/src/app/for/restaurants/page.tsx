@@ -90,7 +90,7 @@ export default function RestaurantLandingPage() {
               </h2>
               <p className="section-heading__lead">{typo(s.featuresLead)}</p>
             </div>
-            <ul className="card-grid card-grid--4">
+            <ul className="card-grid card-grid--3">
               {s.features.map((card) => (
                 <li key={card.title} className="card glass">
                   <span className="icon-tile">

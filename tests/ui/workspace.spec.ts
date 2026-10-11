@@ -1270,7 +1270,7 @@ test('шахматка: фильтр «Уборка» показывает гр�
   // уборка со счётчиком: «Уборка 2» (21.09); с PR 7 «Шахматки v2» — пункт поля «Места»
   const pop = await openBoardFilters(page);
   await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
-    /^Уборка \d+$/,
+    /^Уборка и проверка \d+$/,
   );
   await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
   await boardFilter(page, { state: 'cleaning' });
@@ -1278,7 +1278,8 @@ test('шахматка: фильтр «Уборка» показывает гр�
   expect(dirty).toBeGreaterThan(0);
   expect(dirty).toBeLessThan(all);
   // легенда называет статусы глифом и словом, а не одним цветом (принцип 4)
-  await expect(page.getByTestId('board-legend')).toContainText('не подтверждена');
+  await expect(page.getByTestId('board-status-legend')).toBeVisible();
+  await expect(page.getByTestId('board-status-legend')).toContainText('Не подтверждена');
 });
 
 /**

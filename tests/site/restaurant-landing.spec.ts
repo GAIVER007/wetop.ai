@@ -11,7 +11,7 @@ const PATH = '/for/restaurants/';
 test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({ page }) => {
   await page.goto(PATH);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Управляйте рестораном в одном сервисе',
+    'Зал, заказы и кухня ресторана в одном окне',
   );
   const hero = page.locator('.hotel-hero');
   await expect(hero).toContainText('Для ресторанов');
@@ -32,7 +32,7 @@ test('полоса фактов и возможности: восемь карт
   await expect(page.locator('.hotel-facts__item')).toHaveCount(4);
   const features = page.locator('#restaurant-features .card');
   await expect(features).toHaveCount(8);
-  await expect(features.first()).toContainText('План зала');
+  await expect(features.first()).toContainText('Зал как на ладони');
   const body = await page.locator('body').innerText();
   // Чисел клиентов и рейтингов не бывает (§19.9); «пилота» и « · » тоже. Проценты в мокапе
   // «Сегодня» легитимны (вымышленный пример с подписью), поэтому их сторож не ловит.
@@ -49,7 +49,7 @@ test('рост, вопросы и призыв: пункты без процен
 }) => {
   await page.goto(PATH);
   const growth = page.locator('.hotel-growth');
-  await expect(growth).toContainText('Полный зал. Меньше хаоса на смене.');
+  await expect(growth).toContainText('Полный зал и быстрая кухня на каждой смене');
   await expect(growth.locator('.hotel-growth__points li')).toHaveCount(4);
   expect(await growth.innerText()).not.toMatch(/%/);
   const faq = page.locator('.faq details');

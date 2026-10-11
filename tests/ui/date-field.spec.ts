@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API } from './fixtures';
+import { FIXTURE_API, hydrated } from './fixtures';
 
 /**
  * Поле даты с календарём (21.09.2026, поручение владельца: «выбор даты удобнее»).
@@ -91,7 +91,9 @@ test('панель брони: календарь открывается пов�
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/chessboard');
-  await page.getByTestId('stay-cell').first().dblclick();
+  const stay = page.getByTestId('stay-cell').first();
+  await hydrated(stay);
+  await stay.dblclick();
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer).toBeVisible();
   await drawer.getByRole('tab', { name: 'Действия', exact: true }).click();

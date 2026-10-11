@@ -30,7 +30,7 @@ describe.skipIf(!url)('membership_scopes (integration, DATABASE_URL required)', 
     db = createPrismaClient(url);
     const rows = await db.$queryRaw<Array<{ table_name: string }>>`
       SELECT table_name FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = 'membership_scopes'`;
+      WHERE table_schema = current_schema() AND table_name = 'membership_scopes'`; // integration идёт в pms_test, не в public
     migrated = rows.length > 0;
     if (!migrated) return;
     const mail = `scope-${ids.user.slice(0, 8)}@example.test`;

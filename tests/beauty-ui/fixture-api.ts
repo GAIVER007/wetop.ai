@@ -121,7 +121,16 @@ app.use(
             if (req.path === '/__test/reset') {
               role = 'OWNER';
               calls.length = 0;
-              await db.organization.update({ where: { id: org }, data: { status: 'ACTIVE' } });
+              await db.organization.upsert({
+                where: { id: org },
+                create: { id: org, name: `MV5-browser-${org}`, status: 'ACTIVE' },
+                update: { status: 'ACTIVE' },
+              });
+              await db.user.upsert({
+                where: { id: user },
+                create: { id: user, name: 'Тестовый владелец', email: `mv5-${user}@example.invalid` },
+                update: {},
+              });
               const b1 = await db.business.create({
                 data: { organizationId: org, name: 'Тестовая студия А', vertical: 'BEAUTY' },
               });

@@ -87,7 +87,15 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
 }) => {
   await reset(page, request);
   await page.goto('/calendar?vertical=HOSPITALITY');
-  await expect(page.getByRole('heading', { name: 'Пока нечего показывать' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Расписание дня', exact: true })).toBeVisible();
+  await expect(page.getByTestId('beauty-grid').getByTestId('beauty-empty-timeline')).toBeVisible();
+  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  await expect(page.getByRole('status')).toContainText(
+    'Для новой записи нужны услуги и мастера с рабочим графиком.',
+  );
+  await expect(page.getByRole('link', { name: 'Добавить услугу', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Добавить мастера', exact: true })).toBeVisible();
   await page.goto('/services');
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   let panel = page.getByRole('dialog');
@@ -176,7 +184,15 @@ test('overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY', 
   );
   await scope(page, f.otherBusiness, f.locations[2]!);
   await page.goto(`/calendar?date=${day}`);
-  await expect(page.getByRole('heading', { name: 'Пока нечего показывать' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Расписание дня', exact: true })).toBeVisible();
+  await expect(page.getByTestId('beauty-grid').getByTestId('beauty-empty-timeline')).toBeVisible();
+  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  await expect(page.getByRole('status')).toContainText(
+    'Для новой записи нужны услуги и мастера с рабочим графиком.',
+  );
+  await expect(page.getByRole('link', { name: 'Добавить услугу', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Добавить мастера', exact: true })).toBeVisible();
   await page.goto('/customers');
   await expect(page.getByRole('main')).not.toContainText('Тестовая клиентка');
   await scope(page, f.business, f.locations[1]!);
@@ -423,7 +439,10 @@ test('Beauty onboarding completion opens Today and resumes there', async ({ page
   await expect(page.getByTestId('beauty-today')).toBeVisible();
   await expect(page.getByTestId('today-masters')).toHaveText('0');
   await page.goto('/calendar');
-  await expect(main.getByRole('heading', { name: 'Пока нечего показывать' })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Расписание дня', exact: true })).toBeVisible();
+  await expect(main.getByTestId('beauty-grid').getByTestId('beauty-empty-timeline')).toBeVisible();
+  await expect(main.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
   await page.goto('/register/setup');
   await expect(page).toHaveURL(/\/today$/);
 });

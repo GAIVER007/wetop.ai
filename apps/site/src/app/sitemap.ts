@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getPublishedPosts } from '../lib/posts';
+import { DIRECTIONS, SUBTYPE_SLUGS } from '../lib/landings';
 import { absoluteUrl } from '../lib/site';
 
 // Статическая сборка (output: 'export'): sitemap.xml считается один раз при `next build`.
@@ -19,7 +20,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ...(latest ? { lastModified: latest } : {}),
     },
     { url: absoluteUrl('/restaurants/'), changeFrequency: 'monthly', priority: 0.8 },
-    ...(['hotels', 'salons', 'restaurants', 'hostels', 'mini-hotels', 'apart-hotels'] as const).map((slug) => ({
+    ...DIRECTIONS.map((slug) => ({
+      url: absoluteUrl(`/for/${slug}/`),
+      changeFrequency: 'monthly' as const,
+      priority: 0.9,
+    })),
+    ...SUBTYPE_SLUGS.map((slug) => ({
       url: absoluteUrl(`/for/${slug}/`),
       changeFrequency: 'monthly' as const,
       priority: 0.8,

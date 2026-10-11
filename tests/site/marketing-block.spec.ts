@@ -11,6 +11,11 @@ const PAGES = [
   { path: '/for/mini-hotels/', soon: 1 },
   { path: '/for/apart-hotels/', soon: 1 },
   { path: '/for/salons/', soon: 3 },
+  { path: '/for/barbershops/', soon: 3 },
+  { path: '/for/spa/', soon: 3 },
+  { path: '/for/nail-studios/', soon: 3 },
+  { path: '/for/cafes/', soon: 3 },
+  { path: '/for/bars/', soon: 3 },
   { path: '/for/restaurants/', soon: 3 },
 ];
 

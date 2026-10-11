@@ -15,6 +15,11 @@ export type SegmentSlug =
   | 'hostels'
   | 'mini-hotels'
   | 'apart-hotels'
+  | 'barbershops'
+  | 'spa'
+  | 'nail-studios'
+  | 'cafes'
+  | 'bars'
   | 'hotels'
   | 'salons'
   | 'restaurants';
@@ -389,6 +394,8 @@ export type Dictionary = {
     ctaTitle: string;
     ctaText: string;
     home: string;
+    more: string;
+    typesTitle: Record<'hotels' | 'salons' | 'restaurants', string>;
     items: Record<
       /** У салонов своя страница со своим словарём (`salon`), общего шаблона у них нет. */
       Exclude<SegmentSlug, 'salons'>,
@@ -402,6 +409,8 @@ export type Dictionary = {
         limits?: string;
         /** Фото героя (свой файл из KIE, не сток) и вопросы: есть у страниц типов объектов. */
         photoAlt?: string;
+        /** <title> страницы: запрос словами человека, до 49 знаков (с « — WETOP.AI» до 60) */
+        seoTitle?: string;
         faq?: Array<{ q: string; a: string }>;
       }
     >;
@@ -430,6 +439,7 @@ export type Dictionary = {
     contacts: string;
     privacy: string;
     terms: string;
+    directions: string;
   };
   notFound: {
     title: string;

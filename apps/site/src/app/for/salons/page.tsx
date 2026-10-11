@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Icon } from '../../../components/icon';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
+import { SubtypeLinks } from '../../../components/landing/subtype-links';
+import { JsonLd, breadcrumbLd } from '../../../components/json-ld';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -26,6 +28,12 @@ export default function SalonLandingPage() {
   const register = registerLink(undefined, 'BEAUTY').href;
   return (
     <div className="page salon-page">
+      <JsonLd
+        data={breadcrumbLd([
+          { name: t.meta.siteName, path: '/' },
+          { name: t.salon.badge, path: '/for/salons/' },
+        ])}
+      />
       <div className="container">
         <section className="salon-hero" aria-labelledby="salon-title">
           <div>
@@ -168,6 +176,8 @@ export default function SalonLandingPage() {
             </a>
           </div>
         </section>
+
+        <SubtypeLinks direction="salons" title={t.segments.typesTitle.salons} />
 
         <MarketingBlock
           id="marketing"

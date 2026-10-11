@@ -326,7 +326,11 @@ jobs:
       - name: Подготовка с сетью (PostgreSQL 16.14 из npm, миграции, роли, вымышленные данные)
         run: scripts/ci/runtime-audit.sh prepare
       - name: Прогон в закрытом сетевом пространстве
-        run: scripts/ci/runtime-audit.sh isolated
+        # каталог доказательств пустой: в репозитории лежат доказательства прежних локальных прогонов, в артефакт
+        # должен попасть только этот (одноразовый checkout раннера)
+        run: |
+          rm -rf tests/runs/runtime-audit tests/runs/a2-runtime tests/runs/a23-runtime
+          scripts/ci/runtime-audit.sh isolated
       - name: Записи журнала этого прогона (новые файлы, не из репозитория)
         if: always()
         run: |
@@ -343,6 +347,8 @@ jobs:
             tests/runs/runtime-audit/**/*.png
             tests/runs/runtime-audit/journal/*
             tests/runs/runtime-audit/failures/**/error-context.md
+            tests/runs/a2-runtime/*.json
+            tests/runs/a23-runtime/*.json
           if-no-files-found: ignore
 
   ui:

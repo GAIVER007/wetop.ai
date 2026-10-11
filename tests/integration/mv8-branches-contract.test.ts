@@ -247,6 +247,10 @@ it('real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned 
     expect(await db.location.count({ where: { id: createId } })).toBe(1);
   } finally {
     await app?.close();
+    await db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+      await tx.auditLog.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+    });
     const own = { business: { organizationId: { in: [orgA, orgB] } } };
     await db.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;

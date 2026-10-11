@@ -1,0 +1,147 @@
+# Сквозные (e2e) · 11.10.2026 22:33 Алматы · MacBook-Air-Urij.local
+# коммит b811e67 (codex/ui3-1-hidden-navigation), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/ui31-shell.spec.ts' '--grep' 'история периода|мобильный переход'
+[WebServer] (node:31458) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:31572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 1440 (41.7s)
+(node:31770) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 390 (26.5s)
+(node:31895) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/ui31-shell.spec.ts:157:1 › UI3.1: мобильный переход фокусирует готовое содержимое (24.9s)
+
+
+  1) tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 1440 ────────────────
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  locator('.sidenav__panel')
+    Expected: hidden
+    Received: visible
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeHidden" locator('.sidenav__panel') with timeout 15000ms
+      - waiting for locator('.sidenav__panel')
+        33 × locator resolved to <div id="_R_95elb_" data-open="true" class="sidenav__panel">…</div>
+           - unexpected value "visible"
+
+
+      147 |     await page.goBack();
+      148 |     await expect(page).toHaveURL(previous);
+    > 149 |     await expect(surface).toBeHidden();
+          |                           ^
+      150 |     await trigger.click();
+      151 |     await page.goForward();
+      152 |     await expect(page).not.toHaveURL(previous);
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-shell.spec.ts:149:27
+
+    Error Context: test-results/ui31-shell-UI3-1-история-периода-закрывает-меню-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-история-периода-закрывает-меню-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-история-периода-закрывает-меню-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 390 ─────────────────
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('dialog', { name: 'Навигация', exact: true })
+    Expected: hidden
+    Received: visible
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('dialog', { name: 'Навигация', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Навигация', exact: true })
+        31 × locator resolved to <dialog open="" aria-labelledby="_R_25elb_" class="ui-overlay   mobile-navigation">…</dialog>
+           - unexpected value "visible"
+
+
+      147 |     await page.goBack();
+      148 |     await expect(page).toHaveURL(previous);
+    > 149 |     await expect(surface).toBeHidden();
+          |                           ^
+      150 |     await trigger.click();
+      151 |     await page.goForward();
+      152 |     await expect(page).not.toHaveURL(previous);
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-shell.spec.ts:149:27
+
+    Error Context: test-results/ui31-shell-UI3-1-история-периода-закрывает-меню-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-история-периода-закрывает-меню-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-история-периода-закрывает-меню-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ui31-shell.spec.ts:157:1 › UI3.1: мобильный переход фокусирует готовое содержимое ────
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('#main-content')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('#main-content') with timeout 15000ms
+      - waiting for locator('#main-content')
+        - locator resolved to <main class="page" tabindex="-1" id="main-content">…</main>
+        31 × unexpected value "inactive"
+           - locator resolved to <main tabindex="-1" id="main-content" class="page page--full guests-bookings">…</main>
+        - unexpected value "inactive"
+
+
+      163 |   await expect(page).toHaveURL(/\/guests$/);
+      164 |   await expect(drawer).toBeHidden();
+    > 165 |   await expect(page.locator('#main-content')).toBeFocused();
+          |                                               ^
+      166 | });
+      167 |
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-shell.spec.ts:165:47
+
+    Error Context: test-results/ui31-shell-UI3-1-мобильный-df75b-кусирует-готовое-содержимое/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-мобильный-df75b-кусирует-готовое-содержимое/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-мобильный-df75b-кусирует-готовое-содержимое/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 1440 ─────────────────
+    tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 390 ──────────────────
+    tests/ui/ui31-shell.spec.ts:157:1 › UI3.1: мобильный переход фокусирует готовое содержимое ─────
+
+# код выхода 1 · 2 мин 36 с

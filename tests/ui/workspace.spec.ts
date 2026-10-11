@@ -1,4 +1,13 @@
-import { FIXTURE_API, boardFilter, expect, openBoardFilters, test, devNoise, type Page, goViaMenu } from './fixtures';
+import {
+  FIXTURE_API,
+  boardFilter,
+  expect,
+  openBoardFilters,
+  test,
+  devNoise,
+  type Page,
+  goViaMenu,
+} from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -1456,11 +1465,9 @@ test('новая бронь: резюме выбора обновляется п
   const button = form.getByRole('button', { name: 'Создать бронь' });
   await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
   await expect(button).toBeInViewport();
-  const [box, nav] = await Promise.all([
-    button.boundingBox(),
-    page.locator('.bottom-navigation').boundingBox(),
-  ]);
-  expect(box!.y + box!.height).toBeLessThanOrEqual(nav!.y + 1);
+  const box = await button.boundingBox();
+  await expect(page.locator('.bottom-navigation')).toHaveCount(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(page.viewportSize()!.height + 1);
   const layout = await page.evaluate(() => ({
     viewport: window.innerWidth,
     content: document.documentElement.scrollWidth,
@@ -1584,7 +1591,9 @@ test('финансы F1: период в подзаголовке, четыре 
   const presets = main.getByRole('navigation', { name: 'Готовые периоды' });
   await presets.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL(/\/finance\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
-  await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(/is-active/);
+  await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(
+    /is-active/,
+  );
   await expect(main.getByTestId('finance-period')).toContainText('За период с');
   // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });

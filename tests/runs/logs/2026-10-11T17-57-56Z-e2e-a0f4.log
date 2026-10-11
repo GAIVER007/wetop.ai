@@ -1,0 +1,205 @@
+# Сквозные (e2e) · 11.10.2026 22:57 Алматы · MacBook-Air-Urij.local
+# коммит b811e67 (codex/ui3-1-hidden-navigation), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=120000' 'tests/ui/product-tour.spec.ts' 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/workspace.spec.ts:1418' 'tests/ui/ui31-shell.spec.ts'
+[WebServer] (node:65098) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65128) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65173) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65179) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 19 tests using 1 worker
+
+(node:65199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается (21.8s)
+[WebServer] (node:65306) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии (21.6s)
+[WebServer] (node:65354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/product-tour.spec.ts:91:1 › последний шаг — профиль, «Начать работу» закрывает обучение (17.7s)
+[WebServer] (node:65388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/product-tour.spec.ts:107:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край (13.3s)
+[WebServer] (node:65433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/product-tour.spec.ts:122:1 › меню содержит только обучение, личность и выход; темы можно выбирать (17.4s)
+[WebServer] (node:65473) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/product-tour.spec.ts:144:1 › администратор на телефоне видит рабочие темы без настроек владельца (17.6s)
+[WebServer] (node:65524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/product-tour.spec.ts:164:1 › обучение подсвечивает поиск в разделе гостей (35.2s)
+[WebServer] (node:65601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (19.3s)
+(node:65622) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (16.8s)
+(node:65764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65931) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (34.8s)
+(node:65982) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (37.9s)
+  ✓  12 tests/ui/ui31-shell.spec.ts:39:1 › UI3.1: mobile освобождает низ и возвращает фокус (22.7s)
+  ✘  13 tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется (50.0s)
+[WebServer] (node:66414) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:66417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/ui31-shell.spec.ts:75:1 › UI3.1: граница desktop/mobile и узкий экран (19.1s)
+  ✓  15 tests/ui/ui31-shell.spec.ts:109:1 › UI3.1: размеры целей шапки и мобильной поверхности (8.2s)
+  ✓  16 tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 1440 (8.8s)
+  ✓  17 tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 390 (4.1s)
+  ✓  18 tests/ui/ui31-shell.spec.ts:157:1 › UI3.1: мобильный переход фокусирует готовое содержимое (2.2s)
+  ✓  19 tests/ui/workspace.spec.ts:1418:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (4.2s)
+
+
+  1) tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3191/chessboard
+    Call log:
+      - navigating to "http://127.0.0.1:3191/chessboard", waiting until "commit"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/profile-menu-readiness.spec.ts:54:14
+
+    Error Context: test-results/profile-menu-readiness-до--8e311-ие-по-ней-меню-не-открывает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-до--8e311-ие-по-ней-меню-не-открывает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-до--8e311-ие-по-ней-меню-не-открывает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3191/chessboard
+    Call log:
+      - navigating to "http://127.0.0.1:3191/chessboard", waiting until "commit"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/profile-menu-readiness.spec.ts:69:14
+
+    Error Context: test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3191/chessboard
+    Call log:
+      - navigating to "http://127.0.0.1:3191/chessboard", waiting until "commit"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/profile-menu-readiness.spec.ts:84:14
+
+    Error Context: test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется ────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/hotel-settings$/
+    Received string:  "http://127.0.0.1:3191/chessboard"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        29 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3191/chessboard"
+
+
+      63 |   await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
+      64 |   await panel.getByRole('link', { name: 'Объект', exact: true }).click();
+    > 65 |   await expect(page).toHaveURL(/\/hotel-settings$/);
+         |                      ^
+      66 |   await expect(panel).toBeHidden();
+      67 |   await expect(page.locator('#main-content')).toBeFocused();
+      68 |   await trigger.click();
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-shell.spec.ts:65:22
+
+    Error Context: test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает 
+    tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом 
+    tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова 
+    tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется ─────
+  15 passed (7.6m)
+
+# код выхода 1 · 7 мин 40 с

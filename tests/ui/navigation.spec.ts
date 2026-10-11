@@ -224,7 +224,7 @@ test('«Гости и бронирования»: один пункт меню, 
   await page.goto('/guests');
   const main = page.getByRole('main');
   // подразделы левого меню (ADR-161): каждый адрес один раз, текущий помечен
-  const menu = page.locator('.sidenav__items');
+  const menu = page.locator('.sidenav__nav');
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
   await main.getByRole('link', { name: 'Список броней', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations$/);

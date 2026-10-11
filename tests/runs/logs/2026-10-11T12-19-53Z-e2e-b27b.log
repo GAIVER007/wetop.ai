@@ -1,0 +1,217 @@
+# Сквозные (e2e) · 11.10.2026 17:19 Алматы · MacBook-Air-Urij.local
+# коммит b811e67 (codex/ui3-1-hidden-navigation), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/ui31-shell.spec.ts'
+[WebServer] (node:86156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:86275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <RedirectBoundary>
+[WebServer]       <RedirectErrorBoundary router={{...}}>
+[WebServer]         <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]           <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]             <SegmentTrieNode>
+[WebServer]             <ChessboardPage>
+[WebServer]               <CalendarWorkspace summary={null} nativeLayout={true}>
+[WebServer]                 <div ref={{current:null}} className="calendar-s..." data-expanded={false}>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                       <header>
+[WebServer]                       <UnassignedStays>
+[WebServer]                       <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-11" fitMonth={false} readOnly={false} ...>
+[WebServer]                         <div className="board-toolbar">
+[WebServer]                           ...
+[WebServer]                             <PeriodPicker>
+[WebServer]                               <div className="period-picker">
+[WebServer]                                 <Field>
+[WebServer]                                   <label htmlFor="period-from" className="field fiel...">
+[WebServer]                                     <DateInput id="period-from" name="from" defaultValue="2026-10-05" ...>
+[WebServer]                                       <span className="date-field">
+[WebServer]                                         <input
+[WebServer]                                           ref={{current:null}}
+[WebServer]                                           type="date"
+[WebServer]                                           className="inp date-field__input"
+[WebServer]                                           id="period-from"
+[WebServer]                                           name="from"
+[WebServer]                                           defaultValue="2026-10-05"
+[WebServer]                                           aria-label="Период: с"
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                         ...
+[WebServer]                                 <Field>
+[WebServer]                                   <label htmlFor="period-to" className="field fiel...">
+[WebServer]                                     <DateInput id="period-to" name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                       <span className="date-field">
+[WebServer]                                         <input
+[WebServer]                                           ref={{current:null}}
+[WebServer]                                           type="date"
+[WebServer]                                           className="inp date-field__input"
+[WebServer]                                           id="period-to"
+[WebServer]                                           name="to"
+[WebServer]                                           defaultValue="2026-10-11"
+[WebServer]                                           aria-label="Период: по"
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                         ...
+[WebServer]                           <label className="board-sear...">
+[WebServer]                             <span>
+[WebServer]                             <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                               <input
+[WebServer]                                 className="inp"
+[WebServer]                                 type="search"
+[WebServer]                                 aria-label="Поиск в календаре"
+[WebServer]                                 placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                 data-page-search=""
+[WebServer]                                 value=""
+[WebServer]                                 onChange={function onChange}
+[WebServer]                                 onKeyDown={function onKeyDown}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]           ...
+[WebServer]         ...
+[WebServer]  
+  ✘  1 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (22.7s)
+(node:86519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/ui31-shell.spec.ts:36:1 › UI3.1: mobile освобождает низ и возвращает фокус (44.5s)
+(node:86616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/ui31-shell.spec.ts:52:1 › UI3.1: переход закрывает меню, active route сохраняется (51.5s)
+
+
+  1) tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню ──
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Открыть меню', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Открыть меню', exact: true }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Открыть меню', exact: true })
+
+
+      12 |   await page.screenshot({ path: `${shots}/${process.env.UI31_BASELINE ? 'before' : 'after'}-desktop.png` });
+      13 |   const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
+    > 14 |   await expect(trigger).toBeVisible();
+         |                         ^
+      15 |   const before = await page.locator('main').boundingBox();
+      16 |   await trigger.click();
+      17 |   const panel = page.locator('.sidenav__panel');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/ui31-shell.spec.ts:14:25
+
+    Error Context: test-results/ui31-shell-UI3-1-одна-кноп-043ff--ширина-и-клавиатурное-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-одна-кноп-043ff--ширина-и-клавиатурное-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-одна-кноп-043ff--ширина-и-клавиатурное-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ui31-shell.spec.ts:36:1 › UI3.1: mobile освобождает низ и возвращает фокус ───────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.bottom-navigation')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.bottom-navigation') with timeout 15000ms
+      - waiting for locator('.bottom-navigation')
+        32 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      38 |   await page.goto('/chessboard');
+      39 |   await page.screenshot({ path: `${shots}/${process.env.UI31_BASELINE ? 'before' : 'after'}-mobile.png` });
+    > 40 |   await expect(page.locator('.bottom-navigation')).toHaveCount(0);
+         |                                                    ^
+      41 |   expect((await page.locator('.workspace-header').boundingBox())!.height).toBeCloseTo(56, 0);
+      42 |   const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
+      43 |   await trigger.click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/ui31-shell.spec.ts:40:52
+
+    Error Context: test-results/ui31-shell-UI3-1-mobile-освобождает-низ-и-возвращает-фокус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-mobile-освобождает-низ-и-возвращает-фокус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-mobile-освобождает-низ-и-возвращает-фокус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ui31-shell.spec.ts:52:1 › UI3.1: переход закрывает меню, active route сохраняется ────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Открыть меню', exact: true })
+
+
+      53 |   await page.goto('/chessboard');
+      54 |   const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
+    > 55 |   await trigger.click();
+         |                 ^
+      56 |   const panel = page.locator('.sidenav__panel');
+      57 |   await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
+      58 |   await panel.getByRole('link', { name: 'Объект', exact: true }).click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/ui31-shell.spec.ts:55:17
+
+    Error Context: test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню ───
+    tests/ui/ui31-shell.spec.ts:36:1 › UI3.1: mobile освобождает низ и возвращает фокус ────────────
+    tests/ui/ui31-shell.spec.ts:52:1 › UI3.1: переход закрывает меню, active route сохраняется ─────
+
+# код выхода 1 · 2 мин 51 с

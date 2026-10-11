@@ -1,0 +1,198 @@
+# Сквозные (e2e) · 11.10.2026 22:22 Алматы · MacBook-Air-Urij.local
+# коммит b811e67 (codex/ui3-1-hidden-navigation), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=120000' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/side-nav.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/trial-read-only.spec.ts'
+[WebServer] (node:29995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30023) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30025) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30057) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 22 tests using 1 worker
+
+(node:30071) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30095) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (13.2s)
+[WebServer] (node:30108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (12.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1064836930'
+[WebServer] }
+[WebServer] (node:30151) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (39.1s)
+  ✓   4 tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (24.6s)
+[WebServer] (node:30273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (20.6s)
+[WebServer] (node:30319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30374) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы (54.1s)
+  ✓   7 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (10.6s)
+  ✓   8 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (7.5s)
+  ✓   9 tests/ui/navigation.spec.ts:221:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой (8.0s)
+  ✓  10 tests/ui/side-nav.spec.ts:46:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу (7.1s)
+  ✓  11 tests/ui/side-nav.spec.ts:99:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (6.9s)
+[WebServer] (node:30525) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30529) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/side-nav.spec.ts:139:1 › вложенные адреса показывают свой раздел (14.4s)
+  ✓  13 tests/ui/side-nav.spec.ts:164:3 › меню без прокрутки вбок и доступное: light (8.9s)
+  ✓  14 tests/ui/side-nav.spec.ts:164:3 › меню без прокрутки вбок и доступное: dark (7.1s)
+  ✓  15 tests/ui/side-nav.spec.ts:219:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (5.1s)
+[WebServer] (node:30632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30649) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="finance/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/finance" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="finance/pa...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <FinanceReportPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                           <header>
+[WebServer]                           <div>
+[WebServer]                           <section className="finance-co..." id="finance-fi..." aria-label="Фильтры оп...">
+[WebServer]                             <form method="get" action="/finance#o..." className="finance-to..." data-testid="period-form">
+[WebServer]                               <FilterHistory>
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="show"
+[WebServer]                                 value="1"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field fiel...">
+[WebServer]                                   <DateInput name="from" defaultValue="2026-10-01" aria-label="Период: с">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-10-01"
+[WebServer]                                         aria-label="Период: с"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field fiel...">
+[WebServer]                                   <DateInput name="to" rangeFromName="from" defaultValue="2026-10-31" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-10-31"
+[WebServer]                                         aria-label="Период: по"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓  16 tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет (23.9s)
+[WebServer] (node:30679) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/ui/trial-read-only.spec.ts:76:1 › главный администратор: «Оплата получена» — организация работает; «Только чтение» — обратно (10.5s)
+  ✓  18 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (23.4s)
+  ✓  19 tests/ui/ui31-shell.spec.ts:39:1 › UI3.1: mobile освобождает низ и возвращает фокус (19.1s)
+[WebServer] (node:30819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  20 tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется (37.0s)
+(node:30840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 tests/ui/ui31-shell.spec.ts:75:1 › UI3.1: граница desktop/mobile и узкий экран (29.7s)
+  ✓  22 tests/ui/ui31-shell.spec.ts:109:1 › UI3.1: размеры целей шапки и мобильной поверхности (22.9s)
+
+
+  1) tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется ────
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('#main-content')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('#main-content') with timeout 15000ms
+      - waiting for locator('#main-content')
+        4 × locator resolved to <main class="page" tabindex="-1" id="main-content">…</main>
+          - unexpected value "inactive"
+        29 × locator resolved to <main tabindex="-1" id="main-content" class="page object-settings">…</main>
+           - unexpected value "inactive"
+
+
+      65 |   await expect(page).toHaveURL(/\/hotel-settings$/);
+      66 |   await expect(panel).toBeHidden();
+    > 67 |   await expect(page.locator('#main-content')).toBeFocused();
+         |                                               ^
+      68 |   await trigger.click();
+      69 |   await expect(panel.locator('[aria-current="page"]')).toHaveText('Объект');
+      70 |   await page.goBack();
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-shell.spec.ts:67:47
+
+    Error Context: test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется ─────
+  21 passed (7.5m)
+
+# код выхода 1 · 7 мин 33 с

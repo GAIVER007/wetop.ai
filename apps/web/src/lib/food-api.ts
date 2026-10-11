@@ -58,6 +58,8 @@ export const foodApi = {
     sendJson<ServicePeriod>('PATCH', idPath('service-periods', id), body),
   customers: (cursor?: string) =>
     getJsonPublic<FoodPage<FoodCustomer>>(`${base}/customers${query(cursor)}`),
+  updateCustomer: (id: string, body: { isVip?: boolean; birthDate?: string | null }) =>
+    sendJson<{ id: string }>('PATCH', idPath('customers', id), body),
   reservations: (date: string, cursor?: string) =>
     getJsonPublic<FoodPage<RestaurantReservation>>(`${base}/reservations${query(cursor, date)}`),
   create: (body: ReservationInput, key: string) =>

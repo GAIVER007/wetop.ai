@@ -406,7 +406,7 @@ test('касса: остатки по способам, расход не уво
   expect(axe.violations).toEqual([]);
 });
 
-test('клиенты: вкладки и «Постоянный гость» от двух визитов', async ({ page, request }) => {
+test('клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения', async ({ page, request }) => {
   const { headers, table } = await seed(page, request);
   // День и время по поясу ресторана (Asia/Almaty), а не по UTC: ночью по UTC в Алматы уже следующие
   // сутки, и посадка «сейчас» не попадала в период (гейт 10.10 19:04 UTC). Полдень местного дня
@@ -461,6 +461,27 @@ test('клиенты: вкладки и «Постоянный гость» от
   await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
   await page.getByRole('tab', { name: /Постоянные гости/ }).click();
   await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
+  // VIP и день рождения (§36): дата в будущем отклоняется, метка и «сегодня» видны во вкладках
+  const future = await request.patch(`${api}/food-service/customers/${r1.customerId}`, {
+    headers,
+    data: { birthDate: '2999-01-01' },
+  });
+  expect(future.status()).toBe(400);
+  await page.getByRole('tab', { name: /Все/ }).click();
+  await row.getByRole('button', { name: 'Изменить' }).click();
+  const marks = page.getByTestId('customer-marks');
+  await marks.getByRole('switch', { name: /VIP-гость/ }).check();
+  await marks.getByLabel('Дата рождения').fill(`1990-${localDay.slice(5)}`);
+  await marks.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(marks).toHaveCount(0);
+  await expect(row).toContainText('VIP');
+  await expect(row.getByTestId('customer-birthday')).toContainText('сегодня');
+  await page.getByRole('tab', { name: /VIP/ }).click();
+  await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
+  await page.getByRole('tab', { name: /Дни рождения/ }).click();
+  await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
+  const axe = await new AxeBuilder({ page }).include('main').analyze();
+  expect(axe.violations).toEqual([]);
 });
 
 test('навигация ресторана: пункты макета на месте и ведут на экраны', async ({

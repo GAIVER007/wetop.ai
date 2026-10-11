@@ -291,7 +291,10 @@
     margin-top: 26px;
     margin-bottom: 12px;
   }
+  /* Опорный блок для скрытых подписей `.sr-only` (position: absolute) в ячейках: без него подпись встаёт в
+     начальный блок страницы и тянет её вбок на телефоне (грабли 07.10, 09.10 и 11.10.2026, чинились поштучно) */
   .table-scroll {
+    position: relative;
     width: 100%;
     max-width: 100%;
     overflow: auto;

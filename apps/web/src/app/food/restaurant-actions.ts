@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { unstable_rethrow } from 'next/navigation';
 import { ApiError } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
-import { restaurantApi } from '../../lib/food-api';
+import { foodApi, restaurantApi } from '../../lib/food-api';
 import type {
   FoodCashOperationInput,
   FoodPaymentMethod,
@@ -166,6 +166,22 @@ export async function mutateCash(
     else if (command.kind === 'void') await restaurantApi.voidCashOperation(command.id);
     else await restaurantApi.cashReconciliation(command.body);
     revalidatePath('/cashbox');
+    return { error: null };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** VIP-метка и дата рождения клиента (§36, ADR-166) */
+export async function markCustomer(
+  scopeKey: string,
+  id: string,
+  body: { isVip: boolean; birthDate: string | null },
+): Promise<{ error: string | null }> {
+  try {
+    await scope(scopeKey);
+    await foodApi.updateCustomer(id, body);
+    revalidatePath('/customers');
     return { error: null };
   } catch (error) {
     return failure(error);

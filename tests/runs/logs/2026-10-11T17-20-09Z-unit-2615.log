@@ -1,0 +1,69 @@
+# Модульные (unit) · 11.10.2026 22:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0db5d6f (claude/gate-queue-on-main), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T17-20-09Z-unit-2615.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-queue
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (25 tests | 1 failed) 966ms
+   ❯ свой раннер CI (16)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 1ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 0ms
+     ✓ ни одна проверка не идёт на боевой сервер; пуш в main гоняет только гейт, и только на код (ADR-139, ADR-152) 0ms
+     × перед выкладкой: lint, typecheck, unit, главная, бот, база и весь UI; по кнопке или пушем в release-candidate 3ms
+     ✓ база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся 0ms
+     ✓ наборы салона, ресторана и филиалов входят в гейт выкладки параллельно, на своей базе (MV8.5 DS0a) 0ms
+     ✓ сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026) 0ms
+     ✓ тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота 1ms
+     ✓ образ раннера без sudo: под no-new-privileges он не работает 0ms
+     ✓ образ раннера ставит всё, что Playwright просит для Chromium на Ubuntu 24.04 7ms
+     ✓ проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория 0ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 0ms
+     ✓ автоперемотка release (auto-release.yml, ADR-152, решение владельца 09.10.2026) (3)
+       ✓ слушает только итог гейта и кнопку; права ровно contents: write и actions: read 0ms
+       ✓ перематывает только зелёный main, только вперёд и без --force; по кнопке сверяет гейт через API (ADR-139) 0ms
+       ✓ новые миграции перемотку не останавливают: сервер откажет сам и позовёт владельца (ADR-080, AGENTS.md §15) 0ms
+     ✓ эталоны -linux снимает раннер GitHub по кнопке и кладёт отдельной веткой, не в main и не в release 0ms
+   ✓ свой раннер не выполняет код из чужого форка (ADR-137) (5)
+     ✓ образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh 0ms
+     ✓ запрос на слияние из форка: отказ, задача краснеет, а не пропускается 9ms
+     ✓ форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ 9ms
+     ✓ ветка самого репозитория и пуш в main выполняются 14ms
+     ✓ нет файла события или он битый: отказ, а не молчаливый пропуск проверки 11ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся 7ms
+     ✓ токен с пробелом или в кавычках и адрес не GitHub: тоже отказ 31ms
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 584ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 287ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > перед выкладкой: lint, typecheck, unit, главная, бот, база и весь UI; по кнопке или пушем в release-candidate
+AssertionError: expected '  group: release-checks-${{ github.re…' to match /cancel-in-progress: \$\{\{ gith…/heads\
+
+- Expected:
+/cancel-in-progress: \$\{\{ github\.ref != 'refs\/heads\/main' \}\}/
+
++ Received:
+"  group: release-checks-${{ github.ref }}
+  cancel-in-progress: true
+"
+
+ ❯ tests/unit/ci-runner.test.ts:103:36
+    101|     // новый прогон по-прежнему заменяет прежний.
+    102|     const block = /\nconcurrency:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.…
+    103|     expect(withoutComments(block)).toMatch(/cancel-in-progress: \$\{\{…
+       |                                    ^
+    104|     expect(withoutComments(RELEASE)).toMatch(/permissions:\n\s+content…
+    105|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  10:20:11
+   Duration  1.07s (tests 96%, transform 2%, import 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T17-20-09Z-unit-2615.json
+
+# код выхода 1 · 3 с

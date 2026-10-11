@@ -55,12 +55,24 @@ export function demandLevel(bp: number | null | undefined): DemandLevel | null {
   return 'mid';
 }
 
+export type CompetitorMonitoring = 'OCCUPANCY' | 'PRICE' | 'BOTH';
+export const COMPETITOR_MONITORING: readonly CompetitorMonitoring[] = ['OCCUPANCY', 'PRICE', 'BOTH'];
+
 export interface CompetitorInput {
   name?: string;
   distanceM?: number | null;
   unitsTotal?: number | null;
   url?: string | null;
   note?: string | null;
+  /** DATA_MODEL §23.1: район, тип объекта, адрес и метка источника данных */
+  district?: string | null;
+  category?: string | null;
+  address?: string | null;
+  dataSource?: string | null;
+  monitoring?: CompetitorMonitoring;
+  /** Как часто обновлять данные сборщика, часы 1…168; пусто: не задано */
+  refreshHours?: number | null;
+  autoRefresh?: boolean;
 }
 
 const optionalInt = (raw: unknown, label: string, min: number): number | null | undefined => {
@@ -104,6 +116,29 @@ export function parseCompetitorInput(
   }
   const note = optionalText(dto.note, 'Заметка', 500);
   if (note !== undefined) out.note = note;
+  const district = optionalText(dto.district, 'Район', 80);
+  if (district !== undefined) out.district = district;
+  const category = optionalText(dto.category, 'Тип объекта', 60);
+  if (category !== undefined) out.category = category;
+  const address = optionalText(dto.address, 'Адрес', 200);
+  if (address !== undefined) out.address = address;
+  const dataSource = optionalText(dto.dataSource, 'Источник данных', 40);
+  if (dataSource !== undefined) out.dataSource = dataSource;
+  if (dto.monitoring !== undefined) {
+    if (!COMPETITOR_MONITORING.includes(dto.monitoring as CompetitorMonitoring))
+      throw new MarketInputError('Что отслеживать: только загрузку, только цены или то и другое');
+    out.monitoring = dto.monitoring as CompetitorMonitoring;
+  }
+  if (dto.refreshHours !== undefined) {
+    if (dto.refreshHours === null || String(dto.refreshHours).trim() === '') out.refreshHours = null;
+    else {
+      const hours = Number(String(dto.refreshHours).trim());
+      if (!Number.isInteger(hours) || hours < 1 || hours > 168)
+        throw new MarketInputError('Частота обновления: от 1 до 168 часов');
+      out.refreshHours = hours;
+    }
+  }
+  if (dto.autoRefresh !== undefined) out.autoRefresh = dto.autoRefresh === true;
   return out;
 }
 

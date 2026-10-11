@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, openProfileMenu, test } from './fixtures';
 import { authPorts } from './worker-ports';
 
 /**
@@ -48,7 +48,7 @@ test('после входа рабочее место открывается, о
   await page.goto(`${APP}/chessboard`);
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
 

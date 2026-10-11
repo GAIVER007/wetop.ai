@@ -1,0 +1,619 @@
+# Сквозные (e2e) · 10.10.2026 18:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 64
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 71 tests using 2 workers
+
+  ✓   1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (502ms)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (341ms)
+  ✓   4 tests/site/homepage-blocks.spec.ts:21:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (208ms)
+  ✓   5 tests/site/homepage-blocks.spec.ts:32:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (268ms)
+  ✓   6 tests/site/homepage-blocks.spec.ts:63:1 › содержимое блоков видно сразу: шесть возможностей, две большие карточки продаж, четыре шага (214ms)
+  ✓   7 tests/site/homepage-blocks.spec.ts:82:1 › первый экран: две кнопки в строку, направления сразу после Hero (267ms)
+  ✓   8 tests/site/homepage-blocks.spec.ts:95:1 › карточки блоков читаются одной фразой, а не абзацем (291ms)
+  ✓   9 tests/site/homepage-blocks.spec.ts:110:1 › «Продажи и ИИ»: примеры подписаны вымышленными, ИИ назван отдельным расширением (625ms)
+  ✓  10 tests/site/homepage-blocks.spec.ts:138:1 › первый экран: дашборд подписан примером и не имитирует кнопки (212ms)
+  ✓  11 tests/site/homepage-blocks.spec.ts:153:1 › на главной нет дорожной карты направлений и слова «пилот» (133ms)
+  ✓  12 tests/site/homepage-blocks.spec.ts:166:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (165ms)
+  ✓  13 tests/site/homepage-blocks.spec.ts:178:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (163ms)
+  ✓  14 tests/site/homepage-blocks.spec.ts:188:1 › карточка призыва и подвал: правовые страницы, контакты, без чисел клиентов (163ms)
+  ✓  15 tests/site/homepage-blocks.spec.ts:214:1 › в текстах главной нет длинного тире и разделителя « · » (144ms)
+  ✓  16 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (290ms)
+  ✓  17 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (250ms)
+  ✓  18 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (279ms)
+  ✓  19 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (262ms)
+  ✓  20 tests/site/homepage-blocks.spec.ts:242:1 › блоки доступны в обеих темах (1.0s)
+  ✓  21 tests/site/homepage-blocks.spec.ts:256:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (255ms)
+  ✓  22 tests/site/homepage-blocks.spec.ts:271:3 › /privacy/: заголовок, редакция, доступность (352ms)
+  ✓  23 tests/site/homepage-blocks.spec.ts:271:3 › /terms/: заголовок, редакция, доступность (339ms)
+  ✓  24 tests/site/landing.spec.ts:20:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (123ms)
+  ✓  25 tests/site/landing.spec.ts:26:3 › / — открывается, доступна и без «TODO» на экране (544ms)
+  ✓  26 tests/site/landing.spec.ts:41:3 › / — на телефоне нет горизонтальной прокрутки (103ms)
+  ✓  27 tests/site/landing.spec.ts:26:3 › /blog/ — открывается, доступна и без «TODO» на экране (308ms)
+  ✓  28 tests/site/landing.spec.ts:41:3 › /blog/ — на телефоне нет горизонтальной прокрутки (79ms)
+  ✓  29 tests/site/landing.spec.ts:26:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (335ms)
+  ✓  30 tests/site/landing.spec.ts:41:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (73ms)
+  ✓  31 tests/site/landing.spec.ts:26:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (365ms)
+  ✓  32 tests/site/landing.spec.ts:41:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (77ms)
+  ✓  33 tests/site/landing.spec.ts:26:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (334ms)
+  ✓  34 tests/site/landing.spec.ts:41:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (80ms)
+  ✓  35 tests/site/landing.spec.ts:26:3 › /calculator/ — открывается, доступна и без «TODO» на экране (331ms)
+  ✓  36 tests/site/landing.spec.ts:41:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (81ms)
+  ✓  37 tests/site/landing.spec.ts:26:3 › /privacy/ — открывается, доступна и без «TODO» на экране (355ms)
+  ✓  38 tests/site/landing.spec.ts:41:3 › /privacy/ — на телефоне нет горизонтальной прокрутки (86ms)
+  ✘   2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (10.6s)
+  ✓  39 tests/site/landing.spec.ts:26:3 › /terms/ — открывается, доступна и без «TODO» на экране (412ms)
+  ✓  40 tests/site/landing.spec.ts:41:3 › /terms/ — на телефоне нет горизонтальной прокрутки (86ms)
+  ✓  41 tests/site/landing.spec.ts:54:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (691ms)
+  ✓  43 tests/site/landing.spec.ts:72:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (9ms)
+  ✓  44 tests/site/landing.spec.ts:85:1 › главная: регистрация открыта, маркетинговых обещаний trial нет (203ms)
+  ✓  45 tests/site/landing.spec.ts:139:1 › первый экран объясняет платформу, направления и зрелость (154ms)
+  ✓  46 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (453ms)
+  ✘  47 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (465ms)
+  ✓  48 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (482ms)
+  ✘  49 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (518ms)
+  ✓  50 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (447ms)
+  ✓  51 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (438ms)
+  ✓  52 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (454ms)
+  ✓  53 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (481ms)
+  ✓  54 tests/site/public-intro.spec.ts:55:1 › new header registration: keyboard activation and focus return on mobile (150ms)
+  ✘  55 tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog (246ms)
+  ✓  56 tests/site/public-intro.spec.ts:101:1 › business positioning: three verticals, no maturity labels, five capabilities each (143ms)
+  ✓  57 tests/site/restaurants.spec.ts:8:1 › /restaurants/ — hero, мокап с планом зала, разделы и призыв (153ms)
+  ✓  58 tests/site/restaurants.spec.ts:40:1 › с главной на /restaurants/ ведёт карточка ресторанного направления (128ms)
+  ✓  59 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (111ms)
+  ✓  60 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (103ms)
+  ✓  61 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (102ms)
+  ✓  62 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (138ms)
+  ✘  42 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (10.4s)
+  ✘  63 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (10.6s)
+  ✓  64 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (583ms)
+  ✘  65 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (10.2s)
+  ✘  66 tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (10.2s)
+  ✘  67 tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (10.2s)
+  ✓  68 tests/site/auth-dialog.spec.ts:223:1 › на телефоне окно открывается из меню и не шире экрана (636ms)
+  ✓  69 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (3.9s)
+  ✘  70 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access (10.6s)
+  ✘  71 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (10.7s)
+
+
+  1) tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов ────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('alert')
+    Expected substring: "Браузер не сохранил сессию"
+    Received string:    "Нет связи с сервером. Попробуйте ещё раз.Открыть на отдельной странице"
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('alert') with timeout 10000ms
+      - waiting for getByRole('dialog').getByRole('alert')
+        24 × locator resolved to <div role="alert" class="auth-dialog__alert">…</div>
+           - unexpected value "Нет связи с сервером. Попробуйте ещё раз.Открыть на отдельной странице"
+
+
+      67 |   await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password');
+      68 |   await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 69 |   await expect(dialog.getByRole('alert')).toContainText('Браузер не сохранил сессию');
+         |                                           ^
+      70 |   await expect(page).toHaveURL(`${SITE_ORIGIN}/#login`);
+      71 | });
+      72 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:69:43
+
+    Error Context: test-results/auth-dialog-несохранённая-сессия-не-запускает-круг-переходов/error-context.md
+
+  2) tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:4320/"
+    Received: "http://127.0.0.1:4321/"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 10000ms
+        24 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="manrope_e43ac67-module__aAKcTW__variable ibm_plex_sans_6979dae1-module__07KeAq__variable ibm_plex_mono_ed86ef51-module__ntsEZG__variable">…</html>
+           - unexpected value "http://127.0.0.1:4321/"
+
+
+      82 |   const dialog = page.getByRole('dialog', { name: 'Вход и регистрация в WETOP' });
+      83 |   await expect(dialog).toBeVisible();
+    > 84 |   await expect(page).toHaveURL(`${SITE_ORIGIN}/`); // остались на главной
+         |                      ^
+      85 |   await expect(dialog.getByRole('heading', { name: 'Вход в WETOP' })).toBeVisible();
+      86 |   await expect(dialog.getByRole('tab', { name: 'Вход' })).toHaveAttribute('aria-selected', 'true');
+      87 |   await page.waitForTimeout(300); // окно появляется за 180 мс
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:84:22
+
+    Error Context: test-results/auth-dialog-«Войти»-открыв-eecc1-й-вход-ведёт-прямо-в-стойку/error-context.md
+
+  3) tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('dialog').getByRole('alert')
+    Expected: "Неверная почта или пароль"
+    Received: "Нет связи с сервером. Попробуйте ещё раз.Открыть на отдельной странице"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog').getByRole('alert') with timeout 10000ms
+      - waiting for getByRole('dialog').getByRole('alert')
+        24 × locator resolved to <div role="alert" class="auth-dialog__alert">…</div>
+           - unexpected value "Нет связи с сервером. Попробуйте ещё раз.Открыть на отдельной странице"
+
+
+      112 |   await dialog.getByLabel('Пароль', { exact: true }).fill('ne-tot');
+      113 |   await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 114 |   await expect(dialog.getByRole('alert')).toHaveText('Неверная почта или пароль');
+          |                                           ^
+      115 |   await expect(page).toHaveURL(`${SITE_ORIGIN}/`);
+      116 | });
+      117 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:114:43
+
+    Error Context: test-results/auth-dialog-неверный-парол-34dda-человек-остаётся-на-главной/error-context.md
+
+  4) tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:4320/"
+    Received: "http://127.0.0.1:4321/"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 10000ms
+        23 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="manrope_e43ac67-module__aAKcTW__variable ibm_plex_sans_6979dae1-module__07KeAq__variable ibm_plex_mono_ed86ef51-module__ntsEZG__variable">…</html>
+           - unexpected value "http://127.0.0.1:4321/"
+
+
+      154 |   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      155 |   await expect(dialog).not.toContainText(/14\sдней\sбесплатно|карта\sне\sнужна|пробн/i);
+    > 156 |   await expect(page).toHaveURL(`${SITE_ORIGIN}/`); // не раздел «Как начать»
+          |                      ^
+      157 |   await page.waitForTimeout(300); // окно появляется за 180 мс
+      158 |   await page.screenshot({ path: 'test-results/site-auth-2-register.png' });
+      159 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:156:22
+
+    Error Context: test-results/auth-dialog-«Регистрация»--1bbc9-рьте-почту»-и-повтор-письма/error-context.md
+
+  5) tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByRole('heading', { name: 'Регистрация временно недоступна' })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByRole('heading', { name: 'Регистрация временно недоступна' }) with timeout 10000ms
+      - waiting for getByRole('dialog').getByRole('heading', { name: 'Регистрация временно недоступна' })
+
+
+      204 |   await expect(
+      205 |     dialog.getByRole('heading', { name: 'Регистрация временно недоступна' }),
+    > 206 |   ).toBeVisible();
+          |     ^
+      207 |   await expect(dialog).not.toContainText(/14\sдней|заведём аккаунт/i);
+      208 |   await expect(dialog.getByLabel('Пароль', { exact: true })).toHaveCount(0);
+      209 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:206:5
+
+    Error Context: test-results/auth-dialog-регистрация-за-ac234-аписать-форму-не-показывает/error-context.md
+
+  6) tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:4320/"
+    Received: "http://127.0.0.1:4321/"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 10000ms
+        24 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="manrope_e43ac67-module__aAKcTW__variable ibm_plex_sans_6979dae1-module__07KeAq__variable ibm_plex_mono_ed86ef51-module__ntsEZG__variable">…</html>
+           - unexpected value "http://127.0.0.1:4321/"
+
+
+      218 |   await page.keyboard.press('Escape');
+      219 |   await expect(dialog).toBeHidden();
+    > 220 |   await expect(page).toHaveURL(`${SITE_ORIGIN}/`);
+          |                      ^
+      221 | });
+      222 |
+      223 | test('на телефоне окно открывается из меню и не шире экрана', async ({ page }) => {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:220:22
+
+    Error Context: test-results/auth-dialog--login-в-адрес-722aa-т-и-убирает-метку-из-адреса/error-context.md
+
+  7) tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('alert')
+    Expected substring: "только участникам пилота"
+    Received string:    "Нет связи с сервером. Попробуйте ещё раз.Открыть на отдельной странице"
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('alert') with timeout 10000ms
+      - waiting for getByRole('dialog').getByRole('alert')
+        24 × locator resolved to <div role="alert" class="auth-dialog__alert">…</div>
+           - unexpected value "Нет связи с сервером. Попробуйте ещё раз.Открыть на отдельной странице"
+
+
+      313 |     await dialog.getByRole('checkbox').check();
+      314 |     await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
+    > 315 |     await expect(dialog.getByRole('alert')).toContainText('только участникам пилота');
+          |                                             ^
+      316 |     expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({
+      317 |       vertical,
+      318 |       businessName: 'Тестовый пилот',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:315:45
+
+    Error Context: test-results/auth-dialog-MV2-selector-p-33014-thout-granting-pilot-access/error-context.md
+
+  8) tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('alert')
+    Expected substring: "только участникам пилота"
+    Received string:    "Нет связи с сервером. Попробуйте ещё раз.Открыть на отдельной странице"
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('alert') with timeout 10000ms
+      - waiting for getByRole('dialog').getByRole('alert')
+        24 × locator resolved to <div role="alert" class="auth-dialog__alert">…</div>
+           - unexpected value "Нет связи с сервером. Попробуйте ещё раз.Открыть на отдельной странице"
+
+
+      313 |     await dialog.getByRole('checkbox').check();
+      314 |     await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
+    > 315 |     await expect(dialog.getByRole('alert')).toContainText('только участникам пилота');
+          |                                             ^
+      316 |     expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({
+      317 |       vertical,
+      318 |       businessName: 'Тестовый пилот',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:315:45
+
+    Error Context: test-results/auth-dialog-MV2-selector-p-de8dc-thout-granting-pilot-access/error-context.md
+
+  9) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ─────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 128
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#9a9da3",
+    +               "contrastRatio": 2.52,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.52 (foreground color: #f2f7ff, background color: #9a9da3, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/#register\" data-auth=\"register\">",
+    +                 "target": Array [
+    +                   ".verticals__action.btn--secondary[href$=\"/#register\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.52 (foreground color: #f2f7ff, background color: #9a9da3, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/#register\" data-auth=\"register\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__action.btn--secondary[href$=\"/#register\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#9a9da3",
+    +               "contrastRatio": 2.52,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.52 (foreground color: #f2f7ff, background color: #9a9da3, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/?vertical=BEAUTY#register\" data-auth=\"register\">",
+    +                 "target": Array [
+    +                   ".verticals__card:nth-child(2) > .verticals__action.btn--secondary[data-auth=\"register\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.52 (foreground color: #f2f7ff, background color: #9a9da3, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/?vertical=BEAUTY#register\" data-auth=\"register\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__card:nth-child(2) > .verticals__action.btn--secondary[data-auth=\"register\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#9a9da3",
+    +               "contrastRatio": 2.52,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.52 (foreground color: #f2f7ff, background color: #9a9da3, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/?vertical=FOOD_SERVICE#register\" data-auth=\"register\">",
+    +                 "target": Array [
+    +                   ".verticals__card:nth-child(3) > .verticals__action.btn--secondary[data-auth=\"register\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.52 (foreground color: #f2f7ff, background color: #9a9da3, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/?vertical=FOOD_SERVICE#register\" data-auth=\"register\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__card:nth-child(3) > .verticals__action.btn--secondary[data-auth=\"register\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      48 |           .analyze()
+      49 |       ).violations;
+    > 50 |       expect(violations).toEqual([]);
+         |                          ^
+      51 |     });
+      52 |   }
+      53 | }
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:50:26
+
+    Error Context: test-results/public-intro-public-intro-dark-390/error-context.md
+
+  10) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 ───────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 128
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#7c8188",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/#register\" data-auth=\"register\">",
+    +                 "target": Array [
+    +                   ".verticals__action.btn--secondary[href$=\"/#register\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/#register\" data-auth=\"register\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__action.btn--secondary[href$=\"/#register\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#7c8188",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/?vertical=BEAUTY#register\" data-auth=\"register\">",
+    +                 "target": Array [
+    +                   ".verticals__card:nth-child(2) > .verticals__action.btn--secondary[data-auth=\"register\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/?vertical=BEAUTY#register\" data-auth=\"register\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__card:nth-child(2) > .verticals__action.btn--secondary[data-auth=\"register\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#7c8188",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/?vertical=FOOD_SERVICE#register\" data-auth=\"register\">",
+    +                 "target": Array [
+    +                   ".verticals__card:nth-child(3) > .verticals__action.btn--secondary[data-auth=\"register\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"https://wetop.ai/?vertical=FOOD_SERVICE#register\" data-auth=\"register\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__card:nth-child(3) > .verticals__action.btn--secondary[data-auth=\"register\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      48 |           .analyze()
+      49 |       ).violations;
+    > 50 |       expect(violations).toEqual([]);
+         |                          ^
+      51 |     });
+      52 |   }
+      53 | }
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:50:26
+
+    Error Context: test-results/public-intro-public-intro-dark-1440/error-context.md
+
+  11) tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog 
+
+    Error: locator.click: Error: strict mode violation: locator('.verticals__card').nth(2).getByRole('link', { name: 'Для ресторанов' }) resolved to 2 elements:
+        1) <a data-auth="register" class="btn btn--secondary verticals__action" href="https://wetop.ai/?vertical=FOOD_SERVICE#register">…</a> aka getByRole('link', { name: 'Для ресторанов', exact: true })
+        2) <a href="/restaurants/">Подробнее о решении для ресторанов</a> aka getByRole('link', { name: 'Подробнее о решении для ресторанов' })
+
+    Call log:
+      - waiting for locator('.verticals__card').nth(2).getByRole('link', { name: 'Для ресторанов' })
+
+
+      91 |       .nth(index)
+      92 |       .getByRole('link', { name: action })
+    > 93 |       .click();
+         |        ^
+      94 |     const dialog = page.getByRole('dialog');
+      95 |     await expect(dialog.getByRole('radio', { name: new RegExp(name) })).toBeChecked();
+      96 |     await expect(dialog).toContainText('По приглашению');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:93:8
+
+    Error Context: test-results/public-intro-vertical-card-d2333-ical-in-existing-AuthDialog/error-context.md
+
+  11 failed
+    tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов ─────────
+    tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку 
+    tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной 
+    tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма 
+    tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает 
+    tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса 
+    tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access 
+    tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access 
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 ─────────────────────────────────
+    tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog 
+  60 passed (1.7m)
+
+# код выхода 1 · 1 мин 42 с

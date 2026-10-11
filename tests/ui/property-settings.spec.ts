@@ -59,7 +59,7 @@ test('один заголовок на трёх вкладках, без «Об�
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
     await expect(main.locator('.page__crumbs')).toContainText('Настройки объекта');
   }
-  await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText(
+  await expect(page.locator('.sidenav__sub [aria-current="page"]')).toHaveText(
     'Объект',
   );
 

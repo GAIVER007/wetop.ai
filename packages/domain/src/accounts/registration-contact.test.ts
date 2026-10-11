@@ -4,6 +4,7 @@ import {
   PRIVACY_POLICY_URL,
   PRIVACY_POLICY_VERSION,
   defaultPhoneCountry,
+  registrationLocale,
   registrationPhone,
 } from './registration-contact';
 
@@ -58,5 +59,18 @@ describe('политика конфиденциальности', () => {
   it('адрес на главной и версия-дата', () => {
     expect(PRIVACY_POLICY_URL).toBe('https://wetop.ai/privacy/');
     expect(PRIVACY_POLICY_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe('registrationLocale (Q-REG-1)', () => {
+  it('известный язык интерфейса принимается, пропуск означает русский', () => {
+    expect(registrationLocale('kk')).toBe('kk');
+    expect(registrationLocale(undefined)).toBe('ru');
+    expect(registrationLocale('')).toBe('ru');
+  });
+  it('чужой код и не строка: null, сервис отказывает словами', () => {
+    expect(registrationLocale('xx')).toBeNull();
+    expect(registrationLocale('RU')).toBeNull();
+    expect(registrationLocale(7)).toBeNull();
   });
 });

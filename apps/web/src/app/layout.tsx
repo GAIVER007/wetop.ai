@@ -6,7 +6,7 @@ import './workspace.css';
 import './tokens.css';
 import './premium.css';
 import '../components/shell/sidebar.css';
-import '../components/shell/top-menu.css';
+import '../components/shell/side-nav.css';
 import { headers } from 'next/headers';
 import { unstable_rethrow } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';

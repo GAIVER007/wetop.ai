@@ -1,0 +1,41 @@
+# Сквозные (e2e) · 10.10.2026 18:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 07544da (claude/beauty-salons-landing), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'salon-landing'
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (18.8s)
+  ✓  2 tests/site/salon-landing.spec.ts:31:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (12.5s)
+  ✓  3 tests/site/salon-landing.spec.ts:46:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (8.7s)
+  ✓  4 tests/site/salon-landing.spec.ts:67:3 › доступность и вёрстка: light, компьютер и телефон (6.2s)
+  ✘  5 tests/site/salon-landing.spec.ts:67:3 › доступность и вёрстка: dark, компьютер и телефон (12.9s)
+
+
+  1) tests/site/salon-landing.spec.ts:67:3 › доступность и вёрстка: dark, компьютер и телефон ──────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast: 5",
+    + ]
+
+      79 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      80 |         .analyze();
+    > 81 |       expect(axe.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+         |                                                                       ^
+      82 |     }
+      83 |   });
+      84 | }
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/beauty-landing/tests/site/salon-landing.spec.ts:81:71
+
+    Error Context: test-results/salon-landing-доступность-и-вёрстка-dark-компьютер-и-телефон/error-context.md
+
+  1 failed
+    tests/site/salon-landing.spec.ts:67:3 › доступность и вёрстка: dark, компьютер и телефон ───────
+  4 passed (2.2m)
+
+# код выхода 1 · 2 мин 24 с

@@ -471,6 +471,9 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await d.getByLabel('Заметка').fill('Обновлено');
   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(d).toContainText('Обновлено');
+  // Правка сохранилась и refresh доехал: доска позади панели показывает новое число гостей.
+  // Без этого следующее действие гонится с обновлением и токен стареет (та же болезнь, что adabb06e3)
+  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 5 гостя');
   await expect(
     d
       .getByRole('combobox', { name: 'Назначить стол', exact: true })
@@ -499,6 +502,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await d.getByRole('button', { name: 'Изменить бронь', exact: true }).click();
   await d.getByLabel('Количество гостей').fill('2');
   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 2 гостя');
   await d.getByRole('combobox', { name: 'Назначить стол', exact: true }).selectOption(table.id);
   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await expect(d.locator('dl')).toContainText('Основной зал, Стол 7');
@@ -592,7 +596,7 @@ test('Food excludes every registered foreign workspace route before API requests
     '/onboarding',
     '/calendar',
     '/appointments',
-    '/employees',
+    // `/employees` больше не чужой: у ресторана это «Сотрудники» (ADR-159), проверяет restaurant.spec.ts
     '/services',
     '/beauty',
     '/chessboard',
@@ -605,7 +609,8 @@ test('Food excludes every registered foreign workspace route before API requests
     '/hotel-settings',
   ]) {
     await page.goto(route);
-    await expect(page).toHaveURL(/\/today$/);
+    // первый заход на маршрут компилируется dev-сервером; под нагрузкой редирект дольше 5 секунд
+    await expect(page).toHaveURL(/\/today$/, { timeout: 15000 });
   }
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
   expect(

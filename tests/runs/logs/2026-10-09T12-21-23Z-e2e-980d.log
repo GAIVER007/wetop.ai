@@ -1,0 +1,49 @@
+# Сквозные (e2e) · 09.10.2026 17:21 Алматы · vm
+# коммит 6bef208 (claude/profile-menu-ready)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.reuse.config.ts' '--workers=1' 'tests/ui/premium.spec.ts' 'tests/ui/product-tour.spec.ts' 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/real-data.spec.ts'
+
+Running 22 tests using 1 worker
+
+  ✓   1 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (8.7s)
+  ✓   2 tests/ui/premium.spec.ts:27:1 › shell: панель, меню профиля, поиск (4.4s)
+  ✓   3 tests/ui/premium.spec.ts:45:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (13.3s)
+  ✓   4 tests/ui/premium.spec.ts:78:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (16.1s)
+  ✘   5 tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (3.1m)
+  ✓   6 tests/ui/premium.spec.ts:179:1 › вход не пускает с чужой почтой и чужим паролем (1.3s)
+  ✓   7 tests/ui/premium.spec.ts:196:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (7.9s)
+  ✓   8 tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается (8.0s)
+  ✓   9 tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии (8.8s)
+  ✓  10 tests/ui/product-tour.spec.ts:91:1 › последний шаг — профиль, «Начать работу» закрывает обучение (6.9s)
+  ✓  11 tests/ui/product-tour.spec.ts:107:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край (5.6s)
+  ✓  12 tests/ui/product-tour.spec.ts:122:1 › меню содержит только обучение, личность и выход; темы можно выбирать (5.4s)
+  ✓  13 tests/ui/product-tour.spec.ts:144:1 › администратор на телефоне видит рабочие темы без настроек владельца (4.7s)
+  ✓  14 tests/ui/product-tour.spec.ts:164:1 › обучение подсвечивает поиск в разделе гостей (7.0s)
+  ✓  15 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (3.8s)
+  ✓  16 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (7.0s)
+  ✓  17 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (6.5s)
+  ✓  18 tests/ui/real-data.spec.ts:21:1 › источник и агрегаты проекта видны главному администратору в «Платформе», а не на «Интеграциях» (8.0s)
+  ✓  19 tests/ui/real-data.spec.ts:41:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (4.4s)
+  ✓  20 tests/ui/real-data.spec.ts:61:1 › название гостиницы в каркасе и обзоре поступает из backend (2.0s)
+  ✓  21 tests/ui/real-data.spec.ts:70:1 › недоступный API не скрывается за демо или выдуманным объектом (1.7s)
+  ✓  22 tests/ui/real-data.spec.ts:84:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (4.4s)
+
+
+  1) tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+
+    Test timeout of 180000ms exceeded.
+
+    Error Context: test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+  21 passed (5.4m)
+
+# код выхода 1 · 5 мин 29 с

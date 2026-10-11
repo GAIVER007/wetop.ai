@@ -35,6 +35,13 @@ const competitorBody = (fd: FormData) => ({
   unitsTotal: s(fd, 'unitsTotal'),
   url: s(fd, 'url'),
   note: s(fd, 'note'),
+  district: s(fd, 'district'),
+  category: s(fd, 'category'),
+  address: s(fd, 'address'),
+  dataSource: s(fd, 'dataSource'),
+  monitoring: s(fd, 'monitoring') || undefined,
+  refreshHours: s(fd, 'refreshHours'),
+  autoRefresh: fd.get('autoRefresh') === 'on',
 });
 
 export async function saveCompetitorAction(
@@ -86,4 +93,26 @@ export async function writeOccupancyAction(
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
   return done(`Загрузка сохранена: ${pluralRu(entries.length, ['ночь', 'ночи', 'ночей'])}`);
+}
+
+/** Цены по ночам: поля `r:<дата>`, правила те же, что у загрузки (заполненное уходит, очищенное снимает) */
+export async function writeRatesAction(
+  _prev: MarketActionResult,
+  fd: FormData,
+): Promise<MarketActionResult> {
+  const entries: Array<{ date: string; price: string | null }> = [];
+  for (const [key, value] of fd.entries()) {
+    if (!key.startsWith('r:') || typeof value !== 'string') continue;
+    const date = key.slice(2);
+    const now = value.trim();
+    if (now !== '') entries.push({ date, price: now });
+    else if (s(fd, `was:${date}`) !== '') entries.push({ date, price: null });
+  }
+  if (entries.length === 0) return { error: 'Заполните цену хотя бы на одну ночь', ok: 0, values: echo(fd) };
+  try {
+    await marketApi.writeRates(s(fd, 'id'), entries);
+  } catch (e) {
+    return { error: describe(e), ok: 0, values: echo(fd) };
+  }
+  return done(`Цены сохранены: ${pluralRu(entries.length, ['ночь', 'ночи', 'ночей'])}`);
 }

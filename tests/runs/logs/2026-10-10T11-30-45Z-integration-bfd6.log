@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 10.10.2026 16:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1cb1b93 (claude/sales2-impl), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-30-45Z-integration-bfd6.json' 'tests/integration/seller-prompt-versions'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl
+
+ ✓ |integration| tests/integration/seller-prompt-versions.test.ts (3 tests) 671ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  04:30:49
+   Duration  3.12s (transform 37%, tests 33%, import 30%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-30-45Z-integration-bfd6.json
+
+# код выхода 0 · 6 с

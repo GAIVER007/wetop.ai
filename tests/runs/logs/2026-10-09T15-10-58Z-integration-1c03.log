@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 09.10.2026 20:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1a9ad86 (claude/sales2-impl), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-10-58Z-integration-1c03.json' 'tests/integration/sales-summary.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl
+
+ ❯ |integration| tests/integration/sales-summary.test.ts (4 tests) 169ms
+   ❯ хаб «Продажи»: числа по намерениям (integration) (4)
+     ✓ считает предложения и подтверждённые брони; отменённая и «незаезд» не входят 14ms
+     ✓ граница суток по поясу объекта: 01:30 по Алматы уже следующий день, хотя в UTC ещё вчера 2ms
+     ✓ пустой отрезок это нули и валюта null, а не ошибка 1ms
+     ✓ конкуренты: действующие, добавленные за 30 суток, день последнего снимка 11ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/sales-summary.test.ts > хаб «Продажи»: числа по намерениям (integration)
+PrismaClientKnownRequestError: 
+Invalid `prisma.property.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `competitors_property_id_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/sales-summary.test.ts:67:5
+     65|     await db.ratePlan.deleteMany({ where: { propertyId } });
+     66|     await db.accommodationType.deleteMany({ where: { propertyId } });
+     67|     await db.property.deleteMany({ where: { organizationId: org } });
+       |     ^
+     68|     await deleteOrganizationChain(db, [org]);
+     69|     await db.user.deleteMany({ where: { id: user } });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 passed (4)
+   Start at  08:10:59
+   Duration  1.17s (transform 45%, import 29%, tests 26%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-10-58Z-integration-1c03.json
+
+# код выхода 1 · 2 с

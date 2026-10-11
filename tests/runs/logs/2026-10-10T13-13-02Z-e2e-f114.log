@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 10.10.2026 18:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 64
+# npx playwright test --workers=2 --reporter=list,json 'tests/site/public-intro.spec.ts' 'tests/site/auth-dialog.spec.ts' '--config' 'tests/site/playwright.config.ts'
+
+Running 22 tests using 2 workers
+
+  ✓   2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (814ms)
+  ✓   1 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (1.1s)
+  ✓   3 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (950ms)
+  ✓   4 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (876ms)
+  ✓   5 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (558ms)
+  ✓   6 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (844ms)
+  ✓   7 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (555ms)
+  ✓   8 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (1.1s)
+  ✓   9 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (1.7s)
+  ✓  10 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (915ms)
+  ✓  11 tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (229ms)
+  ✓  13 tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (337ms)
+  ✓  12 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (929ms)
+  ✓  14 tests/site/auth-dialog.spec.ts:223:1 › на телефоне окно открывается из меню и не шире экрана (817ms)
+  ✓  15 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (1.2s)
+  ✓  17 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (1.4s)
+  ✓  18 tests/site/public-intro.spec.ts:55:1 › new header registration: keyboard activation and focus return on mobile (390ms)
+  ✘  19 tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog (533ms)
+  ✓  20 tests/site/public-intro.spec.ts:101:1 › business positioning: three verticals, no maturity labels, five capabilities each (780ms)
+  ✓  16 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (6.9s)
+  ✓  21 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access (750ms)
+  ✓  22 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (808ms)
+
+
+  1) tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog 
+
+    Error: locator.click: Error: strict mode violation: locator('.verticals__card').nth(2).getByRole('link', { name: 'Для ресторанов' }) resolved to 2 elements:
+        1) <a data-auth="register" class="btn btn--secondary verticals__action" href="https://wetop.ai/?vertical=FOOD_SERVICE#register">…</a> aka getByRole('link', { name: 'Для ресторанов', exact: true })
+        2) <a href="/restaurants/">Подробнее о решении для ресторанов</a> aka getByRole('link', { name: 'Подробнее о решении для ресторанов' })
+
+    Call log:
+      - waiting for locator('.verticals__card').nth(2).getByRole('link', { name: 'Для ресторанов' })
+
+
+      91 |       .nth(index)
+      92 |       .getByRole('link', { name: action })
+    > 93 |       .click();
+         |        ^
+      94 |     const dialog = page.getByRole('dialog');
+      95 |     await expect(dialog.getByRole('radio', { name: new RegExp(name) })).toBeChecked();
+      96 |     await expect(dialog).toContainText('По приглашению');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/public-intro.spec.ts:93:8
+
+    Error Context: test-results/public-intro-vertical-card-d2333-ical-in-existing-AuthDialog/error-context.md
+
+  1 failed
+    tests/site/public-intro.spec.ts:75:1 › vertical card buttons preselect the correct vertical in existing AuthDialog 
+  21 passed (21.5s)
+
+# код выхода 1 · 25 с

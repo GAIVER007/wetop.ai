@@ -6,6 +6,9 @@ for (const theme of ['dark', 'light'] as const) {
     test(`public intro: ${theme}, ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
       await page.addInitScript((value) => localStorage.setItem('wetop-theme', value), theme);
+      // Тема и системной настройкой: localStorage применяется после первой отрисовки, и axe
+      // замеряет контраст кнопок посреди анимации перехода темы (ловлено 10.10.2026)
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.goto('/');
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
         'Управляйте бронированиями, клиентами и командой из одного окна',
@@ -82,14 +85,19 @@ test('direction pages preselect the correct vertical in existing AuthDialog', as
     route.fulfill({ status: 401, json: { message: 'synthetic anonymous visitor' } }),
   );
   for (const [path, name] of [
+    ['/for/hotels/', 'Гостиничный бизнес'],
     ['/for/salons/', 'Салон красоты / студия'],
     ['/for/restaurants/', 'Кафе / ресторан'],
   ] as const) {
     await page.goto(path);
     await page.locator('.cta [data-auth="register"]').click();
     const dialog = page.getByRole('dialog');
-    await expect(dialog.getByRole('radio', { name: new RegExp(name) })).toBeChecked();
-    await expect(dialog).toContainText('По приглашению');
+    // Со страницы направления выбора нет: плашка с направлением страницы, без общего списка
+    await expect(dialog.getByRole('radio')).toHaveCount(0);
+    await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText(name);
+    await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText(
+      path === '/for/hotels/' ? 'Доступно' : 'По приглашению',
+    );
     await page.keyboard.press('Escape');
   }
 });

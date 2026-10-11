@@ -1,4 +1,4 @@
-import { FIXTURE_API, boardFilter, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, boardFilter, expect, test, devNoise, openProfileMenu } from './fixtures';
 import { mkdirSync } from 'node:fs';
 const fixture = FIXTURE_API;
 const screenshotDir = 'reports/premium-ui';
@@ -26,11 +26,11 @@ test('темы: system, мгновенное переключение, сохр�
 });
 test('shell: панель, меню профиля, поиск', async ({ page }) => {
   await page.goto('/finance');
-  // панели слева нет (ADR-134): разделы в шапке, сворачивать нечего
-  await expect(page.locator('.workspace-header .topmenu__tab').first()).toHaveText('Финансы');
+  // левое меню (ADR-161): текущий раздел на кнопке, все разделы в панели
+  await expect(page.locator('.sidenav__current')).toHaveText('Финансы');
   // меню профиля упрощено 01.10 («Simplify account menu»): обучение и вход/выход, ссылки «Профиль и
   // предпочтения» больше нет
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await expect(page.getByTestId('tour-restart')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('tour-restart')).toBeHidden();

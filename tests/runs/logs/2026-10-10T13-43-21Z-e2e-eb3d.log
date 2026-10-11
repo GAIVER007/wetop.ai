@@ -1,0 +1,391 @@
+# Сквозные (e2e) · 10.10.2026 18:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит e80744f (claude/beauty-salons-landing), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 81 tests using 2 workers
+
+  ✓   1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (375ms)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (146ms)
+  ✓   2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (593ms)
+  ✓   4 tests/site/homepage-blocks.spec.ts:21:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (138ms)
+  ✓   6 tests/site/homepage-blocks.spec.ts:32:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (179ms)
+  ✓   7 tests/site/homepage-blocks.spec.ts:63:1 › содержимое блоков видно сразу: шесть возможностей, две большие карточки продаж, четыре шага (195ms)
+  ✓   8 tests/site/homepage-blocks.spec.ts:82:1 › первый экран: две кнопки в строку, направления сразу после Hero (174ms)
+  ✓   5 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (833ms)
+  ✓   9 tests/site/homepage-blocks.spec.ts:95:1 › карточки блоков читаются одной фразой, а не абзацем (187ms)
+  ✓  11 tests/site/homepage-blocks.spec.ts:110:1 › «Продажи и ИИ»: примеры подписаны вымышленными, ИИ назван отдельным расширением (493ms)
+  ✓  10 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (628ms)
+  ✓  12 tests/site/homepage-blocks.spec.ts:138:1 › первый экран: дашборд подписан примером и не имитирует кнопки (144ms)
+  ✓  14 tests/site/homepage-blocks.spec.ts:153:1 › на главной нет дорожной карты направлений и слова «пилот» (163ms)
+  ✓  15 tests/site/homepage-blocks.spec.ts:166:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (151ms)
+  ✓  16 tests/site/homepage-blocks.spec.ts:178:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (134ms)
+  ✓  13 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (612ms)
+  ✓  17 tests/site/homepage-blocks.spec.ts:188:1 › карточка призыва и подвал: правовые страницы, контакты, без чисел клиентов (147ms)
+  ✓  19 tests/site/homepage-blocks.spec.ts:214:1 › в текстах главной нет длинного тире и разделителя « · » (161ms)
+  ✓  20 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (233ms)
+  ✓  21 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (232ms)
+  ✓  22 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (247ms)
+  ✓  23 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (243ms)
+  ✓  18 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (1.2s)
+  ✓  25 tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (243ms)
+  ✓  26 tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (234ms)
+  ✓  24 tests/site/homepage-blocks.spec.ts:242:1 › блоки доступны в обеих темах (1.1s)
+  ✓  27 tests/site/auth-dialog.spec.ts:223:1 › на телефоне окно открывается из меню и не шире экрана (604ms)
+  ✓  28 tests/site/homepage-blocks.spec.ts:256:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (399ms)
+  ✓  30 tests/site/homepage-blocks.spec.ts:271:3 › /privacy/: заголовок, редакция, доступность (369ms)
+  ✓  31 tests/site/homepage-blocks.spec.ts:271:3 › /terms/: заголовок, редакция, доступность (408ms)
+  ✓  32 tests/site/landing.spec.ts:23:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (138ms)
+  ✓  33 tests/site/landing.spec.ts:29:3 › / — открывается, доступна и без «TODO» на экране (624ms)
+  ✓  34 tests/site/landing.spec.ts:44:3 › / — на телефоне нет горизонтальной прокрутки (123ms)
+  ✓  35 tests/site/landing.spec.ts:29:3 › /blog/ — открывается, доступна и без «TODO» на экране (354ms)
+  ✓  36 tests/site/landing.spec.ts:44:3 › /blog/ — на телефоне нет горизонтальной прокрутки (76ms)
+  ✓  37 tests/site/landing.spec.ts:29:3 › /for/hotels/ — открывается, доступна и без «TODO» на экране (388ms)
+  ✓  38 tests/site/landing.spec.ts:44:3 › /for/hotels/ — на телефоне нет горизонтальной прокрутки (118ms)
+  ✓  39 tests/site/landing.spec.ts:29:3 › /for/salons/ — открывается, доступна и без «TODO» на экране (414ms)
+  ✓  40 tests/site/landing.spec.ts:44:3 › /for/salons/ — на телефоне нет горизонтальной прокрутки (97ms)
+  ✓  41 tests/site/landing.spec.ts:29:3 › /for/restaurants/ — открывается, доступна и без «TODO» на экране (409ms)
+  ✓  42 tests/site/landing.spec.ts:44:3 › /for/restaurants/ — на телефоне нет горизонтальной прокрутки (93ms)
+  ✓  29 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (4.0s)
+  ✓  43 tests/site/landing.spec.ts:29:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (373ms)
+  ✓  45 tests/site/landing.spec.ts:44:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (80ms)
+  ✓  44 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access (523ms)
+  ✓  46 tests/site/landing.spec.ts:29:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (383ms)
+  ✓  48 tests/site/landing.spec.ts:44:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (108ms)
+  ✓  47 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (589ms)
+  ✓  49 tests/site/landing.spec.ts:29:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (373ms)
+  ✓  51 tests/site/landing.spec.ts:44:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (88ms)
+  ✘  50 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (519ms)
+  ✓  52 tests/site/landing.spec.ts:29:3 › /calculator/ — открывается, доступна и без «TODO» на экране (372ms)
+  ✓  53 tests/site/landing.spec.ts:44:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (88ms)
+  ✓  54 tests/site/landing.spec.ts:29:3 › /privacy/ — открывается, доступна и без «TODO» на экране (384ms)
+  ✓  56 tests/site/landing.spec.ts:44:3 › /privacy/ — на телефоне нет горизонтальной прокрутки (80ms)
+  ✘  55 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (547ms)
+  ✓  57 tests/site/landing.spec.ts:29:3 › /terms/ — открывается, доступна и без «TODO» на экране (360ms)
+  ✓  58 tests/site/landing.spec.ts:44:3 › /terms/ — на телефоне нет горизонтальной прокрутки (80ms)
+  ✓  59 tests/site/landing.spec.ts:57:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (730ms)
+  ✓  61 tests/site/landing.spec.ts:75:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (11ms)
+  ✓  60 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (687ms)
+  ✓  62 tests/site/landing.spec.ts:88:1 › главная: регистрация открыта, маркетинговых обещаний trial нет (188ms)
+  ✓  64 tests/site/landing.spec.ts:142:1 › первый экран объясняет платформу, направления и зрелость (183ms)
+  ✓  65 tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (122ms)
+  ✓  66 tests/site/salon-landing.spec.ts:31:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (118ms)
+  ✓  67 tests/site/salon-landing.spec.ts:46:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (159ms)
+  ✓  63 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (613ms)
+  ✓  69 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (513ms)
+  ✓  68 tests/site/salon-landing.spec.ts:67:3 › доступность и вёрстка: light, компьютер и телефон (796ms)
+  ✓  70 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (508ms)
+  ✓  72 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (584ms)
+  ✓  71 tests/site/salon-landing.spec.ts:67:3 › доступность и вёрстка: dark, компьютер и телефон (836ms)
+  ✓  74 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (161ms)
+  ✓  75 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (160ms)
+  ✓  76 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (170ms)
+  ✓  73 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (686ms)
+  ✓  77 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (154ms)
+  ✓  78 tests/site/public-intro.spec.ts:57:1 › new header registration: keyboard activation and focus return on mobile (174ms)
+  ✓  79 tests/site/public-intro.spec.ts:77:1 › direction pages preselect the correct vertical in existing AuthDialog (281ms)
+  ✓  80 tests/site/public-intro.spec.ts:97:1 › hero chips open a description popover with a link to the direction page (237ms)
+  ✓  81 tests/site/public-intro.spec.ts:119:1 › business positioning: three verticals, no maturity labels, five capabilities each (123ms)
+
+
+  1) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ─────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 128
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#7c8188",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/hotels/\">",
+    +                 "target": Array [
+    +                   ".verticals__action.btn--secondary[href$=\"hotels/\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/hotels/\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__action.btn--secondary[href$=\"hotels/\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#7c8188",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/salons/\">",
+    +                 "target": Array [
+    +                   ".verticals__action.btn--secondary[href$=\"salons/\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/salons/\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__action.btn--secondary[href$=\"salons/\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#7c8188",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/restaurants/\">",
+    +                 "target": Array [
+    +                   ".verticals__action.btn--secondary[href$=\"restaurants/\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/restaurants/\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__action.btn--secondary[href$=\"restaurants/\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      50 |           .analyze()
+      51 |       ).violations;
+    > 52 |       expect(violations).toEqual([]);
+         |                          ^
+      53 |     });
+      54 |   }
+      55 | }
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/beauty-landing/tests/site/public-intro.spec.ts:52:26
+
+    Error Context: test-results/public-intro-public-intro-dark-320/error-context.md
+
+  2) tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ─────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 128
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#7c8188",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/hotels/\">",
+    +                 "target": Array [
+    +                   ".verticals__action.btn--secondary[href$=\"hotels/\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/hotels/\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__action.btn--secondary[href$=\"hotels/\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#7c8188",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/salons/\">",
+    +                 "target": Array [
+    +                   ".verticals__action.btn--secondary[href$=\"salons/\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/salons/\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__action.btn--secondary[href$=\"salons/\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#7c8188",
+    +               "contrastRatio": 3.64,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#f2f7ff",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/restaurants/\">",
+    +                 "target": Array [
+    +                   ".verticals__action.btn--secondary[href$=\"restaurants/\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.64 (foreground color: #f2f7ff, background color: #7c8188, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"btn btn--secondary verticals__action\" href=\"/for/restaurants/\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".verticals__action.btn--secondary[href$=\"restaurants/\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      50 |           .analyze()
+      51 |       ).violations;
+    > 52 |       expect(violations).toEqual([]);
+         |                          ^
+      53 |     });
+      54 |   }
+      55 | }
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/beauty-landing/tests/site/public-intro.spec.ts:52:26
+
+    Error Context: test-results/public-intro-public-intro-dark-390/error-context.md
+
+  2 failed
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 ──────────────────────────────────
+    tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 ──────────────────────────────────
+  79 passed (21.4s)
+
+# код выхода 1 · 22 с

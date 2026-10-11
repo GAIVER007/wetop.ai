@@ -31,6 +31,7 @@ import {
   type OrganizationSummary,
 } from './extensions.repository';
 import { ExtensionsService, aiSellerView } from './extensions.service';
+import { buildPlatformOverview } from './overview';
 import { OrganizationCreation } from './organization-creation';
 import { SiteBuilderLicenses, licenseLocationView } from './site-builder-licenses';
 import { Access } from '../auth/access.decorator';
@@ -67,6 +68,19 @@ export class PlatformController {
     requirePlatformAdmin();
     const now = new Date();
     return { items: (await this.repo.organizations()).map((o) => organizationJson(o, now)) };
+  }
+
+  /**
+   * Обзор платформы (срез P1, план `plans/platform-superadmin-2026-10-10.md`): итоги по статусам, рост подключений
+   * за 12 месяцев, направления, люди. Денег в ответе нет: платежи платформе не ведутся (ADR-102, Q-PA-2).
+   */
+  @Get('overview')
+  @Header('Cache-Control', 'no-store')
+  async overview() {
+    requirePlatformAdmin();
+    const now = new Date();
+    const activeSince = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    return buildPlatformOverview(await this.repo.overviewSource(activeSince), now);
   }
 
   /**
@@ -228,6 +242,8 @@ function organizationJson(o: OrganizationSummary, now: Date) {
     members: o.members,
     owners: o.owners,
     ownerPending: o.ownerPending,
+    verticals: o.verticals,
+    locations: o.locations,
     aiSeller: {
       ...aiSellerView(o.aiSeller, now),
       note: o.aiSeller?.note ?? null,

@@ -16,6 +16,8 @@ import {
   foodNext,
   foodObject,
   foodText,
+  birthdayInDays,
+  parseCustomerMarks,
   parseFoodCatalog,
   parseFoodCreate,
   timeOffWindow,
@@ -27,6 +29,10 @@ import type { DbTx, Prisma, DiningArea, DiningTable, ServicePeriod } from '@pms/
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
+
+/** Сегодня по часовому поясу филиала, `ГГГГ-ММ-ДД` */
+const localToday = (timezone: string) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date());
 const active: FoodStatus[] = ['BOOKED', 'CONFIRMED', 'SEATED'];
 const include = {
   customer: { select: { id: true, firstName: true, lastName: true, phone: true, status: true } },
@@ -125,8 +131,9 @@ export class FoodService {
       data: {
         organizationId: s.organizationId,
         userId: currentUserId(),
-        entityType:
-          action.startsWith('food.reservation.') ||
+        entityType: action.startsWith('food.customer.')
+          ? 'customer'
+          : action.startsWith('food.reservation.') ||
           ['food.table.assigned', 'food.table.reassigned', 'food.table.unassigned'].includes(action)
             ? 'restaurant_reservation'
             : 'food_catalog',
@@ -308,7 +315,15 @@ export class FoodService {
         status: 'ACTIVE',
         businesses: { some: { businessId: s.businessId } },
       },
-      select: { id: true, firstName: true, lastName: true, phone: true, status: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        status: true,
+        isVip: true,
+        birthDate: true,
+      },
       orderBy: { id: 'asc' },
       take: p.limit + 1,
     });
@@ -325,10 +340,49 @@ export class FoodService {
         })
       : [];
     const byCustomer = new Map(visits.map((v) => [v.customerId, v._count._all]));
+    const today = localToday(s.timezone);
     return paged(
-      rows.map((r) => ({ ...r, visits: byCustomer.get(r.id) ?? 0 })),
+      rows.map((r) => {
+        const birthDate = r.birthDate ? r.birthDate.toISOString().slice(0, 10) : null;
+        return {
+          ...r,
+          birthDate,
+          birthdayInDays: birthDate ? birthdayInDays(birthDate, today) : null,
+          visits: byCustomer.get(r.id) ?? 0,
+        };
+      }),
       p.limit,
     );
+  }
+
+  /** VIP-метка и дата рождения (§36): клиент виден в этом бизнесе; дата в журнал не пишется */
+  async updateCustomer(idRaw: string, raw: unknown) {
+    return this.write('desk', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      const b = parsed(() => parseCustomerMarks(raw, localToday(s.timezone)));
+      const found = await tx.customer.findFirst({
+        where: { id, organizationId: s.organizationId, businesses: { some: { businessId: s.businessId } } },
+      });
+      if (!found) throw new NotFoundException('Клиент не найден');
+      const row = await tx.customer.update({
+        where: { id },
+        data: {
+          ...(b.isVip !== undefined ? { isVip: b.isVip } : {}),
+          ...(b.birthDate !== undefined
+            ? { birthDate: b.birthDate === null ? null : new Date(`${b.birthDate}T00:00:00Z`) }
+            : {}),
+        },
+      });
+      await this.audit(
+        tx,
+        s,
+        id,
+        'food.customer.marks',
+        { isVip: row.isVip, birthDateChanged: b.birthDate !== undefined },
+        { isVip: found.isVip },
+      );
+      return { id, isVip: row.isVip, birthDate: b.birthDate ?? found.birthDate?.toISOString().slice(0, 10) ?? null };
+    });
   }
   async reservations(query: unknown) {
     foodMay('desk');

@@ -2700,6 +2700,10 @@ model Customer {
   email          String?        @db.VarChar(320)
   notes          String?
   status         CustomerStatus @default(ACTIVE)
+  /// DATA_MODEL §36 (ADR-166): ручная метка VIP
+  isVip          Boolean        @default(false) @map("is_vip")
+  /// DATA_MODEL §36: дата рождения, персональные данные (SECURITY.md §1)
+  birthDate      DateTime?      @map("birth_date") @db.Date
   createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 

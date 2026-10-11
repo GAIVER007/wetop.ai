@@ -23,6 +23,10 @@ import { DayToolbar } from './day-toolbar';
 import { foodStatus } from '../../lib/status/food';
 import { setTableCleaning } from './restaurant-actions';
 
+/** Фигура стола на рисунке зала по вместимости: модель хранит только места, не форму (§33.3) */
+const tableShape = (capacity: number) =>
+  capacity <= 2 ? 'round' : capacity <= 4 ? 'square' : 'long';
+
 /** Статус стола на плане (§33.3): занят (заказ или посажены), бронь, уборка, свободен */
 type TableKind = 'FREE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING';
 const KIND_LABEL: Record<TableKind, string> = {
@@ -207,7 +211,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                     {activeTables.filter((t) => t.areaId === a.id).length === 0 ? (
                       <p className="muted">В этом зале пока нет столов</p>
                     ) : (
-                      <div className="food-table-grid">
+                      <div className="food-table-grid rest-hall">
                         {activeTables
                           .filter((t) => t.areaId === a.id)
                           .sort((x, y) => x.sortOrder - y.sortOrder)
@@ -215,11 +219,23 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                             const r = occupying.find((r) => r.table?.id === t.id);
                             const order = orderByTable.get(t.id);
                             const kind = tableKind(t);
+                            const shape = tableShape(t.capacity);
+                            const chairs = Math.min(t.capacity, 8);
                             return (
-                              <div className="food-table-card" data-kind={kind} key={t.id}>
+                              <div
+                                className="food-table-card rest-tbl-wrap"
+                                data-kind={kind}
+                                data-shape={shape}
+                                key={t.id}
+                              >
+                                <span className="rest-chairs" aria-hidden="true">
+                                  {Array.from({ length: Math.ceil(chairs / 2) }, (_, i) => (
+                                    <i key={i} />
+                                  ))}
+                                </span>
                                 <button
                                   type="button"
-                                  className="food-table-main"
+                                  className="food-table-main rest-tbl"
                                   aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
                                   onClick={() => {
                                     if (r) open(r);
@@ -233,26 +249,30 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                                   {r ? (
                                     <>
                                       <span>
-                                        {r.status === 'SEATED' ? 'За столом' : clock(r.startsAt)}
+                                        {r.status === 'SEATED' ? 'За столом' : clock(r.startsAt)} до{' '}
+                                        {clock(r.endsAt)}
                                       </span>
                                       <span>
                                         {customer(r)}, {r.partySize} гостя
                                       </span>
-                                      <small>до {clock(r.endsAt)}</small>
                                     </>
                                   ) : order ? (
                                     <>
-                                      <span>Заказ №{order.number}</span>
-                                      <span>{wholeTenge(order.totalMinor, order.currency)}</span>
+                                      <span>
+                                        Заказ №{order.number}, {wholeTenge(order.totalMinor, order.currency)}
+                                      </span>
                                       <small>с {clock(order.openedAt)}</small>
                                     </>
-                                  ) : (
-                                    <span>{KIND_LABEL[kind]}</span>
-                                  )}
+                                  ) : null}
                                   <Badge tone={KIND_TONE[kind]}>
                                     {r ? foodStatus[r.status].label : KIND_LABEL[kind]}
                                   </Badge>
                                 </button>
+                                <span className="rest-chairs" aria-hidden="true">
+                                  {Array.from({ length: Math.floor(chairs / 2) }, (_, i) => (
+                                    <i key={i} />
+                                  ))}
+                                </span>
                                 {write && !r && !order && (
                                   <Button
                                     tone="ghost"

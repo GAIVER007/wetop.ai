@@ -6,7 +6,7 @@ import { AuthDialog } from '../components/auth-dialog';
 import { SiteFooter } from '../components/site-footer';
 import { SiteHeader } from '../components/site-header';
 import { getDictionary, localeInfo } from '../i18n';
-import { websiteOpenGraph } from '../lib/metadata';
+import { TITLE_SEPARATOR, websiteOpenGraph } from '../lib/metadata';
 import { assistantScriptSrc, resetLink, siteAuthEndpoint, siteUrl } from '../lib/site';
 import { JsonLd } from '../components/json-ld';
 import { absoluteUrl } from '../lib/site';
@@ -55,7 +55,8 @@ const authUrls = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  title: { default: t.meta.title, template: `%s — ${t.meta.siteName}` },
+  title: { default: t.meta.title, template: `%s${TITLE_SEPARATOR}${t.meta.siteName}` },
+  twitter: { card: 'summary_large_image' },
   description: t.meta.description,
   applicationName: t.meta.siteName,
   openGraph: websiteOpenGraph({ path: '/' }),

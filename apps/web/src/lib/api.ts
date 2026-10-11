@@ -3399,7 +3399,7 @@ export const branchesApi = {
     address: string;
     currency: string;
     timezone: string;
-    vertical?: 'HOSPITALITY' | 'BEAUTY';
+    vertical?: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
   }) => sendJson<BranchItem>('POST', '/branches', body),
 };
 

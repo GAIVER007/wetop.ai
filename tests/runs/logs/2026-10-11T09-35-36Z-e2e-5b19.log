@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 11.10.2026 14:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит b566a4b (comp32-int), незакоммиченных файлов набора: 360
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/market.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/market.spec.ts:61:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (7.7s)
+  ✓  2 tests/ui/market.spec.ts:126:1 › плитки, календарь сигналов, график, рекомендация и таблица конкурентов; убрать из списка (8.7s)
+  ✓  3 tests/ui/market.spec.ts:190:1 › календарь сигналов: дата открывает «Историю ночи» (2.9s)
+  ✓  4 tests/ui/market.spec.ts:198:1 › «только чтение»: показатели и таблицы видны, добавлять и вносить нельзя (5.1s)
+  ✓  5 tests/ui/market.spec.ts:216:3 › снимки и доступность: light (5.0s)
+  ✓  6 tests/ui/market.spec.ts:216:3 › снимки и доступность: dark (3.5s)
+  ✓  7 tests/ui/market.spec.ts:259:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (2.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3652768049'
+[WebServer] }
+  ✓  8 tests/ui/market.spec.ts:288:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (4.2s)
+
+  8 passed (44.9s)
+
+# код выхода 0 · 46 с

@@ -8,7 +8,7 @@ const initial: BarActionResult = { error: null, ok: 0 };
 export function WriteOffForm({ stock }: { stock: BarStockRow[] }) {
   const [state, action, pending] = useActionState(writeOffBarAction, initial);
   const available = stock.filter((item) => item.active && BigInt(item.availableUnits) > 0n);
-  return <form action={action} className="panel bar-sale-form">
+  return <form action={action} className="bar-sale-form">
     <Field label="Товар"><Select name="productId" required defaultValue=""><option value="" disabled>Выберите товар</option>{available.map((item) => <option key={item.id} value={item.id}>{item.name}, остаток {item.availableUnits} шт.</option>)}</Select></Field>
     <Field label="Кол-во, шт."><Input name="quantityUnits" inputMode="numeric" pattern="[0-9]+" required /></Field>
     <Field label="Причина"><Select name="reason" required defaultValue=""><option value="" disabled>Выберите</option><option>Порча</option><option>Бой</option><option>Истек срок</option><option>Угощение</option><option>Нужды объекта</option><option>Иное</option></Select></Field>

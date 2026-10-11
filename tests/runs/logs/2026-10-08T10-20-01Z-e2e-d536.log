@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 08.10.2026 15:20 Алматы · vm
+# коммит ebf6e88 (claude/mv8-5-ds1b-primitives)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/support-kb.spec.ts' 'tests/ui/loading-performance.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (1.8s)
+  ✓   2 tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (2.6s)
+  ✓   3 tests/ui/loading-performance.spec.ts:47:1 › стойка и её шахматка запрашиваются параллельно (6.9s)
+  ✓   4 tests/ui/loading-performance.spec.ts:72:1 › мобильное меню использует уже загруженную свежесть без второго опроса (1.8s)
+TODAY_LOADING_MS [{"heading":1435,"risks":1455,"money":2546},{"heading":1464,"risks":1841,"money":2399},{"heading":1373,"risks":1645,"money":2410}]
+  ✓   5 tests/ui/loading-performance.spec.ts:96:1 › замер: блоки Главной при задержке настроек 2000 мс (8.5s)
+  ✓   6 tests/ui/loading-performance.spec.ts:126:1 › фоновый опрос не перекрывается и восстанавливается после отказа (1.9s)
+  ✓   7 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (5.1s)
+  ✓   8 tests/ui/support-kb.spec.ts:68:1 › не главный администратор: раздела нет, данных базы знаний не видно (2.4s)
+  ✓   9 tests/ui/support-kb.spec.ts:76:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (3.7s)
+  ✓  10 tests/ui/support-kb.spec.ts:105:1 › публикация отменяется: без «да» запись остаётся черновиком (3.0s)
+  ✓  11 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (4.0s)
+  ✓  12 tests/ui/support-kb.spec.ts:134:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (4.5s)
+  ✓  13 tests/ui/support-kb.spec.ts:155:1 › у открытого обращения кнопки «Создать знание» нет (2.3s)
+  ✓  14 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 1440 (5.3s)
+  ✓  15 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, light, 390 (5.4s)
+  ✓  16 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 1440 (5.6s)
+  ✓  17 tests/ui/support-kb.spec.ts:163:5 › каталог и запись: axe и снимок, dark, 390 (5.9s)
+  ✓  18 tests/ui/support-kb.spec.ts:181:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (3.4s)
+
+  18 passed (1.4m)
+
+# код выхода 0 · 1 мин 28 с

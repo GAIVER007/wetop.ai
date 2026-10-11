@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 10.10.2026 23:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит 681bbb0 (claude/sidebar-navigation), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/registration-closed.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback оставляет вход сотрудников (1.0s)
+  ✓  2 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register оставляет вход сотрудников (292ms)
+  ✓  3 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register&next=%2Ftoday оставляет вход сотрудников (311ms)
+  ✓  4 tests/ui/registration-closed.spec.ts:31:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (355ms)
+  ✓  5 tests/ui/registration-closed.spec.ts:43:1 › ранее открытая форма получает отказ через сервер без новой сессии (787ms)
+
+  5 passed (7.9s)
+
+# код выхода 0 · 9 с

@@ -1,0 +1,150 @@
+# Сквозные (e2e) · 09.10.2026 18:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 50
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/guest-wizard.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✘   1 tests/ui/guest-wizard.spec.ts:57:1 › первый экран один: сценарий, адрес, «Продолжить»; шага «Начать создание» нет (2.8s)
+  ✘   2 tests/ui/guest-wizard.spec.ts:81:1 › неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте (782ms)
+  ✘   3 tests/ui/guest-wizard.spec.ts:92:1 › без сайта: ссылка ведёт на проверку, ниша выбором и «Другое», «Далее» ждёт название и нишу (2.0m)
+  ✓   4 tests/ui/guest-wizard.spec.ts:119:1 › найденное по сайту помечено, правка человека снимает пометку (858ms)
+  ✓   5 tests/ui/guest-wizard.spec.ts:135:1 › опрос: ответы уходят, «Пропустить» закрывает одним нажатием, тест бота пока «Скоро» (871ms)
+  ✓   6 tests/ui/guest-wizard.spec.ts:162:1 › возврат: баннер с шагом, «В начало» ведёт на первый экран без потери данных (481ms)
+  ✘   7 tests/ui/guest-wizard.spec.ts:178:1 › отказ сохранения не теряет ввод и не показывает успешный результат (2.0m)
+  ✓   8 tests/ui/guest-wizard.spec.ts:203:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (843ms)
+  ✓   9 tests/ui/guest-wizard.spec.ts:227:5 › доступность и снимки: light, 1440px (5.2s)
+  ✓  10 tests/ui/guest-wizard.spec.ts:227:5 › доступность и снимки: light, 390px (5.8s)
+  ✓  11 tests/ui/guest-wizard.spec.ts:227:5 › доступность и снимки: dark, 1440px (4.6s)
+  ✓  12 tests/ui/guest-wizard.spec.ts:227:5 › доступность и снимки: dark, 390px (4.5s)
+
+
+  1) tests/ui/guest-wizard.spec.ts:57:1 › первый экран один: сценарий, адрес, «Продолжить»; шага «Начать создание» нет 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "https://hostel.kz"
+    Received: "hostel.kz"
+
+      72 |   await expect(page.getByLabel('Название компании')).toBeVisible();
+      73 |   const first = saves(mock)[0]!;
+    > 74 |   expect((first.config as Record<string, string>).siteUrl).toBe('https://hostel.kz');
+         |                                                            ^
+      75 |   expect((first.config as Record<string, string>).botType).toBe('support');
+      76 |   // домен .kz подставил тенге и пояс Алматы
+      77 |   expect((first.config as Record<string, string>).currency).toBe('KZT');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/guest-wizard.spec.ts:74:60
+
+    Error Context: test-results/guest-wizard-первый-экран--5f831--шага-«Начать-создание»-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guest-wizard-первый-экран--5f831--шага-«Начать-создание»-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guest-wizard-первый-экран--5f831--шага-«Начать-создание»-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/guest-wizard.spec.ts:81:1 › неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "корректный адрес сайта"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert" id="site-url-error" class="guest-wizard__field-error">Введите корректный адрес сайта: он начинается с h…</p> aka getByText('Введите корректный адрес сайта: он начинается с http:// или https://')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" getByRole('alert') with timeout 15000ms
+      - waiting for getByRole('alert')
+
+
+      84 |   await page.getByLabel('Адрес сайта').fill('это не адрес');
+      85 |   await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
+    > 86 |   await expect(page.getByRole('alert')).toContainText('корректный адрес сайта');
+         |                                         ^
+      87 |   await expect(page.getByLabel('Адрес сайта')).toHaveValue('это не адрес');
+      88 |   await expect(page.getByLabel('Адрес сайта')).toHaveAttribute('aria-invalid', 'true');
+      89 |   expect(saves(mock)).toHaveLength(0);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/guest-wizard.spec.ts:86:41
+
+    Error Context: test-results/guest-wizard-неверный-адре-4b002-одит-дальше-и-ввод-на-месте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guest-wizard-неверный-адре-4b002-одит-дальше-и-ввод-на-месте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guest-wizard-неверный-адре-4b002-одит-дальше-и-ввод-на-месте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/guest-wizard.spec.ts:92:1 › без сайта: ссылка ведёт на проверку, ниша выбором и «Другое», «Далее» ждёт название и нишу 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Ниша', { exact: true })
+
+
+      101 |   await page.getByLabel('Название компании').fill('Тестовый хостел');
+      102 |   await expect(next).toBeDisabled();
+    > 103 |   await page.getByLabel('Ниша', { exact: true }).selectOption('Хостел');
+          |                                                  ^
+      104 |   await expect(next).toBeEnabled();
+      105 |   // «Другое» открывает свободный ввод
+      106 |   await page.getByLabel('Ниша', { exact: true }).selectOption({ label: 'Другое' });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/guest-wizard.spec.ts:103:50
+
+    Error Context: test-results/guest-wizard-без-сайта-ссы-c04ab-Далее»-ждёт-название-и-нишу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guest-wizard-без-сайта-ссы-c04ab-Далее»-ждёт-название-и-нишу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guest-wizard-без-сайта-ссы-c04ab-Далее»-ждёт-название-и-нишу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/guest-wizard.spec.ts:178:1 › отказ сохранения не теряет ввод и не показывает успешный результат 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Ниша', { exact: true })
+
+
+      195 |   await page.goto('/create');
+      196 |   await page.getByLabel('Название компании').fill('Вымышленный объект');
+    > 197 |   await page.getByLabel('Ниша', { exact: true }).selectOption('Хостел');
+          |                                                  ^
+      198 |   await page.getByRole('button', { name: 'Далее', exact: true }).click();
+      199 |   await expect(page.locator('main').getByRole('alert')).toContainText('Черновик изменился');
+      200 |   await expect(page.getByLabel('Название компании')).toHaveValue('Вымышленный объект');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/guest-wizard.spec.ts:197:50
+
+    Error Context: test-results/guest-wizard-отказ-сохране-59d81-казывает-успешный-результат/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guest-wizard-отказ-сохране-59d81-казывает-успешный-результат/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guest-wizard-отказ-сохране-59d81-казывает-успешный-результат/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/guest-wizard.spec.ts:57:1 › первый экран один: сценарий, адрес, «Продолжить»; шага «Начать создание» нет 
+    tests/ui/guest-wizard.spec.ts:81:1 › неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте 
+    tests/ui/guest-wizard.spec.ts:92:1 › без сайта: ссылка ведёт на проверку, ниша выбором и «Другое», «Далее» ждёт название и нишу 
+    tests/ui/guest-wizard.spec.ts:178:1 › отказ сохранения не теряет ввод и не показывает успешный результат 
+  8 passed (4.7m)
+
+# код выхода 1 · 4 мин 41 с

@@ -31,6 +31,7 @@ import { SiteGenerationWorker } from './generation.worker';
 import { SitePublicationService } from './publication.service';
 import { ASSET_FETCH_DEPS, SiteAssetsService } from './site-assets.service';
 import { SITE_ASSET_STORAGE, siteAssetStorageFromEnv } from './asset-storage';
+import { SiteAssistantService } from './assistant.service';
 
 /**
  * «Маркетинг → Сайт и SEO», ядро (MKT3): сайт выбранного филиала и сохранение версий. Право `settings`, как у
@@ -46,6 +47,7 @@ export class MarketingSiteController {
     @Inject(SiteGenerationService) private readonly generations: SiteGenerationService,
     @Inject(SitePublicationService) private readonly publication: SitePublicationService,
     @Inject(SiteAssetsService) private readonly assets: SiteAssetsService,
+    @Inject(SiteAssistantService) private readonly assistant: SiteAssistantService,
   ) {}
 
   @Get()
@@ -53,10 +55,66 @@ export class MarketingSiteController {
     return this.service.current(!!pointer);
   }
 
-  @Post()
-  @HttpCode(201)
-  create(@Headers(SCOPE_HEADER) pointer: string | undefined, @Body() body: unknown) {
-    return this.service.create(!!pointer, body);
+  /**
+   * MKT9.2: заведение сайта филиала с пустым телом (имя и адрес из филиала). Новый 201, уже есть 200, архив 409.
+   * Прежний `POST /marketing/site` с названием и адресом снят: второй сайт филиала не заводится никаким путём
+   */
+  @Post('bootstrap')
+  async bootstrap(
+    @Headers(SCOPE_HEADER) pointer: string | undefined,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: { status(code: number): unknown },
+  ) {
+    const result = await this.service.bootstrap(!!pointer, body);
+    res.status(result.created ? 201 : 200);
+    return result;
+  }
+
+  /** MKT9.2: знания проекта (постоянные указания ИИ этого сайта) */
+  @Get('context')
+  context(@Headers(SCOPE_HEADER) pointer?: string) {
+    return this.service.context(!!pointer);
+  }
+
+  @Patch('context')
+  updateContext(@Headers(SCOPE_HEADER) pointer: string | undefined, @Body() body: unknown) {
+    return this.service.updateContext(!!pointer, body);
+  }
+
+  /** MKT9.2: разговор сайта одним списком (сборки и разговорные задачи), последние до 100 */
+  @Get('conversation')
+  conversation(@Headers(SCOPE_HEADER) pointer: string | undefined, @Query('limit') limit?: string) {
+    return this.assistant.conversation(!!pointer, limit);
+  }
+
+  /** MKT9.2: Чат, План, Оформление. Новая задача 202, повтор того же ключа 200; версий не создаёт */
+  @Post('assistant')
+  async assistantRequest(
+    @Headers(SCOPE_HEADER) pointer: string | undefined,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: { status(code: number): unknown },
+  ) {
+    const result = await this.assistant.request(!!pointer, body);
+    res.status(result.created ? 202 : 200);
+    return { run: result.run };
+  }
+
+  @Get('assistant/:id')
+  assistantStatus(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string) {
+    return this.assistant.status(!!pointer, id);
+  }
+
+  /** MKT9.2: «Собрать по плану» ставит ровно одну задачу сборки на план (202 новая, 200 повтор) */
+  @Post('assistant/:id/approve')
+  async assistantApprove(
+    @Headers(SCOPE_HEADER) pointer: string | undefined,
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: { status(code: number): unknown },
+  ) {
+    const result = await this.assistant.approve(!!pointer, id, body);
+    res.status(result.created ? 202 : 200);
+    return { run: result.run };
   }
 
   /** Бриф сайта филиала (MKT5): только чтение; `?refresh=1` обходит кэш Channex и больше ничего не меняет */
@@ -112,6 +170,17 @@ export class MarketingSiteController {
   @Get('versions/:id/diff')
   versionDiff(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string, @Query('against') against?: string) {
     return this.service.diff(!!pointer, id, against);
+  }
+
+  /** MKT9.2: закладка версии (поставить или переименовать) */
+  @Put('versions/:id/bookmark')
+  bookmark(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string, @Body() body: unknown) {
+    return this.service.bookmark(!!pointer, id, body);
+  }
+
+  @Delete('versions/:id/bookmark')
+  removeBookmark(@Headers(SCOPE_HEADER) pointer: string | undefined, @Param('id') id: string) {
+    return this.service.removeBookmark(!!pointer, id);
   }
 
   /** MKT9: восстановить как новый черновик; опубликованная версия не меняется (это не откат MKT7) */
@@ -239,6 +308,7 @@ export class MarketingSiteController {
     SiteGenerationWorker,
     SitePublicationService,
     SiteAssetsService,
+    SiteAssistantService,
     { provide: BRIEF_CHANNEX_READER, useFactory: contentReaderFromEnv },
     { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
     // null: настоящий загрузчик с DNS и HTTPS (asset-fetch.ts); тесты подставляют свой

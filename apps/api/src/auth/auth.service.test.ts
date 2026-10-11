@@ -276,6 +276,27 @@ describe('AuthService.whoami', () => {
     await expect(auth.whoami(token, NOW)).resolves.toBeNull();
   });
 
+  it('сессия приостановленного члена не годится, а после возобновления снова действует (DATA_MODEL §31.2)', async () => {
+    const { auth, memberships } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    memberships[0]!.status = 'SUSPENDED';
+    await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+    memberships[0]!.status = 'ACTIVE';
+    await expect(auth.whoami(token, NOW)).resolves.not.toBeNull();
+  });
+
+  it('вход приостановленного закрыт с причиной словами, а не общим «неверный пароль»', async () => {
+    const { auth, memberships } = service();
+    memberships[0]!.status = 'SUSPENDED';
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow('Доступ приостановлен');
+    memberships[0]!.status = 'ACTIVE';
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).resolves.toHaveProperty('token');
+  });
+
   it('сессия приостановленной организации не годится (ADR-046, аудит 26.09, С-4)', async () => {
     const { auth, organizations } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
@@ -503,6 +524,24 @@ describe('AuthService.register', () => {
     await expect(auth.register({ ...NEW, phoneCountry: 'XX' }, NOW)).rejects.toThrow(/Проверьте телефон/);
     expect(users).toHaveLength(before.users);
     expect(organizations).toHaveLength(before.orgs);
+  });
+
+  // Q-REG-1 (решение владельца 10.10.2026): страна организации и язык интерфейса человека сохраняются
+  it('сохраняет страну организации из выбранной страны и язык интерфейса человека', async () => {
+    const { auth, users, organizations } = service();
+    await auth.register({ ...NEW, phoneCountry: 'UZ', phone: '90 123 45 67', locale: 'kk' }, NOW);
+    expect(users.find((u) => u.email === NEW.email)!.locale).toBe('kk');
+    expect(organizations.find((o) => o.name === 'Хостел на Абая')!.countryCode).toBe('UZ');
+  });
+
+  it('без языка в форме человек получает русский; чужой код языка — отказ без записи', async () => {
+    const { auth, users, organizations } = service();
+    const before = { users: users.length, orgs: organizations.length };
+    await expect(auth.register({ ...NEW, locale: 'xx' }, NOW)).rejects.toThrow(/язык/i);
+    expect(users).toHaveLength(before.users);
+    expect(organizations).toHaveLength(before.orgs);
+    await auth.register(NEW, NOW);
+    expect(users.find((u) => u.email === NEW.email)!.locale).toBe('ru');
   });
 
   it('до подтверждения почты вход закрыт — и говорит, что делать', async () => {

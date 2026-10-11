@@ -696,6 +696,7 @@ export function PaymentForm({
       onChangeCapture={onChange}
       data-testid="payment-form"
       className="folio-form folio-form--pay"
+      data-reviewed={review ? 'true' : undefined}
     >
       <b className="folio-form__title">Принять оплату</b>
       <div className="row">
@@ -746,6 +747,11 @@ export function PaymentForm({
         </section>
       )}
       <div className="row folio-form__submit">
+        {review && (
+          <Button type="button" tone="secondary" disabled={busy} onClick={onChange}>
+            Изменить данные
+          </Button>
+        )}
         {!review && (
           <span className="hint" data-testid="payment-digest">
             {digest}

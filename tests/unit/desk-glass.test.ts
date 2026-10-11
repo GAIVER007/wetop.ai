@@ -30,7 +30,6 @@ const documented = (() => {
  * как есть и только сокращается: перевод этих блоков на `--surface-solid` (кандидат DS1).
  */
 const GLASS_PANEL_DS1 = new Set([
-  '.board-toolbar',
   '.booking-footer',
   '.booking-head',
   '.finance-block',

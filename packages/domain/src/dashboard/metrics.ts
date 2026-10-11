@@ -109,6 +109,8 @@ export interface DashboardDailyPoint {
   departures: number;
   /** Начислено за проживание с датой услуги в этот день — то есть по заездам дня */
   revenueMinor: string;
+  /** Выручка за ночь этого дня: цена мест, занятых в эту ночь, поровну по ночам (ADR и RevPAR, ADR-155) */
+  nightRevenueMinor: string;
 }
 /**
  * Брони периода по дате заезда (Q-209): одна Reservation — одна бронь, в каком бы числе мест она ни была.
@@ -144,6 +146,8 @@ export interface DashboardPeriod {
     occupiedNights: number;
     blockedNights: number;
     freeNights: number;
+    /** Доступно к продаже: ночи фонда минус закрытые (ADR-155, Q-286); знаменатель загрузки и RevPAR */
+    sellableNights: number;
     percent: number;
   };
   unassigned: number;
@@ -153,6 +157,8 @@ export interface DashboardPeriod {
     penaltiesMinor: string;
     adjustmentsMinor: string;
     totalMinor: string;
+    /** Выручка за ночи периода: сумма `nightRevenueMinor` по дням; числитель ADR и RevPAR */
+    nightsMinor: string;
   };
   payments: {
     totalMinor: string;
@@ -169,6 +175,8 @@ export interface DashboardPeriod {
   bookings: DashboardBookings;
   sources: DashboardSource[];
   categories: DashboardCategory[];
+  /** Категории типа фонда для выбора в отчёте: фильтр по категории список не сужает */
+  categoryOptions: Array<{ code: string; name: string; kind: DashboardUnitKind }>;
   daily: DashboardDailyPoint[];
 }
 
@@ -187,7 +195,24 @@ const divide = (amount: bigint, by: number): string | null =>
 function restrictToFund(input: DashboardInput, fund: DashboardFund): DashboardInput {
   if (fund === 'all') return input;
   const kind = FUND_KIND[fund];
-  const categories = input.categories.filter((c) => c.kind === kind);
+  return restrictToCategories(
+    input,
+    input.categories.filter((c) => c.kind === kind),
+  );
+}
+
+/** Одна категория (RPT2.2c-2, фильтр отчёта): та же пересборка, что у типа фонда; код вне фонда даёт пустой фонд */
+function restrictToCategory(input: DashboardInput, code: string): DashboardInput {
+  return restrictToCategories(
+    input,
+    input.categories.filter((c) => c.code === code),
+  );
+}
+
+function restrictToCategories(
+  input: DashboardInput,
+  categories: DashboardInput['categories'],
+): DashboardInput {
   const codes = new Set(categories.map((c) => c.code));
   const days = input.days.map((d) => {
     const byCategory = Object.fromEntries(
@@ -215,14 +240,51 @@ function restrictToFund(input: DashboardInput, fund: DashboardFund): DashboardIn
   };
 }
 
+/** Отбор отчёта поверх типа фонда: категория (код). Источник сюда не входит: загрузка и начисления по источнику не делятся */
+export interface DashboardFilter {
+  category?: string;
+}
+
+/**
+ * Выручка за ночи (ADR-155, Q-290, `docs/metrics.md` §2): цена места делится поровну по его ночам, остаток тиынов
+ * достаётся последней ночи, так что сумма по всем ночам равна цене. Берутся действующие проживания; в расчёт идут
+ * только ночи внутри периода. Начисление по дню заезда это другая база («Начислено»), здесь она не участвует.
+ */
+function nightlyRevenue(stays: DashboardStay[], dates: string[]): Map<string, bigint> {
+  const inPeriod = new Set(dates);
+  const out = new Map<string, bigint>();
+  for (const st of stays) {
+    if (inactive.has(st.status) || inactive.has(st.reservationStatus)) continue;
+    const nightsOfStay = Math.max(
+      1,
+      Math.round(
+        (Date.parse(`${st.departureDate}T00:00:00Z`) - Date.parse(`${st.arrivalDate}T00:00:00Z`)) /
+          86_400_000,
+      ),
+    );
+    const base = st.priceMinor / BigInt(nightsOfStay);
+    const rest = st.priceMinor - base * BigInt(nightsOfStay);
+    for (let i = 0; i < nightsOfStay; i += 1) {
+      const date = new Date(Date.parse(`${st.arrivalDate}T00:00:00Z`) + i * 86_400_000)
+        .toISOString()
+        .slice(0, 10);
+      if (!inPeriod.has(date)) continue;
+      out.set(date, (out.get(date) ?? 0n) + base + (i === nightsOfStay - 1 ? rest : 0n));
+    }
+  }
+  return out;
+}
+
 export function buildDashboard(
   whole: DashboardInput,
   fund: DashboardFund = 'all',
+  filter: DashboardFilter = {},
 ): DashboardPeriod {
   const fundUnits = (kind: DashboardUnitKind) =>
     whole.categories.filter((c) => c.kind === kind).reduce((n, c) => n + c.units, 0);
   const funds = { rooms: fundUnits('ROOM'), beds: fundUnits('BED') };
-  const input = restrictToFund(whole, fund);
+  const byFund = restrictToFund(whole, fund);
+  const input = filter.category ? restrictToCategory(byFund, filter.category) : byFund;
   const dates = dateRange(input.from, input.to);
   if (input.days.length !== dates.length || input.days.some((d, i) => d.date !== dates[i]))
     throw new Error(
@@ -305,6 +367,12 @@ export function buildDashboard(
       .filter((ch) => ch.kind === 'ACCOMMODATION' && ch.categoryCode === c.code)
       .reduce((a, ch) => a + ch.amountMinor, 0n);
     const catNights = c.units * nights;
+    const catNightRevenue = [
+      ...nightlyRevenue(
+        input.stays.filter((st) => st.categoryCode === c.code),
+        dates,
+      ).values(),
+    ].reduce((n, v) => n + v, 0n);
     return {
       code: c.code,
       name: c.name,
@@ -315,9 +383,9 @@ export function buildDashboard(
       freeNights: sumOf('free'),
       blockedNights: sumOf('blocked'),
       unassigned: input.unassignedByCategory[c.code] ?? 0,
-      percent: percent(occupied, catNights),
+      percent: percent(occupied, catNights - sumOf('blocked')),
       revenueMinor: s(revenue),
-      adrMinor: divide(revenue, occupied),
+      adrMinor: divide(catNightRevenue, occupied),
     };
   });
 
@@ -325,15 +393,18 @@ export function buildDashboard(
   for (const ch of input.charges)
     if (ch.kind === 'ACCOMMODATION')
       revenueByDay.set(ch.serviceDate, (revenueByDay.get(ch.serviceDate) ?? 0n) + ch.amountMinor);
+  const nightRevenueByDay = nightlyRevenue(input.stays, dates);
+  const nightsRevenue = [...nightRevenueByDay.values()].reduce((n, v) => n + v, 0n);
   const daily = input.days.map((d) => ({
     date: d.date,
     occupied: d.occupied,
     free: d.free,
     blocked: d.blocked,
-    percent: percent(d.occupied, units),
+    percent: percent(d.occupied, units - d.blocked),
     arrivals: arrivals.filter((st) => st.arrivalDate === d.date).length,
     departures: departures.filter((st) => st.departureDate === d.date).length,
     revenueMinor: s(revenueByDay.get(d.date) ?? 0n),
+    nightRevenueMinor: s(nightRevenueByDay.get(d.date) ?? 0n),
   }));
 
   const cancelledStays = arrivalsAll.filter((st) => st.status === 'CANCELLED').length;
@@ -355,7 +426,8 @@ export function buildDashboard(
       occupiedNights,
       blockedNights,
       freeNights,
-      percent: percent(occupiedNights, unitNights),
+      sellableNights: unitNights - blockedNights,
+      percent: percent(occupiedNights, unitNights - blockedNights),
     },
     unassigned: Object.values(input.unassignedByCategory).reduce((n, v) => n + v, 0),
     revenue: {
@@ -364,11 +436,12 @@ export function buildDashboard(
       penaltiesMinor: s(penalties),
       adjustmentsMinor: s(adjustments),
       totalMinor: s(accommodation + services + penalties + adjustments),
+      nightsMinor: s(nightsRevenue),
     },
     payments: { totalMinor: s(paid), count: input.payments.length, byMethod },
     refundsMinor: s(input.refundsMinor),
-    adrMinor: divide(accommodation, occupiedNights),
-    revparMinor: divide(accommodation, unitNights),
+    adrMinor: divide(nightsRevenue, occupiedNights),
+    revparMinor: divide(nightsRevenue, unitNights - blockedNights),
     arrivals: {
       count: arrivals.length,
       guests: arrivals.reduce((n, st) => n + st.adults + st.children, 0),
@@ -389,6 +462,7 @@ export function buildDashboard(
     },
     sources,
     categories,
+    categoryOptions: byFund.categories.map(({ code, name, kind }) => ({ code, name, kind })),
     daily,
   };
 }

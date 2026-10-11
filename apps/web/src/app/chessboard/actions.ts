@@ -7,6 +7,10 @@ export interface StayPreviewData {
   departureDate: string;
   currency: string;
   guestHref: string | null;
+  /** Гостей на проживании и заметка к брони: правая панель календаря (образец владельца 09.10.2026) */
+  adults: number;
+  children: number;
+  notes: string | null;
   /** Суммы счёта проживания, тиыны строкой (ADR-008); null — счёт не загрузился или ещё не открыт */
   money: {
     chargedMinor: string;
@@ -39,6 +43,9 @@ export async function stayPreviewAction(
       departureDate: item.departureDate,
       currency: card.currency,
       guestHref: card.primaryGuest ? `/guests/${encodeURIComponent(card.primaryGuest.id)}` : null,
+      adults: item.adults,
+      children: item.children,
+      notes: card.notes,
       money: folio
         ? {
             chargedMinor: folio.chargedMinor,

@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 09.10.2026 20:01 Алматы · vm
+# коммит 0fbb533 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/bar.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные (3.7s)
+  ✓   2 tests/ui/bar.spec.ts:74:1 › быстрая продажа одной строкой и фильтры доски (3.0s)
+  ✓   3 tests/ui/bar.spec.ts:98:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (4.2s)
+  ✓   4 tests/ui/bar.spec.ts:131:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (3.0s)
+  ✓   5 tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (2.4s)
+  ✓   6 tests/ui/bar.spec.ts:162:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.3s)
+  ✓   7 tests/ui/bar.spec.ts:174:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (4.9s)
+  ✓   8 tests/ui/bar.spec.ts:203:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.8s)
+  ✓   9 tests/ui/bar.spec.ts:215:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (5.3s)
+  ✓  10 tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений (2.9s)
+  ✓  11 tests/ui/bar.spec.ts:253:3 › доступность и телефон: light (6.0s)
+  ✓  12 tests/ui/bar.spec.ts:253:3 › доступность и телефон: dark (5.5s)
+
+  12 passed (57.5s)
+
+# код выхода 0 · 59 с

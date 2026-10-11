@@ -1,8 +1,11 @@
 'use client';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Icon } from '../../components/icon';
-import { Field, Input } from '../../components/ui';
+import { DateBar as SharedDateBar } from '../../components/date-bar';
+
+/**
+ * День журнала салона: общий `DateBar` (MV8.5 DS1c). Адрес дня и «Сегодня» держит экран: `?date=` у
+ * пути, «Сегодня» без даты, как было; кнопки ведут туда же, куда раньше вели ссылки.
+ */
 export function DateBar({ date, path }: { date: string; path: string }) {
   const router = useRouter();
   const shift = (n: number) => {
@@ -11,26 +14,13 @@ export function DateBar({ date, path }: { date: string; path: string }) {
     return `${path}?date=${at.toISOString().slice(0, 10)}`;
   };
   return (
-    <div className="beauty-date-bar">
-      <Link className="btn btn--secondary" href={path}>
-        Сегодня
-      </Link>
-      <Link className="btn btn--ghost" href={shift(-1)} aria-label="Предыдущий день">
-        <Icon name="chevron" style={{ transform: 'rotate(180deg)' }} />
-      </Link>
-      <Field label="Дата">
-        <Input
-          type="date"
-          value={date}
-          data-testid="beauty-day-date"
-          onChange={(e) => {
-            if (e.target.value) router.push(`${path}?date=${e.target.value}`);
-          }}
-        />
-      </Field>
-      <Link className="btn btn--ghost" href={shift(1)} aria-label="Следующий день">
-        <Icon name="chevron" />
-      </Link>
-    </div>
+    <SharedDateBar
+      date={date}
+      onToday={() => router.push(path)}
+      onPrevious={() => router.push(shift(-1))}
+      onNext={() => router.push(shift(1))}
+      onDateChange={(next) => router.push(`${path}?date=${next}`)}
+      inputProps={{ 'data-testid': 'beauty-day-date' }}
+    />
   );
 }

@@ -1,13 +1,37 @@
 'use client';
 import Link from 'next/link';
-import { WizardFields } from './wizard-fields';
+import { useState } from 'react';
+import { BuildStep } from './build-step';
+import { guessRegional } from './regional';
+import {
+  PROGRESS,
+  PROGRESS_INDEX,
+  S,
+  SCENARIOS,
+  SITE_SCAN_READY,
+  SOON_WORD,
+  STEP_NAME,
+  type BotType,
+} from './strings';
 import { useGuestDraft } from './use-guest-draft';
+import { WizardFields } from './wizard-fields';
+
+/** «hostel.kz» без схемы принимаем как https://hostel.kz; всё, что не похоже на адрес, вернём как есть для отказа */
+function normalizeUrl(raw: string): string {
+  const text = raw.trim();
+  if (!text || /^https?:\/\//i.test(text)) return text;
+  return /^[^\s/]+\.[^\s/]{2,}(\/\S*)?$/.test(text) ? `https://${text}` : text;
+}
 
 export function GuestWizard() {
   const {
     values,
     setValues,
     step,
+    resumed,
+    setResumed,
+    track,
+    sendSurvey,
     ready,
     busy,
     error,
@@ -20,6 +44,35 @@ export function GuestWizard() {
     restart,
     claim,
   } = useGuestDraft();
+  const [urlError, setUrlError] = useState('');
+  // пока O3 не дал поддержке свой промпт, сценарий один: что бы ни лежало в черновике, это продавец
+  const botType: BotType = 'sales';
+  const scenario = SCENARIOS.find((item) => item.value === botType);
+  const canContinue = values.businessName.trim() !== '' && values.niche.trim() !== '';
+
+  const proceed = (withSite: boolean) => {
+    const url = withSite ? normalizeUrl(values.siteUrl) : '';
+    if (url && !/^https?:\/\/\S+$/i.test(url)) {
+      setUrlError(S.source.urlBad);
+      return;
+    }
+    setUrlError('');
+    if (url) void track('source_submitted');
+    const regional = url ? guessRegional(url, undefined) : null;
+    void save('review', { siteUrl: url, ...(regional ?? {}) });
+  };
+  const edit = (key: keyof typeof values, value: string) => {
+    setValues((v) => {
+      // правка найденного по сайту поля снимает пометку «найдено на сайте»: теперь это слова человека
+      const found = v.foundFields
+        .split(',')
+        .filter((name) => name && name !== key)
+        .join(',');
+      return { ...v, [key]: value, foundFields: found };
+    });
+    setSaved('');
+  };
+
   return (
     <main className="guest-wizard">
       <header className="guest-wizard__header">
@@ -28,8 +81,12 @@ export function GuestWizard() {
         </Link>
       </header>
       <ol className="guest-wizard__progress" aria-label="Этапы создания">
-        {['Источник', 'Проверка', 'Тест', 'Сохранение в аккаунт'].map((name, i) => (
-          <li key={name} aria-current={(step === 'review' ? 1 : 0) === i ? 'step' : undefined}>
+        {PROGRESS.map((name, i) => (
+          <li
+            key={name}
+            aria-current={PROGRESS_INDEX[step] === i ? 'step' : undefined}
+            data-done={PROGRESS_INDEX[step] > i ? 'true' : undefined}
+          >
             <span>{i + 1}</span>
             {name}
           </li>
@@ -42,10 +99,17 @@ export function GuestWizard() {
               {error}
             </div>
           )}
+          {ready && resumed && step !== 'source' && (
+            <div role="status" className="guest-wizard__resume">
+              <span>{S.resume(STEP_NAME[step])}</span>
+              <button type="button" className="btn btn--secondary" onClick={() => setResumed(false)}>
+                {S.resumeClose}
+              </button>
+            </div>
+          )}
           {!ready ? (
             <>
-              <h1>Создайте ИИ-продавца</h1>
-              <p>Настройте помощника для вашего бизнеса.</p>
+              <h1>{S.source.title('sales')}</h1>
               {busy ? (
                 <p>Открываем черновик…</p>
               ) : (
@@ -61,97 +125,149 @@ export function GuestWizard() {
                 </div>
               )}
             </>
-          ) : step === 'intro' ? (
-            <>
-              <span className="guest-wizard__eyebrow">Ваш будущий помощник</span>
-              <h1>Создайте ИИ-продавца</h1>
-              <p>
-                Расскажите о бизнесе и настройте агента. Черновик можно заполнить до регистрации.
-              </p>
-              <button className="btn" disabled={busy} onClick={() => void save('source')}>
-                Начать создание
-              </button>
-            </>
           ) : step === 'source' ? (
-            <>
-              <h1>С чего начнём?</h1>
-              <p>Заполните информацию о компании. Она станет основой знаний вашего агента.</p>
-              <div className="guest-wizard__source">
-                <h2>Расскажите о бизнесе</h2>
-                <p>Название, задачи и преимущества — всё можно изменить позже.</p>
-                <button className="btn" disabled={busy} onClick={() => void save('review')}>
-                  Настроить вручную
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                proceed(true);
+              }}
+            >
+              <span className="guest-wizard__eyebrow">{S.source.eyebrow}</span>
+              <h1>{S.source.title(botType)}</h1>
+              <p>{S.source.lead}</p>
+              <fieldset className="guest-wizard__scenario">
+                <legend>{S.source.scenario}</legend>
+                <div className="guest-wizard__chips" role="radiogroup" aria-label={S.source.scenario}>
+                  {SCENARIOS.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={botType === item.value}
+                      disabled={item.soon === true}
+                      onClick={() => edit('botType', item.value)}
+                    >
+                      {item.label}
+                      {item.soon ? ` (${SOON_WORD})` : ''}
+                    </button>
+                  ))}
+                </div>
+                <p className="guest-wizard__note">{scenario?.hint}</p>
+                <p className="guest-wizard__note">{SCENARIOS.find((item) => item.soon)?.hint}</p>
+              </fieldset>
+              <label className="guest-wizard__url">
+                <span>{S.source.url}</span>
+                <input
+                  type="text"
+                  inputMode="url"
+                  autoComplete="url"
+                  value={values.siteUrl}
+                  maxLength={500}
+                  placeholder={S.source.urlPlaceholder}
+                  aria-invalid={urlError ? 'true' : undefined}
+                  aria-describedby={urlError ? 'site-url-error' : undefined}
+                  onChange={(e) => {
+                    setUrlError('');
+                    edit('siteUrl', e.target.value);
+                  }}
+                />
+              </label>
+              {urlError && (
+                <p id="site-url-error" role="alert" className="guest-wizard__field-error">
+                  {urlError}
+                </p>
+              )}
+              <div className="guest-wizard__actions guest-wizard__actions--stack">
+                <button
+                  className="btn"
+                  type="submit"
+                  disabled={busy || values.siteUrl.trim() === ''}
+                >
+                  {S.source.cta(botType)}
+                </button>
+                <button
+                  type="button"
+                  className="guest-wizard__link"
+                  disabled={busy}
+                  onClick={() => proceed(false)}
+                >
+                  {S.source.manual}
                 </button>
               </div>
-              <p className="guest-wizard__note">
-                Автоанализ сайта ещё не подключён. Сейчас доступно заполнение черновика вручную.
-              </p>
-            </>
-          ) : (
+              {SITE_SCAN_READY ? (
+                <p className="guest-wizard__note">
+                  {S.source.consent}{' '}
+                  <a href="https://wetop.ai/privacy/" target="_blank" rel="noopener noreferrer">
+                    {S.source.policy}
+                  </a>
+                  .
+                </p>
+              ) : (
+                values.siteUrl.trim() !== '' && (
+                  <p className="guest-wizard__note">{S.source.scanSoon}</p>
+                )
+              )}
+            </form>
+          ) : step === 'review' ? (
             <>
-              <span className="guest-wizard__eyebrow">Информация об агенте</span>
-              <h1>Расскажите о бизнесе</h1>
-              <p>Название компании и ниша обязательны. Остальное можно дополнить позже.</p>
+              <span className="guest-wizard__eyebrow">{S.review.eyebrow}</span>
+              <h1>{S.review.title}</h1>
+              <p>{S.review.lead}</p>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  void save();
+                  if (canContinue) void save('generating');
                 }}
               >
-                <WizardFields
-                  values={values}
-                  onChange={(key, value) => {
-                    setValues((v) => ({ ...v, [key]: value }));
-                    setSaved('');
-                  }}
-                />
-                <div className="guest-wizard__actions">
+                <WizardFields values={values} onChange={edit} />
+                {!canContinue && <p className="guest-wizard__note">{S.review.need}</p>}
+                <div className="guest-wizard__actions guest-wizard__actions--sticky">
                   <button
                     type="button"
                     className="btn btn--secondary"
                     disabled={busy}
                     onClick={() => void save('source')}
                   >
-                    Назад
+                    {S.review.back}
                   </button>
-                  <button className="btn" type="submit" disabled={busy}>
-                    Сохранить черновик
+                  <button className="btn" type="submit" disabled={busy || !canContinue}>
+                    {S.review.next}
                   </button>
                 </div>
               </form>
-              <div className="guest-wizard__actions">
-                <button className="btn" disabled={busy || dirty} onClick={() => void claim()}>
-                  Сохранить агента в аккаунт
-                </button>
-                <a href="/login" target="_blank" rel="noopener noreferrer">
-                  Войти в аккаунт
-                </a>
-              </div>
-              <p className="guest-wizard__note">
-                Для сохранения нужен вход владельца организации. Войдите в соседней вкладке и
-                вернитесь сюда.
-              </p>
-              <p className="guest-wizard__note">
-                Генерация и тестовый чат ещё не подключены. Сохранённый черновик не является
-                запущенным агентом.
-              </p>
             </>
+          ) : (
+            <BuildStep
+              onAnswers={(answers) => void sendSurvey(answers)}
+              onClaim={() => void claim()}
+              claimDisabled={busy || dirty}
+            />
           )}
           <p role="status" className="guest-wizard__save-state">
-            {busy ? 'Сохраняем…' : dirty ? 'Есть несохранённые изменения' : saved}
+            {busy ? S.saving : dirty ? S.unsaved : saved}
           </p>
         </section>
         <aside className="guest-wizard__preview" aria-label="Превью агента">
-          <span className="guest-wizard__eyebrow">Живое превью</span>
+          <span className="guest-wizard__eyebrow">{S.preview.title}</span>
           <div className="guest-wizard__avatar" aria-hidden="true">
             AI
           </div>
-          <h2>{values.assistantName || 'Ваш помощник'}</h2>
-          <p>{values.businessName || 'Название компании'}</p>
+          <h2>{values.assistantName || S.preview.helper}</h2>
+          <p>{values.businessName || S.preview.company}</p>
           <dl>
             <div>
-              <dt>Задача</dt>
-              <dd>{values.goal || 'Добавьте цель агента'}</dd>
+              <dt>{S.preview.scenario}</dt>
+              <dd>{scenario?.label}</dd>
+            </div>
+            {values.niche && (
+              <div>
+                <dt>{S.preview.niche}</dt>
+                <dd>{values.niche}</dd>
+              </div>
+            )}
+            <div>
+              <dt>{S.preview.goal}</dt>
+              <dd>{values.goal || S.preview.goalEmpty}</dd>
             </div>
             <div>
               <dt>Валюта</dt>
@@ -163,9 +279,19 @@ export function GuestWizard() {
             </div>
           </dl>
           {values.advantages && <p className="guest-wizard__advantages">{values.advantages}</p>}
-          <p className="guest-wizard__note">Превью настроек: агент ещё не запущен</p>
+          <p className="guest-wizard__note">{S.preview.note}</p>
         </aside>
       </div>
+      {ready && step !== 'source' && (
+        <button
+          type="button"
+          className="btn btn--secondary guest-wizard__home"
+          disabled={busy}
+          onClick={() => void save('source')}
+        >
+          {S.home}
+        </button>
+      )}
     </main>
   );
 }

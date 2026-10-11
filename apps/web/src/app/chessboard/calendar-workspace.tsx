@@ -8,15 +8,19 @@ const Expansion = createContext({ expanded: false, toggle: () => {} });
 export function CalendarWorkspace({
   summary,
   children,
+  nativeLayout = false,
 }: {
   summary: ReactNode;
   children: ReactNode;
+  nativeLayout?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const workspace = root.current;
-    const page = workspace?.closest<HTMLElement>('.calendar-page');
+    const page = nativeLayout
+      ? workspace?.querySelector<HTMLElement>('.calendar-page')
+      : workspace?.closest<HTMLElement>('.calendar-page');
     if (!workspace || !page) return;
     const resize = () => {
       if (window.innerWidth <= 600 && !expanded) {
@@ -64,11 +68,15 @@ export function CalendarWorkspace({
       window.removeEventListener('resize', resize);
       window.removeEventListener('keydown', escape);
     };
-  }, [expanded]);
+  }, [expanded, nativeLayout]);
   return (
     <Expansion.Provider value={{ expanded, toggle: () => setExpanded((value) => !value) }}>
-      <div ref={root} className="calendar-workspace" data-expanded={expanded}>
-        <div className="calendar-workspace__main">{children}</div>
+      <div
+        ref={root}
+        className={nativeLayout ? 'calendar-shell' : 'calendar-workspace'}
+        data-expanded={expanded}
+      >
+        {nativeLayout ? children : <div className="calendar-workspace__main">{children}</div>}
         {summary && (
           <details className="calendar-workspace__summary" open>
             <summary>Сводка дня</summary>
@@ -80,16 +88,31 @@ export function CalendarWorkspace({
   );
 }
 
-export function CalendarExpandButton() {
+export function CalendarExpandButton({ compact = false }: { compact?: boolean }) {
   const { expanded, toggle } = useContext(Expansion);
   return (
     <button
       type="button"
-      className="btn btn--secondary calendar-expand"
+      className={compact ? 'icon-button calendar-expand' : 'btn btn--secondary calendar-expand'}
       aria-pressed={expanded}
       onClick={toggle}
     >
-      {expanded ? 'Выйти из полного экрана' : 'На весь экран'}
+      {compact && (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+        >
+          <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
+        </svg>
+      )}
+      <span className={compact ? 'sr-only' : undefined}>
+        {expanded ? 'Выйти из полного экрана' : 'На весь экран'}
+      </span>
     </button>
   );
 }

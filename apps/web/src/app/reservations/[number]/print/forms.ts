@@ -30,6 +30,8 @@ export interface StoredProperty {
   /** v1.7 (ADR-082): контакты объекта для печатных форм */
   phone?: string | null;
   email?: string | null;
+  /** ADR-158: «Публичное имя для документов» из настроек объекта; пусто — печатается название */
+  publicName?: string | null;
   checkInTime: string;
   checkOutTime: string;
 }
@@ -38,10 +40,12 @@ export interface StoredProperty {
  * Реквизиты объекта для печати — из записи объекта, пустое — прочерком. До 24.09.2026 они были зашиты сюда, и ИИН/БИН
  * (ИИН физлица-ИП — персональные данные) напечатался бы в договоре любой организации (проверка SECURITY.md, Н12).
  */
-export function propertyParty(p: StoredProperty): Required<{ [K in keyof StoredProperty]: string }> {
+export function propertyParty(
+  p: StoredProperty,
+): Required<{ [K in keyof Omit<StoredProperty, 'publicName'>]: string }> {
   const or = (v: string | null | undefined) => (v && v.trim() ? v : '___');
   return {
-    name: p.name,
+    name: p.publicName?.trim() || p.name,
     legalName: or(p.legalName),
     bin: or(p.bin),
     address: or(p.address),
@@ -131,6 +135,7 @@ export const CONTRACT_T = {
   },
 } as const;
 
+/** status-hint: подписи полей печатного счёта на двух языках, а не статусы оплаты */
 export const INVOICE_T = {
   ru: {
     title: 'Счёт на оплату',
@@ -162,6 +167,7 @@ export const INVOICE_T = {
     signature: 'Администратор',
     printedAt: 'Сформировано',
   },
+  // status-hint: подписи полей печатного счёта на казахском
   kz: {
     title: 'Төлем шоты',
     number: 'Шот №',

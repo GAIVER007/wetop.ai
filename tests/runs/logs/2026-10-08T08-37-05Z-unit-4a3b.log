@@ -1,0 +1,16 @@
+# Модульные (unit) · 08.10.2026 13:37 Алматы · vm
+# коммит 5c2ed16 (claude/mv8-5-ds1b-primitives), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T08-37-05Z-unit-4a3b.json' 'apps/web/src/components/primitives.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 18ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  08:37:06
+   Duration  440ms (transform 55%, import 37%, tests 6%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-08T08-37-05Z-unit-4a3b.json
+
+# код выхода 0 · 1 с

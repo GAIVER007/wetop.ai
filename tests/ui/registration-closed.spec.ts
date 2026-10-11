@@ -54,7 +54,7 @@ test('ранее открытая форма получает отказ чер�
   // MV2: обязательное название бизнеса, тот же контракт у резервной формы.
   await page.getByLabel('Название бизнеса', { exact: true }).fill('Хостел на Абая');
   // с 29.09 — телефон и согласие с политикой (обязательные): без них submit тоже не уходит
-  await page.getByLabel('Телефон', { exact: true }).fill('701 555 44 33');
+  await page.getByRole('textbox', { name: 'Телефон', exact: true }).fill('701 555 44 33');
   await page.getByLabel('Пароль', { exact: true }).fill('test-password-2026');
   await page.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
   await request.post(`${FIXTURE_API}/__test/control`, {

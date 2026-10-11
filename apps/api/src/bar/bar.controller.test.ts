@@ -22,6 +22,7 @@ describe('бар: приходы (BAR2)', () => {
       };
     },
     async setProductActive(id, active) { return id.endsWith('001') ? { id, active } : null; },
+    async updateProduct(id, patch) { return id.endsWith('001') ? { id, ...patch, minimumStockUnits: patch.minimumStockUnits.toString() } : null; },
     async setProductPrice(id, salePriceMinor) { return id.endsWith('001') ? { id, salePrice: salePriceMinor.toString() } : null; },
     async suppliers() { return []; },
     async createSupplier(input) { return { id: '20000000-0000-4000-8000-000000000001', ...input }; },
@@ -112,6 +113,19 @@ describe('бар: приходы (BAR2)', () => {
 
     const supplier = await request(app.getHttpServer()).post('/bar/suppliers').send({ name: 'Алматы Напитки' }).expect(201);
     await request(app.getHttpServer()).patch(`/bar/suppliers/${supplier.body.id}/active`).send({ active: false }).expect(200);
+  });
+
+  it('правит карточку товара: название, категорию, штрихкод, наценку и минимум, но не цену', async () => {
+    const id = '40000000-0000-4000-8000-000000000001';
+    const updated = await request(app.getHttpServer()).patch(`/bar/products/${id}`).send({
+      name: 'Cola 0,5 ж/б', categoryId: null, barcode: '4870001234567',
+      unitsPerPackage: 12, markupBasis: 3500, minimumStockUnits: '8',
+    }).expect(200);
+    expect(updated.body).toMatchObject({ name: 'Cola 0,5 ж/б', barcode: '4870001234567', minimumStockUnits: '8' });
+    // цена правится своим маршрутом с аудитом до и после: здесь её нет
+    expect((await request(app.getHttpServer()).patch(`/bar/products/${id}`).send({ name: 'x', salePriceMinor: '100', unitsPerPackage: 1, markupBasis: null, minimumStockUnits: '0', categoryId: null, barcode: null })).status).toBe(400);
+    expect((await request(app.getHttpServer()).patch(`/bar/products/${id}`).send({ name: '', categoryId: null, barcode: null, unitsPerPackage: 1, markupBasis: null, minimumStockUnits: '0' })).status).toBe(400);
+    expect((await request(app.getHttpServer()).patch('/bar/products/40000000-0000-4000-8000-000000000002').send({ name: 'Нет такого', categoryId: null, barcode: null, unitsPerPackage: 1, markupBasis: null, minimumStockUnits: '0' })).status).toBe(404);
   });
 
   it('продает без брони и запрещает минусовой остаток', async () => {

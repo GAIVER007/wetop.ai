@@ -15,7 +15,7 @@ async function signIn(page: import('@playwright/test').Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`, { headers });

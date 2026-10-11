@@ -6,13 +6,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { diffSiteSpecs, parseMarketingSlug, siteSpecHash, validateSiteSpec } from '@pms/domain';
+import {
+  BOOKMARKS_PER_SITE,
+  bootstrapSlug,
+  diffSiteSpecs,
+  parseBookmarkLabel,
+  parseBuilderInstructions,
+  siteSpecHash,
+  validateSiteSpec,
+} from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { publicationView } from './publication.service';
 import { assetUnavailable, checkSpecAssets } from './asset-refs';
-import { siteScope, siteTransaction, type SiteScope } from './scope';
+import { siteBuilderAccessIn, siteScope, siteTransaction, type SiteScope } from './scope';
 
 /**
  * Ядро управляемого сайта (MKT3, `DATA_MODEL.md` §29.2–§29.3). Сайт филиала и его неизменяемые версии `SiteSpec`:
@@ -102,10 +110,27 @@ export class MarketingSiteService {
     });
   }
 
+  /**
+   * Сайт филиала и состояние конструктора (MKT9.2): лицензия филиала, знания проекта, имя филиала для полосы проекта и
+   * признак архива (архивный сайт не заводится заново: один филиал, один сайт навсегда)
+   */
   async current(pointerSent: boolean) {
     const scope = siteScope(pointerSent);
-    const site = await siteTransaction(this.prisma, scope, false, (tx) => this.activeSite(tx, scope));
-    return { site: site ? siteView(site) : null };
+    return siteTransaction(this.prisma, scope, false, async (tx) => {
+      const [site, any, location, builder] = await Promise.all([
+        this.activeSite(tx, scope),
+        tx.marketingSite.findUnique({ where: { locationId: scope.locationId }, select: { state: true, builderInstructions: true } }),
+        tx.location.findUnique({ where: { id: scope.locationId }, select: { name: true } }),
+        siteBuilderAccessIn(tx, scope.locationId),
+      ]);
+      return {
+        site: site ? siteView(site) : null,
+        archived: any?.state === 'ARCHIVED',
+        locationName: location?.name ?? null,
+        builder: { access: builder.access, status: builder.status, activeUntil: builder.activeUntil?.toISOString() ?? null },
+        instructions: any?.builderInstructions ?? null,
+      };
+    });
   }
 
   async draft(pointerSent: boolean) {
@@ -126,35 +151,109 @@ export class MarketingSiteService {
     });
   }
 
-  async create(pointerSent: boolean, body: unknown) {
+  /**
+   * Заведение сайта филиала (MKT9.2, bootstrap): тело пустое, имя из филиала, адрес из имени с детерминированным
+   * суффиксом при занятости. Сайт уже есть: тот же сайт (200); архивный: 409 `SITE_ARCHIVED`, второго не будет.
+   * Прежний путь с названием и адресом из браузера снят: ни название, ни адрес человек здесь не выбирает
+   */
+  async bootstrap(pointerSent: boolean, body: unknown) {
     const scope = siteScope(pointerSent);
-    const input = strictBody(body, ['name', 'slug']);
-    const name = typeof input['name'] === 'string' ? input['name'].trim() : '';
-    if (!name || [...name].length > 120)
-      throw new BadRequestException('Название сайта: от 1 до 120 знаков');
-    const slug = parseMarketingSlug(input['slug']);
-    if (!slug.ok) throw new BadRequestException(slug.message);
-    try {
-      return await siteTransaction(this.prisma, scope, true, async (tx) => {
-        if (await this.activeSite(tx, scope))
-          throw new ConflictException('У филиала уже есть сайт');
-        const taken = await tx.marketingSite.findFirst({
-          where: { slug: slug.slug, state: { not: 'ARCHIVED' } },
-          select: { id: true },
+    strictBody(body ?? {}, []);
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        return await siteTransaction(this.prisma, scope, true, async (tx) => {
+          const existing = await tx.marketingSite.findUnique({ where: { locationId: scope.locationId }, select: { state: true } });
+          if (existing?.state === 'ARCHIVED')
+            throw new ConflictException({ code: 'SITE_ARCHIVED', message: 'Сайт филиала в архиве: новый сайт для этого филиала не заводится' });
+          const found = existing ? await this.activeSite(tx, scope) : null;
+          if (found) return { created: false, site: siteView(found) };
+          const location = await tx.location.findUniqueOrThrow({ where: { id: scope.locationId }, select: { name: true } });
+          const name = [...location.name.trim()].slice(0, 120).join('') || 'Сайт';
+          const base = bootstrapSlug(name, new Set());
+          const taken = await tx.marketingSite.findMany({
+            where: { slug: { startsWith: base.slice(0, 30) }, state: { not: 'ARCHIVED' } },
+            select: { slug: true },
+          });
+          const slug = bootstrapSlug(name, new Set(taken.map((t) => t.slug)));
+          const site = await tx.marketingSite.create({
+            data: { locationId: scope.locationId, name, slug, createdById: currentUserId() },
+            select: SITE_SELECT,
+          });
+          await this.audit(tx, scope, site.id, 'marketing.site.created', { siteId: site.id, slug: site.slug, via: 'bootstrap' });
+          return { created: true, site: siteView(site) };
         });
-        if (taken) throw new ConflictException(`Адрес «${slug.slug}» уже занят: выберите другой`);
-        const site = await tx.marketingSite.create({
-          data: { locationId: scope.locationId, name, slug: slug.slug, createdById: currentUserId() },
-          select: SITE_SELECT,
-        });
-        await this.audit(tx, scope, site.id, 'marketing.site.created', { siteId: site.id, slug: site.slug });
-        return { site: siteView(site) };
-      });
-    } catch (error) {
-      // другой филиал успел занять адрес между проверкой и вставкой: частичный уникальный индекс
-      if (isUniqueViolation(error)) throw new ConflictException('Адрес уже занят или у филиала уже есть сайт');
-      throw error;
+      } catch (error) {
+        // соседний филиал занял тот же адрес между выбором и вставкой: ещё один круг с новым списком занятых
+        if (isUniqueViolation(error) && attempt < 2) continue;
+        throw error;
+      }
     }
+  }
+
+  /** Знания проекта (MKT9.2): постоянные указания ИИ этого сайта; это данные для модели, а не правила системы */
+  async context(pointerSent: boolean) {
+    const scope = siteScope(pointerSent);
+    return siteTransaction(this.prisma, scope, false, async (tx) => {
+      const site = await tx.marketingSite.findFirst({
+        where: { locationId: scope.locationId, state: { not: 'ARCHIVED' } },
+        select: { builderInstructions: true },
+      });
+      if (!site) throw new NotFoundException('Сайт филиала ещё не создан');
+      return { instructions: site.builderInstructions };
+    });
+  }
+
+  async updateContext(pointerSent: boolean, body: unknown) {
+    const scope = siteScope(pointerSent);
+    const input = strictBody(body, ['instructions']);
+    if (!('instructions' in input)) throw new BadRequestException('instructions: строка или null');
+    const parsed = parseBuilderInstructions(input['instructions']);
+    if (!parsed.ok) throw new BadRequestException(parsed.message);
+    return siteTransaction(this.prisma, scope, true, async (tx) => {
+      const site = await this.activeSite(tx, scope);
+      if (!site) throw new NotFoundException('Сайт филиала ещё не создан');
+      await tx.marketingSite.update({ where: { id: site.id }, data: { builderInstructions: parsed.value } });
+      // в журнале только длина: указания пишет человек, это его текст
+      await this.audit(tx, scope, site.id, 'marketing.site.context_updated', { siteId: site.id, length: [...(parsed.value ?? '')].length });
+      return { instructions: parsed.value };
+    });
+  }
+
+  /** Закладка версии (MKT9.2): поставить или переименовать; до 20 на сайт; чужая версия неотличима от несуществующей */
+  async bookmark(pointerSent: boolean, id: string, body: unknown) {
+    const scope = siteScope(pointerSent);
+    const input = strictBody(body, ['label']);
+    const label = parseBookmarkLabel(input['label']);
+    if (!label.ok) throw new BadRequestException(label.message);
+    return siteTransaction(this.prisma, scope, true, async (tx) => {
+      const { site, version } = await this.ownVersion(tx, scope, id);
+      const current = await tx.marketingSiteVersionBookmark.findUnique({ where: { siteId_versionId: { siteId: site.id, versionId: version.id } } });
+      if (!current && (await tx.marketingSiteVersionBookmark.count({ where: { siteId: site.id } })) >= BOOKMARKS_PER_SITE)
+        throw new ConflictException({ code: 'BOOKMARK_LIMIT', message: `Не больше ${BOOKMARKS_PER_SITE} закладок: снимите ненужную` });
+      const saved = current
+        ? await tx.marketingSiteVersionBookmark.update({ where: { id: current.id }, data: { label: label.value! }, select: { label: true, createdAt: true } })
+        : await tx.marketingSiteVersionBookmark.create({
+            data: { id: randomUUID(), siteId: site.id, versionId: version.id, label: label.value!, createdById: currentUserId() },
+            select: { label: true, createdAt: true },
+          });
+      await this.audit(tx, scope, site.id, current ? 'marketing.site.bookmark_renamed' : 'marketing.site.bookmark_added', {
+        siteId: site.id,
+        versionId: version.id,
+        revision: version.revision,
+      });
+      return { bookmark: { versionId: version.id, revision: version.revision, ...saved } };
+    });
+  }
+
+  async removeBookmark(pointerSent: boolean, id: string) {
+    const scope = siteScope(pointerSent);
+    return siteTransaction(this.prisma, scope, true, async (tx) => {
+      const { site, version } = await this.ownVersion(tx, scope, id);
+      const gone = await tx.marketingSiteVersionBookmark.deleteMany({ where: { siteId: site.id, versionId: version.id } });
+      if (gone.count === 0) throw new NotFoundException('Закладки нет');
+      await this.audit(tx, scope, site.id, 'marketing.site.bookmark_removed', { siteId: site.id, versionId: version.id, revision: version.revision });
+      return { removed: true };
+    });
   }
 
   async saveVersion(pointerSent: boolean, body: unknown) {
@@ -224,12 +323,22 @@ export class MarketingSiteService {
         take: VERSION_LIST_LIMIT,
         select: VERSION_ROW,
       });
+      // MKT9.2: закладки целиком (их до 20), даже если версия старше сотни последних
+      const marks = await tx.marketingSiteVersionBookmark.findMany({
+        where: { siteId: site.id },
+        orderBy: { createdAt: 'desc' },
+        select: { versionId: true, label: true, createdAt: true, version: { select: VERSION_ROW } },
+      });
+      const label = new Map(marks.map((m) => [m.versionId, m.label]));
+      const view = (v: (typeof rows)[number]) => ({
+        ...v,
+        isLatest: v.id === site.latestVersion?.id,
+        isPublished: v.id === site.publishedVersion?.id,
+        bookmark: label.get(v.id) ?? null,
+      });
       return {
-        versions: rows.map((v) => ({
-          ...v,
-          isLatest: v.id === site.latestVersion?.id,
-          isPublished: v.id === site.publishedVersion?.id,
-        })),
+        versions: rows.map(view),
+        bookmarks: marks.map((m) => ({ ...view(m.version), bookmarkedAt: m.createdAt })),
       };
     });
   }

@@ -293,6 +293,12 @@ export const CONTRAST_PAIRS: ContrastPair[] = [
     note: 'текст главной кнопки',
   },
   {
+    fg: 'color.semantic.on-primary',
+    bg: 'color.semantic.primary-hover',
+    min: 4.5,
+    note: 'текст главной кнопки под курсором',
+  },
+  {
     fg: 'color.semantic.primary',
     bg: 'color.semantic.primary-soft',
     min: 4.5,

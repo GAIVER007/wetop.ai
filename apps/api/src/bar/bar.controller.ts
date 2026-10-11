@@ -2,11 +2,15 @@ import 'reflect-metadata';
 import { Body, Controller, Get, Inject, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { Access } from '../auth/access.decorator';
 import { BarService } from './bar.service';
+import { BarScanService } from './bar-scan.service';
 
 @Access('desk')
 @Controller('bar')
 export class BarController {
-  constructor(@Inject(BarService) private readonly service: BarService) {}
+  constructor(
+    @Inject(BarService) private readonly service: BarService,
+    @Inject(BarScanService) private readonly scan: BarScanService,
+  ) {}
   @Get('categories') categories() { return this.service.categories(); }
   @Access('settings')
   @Post('categories') createCategory(@Body() body: unknown) { return this.service.createCategory(body); }
@@ -19,6 +23,9 @@ export class BarController {
   @Patch('products/:id/active') setProductActive(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.setProductActive(id, body); }
   @Access('settings')
   @Patch('products/:id/price') setProductPrice(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.setProductPrice(id, body); }
+  // правка карточки (ADR-157, макет владельца): название, категория, штрихкод, упаковка, наценка, минимум
+  @Access('settings')
+  @Patch('products/:id') updateProduct(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.updateProduct(id, body); }
   @Get('suppliers') suppliers() { return this.service.suppliers(); }
   @Access('settings')
   @Post('suppliers') createSupplier(@Body() body: unknown) { return this.service.createSupplier(body); }
@@ -36,6 +43,8 @@ export class BarController {
   @Post('write-offs') writeOff(@Body() body: unknown) { return this.service.writeOff(body); }
   @Post('inventory-counts') inventoryCount(@Body() body: unknown) { return this.service.inventoryCount(body); }
   @Post('receipts') createReceipt(@Body() body: unknown) { return this.service.createReceipt(body); }
+  // ИИ-скан накладной (ADR-157): фото внутрь, строки формы наружу; ничего не создаёт и не проводит
+  @Post('receipts/scan') scanReceipt(@Body() body: unknown) { return this.scan.scanReceipt(body); }
   @Post('receipts/:id/post') postReceipt(@Param('id', ParseUUIDPipe) id: string) { return this.service.postReceipt(id); }
   @Post('receipts/:id/payments') payReceipt(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown) { return this.service.payReceipt(id, body); }
 }

@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 09.10.2026 18:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 56
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/guest-wizard.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=60000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/guest-wizard.spec.ts:57:1 › первый экран один: сценарий (поддержка «скоро»), адрес, «Продолжить»; шага «Начать создание» нет (937ms)
+  ✓   2 tests/ui/guest-wizard.spec.ts:83:1 › неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте (628ms)
+  ✓   3 tests/ui/guest-wizard.spec.ts:94:1 › без сайта: ссылка ведёт на проверку, ниша выбором и «Другое», «Далее» ждёт название и нишу (754ms)
+  ✓   4 tests/ui/guest-wizard.spec.ts:121:1 › найденное по сайту помечено, правка человека снимает пометку (479ms)
+  ✓   5 tests/ui/guest-wizard.spec.ts:137:1 › опрос: ответы уходят, «Пропустить» закрывает одним нажатием, тест бота пока «Скоро» (992ms)
+  ✓   6 tests/ui/guest-wizard.spec.ts:164:1 › возврат: баннер с шагом, «В начало» ведёт на первый экран без потери данных (527ms)
+  ✓   7 tests/ui/guest-wizard.spec.ts:180:1 › отказ сохранения не теряет ввод и не показывает успешный результат (643ms)
+  ✓   8 tests/ui/guest-wizard.spec.ts:205:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (576ms)
+  ✓   9 tests/ui/guest-wizard.spec.ts:229:5 › доступность и снимки: light, 1440px (4.7s)
+  ✓  10 tests/ui/guest-wizard.spec.ts:229:5 › доступность и снимки: light, 390px (4.3s)
+  ✓  11 tests/ui/guest-wizard.spec.ts:229:5 › доступность и снимки: dark, 1440px (4.5s)
+  ✓  12 tests/ui/guest-wizard.spec.ts:229:5 › доступность и снимки: dark, 390px (4.5s)
+
+  12 passed (28.7s)
+
+# код выхода 0 · 29 с

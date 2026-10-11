@@ -1,0 +1,119 @@
+# Сквозные (e2e) · 09.10.2026 20:43 Алматы · vm
+# коммит 3791412 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-gate.spec.ts:81' 'tests/ui/chessboard-gate.spec.ts:104' 'tests/ui/chessboard-design.spec.ts:62'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: light, компактное управление и доступная сетка (8.8s)
+  ✓  2 tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: dark, компактное управление и доступная сетка (23.1s)
+  ✘  3 tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх (2.0m)
+  ✘  4 tests/ui/chessboard-gate.spec.ts:104:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (2.0m)
+
+
+  1) tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: light, компактное управление и доступная сетка 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "targets": Array [
+    +       Array [
+    +         "span[data-span=\"2\"] > .board-stay-line--meta.board-stay-line > .board-stay-dates[data-testid=\"cell-dates\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      104 |       expect(
+      105 |         audit.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
+    > 106 |       ).toEqual([]);
+          |         ^
+      107 |       await page.screenshot({
+      108 |         caret: 'initial',
+      109 |         path: `reports/chessboard-design-2026-09-20/${theme}-${width}.png`,
+        at /home/user/wetop.ai/tests/ui/chessboard-design.spec.ts:106:9
+
+    Error Context: test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх ───────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: '30 дней', exact: true })
+
+
+       97 |     clip: { x: today!.x - 140, y: 0, width: today!.width + 180, height: 700 },
+       98 |   });
+    >  99 |   // длина окна живёт в раскрывашке «7 дней ▾» (09.10.2026): сначала раскрыть, потом выбрать
+          |                                                                  ^
+      100 |   await page.getByTestId('board-length-button').click();
+      101 |   await page.getByRole('link', { name: '30 дней', exact: true }).click();
+      102 |   await expect(page.getByTestId('date-col')).toHaveCount(30);
+        at /home/user/wetop.ai/tests/ui/chessboard-gate.spec.ts:99:66
+
+    Error Context: test-results/chessboard-gate-гейт-тёмная-тема-—-полный-экран-и-верх/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-gate-гейт-тёмная-тема-—-полный-экран-и-верх/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-gate-гейт-тёмная-тема-—-полный-экран-и-верх/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-gate.spec.ts:104:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: '30 дней', exact: true })
+
+
+      127 |   await request.post(`${fixture}/__test/reset`);
+      128 |   const seeded = await request.post(`${fixture}/__test/design-seed`);
+    > 129 |   expect(seeded.ok()).toBe(true);
+          |                                  ^
+      130 |   await page.goto('/chessboard');
+      131 |   // длина окна живёт в раскрывашке «7 дней ▾» (09.10.2026): сначала раскрыть, потом выбрать
+      132 |   await page.getByTestId('board-length-button').click();
+        at /home/user/wetop.ai/tests/ui/chessboard-gate.spec.ts:129:66
+
+    Error Context: test-results/chessboard-gate-гейт-оверб-f9a43-30-дней-и-включённый-фильтр/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-gate-гейт-оверб-f9a43-30-дней-и-включённый-фильтр/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-gate-гейт-оверб-f9a43-30-дней-и-включённый-фильтр/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: light, компактное управление и доступная сетка 
+    tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх ────────────────
+    tests/ui/chessboard-gate.spec.ts:104:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр 
+  1 passed (4.8m)
+
+# код выхода 1 · 4 мин 49 с

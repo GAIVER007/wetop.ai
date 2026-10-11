@@ -7,8 +7,8 @@ import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { DateBar } from '../beauty/date-bar';
 import { AppointmentCard } from '../beauty/appointment-card';
-import { STATUS_WORD } from '../beauty/appointment-status';
 import { clock } from '../beauty/time';
+import { beautyStatus } from '../../lib/status/beauty';
 export function AppointmentsList({ day, readOnly }: { day: BeautyDay; readOnly: boolean }) {
   const [status, setStatus] = useState('');
   const [employee, setEmployee] = useState('');
@@ -32,7 +32,7 @@ export function AppointmentsList({ day, readOnly }: { day: BeautyDay; readOnly: 
         <Field label="Статус">
           <Select value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">Все статусы</option>
-            {Object.entries(STATUS_WORD).map(([key, label]) => (
+            {Object.entries(beautyStatus).map(([key, { label }]) => (
               <option key={key} value={key}>
                 {label}
               </option>
@@ -106,7 +106,7 @@ export function AppointmentsList({ day, readOnly }: { day: BeautyDay; readOnly: 
                 <td data-label="Мастер">
                   {day.columns.find((e) => e.id === r.employeeId)?.name ?? 'Мастер в архиве'}
                 </td>
-                <td data-label="Статус">{STATUS_WORD[r.status]}</td>
+                <td data-label="Статус">{beautyStatus[r.status].label}</td>
                 <td data-label="Стоимость">{formatMoney(r.priceMinor, r.currency)}</td>
               </tr>
             ))}

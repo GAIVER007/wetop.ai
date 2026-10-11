@@ -30,14 +30,6 @@ const COLLECT_RU: Record<string, string> = {
   ota: 'предоплата канала',
   property: 'оплата на объекте',
 };
-const RESERVATION_STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'не подтверждена',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
 
 /**
  * Приём брони из канала (срез 7.2, макет «Inbound»): цепочка ревизия → бронь → ячейка. Только чтение
@@ -162,10 +154,7 @@ export default async function RevisionPageView({
           {reservation ? (
             <>
               <div className="row row--inline">
-                <StatusBadge
-                  status={reservation.status}
-                  label={RESERVATION_STATUS_RU[reservation.status] ?? reservation.status}
-                />
+                <StatusBadge kind="hospitality" value={reservation.status} />
                 <Link
                   href={`/reservations/${encodeURIComponent(reservation.confirmationNumber)}`}
                   className="bold"
@@ -235,10 +224,7 @@ export default async function RevisionPageView({
                   <Badge tone={it.unitCode ? 'ok' : 'warn'}>
                     {it.unitCode ? `${it.unitCode}, ${it.accommodationTypeName}` : 'без ячейки'}
                   </Badge>
-                  <StatusBadge
-                    status={it.status}
-                    label={RESERVATION_STATUS_RU[it.status] ?? it.status}
-                  />
+                  <StatusBadge kind="hospitality" value={it.status} />
                 </div>
                 <div>{displayPeriod(it.arrivalDate, it.departureDate)}</div>
                 <div className="muted">

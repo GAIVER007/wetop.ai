@@ -1,0 +1,17 @@
+# Модульные (unit) · 10.10.2026 20:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5413b09 (HEAD), незакоммиченных файлов набора: 149
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T15-34-05Z-unit-14dd.json' 'tests/unit/site-design.test.ts' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 9ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 3ms
+
+ Test Files  2 passed (2)
+      Tests  24 passed (24)
+   Start at  08:34:06
+   Duration  241ms (import 75%, transform 18%, tests 6%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T15-34-05Z-unit-14dd.json
+
+# код выхода 0 · 1 с

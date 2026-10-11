@@ -1,0 +1,16 @@
+# Модульные (unit) · 10.10.2026 20:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит b0bb1ad (claude/beauty-salons-landing), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T15-50-51Z-unit-f8bc.json' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/beauty-landing
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 19ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  08:50:53
+   Duration  303ms (transform 51%, import 23%, tests 22%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T15-50-51Z-unit-f8bc.json
+
+# код выхода 0 · 2 с

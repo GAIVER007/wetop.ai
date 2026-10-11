@@ -1,0 +1,140 @@
+# Сквозные (e2e) · 09.10.2026 18:08 Алматы · vm
+# коммит 2194e1a (claude/serene-newton-q453ps)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-grid.spec.ts' 'tests/ui/chessboard-gate-pr3.spec.ts' 'tests/ui/chessboard-gate-pr7.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/ds1b-primitives.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-gate.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 63 tests using 1 worker
+
+  ✓   1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (3.2s)
+  ✓   2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева (3.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url={"/chessbo..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <PeriodPicker>
+[WebServer]                             <div className="period-picker">
+[WebServer]                               <Field>
+[WebServer]                                 <label htmlFor="period-from" className="field fiel...">
+[WebServer]                                   <DateInput id="period-from" name="from" defaultValue="2026-09-14" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id="period-from"
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-09-14"
+[WebServer]                                         aria-label="Период: с"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               <Field>
+[WebServer]                                 <label htmlFor="period-to" className="field fiel...">
+[WebServer]                                   <DateInput id="period-to" name="to" rangeFromName="from" defaultValue="2026-09-20" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id="period-to"
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-09-20"
+[WebServer]                                         aria-label="Период: по"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-09" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓   3 tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (2.6s)
+  ✓   4 tests/ui/chessboard-compact-screen.spec.ts:62:1 › свёрнутые категории переживают перезагрузку и разворачиваются (5.3s)
+  ✓   5 tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются (10.5s)
+  ✓   6 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (3.0s)
+  ✓   7 tests/ui/chessboard-design.spec.ts:39:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (6.9s)
+  ✓   8 tests/ui/chessboard-design.spec.ts:64:3 › дизайн шахматки: light, компактное управление и доступная сетка (22.7s)
+  ✓   9 tests/ui/chessboard-design.spec.ts:64:3 › дизайн шахматки: dark, компактное управление и доступная сетка (23.7s)
+  ✓  10 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (7.9s)
+  ✓  11 tests/ui/chessboard-filters.spec.ts:144:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (5.3s)
+  ✓  12 tests/ui/chessboard-filters.spec.ts:175:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (10.7s)
+  ✓  13 tests/ui/chessboard-filters.spec.ts:240:1 › §37: ничего не найдено — «Сбросить фильтры» (2.7s)
+  ✓  14 tests/ui/chessboard-filters.spec.ts:253:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (7.4s)
+  ✓  15 tests/ui/chessboard-filters.spec.ts:283:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (3.5s)
+  ✓  16 tests/ui/chessboard-filters.spec.ts:301:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (4.1s)
+  ✓  17 tests/ui/chessboard-filters.spec.ts:328:1 › доступность: окошко «Фильтры» открыто (5.2s)
+  ✓  18 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: light (8.9s)
+  ✓  19 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark (9.3s)
+  ✓  20 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: light (13.4s)
+  ✓  21 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: dark (12.8s)
+  ✓  22 tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (5.3s)
+  ✘  23 tests/ui/chessboard-gate.spec.ts:76:1 › гейт: тёмная тема — полный экран и верх (2.0m)
+  ✘  24 tests/ui/chessboard-gate.spec.ts:99:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (2.0m)
+  ✓  25 tests/ui/chessboard-grid.spec.ts:12:1 › колонка места объясняет себя подсказкой: вид, код и состояние уборки (3.0s)
+  ✓  26 tests/ui/chessboard-grid.spec.ts:23:1 › свёрнутая категория переживает перезагрузку страницы (7.7s)
+  ✓  27 tests/ui/chessboard-grid.spec.ts:39:1 › строка категории прилипает под шапкой дат при вертикальной прокрутке (2.8s)
+  ✓  28 tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (4.5s)
+  ✓  29 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (5.5s)
+  ✓  30 tests/ui/chessboard-month.spec.ts:30:1 › все 31 день помещаются по ширине окна (5.8s)
+  ✓  31 tests/ui/chessboard-month.spec.ts:54:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (8.6s)
+  ✓  32 tests/ui/chessboard-month.spec.ts:54:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (8.2s)
+  ✓  33 tests/ui/chessboard-month.spec.ts:54:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (7.5s)
+  ✓  34 tests/ui/chessboard-month.spec.ts:54:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (8.2s)
+  ✓  35 tests/ui/chessboard-month.spec.ts:74:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (9.8s)
+  ✓  36 tests/ui/chessboard-month.spec.ts:103:1 › 30 дней: окно от сегодня, готовые периоды в раскрывашке периода, а не в строке управления (7.8s)
+  ✓  37 tests/ui/chessboard-month.spec.ts:136:1 › в месяце открываются брони, свободные даты и группы номеров (19.3s)
+  ✓  38 tests/ui/chessboard-month.spec.ts:181:3 › месячная сетка: light, читаемость и адаптивность (42.8s)
+  ✓  39 tests/ui/chessboard-month.spec.ts:181:3 › месячная сетка: dark, читаемость и адаптивность (44.7s)
+  ✓  40 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (3.6s)
+  ✓  41 tests/ui/chessboard-week.spec.ts:28:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (11.6s)
+  ✓  42 tests/ui/chessboard-week.spec.ts:82:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (4.3s)
+  ✘  43 tests/ui/chessboard-week.spec.ts:114:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (45.7s)
+  ✘  44 tests/ui/chessboard-week.spec.ts:114:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (45.6s)
+Terminated
+
+# код выхода —, сигнал SIGTERM · 12 мин 31 с

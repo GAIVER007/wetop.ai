@@ -11,7 +11,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 /*
@@ -60,7 +60,7 @@ test('ошибка базы не превращается в нулевые по
 
 test('название гостиницы в каркасе и обзоре поступает из backend', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { propertyName: 'Проверочный хостел' } });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(page.locator('.workspace-header .workspace-property')).toContainText(
     'Проверочный хостел',
   );

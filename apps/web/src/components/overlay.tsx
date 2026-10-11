@@ -9,6 +9,7 @@ export function Overlay({
   drawer = false,
   className = '',
   trapFocus = false,
+  size = 'md',
 }: {
   open: boolean;
   onClose: () => void;
@@ -17,6 +18,8 @@ export function Overlay({
   drawer?: boolean;
   className?: string;
   trapFocus?: boolean;
+  /** ширина (MV8.5 DS1c, DESIGN.md §8.2): md прежняя (окно 560, панель 480), sm и lg из токенов */
+  size?: 'sm' | 'md' | 'lg';
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -36,7 +39,7 @@ export function Overlay({
   return (
     <dialog
       ref={dialog}
-      className={`ui-overlay ${drawer ? 'ui-drawer' : ''} ${className}`}
+      className={`ui-overlay ${drawer ? 'ui-drawer' : ''} ${size === 'md' ? '' : `ui-overlay--${size}`} ${className}`}
       aria-labelledby={titleId}
       onKeyDown={(e) => {
         if (!trapFocus || e.key !== 'Tab') return;

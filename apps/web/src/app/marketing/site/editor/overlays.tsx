@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { SITE_EDITOR_SECTIONS } from '@pms/domain';
 import type { SiteAssetView, SiteChangeView, SiteVersionMeta } from '../../../../lib/api';
 import { Overlay } from '../../../../components/overlay';
@@ -136,9 +137,56 @@ const SOURCE: Record<SiteVersionMeta['source'], string> = { MANUAL: 'Вручн�
 const when = (iso: string) =>
   new Date(iso).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
+/** MKT9.2: закладка версии: звёздочка открывает подпись; поставленная закладка снимается тем же местом */
+function BookmarkControl({
+  version,
+  disabled,
+  onBookmark,
+}: {
+  version: SiteVersionMeta;
+  disabled: boolean;
+  onBookmark: (v: SiteVersionMeta, label: string | null) => Promise<boolean>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [label, setLabel] = useState(version.bookmark ?? '');
+  if (version.bookmark && !editing)
+    return (
+      <Button type="button" tone="ghost" size="sm" disabled={disabled} onClick={() => void onBookmark(version, null)} data-testid="ed-bookmark-remove">
+        <span aria-hidden="true">★ </span>Снять закладку
+      </Button>
+    );
+  if (!editing)
+    return (
+      <Button type="button" tone="ghost" size="sm" disabled={disabled} onClick={() => setEditing(true)} data-testid="ed-bookmark-add">
+        <span aria-hidden="true">☆ </span>В закладки
+      </Button>
+    );
+  return (
+    <form
+      className="ed-row"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (label.trim() && (await onBookmark(version, label.trim()))) setEditing(false);
+      }}
+    >
+      <label className="sr-only" htmlFor={`bm-${version.id}`}>
+        Подпись закладки версии {version.revision}
+      </label>
+      <input id={`bm-${version.id}`} className="inp" maxLength={120} value={label} placeholder="Например: перед акцией" onChange={(e) => setLabel(e.currentTarget.value)} />
+      <Button type="submit" size="sm" disabled={disabled || !label.trim()} data-testid="ed-bookmark-save">
+        Сохранить
+      </Button>
+      <Button type="button" tone="ghost" size="sm" onClick={() => setEditing(false)}>
+        Отмена
+      </Button>
+    </form>
+  );
+}
+
 export function HistoryOverlay({
   open,
   versions,
+  bookmarks,
   readOnly,
   busy,
   error,
@@ -146,9 +194,11 @@ export function HistoryOverlay({
   onPreview,
   onCompare,
   onRestore,
+  onBookmark,
 }: {
   open: boolean;
   versions: SiteVersionMeta[];
+  bookmarks: SiteVersionMeta[];
   readOnly: boolean;
   busy: boolean;
   error: string | null;
@@ -156,6 +206,7 @@ export function HistoryOverlay({
   onPreview: (v: SiteVersionMeta) => void;
   onCompare: (v: SiteVersionMeta) => void;
   onRestore: (v: SiteVersionMeta) => void;
+  onBookmark: (v: SiteVersionMeta, label: string | null) => Promise<boolean>;
 }) {
   return (
     <Overlay open={open} onClose={onClose} title="История версий" drawer trapFocus>
@@ -165,11 +216,47 @@ export function HistoryOverlay({
             {error}
           </p>
         )}
+        {bookmarks.length > 0 && (
+          <section className="ed-history__pinned" aria-labelledby="ed-bookmarks-title" data-testid="ed-bookmarks">
+            <h3 id="ed-bookmarks-title" className="ed-history__title">
+              Закладки
+            </h3>
+            <ul className="ed-history__list">
+              {bookmarks.map((v) => (
+                <li key={v.id} className="ed-history__row" data-testid="ed-bookmark-row">
+                  <div className="ed-history__facts">
+                    <b>
+                      <span aria-hidden="true">★ </span>
+                      {v.bookmark}
+                    </b>
+                    <span className="muted">
+                      Версия {v.revision}, {when(v.createdAt)}
+                    </span>
+                  </div>
+                  <div className="ed-history__actions">
+                    <Button type="button" tone="secondary" size="sm" disabled={busy} onClick={() => onPreview(v)}>
+                      Предпросмотр
+                    </Button>
+                    {!v.isLatest && (
+                      <Button type="button" tone="secondary" size="sm" disabled={busy || readOnly} onClick={() => onRestore(v)}>
+                        Восстановить как черновик
+                      </Button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        <h3 className="ed-history__title">Все версии</h3>
         <ol className="ed-history__list">
           {versions.map((v) => (
             <li key={v.id} className="ed-history__row" data-testid="ed-history-row">
               <div className="ed-history__facts">
-                <b>Версия {v.revision}</b>
+                <b>
+                  Версия {v.revision}
+                  {v.bookmark ? `: ${v.bookmark}` : ''}
+                </b>
                 <span className="muted">
                   {SOURCE[v.source]}, {when(v.createdAt)}
                 </span>
@@ -192,6 +279,7 @@ export function HistoryOverlay({
                     Восстановить как черновик
                   </Button>
                 )}
+                <BookmarkControl key={`${v.id}-${v.bookmark ?? ''}`} version={v} disabled={busy || readOnly} onBookmark={onBookmark} />
               </div>
             </li>
           ))}

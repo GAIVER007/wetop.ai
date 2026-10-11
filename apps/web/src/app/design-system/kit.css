@@ -219,4 +219,15 @@
     min-height: 400px;
     align-items: flex-start;
   }
+  /* MV8.5 DS1c: окна sm, md, lg показаны в потоке, без showModal; ширина из общего размера, не шире колонки */
+  .kit-theme .kit-overlay-static {
+    position: static;
+    display: block;
+    margin: 0;
+    max-width: 100%;
+    max-height: none;
+  }
+  .kit-form-inline {
+    margin: 0;
+  }
 }

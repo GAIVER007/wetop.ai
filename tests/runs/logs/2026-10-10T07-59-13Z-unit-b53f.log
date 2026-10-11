@@ -1,0 +1,77 @@
+# Модульные (unit) · 10.10.2026 12:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит fc5d7e0 (claude/market-ai-collector), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-59-13Z-unit-b53f.json' 'apps/api/src/market/collector.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| apps/api/src/market/collector.controller.test.ts (8 tests | 2 failed) 511ms
+   ✓ ключ сборщика (M2a, Q-260) (2)
+     ✓ без ключа — 401, чужой узкий ключ — 403; ничего не пишется 66ms
+     ✓ ключ сборщика не открывает раздел стойки: ни таблицу, ни ручной ввод, ни список конкурентов 8ms
+   ✓ GET /market/collector/competitors (1)
+     ✓ отдаёт действующих конкурентов всех объектов: имя, ссылку, расстояние и объект 3ms
+   ❯ PUT /market/collector/competitors/:id/occupancy (5)
+     × пишет снимки сегодняшнего дня объекта конкурента источником AI_AGENT, служебной ролью базы 16ms
+     × уровень наличия (DATA_MODEL §23.1): ночь с уровнем без процента, с обоими; неизвестный уровень 400 8ms
+     ✓ объект и организация не берутся из тела запроса 3ms
+     ✓ неизвестный или убранный конкурент — 404; не UUID — 400 6ms
+     ✓ сборщик не стирает: пустое значение, проценты вне 0…100, дубль и даль ночи — 400 10ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  00:59:15
+   Duration  2.82s (import 42%, transform 38%, tests 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-59-13Z-unit-b53f.json
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/market/collector.controller.test.ts > PUT /market/collector/competitors/:id/occupancy > пишет снимки сегодняшнего дня объекта конкурента источником AI_AGENT, служебной ролью базы
+AssertionError: expected [ …(2) ] to deeply equal [ { date: '2026-10-04', …(2) }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+      "bp": 9100,
+      "date": "2026-10-04",
+-     "level": null,
+    },
+    {
+      "bp": 6450,
+      "date": "2026-10-05",
+-     "level": null,
+    },
+  ]
+
+ ❯ apps/api/src/market/collector.controller.test.ts:147:32
+    145|     expect(writes[0]!.target.propertyId).toBe('prop-a');
+    146|     expect(writes[0]!.observedOn).toBe('2026-10-04');
+    147|     expect(writes[0]!.entries).toEqual([
+       |                                ^
+    148|       { date: '2026-10-04', bp: 9100, level: null },
+    149|       { date: '2026-10-05', bp: 6450, level: null },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/market/collector.controller.test.ts > PUT /market/collector/competitors/:id/occupancy > уровень наличия (DATA_MODEL §23.1): ночь с уровнем без процента, с обоими; неизвестный уровень 400
+Error: expected 200 "OK", got 400 "Bad Request"
+ ❯ apps/api/src/market/collector.controller.test.ts:165:8
+    163|       { date: '2026-10-04', level: 'FEW_LEFT' },
+    164|       { date: '2026-10-06', percent: 100, level: 'SOLD_OUT' },
+    165|     ]).expect(200);
+       |        ^
+    166|     expect(writes[0]!.entries).toEqual([
+    167|       { date: '2026-10-04', bp: null, level: 'FEW_LEFT' },
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+# код выхода 1 · 5 с

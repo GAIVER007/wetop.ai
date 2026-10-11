@@ -101,7 +101,7 @@ test('сутки гостя целиком: заезд, услуга на счё
     else await confirmDialog(page, 'Заселить');
   }
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Проживает');
 
   // 4. Услуга на счёт
   const panel = page.getByRole('main').getByTestId('folio-panel');
@@ -127,7 +127,7 @@ test('сутки гостя целиком: заезд, услуга на счё
   await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
   await confirmDialog(page, 'Выселить');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('выселен');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Выехал');
   expect(await balance()).toBe(0n);
   await page.screenshot({ path: 'reports/screenshots/full-day.png', fullPage: true });
 

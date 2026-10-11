@@ -24,10 +24,13 @@ import { pluralRu } from './plural';
 
 /** Вкладки раздела — четыре экрана по макету владельца 26.09.2026 (план `plans/seller-prompt-window-2026-09-26.md`) */
 export const SELLER_TABS = [
+  { view: 'overview', href: '/ai-seller/overview', label: 'Обзор' },
   { view: '', href: '/ai-seller', label: 'Настройка' },
   { view: 'dialogs', href: '/ai-seller/dialogs', label: 'Диалоги' },
   { view: 'knowledge', href: '/ai-seller/knowledge', label: 'Знания' },
   { view: 'connections', href: '/ai-seller/connections', label: 'Подключения' },
+  { view: 'scenarios', href: '/ai-seller/scenarios', label: 'Сценарии' },
+  { view: 'analytics', href: '/ai-seller/analytics', label: 'Аналитика' },
 ] as const;
 
 export type SellerView = (typeof SELLER_TABS)[number]['view'];
@@ -379,4 +382,16 @@ export function conversationChannelLabel(channel: string | null): string {
   if (channel === 'widget') return 'чат на сайте';
   if (channel === 'sandbox') return 'проверка';
   return channel;
+}
+
+/** Время первого ответа словами: 20 → «20 с», 65 → «1 мин 5 с», 3720 → «1 ч 2 мин»; нет данных → null */
+export function replyTimeText(seconds: number | null): string | null {
+  if (seconds === null) return null;
+  if (seconds < 60) return `${seconds} с`;
+  if (seconds < 3600) {
+    const s = seconds % 60;
+    return `${Math.floor(seconds / 60)} мин${s ? ` ${s} с` : ''}`;
+  }
+  const m = Math.floor((seconds % 3600) / 60);
+  return `${Math.floor(seconds / 3600)} ч${m ? ` ${m} мин` : ''}`;
 }

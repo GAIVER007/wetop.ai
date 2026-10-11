@@ -1,0 +1,408 @@
+# Сквозные (e2e) · 09.10.2026 20:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 903367d (claude/land2-landing-plan), незакоммиченных файлов набора: 25
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 64 tests using 2 workers
+
+  ✓   1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (503ms)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (148ms)
+  ✓   2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (749ms)
+  ✓   4 tests/site/homepage-blocks.spec.ts:25:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (143ms)
+  ✘   6 tests/site/homepage-blocks.spec.ts:36:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (162ms)
+  ✓   5 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (756ms)
+  ✓   8 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (550ms)
+  ✓   9 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (484ms)
+  ✘   7 tests/site/homepage-blocks.spec.ts:60:1 › содержимое блоков видно сразу: без вкладок, восемь возможностей, четыре входа броней, три карточки команды (10.3s)
+  ✓  11 tests/site/homepage-blocks.spec.ts:85:1 › первый экран: две кнопки в строку, направления сразу после Hero (183ms)
+  ✘  12 tests/site/homepage-blocks.spec.ts:98:1 › карточки блоков читаются одной фразой, а не абзацем (152ms)
+  ✘  13 tests/site/homepage-blocks.spec.ts:115:1 › ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки (10.2s)
+  ✓  14 tests/site/homepage-blocks.spec.ts:132:1 › первый экран: Today подписан примером и не имитирует кнопки (154ms)
+  ✓  15 tests/site/homepage-blocks.spec.ts:148:1 › на главной нет дорожной карты направлений (105ms)
+  ✓  16 tests/site/homepage-blocks.spec.ts:156:1 › пилоты обозначены явно, ведут на configured email и существующий AuthDialog (120ms)
+  ✓  17 tests/site/homepage-blocks.spec.ts:176:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (117ms)
+  ✘  18 tests/site/homepage-blocks.spec.ts:188:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (141ms)
+  ✓  19 tests/site/homepage-blocks.spec.ts:198:1 › в текстах главной нет длинного тире и разделителя « · » (123ms)
+  ✘  10 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (1.0m)
+  ✓  21 tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (400ms)
+  ✓  22 tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (181ms)
+  ✓  23 tests/site/auth-dialog.spec.ts:223:1 › на телефоне окно открывается из меню и не шире экрана (611ms)
+  ✓  24 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (3.7s)
+  ✓  25 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access (514ms)
+  ✓  26 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (541ms)
+  ✓  27 tests/site/landing.spec.ts:18:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (101ms)
+  ✓  28 tests/site/landing.spec.ts:24:3 › / — открывается, доступна и без «TODO» на экране (489ms)
+  ✓  29 tests/site/landing.spec.ts:39:3 › / — на телефоне нет горизонтальной прокрутки (96ms)
+  ✓  30 tests/site/landing.spec.ts:24:3 › /blog/ — открывается, доступна и без «TODO» на экране (325ms)
+  ✓  31 tests/site/landing.spec.ts:39:3 › /blog/ — на телефоне нет горизонтальной прокрутки (84ms)
+  ✓  32 tests/site/landing.spec.ts:24:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (362ms)
+  ✓  33 tests/site/landing.spec.ts:39:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (86ms)
+  ✓  34 tests/site/landing.spec.ts:24:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (346ms)
+  ✓  35 tests/site/landing.spec.ts:39:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (86ms)
+  ✓  36 tests/site/landing.spec.ts:24:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (336ms)
+  ✓  37 tests/site/landing.spec.ts:39:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (84ms)
+  ✓  38 tests/site/landing.spec.ts:24:3 › /calculator/ — открывается, доступна и без «TODO» на экране (343ms)
+  ✓  39 tests/site/landing.spec.ts:39:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (96ms)
+  ✓  40 tests/site/landing.spec.ts:52:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (398ms)
+  ✓  41 tests/site/landing.spec.ts:70:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (10ms)
+  ✘  42 tests/site/landing.spec.ts:83:1 › главная: регистрация открыта, маркетинговых обещаний trial нет (10.1s)
+  ✓  43 tests/site/landing.spec.ts:138:1 › первый экран объясняет платформу, направления и зрелость (162ms)
+  ✓  44 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (450ms)
+  ✓  45 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (461ms)
+  ✘  20 tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (1.0m)
+  ✓  46 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (463ms)
+  ✓  48 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (476ms)
+  ✓  49 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (502ms)
+  ✓  50 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (493ms)
+  ✓  51 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (456ms)
+  ✓  52 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (443ms)
+  ✓  53 tests/site/public-intro.spec.ts:56:1 › new header registration: keyboard activation and focus return on mobile (215ms)
+  ✓  54 tests/site/public-intro.spec.ts:76:1 › pilot invitation links preselect the correct vertical in existing AuthDialog (274ms)
+  ✓  55 tests/site/public-intro.spec.ts:102:1 › business positioning and centered mobile cards without maturity labels (135ms)
+  ✓  56 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (127ms)
+  ✓  57 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (121ms)
+  ✓  58 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (115ms)
+  ✓  59 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (121ms)
+  ✘  47 tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (1.0m)
+  ✘  60 tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (1.0m)
+  ✘  61 tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (1.0m)
+  ✓  62 tests/site/homepage-blocks.spec.ts:227:1 › блоки доступны в обеих темах (1.1s)
+  ✘  63 tests/site/homepage-blocks.spec.ts:241:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (1.0m)
+  ✘  64 tests/site/homepage-blocks.spec.ts:254:1 › «Загрузка конкурентов»: четыре пункта, пример помечен примером, кнопка ведёт в раздел стойки, сбор ИИ не обещан готовым (10.3s)
+
+
+  1) tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('.public-intro').getByRole('link', { name: /Регистрация/ })
+
+
+      149 |     .locator('.public-intro')
+      150 |     .getByRole('link', { name: /Регистрация/ })
+    > 151 |     .click();
+          |      ^
+      152 |
+      153 |   const dialog = page.getByRole('dialog');
+      154 |   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/auth-dialog.spec.ts:151:6
+
+    Error Context: test-results/auth-dialog-«Регистрация»--1bbc9-рьте-почту»-и-повтор-письма/error-context.md
+
+  2) tests/site/homepage-blocks.spec.ts:36:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 0
+
+      Array [
+        "audience",
+        "features",
+    -   "market",
+        "sales",
+    -   "ai-sellers",
+        "team",
+        "start",
+        "faq",
+      ]
+
+      41 |     .locator('main section[id]')
+      42 |     .evaluateAll((els) => els.map((el) => el.getAttribute('id')));
+    > 43 |   expect(ids.filter((id) => BLOCKS.some((b) => b.id === id))).toEqual(BLOCKS.map((b) => b.id));
+         |                                                               ^
+      44 |   for (const block of BLOCKS) {
+      45 |     const section = page.locator(`#${block.id}`);
+      46 |     await expect(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:43:63
+
+    Error Context: test-results/homepage-blocks-блоки-идут-032af-головок-и-заголовок-словами/error-context.md
+
+  3) tests/site/homepage-blocks.spec.ts:60:1 › содержимое блоков видно сразу: без вкладок, восемь возможностей, четыре входа броней, три карточки команды 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#features .card')
+    Expected: 8
+    Received: 6
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#features .card') with timeout 10000ms
+      - waiting for locator('#features .card')
+        24 × locator resolved to 6 elements
+           - unexpected value "6"
+
+
+      65 |   await expect(page.locator('main [role="tablist"]')).toHaveCount(0);
+      66 |   const features = page.locator('#features .card');
+    > 67 |   await expect(features).toHaveCount(8);
+         |                          ^
+      68 |   for (const card of await features.all()) await expect(card).toBeVisible();
+      69 |   await expect(page.locator('#features')).toContainText(/Шахматка/);
+      70 |   await expect(page.locator('#features')).toContainText(/Каналы продаж/);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:67:26
+
+    Error Context: test-results/homepage-blocks-содержимое-92871-броней-три-карточки-команды/error-context.md
+
+  4) tests/site/homepage-blocks.spec.ts:98:1 › карточки блоков читаются одной фразой, а не абзацем ─
+
+    Error: текст карточки длиннее одной фразы
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "#sales: 129 знаков: Отвечает клиентам по знаниям вашего бизн",
+    +   "#sales: 110 знаков: Вносите загрузку соседних объектов и сра",
+    + ]
+
+      105 |     }
+      106 |   }
+    > 107 |   expect(long, 'текст карточки длиннее одной фразы').toEqual([]);
+          |                                                      ^
+      108 |   // «Что умеет WETOP»: восемь строк-пунктов в две колонки вместо восьми карточек-колонок
+      109 |   await expect(page.locator('#features .card-grid--2')).toBeVisible();
+      110 |   await expect(page.locator('#features .card--compact')).toHaveCount(8);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:107:54
+
+    Error Context: test-results/homepage-blocks-карточки-б-52d48-я-одной-фразой-а-не-абзацем/error-context.md
+
+  5) tests/site/homepage-blocks.spec.ts:115:1 › ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#sales .card > .link-arrow')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#sales .card > .link-arrow') with timeout 10000ms
+      - waiting for locator('#sales .card > .link-arrow')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      119 |   await page.goto('/');
+      120 |   const link = page.locator('#sales .card > .link-arrow');
+    > 121 |   await expect(link).toHaveCount(1);
+          |                      ^
+      122 |   const card = page.locator('#sales .card', { has: page.locator('> .link-arrow') });
+      123 |   const linkBox = (await link.boundingBox())!;
+      124 |   const cardBox = (await card.boundingBox())!;
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:121:22
+
+    Error Context: test-results/homepage-blocks-ссылка-в-к-23e32-о-всю-карточку-в-две-строки/error-context.md
+
+  6) tests/site/homepage-blocks.spec.ts:188:1 › меню шапки ведёт на блоки, а не на абстрактные разделы 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        "/#product",
+        "/#audience",
+        "/#features",
+    -   "/#ai-sellers",
+    +   "/#sales",
+        "/#start",
+      ]
+
+      193 |     .getByRole('link')
+      194 |     .evaluateAll((els) => els.map((el) => el.getAttribute('href')));
+    > 195 |   expect(hrefs).toEqual(['/#product', '/#audience', '/#features', '/#ai-sellers', '/#start']);
+          |                 ^
+      196 | });
+      197 |
+      198 | test('в текстах главной нет длинного тире и разделителя « · »', async ({ page }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:195:17
+
+    Error Context: test-results/homepage-blocks-меню-шапки-c953b-а-не-на-абстрактные-разделы/error-context.md
+
+  7) tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 320 px и открывает регистрацию с первого экрана 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('.public-intro__actions a[href="#audience"]')
+
+
+      218 |     ).toBeLessThanOrEqual(1);
+      219 |     // кнопка «Смотреть возможности»: плитки карты разделов ведут на тот же блок, но это другие ссылки
+    > 220 |     await page.locator('.public-intro__actions a[href="#audience"]').click();
+          |                                                                      ^
+      221 |     await expect(page.locator('#audience')).toBeInViewport();
+      222 |     await page.locator('.public-intro [data-auth="register"]').click();
+      223 |     await expect(page.getByRole('dialog')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:220:70
+
+    Error Context: test-results/homepage-blocks-главная-по-635db-егистрацию-с-первого-экрана/error-context.md
+
+  8) tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 390 px и открывает регистрацию с первого экрана 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('.public-intro__actions a[href="#audience"]')
+
+
+      218 |     ).toBeLessThanOrEqual(1);
+      219 |     // кнопка «Смотреть возможности»: плитки карты разделов ведут на тот же блок, но это другие ссылки
+    > 220 |     await page.locator('.public-intro__actions a[href="#audience"]').click();
+          |                                                                      ^
+      221 |     await expect(page.locator('#audience')).toBeInViewport();
+      222 |     await page.locator('.public-intro [data-auth="register"]').click();
+      223 |     await expect(page.getByRole('dialog')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:220:70
+
+    Error Context: test-results/homepage-blocks-главная-по-b6ff3-егистрацию-с-первого-экрана/error-context.md
+
+  9) tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 768 px и открывает регистрацию с первого экрана 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('.public-intro__actions a[href="#audience"]')
+
+
+      218 |     ).toBeLessThanOrEqual(1);
+      219 |     // кнопка «Смотреть возможности»: плитки карты разделов ведут на тот же блок, но это другие ссылки
+    > 220 |     await page.locator('.public-intro__actions a[href="#audience"]').click();
+          |                                                                      ^
+      221 |     await expect(page.locator('#audience')).toBeInViewport();
+      222 |     await page.locator('.public-intro [data-auth="register"]').click();
+      223 |     await expect(page.getByRole('dialog')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:220:70
+
+    Error Context: test-results/homepage-blocks-главная-по-9bb2d-егистрацию-с-первого-экрана/error-context.md
+
+  10) tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('.public-intro__actions a[href="#audience"]')
+
+
+      218 |     ).toBeLessThanOrEqual(1);
+      219 |     // кнопка «Смотреть возможности»: плитки карты разделов ведут на тот же блок, но это другие ссылки
+    > 220 |     await page.locator('.public-intro__actions a[href="#audience"]').click();
+          |                                                                      ^
+      221 |     await expect(page.locator('#audience')).toBeInViewport();
+      222 |     await page.locator('.public-intro [data-auth="register"]').click();
+      223 |     await expect(page.getByRole('dialog')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:220:70
+
+    Error Context: test-results/homepage-blocks-главная-по-4fd57-егистрацию-с-первого-экрана/error-context.md
+
+  11) tests/site/homepage-blocks.spec.ts:241:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByText('Можно продавать номера и отдельные койки?', { exact: true })
+
+
+      248 |   await page.reload();
+      249 |   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    > 250 |   await page.getByText('Можно продавать номера и отдельные койки?', { exact: true }).click();
+          |                                                                                      ^
+      251 |   await expect(page.locator('#faq details[open]')).toContainText('отдельные единицы');
+      252 | });
+      253 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:250:86
+
+    Error Context: test-results/homepage-blocks-FAQ-раскры-98471-атель-темы-запоминает-выбор/error-context.md
+
+  12) tests/site/homepage-blocks.spec.ts:254:1 › «Загрузка конкурентов»: четыре пункта, пример помечен примером, кнопка ведёт в раздел стойки, сбор ИИ не обещан готовым 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#market').locator('.seller-details__steps > li')
+    Expected: 4
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#market').locator('.seller-details__steps > li') with timeout 10000ms
+      - waiting for locator('#market').locator('.seller-details__steps > li')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      257 |   await page.goto('/');
+      258 |   const block = page.locator('#market');
+    > 259 |   await expect(block.locator('.seller-details__steps > li')).toHaveCount(4);
+          |                                                              ^
+      260 |   await expect(block.getByRole('complementary')).toContainText('Пример');
+      261 |   await expect(block.getByRole('link', { name: /Открыть раздел/ })).toHaveAttribute(
+      262 |     'href',
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/homepage-blocks.spec.ts:259:62
+
+    Error Context: test-results/homepage-blocks-«Загрузка--f422f-и-сбор-ИИ-не-обещан-готовым/error-context.md
+
+  13) tests/site/landing.spec.ts:83:1 › главная: регистрация открыта, маркетинговых обещаний trial нет 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('#start').getByRole('heading', { level: 3 })
+    Timeout: 10000ms
+    - Expected  - 3
+    + Received  + 2
+
+      Array [
+        "Создайте аккаунт",
+    -   /^Подтвердите почту$/,
+    -   /^Настройте объект$/,
+    +   "Добавьте бизнес",
+    +   "Настройте процессы",
+        "Начните работу",
+    -   undefined,
+      ]
+
+    Call log:
+      - Expect "toHaveText" locator('#start').getByRole('heading', { level: 3 }) with timeout 10000ms
+      - waiting for locator('#start').getByRole('heading', { level: 3 })
+        24 × locator resolved to 4 elements
+
+
+      87 |   expect(body).not.toContain(' · ');
+      88 |   const start = page.locator('#start');
+    > 89 |   await expect(start.getByRole('heading', { level: 3 })).toHaveText([
+         |                                                          ^
+      90 |     /^Создайте аккаунт$/,
+      91 |     /^Подтвердите почту$/,
+      92 |     /^Настройте объект$/,
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/land2/tests/site/landing.spec.ts:89:58
+
+    Error Context: test-results/landing-главная-регистраци-76940-тинговых-обещаний-trial-нет/error-context.md
+
+  13 failed
+    tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма 
+    tests/site/homepage-blocks.spec.ts:36:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами 
+    tests/site/homepage-blocks.spec.ts:60:1 › содержимое блоков видно сразу: без вкладок, восемь возможностей, четыре входа броней, три карточки команды 
+    tests/site/homepage-blocks.spec.ts:98:1 › карточки блоков читаются одной фразой, а не абзацем ──
+    tests/site/homepage-blocks.spec.ts:115:1 › ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки 
+    tests/site/homepage-blocks.spec.ts:188:1 › меню шапки ведёт на блоки, а не на абстрактные разделы 
+    tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 320 px и открывает регистрацию с первого экрана 
+    tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 390 px и открывает регистрацию с первого экрана 
+    tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 768 px и открывает регистрацию с первого экрана 
+    tests/site/homepage-blocks.spec.ts:206:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана 
+    tests/site/homepage-blocks.spec.ts:241:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор 
+    tests/site/homepage-blocks.spec.ts:254:1 › «Загрузка конкурентов»: четыре пункта, пример помечен примером, кнопка ведёт в раздел стойки, сбор ИИ не обещан готовым 
+    tests/site/landing.spec.ts:83:1 › главная: регистрация открыта, маркетинговых обещаний trial нет 
+  51 passed (5.8m)
+
+# код выхода 1 · 5 мин 46 с

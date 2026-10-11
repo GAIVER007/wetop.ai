@@ -171,3 +171,51 @@ test('полный возврат убирает платёж из выбора 
   await preview.getByRole('button', { name: 'Закрыть предпросмотр' }).click();
   await expect(preview).toBeHidden();
 });
+
+test('выбор другой брони требует отказа от неподтверждённой оплаты', async ({ page, request }) => {
+  const card = await (
+    await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+  ).json();
+  const before = await (
+    await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })
+  ).json();
+  await page.goto(`/chessboard?from=${card.arrivalDate}&to=${card.departureDate}`);
+  await page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first().click();
+  const preview = page.getByTestId('stay-preview');
+  await preview.getByRole('button', { name: 'Оплата / возврат', exact: true }).click();
+  await preview.getByLabel('Сумма', { exact: true }).fill('125');
+  const other = page.locator(`[data-testid="stay-cell"]:not([data-number="${number}"])`).first();
+  const otherNumber = await other.getAttribute('data-number');
+  await other.click();
+  const close = page.getByRole('dialog', { name: 'Закрыть без проведения?' });
+  await expect(close).toBeVisible();
+  await close.getByRole('button', { name: 'Продолжить ввод', exact: true }).click();
+  await expect(preview.getByLabel('Сумма', { exact: true })).toHaveValue('125');
+  await other.click();
+  await close.getByRole('button', { name: 'Закрыть без проведения', exact: true }).click();
+  await expect(preview).toContainText(`Бронь №${otherNumber}`);
+  const after = await (
+    await request.get(`${FIXTURE_API}/finance/reservations/${number}`, { headers })
+  ).json();
+  expect(after.paidMinor).toBe(before.paidMinor);
+});
+
+test('свободная ячейка не теряет неподтверждённую оплату', async ({ page, request }) => {
+  const card = await (
+    await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+  ).json();
+  await page.goto(`/chessboard?from=${card.arrivalDate}&to=${card.departureDate}`);
+  await page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first().click();
+  const preview = page.getByTestId('stay-preview');
+  await preview.getByRole('button', { name: 'Оплата / возврат', exact: true }).click();
+  await preview.getByLabel('Сумма', { exact: true }).fill('125');
+  const free = page.getByTestId('free-cell').first();
+  await free.click();
+  const close = page.getByRole('dialog', { name: 'Закрыть без проведения?' });
+  await expect(close).toBeVisible();
+  await close.getByRole('button', { name: 'Продолжить ввод', exact: true }).click();
+  await expect(preview.getByLabel('Сумма', { exact: true })).toHaveValue('125');
+  await free.click();
+  await close.getByRole('button', { name: 'Закрыть без проведения', exact: true }).click();
+  await expect(page.getByTestId('free-menu')).toBeVisible();
+});

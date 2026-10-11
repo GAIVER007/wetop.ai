@@ -1,0 +1,33 @@
+# Интеграционные (integration) · 09.10.2026 19:02 Алматы · vm
+# коммит 88b6e07 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T14-02-20Z-integration-decb.json' 'tests/integration/licensed-site-builder.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:31776) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/licensed-site-builder.test.ts (27 tests) 9038ms
+   ✓ MKT9.2 licensed site builder (27)
+     ✓ лицензия закрывает запись и ИИ, чтение открыто (3)
+       ✓ лицензия выключена или срок вышел: каждая запись и каждый ИИ 403, чтение 200, пауза и архив не закрыты 922ms
+     ✓ разговор с ИИ: Чат, План, Оформление (5)
+       ✓ План: вопросы, ответы, план; «Собрать по плану» ставит ровно одну сборку PATCH, повтор отдаёт её же 382ms
+       ✓ план устарел: голова сменилась после плана, сборка по нему 409 BASE_VERSION_CHANGED 316ms
+       ✓ Оформление: три направления; первая сборка с выбранным ставит тему платформой, модели уходит описание 556ms
+     ✓ разговор помнит контекст: история только этого сайта и ответы на вопросы плана (7)
+       ✓ три хода: на третьем (План) история это два прошлых хода по порядку; упавший ход и упавшая сборка не попадают, успешная сборка попадает 687ms
+       ✓ граница: история только этого сайта; другой филиал, журнал и чужая организация в неё не попадают 680ms
+       ✓ отвечать можно только на успешные вопросы плана своего сайта; чужой филиал получает нейтральный 404 без вопросов 571ms
+     ✓ общие правила ИИ сайта по обеим таблицам (5)
+       ✓ предел часа общий: 10 запросов к ИИ сайта любым режимом, одиннадцатый 429 563ms
+     ✓ закладки версий (1)
+       ✓ поставить, переименовать, снять; в истории отдельным списком; чужая версия 404; не больше 20 1025ms
+
+ Test Files  1 passed (1)
+      Tests  27 passed (27)
+   Start at  14:02:22
+   Duration  13.69s (tests 77%, transform 16%, import 8%)
+
+JSON report written to /tmp/pms-test-2026-10-09T14-02-20Z-integration-decb.json
+
+# код выхода 0 · 15 с

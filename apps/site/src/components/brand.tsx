@@ -27,11 +27,17 @@ export function BrandMark({ size = 34, id = 'brand' }: { size?: number; id?: str
   );
 }
 
-export function Wordmark({ id = 'brand' }: { id?: string }) {
+export function Wordmark({
+  id = 'brand',
+  withDomain = false,
+}: {
+  id?: string;
+  withDomain?: boolean;
+}) {
   return (
     <span className="brand">
       <BrandMark id={id} />
-      <span className="brand__name">WETOP</span>
+      <span className="brand__name">WETOP{withDomain ? '.AI' : ''}</span>
     </span>
   );
 }

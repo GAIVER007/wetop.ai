@@ -23,6 +23,7 @@ export function AmountChip({
   label?: string | undefined;
   currency?: string | undefined;
 }) {
+  // status-hint: слово перед суммой (к оплате, оплачено), а не состояние оплаты брони
   const word =
     label ??
     ({ due: 'к оплате', paid: 'оплачено', refund: 'возврат', neutral: 'сумма' } as const)[tone];

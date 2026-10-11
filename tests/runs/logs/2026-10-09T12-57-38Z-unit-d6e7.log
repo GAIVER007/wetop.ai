@@ -1,0 +1,89 @@
+# Модульные (unit) · 09.10.2026 17:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T12-57-38Z-unit-d6e7.json' 'apps/api/src/wizard/wizard-input.test.ts' 'apps/web/src/app/create/regional.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/web/src/app/create/regional.test.ts (0 test)
+ ❯ |unit| apps/api/src/wizard/wizard-input.test.ts (4 tests | 4 failed) 3ms
+   ❯ гостевой мастер: разбор ввода (4)
+     × адрес сайта принимает только http и https, пустой разрешён 2ms
+     × отметки «найдено на сайте» хранятся списком имён полей 0ms
+     × опрос: три вопроса, лишнее поле и чужое значение отклоняются 0ms
+     × событие с клиента: только из белого списка, серверные события подделать нельзя 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/create/regional.test.ts [ apps/web/src/app/create/regional.test.ts ]
+Error: Cannot find module './regional' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/src/app/create/regional.test.ts
+ ❯ apps/web/src/app/create/regional.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { guessRegional } from './regional';
+       | ^
+      3|
+      4| describe('умолчания валюты и часового пояса мастера', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/wizard/wizard-input.test.ts > гостевой мастер: разбор ввода > адрес сайта принимает только http и https, пустой разрешён
+BadRequestException: Проверьте поле настроек
+ ❯ wizardConfig apps/api/src/wizard/wizard-input.ts:29:13
+     27|     const limit = fields[key];
+     28|     if (!limit || typeof value !== 'string' || value.length > limit)
+     29|       throw new BadRequestException(`Проверьте поле ${limit ? key : 'н…
+       |             ^
+     30|     result[key] = value.trim();
+     31|   }
+ ❯ apps/api/src/wizard/wizard-input.test.ts:6:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/api/src/wizard/wizard-input.test.ts > гостевой мастер: разбор ввода > отметки «найдено на сайте» хранятся списком имён полей
+BadRequestException: Проверьте поле настроек
+ ❯ wizardConfig apps/api/src/wizard/wizard-input.ts:29:13
+     27|     const limit = fields[key];
+     28|     if (!limit || typeof value !== 'string' || value.length > limit)
+     29|       throw new BadRequestException(`Проверьте поле ${limit ? key : 'н…
+       |             ^
+     30|     result[key] = value.trim();
+     31|   }
+ ❯ apps/api/src/wizard/wizard-input.test.ts:16:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/api/src/wizard/wizard-input.test.ts > гостевой мастер: разбор ввода > опрос: три вопроса, лишнее поле и чужое значение отклоняются
+TypeError: wizardSurvey is not a function
+ ❯ apps/api/src/wizard/wizard-input.test.ts:20:12
+     18|
+     19|   it('опрос: три вопроса, лишнее поле и чужое значение отклоняются', (…
+     20|     expect(wizardSurvey({ goal: 'Больше броней', leadsPerDay: '10-50',…
+       |            ^
+     21|       goal: 'Больше броней',
+     22|       leadsPerDay: '10-50',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/api/src/wizard/wizard-input.test.ts > гостевой мастер: разбор ввода > событие с клиента: только из белого списка, серверные события подделать нельзя
+TypeError: wizardClientEvent is not a function
+ ❯ apps/api/src/wizard/wizard-input.test.ts:34:12
+     32|
+     33|   it('событие с клиента: только из белого списка, серверные события по…
+     34|     expect(wizardClientEvent({ type: 'source_submitted' })).toBe('sour…
+       |            ^
+     35|     expect(wizardClientEvent({ type: 'testbot_cta' })).toBe('testbot_c…
+     36|     expect(() => wizardClientEvent({ type: 'scan_completed' })).toThro…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed (4)
+   Start at  05:57:39
+   Duration  266ms (import 82%, transform 14%, worker 2%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T12-57-38Z-unit-d6e7.json
+
+# код выхода 1 · 1 с

@@ -9,10 +9,10 @@ test('calendar fills notebook screen with a side summary and frozen headings', a
   await page.goto('/chessboard');
   const grid = page.getByRole('region', { name: 'Календарь по дням' });
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  await expect(page.getByLabel('Вид строк календаря')).toHaveValue('compact');
+  await expect(grid).toHaveAttribute('data-density', 'normal');
   const box = (await grid.boundingBox())!;
   expect(box.height).toBeGreaterThan(460);
-  const summary = (await page.getByRole('group', { name: 'Сегодня на объекте' }).boundingBox())!;
+  const summary = (await page.getByRole('group', { name: 'Сводка дня' }).boundingBox())!;
   expect(summary.x).toBeGreaterThanOrEqual(box.x + box.width);
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
     true,
@@ -37,9 +37,17 @@ test('expanded calendar restores the workspace with Escape and remembers density
   await page.keyboard.press('Escape');
   await expect(toggle).toBeFocused();
   expect((await page.locator('main').boundingBox())!.y).toBeGreaterThan(0);
-  await page.getByLabel('Вид строк календаря').selectOption('normal');
+  await page.getByRole('button', { name: /^Фильтры/ }).click();
+  await page
+    .getByRole('group', { name: 'Вид строк календаря' })
+    .getByRole('button', { name: 'Компактный', exact: true })
+    .click();
+  await page.keyboard.press('Escape');
   await page.reload();
-  await expect(page.getByLabel('Вид строк календаря')).toHaveValue('normal');
+  await expect(page.getByRole('region', { name: 'Календарь по дням' })).toHaveAttribute(
+    'data-density',
+    'compact',
+  );
 });
 
 test('booking menu and keyboard remain usable in the expanded calendar', async ({ page }) => {

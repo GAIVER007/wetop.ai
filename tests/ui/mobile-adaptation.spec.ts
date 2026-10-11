@@ -30,7 +30,6 @@ test('телефон: низ страницы не прячется под ни�
     '/finance',
     '/inventory',
     '/channels',
-    '/today',
     '/reservations',
     '/management/analytics',
     '/reports',
@@ -43,12 +42,20 @@ test('телефон: низ страницы не прячется под ни�
     const nav = page.locator('.bottom-navigation');
     await expect(nav).toBeVisible();
     const navHeight = (await nav.boundingBox())?.height ?? 0;
-    // На части экранов (вкладки тарифов) несколько .page — мерим видимую
-    const padBottom = await page
-      .locator('.page:visible')
-      .first()
-      .evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
-    expect(padBottom, `${route}: padding-bottom ${padBottom} < панель ${navHeight}`).toBeGreaterThanOrEqual(navHeight);
+    // На части экранов (вкладки тарифов) несколько .page — мерим видимую. Замер повторяется: у раздела
+    // со своим `loading.tsx` первым приходит `.page` экрана ожидания, потоковая отрисовка снимает его
+    // посреди замера, и у отцепленного узла `getComputedStyle` пуст (NaN, release-checks 37795974518)
+    await expect
+      .poll(
+        () =>
+          page
+            .locator('.page:visible')
+            .first()
+            .evaluate((el) => (el.isConnected ? parseFloat(getComputedStyle(el).paddingBottom) : Number.NaN))
+            .catch(() => Number.NaN),
+        { message: `${route}: padding-bottom меньше панели ${navHeight}` },
+      )
+      .toBeGreaterThanOrEqual(navHeight);
     // и страница не едет вбок
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
@@ -93,7 +100,11 @@ test('телефон: сводка и управление оставляют с
   expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(700);
   const navigation = await page.locator('.bottom-navigation').boundingBox();
   expect(navigation!.y - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
-  await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
+  // с 09.10 период живёт в раскрывашке «Октябрь 2026 ▾» только полями «С» и «По» (образец владельца), готовых
+  // периодов в ней нет; длина окна 7 / 14 / 30 дней стоит в своей раскрывашке
+  await page.getByTestId('board-period-button').click();
+  await expect(page.getByLabel('Период: с', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Период: по', { exact: true })).toBeVisible();
 });
 
 test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
@@ -117,7 +128,6 @@ test('телефон: кнопки, поля и вкладки разделов 
     '/finance',
     '/finance?tab=cash',
     '/guests',
-    '/today',
     '/reservations',
     '/management/analytics',
     '/reports',
@@ -148,7 +158,6 @@ test('телефон: поля не мельче 16 px — иначе iOS зум
   // Главной, 14 px у «Броней», «Финансов», «Кассы» и «Отчётов» — плотные полосы разделов
   // перебивали общее правило (`.finance-toolbar .field--inline .inp` специфичнее `.workspace .inp`).
   for (const route of [
-    '/today',
     '/chessboard',
     '/reservations',
     '/reservations/new',

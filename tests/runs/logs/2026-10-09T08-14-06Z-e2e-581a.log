@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 09.10.2026 13:14 Алматы · vm
+# коммит b795d88 (claude/mv8-5-ds1c-acceptance-followup), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/ds1c-primitives.spec.ts' 'tests/ui/finance-card-actions.spec.ts' '-g' 'главная кнопка|доступность «Счетов»' '--repeat-each=10' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 50 tests using 1 worker
+
+  ✓   1 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (4.8s)
+  ✓   2 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (6.5s)
+  ✓   3 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (4.6s)
+  ✓   4 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (5.3s)
+  ✓   5 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (4.7s)
+  ✓   6 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (3.7s)
+  ✓   7 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (5.1s)
+  ✓   8 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (4.7s)
+  ✓   9 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (5.1s)
+  ✓  10 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (4.5s)
+  ✓  11 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (3.5s)
+  ✓  12 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (5.0s)
+  ✓  13 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (4.3s)
+  ✓  14 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (5.0s)
+  ✓  15 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (4.6s)
+  ✓  16 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (3.9s)
+  ✓  17 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (5.2s)
+  ✓  18 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (5.0s)
+  ✓  19 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (4.9s)
+  ✓  20 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (4.8s)
+  ✓  21 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (3.3s)
+  ✓  22 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (5.5s)
+  ✓  23 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (4.7s)
+  ✓  24 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (5.4s)
+  ✓  25 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (5.0s)
+  ✓  26 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (4.0s)
+  ✓  27 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (6.1s)
+  ✓  28 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (4.8s)
+  ✓  29 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (5.8s)
+  ✓  30 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (4.6s)
+  ✓  31 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (3.8s)
+  ✓  32 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (5.6s)
+  ✓  33 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (5.3s)
+  ✓  34 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (6.6s)
+  ✓  35 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (5.6s)
+  ✓  36 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (6.1s)
+  ✓  37 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (6.7s)
+  ✓  38 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (5.6s)
+  ✓  39 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (5.5s)
+  ✓  40 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (4.8s)
+  ✓  41 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (4.6s)
+  ✓  42 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (5.4s)
+  ✓  43 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (5.2s)
+  ✓  44 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (5.2s)
+  ✓  45 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (5.1s)
+  ✓  46 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (3.7s)
+  ✓  47 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (4.9s)
+  ✓  48 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (4.7s)
+  ✓  49 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (4.9s)
+  ✓  50 tests/ui/finance-card-actions.spec.ts:190:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (4.6s)
+
+  50 passed (4.6m)
+
+# код выхода 0 · 4 мин 35 с

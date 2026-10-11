@@ -170,6 +170,680 @@
       grid-template-columns: 1fr 1fr;
     }
   }
+  /* ── Подстраницы бара (ADR-157) ───────────────────────────────────────── */
+  .bar-tabs {
+    margin-bottom: var(--space-4);
+  }
+  .bar-quick {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    margin-bottom: var(--space-4);
+  }
+  .bar-quick .section-title {
+    margin-top: 0;
+  }
+  .bar-muted {
+    color: var(--muted);
+    margin: 0 0 var(--space-2);
+  }
+  .bar-catalog-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    margin-bottom: var(--space-6);
+  }
+  .bar-category-form {
+    display: grid;
+    grid-template-columns: 1fr minmax(120px, 0.6fr) auto;
+    gap: var(--space-2);
+    align-items: end;
+  }
+  .bar-category-form .bar-error,
+  .bar-category-form .bar-success {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .bar-supplier-panel {
+    margin-bottom: var(--space-6);
+  }
+  .bar-supplier-form {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr auto;
+    gap: var(--space-2);
+    align-items: end;
+  }
+  .bar-supplier-form .bar-error,
+  .bar-supplier-form .bar-success {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .bar-supplier-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  /* ── ИИ-скан накладной ────────────────────────────────────────────────── */
+  .bar-scan {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    padding: var(--space-4);
+    display: grid;
+    gap: var(--space-2);
+  }
+  .bar-scan-row {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) auto;
+    gap: var(--space-4);
+    align-items: end;
+  }
+  .bar-scan-input {
+    padding-top: var(--space-1);
+  }
+  .bar-scan-warnings {
+    margin: 0;
+    padding-left: var(--space-4);
+    color: var(--muted);
+  }
+  .bar-line-new {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: var(--space-2);
+  }
+  .bar-line-tools {
+    display: flex;
+    gap: var(--space-1);
+    align-items: center;
+  }
+  .bar-line-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  /* ── Обзор по макету владельца (09.10.2026, ADR-157) ─────────────────────────────── */
+  .bar-page .page__head {
+    margin-bottom: var(--space-4);
+  }
+  .bar-page .page__actions .btn {
+    gap: var(--space-1);
+  }
+  .bar-panel-title {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+  }
+  .bar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-weight: var(--weight-medium);
+  }
+  /* плитки: иконка в цветном круге слева, подпись, число, подсказка или прирост */
+  .bar-kpis {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  /* иконка по центру подписи и числа; прирост к прошлому месяцу идёт строкой во всю ширину плитки, как на макете */
+  .bar-kpi {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: center;
+    align-content: start;
+    column-gap: var(--space-2);
+    row-gap: var(--space-1);
+    min-width: 0;
+    padding: var(--space-4) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .bar-kpi--alarm {
+    background: var(--danger-soft);
+    border-color: var(--danger-soft);
+  }
+  .bar-kpi-icon {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    display: grid;
+    place-items: center;
+  }
+  .bar-kpi-icon--primary,
+  .bar-kpi-icon--info {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .bar-kpi-icon--success {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .bar-kpi-icon--warning {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .bar-kpi-icon--danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .bar-kpi--alarm .bar-kpi-icon--danger {
+    background: var(--surface);
+  }
+  .bar-kpi-body {
+    min-width: 0;
+    display: grid;
+    gap: var(--space-1);
+  }
+  .bar-kpi-label {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bar-kpi--alarm .bar-kpi-label,
+  .bar-kpi--alarm .bar-kpi-value {
+    color: var(--danger);
+  }
+  .bar-kpi-value {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .bar-kpi-hint {
+    grid-column: 2;
+    min-width: 0;
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .bar-kpi-hint--wide {
+    grid-column: 1 / -1;
+  }
+  .bar-kpi-hint svg {
+    vertical-align: -2px;
+  }
+  .bar-kpi-delta {
+    white-space: nowrap;
+  }
+  .bar-kpi-hint--up {
+    color: var(--success);
+  }
+  .bar-kpi-hint--down {
+    color: var(--danger);
+  }
+  /* быстрая продажа и счёт гостя: заголовок с иконкой, поля одной строкой без подписей над ними */
+  .bar-quick {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  }
+  .bar-quick > *,
+  .bar-bottom > *,
+  .bar-main > * {
+    min-width: 0;
+  }
+  .bar-quick-panel {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    padding: var(--space-4) var(--space-6);
+  }
+  .bar-quick-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .bar-quick-head .bar-muted {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  .bar-quick-icon {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+    border-radius: var(--radius-sm);
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: grid;
+    place-items: center;
+  }
+  .bar-quick-form {
+    display: grid;
+    gap: var(--space-2);
+  }
+  /* «Операции»: списание и инвентаризация в половине экрана, поля по две в ряд */
+  .bar-quick .bar-sale-form {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .bar-quick-form .bar-error,
+  .bar-quick-form .bar-success {
+    margin: 0;
+  }
+  .bar-inline {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(56px, 0.6fr) minmax(0, 1.3fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .bar-inline--folio {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(56px, 0.5fr) auto;
+  }
+  .bar-inline .btn {
+    gap: var(--space-1);
+    white-space: nowrap;
+  }
+  /* иконка внутри поля: поиск у товара и календарь у периода */
+  .bar-select-search {
+    position: relative;
+    display: block;
+    min-width: 0;
+  }
+  .bar-select-search > svg {
+    position: absolute;
+    left: var(--space-2);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .bar-select-search > .inp {
+    padding-left: var(--space-8);
+    width: 100%;
+  }
+  /* доска слева, карточка товара справа, как на макете */
+  .bar-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(288px, 21vw, 360px);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .bar-main-left {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .bar-board {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  .bar-board-filters {
+    display: grid;
+    grid-template-columns: minmax(200px, 2fr) repeat(4, minmax(0, 1fr));
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .bar-board .table-scroll {
+    max-height: calc(100dvh - var(--header-h, 100px) - 200px);
+    overflow-y: auto;
+  }
+  /* плотная таблица макета: одна строка на товар, узкие поля ячеек; заголовок колонки может переноситься */
+  .bar-board .tbl th,
+  .bar-board .tbl td,
+  .bar-bottom .tbl th,
+  .bar-bottom .tbl td {
+    padding-inline: var(--space-1);
+    font-size: var(--text-xs);
+  }
+  .bar-board .tbl td,
+  .bar-bottom .tbl td {
+    white-space: nowrap;
+  }
+  .bar-board .tbl th {
+    white-space: normal;
+    vertical-align: bottom;
+  }
+  .bar-board .tbl th:first-child,
+  .bar-board .tbl td:first-child,
+  .bar-bottom .tbl th:first-child,
+  .bar-bottom .tbl td:first-child {
+    padding-left: var(--space-2);
+  }
+  .bar-col-check {
+    width: 24px;
+  }
+  .bar-col-check input {
+    width: 16px;
+    height: 16px;
+  }
+  .bar-product-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .bar-product-link:focus-visible {
+    outline: var(--focus-ring-w, 2px) solid var(--focus);
+    outline-offset: var(--focus-ring-offset, 2px);
+  }
+  .bar-avatar {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 auto;
+    border-radius: var(--radius-sm);
+    display: grid;
+    place-items: center;
+    font-weight: var(--weight-bold);
+    font-size: var(--text-sm);
+  }
+  .bar-avatar--lg {
+    width: 48px;
+    height: 48px;
+    font-size: var(--text-xl);
+  }
+  .bar-avatar--primary,
+  .bar-avatar--info {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .bar-avatar--success {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .bar-avatar--warning {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .bar-avatar--danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .bar-units {
+    font-variant-numeric: tabular-nums;
+  }
+  .bar-units--ok {
+    color: var(--success);
+  }
+  .bar-units--low {
+    color: var(--warning);
+  }
+  .bar-units--out {
+    color: var(--danger);
+  }
+  .bar-row-actions {
+    white-space: nowrap;
+  }
+  /* «Изменить» и «⋯» всегда видны: на узком экране таблица листается вбок под ними */
+  .bar-board .tbl td.bar-row-actions,
+  .bar-board .tbl th:last-child {
+    position: sticky;
+    right: 0;
+    background: var(--surface-solid);
+  }
+  .bar-board .tbl tr:hover > td.bar-row-actions {
+    background: var(--row-hover);
+  }
+  .bar-board .tbl tr.is-active > td.bar-row-actions {
+    background: var(--primary-soft);
+  }
+  .bar-bulk {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    background: var(--primary-soft);
+  }
+  /* карточка товара колонкой справа рядом с доской и нижним рядом, как на макете */
+  .bar-card {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    padding: var(--space-4);
+  }
+  .bar-card-head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .bar-card-head h3 {
+    margin: 0;
+    font-size: var(--text-xl);
+  }
+  .bar-card-empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-4);
+    padding: var(--space-8) var(--space-4);
+    text-align: center;
+    color: var(--muted);
+  }
+  .bar-card-form {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .bar-card-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  /* вкладки карточки товара подчёркнуты, как на макете: решение владельца 09.10.2026 поверх §8.1 (ADR-157) */
+  .bar-card .tabs {
+    width: 100%;
+    gap: 0;
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: inset 0 -1px 0 var(--border);
+  }
+  .bar-card .tabs__item {
+    flex: 1 1 0;
+    justify-content: center;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+  }
+  .bar-card .tabs__item:hover {
+    background: transparent;
+  }
+  .bar-card .tabs__item[aria-selected='true'] {
+    border-bottom-color: var(--primary);
+    background: transparent;
+    color: var(--primary);
+  }
+  .bar-card-wide {
+    grid-column: 1 / -1;
+  }
+  .bar-card-field {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .bar-card-field > label {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bar-card-field .inp {
+    width: 100%;
+    min-width: 0;
+  }
+  .bar-affix {
+    position: relative;
+    display: block;
+  }
+  .bar-affix > .inp {
+    padding-right: var(--space-8);
+  }
+  .bar-affix-suffix {
+    position: absolute;
+    display: flex;
+    right: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .bar-card-save {
+    width: 100%;
+  }
+  .bar-card-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .bar-card-actions .btn {
+    gap: var(--space-1);
+    padding-inline: var(--space-2);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+  }
+  .bar-card-writeoff {
+    display: grid;
+    grid-template-columns: minmax(56px, 0.6fr) minmax(0, 1.4fr) auto;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .bar-card-writeoff .bar-error,
+  .bar-card-writeoff .bar-success {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .bar-history {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-4) 0 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .bar-history li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-1) var(--space-2);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .bar-history .bar-muted {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .bar-history-when {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  /* нижний ряд под таблицей: приходы и популярные товары */
+  .bar-bottom {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .bar-bottom-panel {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .bar-bottom-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .bar-bottom-head--stack {
+    display: grid;
+    justify-content: start;
+    gap: 0;
+  }
+  .bar-bottom-head--stack .bar-muted {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  .bar-popular {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-1);
+  }
+  .bar-popular li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 32px;
+  }
+  .bar-popular-rank {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 auto;
+    border-radius: var(--radius-full);
+    background: var(--surface-muted);
+    color: var(--muted);
+    display: grid;
+    place-items: center;
+    font-size: var(--text-xs);
+  }
+  .bar-popular-name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  @media (max-width: 1279px) {
+    .bar-kpis {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .bar-main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 960px) {
+    .bar-quick,
+    .bar-catalog-grid,
+    .bar-bottom,
+    .bar-board-filters {
+      grid-template-columns: 1fr;
+    }
+    .bar-kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .bar-board .table-scroll {
+      max-height: none;
+    }
+    .bar-line-new {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .bar-inline,
+    .bar-inline--folio,
+    .bar-card-writeoff {
+      grid-template-columns: 1fr;
+    }
+    .bar-inline .btn,
+    .bar-card-actions .btn {
+      width: 100%;
+      min-height: 44px;
+    }
+    .bar-scan-row,
+    .bar-category-form,
+    .bar-supplier-form,
+    .bar-line-new {
+      grid-template-columns: 1fr;
+    }
+    .bar-scan .btn,
+    .bar-supplier-form .btn,
+    .bar-category-form .btn,
+    .bar-line-actions .btn {
+      width: 100%;
+      min-height: 44px;
+    }
+  }
   @media (max-width: 560px) {
     .bar-form-grid,
     .bar-line,

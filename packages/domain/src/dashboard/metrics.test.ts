@@ -131,7 +131,7 @@ const input = (): DashboardInput => ({
 });
 
 describe('buildDashboard', () => {
-  it('загрузка — клетко-ночи шахматки: занято / (единиц × ночей)', () => {
+  it('загрузка — клетко-ночи шахматки: занято / (единиц × ночей − закрытые), ADR-155', () => {
     const d = buildDashboard(input());
     expect(d.nights).toBe(2);
     expect(d.units).toBe(5);
@@ -140,7 +140,8 @@ describe('buildDashboard', () => {
       occupiedNights: 7,
       blockedNights: 1,
       freeNights: 2,
-      percent: 70,
+      sellableNights: 9,
+      percent: 77.8,
     });
     expect(d.unassigned).toBe(1);
   });
@@ -153,6 +154,7 @@ describe('buildDashboard', () => {
       penaltiesMinor: '400000',
       adjustmentsMinor: '-50000',
       totalMinor: '4000000',
+      nightsMinor: '2500000',
     });
     expect(d.payments).toEqual({
       totalMinor: '3200000',
@@ -163,9 +165,10 @@ describe('buildDashboard', () => {
       ],
     });
     expect(d.refundsMinor).toBe('100000');
-    // 3 500 000 / 7 ночей = 500 000; / 10 клетко-ночей = 350 000
-    expect(d.adrMinor).toBe('500000');
-    expect(d.revparMinor).toBe('350000');
+    // выручка за ночи 2 500 000 (R-1 две ночи периода по 1 000 000 и R-2 одна ночь 500 000), ADR-155, Q-290:
+    // / 7 занятых ночей = 357 142; / 9 доступных = 277 777. Начисление на заезде (3 500 000) их не определяет
+    expect(d.adrMinor).toBe('357142');
+    expect(d.revparMinor).toBe('277777');
   });
 
   it('заезды и выезды по датам периода; отмены и незаезды отдельно; гости — взрослые и дети заехавших', () => {
@@ -197,7 +200,7 @@ describe('buildDashboard', () => {
         unassigned: 0,
         percent: 75,
         revenueMinor: '3000000',
-        adrMinor: '1000000',
+        adrMinor: '666666',
       },
       {
         code: 'DORM',
@@ -209,7 +212,7 @@ describe('buildDashboard', () => {
         freeNights: 1,
         blockedNights: 1,
         unassigned: 1,
-        percent: 66.7,
+        percent: 80,
         revenueMinor: '500000',
         adrMinor: '125000',
       },
@@ -228,16 +231,18 @@ describe('buildDashboard', () => {
         arrivals: 1,
         departures: 1,
         revenueMinor: '3000000',
+        nightRevenueMinor: '1000000',
       },
       {
         date: '2026-10-06',
         occupied: 4,
         free: 0,
         blocked: 1,
-        percent: 80,
+        percent: 100,
         arrivals: 1,
         departures: 0,
         revenueMinor: '500000',
+        nightRevenueMinor: '1500000',
       },
     ]);
   });
@@ -301,12 +306,14 @@ describe('buildDashboard: брони и тип фонда', () => {
       occupiedNights: 3,
       blockedNights: 0,
       freeNights: 1,
+      sellableNights: 4,
       percent: 75,
     });
     expect(d.revenue.accommodationMinor).toBe('3000000');
     // 3 000 000 / 3 проданные ночи номеров; / (2 номера × 2 ночи)
-    expect(d.adrMinor).toBe('1000000');
-    expect(d.revparMinor).toBe('750000');
+    // R-1 две ночи периода = 2 000 000: / 3 занятые ночи номеров = 666 666; / 4 доступные = 500 000
+    expect(d.adrMinor).toBe('666666');
+    expect(d.revparMinor).toBe('500000');
     expect(d.bookings).toMatchObject({
       total: 1,
       active: 1,
@@ -324,7 +331,7 @@ describe('buildDashboard: брони и тип фонда', () => {
     ]);
   });
 
-  it('койки: своя загрузка с блокировками в знаменателе, своя средняя цена и свои отмены', () => {
+  it('койки: своя загрузка без закрытых ночей в знаменателе (ADR-155), своя средняя цена и свои отмены', () => {
     const d = buildDashboard(input(), 'beds');
     expect(d.units).toBe(3);
     expect(d.occupancy).toEqual({
@@ -332,11 +339,12 @@ describe('buildDashboard: брони и тип фонда', () => {
       occupiedNights: 4,
       blockedNights: 1,
       freeNights: 1,
-      percent: 66.7,
+      sellableNights: 5,
+      percent: 80,
     });
     expect(d.adrMinor).toBe('125000');
-    // 500 000 / 6 клетко-ночей — целочисленно в тиынах
-    expect(d.revparMinor).toBe('83333');
+    // 500 000 / 5 доступных ночей (6 клетко-ночей минус 1 закрытая) — целочисленно в тиынах
+    expect(d.revparMinor).toBe('100000');
     expect(d.bookings).toEqual({
       total: 3,
       active: 1,

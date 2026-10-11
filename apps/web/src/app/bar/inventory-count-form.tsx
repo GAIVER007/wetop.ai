@@ -7,7 +7,7 @@ import { inventoryBarAction, type BarActionResult } from './actions';
 const initial: BarActionResult = { error: null, ok: 0 };
 export function InventoryCountForm({ stock }: { stock: BarStockRow[] }) {
   const [state, action, pending] = useActionState(inventoryBarAction, initial);
-  return <form action={action} className="panel bar-sale-form">
+  return <form action={action} className="bar-sale-form">
     <Field label="Товар"><Select name="productId" required defaultValue=""><option value="" disabled>Выберите товар</option>{stock.filter((item) => item.active).map((item) => <option key={item.id} value={item.id}>{item.name}, по системе {item.availableUnits}</option>)}</Select></Field>
     <Field label="Факт, шт."><Input name="actualUnits" inputMode="numeric" pattern="[0-9]+" required /></Field>
     <Field label="Причина"><Input name="reason" defaultValue="Пересчет смены" required /></Field>

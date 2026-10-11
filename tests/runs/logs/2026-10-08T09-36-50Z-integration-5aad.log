@@ -1,0 +1,81 @@
+# Интеграционные (integration) · 08.10.2026 14:36 Алматы · vm
+# коммит 616c25b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T09-36-50Z-integration-5aad.json' 'tests/integration/licensed-site-builder.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:20629) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/licensed-site-builder.test.ts (24 tests | 1 failed) 6856ms
+   ❯ MKT9.2 licensed site builder (24)
+     ✓ лицензия закрывает запись и ИИ, чтение открыто (3)
+       ✓ без лицензии: заведение сайта 403 SITE_BUILDER_NOT_ENABLED, сайт не появляется; чтение отвечает 152ms
+       ✓ лицензия выключена или срок вышел: каждая запись и каждый ИИ 403, чтение 200, пауза и архив не закрыты 897ms
+       ✓ лицензия другого филиала той же организации не открывает этот филиал 49ms
+     ✓ заведение сайта и знания проекта (2)
+       ✓ bootstrap: 201 новый с именем филиала, 200 тот же, архив 409 SITE_ARCHIVED; второго сайта нет 84ms
+       ✓ знания проекта: чтение, правка, предел 5000, в журнале только длина 69ms
+     ❯ разговор с ИИ: Чат, План, Оформление (5)
+       × Чат: задача без версии, повтор ключа та же задача; боту уходят знания проекта и голова; разговор хранится на сервере 186ms
+       ✓ ответ, не прошедший проверку платформы, не сохраняется: повтор, затем FAILED SCHEMA_INVALID 261ms
+       ✓ План: вопросы, ответы, план; «Собрать по плану» ставит ровно одну сборку PATCH, повтор отдаёт её же 295ms
+       ✓ план устарел: голова сменилась после плана, сборка по нему 409 BASE_VERSION_CHANGED 160ms
+       ✓ Оформление: три направления; первая сборка с выбранным ставит тему платформой, модели уходит описание 205ms
+     ✓ разговор помнит контекст: история только этого сайта и ответы на вопросы плана (7)
+       ✓ Чат: второй ход видит первый (вопрос и ответ), текущий запрос в историю не попадает 209ms
+       ✓ три хода: на третьем (План) история это два прошлых хода по порядку; упавший ход и упавшая сборка не попадают, успешная сборка попадает 478ms
+       ✓ граница: история только этого сайта; другой филиал, журнал и чужая организация в неё не попадают 477ms
+       ✓ история ограничена 12 последними ходами 183ms
+       ✓ ответ на вопросы плана: следующий запрос несёт исходную просьбу, оба вопроса и оба ответа ровно по одному разу 237ms
+       ✓ ответы проверяются по вопросам родителя: незнакомый, пропуск, повтор, чужой вариант 400; свой при allowCustom проходит; модель не зовётся 237ms
+       ✓ отвечать можно только на успешные вопросы плана своего сайта; чужой филиал получает нейтральный 404 без вопросов 404ms
+     ✓ общие правила ИИ сайта по обеим таблицам (4)
+       ✓ одна активная задача ИИ на сайт: пока ждёт чат, сборка 409 AI_BUSY, и наоборот 161ms
+       ✓ предел часа общий: 10 запросов к ИИ сайта любым режимом, одиннадцатый 429 451ms
+       ✓ общий дневной пул: токены разговора уменьшают остаток сборки 206ms
+       ✓ воркер: лицензию выключили, пока задача ждала, и сборка, и разговор падают LICENSE_UNAVAILABLE без вызова модели 186ms
+     ✓ закладки версий (1)
+       ✓ поставить, переименовать, снять; в истории отдельным списком; чужая версия 404; не больше 20 794ms
+     ✓ платформа: лицензию выдаёт только главный администратор (2)
+       ✓ список гостиничных филиалов со статусом; пробный, активировать, продлить, выключить; журнал было и стало 83ms
+       ✓ партнёр (владелец организации) лицензию не видит через платформу и не выдаёт 23ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder > разговор с ИИ: Чат, План, Оформление > Чат: задача без версии, повтор ключа та же задача; боту уходят знания проекта и голова; разговор хранится на сервере
+AssertionError: expected [ 'briefInput', …(10) ] to deeply equal [ 'briefInput', …(9) ]
+
+- Expected
++ Received
+
+@@ -1,9 +1,10 @@
+  [
+    "briefInput",
+    "budgetRemainingTokens",
+    "currentSpec",
++   "history",
+    "mode",
+    "projectInstructions",
+    "requestId",
+    "schemaVersion",
+    "siteSpecSchemaVersion",
+
+ ❯ tests/integration/licensed-site-builder.test.ts:388:40
+    386|       expect(sent).toMatchObject({ schemaVersion: 'site-assistant/0', …
+    387|       expect((sent.currentSpec as Spec).pages[0].sections[0].heading.r…
+    388|       expect(Object.keys(sent).sort()).toEqual(
+       |                                        ^
+    389|         ['briefInput', 'budgetRemainingTokens', 'currentSpec', 'mode',…
+    390|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 23 passed (24)
+   Start at  09:36:51
+   Duration  11.03s (tests 74%, transform 18%, import 8%)
+
+JSON report written to /tmp/pms-test-2026-10-08T09-36-50Z-integration-5aad.json
+
+# код выхода 1 · 12 с

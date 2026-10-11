@@ -1,5 +1,6 @@
 import type { WebVertical } from './vertical-landing';
 import {
+  ORGANIZATION_LEVEL_PERMISSIONS,
   can,
   parseMembershipRole,
   rolesWith,
@@ -21,6 +22,11 @@ export interface NavigationAccess {
    * `/auth/me` — не `null`, а `UNKNOWN_ACCESS` (`desk-shell.ts`).
    */
   role: MembershipRole | null;
+  /**
+   * У человека область доступа (DATA_MODEL §31.1): права уровня организации (команда, роли, журнал) ему закрыты,
+   * даже если роль в филиале управляющая. API это проверяет; стойка не показывает то, что API откажет.
+   */
+  restricted?: true;
   /**
    * Роль не узнали: `/auth/me` не ответил (сбой, тайм-аут). Меню и кнопки тогда — как у администратора, а страница по
    * адресу открывается как есть (`pageOpen`): решает API, а «нет доступа» было бы неправдой.
@@ -58,6 +64,11 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'План зала' },
       { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Бронирования' },
       { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы и столы' },
+      // Ресторан по ТЗ владельца 09.10.2026 (ADR-159)
+      { href: '/orders', label: 'Заказы', icon: 'receipt', requires: 'desk', description: 'Заказы ресторана' },
+      { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Экран кухни (KDS)' },
+      { href: '/menu', label: 'Меню', icon: 'kettle', requires: 'desk', description: 'Меню и техкарты' },
+      { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
 
       {
         href: '/calendar',
@@ -82,10 +93,10 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/employees',
-        label: 'Сотрудники',
+        label: 'Мастера',
         icon: 'guests',
         requires: 'desk',
-        description: 'Сотрудники',
+        description: 'Мастера',
       },
       {
         href: '/services',
@@ -140,9 +151,9 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/today',
         requires: 'desk',
-        label: 'Главная',
+        label: 'Сегодня',
         icon: 'today',
-        description: 'Рабочий экран дня: стойка, задачи и быстрые действия.',
+        description: 'Рабочий экран дня салона и ресторана; гостиницу ведёт в «Финансы».',
       },
       {
         href: '/chessboard',
@@ -159,11 +170,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Брони и проживания за выбранный день.',
       },
       {
+        // «Гости и бронирования» (09.10.2026): один экран вместо вкладок «Брони» и «Гости»; список броней
+        // `/reservations` остаётся кнопкой внутри экрана, а в меню своего пункта у него нет
         href: '/guests',
         requires: 'desk',
-        label: 'Гости',
+        label: 'Гости и бронирования',
+        shortLabel: 'Брони', // на вкладке телефона 75 px «Гости и брони» переносится на две строки и поднимает панель
         icon: 'guests',
-        description: 'Карточки гостей и история проживания.',
+        description: 'Единая база гостей, бронирований и проживаний.',
       },
       {
         // Задачи стойки (DATA_MODEL §22, ADR-145): вход из панели «Сегодня» календаря, отдельного пункта меню нет
@@ -230,9 +244,9 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/finance',
         requires: 'reports',
-        label: 'Оплаты',
+        label: 'Финансы',
         icon: 'money',
-        description: 'Начисления, оплаты, возвраты и остатки за период.',
+        description: 'Касса и день объекта: загрузка, поступления, расходы, операции и отчёты.',
       },
       {
         href: '/bar',
@@ -254,6 +268,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
     label: 'Продажи',
     items: [
+      {
+        // Хаб «Продажи» (SALES2.2, plans/sales2-audit-2026-10-09.md): один вход к конкурентам, ИИ-продавцу и числам
+        href: '/sales',
+        requires: 'reports',
+        label: 'Обзор продаж',
+        icon: 'rates',
+        description: 'Брони из диалогов, выручка, конкуренты и ИИ-продавец на одной странице.',
+      },
       {
         // Один модуль вместо «Менеджера каналов» и «Синхронизации каналов» (ADR-112)
         href: '/channels',
@@ -360,7 +382,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         // при слиянии 02.10 заменил параллельный /staff (список на login/team-section): /staff — переадресация
         href: '/team',
         requires: 'staff',
-        label: 'Сотрудники',
+        label: 'Сотрудники и доступ',
         icon: 'guests',
         description: 'Люди организации: роли, приглашения и доступ.',
       },
@@ -430,25 +452,33 @@ function direct(id: string, href: string, icon: IconName, label?: string): MenuS
 
 /**
  * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
- * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони, Гости) одним щелчком; группы с несколькими
- * экранами («Продажи», «Маркетинг», «Настройки», «Платформа») раскрывают список.
+ * то же меню выдвижное. Работа смены одним щелчком; группы с несколькими экранами
+ * («Продажи», «Маркетинг», «Отчёты», «Настройки») раскрывают список.
  */
-// Порядок вкладок — по частоте использования (поручение владельца 03.10): работа смены,
-// затем деньги дня (касса живёт в «Финансах»), продажи, отчётность; фонд и настройки — реже всего.
+// Порядок вкладок по частоте использования (поручение владельца 03.10). С 09.10 «Финансы» это единый
+// раздел вместо Главной (день объекта и касса вместе, plans/finance-home-merge-2026-10-09.md), поэтому
+// стоит первым; дальше работа смены, продажи, отчётность; фонд и настройки реже всего.
 // «Отчёты» и «Аналитика» объединены в одну группу: оба раздела — «посмотреть цифры».
 export const menuSections: MenuSection[] = [
-  direct('home', '/today', 'today'),
+  {
+    // «Бар» живёт внутри «Финансов» (ADR-157, поручение владельца 09.10.2026): товарно-денежный учёт
+    // рядом с кассой, своей вкладки у него нет. Маршруты и права не менялись.
+    id: 'finance',
+    label: 'Финансы',
+    icon: 'money',
+    items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar')],
+  },
   direct('chessboard', '/chessboard', 'board'),
-  direct('reservations', '/reservations', 'booking'),
+  // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список
+  // броней со всеми отборами и экспортом открывается кнопкой на нём, адреса и права страниц прежние
   direct('guests', '/guests', 'guests'),
-  direct('finance', '/finance', 'money', 'Финансы'),
-  direct('bar', '/bar', 'receipt'),
   {
     id: 'sales',
     label: 'Продажи',
     icon: 'rates',
     items: [
       // «Тарифы и цены» сняты 06.10.2026: цена категории — в «Категориях номеров»
+      menuItem('/sales'),
       menuItem('/market'),
       menuItem('/channels'),
       menuItem('/ai-agents', 'ИИ-продавцы'),
@@ -480,15 +510,11 @@ export const menuSections: MenuSection[] = [
       menuItem('/journal', 'Журнал операций'),
       // право `desk`: администратор видит неисправности (ADR-107) — для него группа сводится к этому пункту
       menuItem('/incidents'),
+      // Вкладка «Платформа» снята по поручению владельца 09.10.2026: «Организации» главного администратора живут
+      // в «Настройках», пункт виден только по его отметке. «Техподдержка» по-прежнему под переключателем агентов
+      // на «ИИ-продавце»: своего пункта меню у неё нет, маршрут /platform/support остаётся в реестре ради прав
+      menuItem('/platform'),
     ],
-  },
-  {
-    // «Техподдержка» переехала под переключатель агентов на «ИИ-продавце»: своего пункта меню
-    // у неё нет, маршрут /platform/support остаётся в реестре ради прав (routeRule)
-    id: 'platform',
-    label: 'Платформа',
-    icon: 'system',
-    items: [menuItem('/platform')],
   },
 ];
 
@@ -507,11 +533,17 @@ export const beautyMenuSections: MenuSection[] = [
   direct('profile', '/profile', 'guests'),
 ];
 
+/** Состав и порядок — макет «WETOP для ресторанов» (ADR-159): Главная, Заказы, Зал, Кухня, Клиенты, Меню… */
 export const foodMenuSections: MenuSection[] = [
-  direct('today', '/today', 'today', 'Сегодня'),
+  direct('today', '/today', 'today', 'Главная'),
+  direct('orders', '/orders', 'receipt'),
   direct('floor-plan', '/floor-plan', 'board'),
+  direct('kitchen', '/kitchen', 'kitchen'),
   direct('table-reservations', '/table-reservations', 'booking'),
-  direct('customers', '/customers', 'guests', 'Гости'),
+  direct('customers', '/customers', 'guests', 'Клиенты'),
+  direct('menu', '/menu', 'kettle'),
+  direct('employees', '/employees', 'guests', 'Сотрудники'),
+  direct('payroll', '/payroll', 'money'),
   direct('dining-areas', '/dining-areas', 'settings'),
   direct('staff', '/staff', 'guests'),
   direct('analytics', '/management/analytics', 'analytics'),
@@ -520,14 +552,20 @@ export const foodMenuSections: MenuSection[] = [
   direct('profile', '/profile', 'guests'),
 ];
 
-/** Нижняя панель телефона: первые четыре вкладки (работа смены) и кнопка «Ещё» (ADR-050, ADR-134) */
+/**
+ * Нижняя панель телефона: первые четыре вкладки шапки и кнопка «Ещё» (ADR-050, ADR-134).
+ * Группа («Финансы» с ADR-157) даёт панели свой первый пункт, но под именем группы:
+ * подпись пункта «Оплаты и касса» для вкладки панели длинна и уже смысла группы.
+ */
 export const phoneNavigation: NavigationItem[] = menuSections
   .slice(0, 4)
-  .map((section) => section.items[0]!);
+  .map((section) =>
+    section.direct ? section.items[0]! : { ...section.items[0]!, label: section.label },
+  );
 
 /**
  * То же для салона: разделы его вертикали (Q-254). Не передана, значит гостиница, как было до среза B2.
- * В панель идут только одиночные вкладки: группы («Платформа», «Настройки») живут за кнопкой «Ещё».
+ * В панель идут только одиночные вкладки: группы («Продажи», «Настройки») живут за кнопкой «Ещё».
  */
 export function phoneNavigationFor(
   vertical: WebVertical = 'HOSPITALITY',
@@ -541,6 +579,7 @@ export function phoneNavigationFor(
 
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
+  if (access.restricted && ORGANIZATION_LEVEL_PERMISSIONS.includes(permission)) return false;
   return access.role === null || can(access.role, permission);
 }
 
@@ -612,7 +651,7 @@ export function menuSectionsFor(
  */
 export function deskAccessOf(
   me: {
-    user: { platformAdmin?: boolean; role?: string } | null;
+    user: { platformAdmin?: boolean; role?: string; restricted?: boolean } | null;
     access?: { aiSeller?: { access?: string } | null } | null;
   } | null,
 ): NavigationAccess {
@@ -622,6 +661,7 @@ export function deskAccessOf(
     aiSeller: seller === 'active' || seller === 'expired',
     platform: me.user.platformAdmin === true,
     role: (me.user.role && parseMembershipRole(me.user.role)) || 'STAFF',
+    ...(me.user.restricted === true ? { restricted: true as const } : {}),
   };
 }
 
@@ -635,6 +675,8 @@ export function activeMenuRoute(path: string): string | undefined {
   if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
   if (route.startsWith('/channels')) return '/channels';
+  // «Гости и бронирования» (09.10.2026): брони и карточка брони подсвечивают тот же единственный пункт
+  if (route === '/reservations') return '/guests';
   // сайт объекта, продукт «Маркетинга»: в меню один пункт «Сайт и SEO» (MKT2)
   if (route === '/website') return '/marketing';
   return route;

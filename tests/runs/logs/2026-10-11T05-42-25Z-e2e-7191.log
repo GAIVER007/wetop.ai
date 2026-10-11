@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 11.10.2026 10:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит cf107b0 (claude/register-country-locale), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/auth-dialog.spec.ts'
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (2.3s)
+  ✓   2 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (1.1s)
+  ✓   3 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (1.0s)
+  ✓   4 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (814ms)
+  ✓   5 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (2.2s)
+  ✓   6 tests/site/auth-dialog.spec.ts:199:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (409ms)
+  ✓   7 tests/site/auth-dialog.spec.ts:212:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (487ms)
+  ✓   8 tests/site/auth-dialog.spec.ts:224:1 › на телефоне окно открывается из меню и не шире экрана (1.2s)
+  ✓   9 tests/site/auth-dialog.spec.ts:241:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (31.4s)
+  ✓  10 tests/site/auth-dialog.spec.ts:297:3 › MV2 selector preselects BEAUTY without granting pilot access (1.4s)
+  ✓  11 tests/site/auth-dialog.spec.ts:297:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (937ms)
+  ✓  12 tests/site/auth-dialog.spec.ts:324:1 › registration: country sets the phone code, language is Russian only (406ms)
+
+  12 passed (1.4m)
+
+# код выхода 0 · 1 мин 27 с

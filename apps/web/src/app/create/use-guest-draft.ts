@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { WizardState } from '../../lib/wizard-types';
 import { INITIAL_CONFIG, type WizardConfig } from './wizard-fields';
+import { guessRegional } from './regional';
+import { STEPS, type StepKey } from './strings';
 
 const STORAGE_KEY = 'wetop.wizard.token';
 class WizardRequestError extends Error {
@@ -30,7 +32,8 @@ async function call<T = WizardState>(body: unknown): Promise<T> {
 
 export function useGuestDraft() {
   const [values, setValues] = useState<WizardConfig>(INITIAL_CONFIG);
-  const [step, setStep] = useState('intro');
+  const [step, setStep] = useState<StepKey>('source');
+  const [resumed, setResumed] = useState(false);
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -61,9 +64,19 @@ export function useGuestDraft() {
       }
       revision.current = state.draft.revision;
       const restored = { ...INITIAL_CONFIG, ...state.draft.wizardData };
-      setValues(restored);
+      const untouched = JSON.stringify(restored) === JSON.stringify(INITIAL_CONFIG);
+      // пустой черновик: валюта и пояс по поясу браузера; уже правленный не трогаем
+      const initial = untouched
+        ? { ...restored, ...guessRegional('', Intl.DateTimeFormat().resolvedOptions().timeZone) }
+        : restored;
+      setValues(initial);
+      // сохранённым считаем то, что пришло с сервера: угаданные умолчания уйдут автосохранением
       setSavedJson(JSON.stringify(restored));
-      setStep(['intro', 'source', 'review'].includes(state.lastStep) ? state.lastStep : 'review');
+      // «intro» остался от прежней версии: первый экран теперь один
+      const last = STEPS.find((name) => name === state.lastStep) ?? (state.lastStep === 'intro' ? 'source' : 'review');
+      const back = state.lastStep !== 'intro' && last !== 'source';
+      setStep(last);
+      setResumed(back && !untouched);
       setReady(true);
     } catch (e) {
       setExpired(e instanceof WizardRequestError && e.status === 401);
@@ -78,23 +91,26 @@ export function useGuestDraft() {
   }, [open]);
 
   const save = useCallback(
-    async (nextStep = step) => {
+    async (nextStep: StepKey = step, patch?: Partial<WizardConfig>) => {
       if (saving.current || !ready) return;
       saving.current = true;
       setBusy(true);
       setError('');
       setSaved('');
-      const snapshot = JSON.stringify(values);
+      // patch: правка, сделанная в этом же нажатии (setValues ещё не применён): уходит сразу, а не со следующим кругом
+      const payload = patch ? { ...values, ...patch } : values;
+      const snapshot = JSON.stringify(payload);
       try {
         const result = await call({
           operation: 'save',
           token: token.current,
-          config: values,
+          config: payload,
           revision: revision.current,
           step: nextStep,
         });
         revision.current = result.draft.revision;
         setSavedJson(snapshot);
+        if (patch) setValues(payload);
         setStep(nextStep);
         setSaved('Черновик сохранён');
       } catch (e) {
@@ -120,6 +136,22 @@ export function useGuestDraft() {
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, [dirty]);
+
+  /** События и опрос: не мешают мастеру, ошибки молча теряем (аналитика не должна ломать путь) */
+  const track = useCallback(async (type: 'source_submitted' | 'testbot_cta') => {
+    try {
+      await call({ operation: 'event', token: token.current, type });
+    } catch {
+      /* аналитика необязательна */
+    }
+  }, []);
+  const sendSurvey = useCallback(async (answers: Record<string, string>) => {
+    try {
+      await call({ operation: 'survey', token: token.current, answers });
+    } catch {
+      /* опрос необязателен */
+    }
+  }, []);
 
   async function claim() {
     if (saving.current || busy || dirty) return;
@@ -149,6 +181,10 @@ export function useGuestDraft() {
     values,
     setValues,
     step,
+    resumed,
+    setResumed,
+    track,
+    sendSurvey,
     ready,
     busy,
     error,

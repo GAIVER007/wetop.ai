@@ -33,7 +33,7 @@ test('отказ API: заголовок и фильтры на месте, по
   await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
   await expect(main.getByTestId('reservations-table')).toBeVisible();
   await expect(main.getByTestId('reservations-error')).toHaveCount(0);
-  await expect(main.getByTestId('directory-meta')).toContainText('Подтверждены');
+  await expect(main.getByTestId('directory-meta')).toContainText('Подтверждённые');
   await expect(page).toHaveURL(/from=\d{4}-\d{2}-\d{2}.*status=CONFIRMED.*q=/);
   await expect(main.getByLabel('Поиск броней')).toHaveValue('Тестовый');
 });

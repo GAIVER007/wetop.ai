@@ -1,0 +1,333 @@
+# Сквозные (e2e) · 09.10.2026 13:11 Алматы · vm
+# коммит b795d88 (claude/mv8-5-ds1c-acceptance-followup), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/zz-race-probe.spec.ts' '--repeat-each=5' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 1 worker
+
+  ✘   1 tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу (5.1s)
+  ✓   2 tests/ui/zz-race-probe.spec.ts:35:1 › зонд GREEN: цвет читается после конца перехода (4.4s)
+  ✘   3 tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия (4.9s)
+  ✓   4 tests/ui/zz-race-probe.spec.ts:65:1 › зонд GREEN: axe по панели после конца анимации (5.2s)
+  ✘   5 tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу (4.0s)
+  ✓   6 tests/ui/zz-race-probe.spec.ts:35:1 › зонд GREEN: цвет читается после конца перехода (5.0s)
+  ✘   7 tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия (3.7s)
+  ✓   8 tests/ui/zz-race-probe.spec.ts:65:1 › зонд GREEN: axe по панели после конца анимации (5.3s)
+  ✘   9 tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу (4.4s)
+  ✓  10 tests/ui/zz-race-probe.spec.ts:35:1 › зонд GREEN: цвет читается после конца перехода (4.8s)
+  ✘  11 tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия (3.9s)
+  ✓  12 tests/ui/zz-race-probe.spec.ts:65:1 › зонд GREEN: axe по панели после конца анимации (5.3s)
+  ✘  13 tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу (4.2s)
+  ✓  14 tests/ui/zz-race-probe.spec.ts:35:1 › зонд GREEN: цвет читается после конца перехода (4.5s)
+  ✘  15 tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия (3.6s)
+  ✓  16 tests/ui/zz-race-probe.spec.ts:65:1 › зонд GREEN: axe по панели после конца анимации (5.3s)
+  ✘  17 tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу (4.6s)
+  ✓  18 tests/ui/zz-race-probe.spec.ts:35:1 › зонд GREEN: цвет читается после конца перехода (5.3s)
+  ✘  19 tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия (4.0s)
+  ✓  20 tests/ui/zz-race-probe.spec.ts:65:1 › зонд GREEN: axe по панели после конца анимации (5.6s)
+
+
+  1) tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ───────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(6, 74, 146)"
+    Received: "rgb(8, 93, 182)"
+
+      30 | test('зонд RED: цвет читается сразу', async ({ page }) => {
+      31 |   const { button, expected } = await hoverRaw(page);
+    > 32 |   expect(await button.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(expected);
+         |                                                                               ^
+      33 | });
+      34 |
+      35 | test('зонд GREEN: цвет читается после конца перехода', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:32:79
+
+    Error Context: test-results/zz-race-probe-зонд-RED-цвет-читается-сразу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-цвет-читается-сразу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-цвет-читается-сразу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast",
+    + ]
+
+      60 |   await openDrawer(page);
+      61 |   const r = await new AxeBuilder({ page }).include('dialog').analyze();
+    > 62 |   expect(r.violations.map((v) => v.id)).toEqual([]);
+         |                                         ^
+      63 | });
+      64 |
+      65 | test('зонд GREEN: axe по панели после конца анимации', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:62:41
+
+    Error Context: test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ───────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(6, 74, 146)"
+    Received: "rgb(8, 94, 184)"
+
+      30 | test('зонд RED: цвет читается сразу', async ({ page }) => {
+      31 |   const { button, expected } = await hoverRaw(page);
+    > 32 |   expect(await button.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(expected);
+         |                                                                               ^
+      33 | });
+      34 |
+      35 | test('зонд GREEN: цвет читается после конца перехода', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:32:79
+
+    Error Context: test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast",
+    + ]
+
+      60 |   await openDrawer(page);
+      61 |   const r = await new AxeBuilder({ page }).include('dialog').analyze();
+    > 62 |   expect(r.violations.map((v) => v.id)).toEqual([]);
+         |                                         ^
+      63 | });
+      64 |
+      65 | test('зонд GREEN: axe по панели после конца анимации', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:62:41
+
+    Error Context: test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ───────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(6, 74, 146)"
+    Received: "rgb(8, 94, 183)"
+
+      30 | test('зонд RED: цвет читается сразу', async ({ page }) => {
+      31 |   const { button, expected } = await hoverRaw(page);
+    > 32 |   expect(await button.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(expected);
+         |                                                                               ^
+      33 | });
+      34 |
+      35 | test('зонд GREEN: цвет читается после конца перехода', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:32:79
+
+    Error Context: test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat2/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast",
+    + ]
+
+      60 |   await openDrawer(page);
+      61 |   const r = await new AxeBuilder({ page }).include('dialog').analyze();
+    > 62 |   expect(r.violations.map((v) => v.id)).toEqual([]);
+         |                                         ^
+      63 | });
+      64 |
+      65 | test('зонд GREEN: axe по панели после конца анимации', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:62:41
+
+    Error Context: test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat2/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ───────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(6, 74, 146)"
+    Received: "rgb(8, 94, 184)"
+
+      30 | test('зонд RED: цвет читается сразу', async ({ page }) => {
+      31 |   const { button, expected } = await hoverRaw(page);
+    > 32 |   expect(await button.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(expected);
+         |                                                                               ^
+      33 | });
+      34 |
+      35 | test('зонд GREEN: цвет читается после конца перехода', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:32:79
+
+    Error Context: test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat3/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat3/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat3/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast",
+    + ]
+
+      60 |   await openDrawer(page);
+      61 |   const r = await new AxeBuilder({ page }).include('dialog').analyze();
+    > 62 |   expect(r.violations.map((v) => v.id)).toEqual([]);
+         |                                         ^
+      63 | });
+      64 |
+      65 | test('зонд GREEN: axe по панели после конца анимации', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:62:41
+
+    Error Context: test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat3/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat3/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat3/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ───────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(6, 74, 146)"
+    Received: "rgb(8, 94, 183)"
+
+      30 | test('зонд RED: цвет читается сразу', async ({ page }) => {
+      31 |   const { button, expected } = await hoverRaw(page);
+    > 32 |   expect(await button.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(expected);
+         |                                                                               ^
+      33 | });
+      34 |
+      35 | test('зонд GREEN: цвет читается после конца перехода', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:32:79
+
+    Error Context: test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat4/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat4/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-цвет-читается-сразу-repeat4/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ───────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast",
+    + ]
+
+      60 |   await openDrawer(page);
+      61 |   const r = await new AxeBuilder({ page }).include('dialog').analyze();
+    > 62 |   expect(r.violations.map((v) => v.id)).toEqual([]);
+         |                                         ^
+      63 | });
+      64 |
+      65 | test('зонд GREEN: axe по панели после конца анимации', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/zz-race-probe.spec.ts:62:41
+
+    Error Context: test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat4/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat4/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/zz-race-probe-зонд-RED-axe-по-панели-сразу-после-открытия-repeat4/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ────────────────────────────
+    tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ─────────────
+    tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ────────────────────────────
+    tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ─────────────
+    tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ────────────────────────────
+    tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ─────────────
+    tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ────────────────────────────
+    tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ─────────────
+    tests/ui/zz-race-probe.spec.ts:30:1 › зонд RED: цвет читается сразу ────────────────────────────
+    tests/ui/zz-race-probe.spec.ts:59:1 › зонд RED: axe по панели сразу после открытия ─────────────
+  10 passed (2.1m)
+
+# код выхода 1 · 2 мин 6 с

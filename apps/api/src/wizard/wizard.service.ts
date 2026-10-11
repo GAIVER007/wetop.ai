@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { AttemptWindows } from '../auth/attempt-limits';
 import { PrismaService } from '../database/prisma.provider';
-import { wizardConfig, WIZARD_STEPS } from './wizard-input';
+import { wizardClientEvent, wizardConfig, wizardSurvey, WIZARD_STEPS } from './wizard-input';
 
 const hash = (token: string) => createHash('sha256').update(token).digest('hex');
 const configObject = (value: unknown): Record<string, string> =>
@@ -138,5 +138,42 @@ export class WizardService {
   async quota(token: string | undefined) {
     const row = await this.session(token);
     return { usedCount: row.draft.testMessagesUsed, limit: 5 };
+  }
+  /** Опрос: один ответ на сессию, повтор заменяет прежний (upsert), в журнале одно событие */
+  async survey(token: string | undefined, body: unknown) {
+    const row = await this.session(token);
+    if (!this.saves.allow(row.id, Date.now()))
+      throw new HttpException(TOO_MANY_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
+    const answers = wizardSurvey(body);
+    await this.prisma.db.$transaction([
+      this.prisma.db.wizardSurvey.upsert({
+        where: { guestSessionId: row.id },
+        create: { guestSessionId: row.id, ...answers },
+        update: answers,
+      }),
+      this.prisma.db.wizardEvent.createMany({
+        data: [
+          {
+            guestSessionId: row.id,
+            eventType: 'survey_answered',
+            deduplicationKey: `survey:${row.id}`,
+          },
+        ],
+        skipDuplicates: true,
+      }),
+    ]);
+    return { ok: true };
+  }
+  /** Событие воронки с браузера: тип из белого списка, одно на сессию (повтор молча игнорируется) */
+  async event(token: string | undefined, body: unknown) {
+    const row = await this.session(token);
+    if (!this.saves.allow(row.id, Date.now()))
+      throw new HttpException(TOO_MANY_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
+    const type = wizardClientEvent(body);
+    await this.prisma.db.wizardEvent.createMany({
+      data: [{ guestSessionId: row.id, eventType: type, deduplicationKey: `${type}:${row.id}` }],
+      skipDuplicates: true,
+    });
+    return { ok: true };
   }
 }

@@ -958,7 +958,8 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('debt-row')).toHaveCount(0);
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
+  // Authorization remains available: exercise the report failure, not the session boundary.
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/desk/dashboard' } });
   // показатели за период — «Аналитика» (A1 → ADR-114): отказ называется на обеих вкладках
   await page.goto('/management/analytics');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
@@ -966,6 +967,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.goto('/management/analytics/occupancy');
   await expect(page.getByTestId('statistics-error')).toBeVisible();
   await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   await page.goto('/connections');
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
   await expect(page.getByTestId('integration-health')).not.toHaveText('Работает');

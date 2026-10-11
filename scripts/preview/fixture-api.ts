@@ -6756,6 +6756,7 @@ createServer(async (req, res) => {
     }
     if (path === '/bar/report' && req.method === 'GET') {
       return send(200, {
+        nonRestockedLossMinor: '0',
         purchasesMinor: '0',
         supplierPaidMinor: '0',
         revenueMinor: '0',

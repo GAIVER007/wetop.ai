@@ -76,9 +76,13 @@ test('slow inventory keeps daily events usable and shows a stable loading card',
   await expect(loading).toBeVisible({ timeout: 2000 });
   // слот карточки измеряем сам по себе: заглушку может успеть сменить настоящая карточка
   const slot = page.locator('.owner-load').first();
-  await expect.poll(async () => (await slot.boundingBox())?.height ?? null).not.toBeNull();
-  const box = await slot.boundingBox();
-  expect(Math.abs(box!.height - ready!.height)).toBeLessThan(24);
+  // высоту берём из того же замера, которым ждали: повторный boundingBox() отдаёт null, если слот
+  // перерисовался между вызовами (гейт ff174dbae, «Cannot read properties of null»)
+  let height: number | null = null;
+  await expect
+    .poll(async () => (height = (await slot.boundingBox())?.height ?? null))
+    .not.toBeNull();
+  expect(Math.abs(height! - ready!.height)).toBeLessThan(24);
   await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible({
     timeout: 2000,
   });

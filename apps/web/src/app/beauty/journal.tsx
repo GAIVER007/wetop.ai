@@ -54,7 +54,7 @@ export function JournalBoard({
   const column = (employee?: BeautyDayColumn) => (
     <div
       className="beauty-col-body"
-      style={{ height }}
+      style={{ height }} /* slop-allow: inline-style высота колонки из длины рабочего дня */
       data-testid={employee ? undefined : 'beauty-empty-timeline'}
       aria-label={employee ? undefined : 'Расписание без назначенных мастеров'}
     >
@@ -73,11 +73,12 @@ export function JournalBoard({
             a.startMinutes < m + STEP &&
             m < a.endMinutes,
         );
+        const slot = { top: (m - from) * PX_PER_MIN, height: STEP * PX_PER_MIN };
         return (
           <div
             key={m}
             className={`beauty-slot${!employee || works ? '' : ' beauty-slot--off'}`}
-            style={{ top: (m - from) * PX_PER_MIN, height: STEP * PX_PER_MIN }}
+            style={slot} /* slop-allow: inline-style место слота из минут расписания */
           >
             {employee && works && !occupied && (
               <button

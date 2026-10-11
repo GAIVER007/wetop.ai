@@ -145,3 +145,10 @@ Complete exact-head GREEN: `91febbbe9d2603bd60f55b8fa5eb0637b131a119`, workflow 
 Fresh-main design guard RED `2026-10-11T11-47-28Z-unit-b726` found four upstream violations: 2px literal navigation gap, unapproved 1250px breakpoint and two duplicate dynamic inline geometries in the empty Beauty timeline. Gap now uses the approved spacing token, breakpoint uses 1279px, and empty/full Beauty timelines share the existing geometry renderer, without a fictitious master or newly enabled booking. No baseline, guard or assertion was changed. Initial corrected targeted unit GREEN `11-51-31Z-unit-0901`: 35 PASS. Final synchronized-head checks and a new full CI are required; the earlier complete GREEN is explicitly historical.
 
 Final corrected merge-tree checks: targeted unit 35 PASS `2026-10-11T11-52-25Z-unit-3455`, root/API/web types PASS `11-52-25Z-typecheck-2a5e`, lint PASS `11-52-25Z-lint-932b`. No source changed during those runs. Final exact-head CI and production access remain outstanding.
+
+
+## Final sync to b811e67f
+
+Main advanced again to `b811e67f8ab0e77b39b4f3aa4e2e7945fd70ffdd`, carrying the previously corrected calendar specs, guests/chart geometry and Beauty design guard annotations. No BAR/Finance/schema/migration semantics changed. The sole Beauty renderer conflict preserves both upstream geometry annotations and the shared empty/employee renderer. This reduced the historical inline-style baseline from 6 to 4; the snapshot is tightened accordingly, without suppressing new violations. The cancelled workflow 38137386672 is superseded, not GREEN evidence. Before snapshot correction, design guard RED was 19 PASS / 1 FAIL (`2026-10-11T12-00-19Z-unit-aa97`). Root/API/web typecheck and lint passed on the merged sources. A new full exact-head workflow is required before readiness.
+
+Corrected snapshot verification: `2026-10-11T12-07-14Z-unit-c5c6`, 20 PASS. Types `2026-10-11T12-00-23Z-typecheck-b397` and lint `2026-10-11T12-00-25Z-lint-b591` PASS. Source fingerprints were stable.

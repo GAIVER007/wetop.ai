@@ -56,6 +56,7 @@ test('показатели за период: календарь открыва�
 test('показатели за период: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности', async ({
   page,
 }) => {
+  await page.clock.setFixedTime(new Date('2026-09-15T07:00:00Z'));
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/management/analytics?period=custom&from=2026-09-10&to=2026-09-21');
   await openRange(page);
@@ -65,8 +66,12 @@ test('показатели за период: у поля «По» календ�
   await expect(dialog).toBeVisible();
   // отрезок 10 → 21 сентября — 12 дней подсвечены
   await expect(dialog.locator('.date-field__day.is-range')).toHaveCount(12);
-  // сегодня отмечено ровно один день (какой — зависит от часов объекта в момент прогона)
+  // Часы браузера закреплены внутри проверяемого сентября, отметка относится именно к 15 сентября.
   await expect(dialog.locator('.date-field__day[aria-current="date"]')).toHaveCount(1);
+  await expect(dialog.getByRole('button', { name: '15 сентября 2026', exact: true })).toHaveAttribute(
+    'aria-current',
+    'date',
+  );
   // календарь целиком на экране, хотя поле стоит у правого края планки
   const box = await dialog.boundingBox();
   expect(box!.x + box!.width).toBeLessThanOrEqual(1440);

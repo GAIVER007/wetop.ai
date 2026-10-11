@@ -1,6 +1,6 @@
 # BAR financial acceptance candidate
 
-Current candidate: fresh-main base `2d3476cdd2ddd92a8d8d8d2719706f0c34f70f1b`, migration `20261011000084_bar_financial_replay`, 92 migration directories. Earlier migration numbers and results below are historical checkpoints.
+Current candidate: fresh-main base `5c52340a90d52e3344f81300a5c2a0f04ecf5253`, migration `20261011000084_bar_financial_replay`, 93 migration directories. Earlier migration numbers and results below are historical checkpoints.
 
 Status: implementation candidate. This document records local evidence at the candidate commit; the exact-SHA full GitHub CI and final readiness are recorded in the PR manifest. This report does not authorize merge, release, migration or production deployment.
 
@@ -187,3 +187,12 @@ Exact-head workflow 38163235973 on 96b230ff passed unit 4546, site 127, integrat
 An unchanged isolated run reproduced ERR_ABORTED in all three profile-menu cases. Login URL change was followed by script interception before the authenticated header became ready. The setup now waits for the existing profile button to become enabled before installing the gate for the next document. Cold-document disabled/busy styling, blocked early click, normal click and keyboard assertions are unchanged. The same three cases passed after this setup correction in recorded run 2026-10-11T19-01-31Z-e2e-e1ee (3/3); no timeout, skip or assertion was weakened.
 
 Fresh main 2d3476cdd2ddd92a8d8d8d2719706f0c34f70f1b adds permitted hotel search and journal labels plus Restaurant landing copy. These upstream changes are preserved; no new BAR, Finance or migration changes exist. BAR 84 remains free and the merged chain still has 92 directories. A new complete exact-head workflow is required after this sync. Production SSH still times out; HTTP 200 on both domains does not prove deployed SHA or authenticated BAR behavior.
+
+
+## Calendar assumptions RED to GREEN, 2026-10-12
+
+Workflow 38166523117 on ed801ffa passed unit 4546, site 127, integration 1051, API 4, e2e 26, BAR browser 10/24 screenshots, bot 1886, Food 24, Beauty 11, Branches 39, UI2 398 and UI3 415. UI1 passed 417 and failed two assertions: a hardcoded whole-fund downward occupancy direction after ADR-155 switched the first tile to room occupancy, and expecting current October day inside a selected September calendar. This is RED, not full GREEN. The unchanged local retry also failed before completion on the heavily loaded Mac; those timing errors are retained separately, not represented as identical assertion failures.
+
+The monthly comparison now uses the existing endpoint-based direction oracle and retains the percentage-point unit assertion. The September range case fixes browser time to 2026-09-15 and additionally checks aria-current on precisely September 15 while retaining all 12 highlighted range days, accessibility, positioning and month navigation. Both corrected cases passed unchanged limits in run 2026-10-11T20-03-18Z-e2e-8dc3 (2/2). No product policy, runtime finance logic, skip or timeout changed.
+
+Fresh main 5c52340a90d52e3344f81300a5c2a0f04ecf5253 adds Restaurant customer VIP/birthday migration 88. Its model/docs/schema/API/UI changes are preserved. There are no new BAR/Finance changes, BAR 84 remains free, and the merged chain has 93 migration directories. Only the private localhost database is migrated. Full exact-head CI including all 93 migration rehearsals is required on the final head.

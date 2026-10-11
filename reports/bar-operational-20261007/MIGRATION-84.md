@@ -1,6 +1,6 @@
 # BAR financial replay migration 84
 
-Approved scope: D1/D2/D3 and T11, 2026-10-07. Migration: `20261011000084_bar_financial_replay`. Fresh main `2d3476cdd2ddd92a8d8d8d2719706f0c34f70f1b` contains Restaurant cash 86/87; BAR 84 is verified free and retained. The final synced chain has 92 directories. Prior 70/74/90-directory rehearsals are historical evidence; the complete 92-directory rehearsal is mandatory on the final candidate. BAR migrations 55-57 remain unchanged.
+Approved scope: D1/D2/D3 and T11, 2026-10-07. Migration: `20261011000084_bar_financial_replay`. Fresh main `5c52340a90d52e3344f81300a5c2a0f04ecf5253` contains Restaurant cash 86/87 and customer VIP/birthday 88; BAR 84 is verified free and retained. The final synced chain has 93 directories. Prior 70/74/90-directory rehearsals are historical evidence; the complete 93-directory rehearsal is mandatory on the final candidate. BAR migrations 55-57 remain unchanged.
 
 ## Backup and deployment boundary
 

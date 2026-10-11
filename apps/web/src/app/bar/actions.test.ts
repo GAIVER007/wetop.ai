@@ -79,6 +79,23 @@ describe('форма прихода бара', () => {
     }));
   });
 
+  it('объект не в тенге: приход отклоняется до записи, карточка нового товара не создаётся (D-CUR)', async () => {
+    vi.mocked(hotelApi.settings).mockResolvedValue({
+      property: { id: 'property-usd', currency: 'USD' },
+    } as Awaited<ReturnType<typeof hotelApi.settings>>);
+    const fd = new FormData();
+    Object.entries({
+      barPropertyId: 'property-usd', barCurrency: 'USD',
+      lineCount: '1', supplierId: 'supplier-1', documentNumber: 'USD-1', documentDate: '2026-10-09',
+      receivedDate: '2026-10-09',
+      'productId.0': '', 'newName.0': 'Juice', 'newCode.0': 'JUICE', 'quantityUnits.0': '1', 'unitCost.0': '10', 'markup.0': '0',
+    }).forEach(([key, value]) => fd.set(key, value));
+    const result = await createBarReceiptAction({ error: null, ok: 0 }, fd);
+    expect(result.error).toContain('Автоматическая цена');
+    expect(barApi.createProduct).not.toHaveBeenCalled();
+    expect(barApi.createReceipt).not.toHaveBeenCalled();
+  });
+
   it('строка без товара и без названия не уходит в API', async () => {
     const fd = new FormData();
     Object.entries({

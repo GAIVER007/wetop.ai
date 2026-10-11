@@ -24,6 +24,8 @@ import { suggestCode } from './receipts/new/new-receipt';
  * и нижний ряд (приходы, популярные), справа карточка выбранного товара: таблица остаётся на экране (§1 п. 5).
  */
 const initial: BarActionResult = { error: null, ok: 0 };
+/** Знак валюты в поле суммы: тенге значком, остальные кодом (как formatMoney) */
+const currencySign = (currency: string) => (currency === 'KZT' ? '₸' : currency);
 const PERIODS = [
   { id: 'all', label: 'За все время', days: null },
   { id: '30', label: 'За 30 дней', days: 30 },
@@ -167,10 +169,10 @@ export function StockBoard({ context, stock, categories, suppliers, movements, t
                   <td><b className={`bar-units bar-units--${state}`}>{item.availableUnits}</b></td>
                   <td>{item.minimumStockUnits}</td>
                   <td>шт.</td>
-                  <td>{item.lastUnitCostMinor === null ? 'нет' : formatMoney(item.lastUnitCostMinor)}</td>
-                  <td><b>{formatMoney(item.salePrice)}</b></td>
+                  <td>{item.lastUnitCostMinor === null ? 'нет' : formatMoney(item.lastUnitCostMinor, context.currency)}</td>
+                  <td><b>{formatMoney(item.salePrice, context.currency)}</b></td>
                   <td>{markup === null ? 'нет' : `${markup}%`}</td>
-                  <td>{formatMoney(item.stockCostMinor)}</td>
+                  <td>{formatMoney(item.stockCostMinor, context.currency)}</td>
                   <td><Badge tone={STATUS_TONE[state]}>{STATUS_LABEL[state]}</Badge></td>
                   <td className="bar-row-actions">
                     <Button type="button" tone="ghost" size="xs" aria-label={`Изменить ${item.name}`} onClick={() => select(item.id)}><Icon name="edit" width={16} height={16} /></Button>
@@ -232,6 +234,8 @@ function ProductCard({ context, product, categories, movements, writeOffOpen, on
   const [price, setPrice] = useState(minorToInput(product.salePrice));
   const [priceNote, setPriceNote] = useState<string | null>(null);
   const reprice = () => {
+    // D-CUR: цена по наценке (вверх до 10 тенге) утверждена только для тенге
+    if (context.currency !== 'KZT') { setPriceNote('Автоматическая цена для этой валюты еще не утверждена: укажите цену продажи сами.'); return; }
     const match = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(markup.trim());
     if (!product.lastUnitCostMinor) { setPriceNote('Закупочной цены ещё нет: сначала занесите приход.'); return; }
     if (!match) { setPriceNote('Укажите наценку в процентах.'); return; }
@@ -261,11 +265,11 @@ function ProductCard({ context, product, categories, movements, writeOffOpen, on
         <CardField label="Ед. измерения" htmlFor={id('unit')}><Input id={id('unit')} value="шт." readOnly /></CardField>
         <CardField label="Текущий остаток" htmlFor={id('stock')}><Input id={id('stock')} value={product.availableUnits} readOnly /></CardField>
         <CardField label="Мин. остаток" htmlFor={id('min')}><Input id={id('min')} name="minimumStockUnits" inputMode="numeric" defaultValue={product.minimumStockUnits} required /></CardField>
-        <CardField label="Закупочная цена" htmlFor={id('cost')}><Affix suffix="₸"><Input id={id('cost')} value={product.lastUnitCostMinor === null ? '' : minorToInput(product.lastUnitCostMinor)} placeholder="нет" readOnly /></Affix></CardField>
-        <CardField label="Цена продажи" htmlFor={id('price')}><Affix suffix="₸"><Input id={id('price')} name="salePrice" inputMode="decimal" value={price} onChange={(event) => setPrice(event.target.value)} required /></Affix></CardField>
+        <CardField label="Закупочная цена" htmlFor={id('cost')}><Affix suffix={currencySign(context.currency)}><Input id={id('cost')} value={product.lastUnitCostMinor === null ? '' : minorToInput(product.lastUnitCostMinor)} placeholder="нет" readOnly /></Affix></CardField>
+        <CardField label="Цена продажи" htmlFor={id('price')}><Affix suffix={currencySign(context.currency)}><Input id={id('price')} name="salePrice" inputMode="decimal" value={price} onChange={(event) => setPrice(event.target.value)} required /></Affix></CardField>
         <CardField label="Наценка" htmlFor={id('markup')}><Affix suffix="%"><Input id={id('markup')} inputMode="decimal" value={markup} onChange={(event) => { setMarkup(event.target.value); setMarkupTouched(true); }} placeholder="из категории" /></Affix></CardField>
         <input type="hidden" name="markup" value={product.markupBasis !== null || markupTouched ? markup : ''} />
-        <CardField label="Себестоимость остатка" htmlFor={id('stock-cost')}><Affix suffix="₸"><Input id={id('stock-cost')} value={minorToInput(product.stockCostMinor)} readOnly /></Affix></CardField>
+        <CardField label="Себестоимость остатка" htmlFor={id('stock-cost')}><Affix suffix={currencySign(context.currency)}><Input id={id('stock-cost')} value={minorToInput(product.stockCostMinor)} readOnly /></Affix></CardField>
         <CardField label="Последний приход" htmlFor={id('last')}><Affix suffix={<Icon name="board" width={16} height={16} />}><Input id={id('last')} value={dayRu(product.lastReceivedDate)} placeholder="нет" readOnly /></Affix></CardField>
         <CardField label="Срок годности" htmlFor={id('expiry')}><Affix suffix={<Icon name="board" width={16} height={16} />}><Input id={id('expiry')} value={dayRu(product.nearestExpiry)} placeholder="не указан" readOnly /></Affix></CardField>
       </div>
@@ -345,7 +349,7 @@ function NewProductCard({ context, categories, onClose }: { context: BarFormCont
           </CardField>
           <CardField label="Артикул (SKU)" htmlFor={id('code')}><Input id={id('code')} name="code" value={code} onChange={(event) => { setCode(event.target.value); setCodeTouched(true); }} required /></CardField>
           <CardField label="Штрихкод" htmlFor={id('barcode')}><Input id={id('barcode')} name="barcode" inputMode="numeric" /></CardField>
-          <CardField label="Цена продажи" htmlFor={id('price')}><Affix suffix="₸"><Input id={id('price')} name="salePrice" inputMode="decimal" required /></Affix></CardField>
+          <CardField label="Цена продажи" htmlFor={id('price')}><Affix suffix={currencySign(context.currency)}><Input id={id('price')} name="salePrice" inputMode="decimal" required /></Affix></CardField>
           <CardField label="Наценка" htmlFor={id('markup')}><Affix suffix="%"><Input id={id('markup')} name="markup" inputMode="decimal" placeholder="из категории" /></Affix></CardField>
           <CardField label="Мин. остаток" htmlFor={id('min')}><Input id={id('min')} name="minimumStockUnits" inputMode="numeric" defaultValue="0" required /></CardField>
           <CardField label="Штук в упаковке" htmlFor={id('units')}><Input id={id('units')} name="unitsPerPackage" inputMode="numeric" defaultValue="1" required /></CardField>

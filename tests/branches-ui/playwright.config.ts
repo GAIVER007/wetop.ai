@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
-const webPort = process.env.BRANCHES_UI_WEB_PORT ?? '55863';
-const apiPort = process.env.BRANCHES_UI_API_PORT ?? '55864';
+const webPort = process.env.BRANCHES_UI_WEB_PORT ?? '26863';
+const apiPort = process.env.BRANCHES_UI_API_PORT ?? '26864';
 export default defineConfig({
   testDir: '.',
   testMatch: '*.spec.ts',

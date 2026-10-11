@@ -6,6 +6,8 @@ import { hotelApi, hotelToday } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
+import { LoadError } from '../../components/load-error';
+import { loadErrorProps } from '../../lib/load-error';
 import { ActionMenu } from '../../components/action-menu';
 import { Badge, EmptyState, Table, cx } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
@@ -76,12 +78,22 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
     settle(barApi.receipts()), settle(barApi.sales()), settle(barApi.movements()), settle(barApi.report()), hotelToday(),
   ]);
   const failed = [categories, stock, suppliers, folios, receipts, sales, movements, report].find((result) => !result.ok);
-  if (failed && !failed.ok) throw failed.error;
+  // Отказ чтения называется словами сервера (например, смешанная валюта истории, D-CUR), а не общим экраном ошибки
+  // и не нулями в плитках
+  if (failed && !failed.ok) {
+    const error = loadErrorProps(failed.error);
+    // 409 это деловой отказ сервера (смешанная валюта истории, D-CUR): его слова и есть заголовок
+    return <Page width="full" className="bar-page" title="Бар">
+      <LoadError testId="bar-load-error" {...error} {...(error.status === 409 ? { title: error.message } : {})} />
+    </Page>;
+  }
   if (!categories.ok || !stock.ok || !suppliers.ok || !folios.ok || !receipts.ok || !sales.ok || !movements.ok || !report.ok) return null;
   // контекст форм: объект и валюта, сервер сверяет их при каждой денежной команде (D-CUR)
   const { property } = await hotelApi.settings();
   const context = { propertyId: property.id, currency: property.currency };
   const r = report.value;
+  // суммы в валюте объекта (D-CUR): без валюты formatMoney подписывает тенге и для объекта в USD
+  const money = (minor: string | bigint) => formatMoney(minor, r.currency);
   const active = stock.value.filter((item) => item.active);
   const unitsTotal = active.reduce((sum, item) => sum + BigInt(item.availableUnits), 0n);
   const lowCount = active.filter((item) => stockStatusOf(item) !== 'ok').length;
@@ -108,7 +120,7 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
                 <td>{receipt.supplier.name}</td>
                 <td>{receipt.documentNumber}</td>
                 <td>{receipt._count.lines}</td>
-                <td>{formatMoney(receipt.totalAmount)}</td>
+                <td>{money(receipt.totalAmount)}</td>
                 <td><Badge tone={badge.tone}>{badge.label}</Badge></td>
               </tr>;
             })}</tbody>
@@ -140,13 +152,13 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
   </>}>
     <section className="bar-kpis" aria-label="Показатели бара">
       <Kpi icon="product" tone="primary" label="Товаров" value={String(active.length)} hint="активных позиций" />
-      <Kpi icon="stock" tone="success" label="Остаток на складе" value={`${unitsTotal} шт.`} hint={`на сумму ${formatMoney(r.stockCostMinor)}`} />
-      <Kpi icon="cart" tone="primary" label="Закуплено за месяц" value={formatMoney(r.month?.purchasesMinor ?? r.purchasesMinor)}
+      <Kpi icon="stock" tone="success" label="Остаток на складе" value={`${unitsTotal} шт.`} hint={`на сумму ${money(r.stockCostMinor)}`} />
+      <Kpi icon="cart" tone="primary" label="Закуплено за месяц" value={money(r.month?.purchasesMinor ?? r.purchasesMinor)}
         growth={r.month?.purchasesGrowth ?? null} hint="в прошлом месяце закупок не было" />
-      <Kpi icon="chart" tone="info" label="Выручка бара" value={formatMoney(monthRevenue)}
+      <Kpi icon="chart" tone="info" label="Выручка бара" value={money(monthRevenue)}
         growth={r.month?.revenueGrowth ?? null} hint="за текущий месяц" />
-      <Kpi icon="coins" tone="warning" label="Валовая прибыль" value={formatMoney(monthProfit)} hint={margin === null ? 'продаж за месяц нет' : `маржинальность ${margin}%`} />
-      <Kpi icon="truck" tone="danger" label="Долг поставщикам" value={formatMoney(r.supplierDebtMinor)} hint={debtors > 0 ? pluralRu(debtors, ['поставщик', 'поставщика', 'поставщиков']) : 'долгов нет'} />
+      <Kpi icon="coins" tone="warning" label="Валовая прибыль" value={money(monthProfit)} hint={margin === null ? 'продаж за месяц нет' : `маржинальность ${margin}%`} />
+      <Kpi icon="truck" tone="danger" label="Долг поставщикам" value={money(r.supplierDebtMinor)} hint={debtors > 0 ? pluralRu(debtors, ['поставщик', 'поставщика', 'поставщиков']) : 'долгов нет'} />
       <Kpi icon="incidents" tone="danger" label="Заканчиваются" value={String(lowCount)} hint={pluralRu(lowCount, ['товар', 'товара', 'товаров'], false)} alarm={lowCount > 0} />
     </section>
     <div className="bar-quick">

@@ -98,8 +98,45 @@ async function main() {
     JSON.stringify({ email, password, org: ids.org, user: ids.user }),
     { mode: 0o600 },
   );
+  await prepareA25(q);
   await admin.end();
   console.log(JSON.stringify({ version, roles, a26Org: ids.org }));
+}
+
+/** A25 (браузер Бар-2): одна организация, бизнес гостиницы и два объекта, в KZT и в USD; спек сам добавляет новые */
+async function prepareA25(q: (sql: string, params?: unknown[]) => Promise<pg.QueryResult>) {
+  const org = randomUUID(), business = randomUUID(), user = randomUUID();
+  const email = `a25-${user}@example.invalid`;
+  const password = randomBytes(18).toString('base64url');
+  const now = new Date().toISOString();
+  const scopes: Record<string, { business: string; location: string; property: string; name: string }> = {};
+  await q('BEGIN');
+  try {
+    await q('SET LOCAL search_path TO pms_test, public');
+    await q("INSERT INTO organizations(id,name,status) VALUES($1,'A25 synthetic organization','ACTIVE')", [org]);
+    await q("INSERT INTO businesses(id,organization_id,name,vertical,updated_at) VALUES($1,$2,'A25 synthetic hospitality','HOSPITALITY',$3)", [business, org, now]);
+    for (const currency of ['KZT', 'USD']) {
+      const location = randomUUID(), property = randomUUID(), name = `A25 ${currency} base`;
+      await q("INSERT INTO locations(id,business_id,name,timezone,currency,updated_at) VALUES($1,$2,$3,'Asia/Almaty',$4,$5)", [location, business, name, currency, now]);
+      await q("INSERT INTO properties(id,organization_id,location_id,name,timezone,currency,check_in_time,check_out_time,updated_at) VALUES($1,$2,$3,$4,'Asia/Almaty',$5,'14:00','12:00',$6)", [property, org, location, name, currency, now]);
+      // одна единица продажи: без номеров гейт онбординга увёл бы рабочие экраны на настройку (как newScope в A25)
+      const building = randomUUID(), floor = randomUUID(), room = randomUUID(), type = randomUUID();
+      await q("INSERT INTO buildings(id,property_id,name) VALUES($1,$2,'A25 building')", [building, property]);
+      await q("INSERT INTO floors(id,building_id,name) VALUES($1,$2,'1')", [floor, building]);
+      await q("INSERT INTO physical_rooms(id,floor_id,room_number,capacity,updated_at) VALUES($1,$2,'1',1,$3)", [room, floor, now]);
+      await q("INSERT INTO accommodation_types(id,property_id,code,name,kind,capacity_adults,updated_at) VALUES($1,$2,'A25','A25 room','PRIVATE_ROOM',1,$3)", [type, property, now]);
+      await q("INSERT INTO inventory_units(id,property_id,physical_room_id,accommodation_type_id,kind,code,updated_at) VALUES($1,$2,$3,$4,'ROOM','A25',$5)", [randomUUID(), property, room, type, now]);
+      scopes[currency] = { business, location, property, name };
+    }
+    await q('INSERT INTO users(id,email,name,email_verified_at,password_hash) VALUES($1,$2,$3,$4,$5)', [user, email, 'A25 synthetic owner', now, hashPassword(password)]);
+    await q("INSERT INTO memberships(user_id,organization_id,role) VALUES($1,$2,'OWNER')", [user, org]);
+    await q('COMMIT');
+  } catch (error) {
+    await q('ROLLBACK');
+    throw error;
+  }
+  mkdirSync(join(workDir!, 'evidence'), { recursive: true, mode: 0o700 });
+  writeFileSync(join(workDir!, 'a25-private.json'), JSON.stringify({ email, password, org, user, scopes }), { mode: 0o600 });
 }
 
 main().catch(async (error) => {

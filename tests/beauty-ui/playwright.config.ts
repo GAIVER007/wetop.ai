@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
-const apiPort = process.env.BEAUTY_UI_API_PORT || '55814';
-const webPort = process.env.BEAUTY_UI_WEB_PORT || '55813';
+const apiPort = process.env.BEAUTY_UI_API_PORT || '26814';
+const webPort = process.env.BEAUTY_UI_WEB_PORT || '26813';
 const api = `http://127.0.0.1:${apiPort}`;
 const web = `http://127.0.0.1:${webPort}`;
 export default defineConfig({

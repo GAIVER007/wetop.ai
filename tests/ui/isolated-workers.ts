@@ -269,6 +269,8 @@ export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
     const apps = [
       ...copyTree(join(repoRoot, 'apps/web'), join(workerRoot, 'apps/web')),
       ...copyTree(join(repoRoot, 'apps/site'), join(workerRoot, 'apps/site')),
+      // предпросмотр черновика сайта в стойке импортирует исходники apps/sites относительным путём (MKT9.2)
+      ...copyTree(join(repoRoot, 'apps/sites'), join(workerRoot, 'apps/sites')),
     ];
     for (const file of RUNTIME_ROOT_FILES)
       copyFileSync(join(repoRoot, file), join(workerRoot, file));

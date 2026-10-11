@@ -7,7 +7,8 @@
 #   scripts/ci/runtime-audit.sh run       — внутри изоляции: доказательство сети, PostgreSQL, API A26, тесты
 #
 # База, API и тесты живут в одном сетевом пространстве и видят друг друга через loopback; наружу connect()
-# получает EPERM от ядра. Ничего production: вымышленные данные (ADR-010), своя база в AUDIT_WORK.
+# сразу отвергается ядром (macOS: EPERM от sandbox-exec; Linux: ENETUNREACH, у пространства нет внешних интерфейсов
+# и маршрутов). Ничего production: вымышленные данные (ADR-010), своя база в AUDIT_WORK.
 # Исторический A3 (bar-money-invariants-audit.test.ts, A3_RUNTIME_AUDIT) сюда сознательно не входит:
 # он проверял прежние дефекты, часть его ожиданий противоречит D-CUR (reports/wetop-master-2026-10-10).
 set -euo pipefail
@@ -43,19 +44,21 @@ prepare() {
 }
 
 cleanup() {
-  local pid
-  pid="$(cat "$WORK/a26/a26-api.pid" 2>/dev/null || true)"
-  # только своя группа процессов API A26: пустой pid дал бы kill -0 и погасил бы всю группу этого скрипта
-  [[ "$pid" =~ ^[1-9][0-9]*$ ]] && kill -- "-$pid" 2>/dev/null || true
+  local pid file
+  # только свои группы процессов API (A26 4427, A25 4417): пустой pid дал бы kill -0 и погасил бы этот скрипт
+  for file in "$WORK"/a26/api-*.pid; do
+    pid="$(cat "$file" 2>/dev/null || true)"
+    [[ "$pid" =~ ^[1-9][0-9]*$ ]] && kill -- "-$pid" 2>/dev/null || true
+  done
   "$1/pg_ctl" -D "$WORK/pgdata" -m fast stop >/dev/null 2>&1 || true
 }
 
 run() {
-  mkdir -p "$EVIDENCE"
+  mkdir -p "$EVIDENCE/a25"
   # 1. Доказательство в этом процессе: loopback открыт, внешний адрес и DNS-сервер закрыты ядром
-  local bin; bin="$(pg_bin)"
-  "$bin/pg_ctl" -D "$WORK/pgdata" -l "$WORK/pgdata/server.log" -o "-p $PORT -k $WORK/pgdata" -w start >/dev/null
-  trap 'cleanup "$bin"' EXIT
+  PG_BIN="$(pg_bin)"
+  "$PG_BIN/pg_ctl" -D "$WORK/pgdata" -l "$WORK/pgdata/server.log" -o "-p $PORT -k $WORK/pgdata" -w start >/dev/null
+  trap 'cleanup "$PG_BIN"' EXIT
   ( cd "$ROOT" && node -e '
     const net = require("node:net");
     const probe = (host, port) => new Promise((done) => {
@@ -64,11 +67,16 @@ run() {
       s.once("connect", () => f("CONNECTED")); s.once("error", (e) => f(e.code)); s.setTimeout(5000, () => f("TIMEOUT"));
     });
     (async () => {
-      const result = { local: await probe("127.0.0.1", Number(process.env.AUDIT_PG_PORT)),
-        external: await probe("192.0.2.1", 443), dns: await probe("8.8.8.8", 53) };
+      const refused = process.platform === "linux" ? "ENETUNREACH" : "EPERM";
+      // loopback до трёх попыток: sandbox-exec изредка отвергает и разрешённый localhost (EPERM); внешнее проверяется один раз
+      const localAttempts = [];
+      while (localAttempts.length < 3 && localAttempts.at(-1) !== "CONNECTED")
+        localAttempts.push(await probe("127.0.0.1", Number(process.env.AUDIT_PG_PORT)));
+      const result = { local: localAttempts.at(-1), localAttempts,
+        external: await probe("192.0.2.1", 443), dns: await probe("8.8.8.8", 53), expected: refused };
       require("node:fs").writeFileSync(process.env.AUDIT_EVIDENCE_DIR + "/runner-network.json", JSON.stringify(result, null, 2));
       console.log("runtime-audit: сеть", JSON.stringify(result));
-      if (result.local !== "CONNECTED" || result.external !== "EPERM" || result.dns !== "EPERM") process.exit(72);
+      if (result.local !== "CONNECTED" || result.external !== refused || result.dns !== refused) process.exit(72);
     })();
   ' )
   # 2. API для A26 (порт 4427) — тот же старт, что перезапускает сама матрица A26
@@ -90,19 +98,22 @@ run() {
         tests/integration/auth-timezone-matrix-a26.test.ts \
         tests/integration/auth-date-consumers-a26.test.ts \
         --note "runtime-аудит в изоляции сети: A29, A2, A23, A26" )
+  # 4. Браузер Бар-2 (A25): настоящий API на 4417 и стойка на 3127, сверка ожидание/API/SQL/DOM
+  AUDIT_API_PORT=4417 node "$WORK/a26/a26-restart.cjs"
+  for _ in $(seq 1 150); do curl -fsS http://127.0.0.1:4417/health >/dev/null 2>&1 && break; sleep 0.2; done
+  curl -fsS http://127.0.0.1:4417/health >/dev/null
+  ( cd "$ROOT" && A25_EVIDENCE_DIR="$EVIDENCE/a25" npm run test:record -- e2e \
+      --config tests/runtime-audit/playwright.bar.config.ts --workers=1 \
+      --note "runtime-аудит в изоляции сети: браузер Бар-2 (A25) на настоящем API" )
 }
 
 isolated() {
   case "$(uname -s)" in
     Linux)
-      # Своё сетевое пространство: lo для базы, API и тестов; dummy-маршрут по умолчанию, чтобы внешний
-      # connect() дошёл до netfilter и получил EPERM (без маршрута ядро ответило бы ENETUNREACH)
+      # Своё сетевое пространство только с lo: база, API и тесты видят друг друга, наружу нет ни интерфейса, ни
+      # маршрута, connect() сразу получает ENETUNREACH. (iptables OUTPUT DROP не годится: TCP тогда уходит в таймаут.)
       sudo unshare --net -- bash -euo pipefail -c '
         ip link set lo up
-        ip link add audit0 type dummy && ip addr add 198.51.100.1/24 dev audit0 && ip link set audit0 up
-        ip route add default dev audit0
-        ip -6 addr add 2001:db8::1/64 dev audit0 && ip -6 route add default dev audit0 || true
-        for t in iptables ip6tables; do $t -P OUTPUT DROP; $t -A OUTPUT -o lo -j ACCEPT; done
         exec sudo -u "$SUDO_USER" --preserve-env=PATH,HOME,TMPDIR,AUDIT_WORK,CHROMIUM_PATH "$0" run
       ' "$ROOT/scripts/ci/runtime-audit.sh"
       ;;

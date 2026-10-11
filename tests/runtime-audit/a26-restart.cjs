@@ -10,7 +10,9 @@ const root = process.env.AUDIT_REPO_ROOT;
 if (!root) throw new Error('AUDIT_REPO_ROOT не задан');
 const port = Number(process.env.AUDIT_PG_PORT || '55601');
 const database = process.env.A28_PG_DATABASE || 'pmslocal';
-const pidFile = path.join(work, 'a26-api.pid');
+// A26 по умолчанию на 4427; A25 (браузер Бар-2) запускает тот же API на 4417 через AUDIT_API_PORT
+const apiPort = process.env.AUDIT_API_PORT || '4427';
+const pidFile = path.join(work, `api-${apiPort}.pid`);
 
 try {
   const previous = Number(fs.readFileSync(pidFile, 'utf8'));
@@ -28,7 +30,7 @@ while (Date.now() < stopped) {
   }
 }
 
-const log = fs.openSync(path.join(work, 'a26-api.log'), 'a', 0o600);
+const log = fs.openSync(path.join(work, `api-${apiPort}.log`), 'a', 0o600);
 const child = spawn('npm', ['run', 'start', '-w', 'apps/api'], {
   cwd: root,
   detached: true,
@@ -51,7 +53,7 @@ const child = spawn('npm', ['run', 'start', '-w', 'apps/api'], {
     DATABASE_POOL_MAX: '2',
     DATABASE_APP_POOL_MAX: '2',
     API_HOST: '127.0.0.1',
-    API_PORT: '4427',
+    API_PORT: apiPort,
     AUTH_REQUIRED: '1',
     CHANNEX_OUTBOX_WORKER: 'off',
     CHANNEX_FULL_SYNC: 'off',

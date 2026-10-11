@@ -11,7 +11,7 @@ const describe = (error: unknown) =>
   error instanceof ApiError
     ? error.message
     : error instanceof Error &&
-        /^(Объект формы|Валюта формы|Ключ продажи|Цена|Сумма|Наценка|Строка|Такой файл|Выберите фото|Файл больше)/.test(error.message)
+        /^(Объект формы|Валюта формы|Ключ продажи|Цена|Сумма|Наценка|Строка|Такой файл|Выберите фото|Файл больше|Автоматическая цена)/.test(error.message)
       ? error.message
       : 'Не удалось выполнить действие. Проверьте результат перед повтором.';
 async function verifyContext(fd: FormData) {
@@ -82,6 +82,12 @@ export async function createBarReceiptAction(
   try {
     const context = await verifyContext(fd);
     const count = Number(value(fd, 'lineCount'));
+    // D-CUR: цена по наценке есть только для тенге, приход в другой валюте отклоняет API. Строки «новый товар»
+    // создают карточку до прихода, поэтому отказ проверяется здесь, до первой записи: иначе в каталоге оставался
+    // товар без прихода. Приход только из существующих товаров уходит в API, и отказ даёт сервер
+    const hasNewProduct = Array.from({ length: Number.isSafeInteger(count) ? count : 0 }, (_, index) => !value(fd, `productId.${index}`)).some(Boolean);
+    if (context.currency !== 'KZT' && hasNewProduct)
+      throw new Error('Автоматическая цена для этой валюты еще не утверждена. Используйте свою цену продажи');
     if (!Number.isSafeInteger(count) || count < 1)
       throw new Error('Цена: проверьте строки прихода');
     // строка прихода: товар из справочника или новая карточка, которую заводим перед документом

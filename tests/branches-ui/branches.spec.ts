@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { settleStreaming } from '../ui/fixtures';
-const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '26864'}`;
 type Fixture = {
   business: string;
   otherBusiness: string;

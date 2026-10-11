@@ -320,6 +320,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
       - name: Подготовка с сетью (PostgreSQL 16.14 из npm, миграции, роли, вымышленные данные)
         run: scripts/ci/runtime-audit.sh prepare
       - name: Прогон в закрытом сетевом пространстве

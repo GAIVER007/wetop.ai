@@ -57,9 +57,9 @@ export default async function BarOperationsPage() {
           <tbody>{sales.value.map((sale) => <tr key={sale.id}>
             <td>{sale.createdAt.slice(0, 10)}</td>
             <td>{sale.lines.map((line) => `${line.product.name} × ${line.quantityUnits}`).join(', ')}</td>
-            <td>{formatMoney(sale.totalRevenue)}</td>
-            <td>{formatMoney(sale.totalCost)}</td>
-            <td>{formatMoney(BigInt(sale.totalRevenue) - BigInt(sale.totalCost))}</td>
+            <td>{formatMoney(sale.totalRevenue, property.currency)}</td>
+            <td>{formatMoney(sale.totalCost, property.currency)}</td>
+            <td>{formatMoney(BigInt(sale.totalRevenue) - BigInt(sale.totalCost), property.currency)}</td>
             <td><Badge tone={sale.status === 'POSTED' ? 'ok' : 'neutral'}>{sale.status === 'POSTED' ? 'Продано' : 'Возврат'}</Badge></td>
             <td>{sale.status === 'POSTED' && <div className="bar-return">
               <BarCommandForm context={context} action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="true" /><input type="hidden" name="reason" value="Возврат гостя, товар пригоден" /><Button type="submit" tone="ghost" size="xs">Вернуть на склад</Button></BarCommandForm>
@@ -77,7 +77,7 @@ export default async function BarOperationsPage() {
             <td>{movement.product.name}</td>
             <td>{MOVEMENT_LABEL[movement.kind] ?? movement.kind}</td>
             <td>{movement.units}</td>
-            <td>{formatMoney(movement.amountMinor)}</td>
+            <td>{formatMoney(movement.amountMinor, property.currency)}</td>
             <td>{movement.note ?? 'нет'}</td>
           </tr>)}</tbody>
         </Table>}

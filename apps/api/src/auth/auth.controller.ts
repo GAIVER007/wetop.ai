@@ -137,6 +137,8 @@ export class AuthController {
       phone: typeof body?.phone === 'string' ? body.phone.slice(0, 40) : '',
       // только настоящее `true`: строка «true» или пропуск — не согласие
       privacyAccepted: body?.privacyAccepted === true,
+      // язык проверяет сервис по списку домена; пропуск означает русский (Q-REG-1)
+      ...(body && Object.prototype.hasOwnProperty.call(body, 'locale') ? { locale: body.locale } : {}),
     });
   }
 

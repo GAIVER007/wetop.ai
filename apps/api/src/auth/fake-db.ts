@@ -15,6 +15,8 @@ export interface FakeUser {
   lastLoginAt: Date | null;
   /** NULL — почта не подтверждена: вход закрыт (решение владельца 20.09.2026) */
   emailVerifiedAt: Date | null;
+  /** Язык интерфейса (Q-REG-1); у заведённых фикстурой не задан, в базе умолчание `ru` */
+  locale?: string;
 }
 
 export interface FakeMembership {
@@ -75,6 +77,7 @@ export interface FakeOrganization {
   name: string;
   status: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED';
   trialEndsAt: Date | null;
+  countryCode?: string | null;
 }
 
 export interface FakeProperty {

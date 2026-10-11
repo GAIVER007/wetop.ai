@@ -651,6 +651,7 @@ export const authApi = {
       phoneCountry: string;
       phone: string;
       privacyAccepted: boolean;
+      locale?: string;
     },
     info?: AuthClientInfo,
   ) =>

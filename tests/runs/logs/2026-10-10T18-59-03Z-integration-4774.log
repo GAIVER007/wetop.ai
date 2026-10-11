@@ -1,0 +1,93 @@
+# Интеграционные (integration) · 10.10.2026 23:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит cf107b0 (claude/register-country-locale), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T18-59-03Z-integration-4774.json' 'tests/integration/mv2-registration.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt
+
+ ❯ |integration| tests/integration/mv2-registration.test.ts (6 tests | 5 failed) 344ms
+   ❯ MV2 real registration persistence (6)
+     × stores organization country and user locale 154ms
+     × HOSPITALITY persists through resend and confirmation 36ms
+     × BEAUTY persists through resend and confirmation 36ms
+     × FOOD_SERVICE persists through resend and confirmation 32ms
+     × concurrent duplicate submission rolls back the losing chain 38ms
+     ✓ denied pilot and global closed gate create no orphan chain 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > stores organization country and user locale
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.create()` invocation:
+
+
+The column `country_code of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/auth/auth.service.ts:391:21
+    389|     try {
+    390|       created = await this.prisma.db.$transaction(async (tx) => {
+    391|         const org = await tx.organization.create({
+       |                     ^
+    392|           data: {
+    393|             name: organizationName,
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ AuthService.register apps/api/src/auth/auth.service.ts:390:17
+ ❯ tests/integration/mv2-registration.test.ts:80:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > HOSPITALITY persists through resend and confirmation
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > BEAUTY persists through resend and confirmation
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > FOOD_SERVICE persists through resend and confirmation
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.create()` invocation:
+
+
+The column `country_code of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/auth/auth.service.ts:391:21
+    389|     try {
+    390|       created = await this.prisma.db.$transaction(async (tx) => {
+    391|         const org = await tx.organization.create({
+       |                     ^
+    392|           data: {
+    393|             name: organizationName,
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ AuthService.register apps/api/src/auth/auth.service.ts:390:17
+ ❯ tests/integration/mv2-registration.test.ts:97:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| tests/integration/mv2-registration.test.ts > MV2 real registration persistence > concurrent duplicate submission rolls back the losing chain
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/integration/mv2-registration.test.ts:133:61
+    131|     const body = input('BEAUTY', 'race');
+    132|     const results = await Promise.allSettled([auth.register(body, now)…
+    133|     expect(results.filter((r) => r.status === 'fulfilled')).toHaveLeng…
+       |                                                             ^
+    134|     expect(results.filter((r) => r.status === 'rejected')).toHaveLengt…
+    135|     expect(await db.organization.count({ where: { name: body.businessN…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 1 passed (6)
+   Start at  11:59:04
+   Duration  1.99s (transform 41%, tests 32%, import 27%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T18-59-03Z-integration-4774.json
+
+# код выхода 1 · 3 с

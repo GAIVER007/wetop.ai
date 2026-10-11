@@ -14,6 +14,35 @@ type Fixture = {
   locations: string[];
 };
 const pointer = (b: string, l: string) => `business=${b};location=${l}`;
+/**
+ * Сегодняшний полдень по поясу объекта стенда (`fixture-api.ts`) и его день недели. Сервер сверяет период
+ * обслуживания по местному времени объекта (`foodEnd`), поэтому «сейчас» по UTC тут не годится: с 19:00 UTC
+ * в Алматы уже следующие сутки, а с 18:00 часовая бронь не влезает в период до 23:59.
+ */
+function localNoon(now = new Date(), timeZone = 'Asia/Almaty') {
+  const part = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .formatToParts(now)
+      .map((x) => [x.type, x.value]),
+  );
+  const noon = new Date(
+    now.getTime() - ((Number(part.hour) - 12) * 60 + Number(part.minute)) * 60000,
+  );
+  noon.setUTCSeconds(0, 0);
+  const date = `${part.year}-${part.month}-${part.day}`;
+  return {
+    startsAt: noon.toISOString().slice(0, 19) + 'Z',
+    weekday: new Date(`${date}T12:00:00Z`).getUTCDay(),
+  };
+}
 async function scope(page: Page, b: string, l: string) {
   await page.context().addCookies([
     {
@@ -311,9 +340,10 @@ test('зарплата: оклад + процент, премия и штраф,
 test('клиенты: вкладки и «Постоянный гость» от двух визитов', async ({ page, request }) => {
   const { headers, table } = await seed(page, request);
   // период обслуживания и две завершённые посадки одного клиента
+  const noon = localNoon();
   const period = await post(request, headers, '/food-service/service-periods', {
     name: 'Весь день',
-    weekday: new Date().getUTCDay(),
+    weekday: noon.weekday,
     timeFrom: '00:00',
     timeTo: '23:59',
     endsNextDay: false,
@@ -324,7 +354,7 @@ test('клиенты: вкладки и «Постоянный гость» от
     headers: { ...headers, 'idempotency-key': 'rest-cust-1' },
     data: {
       servicePeriodId: period.id,
-      startsAt: new Date().toISOString().slice(0, 19) + 'Z',
+      startsAt: noon.startsAt,
       partySize: 2,
       customer: { firstName: 'Сергей', lastName: 'Иванов', phone: '+7 700 123-45-67' },
       tableId: table.id,
@@ -342,7 +372,7 @@ test('клиенты: вкладки и «Постоянный гость» от
     headers: { ...headers, 'idempotency-key': 'rest-cust-2' },
     data: {
       servicePeriodId: period.id,
-      startsAt: new Date().toISOString().slice(0, 19) + 'Z',
+      startsAt: noon.startsAt,
       partySize: 3,
       customerId: r1.customerId,
       tableId: table.id,

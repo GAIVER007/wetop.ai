@@ -112,9 +112,10 @@ isolated() {
     Linux)
       # Своё сетевое пространство только с lo: база, API и тесты видят друг друга, наружу нет ни интерфейса, ни
       # маршрута, connect() сразу получает ENETUNREACH. (iptables OUTPUT DROP не годится: TCP тогда уходит в таймаут.)
+      # -H: домашний каталог пользователя раннера, иначе от внешнего sudo остаётся /root и Playwright не находит Chromium
       sudo unshare --net -- bash -euo pipefail -c '
         ip link set lo up
-        exec sudo -u "$SUDO_USER" --preserve-env=PATH,HOME,TMPDIR,AUDIT_WORK,CHROMIUM_PATH "$0" run
+        exec sudo -u "$SUDO_USER" -H --preserve-env=PATH,TMPDIR,AUDIT_WORK,CHROMIUM_PATH "$0" run
       ' "$ROOT/scripts/ci/runtime-audit.sh"
       ;;
     Darwin)

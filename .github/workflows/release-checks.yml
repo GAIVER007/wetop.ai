@@ -300,13 +300,15 @@ jobs:
         if: failure()
         with:
           name: ui-auth-results
-          path: test-results
+          # только результаты Playwright; test-results/auth-runtime-* это сборки Next двух workers (десятки тысяч файлов)
+          path: test-results/auth
           if-no-files-found: ignore
 
   runtime-audit:
     # Обязательный runtime-аудит денег, входа и схемы (A2, A23, A26, A29): настоящие API и PostgreSQL 16.14,
     # штатные роли, AUTH_REQUIRED=1, независимая SQL-сверка. База, API и тесты в одном сетевом пространстве с
-    # loopback; наружу connect() получает EPERM от netfilter, это проверяет и сам скрипт, и preload каждого API.
+    # loopback; у пространства нет внешних интерфейсов и маршрутов, connect() наружу сразу получает ENETUNREACH,
+    # это проверяет и сам скрипт, и preload каждого API.
     # Исторический A3 (A3_RUNTIME_AUDIT) сюда не входит: reports/wetop-master-2026-10-10/audit-coverage.md
     name: runtime-аудит денег, входа и схемы без внешней сети
     needs: fast
@@ -325,13 +327,22 @@ jobs:
         run: scripts/ci/runtime-audit.sh prepare
       - name: Прогон в закрытом сетевом пространстве
         run: scripts/ci/runtime-audit.sh isolated
+      - name: Записи журнала этого прогона (новые файлы, не из репозитория)
+        if: always()
+        run: |
+          mkdir -p tests/runs/runtime-audit/journal
+          git ls-files --others --exclude-standard -- tests/runs/entries tests/runs/logs | xargs -r cp -t tests/runs/runtime-audit/journal
+          find test-results -name error-context.md -exec sh -c 'd="tests/runs/runtime-audit/failures/$(basename "$(dirname "$1")")"; mkdir -p "$d"; cp "$1" "$d/"' _ {} \; 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: runtime-audit-evidence
+          # allowlist: доказательства сети и сверок, снимки A25, журнал этого прогона, контексты падений; без trace с cookie
           path: |
             tests/runs/runtime-audit/**/*.json
-            tests/runs/entries/*-integration-*.json
+            tests/runs/runtime-audit/**/*.png
+            tests/runs/runtime-audit/journal/*
+            tests/runs/runtime-audit/failures/**/error-context.md
           if-no-files-found: ignore
 
   ui:

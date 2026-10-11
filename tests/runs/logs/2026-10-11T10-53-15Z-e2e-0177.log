@@ -1,0 +1,211 @@
+# Сквозные (e2e) · 11.10.2026 15:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 70b550b (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts' '--workers=2'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1663ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/test-results/auth-runtime-1/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 2 workers
+
+  ✓   2 tests/ui/login-lock.spec.ts:33:3 › без входа /today уводит на канонический экран входа (6.0s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 403,
+[WebServer]   digest: 'API_403'
+[WebServer] }
+  ✓   3 tests/ui/login-lock.spec.ts:33:3 › без входа /chessboard уводит на канонический экран входа (13.8s)
+  ✓   1 tests/ui/a27-auth-boundary.spec.ts:26:3 › session check 403 is a safe distinct failure and preserves the valid session (22.3s)
+  ✓   4 tests/ui/login-lock.spec.ts:33:3 › без входа /reservations уводит на канонический экран входа (9.1s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 500
+[WebServer]     at getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 500,
+[WebServer]   digest: 'API_500'
+[WebServer] }
+  ✓   5 tests/ui/a27-auth-boundary.spec.ts:26:3 › session check 500 is a safe distinct failure and preserves the valid session (11.0s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   7 tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 1440 light: safe keyboard recovery without cookie deletion (28.7s)
+  ✘   6 tests/ui/login-lock.spec.ts:43:1 › после входа рабочее место открывается, обычный выход снова закрывает доступ (32.6s)
+  ✘   8 tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 1440 dark: safe keyboard recovery without cookie deletion (27.5s)
+  ✘   9 tests/ui/login-lock.spec.ts:59:1 › ссылка из письма подтверждает почту при включенном замке (47.0s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  10 tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 390 light: safe keyboard recovery without cookie deletion (33.6s)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+[WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+[WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+[WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  11 tests/ui/unified-auth.spec.ts:23:3 › защищённая /today: главная → реальная cookie → исходный экран (33.6s)
+  ✓  12 tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 390 dark: safe keyboard recovery without cookie deletion (40.0s)
+  ✓  13 tests/ui/unified-auth.spec.ts:23:3 › защищённая /chessboard: главная → реальная cookie → исходный экран (26.3s)
+  ✓  14 tests/ui/unified-auth.spec.ts:23:3 › защищённая /reservations: главная → реальная cookie → исходный экран (8.3s)
+  ✓  15 tests/ui/unified-auth.spec.ts:40:1 › старые адреса открывают только формы на главной (4.2s)
+  ✓  16 tests/ui/unified-auth.spec.ts:51:1 › сессия работает в новой вкладке; выход возвращает на главную и закрывает доступ (17.6s)
+  ✓  17 tests/ui/unified-auth.spec.ts:71:1 › регистрация на главной → письмо → подтверждение → рабочее место (7.6s)
+  ✓  18 tests/ui/unified-auth.spec.ts:92:1 › резервный вход без JavaScript сохраняет сессию и возвращает на исходный экран (5.5s)
+
+
+  1) tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 1440 dark: safe keyboard recovery without cookie deletion 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3102/finance"
+    Received: "http://127.0.0.1:3102/today"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        4 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="__variable_14cd0a __variable_3c2cdc __variable_37214d">…</html>
+          - unexpected value "http://127.0.0.1:3002/?next=%2Ftoday#login"
+        - waiting for "http://127.0.0.1:3102/scope/resolve?next=%2Ftoday" navigation to finish...
+        - navigated to "http://127.0.0.1:3102/today"
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3102/today"
+        - waiting for "http://127.0.0.1:3102/finance" navigation to finish...
+        - navigated to "http://127.0.0.1:3102/finance"
+
+
+      20 |   await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
+      21 |   // гостиница с 09.10.2026 садится на «Обзор бизнеса»: /today ведёт на /finance (vertical-landing.ts)
+    > 22 |   await expect(page).toHaveURL(`${WEB}/finance`);
+         |                      ^
+      23 | });
+      24 |
+      25 | for (const status of [403, 500]) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/ui/a27-auth-boundary.spec.ts:22:22
+
+    Error Context: tests/ui/test-results/auth/a27-auth-boundary-unavaila-c1376-ery-without-cookie-deletion/error-context.md
+
+  2) tests/ui/login-lock.spec.ts:43:1 › после входа рабочее место открывается, обычный выход снова закрывает доступ 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3103/finance"
+    Received: "http://127.0.0.1:3103/today"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="__variable_14cd0a __variable_3c2cdc __variable_37214d">…</html>
+          - unexpected value "http://127.0.0.1:3003/?next=%2Ftoday#login"
+        - waiting for navigation to finish...
+        - navigated to "http://127.0.0.1:3103/today"
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3103/today"
+        - waiting for "http://127.0.0.1:3103/finance" navigation to finish...
+
+
+      27 |   await dialog.getByLabel('Пароль', { exact: true }).fill(PASSWORD);
+      28 |   await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 29 |   await expect(page).toHaveURL(`${APP}/finance`); // гостиница садится на «Обзор бизнеса» (vertical-landing.ts)
+         |                      ^
+      30 | }
+      31 |
+      32 | for (const path of ['/today', '/chessboard', '/reservations']) {
+        at signIn (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/ui/login-lock.spec.ts:29:22)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/ui/login-lock.spec.ts:46:3
+
+    Error Context: tests/ui/test-results/auth/login-lock-после-входа-раб-4d0c6-ыход-снова-закрывает-доступ/error-context.md
+
+  3) tests/ui/login-lock.spec.ts:59:1 › ссылка из письма подтверждает почту при включенном замке ───
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3103/finance"
+    Received: "http://127.0.0.1:3103/scope/resolve?next=%2Ftoday"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3103/login/verify?token=<скрыто>"
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3103/scope/resolve?next=%2Ftoday"
+      - Test timeout of 45000ms exceeded.
+
+
+      75 |
+      76 |   await page.goto(`${APP}/login/verify?token=<скрыто>;
+    > 77 |   await expect(page).toHaveURL(`${APP}/finance`); // гостиница садится на «Обзор бизнеса» (vertical-landing.ts)
+         |                      ^
+      78 |   await page.reload();
+      79 |   await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
+      80 | });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/ui/login-lock.spec.ts:77:22
+
+    Error Context: tests/ui/test-results/auth/login-lock-ссылка-из-письм-1bad1--почту-при-включенном-замке/error-context.md
+
+  3 failed
+    tests/ui/a27-auth-boundary.spec.ts:76:5 › unavailable session API 1440 dark: safe keyboard recovery without cookie deletion 
+    tests/ui/login-lock.spec.ts:43:1 › после входа рабочее место открывается, обычный выход снова закрывает доступ 
+    tests/ui/login-lock.spec.ts:59:1 › ссылка из письма подтверждает почту при включенном замке ────
+  15 passed (4.4m)
+
+# код выхода 1 · 4 мин 27 с

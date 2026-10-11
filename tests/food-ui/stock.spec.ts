@@ -2,7 +2,7 @@ import { test, expect, type Page, type APIRequestContext } from '@playwright/tes
 import AxeBuilder from '@axe-core/playwright';
 
 /** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS): настоящие контроллеры и база (pms_test) */
-const api = 'http://127.0.0.1:55824';
+const api = `http://127.0.0.1:${process.env.FOOD_UI_API_PORT ?? '55824'}`;
 const shots = 'reports/kitchen-fs2-stock-2026-10-10/screenshots';
 type Fixture = { business: string; locations: string[] };
 const pointer = (b: string, l: string) => `business=${b};location=${l}`;

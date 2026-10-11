@@ -272,7 +272,6 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
     });
   useEffect(() => {
     void reload();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id]);
   return (
     <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={`Партии: ${product.name}`}>

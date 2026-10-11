@@ -5,7 +5,7 @@ import AxeBuilder from '@axe-core/playwright';
  * Ресторанный модуль по ТЗ владельца (ADR-159, DATA_MODEL §33): меню и техкарты, заказы, кухня (KDS),
  * главная, план зала с заказами и уборкой, сотрудники и зарплата. Настоящие контроллеры и база (pms_test).
  */
-const api = 'http://127.0.0.1:55824';
+const api = `http://127.0.0.1:${process.env.FOOD_UI_API_PORT ?? '55824'}`;
 type Fixture = {
   business: string;
   otherBusiness: string;

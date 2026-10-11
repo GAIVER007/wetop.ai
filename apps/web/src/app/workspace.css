@@ -292,6 +292,9 @@
     margin-bottom: 12px;
   }
   .table-scroll {
+    /* Опорный блок: скрытая подпись шапки (`.sr-only`, position: absolute) обрезается прокруткой таблицы,
+       а не встаёт в начальный блок страницы и не тянет её вбок на телефоне */
+    position: relative;
     width: 100%;
     max-width: 100%;
     overflow: auto;

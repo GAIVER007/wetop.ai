@@ -28,7 +28,7 @@ test('короткое меню настроек ведёт в единый об
   const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });
   await tabs.getByRole('link', { name: 'Услуги', exact: true }).click();
   await expect(page.getByTestId('services-table')).toBeVisible();
-  await expect(sidebar.locator('.sidenav__sub [aria-current="page"]')).toHaveText('Объект');
+  await expect(sidebar.locator('.sidenav__items [aria-current="page"]')).toHaveText('Объект');
   // часы заезда и выезда — своей вкладкой (ADR-115), правила отмены — у тарифов
   await tabs.getByRole('link', { name: 'Проживание', exact: true }).click();
   await expect(page.getByTestId('stay-settings').getByLabel('Заезд с')).toHaveValue('14:00');
@@ -60,10 +60,7 @@ test('старые страницы контента ведут в интегр�
   expect(hits.byPath['/channels/channex/content'] ?? 0).toBe(0);
 });
 
-test('поиск услуг работает без повторной загрузки каталога', async ({
-  page,
-  request,
-}) => {
+test('поиск услуг работает без повторной загрузки каталога', async ({ page, request }) => {
   await page.goto('/hotel-settings/services');
   const table = page.getByTestId('services-table');
   await expect(table).toBeVisible();

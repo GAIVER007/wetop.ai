@@ -9,6 +9,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
+import { workerPorts } from './worker-ports';
 
 export type UiWorkerRuntime = {
   index: number;
@@ -244,14 +245,12 @@ export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
     origins: Record<string, string>;
   }> = [];
 
+  // шаг 20 у fixture обходит резерв при портах по умолчанию; переопределения проверяет workerPorts
+  const ports = workerPorts({ fixture: fixtureBase, web: webBase, site: siteBase }, 2, { fixture: 20 });
   const workers = [0, 1].map((index): UiWorkerRuntime => {
     const workerRoot = join(root, `worker-${index}`);
     const uiDir = join(workerRoot, 'tests/ui');
-    // шаг 20, а не 1: 4312 стойка держит под демо-источник (api.ts отвечает 503 без APP_DEMO_MODE),
-    // 4318 занят другим стендом; соседний порт молча ронял все тесты второго worker
-    const fixturePort = fixtureBase + index * 20;
-    const webPort = webBase + index;
-    const sitePort = siteBase + index;
+    const { fixture: fixturePort, web: webPort, site: sitePort } = ports[index]!;
     const runtime = {
       index,
       root: workerRoot,

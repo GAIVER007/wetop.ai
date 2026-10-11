@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import { authPorts } from './worker-ports';
 
 /**
  * Стойка с включённым замком (шаг 5 порядка включения — `plans/slice-13-accounts-saas.md` §7а).
@@ -13,20 +14,18 @@ import { defineConfig } from '@playwright/test';
  * AUTH_SITE_PORT, AUTH_WEB_PORT и AUTH_API_PORT.
  * Запуск: npx playwright test --config tests/ui/playwright.auth.config.ts --workers=2
  */
-const apiPort = process.env.AUTH_API_PORT || '4313';
-const proxyPort = process.env.AUTH_PROXY_PORT || '4323';
-const webPort = process.env.AUTH_WEB_PORT || '3102';
-const sitePort = process.env.AUTH_SITE_PORT || '3002';
-const WEB = `http://127.0.0.1:${webPort}`;
+
 const uiExecutable = process.env.UI_BROWSER_EXECUTABLE || process.env.CHROMIUM_PATH;
 const fontResponses = process.env.NEXT_FONT_GOOGLE_MOCKED_RESPONSES;
 const runtimeRoot = process.env.AUTH_RUNTIME_ROOT || 'test-results/auth-runtime';
+const ports = authPorts();
+const WEB = `http://127.0.0.1:${ports[0]!.web}`;
 
 function authRuntime(worker: number) {
-  const workerApiPort = String(Number(apiPort) + worker);
-  const workerWebPort = String(Number(webPort) + worker);
-  const workerSitePort = String(Number(sitePort) + worker);
-  const workerProxyPort = String(Number(proxyPort) + worker);
+  const workerApiPort = String(ports[worker]!.api);
+  const workerWebPort = String(ports[worker]!.web);
+  const workerSitePort = String(ports[worker]!.site);
+  const workerProxyPort = String(ports[worker]!.proxy);
   const workerApi = `http://127.0.0.1:${workerApiPort}`;
   const workerProxy = `http://127.0.0.1:${workerProxyPort}`;
   const workerWeb = `http://127.0.0.1:${workerWebPort}`;

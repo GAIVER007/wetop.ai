@@ -344,7 +344,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const f = await prepare(request);
     await setScope(page, f.hotelScope);
     await page.clock.install();
-    await page.goto('/today');
+    // Гостиница стоит на своей посадке /finance: /today перенаправляет туда внутри потока (meta refresh и жёсткая
+    // загрузка), и server action выбора уходит на текущий адрес. Перенаправление проверяет тест «гостиница: блоки…»
+    await page.goto('/finance');
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
     await expect(page.getByTestId('data-freshness')).toBeVisible();
     await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
@@ -357,7 +359,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const held = new Promise<void>((resolve) => {
       started = resolve;
     });
-    await page.route('**/today', async (route) => {
+    await page.route('**/finance', async (route) => {
       if (route.request().method() === 'POST' && route.request().headers()['next-action']) {
         started();
         await gate;

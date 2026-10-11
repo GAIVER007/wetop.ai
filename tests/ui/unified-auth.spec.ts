@@ -1,10 +1,12 @@
 import { expect, test } from './fixtures';
+import { authPorts } from './worker-ports';
 
 const worker = Number(process.env.TEST_PARALLEL_INDEX || '0');
-const SITE = `http://127.0.0.1:${Number(process.env.AUTH_SITE_PORT || '3002') + worker}`;
-const APP = `http://127.0.0.1:${Number(process.env.AUTH_WEB_PORT || '3102') + worker}`;
-const API = `http://127.0.0.1:${Number(process.env.AUTH_API_PORT || '4313') + worker}`;
-const PROXY = `http://127.0.0.1:${Number(process.env.AUTH_PROXY_PORT || '4323') + worker}`;
+const ports = authPorts()[worker]!;
+const SITE = `http://127.0.0.1:${ports.site}`;
+const APP = `http://127.0.0.1:${ports.web}`;
+const API = `http://127.0.0.1:${ports.api}`;
+const PROXY = `http://127.0.0.1:${ports.proxy}`;
 // Только синтетическая учётная запись локального fixture API, без базы и отправки писем.
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
@@ -58,7 +60,8 @@ test('сессия работает в новой вкладке; выход в�
   await expect(
     tab.getByRole('heading', { name: 'Управление доступом', exact: true }),
   ).toBeVisible();
-  await expect(tab.getByTestId('session-list')).toBeVisible();
+  // next dev оставляет скрытую копию потокового фрагмента вне области (TESTING.md, release-checks #188/#189)
+  await expect(tab.getByRole('region', { name: 'Где вы вошли' }).getByTestId('session-list')).toBeVisible();
   await tab.getByRole('button', { name: 'Завершить все сеансы' }).click();
   await expect(tab).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
   await page.goto(`${APP}/today`, { waitUntil: 'domcontentloaded' });

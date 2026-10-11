@@ -1,0 +1,141 @@
+# Сквозные (e2e) · 11.10.2026 13:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1179770 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' '--repeat-each=3' '-g' 'MV9 scope switching, read-only|без подтверждённого направления гостиница'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (2.6s)
+  ✓  2 tests/branches-ui/today.spec.ts:425:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (3.5s)
+  ✘  3 tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (1.7s)
+  ✓  4 tests/branches-ui/today.spec.ts:425:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (2.5s)
+  ✘  5 tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (1.8s)
+  ✓  6 tests/branches-ui/today.spec.ts:425:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (2.3s)
+
+
+  1) tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('revenue-KZT')
+    Expected: visible
+    Error: strict mode violation: getByTestId('revenue-KZT') resolved to 2 elements:
+        1) <p data-testid="revenue-KZT">12 000,00 KZT</p> aka getByRole('region', { name: 'Салоны' }).getByTestId('revenue-KZT')
+        2) <p data-testid="revenue-KZT">12 000,00 KZT</p> aka getByTestId('revenue-KZT').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('revenue-KZT') with timeout 5000ms
+      - waiting for getByTestId('revenue-KZT')
+        2 × locator resolved to <p data-testid="revenue-KZT">12 000,00 KZT</p>
+          - unexpected value "hidden"
+
+
+      151 |   await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+      152 |   await page.reload();
+    > 153 |   await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+          |                                                 ^
+      154 |   await request.post(`${api}/__test/control`, { data: { readOnly: true, role: 'STAFF' } });
+      155 |   await page.reload();
+      156 |   await expect(page.locator('.vertical-report:visible')).toHaveCount(1);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/branches-ui/analytics.spec.ts:153:49
+
+    Error Context: test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics/error-context.md
+
+    Error Context: test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('revenue-KZT')
+    Expected: visible
+    Error: strict mode violation: getByTestId('revenue-KZT') resolved to 2 elements:
+        1) <p data-testid="revenue-KZT">12 000,00 KZT</p> aka getByRole('region', { name: 'Салоны' }).getByTestId('revenue-KZT')
+        2) <p data-testid="revenue-KZT">12 000,00 KZT</p> aka getByTestId('revenue-KZT').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('revenue-KZT') with timeout 5000ms
+      - waiting for getByTestId('revenue-KZT')
+        2 × locator resolved to <p data-testid="revenue-KZT">12 000,00 KZT</p>
+          - unexpected value "hidden"
+
+
+      151 |   await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+      152 |   await page.reload();
+    > 153 |   await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+          |                                                 ^
+      154 |   await request.post(`${api}/__test/control`, { data: { readOnly: true, role: 'STAFF' } });
+      155 |   await page.reload();
+      156 |   await expect(page.locator('.vertical-report:visible')).toHaveCount(1);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/branches-ui/analytics.spec.ts:153:49
+
+    Error Context: test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics-repeat1/error-context.md
+
+    Error Context: test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics-repeat1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics-repeat1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics-repeat1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('revenue-KZT')
+    Expected: visible
+    Error: strict mode violation: getByTestId('revenue-KZT') resolved to 2 elements:
+        1) <p data-testid="revenue-KZT">12 000,00 KZT</p> aka getByRole('region', { name: 'Салоны' }).getByTestId('revenue-KZT')
+        2) <p data-testid="revenue-KZT">12 000,00 KZT</p> aka getByTestId('revenue-KZT').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('revenue-KZT') with timeout 5000ms
+      - waiting for getByTestId('revenue-KZT')
+        2 × locator resolved to <p data-testid="revenue-KZT">12 000,00 KZT</p>
+          - unexpected value "hidden"
+
+
+      151 |   await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+      152 |   await page.reload();
+    > 153 |   await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+          |                                                 ^
+      154 |   await request.post(`${api}/__test/control`, { data: { readOnly: true, role: 'STAFF' } });
+      155 |   await page.reload();
+      156 |   await expect(page.locator('.vertical-report:visible')).toHaveCount(1);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/branches-ui/analytics.spec.ts:153:49
+
+    Error Context: test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics-repeat2/error-context.md
+
+    Error Context: test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics-repeat2/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics-repeat2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-scope-switch-bb1f4--never-show-foreign-metrics-repeat2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics 
+    tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics 
+    tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics 
+  3 passed (24.4s)
+
+# код выхода 1 · 26 с

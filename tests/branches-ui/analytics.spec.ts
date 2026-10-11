@@ -150,7 +150,9 @@ test('MV9 scope switching, read-only and invalid Hospitality tab never show fore
   await choose('Тестовый салон');
   await expect(page.getByTestId('revenue-KZT')).toBeVisible();
   await page.reload();
-  await expect(page.getByTestId('revenue-KZT')).toBeVisible();
+  // после reload next dev может оставить скрытую копию потокового фрагмента: нужна видимая выручка (строка ниже
+  // делает то же для .vertical-report:visible)
+  await expect(page.getByTestId('revenue-KZT').filter({ visible: true })).toBeVisible();
   await request.post(`${api}/__test/control`, { data: { readOnly: true, role: 'STAFF' } });
   await page.reload();
   await expect(page.locator('.vertical-report:visible')).toHaveCount(1);

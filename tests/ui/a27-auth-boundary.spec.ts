@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { authPorts } from './worker-ports';
 
 const worker = Number(process.env.TEST_PARALLEL_INDEX || '0');
-const API = `http://127.0.0.1:${Number(process.env.AUTH_API_PORT || '4313') + worker}`;
-const PROXY = `http://127.0.0.1:${Number(process.env.AUTH_PROXY_PORT || '4323') + worker}`;
-const WEB = `http://127.0.0.1:${Number(process.env.AUTH_WEB_PORT || '3102') + worker}`;
-const SITE = `http://127.0.0.1:${Number(process.env.AUTH_SITE_PORT || '3002') + worker}`;
+const ports = authPorts()[worker]!;
+const API = `http://127.0.0.1:${ports.api}`;
+const PROXY = `http://127.0.0.1:${ports.proxy}`;
+const WEB = `http://127.0.0.1:${ports.web}`;
+const SITE = `http://127.0.0.1:${ports.site}`;
 const EMAIL = process.env.A27_FIXTURE_EMAIL || 'admin@wetop.test';
 const PASSWORD = process.env.A27_FIXTURE_PASSWORD || 'ui-test-parol';
 
@@ -16,7 +18,8 @@ test.beforeEach(async ({ request, page }) => {
   await dialog.getByLabel('Почта').fill(EMAIL);
   await dialog.getByLabel('Пароль', { exact: true }).fill(PASSWORD);
   await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(`${WEB}/today`);
+  // гостиница с 09.10.2026 садится на «Обзор бизнеса»: /today ведёт на /finance (vertical-landing.ts)
+  await expect(page).toHaveURL(`${WEB}/finance`);
 });
 
 for (const status of [403, 500]) {
@@ -32,7 +35,8 @@ for (const status of [403, 500]) {
     await request.post(`${API}/__test/control`, {
       data: { failPath: '/auth/me', failStatus: status },
     });
-    const target = '/today?from=2026-10-07&to=2026-10-08';
+    // возврат с параметрами проверяется на самом экране посадки: /today перенаправляет и query не несёт
+    const target = '/finance?from=2026-10-07&to=2026-10-08';
     const response = await page.goto(`${WEB}${target}`);
     await expect(page).toHaveURL(`${WEB}${target}`);
     await expect(
@@ -42,7 +46,7 @@ for (const status of [403, 500]) {
       }),
     ).toBeVisible();
     await expect(page.locator('section[role="alert"]')).toBeVisible();
-    await expect(page.getByTestId('desk-kpi')).toHaveCount(0);
+    await expect(page.getByTestId('owner-dashboard')).toHaveCount(0);
     const raw = await response!.text();
     expect(raw.includes(EMAIL)).toBe(false);
     expect(
@@ -62,7 +66,8 @@ for (const status of [403, 500]) {
       })
       .click();
     await expect(page).toHaveURL(`${WEB}${target}`);
-    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
+    await expect(page.getByTestId('owner-dashboard')).toBeVisible();
   });
 }
 
@@ -98,7 +103,8 @@ for (const width of [1440, 390])
       ).toBe(true);
       await request.post(`${PROXY}/__a27/network`, { data: { unavailable: false } });
       await page.keyboard.press('Enter');
-      await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+      await expect(page).toHaveURL(`${WEB}/finance`);
+      await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
       await expect(page).not.toHaveURL(SITE);
     });
   }

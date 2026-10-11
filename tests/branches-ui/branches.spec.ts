@@ -135,7 +135,9 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     const f = await reset(request);
     const hotelB = await (await request.post(`${api}/__test/second-hotel`)).json();
     await setScope(page, `business=${f.hotel};location=${f.locations[4]}`);
-    await page.goto('/today');
+    // посадка гостиницы /finance: /today ведёт туда жёсткой загрузкой, и щелчок по переключателю мог уйти в старый
+    // документ; перенаправление проверяет today.spec «гостиница: блоки владельца в «Финансах»»
+    await page.goto('/finance');
     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
     // MV8: рабочий экран дня один на все направления
     await choose(page, 'Тестовый филиал Центр');

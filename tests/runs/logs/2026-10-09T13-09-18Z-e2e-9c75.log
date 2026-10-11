@@ -1,0 +1,41 @@
+# Сквозные (e2e) · 09.10.2026 18:09 Алматы · vm
+# коммит 2b852ea (claude/profile-menu-ready)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.reuse.config.ts' '--workers=1' 'tests/ui/login-access.spec.ts:145'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (45.5s)
+
+
+  1) tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Получить доступ' })
+
+
+      145 | test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
+      146 |   await page.goto('/login');
+    > 147 |   await dialog(page).getByRole('tab', { name: 'Получить доступ' }).click();
+          |                                                                    ^
+      148 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      149 |   await expect(
+      150 |     dialog(page).getByRole('link', { name: 'политикой конфиденциальности' }),
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/login-access.spec.ts:147:68
+
+    Error Context: test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+
+# код выхода 1 · 49 с

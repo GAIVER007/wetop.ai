@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 11.10.2026 17:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит d611be5 (claude/restaurant-payments-plan), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T12-03-38Z-integration-53b8.json' 'tests/integration/restaurant-cash-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+[pms_test] миграций применено 2; данные на месте
+ ❯ |integration| tests/integration/restaurant-cash-database.test.ts (2 tests | 1 failed) 75ms
+   ❯ restaurant cash: database guards, grants and RLS (2)
+     × guards reject foreign parents, edits of money and resurrection of voided rows 50ms
+     ✓ application role cannot delete money rows and sees only its organization 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/restaurant-cash-database.test.ts > restaurant cash: database guards, grants and RLS > guards reject foreign parents, edits of money and resurrection of voided rows
+AssertionError: expected [Function] to throw error including 'restaurant_cash_operations_values' but got 'null value in column "id" of relation…'
+
+Expected: "restaurant_cash_operations_values"
+Received: "null value in column "id" of relation "restaurant_cash_operations" violates not-null constraint"
+
+ ❯ tests/integration/restaurant-cash-database.test.ts:115:44
+    113|       for (const [sql, args, message] of rejected)
+    114|         await savepoint(async () => {
+    115|           await expect(db.query(sql, args)).rejects.toThrow(message);
+       |                                            ^
+    116|         });
+    117|       await db.query(
+ ❯ savepoint tests/integration/restaurant-cash-database.test.ts:35:13
+ ❯ tests/integration/restaurant-cash-database.test.ts:114:9
+ ❯ rollback tests/integration/restaurant-cash-database.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  05:03:39
+   Duration  1.14s (transform 65%, import 21%, tests 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T12-03-38Z-integration-53b8.json
+
+# код выхода 1 · 2 с

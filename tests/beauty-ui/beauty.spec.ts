@@ -22,6 +22,24 @@ async function reset(page: Page, request: APIRequestContext) {
   await scope(page, f.business, f.locations[0]!);
   return f;
 }
+async function expectEmptyCalendar(page: Page) {
+  const grid = page.getByTestId('beauty-grid');
+  await expect(grid).toBeVisible();
+  await expect(grid.getByTestId('beauty-empty-timeline')).toBeVisible();
+  await expect(grid).toContainText('09:00');
+  await expect(grid).toContainText('17:30');
+  await expect(grid.locator('.beauty-tile, .beauty-slot-free')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  const setup = page.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги' });
+  await expect(setup.getByRole('link', { name: 'Добавить услугу', exact: true })).toHaveAttribute(
+    'href',
+    '/services',
+  );
+  await expect(setup.getByRole('link', { name: 'Добавить мастера', exact: true })).toHaveAttribute(
+    'href',
+    '/employees',
+  );
+}
 async function seed(page: Page, request: APIRequestContext) {
   const f = await reset(page, request);
   const headers = { 'x-wetop-scope': pointer(f.business, f.locations[0]!) };
@@ -87,13 +105,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
 }) => {
   await reset(page, request);
   await page.goto('/calendar?vertical=HOSPITALITY');
-  await expect(
-    page
-      .getByRole('status')
-      .filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' }),
-  ).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Добавить услугу', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Добавить мастера', exact: true })).toBeVisible();
+  await expectEmptyCalendar(page);
   await page.goto('/services');
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   let panel = page.getByRole('dialog');
@@ -182,10 +194,7 @@ test('overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY', 
   );
   await scope(page, f.otherBusiness, f.locations[2]!);
   await page.goto(`/calendar?date=${day}`);
-  await expect(
-    page.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' }),
-  ).toBeVisible();
-  await expect(page.locator('.beauty-grid-day .beauty-tile')).toHaveCount(0);
+  await expectEmptyCalendar(page);
   await page.goto('/customers');
   await expect(page.getByRole('main')).not.toContainText('Тестовая клиентка');
   await scope(page, f.business, f.locations[1]!);
@@ -432,10 +441,7 @@ test('Beauty onboarding completion opens Today and resumes there', async ({ page
   await expect(page.getByTestId('beauty-today')).toBeVisible();
   await expect(page.getByTestId('today-masters')).toHaveText('0');
   await page.goto('/calendar');
-  await expect(
-    main.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' }),
-  ).toBeVisible();
-  await expect(main.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  await expectEmptyCalendar(page);
   await page.goto('/register/setup');
   await expect(page).toHaveURL(/\/today$/);
 });

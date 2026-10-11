@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-const api = 'http://127.0.0.1:55804';
+const api = 'http://127.0.0.1:4844';
 test.afterAll(async ({ request }) => {
   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
 });

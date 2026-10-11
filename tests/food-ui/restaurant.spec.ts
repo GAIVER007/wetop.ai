@@ -313,10 +313,14 @@ test('клиенты: вкладки и «Постоянный гость» от
   // период обслуживания и две завершённые посадки одного клиента
   const period = await post(request, headers, '/food-service/service-periods', {
     name: 'Весь день',
-    weekday: new Date().getUTCDay(),
+    // день недели по часам объекта (Asia/Almaty, как в сиде), а не UTC: после 19:00 UTC в Алматы уже завтра.
+    // Период до 23:59 следующих суток: часовая бронь, начатая после 22:59, иначе не помещалась (гейт #279)
+    weekday: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(
+      new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Almaty', weekday: 'short' }).format(new Date()),
+    ),
     timeFrom: '00:00',
     timeTo: '23:59',
-    endsNextDay: false,
+    endsNextDay: true,
     defaultDurationMinutes: 60,
     active: true,
   });

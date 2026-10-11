@@ -231,3 +231,72 @@
     }
   }
 }
+
+/* Компактная навигация: согласованное поручение владельца 11.10.2026. */
+@layer sections {
+  @media (min-width: 961px) {
+    .workspace {
+      --sidenav-w: 0px;
+      padding-left: 0;
+    }
+    .workspace-header .workspace-brand {
+      display: flex;
+    }
+    .sidenav {
+      position: relative;
+      inset: auto;
+      width: auto;
+      padding: 0;
+      border: 0;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-2);
+      background: transparent;
+      flex-shrink: 0;
+    }
+    .sidenav__nav {
+      flex: none;
+    }
+    .sidenav__current {
+      width: auto;
+      min-height: 44px;
+    }
+    .sidenav__panel {
+      top: calc(100% + 8px);
+      left: 0;
+      min-height: 0;
+      max-height: calc(100dvh - 100px);
+      overflow-y: auto;
+      max-width: calc(100vw - 32px);
+      transform: translateY(-4px);
+    }
+    .sidenav__panel[data-open] {
+      transform: translateY(0);
+    }
+    .sidenav__panel[data-single] {
+      grid-template-columns: 240px;
+    }
+    .sidenav__panel[data-single] .sidenav__items {
+      display: none;
+    }
+    .sidenav__current[aria-expanded='true'] .sidenav__chevron {
+      transform: rotate(180deg);
+    }
+    .sidenav__bottom {
+      margin-top: 0;
+      border: 0;
+      padding: 0;
+    }
+    .sidenav__freshness {
+      display: none;
+    }
+  }
+  @media (min-width: 961px) and (max-width: 1250px) {
+    .sidenav__bottom {
+      display: none;
+    }
+    .workspace-header .brand-name {
+      display: none;
+    }
+  }
+}

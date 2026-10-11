@@ -206,7 +206,8 @@ export async function openSection(page: Page, section: string) {
   // панель закрывается по смене адреса, а курсор, уже стоящий на кнопке, нового pointerenter не даёт
   await expect(async () => {
     await page.mouse.move(page.viewportSize()!.width - 1, page.viewportSize()!.height - 1);
-    await nav.locator('.sidenav__current').hover();
+    if ((await nav.locator('.sidenav__current').getAttribute('aria-expanded')) !== 'true')
+      await nav.locator('.sidenav__current').click();
     await expect(nav.locator('.sidenav__panel')).toBeVisible({ timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
   await nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) }).hover();
@@ -216,5 +217,9 @@ export async function openSection(page: Page, section: string) {
 /** Переход через панель: раздел → подраздел, как человек мышью */
 export async function goViaMenu(page: Page, section: string, item: string) {
   const items = await openSection(page, section);
-  await items.getByRole('link', { name: item, exact: true }).click();
+  if (await items.count()) await items.getByRole('link', { name: item, exact: true }).click();
+  else
+    await sideNav(page)
+      .locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) })
+      .click();
 }

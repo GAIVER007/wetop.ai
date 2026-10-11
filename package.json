@@ -49,6 +49,7 @@
     "site:build": "npm run build -w apps/site",
     "site:og": "node scripts/site/make-og-image.mjs",
     "site:check": "playwright test --config tests/site/playwright.config.ts",
+    "site:indexnow": "node scripts/site/indexnow.mjs",
     "site:deploy": "npm run site:build && npx wrangler@4.141.0 pages deploy apps/site/out --project-name wetop-site --branch main"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Icon } from '../../../components/icon';
-import { JsonLd, breadcrumbLd } from '../../../components/json-ld';
+import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { typo } from '../../../components/typo';
@@ -43,6 +43,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const item = getDictionary().segments.items[resolve(segment)];
   return pageMetadata({
     path: `/for/${segment}/`,
+    // обрезка того же фото 1200×630 (public/og): размер, который мессенджеры показывают без обрезки
+    image: SUBTYPES[resolve(segment)].photo.replace('/photos/', '/og/'),
     title: item.seoTitle ?? item.metaTitle,
     description: item.description,
   });
@@ -62,14 +64,15 @@ export default async function SegmentPage({ params }: Props) {
       : { href: `/for/${type.direction}/`, label: parent.badge };
   return (
     <div className={own.page}>
-      <JsonLd
-        data={breadcrumbLd([
-          { name: t.meta.siteName, path: '/' },
-          { name: parent.badge, path: `/for/${type.direction}/` },
-          { name: item.metaTitle, path: `/for/${slug}/` },
-        ])}
-      />
       <div className="container">
+        <Breadcrumbs
+          label={t.a11y.breadcrumbs}
+          trail={[
+            { name: t.a11y.crumbHome, path: '/' },
+            { name: parent.badge, path: `/for/${type.direction}/` },
+            { name: item.metaTitle, path: `/for/${slug}/` },
+          ]}
+        />
         <section className="hotel-hero" aria-labelledby="segment-title">
           <div>
             <p className="eyebrow">{item.metaTitle}</p>
@@ -97,7 +100,7 @@ export default async function SegmentPage({ params }: Props) {
             </ul>
           </div>
           <figure className="hotel-hero__figure hotel-hero__photo">
-            <img src={type.photo} alt={item.photoAlt ?? ''} width={1184} height={864} />
+            <img src={type.photo} alt={item.photoAlt ?? ''} width={1184} height={864} fetchPriority="high" />
           </figure>
         </section>
 
@@ -132,14 +135,26 @@ export default async function SegmentPage({ params }: Props) {
               </li>
             ))}
           </ul>
-          {item.limits ? (
-            <p className="card glass glass--quiet card__text">
-              {/* одним элементом: у `.card` сетка, и голые куски текста стали бы отдельными строками */}
-              <span>
-                <strong>{t.segments.limitsLabel}:</strong> {typo(item.limits)}
-              </span>
-            </p>
-          ) : null}
+        </section>
+
+        <section className="section section--tight" aria-labelledby="segment-day-title">
+          <div className="section-heading section-heading--center">
+            <p className="eyebrow">{item.metaTitle}</p>
+            <h2 id="segment-day-title" className="section-heading__title">
+              {typo(t.segments.dayTitle)}
+            </h2>
+          </div>
+          <ol className="steps">
+            {t.segments.day[type.direction].map((step, index) => (
+              <li key={step.title} className="step glass">
+                <span className="step__number" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <h3 className="card__title">{typo(step.title)}</h3>
+                <p className="card__text">{typo(step.text)}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
         {type.vertical === 'HOSPITALITY' ? (
@@ -165,6 +180,21 @@ export default async function SegmentPage({ params }: Props) {
             <figcaption>{t.hotel.calendar.note}</figcaption>
           </figure>
         </section>
+        ) : null}
+
+        {item.about ? (
+          <section className="section section--tight" aria-labelledby="segment-about-title">
+            <div className="section-heading section-heading--center">
+              <h2 id="segment-about-title" className="section-heading__title">
+                {typo(item.about.title)}
+              </h2>
+            </div>
+            <div className="prose prose--center">
+              {item.about.text.map((paragraph) => (
+                <p key={paragraph.slice(0, 32)}>{typo(paragraph)}</p>
+              ))}
+            </div>
+          </section>
         ) : null}
 
         <MarketingBlock

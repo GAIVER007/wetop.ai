@@ -8,6 +8,9 @@ import { typo } from '../typo';
  * Типы бизнеса направления карточками-ссылками (11.10.2026): человек находит страницу про свой формат,
  * поисковик видит связи между лендингами. Блоки главной (`.card`), своего класса нет.
  */
+/** Сетка по числу карточек: две и четыре в ряд без пустой ячейки */
+const GRID: Record<number, number> = { 2: 2, 4: 4 };
+
 export function SubtypeLinks({ direction, title }: { direction: Direction; title: string }) {
   const t = getDictionary();
   return (
@@ -18,7 +21,7 @@ export function SubtypeLinks({ direction, title }: { direction: Direction; title
           {typo(title)}
         </h2>
       </div>
-      <ul className="card-grid card-grid--3">
+      <ul className={`card-grid card-grid--${GRID[subtypesOf(direction).length] ?? 3}`}>
         {subtypesOf(direction).map((slug) => {
           const item = t.segments.items[slug];
           return (

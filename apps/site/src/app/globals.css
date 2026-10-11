@@ -3253,6 +3253,43 @@ button {
   font-size: 0.8125rem;
   color: var(--muted);
 }
+/* Хлебные крошки лендингов (11.10.2026): над героем, мелко и приглушённо, текущая страница без ссылки */
+.breadcrumbs {
+  font-size: 0.875rem;
+}
+/* С крошками верх страницы плотнее: иначе отступ страницы и героя складываются в пустую полосу */
+.page:has(> .container > .breadcrumbs:first-child) {
+  padding-top: clamp(16px, 2.4vw, 28px);
+}
+.breadcrumbs + .hotel-hero {
+  padding-top: clamp(16px, 2.4vw, 28px);
+}
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+}
+.breadcrumbs li + li::before {
+  content: '/';
+  margin: 0 8px;
+  color: var(--muted);
+}
+.breadcrumbs a {
+  color: var(--text-2);
+  text-decoration: none;
+}
+.breadcrumbs a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.breadcrumbs [aria-current='page'] {
+  color: var(--text);
+  font-weight: 600;
+}
 .site-footer__directions {
   display: grid;
   gap: 20px;

@@ -3,7 +3,7 @@ import { Icon } from '../../../components/icon';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
-import { JsonLd, breadcrumbLd } from '../../../components/json-ld';
+import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -18,6 +18,7 @@ import { registerLink } from '../../../lib/site';
  */
 export const metadata: Metadata = pageMetadata({
   path: '/for/restaurants/',
+  image: '/og/restaurant.jpg',
   title: getDictionary().restaurant.metaTitle,
   description: getDictionary().restaurant.description,
 });
@@ -28,13 +29,14 @@ export default function RestaurantLandingPage() {
   const register = registerLink(undefined, 'FOOD_SERVICE').href;
   return (
     <div className="page">
-      <JsonLd
-        data={breadcrumbLd([
-          { name: t.meta.siteName, path: '/' },
-          { name: t.restaurant.badge, path: '/for/restaurants/' },
-        ])}
-      />
       <div className="container">
+        <Breadcrumbs
+          label={t.a11y.breadcrumbs}
+          trail={[
+            { name: t.a11y.crumbHome, path: '/' },
+            { name: t.restaurant.badge, path: '/for/restaurants/' },
+          ]}
+        />
         <section className="hotel-hero restaurant-hero" aria-labelledby="restaurant-title">
           <div>
             <p className="eyebrow">{s.badge}</p>
@@ -62,7 +64,7 @@ export default function RestaurantLandingPage() {
             </ul>
           </div>
           <figure className="hotel-hero__figure restaurant-hero__photo">
-            <img src="/photos/restaurant.jpg" alt={s.photoAlt} width={1184} height={864} />
+            <img src="/photos/restaurant.jpg" alt={s.photoAlt} width={1184} height={864} fetchPriority="high" />
           </figure>
         </section>
 

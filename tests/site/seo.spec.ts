@@ -33,6 +33,18 @@ test('каждая страница sitemap: h1, title, description, canonical, 
     const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
     check(new URL(canonical ?? '', 'https://wetop.ai').pathname === path, `${path}: canonical ${canonical}`);
     check((await page.locator('meta[property="og:image"]').count()) === 1, `${path}: нет og:image`);
+    check((await page.locator('meta[name="twitter:card"]').count()) === 1, `${path}: нет twitter:card`);
+    // Длинное тире видно в выдаче и выдаёт текст ИИ (CLAUDE.md §5)
+    const ogTitle = (await page.locator('meta[property="og:title"]').getAttribute('content')) ?? '';
+    check(!/\u2014/.test(title + description + ogTitle), `${path}: длинное тире в title или description`);
+    // Уровни заголовков без пропусков вниз: после h2 сразу h4 читалка и поисковик видят дыру в структуре
+    const levels = await page
+      .locator('main h1, main h2, main h3, main h4, main h5, main h6')
+      .evaluateAll((nodes) => nodes.map((n) => Number(n.tagName[1])));
+    levels.forEach((level, i) => {
+      if (i > 0 && level > levels[i - 1]! + 1)
+        problems.push(`${path}: заголовок h${level} сразу после h${levels[i - 1]}`);
+    });
     for (const raw of await page.locator('script[type="application/ld+json"]').allTextContents()) {
       try {
         check((JSON.parse(raw) as Record<string, unknown>)['@context'] === 'https://schema.org', `${path}: JSON-LD без @context`);
@@ -56,4 +68,22 @@ test('лендинги: FAQPage и хлебные крошки в разметк
       .flatMap((d) => (d['@graph'] ? d['@graph'].map((g) => g['@type']) : [d['@type']]));
     expect(types, path).toEqual(expect.arrayContaining(['Organization', 'FAQPage', 'BreadcrumbList']));
   }
+});
+
+test('дубль /restaurants/ отдаёт вес основной странице и не стоит в sitemap', async ({ page }) => {
+  await page.goto('/restaurants/');
+  const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+  expect(new URL(canonical ?? '', 'https://wetop.ai').pathname).toBe('/for/restaurants/');
+  const xml = await (await page.request.get('/sitemap.xml')).text();
+  expect(xml).not.toContain('wetop.ai/restaurants/<');
+});
+
+test('лендинги: видимые крошки, своя картинка ссылки', async ({ page }) => {
+  await page.goto('/for/barbershops/');
+  const crumbs = page.getByRole('navigation', { name: 'Где вы на сайте' });
+  await expect(crumbs.getByRole('link', { name: 'Главная' })).toHaveAttribute('href', '/');
+  await expect(crumbs.getByRole('link', { name: 'Для салонов красоты' })).toHaveAttribute('href', '/for/salons/');
+  await expect(crumbs.locator('[aria-current="page"]')).toHaveText('Барбершопы');
+  const og = await page.locator('meta[property="og:image"]').getAttribute('content');
+  expect(og).toContain('/og/barbershop.jpg');
 });

@@ -17,6 +17,8 @@ export const ru: Dictionary = {
     mainNav: 'Основная навигация',
     footerNav: 'Ссылки',
     menu: 'Меню',
+    breadcrumbs: 'Где вы на сайте',
+    crumbHome: 'Главная',
   },
   nav: {
     product: 'Продукт',

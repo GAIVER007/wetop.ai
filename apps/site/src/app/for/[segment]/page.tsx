@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Icon } from '../../../components/icon';
-import { JsonLd, breadcrumbLd } from '../../../components/json-ld';
+import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { typo } from '../../../components/typo';
@@ -43,6 +43,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const item = getDictionary().segments.items[resolve(segment)];
   return pageMetadata({
     path: `/for/${segment}/`,
+    // обрезка того же фото 1200×630 (public/og): размер, который мессенджеры показывают без обрезки
+    image: SUBTYPES[resolve(segment)].photo.replace('/photos/', '/og/'),
     title: item.seoTitle ?? item.metaTitle,
     description: item.description,
   });
@@ -62,14 +64,15 @@ export default async function SegmentPage({ params }: Props) {
       : { href: `/for/${type.direction}/`, label: parent.badge };
   return (
     <div className={own.page}>
-      <JsonLd
-        data={breadcrumbLd([
-          { name: t.meta.siteName, path: '/' },
-          { name: parent.badge, path: `/for/${type.direction}/` },
-          { name: item.metaTitle, path: `/for/${slug}/` },
-        ])}
-      />
       <div className="container">
+        <Breadcrumbs
+          label={t.a11y.breadcrumbs}
+          trail={[
+            { name: t.a11y.crumbHome, path: '/' },
+            { name: parent.badge, path: `/for/${type.direction}/` },
+            { name: item.metaTitle, path: `/for/${slug}/` },
+          ]}
+        />
         <section className="hotel-hero" aria-labelledby="segment-title">
           <div>
             <p className="eyebrow">{item.metaTitle}</p>
@@ -97,7 +100,7 @@ export default async function SegmentPage({ params }: Props) {
             </ul>
           </div>
           <figure className="hotel-hero__figure hotel-hero__photo">
-            <img src={type.photo} alt={item.photoAlt ?? ''} width={1184} height={864} />
+            <img src={type.photo} alt={item.photoAlt ?? ''} width={1184} height={864} fetchPriority="high" />
           </figure>
         </section>
 

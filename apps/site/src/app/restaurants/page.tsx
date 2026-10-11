@@ -19,6 +19,8 @@ const r = t.restaurants;
 
 export const metadata: Metadata = pageMetadata({
   path: '/restaurants/',
+  // Тот же запрос, что у /for/restaurants/: вес в выдаче отдаём основной странице направления
+  canonical: '/for/restaurants/',
   title: r.metaTitle,
   description: r.description,
 });

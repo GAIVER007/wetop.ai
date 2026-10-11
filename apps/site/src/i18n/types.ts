@@ -36,6 +36,8 @@ export type Dictionary = {
     mainNav: string;
     footerNav: string;
     menu: string;
+    breadcrumbs: string;
+    crumbHome: string;
   };
   nav: {
     product: string;
@@ -409,7 +411,7 @@ export type Dictionary = {
         limits?: string;
         /** Фото героя (свой файл из KIE, не сток) и вопросы: есть у страниц типов объектов. */
         photoAlt?: string;
-        /** <title> страницы: запрос словами человека, до 49 знаков (с « — WETOP.AI» до 60) */
+        /** <title> страницы: запрос словами человека, до 49 знаков (с « | WETOP.AI» до 60) */
         seoTitle?: string;
         faq?: Array<{ q: string; a: string }>;
       }

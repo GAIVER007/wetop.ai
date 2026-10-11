@@ -14,6 +14,8 @@ export interface RestaurantShell {
   canDesk: boolean;
   canProperty: boolean;
   canStaff: boolean;
+  /** Аннулировать платёж и операцию кассы (§35) */
+  canRefunds: boolean;
 }
 
 export async function restaurantShell(dateParam?: string): Promise<RestaurantShell> {
@@ -36,5 +38,6 @@ export async function restaurantShell(dateParam?: string): Promise<RestaurantShe
     canDesk: mayAccess(shell.access, 'desk'),
     canProperty: mayAccess(shell.access, 'property'),
     canStaff: mayAccess(shell.access, 'staff'),
+    canRefunds: mayAccess(shell.access, 'refunds'),
   };
 }

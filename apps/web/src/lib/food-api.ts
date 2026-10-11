@@ -3,8 +3,11 @@ import type {
   AreaInput,
   DiningArea,
   DiningTable,
+  FoodCashOperationInput,
+  FoodCashView,
   FoodCustomer,
   FoodEmployee,
+  FoodPaymentMethod,
   FoodPage,
   FoodReport,
   FoodStatus,
@@ -96,6 +99,19 @@ export const restaurantApi = {
     sendJson<OrderView>('PATCH', idPath('orders', id), body),
   orderStatus: (id: string, body: OrderToken & { status: OrderStatus }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/status`, body),
+  payOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string }) =>
+    sendJson<OrderView>('POST', `${idPath('orders', id)}/payments`, body),
+  voidPayment: (id: string, reason: string) =>
+    sendJson<OrderView>('POST', `${idPath('payments', id)}/void`, { reason }),
+  cash: () => getJsonPublic<FoodCashView>(`${base}/cash`),
+  cashOperation: (body: FoodCashOperationInput) =>
+    sendJson<{ id: string }>('POST', `${base}/cash/operations`, body),
+  voidCashOperation: (id: string) =>
+    sendJson<{ id: string }>('POST', `${idPath('cash/operations', id)}/void`, {}),
+  cashReconciliation: (body: { method: FoodPaymentMethod; counted: number; note?: string | null }) =>
+    sendJson<{ id: string }>('POST', `${base}/cash/reconciliations`, body),
+  payout: (id: string, body: { period: string; method: FoodPaymentMethod; amount: number }) =>
+    sendJson<{ id: string }>('POST', `${idPath('employees', id)}/payouts`, body),
   tableCleaning: (id: string, needsCleaning: boolean) =>
     sendJson<{ id: string }>('POST', `${idPath('tables', id)}/cleaning`, { needsCleaning }),
   report: (date: string) => getJsonPublic<FoodReport>(`${base}/report?date=${date}`),

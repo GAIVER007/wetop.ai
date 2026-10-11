@@ -1,0 +1,30 @@
+# Модульные (unit) · 11.10.2026 16:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит d611be5 (claude/restaurant-payments-plan), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-56-51Z-unit-9dd6.json' 'packages/domain/src/food/cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |unit| packages/domain/src/food/cash.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/food/cash.test.ts [ packages/domain/src/food/cash.test.ts ]
+Error: Cannot find module './cash' imported from /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/packages/domain/src/food/cash.test.ts
+ ❯ packages/domain/src/food/cash.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   FOOD_PAYMENT_METHODS,
+      4|   cashBalances,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  04:56:52
+   Duration  107ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-56-51Z-unit-9dd6.json
+
+# код выхода 1 · 1 с

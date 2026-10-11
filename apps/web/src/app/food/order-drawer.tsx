@@ -3,7 +3,7 @@ import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { Alert, Button, Field, Input, Select, StatusBadge, Textarea } from '../../components/ui';
-import { wholeTenge } from '../../lib/dashboard-format';
+import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
 import type {
   DiningArea,
   DiningTable,
@@ -14,6 +14,7 @@ import type {
   OrderStatus,
   OrderView,
 } from '../../lib/food-types';
+import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 import { mutateOrder } from './restaurant-actions';
 
@@ -21,6 +22,8 @@ export interface OrderContext {
   scopeKey: string;
   timezone: string;
   write: boolean;
+  /** Аннулировать платёж (право `refunds`, §35.1) */
+  refunds: boolean;
   areas: DiningArea[];
   tables: DiningTable[];
   employees: FoodEmployee[];
@@ -34,9 +37,132 @@ const STATUS_ACTION: Record<OrderStatus, string> = {
   COOKING: 'Принять в работу',
   READY: 'Готово',
   SERVED: 'Подать',
-  CLOSED: 'Оплачен, закрыть',
+  CLOSED: 'Закрыть заказ',
   CANCELLED: 'Отменить заказ',
 };
+
+/** Оплата заказа частями и разными способами (§35.1): остаток, платежи, аннулирование */
+function PaymentPanel({
+  ctx,
+  order,
+  onSaved,
+}: {
+  ctx: OrderContext;
+  order: OrderView;
+  onSaved: (order: OrderView) => void;
+}) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [error, setError] = useState('');
+  const remaining = BigInt(order.totalMinor) - BigInt(order.paidMinor);
+  const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  const [amount, setAmount] = useState(String(remaining / 100n));
+  const [voiding, setVoiding] = useState<string | null>(null);
+  const [reason, setReason] = useState('');
+  const open = order.status !== 'CLOSED' && order.status !== 'CANCELLED';
+  const done = (result: { error: string | null; stale?: boolean; order?: OrderView }) => {
+    if (result.error) {
+      setError(result.error);
+      if (result.stale) router.refresh();
+    } else if (result.order) {
+      setError('');
+      setVoiding(null);
+      setReason('');
+      setAmount(String((BigInt(result.order.totalMinor) - BigInt(result.order.paidMinor)) / 100n));
+      onSaved(result.order);
+      router.refresh();
+    }
+  };
+  function pay() {
+    const tenge = Number(amount);
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    start(async () =>
+      done(
+        await mutateOrder(ctx.scopeKey, {
+          kind: 'pay',
+          id: order.id,
+          body: { method, amount: tenge * 100, idempotencyKey: crypto.randomUUID() },
+        }),
+      ),
+    );
+  }
+  function voidPayment(id: string) {
+    if (!reason.trim()) return setError('Укажите причину аннулирования');
+    start(async () =>
+      done(await mutateOrder(ctx.scopeKey, { kind: 'void-payment', id, reason: reason.trim() })),
+    );
+  }
+  return (
+    <section className="rest-pay" aria-label="Оплата заказа" data-testid="order-payment">
+      {error && <Alert>{error}</Alert>}
+      <dl className="rest-pay-sum">
+        <dt>Оплачено</dt>
+        <dd data-testid="order-paid">{wholeTenge(order.paidMinor, order.currency)}</dd>
+        <dt>Осталось</dt>
+        <dd data-testid="order-remaining">{wholeTenge(String(remaining), order.currency)}</dd>
+      </dl>
+      {order.payments.length > 0 && (
+        <ul className="rest-pay-list">
+          {order.payments.map((p) => (
+            <li key={p.id} data-status={p.status}>
+              <span>{METHOD_RU[p.method] ?? p.method}</span>
+              <strong>{wholeTenge(p.amountMinor, order.currency)}</strong>
+              {p.status === 'VOIDED' ? (
+                <small>Аннулирован{p.voidReason ? `: ${p.voidReason}` : ''}</small>
+              ) : (
+                ctx.refunds &&
+                open &&
+                (voiding === p.id ? (
+                  <span className="rest-pay-void">
+                    <Input
+                      aria-label="Причина аннулирования"
+                      placeholder="Причина"
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                    />
+                    <Button tone="danger" disabled={pending} onClick={() => voidPayment(p.id)}>
+                      Аннулировать
+                    </Button>
+                  </span>
+                ) : (
+                  <Button tone="secondary" disabled={pending} onClick={() => setVoiding(p.id)}>
+                    Аннулировать
+                  </Button>
+                ))
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {ctx.write && open && remaining > 0n && (
+        <div className="food-form-row">
+          <Field label="Способ">
+            <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
+              {FOOD_PAYMENT_METHODS.map((m) => (
+                <option key={m} value={m}>
+                  {METHOD_RU[m] ?? m}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Сумма, ₸">
+            <Input
+              inputMode="numeric"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))}
+            />
+          </Field>
+          <Button disabled={pending} onClick={pay}>
+            Принять оплату
+          </Button>
+        </div>
+      )}
+      {open && remaining === 0n && order.status !== 'SERVED' && (
+        <p className="muted">Оплачено полностью: заказ закроется сам, когда его подадут.</p>
+      )}
+    </section>
+  );
+}
 
 function ItemsEditor({
   ctx,
@@ -274,10 +400,12 @@ export function OrderDrawer({
                 </strong>
               </div>
             </div>
+            <PaymentPanel ctx={ctx} order={order} onSaved={setSaved} />
             {ctx.write && (
               <div className="food-actions">
                 {order.nextStatuses
                   .filter((s) => s !== 'CANCELLED')
+                  .filter((s) => s !== 'CLOSED' || order.paidMinor === order.totalMinor)
                   .map((s) => (
                     <Button key={s} disabled={pending} onClick={() => transition(s)}>
                       {STATUS_ACTION[s]}

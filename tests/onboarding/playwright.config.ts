@@ -5,7 +5,7 @@ export default defineConfig({
   workers: 1,
   timeout: 60000,
   use: {
-    baseURL: 'http://127.0.0.1:55803',
+    baseURL: 'http://127.0.0.1:4843',
     viewport: { width: 1440, height: 1000 },
     trace: 'retain-on-failure',
   },
@@ -13,19 +13,19 @@ export default defineConfig({
     {
       command: 'npx tsx --tsconfig apps/api/tsconfig.json tests/onboarding/fixture-api.ts',
       cwd: '../..',
-      url: 'http://127.0.0.1:55804/__test/health',
+      url: 'http://127.0.0.1:4844/__test/health',
       reuseExistingServer: false,
     },
     {
-      command: 'npm exec -w apps/web -- next dev --port 55803 --hostname 127.0.0.1',
+      command: 'npm exec -w apps/web -- next dev --port 4843 --hostname 127.0.0.1',
       cwd: '../..',
-      url: 'http://127.0.0.1:55803/register',
+      url: 'http://127.0.0.1:4843/register',
       reuseExistingServer: false,
       timeout: 120000,
       env: {
-        APP_API_URL: 'http://127.0.0.1:55804',
+        APP_API_URL: 'http://127.0.0.1:4844',
         APP_ALLOW_TEST_DATA: '1',
-        APP_URL: 'http://127.0.0.1:55803',
+        APP_URL: 'http://127.0.0.1:4843',
       },
     },
   ],

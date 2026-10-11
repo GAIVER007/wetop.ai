@@ -128,7 +128,7 @@ const server = createServer(async (req, res) => {
     res.end(JSON.stringify({ message: error instanceof Error ? error.message : 'Fixture error' }));
   }
 });
-server.listen(55804, '127.0.0.1');
+server.listen(4844, '127.0.0.1');
 // Fixtures are confined to the disposable local pms_test database, identified by MV3-browser prefix.
 for (const signal of ['SIGTERM', 'SIGINT'] as const)
   process.on(signal, () => {

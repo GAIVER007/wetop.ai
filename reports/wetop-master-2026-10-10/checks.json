@@ -6,42 +6,168 @@
   },
   "remoteGate": [
     {
-      "run": 38115688656, "sha": "5306d26c936e92e21eb66f9f38fd6f09cc6bbd51", "result": "FAILURE",
-      "jobs": {"fast": "success", "db": "success", "ui-auth": "failure", "branches-ui": "failure", "ui 1/3": "failure", "ui 2/3": "cancelled", "ui 3/3": "cancelled"},
+      "run": 38115688656,
+      "sha": "5306d26c936e92e21eb66f9f38fd6f09cc6bbd51",
+      "result": "FAILURE",
+      "jobs": {
+        "fast": "success",
+        "db": "success",
+        "ui-auth": "failure",
+        "branches-ui": "failure",
+        "ui 1/3": "failure",
+        "ui 2/3": "cancelled",
+        "ui 3/3": "cancelled"
+      },
       "causes": "посадка гостиницы /today -> /finance после main 09.10 (спеки ждали /today); порт 4312 второго worker; разобрано в 5e1cf591"
     },
     {
-      "run": 38127479617, "sha": "bd2b9dd0", "result": "FAILURE",
-      "jobs": {"fast": "success", "bot": "success", "db": "failure", "runtime-audit": "failure", "ui-auth": "failure", "ui 1/3": "success", "ui 2/3": "failure", "ui 3/3": "cancelled", "food-ui": "success", "branches-ui": "success", "beauty-ui": "failure"},
+      "run": 38127479617,
+      "sha": "bd2b9dd0",
+      "result": "FAILURE",
+      "jobs": {
+        "fast": "success",
+        "bot": "success",
+        "db": "failure",
+        "runtime-audit": "failure",
+        "ui-auth": "failure",
+        "ui 1/3": "success",
+        "ui 2/3": "failure",
+        "ui 3/3": "cancelled",
+        "food-ui": "success",
+        "branches-ui": "success",
+        "beauty-ui": "failure"
+      },
       "causes": "runtime-audit: iptables давал TIMEOUT; UI 2/3 и 3/3: копия worker без apps/sites, каскад 39 тестов; beauty-ui: EADDRINUSE в диапазоне эфемерных портов Linux; ui-auth: поле «Страна» после main; db: chessboard.spec.ts:36"
     },
     {
-      "run": 38131747231, "sha": "ae79840b9616fa628fdc74d2687dc624db62488e", "result": "FAILURE",
-      "jobs": {"fast": "success", "bot": "success", "runtime-audit": "failure", "ui-auth": "success", "db": "failure", "ui 1/3": "failure", "ui 2/3": "success", "ui 3/3": "success", "food-ui": "success", "branches-ui": "success", "beauty-ui": "success"},
+      "run": 38131747231,
+      "sha": "ae79840b9616fa628fdc74d2687dc624db62488e",
+      "result": "FAILURE",
+      "jobs": {
+        "fast": "success",
+        "bot": "success",
+        "runtime-audit": "failure",
+        "ui-auth": "success",
+        "db": "failure",
+        "ui 1/3": "failure",
+        "ui 2/3": "success",
+        "ui 3/3": "success",
+        "food-ui": "success",
+        "branches-ui": "success",
+        "beauty-ui": "success"
+      },
       "causes": "runtime-audit: сеть доказана (local CONNECTED, external ENETUNREACH), integration 50/50, но Playwright искал Chromium в /root (HOME от внешнего sudo); db: chessboard.spec.ts:36 застрял на «Проверяем сессию…» (граница A27 и перехват @drawer, trace); ui 1/3: profile-menu-readiness.spec.ts:81 ERR_ABORTED (одиночный); integration 993 + 89 пропусков (8 из них membership-scopes)"
     },
     {
-      "run": 38134402605, "sha": "0f531900", "result": "FAILURE (1 тест из 1500+)",
-      "jobs": {"fast": "success", "bot": "success", "runtime-audit": "success", "ui-auth": "success", "db": "success", "ui 1/3": "success", "ui 2/3": "failure", "ui 3/3": "success", "food-ui": "success", "branches-ui": "success", "beauty-ui": "success"},
+      "run": 38134402605,
+      "sha": "0f531900",
+      "result": "FAILURE (1 тест из 1500+)",
+      "jobs": {
+        "fast": "success",
+        "bot": "success",
+        "runtime-audit": "success",
+        "ui-auth": "success",
+        "db": "success",
+        "ui 1/3": "success",
+        "ui 2/3": "failure",
+        "ui 3/3": "success",
+        "food-ui": "success",
+        "branches-ui": "success",
+        "beauty-ui": "success"
+      },
       "evidence": {
         "network": "runner-network.json: local CONNECTED (1 попытка), external ENETUNREACH, dns ENETUNREACH; каждый API с preload: тот же итог",
         "runtimeAuditIntegration": "50/50 (A29 7, A2 5, A23 35, A26 3)",
         "a25Browser": "18/18 на настоящем API 4417 и стойке 3127 внутри сетевого пространства",
         "integrationFull": "1001 passed, 81 skipped (только opt-in: 50 исполняет runtime-audit, 31 исторический A3)",
         "e2e": "26 passed, 36 skipped (A25 18 исполняется в runtime-audit; A27 17 и A26 1 открыты, O-7); chessboard.spec.ts:36 зелёный",
-        "uiShards": "1/3 success; 2/3 403 passed, 1 failed (theme-transition.spec.ts:11: 23 перехода цвета в полёте после потолка 600 мс фикстуры; адрес не меняется, граница сессии не участвует; в 38131747231 зелёный); 3/3 success"
+        "uiShards": "1/3 success; 2/3 403 passed, 1 failed: theme-transition.spec.ts:11, 23 перехода цвета в полёте; 3/3 success"
       }
+    },
+    {
+      "run": 38137335254,
+      "sha": "af75f8adae1f2b6c7192c9d9c07336ef87043f7f",
+      "attempts": 2,
+      "result": "FAILURE в обеих попытках, только UI 2/3",
+      "jobs": {
+        "fast": "success",
+        "bot": "success",
+        "runtime-audit": "success",
+        "ui-auth": "success",
+        "db": "success",
+        "ui 1/3": "success",
+        "ui 2/3": "failure",
+        "ui 3/3": "success",
+        "food-ui": "success",
+        "branches-ui": "success",
+        "beauty-ui": "success"
+      },
+      "evidence": {
+        "network": "runner-network.json и 18 доказательств preload: local CONNECTED, external ENETUNREACH",
+        "runtimeAuditIntegration": "50/50",
+        "a25Browser": "18/18",
+        "integrationFull": "1001 passed, 81 skipped",
+        "e2e": "26 passed, 36 skipped",
+        "artifact": "runtime-audit-evidence: 53 файла (runtime-audit, a2-runtime, a23-runtime), только этот прогон, без паролей, токенов и cookie; sha256 zip 2b232971a06b4563da7eb0354410e337930f45a6efee5249d885409adf6d1eeb",
+        "uiShards": "попытка 1: 2/3 402 passed, 2 failed (theme-transition.spec.ts:11; system-screens.spec.ts:305 page.goto ERR_ABORTED); попытка 2: 403 passed, 1 failed (theme-transition.spec.ts:11)"
+      },
+      "cause": "theme-transition: не флейк, а гонка в фикстуре tests/ui/fixtures.ts settleTheme (trace: ожидание темы упёрлось в 400 мс, ожидание переходов прошло за 38 мс до смены темы, замер увидел 23 перехода). Исправлено одним условием с тем же бюджетом 1000 мс; граница сессии в tests/ui не монтируется (APP_AUTH_REQUIRED не задан). system-screens ERR_ABORTED: одиночный, в попытке 2 зелёный"
     }
   ],
   "localRuns": [
-    {"id": "2026-10-11T10-14-46Z-lint-a265", "suite": "lint", "result": "PASS"},
-    {"id": "2026-10-11T10-16-52Z-typecheck-f83a", "suite": "typecheck", "result": "PASS", "note": "a239 перед ним красный: exactOptionalPropertyTypes в моей правке bar/page.tsx"},
-    {"id": "2026-10-11T10-17-14Z-unit-d785", "suite": "unit полный", "result": "4554/4562, 4 красных не из моих файлов (таймауты 5 с ops-скриптов, socket hang up в аналитике)"},
-    {"id": "2026-10-11T10-20-13Z-unit-6c08", "suite": "unit повтор красных + свои", "result": "PASS 87/87"},
-    {"id": "2026-10-11T11-02-48Z-unit-4b87", "suite": "unit ci-runner", "result": "PASS 25/25"},
-    {"id": "2026-10-11T10-50-59Z-e2e-f6c9", "suite": "ui-auth a27-auth-boundary, 1 worker", "result": "PASS 6/6"},
-    {"id": "2026-10-11T10-53-15Z-e2e-0177 / 10-57-55Z-e2e-76b7", "suite": "ui-auth целиком, новая / прежняя граница", "result": "15/18 и 16/18: одинаковый симптом (/today не уходит на /finance за 15 с) под нагрузкой Mac; на CI зелёный"},
-    {"id": "2026-10-11T11-06-40Z-integration-57fb -> 11-06-44Z-integration-0e8e", "suite": "membership-scopes-schema", "result": "RED 0/8, 8 skipped -> GREEN 8/8", "note": "записи 9a0d и c579 сняты на базе с таблицей в обеих схемах и RED не показывают"},
-    {"id": "A25 без sandbox (scratch-скрипт, не в журнале)", "suite": "a25-bar-money 18 тестов", "result": "18/18 трижды после правок", "note": "отладка селекторов; изоляцию сети не доказывает; на macOS sandbox-exec изредка отвергает localhost"}
+    {
+      "id": "2026-10-11T10-14-46Z-lint-a265",
+      "suite": "lint",
+      "result": "PASS"
+    },
+    {
+      "id": "2026-10-11T10-16-52Z-typecheck-f83a",
+      "suite": "typecheck",
+      "result": "PASS",
+      "note": "a239 перед ним красный: exactOptionalPropertyTypes в моей правке bar/page.tsx"
+    },
+    {
+      "id": "2026-10-11T10-17-14Z-unit-d785",
+      "suite": "unit полный",
+      "result": "4554/4562, 4 красных не из моих файлов (таймауты 5 с ops-скриптов, socket hang up в аналитике)"
+    },
+    {
+      "id": "2026-10-11T10-20-13Z-unit-6c08",
+      "suite": "unit повтор красных + свои",
+      "result": "PASS 87/87"
+    },
+    {
+      "id": "2026-10-11T11-02-48Z-unit-4b87",
+      "suite": "unit ci-runner",
+      "result": "PASS 25/25"
+    },
+    {
+      "id": "2026-10-11T10-50-59Z-e2e-f6c9",
+      "suite": "ui-auth a27-auth-boundary, 1 worker",
+      "result": "PASS 6/6"
+    },
+    {
+      "id": "2026-10-11T10-53-15Z-e2e-0177 / 10-57-55Z-e2e-76b7",
+      "suite": "ui-auth целиком, новая / прежняя граница",
+      "result": "15/18 и 16/18: одинаковый симптом (/today не уходит на /finance за 15 с) под нагрузкой Mac; на CI зелёный"
+    },
+    {
+      "id": "2026-10-11T11-06-40Z-integration-57fb -> 11-06-44Z-integration-0e8e",
+      "suite": "membership-scopes-schema",
+      "result": "RED 0/8, 8 skipped -> GREEN 8/8",
+      "note": "записи 9a0d и c579 сняты на базе с таблицей в обеих схемах и RED не показывают"
+    },
+    {
+      "id": "A25 без sandbox (scratch-скрипт, не в журнале)",
+      "suite": "a25-bar-money 18 тестов",
+      "result": "18/18 трижды после правок",
+      "note": "отладка селекторов; изоляцию сети не доказывает; на macOS sandbox-exec изредка отвергает localhost"
+    },
+    {
+      "id": "2026-10-11T17-31-06Z-e2e-180c",
+      "suite": "tests/ui theme-transition, bar, accessibility",
+      "result": "PASS 22/22",
+      "note": "после правки settleTheme"
+    }
   ]
 }

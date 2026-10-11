@@ -215,3 +215,14 @@ for (const theme of ['light', 'dark'] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+test('кнопка текущего раздела находится в шапке и доступна после гидрации', async ({ page }) => {
+  await page.goto('/today');
+  const button = page
+    .locator('.workspace-header')
+    .getByRole('button', { name: 'Финансы: все разделы', exact: true });
+  await expect(button).toBeEnabled();
+  await expect(button).toHaveText('Финансы');
+  await button.click();
+  await expect(sideNav(page).locator('.sidenav__panel')).toBeVisible();
+});

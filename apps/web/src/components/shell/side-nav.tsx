@@ -53,6 +53,9 @@ const CLOSE_DELAY = 150;
 function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
   const active = activeMenuRoute(path);
   const current = sections.find((section) => section.items.some((item) => item.href === active));
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  const label = current?.label ?? 'Разделы';
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<string | undefined>(undefined);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -145,7 +148,9 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
           className="sidenav__current"
           aria-expanded={open}
           aria-controls={panelId}
-          aria-label={`${current?.label ?? 'Разделы'}: все разделы`}
+          aria-label={`${label}: все разделы`}
+          disabled={!ready}
+          aria-busy={!ready}
           onClick={() => (open ? hide() : show())}
           onKeyDown={(event) => {
             if (event.key === 'Escape') return hide();
@@ -162,7 +167,7 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
           }}
         >
           <Icon name={current?.icon ?? 'menu'} />
-          <span>{current?.label ?? 'Разделы'}</span>
+          <span>{label}</span>
           <Icon className="sidenav__chevron" name="down" width={16} />
         </button>
         <div
@@ -232,7 +237,7 @@ function GrantedTrial({ desk }: { desk: Promise<DeskShell> | undefined }) {
   const trial = desk ? use(desk).trial : null;
   if (!trial) return null;
   return (
-    <span className="sidenav__trial" data-testid="trial-line" data-tour="trial">
+    <span className="sidenav__trial" data-testid="trial-line" data-tour="trial" title={trial}>
       <Icon name="clock" width={16} />
       <span>{trial}</span>
     </span>

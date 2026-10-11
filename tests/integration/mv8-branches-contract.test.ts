@@ -215,27 +215,49 @@ it('real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned 
     actorOrg = null;
     expect((await fetch(`${base}/branches`)).status).toBe(403);
     actorOrg = orgA;
+    const createId = randomUUID();
+    const payload = {
+      id: createId,
+      name: 'Тестовый Food',
+      vertical: 'FOOD_SERVICE',
+      currency: 'AED',
+      timezone: 'Asia/Dubai',
+    };
     const create = await fetch(`${base}/branches`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        id: randomUUID(),
-        name: 'Тестовый Food',
-        vertical: 'FOOD_SERVICE',
-        currency: 'AED',
-        timezone: 'Asia/Dubai',
-      }),
+      body: JSON.stringify(payload),
     });
-    expect(create.status).toBe(400);
+    expect(create.status).toBe(201);
+    const created = await create.json();
+    expect(created).toMatchObject({ ...payload, locationId: createId });
+    const saved = await db.location.findUniqueOrThrow({
+      where: { id: createId },
+      include: { business: true },
+    });
+    expect(saved.business).toMatchObject({ organizationId: orgA, vertical: 'FOOD_SERVICE' });
+    expect(await db.property.count({ where: { locationId: createId } })).toBe(0);
+    const replay = await fetch(`${base}/branches`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    expect(replay.status).toBe(201);
+    expect(await replay.json()).toEqual(created);
+    expect(await db.location.count({ where: { id: createId } })).toBe(1);
   } finally {
     await app?.close();
     const own = { business: { organizationId: { in: [orgA, orgB] } } };
-    await db.onboardingProgress.deleteMany({ where: { location: own } });
-    await db.property.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
-    await db.location.deleteMany({ where: own });
-    await db.business.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
-    await db.organization.deleteMany({ where: { id: { in: [orgA, orgB] } } });
-    await db.user.deleteMany({ where: { id: user } });
+    await db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+      await tx.auditLog.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+      await tx.onboardingProgress.deleteMany({ where: { location: own } });
+      await tx.property.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+      await tx.location.deleteMany({ where: own });
+      await tx.business.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+      await tx.organization.deleteMany({ where: { id: { in: [orgA, orgB] } } });
+      await tx.user.deleteMany({ where: { id: user } });
+    });
     await db.$disconnect();
   }
 });

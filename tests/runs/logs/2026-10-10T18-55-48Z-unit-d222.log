@@ -1,0 +1,176 @@
+# Модульные (unit) · 10.10.2026 23:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит cf107b0 (claude/register-country-locale), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T18-55-48Z-unit-d222.json' 'packages/domain/src/accounts/registration-contact.test.ts' 'apps/api/src/auth/auth.service.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt
+
+ ❯ |unit| packages/domain/src/accounts/registration-contact.test.ts (12 tests | 2 failed) 9ms
+   ✓ registrationPhone (5)
+     ✓ Казахстан: код +7 и десять цифр номера 2ms
+     ✓ лишняя 8 или 7 в начале казахстанского номера снимается 0ms
+     ✓ номер, уже начатый кодом выбранной страны, код не удваивает 0ms
+     ✓ короткий, длинный и пустой номер не принимаются 0ms
+     ✓ незнакомая страна — отказ, а не угаданный код 0ms
+   ✓ defaultPhoneCountry (3)
+     ✓ пояс Казахстана — Казахстан, даже при английском языке браузера 0ms
+     ✓ незнакомый пояс — страна из языка браузера, если она в списке 1ms
+     ✓ ни пояс, ни язык не подсказали — Казахстан 0ms
+   ✓ PHONE_COUNTRIES (1)
+     ✓ Казахстан первым, коды уникальны по стране 0ms
+   ✓ политика конфиденциальности (1)
+     ✓ адрес на главной и версия-дата 0ms
+   ❯ registrationLocale (Q-REG-1) (2)
+     × известный язык интерфейса принимается, пропуск означает русский 4ms
+     × чужой код и не строка: null, сервис отказывает словами 0ms
+ ❯ |unit| apps/api/src/auth/auth.service.test.ts (63 tests | 2 failed) 6516ms
+   ✓ AuthService.login (14)
+     ✓ верный пароль выдаёт токен, открывает сессию на 12 часов и пишет вход в журнал 77ms
+     ✓ почта с пробелами и в верхнем регистре — тот же человек 80ms
+     ✓ неверный пароль: общий текст, попытка посчитана, сессии нет, пароль в журнал не попал 79ms
+     ✓ два одновременных промаха дают счётчик 2: параллельные попытки не съедают локаут (С-5) 63ms
+     ✓ пятый промах ставит запрет по счётчику из базы, а не по прочитанному до записи (С-5) 62ms
+     ✓ неизвестная почта отвечает тем же текстом, что и неверный пароль 67ms
+     ✓ мусор вместо почты не пускает 114ms
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 439ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 313ms
+     ✓ одновременные неверные попытки считаются все, а не как одна (аудит 26.09, С-6) 250ms
+     ✓ попытка, ждавшая в очереди, пока учётку заперли, уже не входит — даже с верным паролем 278ms
+     ✓ пачка ошибок на истёкшем замке запирает снова, а не сбрасывает счёт каждой попыткой 291ms
+     ✓ опоздавшая ошибка не снимает свежий замок 251ms
+     ✓ заблокированного сотрудника не пускает 155ms
+   ✓ AuthService.whoami (9)
+     ✓ живая сессия возвращает сотрудника и продлевает отметку активности 89ms
+     ✓ неизвестный, просроченный и отозванный токен — никто 132ms
+     ✓ сессия заблокированного сотрудника больше не годится 64ms
+     ✓ называет организацию сессии: имя, состояние и пробный период — их показывает экран входа 84ms
+     ✓ роль — из членства в организации сессии, отметка главного администратора — пока не отозвана (ADR-083) 82ms
+     ✓ сессия человека, которого исключили из организации, больше не годится (аудит 26.09, С-10) 59ms
+     ✓ сессия приостановленного члена не годится, а после возобновления снова действует (DATA_MODEL §31.2) 55ms
+     ✓ вход приостановленного закрыт с причиной словами, а не общим «неверный пароль» 92ms
+     ✓ сессия приостановленной организации не годится (ADR-046, аудит 26.09, С-4) 103ms
+   ✓ AuthService.logout (1)
+     ✓ отзывает сессию, пишет выход в журнал и повторный вызов не падает 59ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 175ms
+     ✓ неверный текущий пароль ничего не меняет 88ms
+     ✓ слабый новый пароль отклоняется с объяснением 82ms
+     ✓ без годной сессии пароль не сменить 35ms
+   ❯ AuthService.register (23)
+     ✓ явный REGISTRATION_OPEN=0 закрывает регистрацию без записи в базу 30ms
+     ✓ регистрация не останавливает главный поток на время scrypt 67ms
+     ✓ название объекта, который уже есть в WETOP, не занимает — без учёта регистра и пробелов 32ms
+     ✓ заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена 49ms
+     ✓ без согласия с политикой организация не заводится 30ms
+     ✓ телефон, не похожий на номер, — отказ словами, без записи в базу 30ms
+     × сохраняет страну организации из выбранной страны и язык интерфейса человека 103ms
+     × без языка в форме человек получает русский; чужой код языка — отказ без записи 111ms
+     ✓ до подтверждения почты вход закрыт — и говорит, что делать 153ms
+     ✓ по ссылке из письма человек подтверждается и входит той же парой почта-пароль 91ms
+     ✓ ссылка одноразовая: второй заход по ней уже подтверждённого человека не ломает вход 59ms
+     ✓ повтор по ссылке позже 10 минут не впускает, а просит войти паролем 54ms
+     ✓ погашенная повторной отправкой ссылка не впускает и после подтверждения почты новой 54ms
+     ✓ повтор по ссылке заблокированного человека не впускает 69ms
+     ✓ вход по ссылке пишется в журнал, а заблокированному сессию не открыть 78ms
+     ✓ через 10 минут использованная ссылка больше не впускает — зовёт войти паролем 53ms
+     ✓ использованная ссылка не впускает заблокированного даже в свежем окне 75ms
+     ✓ окно повтора не продлевает срок самой ссылки 90ms
+     ✓ письмо просит не переходить по ссылке, если учётную запись заводили не вы (аудит 26.09, С-8) 82ms
+     ✓ негодная ссылка отвечает отказом и никого не впускает 59ms
+     ✓ занятый адрес назван прямо — иначе человеку нечего ответить на вторую попытку 107ms
+     ✓ короткий пароль не принимается, и организация от такой попытки не остаётся 45ms
+     ✓ пустое имя и строка, не похожая на почту, — отказ с понятным текстом 44ms
+   ✓ AuthService: учётные данные читаются служебной ролью базы (SEC-1b) (3)
+     ✓ whoami внутри запроса организации: сессия с пользователем и отметка администратора — служебной ролью 100ms
+     ✓ смена пароля внутри запроса организации: чтение и запись пользователя — служебной ролью 258ms
+     ✓ служебный путь не теряет автора: журнал по-прежнему знает пользователя и организацию запроса 207ms
+   ✓ MV2 registration vertical validation (6)
+     ✓ rejects explicit invalid vertical UNKNOWN before writes 38ms
+     ✓ rejects explicit invalid vertical  before writes 37ms
+     ✓ rejects explicit invalid vertical null before writes 47ms
+     ✓ rejects explicit invalid vertical 42 before writes 58ms
+     ✓ keeps BEAUTY pilot closed by default 65ms
+     ✓ keeps FOOD_SERVICE pilot closed by default 59ms
+   ✓ MV2 pilot allowlist and first chain (3)
+     ✓ persists BEAUTY without creating a hotel 178ms
+     ✓ persists FOOD_SERVICE without creating a hotel 125ms
+     ✓ a Beauty allowlist cannot open Food signup 47ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > сохраняет страну организации из выбранной страны и язык интерфейса человека
+AssertionError: expected undefined to be 'kk' // Object.is equality
+
+- Expected:
+"kk"
+
++ Received:
+undefined
+
+ ❯ apps/api/src/auth/auth.service.test.ts:533:62
+    531|     const { auth, users, organizations } = service();
+    532|     await auth.register({ ...NEW, phoneCountry: 'UZ', phone: '90 123 4…
+    533|     expect(users.find((u) => u.email === NEW.email)!.locale).toBe('kk'…
+       |                                                              ^
+    534|     expect(organizations.find((o) => o.name === 'Хостел на Абая')!.cou…
+    535|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > без языка в форме человек получает русский; чужой код языка — отказ без записи
+AssertionError: promise resolved "{ pendingVerification: true, …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "email": "<email>",
++   "name": "Вячеслав Петров",
++   "pendingVerification": true,
++   "sent": true,
+  }
+
+ ❯ apps/api/src/auth/auth.service.test.ts:540:63
+    538|     const { auth, users, organizations } = service();
+    539|     const before = { users: users.length, orgs: organizations.length };
+    540|     await expect(auth.register({ ...NEW, locale: 'xx' }, NOW)).rejects…
+       |                                                               ^
+    541|     expect(users).toHaveLength(before.users);
+    542|     expect(organizations).toHaveLength(before.orgs);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/registration-contact.test.ts > registrationLocale (Q-REG-1) > известный язык интерфейса принимается, пропуск означает русский
+TypeError: registrationLocale is not a function
+ ❯ packages/domain/src/accounts/registration-contact.test.ts:67:12
+     65| describe('registrationLocale (Q-REG-1)', () => {
+     66|   it('известный язык интерфейса принимается, пропуск означает русский'…
+     67|     expect(registrationLocale('kk')).toBe('kk');
+       |            ^
+     68|     expect(registrationLocale(undefined)).toBe('ru');
+     69|     expect(registrationLocale('')).toBe('ru');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/registration-contact.test.ts > registrationLocale (Q-REG-1) > чужой код и не строка: null, сервис отказывает словами
+TypeError: registrationLocale is not a function
+ ❯ packages/domain/src/accounts/registration-contact.test.ts:72:12
+     70|   });
+     71|   it('чужой код и не строка: null, сервис отказывает словами', () => {
+     72|     expect(registrationLocale('xx')).toBeNull();
+       |            ^
+     73|     expect(registrationLocale('RU')).toBeNull();
+     74|     expect(registrationLocale(7)).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 71 passed (75)
+   Start at  11:55:52
+   Duration  11.63s (tests 57%, transform 24%, import 18%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T18-55-48Z-unit-d222.json
+
+# код выхода 1 · 17 с

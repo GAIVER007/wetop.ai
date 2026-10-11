@@ -116,21 +116,23 @@ describe.skipIf(!url)('расширения организаций (integration,
     expect(await journal()).toHaveLength(2);
   });
 
-  it('список организаций: люди, почты владельцев и расширение — без броней и гостей', async () => {
+  it('список организаций: люди, владельцы, направления и филиалы без броней и гостей', async () => {
     const list = await repo.organizations();
     const a = list.find((o) => o.id === orgA);
     const b = list.find((o) => o.id === orgB);
     expect(a).toMatchObject({
       name: `Тест расширений ${mark}`,
       members: 2,
+      verticals: [],
+      locations: 0,
       owners: [`ext-owner-${mark}@example.invalid`],
       aiSeller: { status: 'ACTIVE', activeUntil: null },
     });
-    expect(b).toMatchObject({ members: 0, owners: [], aiSeller: null });
+    expect(b).toMatchObject({ members: 0, owners: [], aiSeller: null, verticals: [], locations: 0 });
     expect(Object.keys(a ?? {}).sort()).toEqual(
-      ['aiSeller', 'createdAt', 'id', 'members', 'name', 'ownerPending', 'owners', 'status', 'trialEndsAt'].sort(),
+      ['aiSeller', 'createdAt', 'id', 'locations', 'members', 'name', 'ownerPending', 'owners', 'status', 'trialEndsAt', 'verticals'].sort(),
     );
-    expect(await repo.organization(orgB)).toMatchObject({ id: orgB, aiSeller: null });
+    expect(await repo.organization(orgB)).toMatchObject({ id: orgB, aiSeller: null, verticals: [], locations: 0 });
     expect(await repo.organization(randomUUID())).toBeNull();
   });
 

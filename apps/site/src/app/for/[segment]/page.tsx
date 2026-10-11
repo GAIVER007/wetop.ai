@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Icon } from '../../../components/icon';
 import { LandingFinal } from '../../../components/landing/landing-final';
+import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import type { SegmentSlug } from '../../../i18n/types';
@@ -147,6 +148,13 @@ export default async function SegmentPage({ params }: Props) {
             <figcaption>{t.hotel.calendar.note}</figcaption>
           </figure>
         </section>
+
+        <MarketingBlock
+          id="marketing"
+          copy={t.marketing.hotel}
+          eyebrow={t.marketing.eyebrow}
+          soon={t.marketing.soon}
+        />
 
         <LandingFinal
           faq={{ title: t.hotel.faqTitle, items: item.faq ?? [] }}

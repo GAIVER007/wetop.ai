@@ -50,6 +50,7 @@ v2.11 (06.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; MKT1A,
 v2.15 (09.10.2026): §31 область доступа сотрудника (`membership_scopes`), приостановка членства, данные приглашения: утверждено владельцем 09.10.2026 («давай да делай дальше», Q-286…Q-290, ADR-156); миграции `20261009000072_membership_scopes` и `…073_membership_scopes_grants` на рабочей базе применяет владелец
 v2.13 (07.10.2026; **решения владельца Q-271 и Q-275 от 07.10.2026**; MKT7, `plans/mkt7-publication-preview-domains-2026-10-07.md`): §29.4 `marketing_site_publications` и §29.6 `site_domains` в базе, новый §29.11 `locations.booking_tracked_site_id` (канонический сайт брони филиала) с начальным заполнением; миграции `20261007000064_marketing_publication_domains` и `20261007000065_marketing_publication_grants`
 v2.14 (09.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; O5a, ADR-153, `plans/guest-onboarding-ai-seller-2026-10-09.md`): §13.11 `email_verifications.wizard_session_id`: серверная связь подтверждения почты с гостевым черновиком (nullable FK на `wizard_sessions`, `ON DELETE SET NULL`, частичный уникальный индекс «одна живая связь на сессию»). Кода и миграции нет; миграцию применяет владелец до выкладки O5b
+v2.17 (10.10.2026; **утверждено владельцем 10.10.2026 ответом «да сохранять страну и язык» на Q-REG-1**, ADR-163): §13.1 `organizations.country_code` (ISO 3166-1 alpha-2, NULL у заведённых раньше; при регистрации страна из окна, она же страна телефона) и §13.2 `users.locale` (`ru`, `kk`, `en`, по умолчанию `ru`; CHECK `users_locale_known`); права `wetop_app` на `users` не расширяются (§17.3); миграция `20261010000083_registration_country_locale`, на рабочей базе применяет владелец до выкладки
 
 > **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
 > «Целевая архитектура двух вертикалей» (v2.0, ADR-100) и «Row Level Security» (v1.13, ADR-103). Как и с
@@ -1130,6 +1131,7 @@ resolved_by       GUARD (исчезла после починки или сам�
 | `name` | `varchar(200)` NOT NULL | название, вводит человек при регистрации |
 | `status` | enum `OrganizationStatus` NOT NULL DEFAULT `TRIAL` | `TRIAL`, `ACTIVE`, `READ_ONLY`, `SUSPENDED`. С 27.09 (ADR-102) пишут только `ACTIVE` и `TRIAL` до срока (`canWrite`); после срока — только чтение, считается на лету, в базе статус не переписывается. `ACTIVE` ставит главный администратор после оплаты счёта |
 | `trial_ends_at` | `timestamptz` | срок пробного периода: 14 суток от создания с 27.09.2026 (ADR-102; до того — 7) |
+| `country_code` | `varchar(2)` | v2.17 (Q-REG-1): страна организации, ISO 3166-1 alpha-2, CHECK `organizations_country_code_iso`; при регистрации страна, выбранная в окне (она же страна телефона); NULL у заведённых до 10.10.2026 и платформой |
 | `created_at` | `timestamptz` NOT NULL | |
 
 Тип — перечисление Postgres `OrganizationStatus` (миграция `20260915000013_accounts`), а не `varchar` с CHECK, как
@@ -1146,6 +1148,7 @@ resolved_by       GUARD (исчезла после починки или сам�
 | `created_at` | `timestamptz` NOT NULL | |
 | `last_login_at` | `timestamptz` | |
 | `email_verified_at` | `timestamptz` | v1.6 (ADR-060): когда человек подтвердил почту по ссылке; NULL — вход закрыт («Почта не подтверждена»). Заведённым до 20.09.2026 проставлено миграцией `20260920000015_email_verification` |
+| `locale` | `varchar(5)` NOT NULL DEFAULT `ru` | v2.17 (Q-REG-1): язык интерфейса человека, `ru`, `kk`, `en` (CHECK `users_locale_known`); выбирается при регистрации, пока стойка только на русском. Пишет служебная роль, `wetop_app` колонку не читает (§17.3) |
 
 ### 13.3. `memberships` — человек в организации
 

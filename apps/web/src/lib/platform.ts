@@ -1,5 +1,5 @@
 import type { BadgeTone } from '../components/ui';
-import type { ExtensionAccessView, PlatformOrganization } from './api';
+import type { ExtensionAccessView, PlatformOrganization, PlatformVertical } from './api';
 import { extensionLastDay } from './ai-seller';
 import { PLATFORM_TIMEZONE } from '@pms/domain';
 import { propertyClock } from './property-time';
@@ -64,3 +64,18 @@ export function extensionFormDefaults(e: PlatformOrganization['aiSeller']): {
 export function organizationSince(createdAt: string): string {
   return displayDay(propertyClock(PLATFORM_TIMEZONE).date(createdAt));
 }
+
+/** Направление бизнеса словом — как в карточках филиалов своей организации */
+export const PLATFORM_VERTICAL_LABEL: Record<PlatformVertical, string> = {
+  HOSPITALITY: 'Гостиница',
+  BEAUTY: 'Салон',
+  FOOD_SERVICE: 'Ресторан',
+};
+
+/** Статус организации без даты пробного — для списков отбора, где дата конкретной организации неуместна */
+export const PLATFORM_STATUS_LABEL: Record<string, string> = {
+  TRIAL: 'пробный',
+  ACTIVE: 'работает',
+  READ_ONLY: 'только чтение',
+  SUSPENDED: 'в архиве',
+};

@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
-import type { ExtensionChange, ExtensionStatus, OrganizationStatus } from '@pms/domain';
+import type { BusinessVertical, ExtensionChange, ExtensionStatus, OrganizationStatus } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import type { OverviewSource } from './overview';
 
 /** Расширение «ИИ-продавец» организации как оно лежит в базе (DATA_MODEL §16.3) */
 export interface ExtensionRow {
@@ -25,6 +26,10 @@ export interface OrganizationSummary {
   owners: string[];
   /** Владелец заведён, но пароль ещё не задал (организацию создал главный администратор): ему можно выслать ссылку */
   ownerPending: boolean;
+  /** Направления бизнесов организации по порядку создания, без повторов (для таблицы платформы, срез P1) */
+  verticals: BusinessVertical[];
+  /** Число филиалов во всех бизнесах организации */
+  locations: number;
   aiSeller: ExtensionRow | null;
 }
 
@@ -44,6 +49,8 @@ export interface ExtensionsRepository {
   restore(input: { organizationId: string; by: string | null; now: Date }): Promise<void>;
   organizations(): Promise<OrganizationSummary[]>;
   organization(id: string): Promise<OrganizationSummary | null>;
+  /** Сырьё обзора платформы (срез P1): организации с бизнесами и счёт людей; денег здесь нет (ADR-102) */
+  overviewSource(activeSince: Date): Promise<OverviewSource>;
   /** Изменение и строка журнала — одной транзакцией: без записи в журнале расширение не меняется */
   saveAiSeller(input: {
     organizationId: string;
@@ -189,6 +196,23 @@ export class PrismaExtensionsRepository implements ExtensionsRepository {
     return row ? summary(row) : null;
   }
 
+  async overviewSource(activeSince: Date): Promise<OverviewSource> {
+    const [organizations, usersTotal, activeUsers] = await Promise.all([
+      this.prisma.db.organization.findMany({
+        select: {
+          status: true,
+          createdAt: true,
+          businesses: { select: { vertical: true, createdAt: true } },
+        },
+      }),
+      this.prisma.db.user.count({ where: { memberships: { some: {} } } }),
+      this.prisma.db.user.count({
+        where: { lastLoginAt: { gte: activeSince }, memberships: { some: {} } },
+      }),
+    ]);
+    return { organizations, usersTotal, activeUsers };
+  }
+
   async saveAiSeller(input: {
     organizationId: string;
     change: ExtensionChange;
@@ -239,6 +263,10 @@ const SUMMARY = {
     where: { extension: KIND },
     select: { status: true, activeUntil: true, note: true, updatedAt: true },
   },
+  businesses: {
+    orderBy: { createdAt: 'asc' as const },
+    select: { vertical: true, _count: { select: { locations: true } } },
+  },
 };
 
 function summary(row: {
@@ -250,6 +278,7 @@ function summary(row: {
   _count: { memberships: number };
   memberships: Array<{ user: { email: string; passwordHash: string } }>;
   extensions: ExtensionRow[];
+  businesses: Array<{ vertical: BusinessVertical; _count: { locations: number } }>;
 }): OrganizationSummary {
   return {
     id: row.id,
@@ -260,6 +289,8 @@ function summary(row: {
     members: row._count.memberships,
     owners: row.memberships.map((m) => m.user.email),
     ownerPending: row.memberships.some((m) => m.user.passwordHash === ''),
+    verticals: [...new Set(row.businesses.map((b) => b.vertical))],
+    locations: row.businesses.reduce((n, b) => n + b._count.locations, 0),
     aiSeller: row.extensions[0] ?? null,
   };
 }

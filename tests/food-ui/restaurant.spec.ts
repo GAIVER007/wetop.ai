@@ -310,10 +310,14 @@ test('зарплата: оклад + процент, премия и штраф,
 
 test('клиенты: вкладки и «Постоянный гость» от двух визитов', async ({ page, request }) => {
   const { headers, table } = await seed(page, request);
+  // День и время по поясу ресторана (Asia/Almaty), а не по UTC: ночью по UTC в Алматы уже следующие
+  // сутки, и посадка «сейчас» не попадала в период (гейт 10.10 19:04 UTC). Полдень местного дня
+  const localDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const startsAt = `${localDay}T12:00:00+05:00`;
   // период обслуживания и две завершённые посадки одного клиента
   const period = await post(request, headers, '/food-service/service-periods', {
     name: 'Весь день',
-    weekday: new Date().getUTCDay(),
+    weekday: new Date(`${localDay}T12:00:00Z`).getUTCDay(),
     timeFrom: '00:00',
     timeTo: '23:59',
     endsNextDay: false,
@@ -324,7 +328,7 @@ test('клиенты: вкладки и «Постоянный гость» от
     headers: { ...headers, 'idempotency-key': 'rest-cust-1' },
     data: {
       servicePeriodId: period.id,
-      startsAt: new Date().toISOString().slice(0, 19) + 'Z',
+      startsAt,
       partySize: 2,
       customer: { firstName: 'Сергей', lastName: 'Иванов', phone: '+7 700 123-45-67' },
       tableId: table.id,
@@ -342,7 +346,7 @@ test('клиенты: вкладки и «Постоянный гость» от
     headers: { ...headers, 'idempotency-key': 'rest-cust-2' },
     data: {
       servicePeriodId: period.id,
-      startsAt: new Date().toISOString().slice(0, 19) + 'Z',
+      startsAt,
       partySize: 3,
       customerId: r1.customerId,
       tableId: table.id,

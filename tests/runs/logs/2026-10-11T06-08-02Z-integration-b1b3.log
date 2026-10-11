@@ -1,0 +1,101 @@
+# Интеграционные (integration) · 11.10.2026 11:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 907a513 (claude/kitchen-fs2-stock)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T06-08-02Z-integration-b1b3.json' 'tests/integration/kitchen-stock.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 247ms
+ ❯ |integration| tests/integration/kitchen-stock.test.ts (5 tests | 5 failed) 17ms
+   ❯ Kitchen stock: RLS, ownership, append-only ledger (5)
+     × три таблицы: свои строки видны, чужой и пустой арендатор не видят, сервис видит всех 7ms
+     × лента только дописывается: у ролей нет UPDATE и DELETE, а владельцу мешает триггер 1ms
+     × принадлежность: чужой продукт, чужая партия, не ресторан и смена родителя отклоняются 1ms
+     × CHECK: остаток не больше прихода и не ниже нуля, единица только г, мл, шт, нулевое движение нельзя 1ms
+     × охраняемый откат: с данными отказывает, на пустых таблицах убирает их 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/kitchen-stock.test.ts > Kitchen stock: RLS, ownership, append-only ledger > три таблицы: свои строки видны, чужой и пустой арендатор не видят, сервис видит всех
+error: record "new" has no field "lot_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seed tests/integration/kitchen-stock.test.ts:55:5
+     53|       [ids.product, ids.biz],
+     54|     );
+     55|     await db.query(
+       |     ^
+     56|       `INSERT INTO kitchen_stock_lots(id,location_id,product_id,receiv…
+     57|       [ids.lot, ids.loc, ids.product],
+ ❯ tests/integration/kitchen-stock.test.ts:68:19
+ ❯ rollback tests/integration/kitchen-stock.test.ts:26:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |integration| tests/integration/kitchen-stock.test.ts > Kitchen stock: RLS, ownership, append-only ledger > лента только дописывается: у ролей нет UPDATE и DELETE, а владельцу мешает триггер
+error: record "new" has no field "lot_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seed tests/integration/kitchen-stock.test.ts:55:5
+     53|       [ids.product, ids.biz],
+     54|     );
+     55|     await db.query(
+       |     ^
+     56|       `INSERT INTO kitchen_stock_lots(id,location_id,product_id,receiv…
+     57|       [ids.lot, ids.loc, ids.product],
+ ❯ tests/integration/kitchen-stock.test.ts:91:19
+ ❯ rollback tests/integration/kitchen-stock.test.ts:26:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| tests/integration/kitchen-stock.test.ts > Kitchen stock: RLS, ownership, append-only ledger > принадлежность: чужой продукт, чужая партия, не ресторан и смена родителя отклоняются
+error: record "new" has no field "lot_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seed tests/integration/kitchen-stock.test.ts:55:5
+     53|       [ids.product, ids.biz],
+     54|     );
+     55|     await db.query(
+       |     ^
+     56|       `INSERT INTO kitchen_stock_lots(id,location_id,product_id,receiv…
+     57|       [ids.lot, ids.loc, ids.product],
+ ❯ tests/integration/kitchen-stock.test.ts:118:19
+ ❯ rollback tests/integration/kitchen-stock.test.ts:26:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |integration| tests/integration/kitchen-stock.test.ts > Kitchen stock: RLS, ownership, append-only ledger > CHECK: остаток не больше прихода и не ниже нуля, единица только г, мл, шт, нулевое движение нельзя
+error: record "new" has no field "lot_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seed tests/integration/kitchen-stock.test.ts:55:5
+     53|       [ids.product, ids.biz],
+     54|     );
+     55|     await db.query(
+       |     ^
+     56|       `INSERT INTO kitchen_stock_lots(id,location_id,product_id,receiv…
+     57|       [ids.lot, ids.loc, ids.product],
+ ❯ tests/integration/kitchen-stock.test.ts:153:19
+ ❯ rollback tests/integration/kitchen-stock.test.ts:26:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |integration| tests/integration/kitchen-stock.test.ts > Kitchen stock: RLS, ownership, append-only ledger > охраняемый откат: с данными отказывает, на пустых таблицах убирает их
+error: record "new" has no field "lot_id"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seed tests/integration/kitchen-stock.test.ts:55:5
+     53|       [ids.product, ids.biz],
+     54|     );
+     55|     await db.query(
+       |     ^
+     56|       `INSERT INTO kitchen_stock_lots(id,location_id,product_id,receiv…
+     57|       [ids.lot, ids.loc, ids.product],
+ ❯ tests/integration/kitchen-stock.test.ts:169:7
+ ❯ rollback tests/integration/kitchen-stock.test.ts:26:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  5 failed | 6 passed (11)
+   Start at  23:08:03
+   Duration  1.29s (transform 44%, tests 35%, import 21%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T06-08-02Z-integration-b1b3.json
+
+# код выхода 1 · 2 с

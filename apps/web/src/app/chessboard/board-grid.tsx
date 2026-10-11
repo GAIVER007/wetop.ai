@@ -1168,11 +1168,7 @@ export function ChessboardGrid({
                           }
                         >
                           <span className="board-group-bar" aria-hidden="true">
-                            <span
-                              style={{
-                                width: loadPct(g.code),
-                              }} /* slop-allow: inline-style доля занятых мест категории из данных */
-                            />
+                            <span style={{ width: loadPct(g.code) }} /* slop-allow: inline-style доля занятых мест категории из данных */ />
                           </span>
                           <span className="board-group-ratio">
                             {groupLoad(g.code)

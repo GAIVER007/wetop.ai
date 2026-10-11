@@ -3267,8 +3267,25 @@ button {
 .page:has(> .container > .breadcrumbs:first-child) {
   padding-top: clamp(16px, 2.4vw, 28px);
 }
-.breadcrumbs + .hotel-hero {
-  padding-top: clamp(16px, 2.4vw, 28px);
+/* Лендинги одним ритмом (11.10.2026, «отступы везде одинаково»): блоки колонкой с одним шагом, свои внешние
+   отступы блоков обнулены; внутренние отступы карточек и плит остаются. Крошки стоят над обёрткой. */
+.breadcrumbs {
+  margin-bottom: clamp(20px, 3vw, 32px);
+}
+.landing {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 7vw, 96px);
+}
+/* двойной класс: правила блоков (.hotel-growth, .salon-hero) стоят ниже в файле и при равной силе победили бы */
+.landing.landing > * {
+  margin-block: 0;
+}
+.landing > .section,
+.landing > .hotel-shot,
+.landing > .hotel-hero,
+.landing > .salon-hero {
+  padding-block: 0;
 }
 .breadcrumbs ol {
   display: flex;

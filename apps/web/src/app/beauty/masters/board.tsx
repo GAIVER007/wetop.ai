@@ -2,7 +2,7 @@
 import { useActionState, useRef, useState, useTransition } from 'react';
 import { parseEmployeeInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
-import { Alert, Badge, Button, EmptyState, Field, Input, Table } from '../../../components/ui';
+import { Alert, Badge, Button, Field, Input, Table } from '../../../components/ui';
 import type {
   BeautyEmployeeRow,
   BeautyServiceRow,
@@ -77,11 +77,6 @@ export function MastersBoard({
           </Button>
         )}
       </div>
-      {items.length === 0 && (
-        <EmptyState title="Добавьте первого мастера">
-          Назначьте услуги и рабочие часы, чтобы принимать записи.
-        </EmptyState>
-      )}
       <Table className="beauty-operational-table">
         <thead>
           <tr>

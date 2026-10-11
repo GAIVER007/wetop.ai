@@ -120,7 +120,7 @@ test('меню: «Финансы» первой вкладкой, «Главно
   await expect(menu.locator('.sidenav__section').first()).toHaveText('Финансы');
   await expect(menu.getByRole('link', { name: 'Главная', exact: true })).toHaveCount(0);
   // активная отметка живёт на пункте группы (ADR-157): на /finance это «Оплаты и касса»
-  await expect(menu.locator('.sidenav__sub [aria-current="page"]')).toHaveText('Оплаты и касса');
+  await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Оплаты и касса');
 });
 
 test('период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию', async ({ page }) => {

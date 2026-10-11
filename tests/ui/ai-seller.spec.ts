@@ -34,10 +34,7 @@ const openStep = async (
 };
 /** Раскрывашка «Подключений» (1. Модель ИИ … 4. Чат на сайте): открыть группу по названию */
 const openConnection = (page: Page, name: string) =>
-  page
-    .locator('.seller-connection-steps > details > summary')
-    .filter({ hasText: name })
-    .click();
+  page.locator('.seller-connection-steps > details > summary').filter({ hasText: name }).click();
 /**
  * Набирать в окно инструкции — только после того, как React его оживил (гидратация). Раньше `fill` гонится с ней:
  * React 19, оживляя `<textarea>`, заново ставит ей текст по умолчанию (`initTextarea` в react-dom) — выделение слетает в
@@ -75,7 +72,9 @@ test('раздел в меню «Продажи», четыре вкладки, 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
   // текущий раздел на кнопке левого меню, пункт помечен текущим (ADR-161)
   await expect(sideNav(page).locator('.sidenav__current')).toHaveText('Продажи');
-  await expect(sideNav(page).locator('.sidenav__sub [aria-current="page"]')).toHaveText('ИИ-продавцы');
+  await expect(sideNav(page).locator('.sidenav__items [aria-current="page"]')).toHaveText(
+    'ИИ-продавцы',
+  );
   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link');
   await expect(tabs).toHaveText([
     'Обзор',

@@ -30,7 +30,7 @@ for (const endpoint of [
       method: 'POST',
       headers: { 'content-type': 'application/json; charset=utf-8' },
       body: JSON.stringify({ host: HOST, key: KEY, keyLocation: `https://${HOST}/${KEY}.txt`, urlList }),
-      signal: AbortSignal.timeout(20_000),
+      signal: globalThis.AbortSignal.timeout(20_000),
     });
     // 200 и 202 значат «принято»; 422 — адрес не того домена, 403 — ключ не подтвердился
     if (res.status === 200 || res.status === 202) accepted += 1;

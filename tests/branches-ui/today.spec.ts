@@ -196,9 +196,10 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('today-attention-no-table')).toContainText(
       String(m.withoutTable),
     );
-    // боковое меню (ADR-161) держит разделы в панели: открыть её и найти «Бронирования»
+    // Бронирования находятся в подразделах «Зала» (ADR-161).
     const nav = page.getByRole('navigation', { name: 'Разделы' });
     await nav.locator('.sidenav__current').click();
+    await nav.getByRole('link', { name: 'Зал', exact: true }).hover();
     await expect(nav.getByRole('link', { name: 'Бронирования', exact: true }).first()).toBeVisible();
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);
@@ -440,6 +441,8 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const f = await prepare(request);
     await setScope(page, f.hotelScope);
     await page.goto('/today');
+    await expect(page).toHaveURL(/\/finance$/);
+    await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     await expect(page.getByRole('dialog')).toBeVisible();
     for (const [scope, testId] of [
       [f.salon, 'beauty-today'],

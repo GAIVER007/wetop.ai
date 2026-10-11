@@ -32,7 +32,12 @@ test('полоса фактов и возможности: восемь карт
   await expect(page.locator('.hotel-facts__item')).toHaveCount(4);
   const features = page.locator('#restaurant-features .card');
   await expect(features).toHaveCount(8);
-  await expect(features.first()).toContainText('Зал как на ладони');
+  await expect(features.first()).toContainText('План зала');
+  // модули для владельца: пункты внутри каждой карточки; бара у ресторана ещё нет, он помечен «Скоро»
+  for (const name of ['Меню и калькуляция', 'График смен', 'Зарплата официантов', 'Личные кабинеты'])
+    await expect(features.filter({ hasText: name }).locator('li')).not.toHaveCount(0);
+  await expect(features.filter({ hasText: 'Бар и склад' }).locator('.tag')).toHaveText('Скоро');
+  await expect(features.locator('.tag')).toHaveCount(1);
   const body = await page.locator('body').innerText();
   // Чисел клиентов и рейтингов не бывает (§19.9); «пилота» и « · » тоже. Проценты в мокапе
   // «Сегодня» легитимны (вымышленный пример с подписью), поэтому их сторож не ловит.

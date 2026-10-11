@@ -15,7 +15,9 @@ export async function selectBranch(form: FormData) {
   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
   if (branch.vertical !== 'HOSPITALITY') {
     const destination = branchDestination(String(form.get('returnTo') ?? ''));
-    redirect(destination === '/management/analytics' ? destination : landingForVertical(branch.vertical));
+    redirect(
+      destination === '/management/analytics' ? destination : landingForVertical(branch.vertical),
+    );
   }
   redirect(
     branch._count.inventoryUnits
@@ -28,7 +30,12 @@ export async function createBranch(
   form: FormData,
 ) {
   try {
-    const vertical = form.get('vertical') === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
+    const vertical =
+      form.get('vertical') === 'FOOD_SERVICE'
+        ? 'FOOD_SERVICE'
+        : form.get('vertical') === 'BEAUTY'
+          ? 'BEAUTY'
+          : 'HOSPITALITY';
     await branchesApi.create({
       id: String(form.get('id')),
       name: String(form.get('name') ?? ''),
@@ -41,9 +48,11 @@ export async function createBranch(
     revalidatePath('/platform');
     return {
       message:
-        vertical === 'BEAUTY'
-          ? 'Салон создан. Откройте его, чтобы увидеть, что в нём уже работает.'
-          : 'Филиал создан. Откройте его, чтобы добавить категории и номера.',
+        vertical === 'FOOD_SERVICE'
+          ? 'Ресторан создан. Откройте его, чтобы настроить зал и меню.'
+          : vertical === 'BEAUTY'
+            ? 'Салон создан. Откройте его, чтобы увидеть, что в нём уже работает.'
+            : 'Филиал создан. Откройте его, чтобы добавить категории и номера.',
     };
   } catch (e) {
     return {
@@ -63,7 +72,7 @@ export async function branchChoices() {
     );
     const currentId = selected?.id ?? null;
     return {
-      items: items.map(({ id, name, address }) => ({ id, name, address })),
+      items: items.map(({ id, name, address, vertical }) => ({ id, name, address, vertical })),
       currentId,
     };
   } catch {

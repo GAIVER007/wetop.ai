@@ -266,6 +266,16 @@ test('календарь возвращает обе позиции после �
     )
     .toBeLessThanOrEqual(2);
   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBe(0);
+  await page.reload();
+  await expect
+    .poll(() =>
+      wrap.evaluate((el) => {
+        const today = el.querySelector('thead .is-today')!.getBoundingClientRect();
+        const units = el.querySelector('thead th')!.getBoundingClientRect();
+        return Math.abs(today.left - units.right);
+      }),
+    )
+    .toBeLessThanOrEqual(2);
 });
 
 test('мобильная форма: ввод гостя на низком экране не перекрыт действиями', async ({

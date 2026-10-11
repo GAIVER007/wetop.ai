@@ -32,7 +32,7 @@ for (const theme of ['dark', 'light'] as const) {
       for (const [index, href] of [
         [0, '/for/hotels/'],
         [1, '/for/salons/'],
-        [2, '/restaurants/'],
+        [2, '/for/restaurants/'],
       ] as const) {
         const card = cards.nth(index);
         await expect(card).not.toContainText(/пилот/i);
@@ -87,7 +87,7 @@ test('direction pages preselect the correct vertical in existing AuthDialog', as
   for (const [path, name] of [
     ['/for/hotels/', 'Гостиничный бизнес'],
     ['/for/salons/', 'Салон красоты / студия'],
-    ['/restaurants/', 'Кафе / ресторан'],
+    ['/for/restaurants/', 'Кафе / ресторан'],
   ] as const) {
     await page.goto(path);
     await page.locator('.cta [data-auth="register"]').click();

@@ -1,0 +1,21 @@
+# Модульные (unit) · 11.10.2026 13:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит b199d20 (codex/fix-platform-integration-contract)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-05-58Z-unit-b7f0.json' 'apps/api/src/platform' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin
+
+ ✓ |unit| apps/api/src/platform/support.queue.test.ts (20 tests) 11ms
+ ✓ |unit| apps/api/src/platform/overview.test.ts (4 tests) 7ms
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 154ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (35 tests) 492ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 370ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 124ms
+
+ Test Files  6 passed (6)
+      Tests  92 passed (92)
+   Start at  01:06:00
+   Duration  5.45s (transform 51%, import 43%, tests 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-05-58Z-unit-b7f0.json
+
+# код выхода 0 · 7 с

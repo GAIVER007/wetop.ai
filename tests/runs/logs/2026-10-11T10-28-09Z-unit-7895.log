@@ -1,0 +1,69 @@
+# Модульные (unit) · 11.10.2026 15:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит e8c2d05 (HEAD), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-28-09Z-unit-7895.json' 'apps/api/src/hotel/branches.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ❯ |unit| apps/api/src/hotel/branches.test.ts (13 tests | 1 failed) 17ms
+   ✓ создание филиала (4)
+     ✓ сотрудник не создаёт филиал, даже вызывая сервис напрямую 3ms
+     ✓ не принимает неверный часовой пояс до записи 3ms
+     ✓ повтор с тем же UUID возвращает исходный объект 2ms
+     ✓ UUID другой формы не притворяется успешным созданием 0ms
+   ✓ создаёт пустой объект в цепочке и возвращает тот же объект при повторе 1ms
+   ✓ вертикаль филиала (4)
+     ✓ без вертикали создаётся гостиница, как было до среза 0ms
+     ✓ вертикаль BEAUTY не трогает объекты вовсе 0ms
+     ✓ незнакомое направление отклоняется до записи 0ms
+     ✓ сотрудник не создаёт и салон 0ms
+   ✓ владелец создаёт ресторан без гостиничного объекта 0ms
+   × повтор UUID не выдаёт филиал другого направления за ресторан 5ms
+   ✓ сотрудник не создаёт ресторан 0ms
+   ✓ canonical read projection includes only active owned Beauty/Food Locations 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/branches.test.ts > повтор UUID не выдаёт филиал другого направления за ресторан
+AssertionError: promise resolved "{ …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "_count": {
++     "accommodationTypes": 0,
++     "inventoryUnits": 0,
++   },
++   "address": "",
++   "currency": "KZT",
++   "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
++   "location": {
++     "businessId": "salon-business",
++   },
++   "locationId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
++   "name": "Тестовый филиал",
++   "timezone": "Asia/Almaty",
++   "vertical": "FOOD_SERVICE",
+  }
+
+ ❯ apps/api/src/hotel/branches.test.ts:143:82
+    141|   const { service, tx } = setup({ ...input, businessId: 'salon-busines…
+    142|   tx.business.findFirst.mockImplementation(async () => null as never);
+    143|   await expect(run(() => service.create({ ...input, vertical: 'FOOD_SE…
+       |                                                                                  ^
+    144| });
+    145|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  03:28:10
+   Duration  1.16s (transform 66%, import 32%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-28-09Z-unit-7895.json
+
+# код выхода 1 · 2 с

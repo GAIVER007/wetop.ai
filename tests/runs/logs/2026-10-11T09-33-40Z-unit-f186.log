@@ -1,0 +1,18 @@
+# Модульные (unit) · 11.10.2026 14:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0491010 (claude/restaurant-menu-groups), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T09-33-40Z-unit-f186.json' 'apps/web/src/lib/navigation-food.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-roles.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (20 tests) 6ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 3ms
+
+ Test Files  3 passed (3)
+      Tests  32 passed (32)
+   Start at  02:33:41
+   Duration  572ms (transform 83%, import 16%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T09-33-40Z-unit-f186.json
+
+# код выхода 0 · 2 с

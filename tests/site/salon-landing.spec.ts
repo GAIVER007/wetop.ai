@@ -11,7 +11,7 @@ const PATH = '/for/salons/';
 test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({ page }) => {
   await page.goto(PATH);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Управляйте салоном красоты в одном сервисе',
+    'Полный день каждого мастера, без тетрадей и переписок',
   );
   const hero = page.locator('.salon-hero');
   await expect(hero).toContainText('Для салонов красоты');
@@ -36,7 +36,7 @@ test('полоса фактов и возможности: восемь карт
   await expect(page.locator('.salon-facts__item')).toHaveCount(4);
   const features = page.locator('#salon-features .card');
   await expect(features).toHaveCount(8);
-  await expect(features.first()).toContainText('Календарь записей');
+  await expect(features.first()).toContainText('Календарь без накладок');
   const body = await page.locator('body').innerText();
   // Чисел клиентов, рейтингов и процентов результата не бывает (§19.9); «пилота» и « · » тоже
   expect(body).not.toMatch(/салон(ов|а)? (уже )?с нами|2\s?000|4[.,]9|рост выручки|\+\d+\s?%|−\d+\s?%|-\d+\s?%/i);
@@ -51,7 +51,7 @@ test('рост, вопросы и призыв: пункты без процен
 }) => {
   await page.goto(PATH);
   const growth = page.locator('.salon-growth');
-  await expect(growth).toContainText('Больше довольных клиентов. Больше прибыли.');
+  await expect(growth).toContainText('Больше записей в те же часы работы');
   await expect(growth.locator('li')).toHaveCount(4);
   expect(await growth.innerText()).not.toMatch(/%/);
   const faq = page.locator('.faq details');

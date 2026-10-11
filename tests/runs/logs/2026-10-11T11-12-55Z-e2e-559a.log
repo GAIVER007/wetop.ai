@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 11.10.2026 16:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит c444857 (claude/landing-copy-pass), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/hotel-landing.spec.ts' 'tests/site/salon-landing.spec.ts' 'tests/site/restaurant-landing.spec.ts'
+
+Running 20 tests using 2 workers
+
+  ✓   2 tests/site/restaurant-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (601ms)
+  ✓   1 tests/site/hotel-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (611ms)
+  ✓   3 tests/site/restaurant-landing.spec.ts:30:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (229ms)
+  ✓   4 tests/site/hotel-landing.spec.ts:32:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (246ms)
+  ✓   6 tests/site/hotel-landing.spec.ts:49:1 › снимок календаря: настоящий экран с подписью примера и альтернативным текстом (378ms)
+  ✓   5 tests/site/restaurant-landing.spec.ts:47:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (494ms)
+  ✓   7 tests/site/hotel-landing.spec.ts:65:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (358ms)
+  ✓   8 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 1440 (953ms)
+  ✓   9 tests/site/hotel-landing.spec.ts:90:3 › доступность и вёрстка: light, 1440 (1.1s)
+  ✓  10 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 1440 (992ms)
+  ✓  11 tests/site/hotel-landing.spec.ts:90:3 › доступность и вёрстка: dark, 1440 (1.1s)
+  ✓  12 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: light, 390 (836ms)
+  ✓  13 tests/site/hotel-landing.spec.ts:90:3 › доступность и вёрстка: light, 390 (902ms)
+  ✓  14 tests/site/restaurant-landing.spec.ts:72:3 › доступность и вёрстка: dark, 390 (852ms)
+  ✓  16 tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (299ms)
+  ✓  17 tests/site/salon-landing.spec.ts:34:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (389ms)
+  ✓  15 tests/site/hotel-landing.spec.ts:90:3 › доступность и вёрстка: dark, 390 (1.1s)
+  ✓  18 tests/site/salon-landing.spec.ts:49:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (295ms)
+  ✓  19 tests/site/salon-landing.spec.ts:70:3 › доступность и вёрстка: light, компьютер и телефон (1.2s)
+  ✓  20 tests/site/salon-landing.spec.ts:70:3 › доступность и вёрстка: dark, компьютер и телефон (1.4s)
+
+  20 passed (17.8s)
+
+# код выхода 0 · 19 с

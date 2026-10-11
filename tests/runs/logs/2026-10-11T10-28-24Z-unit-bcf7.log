@@ -1,0 +1,17 @@
+# Модульные (unit) · 11.10.2026 15:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит e8c2d05 (HEAD), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-28-24Z-unit-bcf7.json' 'apps/api/src/hotel/branches.test.ts' 'apps/web/src/app/branches/switch.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (11 tests) 13ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (13 tests) 8ms
+
+ Test Files  2 passed (2)
+      Tests  24 passed (24)
+   Start at  03:28:25
+   Duration  664ms (transform 65%, import 32%, tests 3%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-28-24Z-unit-bcf7.json
+
+# код выхода 0 · 1 с

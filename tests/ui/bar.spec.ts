@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, type Page, sideNav } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, sideNav, openSection } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -167,8 +167,9 @@ test('меню: «Бар» живёт в группе «Финансы», адр
   const nav = sideNav(page);
   await expect(nav.locator('.sidenav__current')).toHaveText('Финансы');
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
-  await expect(nav.locator('.sidenav__sub').getByRole('link', { name: 'Оплаты и касса', exact: true })).toBeVisible();
-  await expect(nav.locator('.sidenav__sub').getByRole('link', { name: 'Бар', exact: true })).toHaveAttribute('aria-current', 'page');
+  await openSection(page, 'Финансы');
+  await expect(nav.locator('.sidenav__items').getByRole('link', { name: 'Оплаты и касса', exact: true })).toBeVisible();
+  await expect(nav.locator('.sidenav__items').getByRole('link', { name: 'Бар', exact: true })).toHaveAttribute('aria-current', 'page');
 });
 
 test('новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом', async ({ page }) => {

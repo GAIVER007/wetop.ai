@@ -20,6 +20,10 @@ export function BranchForm({ id }: { id: string }) {
           <input type="radio" name="vertical" value="BEAUTY" />
           Салон красоты или студия
         </label>
+        <label>
+          <input type="radio" name="vertical" value="FOOD_SERVICE" />
+          Кафе или ресторан
+        </label>
       </fieldset>
       <label>
         Название филиала
@@ -59,8 +63,8 @@ export function BranchForm({ id }: { id: string }) {
       </label>
       <p className="muted">
         Создаётся пустой филиал. Номера, брони и подключения других объектов не копируются.
-        Добавление не подтверждает оплату подписки. У салона номеров и броней нет вовсе: записи, мастера и
-        услуги в нём ещё настраиваются.
+        Добавление не подтверждает оплату подписки. У салона номеров и броней нет вовсе: записи,
+        мастера и услуги в нём ещё настраиваются.
       </p>
       {state?.error && <p role="alert">{state.error}</p>}
       {state?.message && <p role="status">{state.message}</p>}

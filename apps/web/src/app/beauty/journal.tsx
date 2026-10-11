@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Badge, Button, EmptyState, Field, Select } from '../../components/ui';
+import { Badge, Button, Field, Select } from '../../components/ui';
 import type {
   BeautyAppointmentRow,
   BeautyCustomerRow,
@@ -51,16 +51,23 @@ export function JournalBoard({
     setPanel(null);
     router.refresh();
   };
-  const column = (employee: BeautyDayColumn) => (
-    <div className="beauty-col-body" style={{ height }}>
+  const column = (employee?: BeautyDayColumn) => (
+    <div
+      className="beauty-col-body"
+      style={{ height }}
+      data-testid={employee ? undefined : 'beauty-empty-timeline'}
+      aria-label={employee ? undefined : 'Расписание без назначенных мастеров'}
+    >
       {slots.map((m) => {
         const works =
+          !!employee &&
           !employee.timeOff &&
           employee.intervals.some(
             (i) => clockMinutes(i.timeFrom) <= m && m + STEP <= clockMinutes(i.timeTo),
           );
         const occupied = live.some(
           (a) =>
+            employee !== undefined &&
             a.employeeId === employee.id &&
             a.status !== 'NO_SHOW' &&
             a.startMinutes < m + STEP &&
@@ -69,10 +76,10 @@ export function JournalBoard({
         return (
           <div
             key={m}
-            className={`beauty-slot${works ? '' : ' beauty-slot--off'}`}
+            className={`beauty-slot${!employee || works ? '' : ' beauty-slot--off'}`}
             style={{ top: (m - from) * PX_PER_MIN, height: STEP * PX_PER_MIN }}
           >
-            {works && !occupied && (
+            {employee && works && !occupied && (
               <button
                 type="button"
                 className="beauty-slot-free"
@@ -85,7 +92,7 @@ export function JournalBoard({
         );
       })}
       {live
-        .filter((a) => a.employeeId === employee.id)
+        .filter((a) => employee !== undefined && a.employeeId === employee.id)
         .map((a) => (
           <button
             key={a.id}
@@ -119,6 +126,7 @@ export function JournalBoard({
       ))}
     </div>
   );
+  const emptyTimeline = column();
   return (
     <>
       <div className="beauty-bar">
@@ -134,47 +142,51 @@ export function JournalBoard({
         {live.length ? `Записей: ${live.length}` : 'Записей на этот день нет'} /{' '}
         {day.location.timezone}
       </p>
-      {!live.length && (!columns.length || !day.services.length) ? (
-        <EmptyState
-          title="Пока нечего показывать"
-          actions={
-            <Link className="btn btn--secondary" href="/services">
-              Добавить услугу
-            </Link>
-          }
+      {(!columns.length || !day.services.length) && (
+        <p className="beauty-note" role="status">
+          Для новой записи нужны услуги и мастера с рабочим графиком.{' '}
+          {!day.services.length && <Link href="/services">Добавить услугу</Link>}{' '}
+          {!columns.length && <Link href="/employees">Добавить мастера</Link>}
+        </p>
+      )}
+      <>
+        <div
+          className="beauty-grid-day"
+          data-testid="beauty-grid"
+          style={{
+            gridTemplateColumns: `56px repeat(${Math.max(1, columns.length)}, minmax(180px, 1fr))`,
+          }}
         >
-          Добавьте услуги и мастеров, чтобы начать принимать записи.
-        </EmptyState>
-      ) : (
-        <>
-          <div
-            className="beauty-grid-day"
-            data-testid="beauty-grid"
-            style={{
-              gridTemplateColumns: `56px repeat(${columns.length}, minmax(180px, 1fr))`,
-            }}
-          >
-            <div aria-hidden="true" />
-            {columns.map((e) => (
-              <h2 key={e.id} className="beauty-col-head">
-                {e.name}
-                <small>
-                  {e.timeOff ? (
-                    <Badge>{e.timeOffReason || 'Отсутствие'}</Badge>
-                  ) : e.intervals.length ? (
-                    e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ')
-                  ) : (
-                    'Выходной'
-                  )}
-                </small>
-              </h2>
-            ))}
-            {hours}
-            {columns.map((e) => (
-              <div key={e.id}>{column(e)}</div>
-            ))}
-          </div>
-          <div className="beauty-mobile-calendar" data-testid="beauty-mobile-calendar">
+          <div aria-hidden="true" />
+          {!columns.length && <h2 className="beauty-col-head">Расписание дня</h2>}
+          {columns.map((e) => (
+            <h2 key={e.id} className="beauty-col-head">
+              {e.name}
+              <small>
+                {e.timeOff ? (
+                  <Badge>{e.timeOffReason || 'Отсутствие'}</Badge>
+                ) : e.intervals.length ? (
+                  e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ')
+                ) : (
+                  'Выходной'
+                )}
+              </small>
+            </h2>
+          ))}
+          {hours}
+          {!columns.length && emptyTimeline}
+          {columns.map((e) => (
+            <div key={e.id}>{column(e)}</div>
+          ))}
+        </div>
+        <div className="beauty-mobile-calendar" data-testid="beauty-mobile-calendar">
+          {!columns.length && (
+            <div className="beauty-mobile-timeline">
+              {hours}
+              {emptyTimeline}
+            </div>
+          )}
+          {!!columns.length && (
             <Field label="Мастер календаря">
               <Select value={selected} onChange={(e) => setSelected(e.target.value)}>
                 {columns.map((e) => (
@@ -185,25 +197,24 @@ export function JournalBoard({
                 ))}
               </Select>
             </Field>
-            {columns
-              .filter((e) => e.id === selected)
-              .map((e) => (
-                <div key={e.id}>
-                  <p className="beauty-note">
-                    {e.timeOff
-                      ? e.timeOffReason || 'Отсутствие'
-                      : e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') ||
-                        'Выходной'}
-                  </p>
-                  <div className="beauty-mobile-timeline">
-                    {hours}
-                    {column(e)}
-                  </div>
+          )}
+          {columns
+            .filter((e) => e.id === selected)
+            .map((e) => (
+              <div key={e.id}>
+                <p className="beauty-note">
+                  {e.timeOff
+                    ? e.timeOffReason || 'Отсутствие'
+                    : e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') || 'Выходной'}
+                </p>
+                <div className="beauty-mobile-timeline">
+                  {hours}
+                  {column(e)}
                 </div>
-              ))}
-          </div>
-        </>
-      )}
+              </div>
+            ))}
+        </div>
+      </>
       <Overlay
         open={panel !== null}
         onClose={() => setPanel(null)}

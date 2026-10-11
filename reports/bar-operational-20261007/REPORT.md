@@ -1,6 +1,6 @@
 # BAR financial acceptance candidate
 
-Current candidate: fresh-main base `db87145d58341d1df064f6eae15d27672abd4d29`, migration `20261011000084_bar_financial_replay`, 90 migration directories. Earlier migration numbers and results below are historical checkpoints.
+Current candidate: fresh-main base `014b0ee0399a8c9efeefe88933254c41527c6c4b`, migration `20261011000084_bar_financial_replay`, 90 migration directories. Earlier migration numbers and results below are historical checkpoints.
 
 Status: implementation candidate. This document records local evidence at the candidate commit; the exact-SHA full GitHub CI and final readiness are recorded in the PR manifest. This report does not authorize merge, release, migration or production deployment.
 
@@ -138,3 +138,10 @@ Synced local BAR replay `2026-10-11T10-37-44Z-e2e-7d0f`: nine PASS, one login re
 Post-navigation BAR replay `2026-10-11T10-51-34Z-e2e-1b06`: eight PASS, two role cases reached the unchanged 90-second test deadline during page.goto (products/suppliers). Login redirect recovery passed. Mac telemetry at this run: encrypted swap 16 GB used of 16 GB, zero free; load about 10. Foreign processes were not touched. This local partial run is disclosed, not described as full GREEN; the exact-head disposable Linux CI must prove the complete ten-case role/replay matrix.
 
 Final synced checks: root/API/web types PASS `2026-10-11T10-59-45Z-typecheck-a095`; lint PASS `10-59-59Z-lint-4a8b`. All targeted UI failures have causal RED/GREEN evidence. Final exact-head CI is still required for full readiness.
+
+
+Complete exact-head GREEN: `91febbbe9d2603bd60f55b8fa5eb0637b131a119`, workflow `38134287789`, including the full general UI gate. Main advanced to `014b0ee0399a8c9efeefe88933254c41527c6c4b` during the run. Its changes include shared compact navigation, Food/Beauty workspaces and site updates, without BAR/Finance, schema or migrations. The only textual merge conflict was DECISIONS.md; both complete decisions were retained. Synced BAR browser `2026-10-11T11-48-20Z-e2e-3fbe` passed all ten cases locally, source unchanged.
+
+Fresh-main design guard RED `2026-10-11T11-47-28Z-unit-b726` found four upstream violations: 2px literal navigation gap, unapproved 1250px breakpoint and two duplicate dynamic inline geometries in the empty Beauty timeline. Gap now uses the approved spacing token, breakpoint uses 1279px, and empty/full Beauty timelines share the existing geometry renderer, without a fictitious master or newly enabled booking. No baseline, guard or assertion was changed. Initial corrected targeted unit GREEN `11-51-31Z-unit-0901`: 35 PASS. Final synchronized-head checks and a new full CI are required; the earlier complete GREEN is explicitly historical.
+
+Final corrected merge-tree checks: targeted unit 35 PASS `2026-10-11T11-52-25Z-unit-3455`, root/API/web types PASS `11-52-25Z-typecheck-2a5e`, lint PASS `11-52-25Z-lint-932b`. No source changed during those runs. Final exact-head CI and production access remain outstanding.

@@ -1,7 +1,12 @@
 import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: '.',
-  testMatch: ['guest-wizard-generate.spec.ts', 'guest-wizard-scan.spec.ts', 'guest-wizard.spec.ts'],
+  testMatch: [
+    'guest-wizard-chat.spec.ts',
+    'guest-wizard-generate.spec.ts',
+    'guest-wizard-scan.spec.ts',
+    'guest-wizard.spec.ts',
+  ],
   workers: 1,
   projects: ['light', 'dark'].flatMap((theme) =>
     [390, 1440].map((width) => ({

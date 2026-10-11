@@ -1,4 +1,7 @@
 import 'reflect-metadata';
+import { maskContacts } from '@pms/shared';
+import type { Prisma } from '@pms/database';
+import { chatPayload } from './wizard-chat-state';
 import { createHash, randomBytes } from 'node:crypto';
 import {
   BadRequestException,
@@ -64,6 +67,12 @@ export class WizardService {
     return {
       scanSiteKey:
         process.env.WIZARD_SCAN_ENABLED === '1' &&
+        process.env.TURNSTILE_SECRET_KEY &&
+        process.env.WIZARD_PUBLIC_HOST
+          ? (process.env.TURNSTILE_SITE_KEY ?? null)
+          : null,
+      chatSiteKey:
+        process.env.WIZARD_CHAT_ENABLED === '1' &&
         process.env.TURNSTILE_SECRET_KEY &&
         process.env.WIZARD_PUBLIC_HOST
           ? (process.env.TURNSTILE_SITE_KEY ?? null)
@@ -244,6 +253,72 @@ export class WizardService {
       return { id: job.id, state: job.state };
     });
   }
+  async message(token: string | undefined, body: unknown, ipHash: string) {
+    const row = await this.session(token);
+    if (process.env.WIZARD_CHAT_ENABLED !== '1')
+      throw new ServiceUnavailableException('Тестовый чат пока не включён');
+    if (!body || typeof body !== 'object' || Array.isArray(body))
+      throw new BadRequestException('Проверьте сообщение');
+    const input = body as Record<string, unknown>;
+    if (
+      Object.keys(input).some(
+        (key) => !['requestId', 'text', 'revision', 'challenge'].includes(key),
+      ) ||
+      typeof input.requestId !== 'string' ||
+      !/^[a-zA-Z0-9_-]{1,64}$/.test(input.requestId) ||
+      typeof input.text !== 'string' ||
+      !input.text.trim() ||
+      input.text.length > 2000 ||
+      !Number.isSafeInteger(input.revision)
+    )
+      throw new BadRequestException('Проверьте сообщение');
+    const requestId = input.requestId;
+    const text = maskContacts(input.text.trim());
+    const textHash = hash(input.text.trim());
+    if (!this.saves.allow(row.id, Date.now()))
+      throw new HttpException(TOO_MANY_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
+    return this.prisma.db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM wizard_drafts WHERE id = ${row.draft.id}::uuid FOR UPDATE`;
+      const fresh = await tx.wizardDraft.findUniqueOrThrow({ where: { id: row.draft.id } });
+      const key = `chat:${row.id}:${requestId}`;
+      const existing = await tx.wizardEvent.findUnique({ where: { deduplicationKey: key } });
+      if (existing) {
+        const payload = chatPayload(existing.payload);
+        if (payload.textHash !== textHash || payload.revision !== input.revision)
+          throw new ConflictException('Повторный запрос изменён');
+        return { requestId, state: payload.state };
+      }
+      if (fresh.agentId || fresh.revision !== input.revision)
+        throw new ConflictException('Черновик изменился. Обновите страницу');
+      if (fresh.generatedRevision !== fresh.revision || !fresh.generatedPrompt)
+        throw new ConflictException('Сначала соберите помощника по актуальным данным');
+      const reserved = await tx.wizardDraft.updateMany({
+        where: { id: fresh.id, testMessagesUsed: { lt: 5 } },
+        data: { testMessagesUsed: { increment: 1 } },
+      });
+      if (!reserved.count) throw new HttpException('Использованы все пять тестовых сообщений', 402);
+      await tx.wizardMessage.create({
+        data: { draftId: fresh.id, requestId, role: 'user', text, state: 'queued' },
+      });
+      await tx.wizardEvent.create({
+        data: {
+          guestSessionId: row.id,
+          eventType: 'chat_requested',
+          deduplicationKey: key,
+          payload: {
+            requestId,
+            revision: fresh.revision,
+            ipHash,
+            textHash,
+            state: 'queued',
+            attempt: 0,
+            leaseUntil: 0,
+          },
+        },
+      });
+      return { requestId, state: 'queued' };
+    });
+  }
   async scanStatus(token: string | undefined) {
     return this.prisma.db.$transaction(
       async (tx) => {
@@ -258,6 +333,7 @@ export class WizardService {
         });
         return {
           ...this.view(row),
+          chat: await this.chatView(tx, row),
           generationsUsed: await tx.wizardJob.count({
             where: { draftId: row.draft.id, kind: 'generate' },
           }),
@@ -282,6 +358,54 @@ export class WizardService {
       },
       { isolationLevel: 'RepeatableRead' },
     );
+  }
+  private async chatView(
+    tx: Prisma.TransactionClient,
+    row: Awaited<ReturnType<WizardService['session']>>,
+  ) {
+    const events = await tx.wizardEvent.findMany({
+      where: {
+        guestSessionId: row.id,
+        eventType: 'chat_requested',
+        payload: { path: ['revision'], equals: row.draft.revision },
+      },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    });
+    const requests = events.map((event) => chatPayload(event.payload));
+    const messages = await tx.wizardMessage.findMany({
+      where: {
+        draftId: row.draft.id,
+        requestId: { in: requests.map((item) => item.requestId) },
+        state: { in: ['queued', 'running', 'succeeded'] },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 10,
+    });
+    return {
+      enabled: process.env.WIZARD_CHAT_ENABLED === '1',
+      used: row.draft.testMessagesUsed,
+      limit: 5,
+      messages: requests
+        .flatMap((request) =>
+          ['user', 'assistant'].flatMap((role) =>
+            messages.filter((m) => m.requestId === request.requestId && m.role === role),
+          ),
+        )
+        .map((message) => ({
+          requestId: message.requestId,
+          role: message.role,
+          text: message.text,
+          state: message.state,
+          sources:
+            message.role === 'assistant'
+              ? (requests.find((item) => item.requestId === message.requestId)?.sources ?? [])
+              : [],
+        })),
+      failed: requests
+        .filter((item) => item.state === 'failed')
+        .slice(-5)
+        .map((item) => item.requestId),
+    };
   }
   async quota(token: string | undefined) {
     const row = await this.session(token);

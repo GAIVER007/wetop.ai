@@ -12,7 +12,10 @@ export function GenerationStep({
   onRefresh,
   onEdit,
 }: {
-  state: Pick<WizardState, 'generation' | 'generated' | 'generationsUsed' | 'generateSiteKey'>;
+  state: Pick<
+    WizardState,
+    'generation' | 'generated' | 'generationsUsed' | 'generateSiteKey' | 'chat' | 'chatSiteKey'
+  >;
   polling: boolean;
   busy: boolean;
   onGenerate: (token: string) => void;
@@ -41,16 +44,14 @@ export function GenerationStep({
           <p>{S.generation.review}</p>
           <details>
             <summary>{S.generation.instruction}</summary>
-            <p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{result.prompt}</p>
+            <p className="guest-wizard__generated-text">{result.prompt}</p>
           </details>
           <details>
             <summary>{S.generation.knowledge}</summary>
             {result.knowledge.map((section, i) => (
               <section key={i}>
                 <h3>{section.title}</h3>
-                <p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-                  {section.content}
-                </p>
+                <p className="guest-wizard__generated-text">{section.content}</p>
               </section>
             ))}
           </details>

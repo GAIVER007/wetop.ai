@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { WizardChatWorker } from './wizard-chat-worker';
 import { TurnstileService } from '../web-booking/turnstile';
 import { Module } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
@@ -20,6 +21,7 @@ import { SellerAgentsService } from './seller-agents.service';
     WizardRetentionService,
     WizardScanWorker,
     WizardGenerateWorker,
+    WizardChatWorker,
     TurnstileService,
   ],
 })

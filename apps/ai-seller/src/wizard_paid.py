@@ -14,6 +14,7 @@ class PaidMeter:
     def __init__(self, redis, key, spent, limit):
         self.redis, self.key, self.spent, self.limit = redis, key, spent, limit
         self.paid = False
+        self.usage = {'input': 0, 'output': 0, 'paidCalls': 0, 'complete': True}
 
     async def call(self, invoke):
         if self.spent >= self.limit:
@@ -21,8 +22,15 @@ class PaidMeter:
         # Keep the whole remainder reserved if a provider's usage or outcome is unknown.
         await self.redis.set(self.key, self.limit, ex=TTL)
         self.paid = True
-        result = await invoke(self.limit - self.spent)
+        try:
+            result = await invoke(self.limit - self.spent)
+        except BaseException:
+            self.usage['complete'] = False
+            raise
         usage = result['usage']
+        for name in ('input', 'output', 'paidCalls'):
+            self.usage[name] += usage.get(name, 0)
+        self.usage['complete'] = self.usage['complete'] and usage['complete']
         if usage['complete']:
             self.spent += usage['input'] + usage['output']
             await self.redis.set(self.key, self.spent, ex=TTL)
@@ -56,7 +64,8 @@ async def paid_job(settings, redis, body, kind: str, operation) -> tuple[int, di
         if state['digest'] != digest:
             return 409, {'status': 'error', 'errorCode': 'REQUEST_CONFLICT'}
         return state['http'], state['result']
-    if await _limited(redis, f'wizard:session:{body.sessionId}', 5) or await _limited(redis, f'wizard:ip:{body.ipHash}', 20):
+    session_key = f'wizard:chat-session:{body.sessionId}' if kind == 'chat' else f'wizard:session:{body.sessionId}'
+    if await _limited(redis, session_key, 5) or await _limited(redis, f'wizard:ip:{body.ipHash}', 20):
         return 429, {'status': 'error', 'errorCode': 'RATE_LIMITED'}
     owner = uuid.uuid4().hex
     if not await redis.set(lock_key, owner, nx=True, ex=120):
@@ -80,7 +89,10 @@ async def paid_job(settings, redis, body, kind: str, operation) -> tuple[int, di
             async with asyncio.timeout(85):
                 result = await operation(meter)
         except Exception:
+            if meter.paid:
+                meter.usage['complete'] = False
             result = {'status': 'error', 'errorCode': 'RESULT_UNKNOWN' if meter.paid else 'UNAVAILABLE'}
+        result['usage'] = meter.usage
         await redis.set(job_key, json.dumps({'digest': digest, 'http': http, 'result': result}), ex=JOB_TTL)
         return http, result
     finally:

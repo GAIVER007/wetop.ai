@@ -197,6 +197,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(wizard_scan_router.router)
     from src import wizard_generate_router
     app.include_router(wizard_generate_router.router)
+    from src import wizard_chat_router
+    app.include_router(wizard_chat_router.router)
     # Виджет на сайте: префикс /widget уже под IpBlockMiddleware.
     app.include_router(widget_channel.router)
     # WhatsApp Cloud API: вебхук под организацией (С3); подпись проверяет дверь

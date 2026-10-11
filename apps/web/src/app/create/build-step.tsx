@@ -1,14 +1,13 @@
 'use client';
 import { useState } from 'react';
+import { ChatStep } from './chat-step';
 import { GenerationStep } from './generation-step';
 import type { WizardState } from '../../lib/wizard-types';
 import { S } from './strings';
 
-/**
- * Шаг «Сборка»: опрос из трёх вопросов, пока (в следующих срезах) бот собирается. Каждый вопрос необязателен,
- * «Пропустить» закрывает опрос одним нажатием. Тест бота подключается срезом O4, поэтому кнопка пока неактивна.
- */
+/** Сборка, необязательный опрос и тест по актуальной инструкции и знаниям. */
 export function BuildStep({
+  onMessage,
   onAnswers,
   onClaim,
   claimDisabled,
@@ -19,12 +18,13 @@ export function BuildStep({
   onRefresh,
   onEdit,
 }: {
+  onMessage: (text: string, requestId: string, challenge: string) => Promise<boolean>;
   onAnswers: (answers: Record<string, string>) => void;
   onClaim: () => void;
   claimDisabled: boolean;
   generationState: Pick<
     WizardState,
-    'generation' | 'generated' | 'generationsUsed' | 'generateSiteKey'
+    'generation' | 'generated' | 'generationsUsed' | 'generateSiteKey' | 'chat' | 'chatSiteKey'
   >;
   generationPolling: boolean;
   busy: boolean;
@@ -55,6 +55,17 @@ export function BuildStep({
         onRefresh={onRefresh}
         onEdit={onEdit}
       />
+      {generationState.generated &&
+        generationState.chat?.enabled &&
+        generationState.chatSiteKey && (
+          <ChatStep
+            state={generationState.chat}
+            siteKey={generationState.chatSiteKey}
+            busy={busy}
+            onMessage={onMessage}
+            onRefresh={onRefresh}
+          />
+        )}
       <span className="guest-wizard__eyebrow">{S.build.eyebrow}</span>
       <h2>{done ? S.build.thanks : S.build.title}</h2>
       {!done && question ? (
@@ -100,14 +111,16 @@ export function BuildStep({
       ) : (
         <section aria-label="Тест бота">
           {!generationState.generateSiteKey && <p>{S.build.soonText}</p>}
-          <div className="guest-wizard__actions">
-            <button type="button" className="btn" disabled aria-describedby="test-soon">
-              {S.build.testBtn}
-            </button>
-            <span id="test-soon" className="guest-wizard__note">
-              {S.build.testSoon}
-            </span>
-          </div>
+          {!generationState.chat?.enabled && (
+            <div className="guest-wizard__actions">
+              <button type="button" className="btn" disabled aria-describedby="test-soon">
+                {S.build.testBtn}
+              </button>
+              <span id="test-soon" className="guest-wizard__note">
+                {S.build.testSoon}
+              </span>
+            </div>
+          )}
           <div className="guest-wizard__actions">
             <button
               type="button"

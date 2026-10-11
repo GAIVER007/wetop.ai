@@ -25,6 +25,7 @@ function normalizeUrl(raw: string): string {
 
 export function GuestWizard() {
   const {
+    sendMessage,
     generationState,
     generationPolling,
     generate,
@@ -283,6 +284,7 @@ export function GuestWizard() {
             </>
           ) : (
             <BuildStep
+              onMessage={sendMessage}
               onAnswers={(answers) => void sendSurvey(answers)}
               onClaim={() => void claim()}
               claimDisabled={

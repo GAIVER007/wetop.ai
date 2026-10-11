@@ -3310,6 +3310,10 @@ const ipHeader = (ip?: string | null): Record<string, string> =>
 
 /** Fixed guest operations: no browser-supplied backend path or credentials. */
 export const wizardApi = {
+  message: (token: string, body: unknown, ip?: string | null) =>
+    sendJson<{ requestId: string; state: string }>('POST', '/wizard/message', body, {
+      'x-wizard-token': token, ...ipHeader(ip),
+    }),
   generate: (token: string, body: unknown, ip?: string | null) =>
     sendJson<{ id: string; state: string }>('POST', '/wizard/generate', body, {
       'x-wizard-token': token, ...ipHeader(ip),

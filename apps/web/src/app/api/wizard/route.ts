@@ -34,6 +34,8 @@ export async function POST(request: Request) {
     answers?: unknown;
     type?: unknown;
     challenge?: unknown;
+    text?: unknown;
+    requestId?: unknown;
   };
   try {
     body = JSON.parse(raw);
@@ -48,6 +50,19 @@ export async function POST(request: Request) {
   if (token && !/^wz_[a-f0-9]{64}$/.test(token))
     return json({ message: 'Сессия мастера недействительна' }, 401);
   try {
+    if (body.operation === 'message')
+      return json(
+        await wizardApi.message(
+          token,
+          {
+            text: body.text,
+            requestId: body.requestId,
+            revision: body.revision,
+            challenge: body.challenge,
+          },
+          request.headers.get('cf-connecting-ip'),
+        ),
+      );
     if (body.operation === 'generate')
       return json(
         await wizardApi.generate(

@@ -102,6 +102,42 @@ export class WizardController {
         .digest('hex'),
     );
   }
+  @Post('message')
+  @Header('Cache-Control', 'no-store')
+  async message(
+    @Headers('x-wizard-token') token: string | undefined,
+    @Body()
+    body:
+      { revision?: unknown; challenge?: unknown; text?: unknown; requestId?: unknown } | undefined,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    const secret = process.env.TURNSTILE_SECRET_KEY;
+    const host = process.env.WIZARD_PUBLIC_HOST;
+    if (
+      process.env.WIZARD_CHAT_ENABLED !== '1' ||
+      !secret ||
+      !host ||
+      !process.env.TURNSTILE_SITE_KEY
+    )
+      throw new ServiceUnavailableException('Тестовый чат пока не включён');
+    await this.wizard.status(token);
+    const ip = visitorIp(socketIp, cfConnectingIp);
+    const verdict = await this.turnstile.verify(body?.challenge, {
+      ip,
+      allowedHosts: [host],
+      action: 'wizard',
+      requireBinding: true,
+    });
+    if (!verdict.ok) throw turnstileFailureError(verdict.reason);
+    return this.wizard.message(
+      token,
+      body,
+      createHmac('sha256', secret)
+        .update(ip ?? 'unknown')
+        .digest('hex'),
+    );
+  }
   @Get('scan')
   @Header('Cache-Control', 'no-store')
   scanStatus(@Headers('x-wizard-token') token: string | undefined) {

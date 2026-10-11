@@ -133,3 +133,11 @@ async def test_paid_dedup_outlives_longest_live_session(env):
     await generator.generate(settings, redis, body())
     # A crashed worker can be recovered after two days in a 30-day session.
     assert await redis.ttl('wizard:generate:session1:job1') >= 2591999
+
+async def test_usage_reports_both_generation_passes(env):
+    redis, settings, model = env
+    _, result = await generator.generate(settings, redis, body())
+    assert result['usage']['input'] == 200
+    assert result['usage']['output'] == 40
+    assert result['usage']['paidCalls'] == 2
+    assert result['usage']['complete'] is True

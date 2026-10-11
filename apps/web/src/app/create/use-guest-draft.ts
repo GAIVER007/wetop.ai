@@ -32,7 +32,10 @@ async function call<T = WizardState>(body: unknown): Promise<T> {
 
 export function useGuestDraft() {
   const [generationState, setGenerationState] = useState<
-    Pick<WizardState, 'generation' | 'generated' | 'generationsUsed' | 'generateSiteKey'>
+    Pick<
+      WizardState,
+      'generation' | 'generated' | 'generationsUsed' | 'generateSiteKey' | 'chat' | 'chatSiteKey'
+    >
   >({});
   const [generationPolling, setGenerationPolling] = useState(false);
   const generationEpoch = useRef(0);
@@ -73,7 +76,8 @@ export function useGuestDraft() {
       }
       setGenerationState(state);
       setGenerationPolling(
-        !!state.generation && ['queued', 'running'].includes(state.generation.state),
+        (!!state.generation && ['queued', 'running'].includes(state.generation.state)) ||
+          !!state.chat?.messages.some((m) => ['queued', 'running'].includes(m.state)),
       );
       setScanSiteKey(state.scanSiteKey ?? null);
       if (state.scan && ['queued', 'running'].includes(state.scan.state)) {
@@ -256,7 +260,10 @@ export function useGuestDraft() {
         const state = await call({ operation: 'scan-status', token: token.current });
         if (stopped || epoch !== generationEpoch.current) return;
         setGenerationState(state);
-        if (state.generation && ['queued', 'running'].includes(state.generation.state))
+        if (
+          (state.generation && ['queued', 'running'].includes(state.generation.state)) ||
+          state.chat?.messages.some((m) => ['queued', 'running'].includes(m.state))
+        )
           timer = setTimeout(() => void poll(), 1500);
         else setGenerationPolling(false);
       } catch {
@@ -292,6 +299,30 @@ export function useGuestDraft() {
       setGenerationPolling(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : S.generation.failed);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendMessage(text: string, requestId: string, challenge: string) {
+    if (busy || dirty || saving.current) return false;
+    setBusy(true);
+    setError('');
+    try {
+      await call({
+        operation: 'message',
+        token: token.current,
+        revision: revision.current,
+        text,
+        requestId,
+        challenge,
+      });
+      setGenerationState(await call({ operation: 'scan-status', token: token.current }));
+      setGenerationPolling(true);
+      return true;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Не удалось отправить сообщение');
+      return false;
     } finally {
       setBusy(false);
     }
@@ -338,6 +369,7 @@ export function useGuestDraft() {
     }
   }
   return {
+    sendMessage,
     generationState,
     generationPolling,
     generate,

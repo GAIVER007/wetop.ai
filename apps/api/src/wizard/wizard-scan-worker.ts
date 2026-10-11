@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { wizardUsage } from './wizard-usage';
 import { Inject, Injectable, type OnModuleDestroy, type OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
 import { sellerConfigFromEnv } from '../ai-seller/seller.connection';
@@ -6,6 +7,7 @@ import { wizardConfig } from './wizard-input';
 
 type ScanResult = {
   status: string;
+  usage?: unknown;
   fields?: {
     businessName: string;
     niche: string;
@@ -152,7 +154,7 @@ export class WizardScanWorker implements OnModuleInit, OnModuleDestroy {
               guestSessionId: job.draft.guestSessionId,
               eventType: 'scan_finished',
               deduplicationKey: `scan-finished:${job.id}`,
-              payload: { status: result.status },
+              payload: { status: result.status, usage: wizardUsage(result.usage) },
             },
           ],
           skipDuplicates: true,

@@ -52,14 +52,14 @@ const locationSelect = {
   businessId: true,
 } as const;
 
-/** Creation contract remains Hospitality/Beauty; Food is exposed only by the read projection. */
-export type BranchVertical = 'HOSPITALITY' | 'BEAUTY';
+/** Все направления используют один аккаунт и проверенные права организации. */
+export type BranchVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
 
 /** Вертикаль из тела запроса. Не указана, значит гостиница, как было до среза B2 (Q-256) */
 export function parseBranchVertical(raw: unknown): BranchVertical {
   if (raw === undefined || raw === null || raw === '') return 'HOSPITALITY';
-  if (raw === 'HOSPITALITY' || raw === 'BEAUTY') return raw;
-  throw new BadRequestException('Выберите направление: гостиница или салон красоты');
+  if (raw === 'HOSPITALITY' || raw === 'BEAUTY' || raw === 'FOOD_SERVICE') return raw;
+  throw new BadRequestException('Выберите направление: гостиница, салон красоты или ресторан');
 }
 
 /** Canonical read shape for Beauty/Food Locations, without Hospitality inventory. */
@@ -166,7 +166,8 @@ export class BranchesService {
     }
     if (!timezone) throw new BadRequestException('Укажите часовой пояс');
     const vertical = parseBranchVertical(body.vertical);
-    if (vertical === 'BEAUTY') return this.createSalon({ id, name, address, currency, timezone });
+    if (vertical !== 'HOSPITALITY')
+      return this.createServiceBranch({ id, name, address, currency, timezone }, vertical);
     return this.prisma.db.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT 1 FROM organizations WHERE id = ${organizationId}::uuid FOR UPDATE`;
       const existing = await tx.property.findFirst({ where: { id, organizationId }, select });
@@ -211,13 +212,16 @@ export class BranchesService {
    * Филиал салона (срез B2, Q-256): цепочка Organization → Business (BEAUTY) → Location, объекта нет.
    * Повтор того же запроса возвращает тот же филиал, как у гостиницы: повторное нажатие не плодит салоны.
    */
-  private async createSalon(data: {
-    id: string;
-    name: string;
-    address: string;
-    currency: string;
-    timezone: string;
-  }) {
+  private async createServiceBranch(
+    data: {
+      id: string;
+      name: string;
+      address: string;
+      currency: string;
+      timezone: string;
+    },
+    vertical: 'BEAUTY' | 'FOOD_SERVICE' = 'BEAUTY',
+  ) {
     const organizationId = this.organization();
     return this.prisma.db.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT 1 FROM organizations WHERE id = ${organizationId}::uuid FOR UPDATE`;
@@ -226,6 +230,12 @@ export class BranchesService {
         select: locationSelect,
       });
       if (existing) {
+        const business = await tx.business.findFirst({
+          where: { id: existing.businessId, organizationId, vertical, status: 'ACTIVE' },
+          select: { id: true },
+        });
+        if (!business)
+          throw new ConflictException('Этот филиал другого направления. Обновите форму.');
         if (
           existing.name !== data.name ||
           (existing.address ?? '') !== data.address ||
@@ -235,22 +245,28 @@ export class BranchesService {
           throw new ConflictException(
             'Этот запрос уже сохранён с другими данными. Обновите страницу перед повтором.',
           );
-        return locationBranch(existing);
+        return locationBranch(existing, vertical);
       }
-      const location = await createBeautyLocationInChain(tx, organizationId, {
-        id: data.id,
-        name: data.name,
-        address: data.address || null,
-        timezone: data.timezone,
-        currency: data.currency,
-      });
+      const location = await createBeautyLocationInChain(
+        tx,
+        organizationId,
+        {
+          id: data.id,
+          name: data.name,
+          address: data.address || null,
+          timezone: data.timezone,
+          currency: data.currency,
+        },
+        vertical,
+      );
       await tx.auditLog.create({
         data: {
           organizationId,
           userId: currentUserId(),
           entityType: 'location',
           entityId: location.id,
-          action: 'location.salon_created',
+          action:
+            vertical === 'FOOD_SERVICE' ? 'location.restaurant_created' : 'location.salon_created',
           after: {
             name: data.name,
             businessId: location.businessId,
@@ -259,7 +275,7 @@ export class BranchesService {
           },
         },
       });
-      return locationBranch({ ...location, address: location.address ?? null });
+      return locationBranch({ ...location, address: location.address ?? null }, vertical);
     });
   }
 }

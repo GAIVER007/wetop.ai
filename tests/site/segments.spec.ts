@@ -12,6 +12,7 @@ const SEGMENTS = [
   { path: '/for/hostels/', title: /хостел/i, mustHave: /койк/i, ...HOTEL },
   { path: '/for/mini-hotels/', title: /мини-отел/i, mustHave: /категори/i, ...HOTEL },
   { path: '/for/apart-hotels/', title: /апарт/i, mustHave: /апартамент/i, ...HOTEL },
+  { path: '/for/beauty-salons/', title: /салон красоты/i, mustHave: /косметолог/i, ...BEAUTY },
   { path: '/for/barbershops/', title: /барбершоп/i, mustHave: /барбер/i, ...BEAUTY },
   { path: '/for/spa/', title: /спа/i, mustHave: /процедур/i, ...BEAUTY },
   { path: '/for/nail-studios/', title: /ногтев/i, mustHave: /маникюр/i, ...BEAUTY },
@@ -66,7 +67,7 @@ test('карточки направлений на главной ведут н�
 test('страницы направлений ведут карточками на свои типы бизнеса', async ({ page }) => {
   for (const [direction, types] of [
     ['/for/hotels/', ['/for/hostels/', '/for/mini-hotels/', '/for/apart-hotels/']],
-    ['/for/salons/', ['/for/barbershops/', '/for/spa/', '/for/nail-studios/']],
+    ['/for/salons/', ['/for/beauty-salons/', '/for/barbershops/', '/for/spa/', '/for/nail-studios/']],
     ['/for/restaurants/', ['/for/cafes/', '/for/bars/']],
   ] as const) {
     await page.goto(direction);

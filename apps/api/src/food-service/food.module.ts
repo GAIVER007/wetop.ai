@@ -66,6 +66,9 @@ export class FoodReservationsController {
   @Get('customers') customers(@Query() q: Record<string, unknown>) {
     return this.service.customers(q);
   }
+  @Patch('customers/:id') updateCustomer(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.updateCustomer(id, b);
+  }
   @Get('reservations') list(@Query() q: Record<string, unknown>) {
     return this.service.reservations(q);
   }

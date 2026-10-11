@@ -40,6 +40,11 @@ export interface FoodCustomer {
   name?: string;
   /** Посещения (посажен или завершён) в этом филиале; «Постоянный гость» от двух (ADR-159) */
   visits?: number;
+  /** Ручная метка VIP и дата рождения (§36, ADR-166) */
+  isVip?: boolean;
+  birthDate?: string | null;
+  /** Через сколько дней день рождения по дате филиала: 0 сегодня */
+  birthdayInDays?: number | null;
 }
 export interface RestaurantReservation {
   id: string;

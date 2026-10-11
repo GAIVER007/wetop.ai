@@ -673,7 +673,7 @@ export function ChessboardGrid({
     ['FREE', 'Свободные'],
     ['OCCUPIED', 'Занятые'],
     // счётчик только у уборки: сколько мест ещё не проверено, видно до выбора (21.09)
-    ['cleaning', `Уборка ${housekeepingCount}`],
+    ['cleaning', `Уборка и проверка ${housekeepingCount}`],
     ['BLOCKED', 'Недоступны'],
   ];
   /**

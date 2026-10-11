@@ -8,7 +8,14 @@ type PageMeta = {
   path: string;
   title?: string;
   description?: string;
+  /** Картинка ссылки страницы, 1200×630 (`public/og/`, обрезка фото лендинга); без неё общая `og.png`. */
+  image?: string;
+  /** Канонический адрес, если он не сама страница: дубль отдаёт вес основной странице. */
+  canonical?: string;
 };
+
+/** Разделитель названия сайта в заголовке: виден в выдаче, поэтому не длинное тире (CLAUDE.md §5). */
+export const TITLE_SEPARATOR = ' | ';
 
 /*
  * Картинка ссылки одна на весь сайт: `public/og.png`, её рисует `scripts/site/make-og-image.mjs` из настоящих
@@ -21,15 +28,16 @@ const OG_IMAGE = { url: '/og.png', width: 1200, height: 630 };
  * OpenGraph и canonical для страницы. Next сливает metadata слоёв неглубоко: `openGraph` страницы целиком
  * заменяет `openGraph` макета, поэтому название сайта, язык и картинка добавляются здесь каждый раз.
  */
-function base({ path, title, description }: PageMeta) {
+function base({ path, title, description, image }: PageMeta) {
   const t = getDictionary();
+  const full = title ? `${title}${TITLE_SEPARATOR}${t.meta.siteName}` : t.meta.title;
   return {
     siteName: t.meta.siteName,
-    images: [{ ...OG_IMAGE, alt: title ? `${title} — ${t.meta.siteName}` : t.meta.title }],
+    images: [image ? { ...OG_IMAGE, url: image, alt: full } : { ...OG_IMAGE, alt: full }],
     locale: localeInfo().openGraphLocale,
     url: path,
-    // Как в <title>: шаблон «%s — WETOP» из макета к OpenGraph сам не применяется.
-    title: title ? `${title} — ${t.meta.siteName}` : t.meta.title,
+    // Как в <title>: шаблон «%s | WETOP.AI» из макета к OpenGraph сам не применяется.
+    title: full,
     description: description ?? t.meta.description,
   };
 }
@@ -46,7 +54,12 @@ export function pageMetadata(page: PageMeta): Metadata {
   return {
     ...(page.title ? { title: page.title } : {}),
     ...(page.description ? { description: page.description } : {}),
-    alternates: { canonical: page.path },
+    alternates: { canonical: page.canonical ?? page.path },
     openGraph: websiteOpenGraph(page),
+    // Крупная картинка в Telegram, X и мессенджерах, читающих twitter:*; заголовок и описание те же
+    twitter: {
+      card: 'summary_large_image',
+      images: [page.image ?? OG_IMAGE.url],
+    },
   };
 }

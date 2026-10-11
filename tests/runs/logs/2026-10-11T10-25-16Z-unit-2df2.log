@@ -1,0 +1,51 @@
+# Модульные (unit) · 11.10.2026 15:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит e8c2d05 (HEAD), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-25-16Z-unit-2df2.json' 'apps/api/src/hotel/branches.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ❯ |unit| apps/api/src/hotel/branches.test.ts (11 tests | 1 failed) 26ms
+   ✓ создание филиала (4)
+     ✓ сотрудник не создаёт филиал, даже вызывая сервис напрямую 3ms
+     ✓ не принимает неверный часовой пояс до записи 3ms
+     ✓ повтор с тем же UUID возвращает исходный объект 2ms
+     ✓ UUID другой формы не притворяется успешным созданием 1ms
+   ✓ создаёт пустой объект в цепочке и возвращает тот же объект при повторе 1ms
+   ✓ вертикаль филиала (4)
+     ✓ без вертикали создаётся гостиница, как было до среза 2ms
+     ✓ вертикаль BEAUTY не трогает объекты вовсе 1ms
+     ✓ незнакомое направление отклоняется до записи 2ms
+     ✓ сотрудник не создаёт и салон 0ms
+   × владелец создаёт ресторан без гостиничного объекта 8ms
+   ✓ canonical read projection includes only active owned Beauty/Food Locations 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/branches.test.ts > владелец создаёт ресторан без гостиничного объекта
+BadRequestException: Выберите направление: гостиница или салон красоты
+ ❯ parseBranchVertical apps/api/src/hotel/branches.ts:62:9
+     60|   if (raw === undefined || raw === null || raw === '') return 'HOSPITA…
+     61|   if (raw === 'HOSPITALITY' || raw === 'BEAUTY') return raw;
+     62|   throw new BadRequestException('Выберите направление: гостиница или с…
+       |         ^
+     63| }
+     64|
+ ❯ BranchesService.create apps/api/src/hotel/branches.ts:168:22
+ ❯ apps/api/src/hotel/branches.test.ts:130:42
+ ❯ apps/api/src/auth/request-context.ts:61:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:61:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:71:10
+ ❯ run apps/api/src/hotel/branches.test.ts:14:3
+ ❯ apps/api/src/hotel/branches.test.ts:130:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  03:25:18
+   Duration  1.40s (transform 68%, import 30%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-25-16Z-unit-2df2.json
+
+# код выхода 1 · 3 с

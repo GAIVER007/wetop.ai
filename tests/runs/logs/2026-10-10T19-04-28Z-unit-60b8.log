@@ -1,0 +1,21 @@
+# Модульные (unit) · 11.10.2026 00:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит cf107b0 (claude/register-country-locale), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T19-04-28Z-unit-60b8.json' 'apps/api/src/rate-window.test.ts' 'apps/api/src/auth/auth.service.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt
+
+ ✓ |unit| apps/api/src/rate-window.test.ts (6 tests) 108ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (63 tests) 7142ms
+   ✓ AuthService.login (14)
+     ✓ почта с пробелами и в верхнем регистре — тот же человек 356ms
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 537ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 401ms
+
+ Test Files  2 passed (2)
+      Tests  69 passed (69)
+   Start at  12:04:33
+   Duration  13.93s (tests 53%, transform 34%, import 13%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T19-04-28Z-unit-60b8.json
+
+# код выхода 0 · 20 с

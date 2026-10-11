@@ -1,5 +1,12 @@
 import type { IconName } from '../components/icon';
 
+export type MarketingCopy = {
+  title: string;
+  lead: string;
+  items: Array<{ icon: IconName; title: string; text: string; soon?: boolean }>;
+  note?: string;
+};
+
 /**
  * Все тексты сайта. Новый язык (казахский, английский) = новый файл рядом с ru.ts того же типа и строка
  * в src/i18n/index.ts; компоненты тексты не хранят.
@@ -8,6 +15,12 @@ export type SegmentSlug =
   | 'hostels'
   | 'mini-hotels'
   | 'apart-hotels'
+  | 'beauty-salons'
+  | 'barbershops'
+  | 'spa'
+  | 'nail-studios'
+  | 'cafes'
+  | 'bars'
   | 'hotels'
   | 'salons'
   | 'restaurants';
@@ -24,6 +37,8 @@ export type Dictionary = {
     mainNav: string;
     footerNav: string;
     menu: string;
+    breadcrumbs: string;
+    crumbHome: string;
   };
   nav: {
     product: string;
@@ -160,6 +175,14 @@ export type Dictionary = {
     items: Array<{ q: string; a: string }>;
   };
   /** Калькулятор «прямая бронь против OTA» (`/calculator/`, срез D3). */
+  /** Блок «Маркетинг и ИИ» на лендингах направлений (11.10.2026): `soon` — функции ещё нет, карточка с пометкой. */
+  marketing: {
+    eyebrow: string;
+    soon: string;
+    hotel: MarketingCopy;
+    salon: MarketingCopy;
+    restaurant: MarketingCopy;
+  };
   calculator: {
     metaTitle: string;
     description: string;
@@ -278,7 +301,9 @@ export type Dictionary = {
     facts: Array<{ value: string; text: string }>;
     featuresTitle: string;
     featuresLead: string;
-    features: Array<{ icon: IconName; title: string; text: string }>;
+    soon: string;
+    /** Модули для владельца: пункты внутри и пометка «Скоро» у того, чего у ресторана ещё нет. */
+    features: Array<{ icon: IconName; title: string; text: string; points: string[]; soon?: boolean }>;
     growth: {
       badge: string;
       title: string;
@@ -292,88 +317,16 @@ export type Dictionary = {
     ctaTitle: string;
     ctaText: string;
   };
-  /** Страница «Для ресторанов» (`/restaurants/`, макет владельца 10.10.2026): блок `.restl` + блоки §19.5. */
-  restaurants: {
-    metaTitle: string;
-    description: string;
-    eyebrow: string;
-    title: string;
-    titleAccent: string;
-    lead: string;
-    primary: string;
-    demo: string;
-    chips: string[];
-    /** Рукописные пометки по краям hero, как на макете. */
-    noteLeft: string;
-    noteRight: string;
-    homeCardLink: string;
-    home: string;
-    exampleNote: string;
-    dash: {
-      greeting: string;
-      date: string;
-      nav: string[];
-      metrics: Array<{ label: string; value: string; delta: string }>;
-      planTitle: string;
-      tables: Array<'free' | 'busy' | 'reserved' | 'cleaning'>;
-      legend: Array<{ kind: 'free' | 'busy' | 'reserved' | 'cleaning'; label: string }>;
-      ordersTitle: string;
-      orders: Array<{ table: string; time: string; status: string }>;
-    };
-    phone: {
-      greeting: string;
-      revenueLabel: string;
-      revenue: string;
-      delta: string;
-      tiles: string[];
-    };
-    /** Полоса показателей: только факты продукта, без чисел клиентов (§19.9, ADR-160). */
-    band: Array<{ icon: IconName; value: string; caption: string }>;
-    processesEyebrow: string;
-    processesTitle: string;
-    processesLead: string;
-    processesAll: string;
-    processes: Array<{ icon: IconName; title: string; text: string }>;
-    actionEyebrow: string;
-    actionTitle: string;
-    actionLead: string;
-    /** Мини-экраны разделов: вид задаёт `kind`, строки вымышленные и подписаны. */
-    shots: Array<{
-      kind: 'floor' | 'kds' | 'menu' | 'calc' | 'staff' | 'payroll' | 'clients' | 'analytics';
-      title: string;
-      rows: Array<{ left: string; right: string }>;
-    }>;
-    moreEyebrow: string;
-    moreTitle: string;
-    moreLead: string;
-    more: Array<{ icon: IconName; title: string; text: string }>;
-    resultsEyebrow: string;
-    resultsTitle: string;
-    resultsLead: string;
-    results: Array<{ label: string; text: string; chart: 'line' | 'bars'; tone: 'green' | 'orange' | 'purple' | 'blue' }>;
-    aiEyebrow: string;
-    aiTitle: string;
-    aiLead: string;
-    ai: Array<{ icon: IconName; title: string; text: string; tone: 'blue' | 'green' | 'purple' | 'orange' }>;
-    stepsEyebrow: string;
-    stepsTitle: string;
-    steps: Array<{ title: string; text: string }>;
-    faqEyebrow: string;
-    faqTitle: string;
-    faq: Array<{ q: string; a: string }>;
-    ctaTitle: string;
-    ctaText: string;
-    ctaChips: string[];
-    ctaNote: string;
-  };
-  /** Страницы по типам объектов (`/for/<slug>/`, срез D2 плана прямых продаж). */
   segments: {
     eyebrow: string;
     featuresTitle: string;
-    limitsLabel: string;
     ctaTitle: string;
     ctaText: string;
     home: string;
+    more: string;
+    dayTitle: string;
+    day: Record<'hotels' | 'salons' | 'restaurants', Array<{ title: string; text: string }>>;
+    typesTitle: Record<'hotels' | 'salons' | 'restaurants', string>;
     items: Record<
       /** У салонов своя страница со своим словарём (`salon`), общего шаблона у них нет. */
       Exclude<SegmentSlug, 'salons'>,
@@ -383,10 +336,12 @@ export type Dictionary = {
         description: string;
         lead: string;
         cards: Array<{ icon: IconName; title: string; text: string; tags?: string[] }>;
-        /** Чего в системе пока нет: честная строка, а не скрытое ограничение. */
-        limits?: string;
+        /** Текст «о формате»: заголовок с запросом и два абзаца для людей и поисковиков */
+        about?: { title: string; text: string[] };
         /** Фото героя (свой файл из KIE, не сток) и вопросы: есть у страниц типов объектов. */
         photoAlt?: string;
+        /** <title> страницы: запрос словами человека, до 49 знаков (с « | WETOP.AI» до 60) */
+        seoTitle?: string;
         faq?: Array<{ q: string; a: string }>;
       }
     >;
@@ -415,6 +370,7 @@ export type Dictionary = {
     contacts: string;
     privacy: string;
     terms: string;
+    directions: string;
   };
   notFound: {
     title: string;

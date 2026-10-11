@@ -72,12 +72,12 @@ test('ТЗ §4: текущий раздел виден, наведение от�
   await expect(items.locator('.sidenav__title')).toHaveText('Продажи');
   await expect(items.locator('a')).toHaveText([
     'Обзор продаж',
-    'Загрузка конкурентов',
+    'Анализ конкурентов',
     'Каналы продаж',
     'ИИ-продавцы',
   ]);
   // 4. щелчок: переход на страницу, панель закрыта
-  await items.getByRole('link', { name: 'Загрузка конкурентов', exact: true }).click();
+  await items.getByRole('link', { name: 'Анализ конкурентов', exact: true }).click();
   await expect(page).toHaveURL(/\/market$/);
   await expect(panel).toBeHidden();
   // 5. меню слева обновилось: новый раздел и его подразделы
@@ -120,9 +120,7 @@ test('ТЗ §9: клавиатура, ↓ открывает, ↑↓ по раз
   const items = nav.locator('.sidenav__items > :not([hidden])');
   await expect(items.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(
-    items.getByRole('link', { name: 'Загрузка конкурентов', exact: true }),
-  ).toBeFocused();
+  await expect(items.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(section('Продажи')).toBeFocused();
   await page.keyboard.press('Escape');

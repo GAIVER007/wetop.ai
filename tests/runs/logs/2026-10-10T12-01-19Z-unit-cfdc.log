@@ -1,0 +1,21 @@
+# Модульные (unit) · 10.10.2026 17:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2341cfb (claude/platform-superadmin), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T12-01-19Z-unit-cfdc.json' 'apps/api/src/platform' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin
+
+ ✓ |unit| apps/api/src/platform/support.queue.test.ts (20 tests) 6ms
+ ✓ |unit| apps/api/src/platform/overview.test.ts (4 tests) 8ms
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 137ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (35 tests) 338ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 212ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 30ms
+
+ Test Files  6 passed (6)
+      Tests  92 passed (92)
+   Start at  05:01:20
+   Duration  3.18s (transform 54%, import 39%, tests 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T12-01-19Z-unit-cfdc.json
+
+# код выхода 0 · 5 с

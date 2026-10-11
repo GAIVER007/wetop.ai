@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { Icon } from '../../../components/icon';
 import { LandingFinal } from '../../../components/landing/landing-final';
+import { MarketingBlock } from '../../../components/landing/marketing-block';
+import { SubtypeLinks } from '../../../components/landing/subtype-links';
+import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -15,6 +18,7 @@ import { registerLink } from '../../../lib/site';
  */
 export const metadata: Metadata = pageMetadata({
   path: '/for/salons/',
+  image: '/og/salon.jpg',
   title: getDictionary().salon.metaTitle,
   description: getDictionary().salon.description,
 });
@@ -26,6 +30,13 @@ export default function SalonLandingPage() {
   return (
     <div className="page salon-page">
       <div className="container">
+        <Breadcrumbs
+          label={t.a11y.breadcrumbs}
+          trail={[
+            { name: t.a11y.crumbHome, path: '/' },
+            { name: t.salon.badge, path: '/for/salons/' },
+          ]}
+        />
         <section className="salon-hero" aria-labelledby="salon-title">
           <div>
             <p className="salon-hero__badge">{s.badge}</p>
@@ -167,6 +178,15 @@ export default function SalonLandingPage() {
             </a>
           </div>
         </section>
+
+        <SubtypeLinks direction="salons" title={t.segments.typesTitle.salons} />
+
+        <MarketingBlock
+          id="marketing"
+          copy={t.marketing.salon}
+          eyebrow={t.marketing.eyebrow}
+          soon={t.marketing.soon}
+        />
 
         <LandingFinal
           faq={{ title: s.faqTitle, items: s.faq }}

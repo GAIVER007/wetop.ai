@@ -54,7 +54,7 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Сайт и SEO');
   // «Продажи» без сайта
   const salesList = await openSection(page, 'Продажи');
-  await expect(salesList.locator('a')).toHaveText(['Обзор продаж', 'Загрузка конкурентов', 'Каналы продаж', 'ИИ-продавцы']);
+  await expect(salesList.locator('a')).toHaveText(['Обзор продаж', 'Анализ конкурентов', 'Каналы продаж', 'ИИ-продавцы']);
   await expect(
     menu.getByRole('link', { name: 'Сайт и онлайн-бронирование', includeHidden: true }),
   ).toHaveCount(0);

@@ -113,6 +113,20 @@ export function registrationPhone(countryCode: string, raw: string): string | nu
   return `+${full}`;
 }
 
+/**
+ * Язык интерфейса человека (Q-REG-1, DATA_MODEL §13.2 `users.locale`): тот же список, что CHECK в базе.
+ * Пропуск означает русский; чужой код или не строка: `null`, сервис отказывает словами.
+ */
+export const INTERFACE_LOCALES = ['ru', 'kk', 'en'] as const;
+export type InterfaceLocale = (typeof INTERFACE_LOCALES)[number];
+
+export function registrationLocale(raw: unknown): InterfaceLocale | null {
+  if (raw === undefined || raw === '') return 'ru';
+  return INTERFACE_LOCALES.find((code) => code === raw) ?? null;
+}
+
+export const REGISTRATION_LOCALE_MESSAGE = 'Выберите язык системы из списка';
+
 export const REGISTRATION_PHONE_MESSAGE = 'Проверьте телефон: номер целиком, с кодом страны';
 export const REGISTRATION_PRIVACY_MESSAGE =
   'Чтобы создать организацию, подтвердите согласие с политикой конфиденциальности';

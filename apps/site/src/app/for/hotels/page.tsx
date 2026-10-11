@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { Icon } from '../../../components/icon';
 import { DashMock } from '../../../components/landing/dash-mock';
 import { LandingFinal } from '../../../components/landing/landing-final';
+import { MarketingBlock } from '../../../components/landing/marketing-block';
+import { SubtypeLinks } from '../../../components/landing/subtype-links';
+import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -16,6 +19,7 @@ import { registerLink } from '../../../lib/site';
  */
 export const metadata: Metadata = pageMetadata({
   path: '/for/hotels/',
+  image: '/og/hotel.jpg',
   title: getDictionary().hotel.metaTitle,
   description: getDictionary().hotel.description,
 });
@@ -27,6 +31,13 @@ export default function HotelLandingPage() {
   return (
     <div className="page">
       <div className="container">
+        <Breadcrumbs
+          label={t.a11y.breadcrumbs}
+          trail={[
+            { name: t.a11y.crumbHome, path: '/' },
+            { name: t.hotel.badge, path: '/for/hotels/' },
+          ]}
+        />
         <section className="hotel-hero" aria-labelledby="hotel-title">
           <div>
             <p className="eyebrow">{s.badge}</p>
@@ -145,6 +156,15 @@ export default function HotelLandingPage() {
             </a>
           </div>
         </section>
+
+        <SubtypeLinks direction="hotels" title={t.segments.typesTitle.hotels} />
+
+        <MarketingBlock
+          id="marketing"
+          copy={t.marketing.hotel}
+          eyebrow={t.marketing.eyebrow}
+          soon={t.marketing.soon}
+        />
 
         <LandingFinal
           faq={{ title: s.faqTitle, items: s.faq }}

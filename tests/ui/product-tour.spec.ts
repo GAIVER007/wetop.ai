@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, openProfileMenu } from './fixtures';
 
 /**
  * Обучение в стойке (plans/site-auth-dialog-tour-2026-09-27.md, Д4, ADR-100): после первого входа на Главной само
@@ -58,7 +58,7 @@ test('первый вход: обучение открывается само, �
   await expect(page.getByTestId('product-tour')).toBeHidden();
 
   // повтор — из меню профиля
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.getByTestId('tour-restart').click();
   await expect(
     page.getByTestId('product-tour').getByRole('heading', { name: 'Добро пожаловать в WETOP' }),
@@ -69,7 +69,7 @@ test('видимый поиск в календаре подсвечиваетс
   await signIn(page);
   await page.getByTestId('product-tour').getByRole('button', { name: 'Пропустить' }).click();
   await page.goto('/chessboard');
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.getByTestId('tour-restart').click();
   const tour = page.getByTestId('product-tour');
   await tour.getByLabel('Тема обучения').selectOption({ label: '2. Поиск по всей стойке' });
@@ -131,7 +131,7 @@ test('меню содержит только обучение, личность 
   ).toBeVisible();
   await expect(tour.locator('ol li')).toHaveCount(3);
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   const menu = page.locator('.profile-dropdown');
   await expect(menu.getByTestId('tour-restart')).toHaveText('Обучение работе в WETOP');
   await expect(menu).not.toContainText('Тема устройства');
@@ -166,7 +166,7 @@ test('обучение подсвечивает поиск в разделе г�
   await expect(page.getByTestId('product-tour')).toBeVisible();
   await page.keyboard.press('Escape');
   await page.goto('/guests');
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.getByTestId('tour-restart').click();
   const tour = page.getByTestId('product-tour');
   await tour.getByRole('button', { name: 'Далее' }).click();

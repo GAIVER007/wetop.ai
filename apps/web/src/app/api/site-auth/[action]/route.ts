@@ -77,6 +77,10 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
           phone: field(body, 'phone').trim(),
           // окно на главной шлёт JSON: согласие — только настоящее `true`
           privacyAccepted: (body as Record<string, unknown> | null)?.['privacyAccepted'] === true,
+          // язык интерфейса из окна (Q-REG-1): строкой как есть, список проверяет API
+          ...(Object.prototype.hasOwnProperty.call(body ?? {}, 'locale')
+            ? { locale: field(body, 'locale').trim() }
+            : {}),
         },
         info,
       );

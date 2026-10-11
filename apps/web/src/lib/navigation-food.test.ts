@@ -8,31 +8,43 @@ describe('Food workspace isolation', () => {
     expect(
       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.map((i) => i.href)),
     ).toEqual([
-      // состав и порядок — макет «WETOP для ресторанов» (ADR-159)
+      // группы по выбору владельца 11.10.2026: Зал, Заказы, Команда (подразделы видны в левой колонке)
       '/today',
-      '/orders',
       '/floor-plan',
-      '/kitchen',
       '/table-reservations',
-      '/customers',
+      '/dining-areas',
+      '/orders',
+      '/kitchen',
       '/menu',
+      '/customers',
       '/employees',
       '/payroll',
-      '/dining-areas',
       '/staff',
       '/management/analytics',
       '/journal',
       '/help',
       '/profile',
     ]);
-    expect(phoneNavigationFor('FOOD_SERVICE').map((i) => i.href)).toEqual([
-      '/today',
-      '/orders',
-      '/floor-plan',
-      '/kitchen',
+    const sections = menuSectionsFor(owner, 'FOOD_SERVICE');
+    expect(sections.map((s) => s.label)).toEqual([
+      'Главная',
+      'Зал',
+      'Заказы',
+      'Клиенты',
+      'Команда',
+      'Аналитика',
+      'Журнал',
+      'Помощь',
+      'Профиль',
     ]);
-    const labels = menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items);
-    expect(labels.find((i) => i.href === '/today')?.label).toBe('Главная');
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 3, 3]);
+    expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
+      ['/today', 'Главная'],
+      ['/floor-plan', 'Зал'],
+      ['/orders', 'Заказы'],
+      ['/customers', 'Клиенты'],
+    ]);
+    const labels = sections.flatMap((s) => s.items);
     expect(labels.find((i) => i.href === '/orders')?.label).toBe('Заказы');
     expect(labels.find((i) => i.href === '/kitchen')?.label).toBe('Кухня');
     expect(labels.find((i) => i.href === '/menu')?.label).toBe('Меню');

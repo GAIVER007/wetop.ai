@@ -2337,6 +2337,8 @@ const platformOrganizations = () => [
     members: uiMembers.size,
     owners: ['admin@wetop.test'],
     ownerPending: false,
+    verticals: ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'],
+    locations: 3,
   },
   {
     id: 'ui-org-2',
@@ -2347,6 +2349,8 @@ const platformOrganizations = () => [
     members: 1,
     owners: ['owner@example.com'],
     ownerPending: false,
+    verticals: ['HOSPITALITY'],
+    locations: 1,
   },
   ...platformCreated.map((c) => ({
     id: c.id,
@@ -2357,8 +2361,48 @@ const platformOrganizations = () => [
     members: 1,
     owners: [c.ownerEmail],
     ownerPending: true,
+    verticals: ['HOSPITALITY'],
+    locations: 1,
   })),
 ];
+/** Обзор платформы (срез P1): считается из тех же организаций, что и таблица, той же арифметикой, что у API */
+const platformOverview = () => {
+  const orgs = platformOrganizations();
+  const byStatus = (s: string) => orgs.filter((o) => o.status === s).length;
+  const monthKey = (iso: string) => iso.slice(0, 7);
+  const now = new Date();
+  const months: string[] = [];
+  for (let i = 11; i >= 0; i -= 1)
+    months.push(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1)).toISOString().slice(0, 7));
+  const verticalCount = new Map<string, number>();
+  for (const o of orgs) {
+    if (o.status === 'SUSPENDED' || o.verticals.length === 0) continue;
+    verticalCount.set(o.verticals[0]!, (verticalCount.get(o.verticals[0]!) ?? 0) + 1);
+  }
+  return {
+    totals: {
+      organizations: orgs.length - byStatus('SUSPENDED'),
+      active: byStatus('ACTIVE'),
+      trial: byStatus('TRIAL'),
+      readOnly: byStatus('READ_ONLY'),
+      suspended: byStatus('SUSPENDED'),
+      newLast30d: orgs.filter((o) => Date.parse(o.createdAt) >= Date.now() - 30 * DAY_MS).length,
+      usersTotal: uiMembers.size + 1,
+      activeUsers: uiMembers.size,
+    },
+    growth: months.map((month) => ({
+      month,
+      added: orgs.filter((o) => monthKey(o.createdAt) === month).length,
+      total: orgs.filter((o) => monthKey(o.createdAt) <= month).length,
+    })),
+    verticals: ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']
+      .filter((v) => verticalCount.has(v))
+      .map((vertical) => ({ vertical, organizations: verticalCount.get(vertical)! })),
+    statuses: (['ACTIVE', 'TRIAL', 'READ_ONLY', 'SUSPENDED'] as const)
+      .filter((s) => byStatus(s) > 0)
+      .map((status) => ({ status, organizations: byStatus(status) })),
+  };
+};
 // ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
 const SUPPORT_DIALOG_A = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 const SUPPORT_DIALOG_B = '7b2c3d4e-5f6a-4b7c-9d8e-0f1a2b3c4d5e';
@@ -6314,6 +6358,8 @@ createServer(async (req, res) => {
         });
       if (path === '/platform/organizations' && req.method === 'GET')
         return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
+      // Обзор платформы (срез P1, план platform-superadmin-2026-10-10): денег в ответе нет (ADR-102)
+      if (path === '/platform/overview' && req.method === 'GET') return send(200, platformOverview());
       // MKT9.2: лицензии конструктора сайта по филиалам
       const siteBuilder = platformSiteBuilderFixture(path, req.method ?? 'GET', body);
       if (siteBuilder) return send(siteBuilder.status, siteBuilder.data);
@@ -8035,7 +8081,10 @@ createServer(async (req, res) => {
       for (const r of allCards())
         for (const f of finance(r).folios)
           for (const p of f.payments)
-            if (p.paymentId === paymentId) {
+            if (
+              p.paymentId === paymentId &&
+              (verb !== 'refunds' || !line || f.id === String(body['folioId'] ?? ''))
+            ) {
               line = { folioId: f.id, amountMinor: p.allocatedMinor, method: p.method };
               number = r.confirmationNumber;
             }
@@ -8052,7 +8101,9 @@ createServer(async (req, res) => {
           const refundMinor = parseMoney(String(body['amount'] ?? ''));
           assertRefundWithin({
             allocatedMinor: BigInt(line.amountMinor),
-            refundedMinor,
+            refundedMinor: refundLines
+              .filter((x) => x.paymentId === paymentId && x.folioId === line!.folioId)
+              .reduce((sum, x) => sum + BigInt(x.amountMinor), 0n),
             refundMinor,
           });
           refundLines.push({
@@ -8089,7 +8140,18 @@ createServer(async (req, res) => {
         return send(200, finance(reservation));
       }
       const methodCode = String(body['method'] ?? '');
-      if (!['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL', 'DEPOSIT', 'CARD_GUARANTEE'].includes(methodCode)) {
+      if (
+        ![
+          'CASH',
+          'CARD_TERMINAL',
+          'KASPI',
+          'HALYK',
+          'BANK_TRANSFER_PERSON',
+          'BANK_TRANSFER_LEGAL',
+          'DEPOSIT',
+          'CARD_GUARANTEE',
+        ].includes(methodCode)
+      ) {
         voidedPayments.delete(paymentId);
         return send(400, { message: 'method — один из способов оплаты' });
       }
@@ -8119,7 +8181,9 @@ createServer(async (req, res) => {
       if (!reservation) return send(404, { message: `Счёт ${folioId} не найден` });
       const kind = String(body['kind'] ?? '');
       if (!['SERVICE', 'PENALTY', 'ADJUSTMENT'].includes(kind))
-        return send(400, { message: 'kind — один из SERVICE, PENALTY, ADJUSTMENT (проживание начисляет система)' });
+        return send(400, {
+          message: 'kind — один из SERVICE, PENALTY, ADJUSTMENT (проживание начисляет система)',
+        });
       const quantity = body['quantity'] === undefined ? 1 : Number(body['quantity']);
       if (!Number.isInteger(quantity) || quantity < 1)
         return send(400, { message: 'quantity — целое число от 1' });
@@ -8129,11 +8193,16 @@ createServer(async (req, res) => {
       try {
         if (kind === 'SERVICE') {
           const svc = serviceCatalog.find((x) => x.code === body['serviceCode'] && x.active);
-          if (!svc) return send(400, { message: `Услуга «${String(body['serviceCode'])}» не найдена в справочнике` });
+          if (!svc)
+            return send(400, {
+              message: `Услуга «${String(body['serviceCode'])}» не найдена в справочнике`,
+            });
           serviceCode = svc.code;
           if (!description) description = svc.name;
           unitPriceMinor =
-            body['unitPrice'] === undefined ? BigInt(svc.priceMinor) : parseMoney(String(body['unitPrice']));
+            body['unitPrice'] === undefined
+              ? BigInt(svc.priceMinor)
+              : parseMoney(String(body['unitPrice']));
         } else {
           if (!description) return send(400, { message: 'description — за что начисление' });
           unitPriceMinor = parseMoney(String(body['unitPrice'] ?? ''));
@@ -8143,7 +8212,10 @@ createServer(async (req, res) => {
       }
       if (kind === 'ADJUSTMENT' ? unitPriceMinor === 0n : unitPriceMinor <= 0n)
         return send(400, {
-          message: kind === 'ADJUSTMENT' ? 'Корректировка не может быть нулевой' : 'Цена должна быть больше нуля',
+          message:
+            kind === 'ADJUSTMENT'
+              ? 'Корректировка не может быть нулевой'
+              : 'Цена должна быть больше нуля',
         });
       if (kind === 'ADJUSTMENT' && unitPriceMinor < 0n && !can(uiRole, 'refunds'))
         return send(403, { message: ADJUSTMENT_DOWN_MESSAGE });
@@ -8169,7 +8241,9 @@ createServer(async (req, res) => {
       if (!charge) return send(404, { message: 'Начисление не найдено' });
       if (charge.voidedAt) return send(409, { message: 'Начисление уже сторнировано' });
       charge.voidedAt = `${today}T12:30:00Z`;
-      const reservation = allCards().find((r) => finance(r).folios.some((f) => f.id === charge.folioId))!;
+      const reservation = allCards().find((r) =>
+        finance(r).folios.some((f) => f.id === charge.folioId),
+      )!;
       return send(200, finance(reservation));
     }
     if (path === '/finance/payments') {

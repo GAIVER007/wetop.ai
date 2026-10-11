@@ -74,6 +74,22 @@ describe.skipIf(!process.env.DATABASE_URL)('MV2 real registration persistence', 
       privacyAccepted: true,
     };
   }
+  // Q-REG-1: страна организации и язык человека из окна регистрации лежат в базе (миграция …083)
+  it('stores organization country and user locale', async () => {
+    const body = { ...input('HOSPITALITY', 'locale'), phoneCountry: 'UZ', phone: '901234567', locale: 'en' };
+    await auth.register(body, now);
+    const business = await db.business.findFirstOrThrow({ where: { name: body.businessName } });
+    const org = await db.organization.findUniqueOrThrow({ where: { id: business.organizationId } });
+    expect(org.countryCode).toBe('UZ');
+    const user = await db.user.findUniqueOrThrow({ where: { email: body.email } });
+    expect(user.locale).toBe('en');
+    // база сама не примет чужой язык или страну не по ISO
+    await expect(db.user.update({ where: { id: user.id }, data: { locale: 'xx' } })).rejects.toThrow();
+    await expect(
+      db.organization.update({ where: { id: org.id }, data: { countryCode: 'uz' } }),
+    ).rejects.toThrow();
+  });
+
   it.each(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)(
     '%s persists through resend and confirmation',
     async (vertical) => {

@@ -56,6 +56,7 @@ export function JournalBoard({
       className="beauty-col-body"
       style={{ height }} /* slop-allow: inline-style высота колонки из длины рабочего дня */
       data-testid={employee ? undefined : 'beauty-empty-timeline'}
+      role={employee ? undefined : 'group'}
       aria-label={employee ? undefined : 'Расписание без назначенных мастеров'}
     >
       {slots.map((m) => {
@@ -154,6 +155,9 @@ export function JournalBoard({
         <div
           className="beauty-grid-day"
           data-testid="beauty-grid"
+          role="region"
+          aria-label="Расписание дня"
+          tabIndex={0}
           style={{
             gridTemplateColumns: `56px repeat(${Math.max(1, columns.length)}, minmax(180px, 1fr))`,
           }}

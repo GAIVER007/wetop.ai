@@ -36,14 +36,14 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
   await expect(menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ })).toBeFocused();
   await page.keyboard.press('ArrowRight');
-  const item = menu.locator('.sidenav__items').getByRole('link', { name: 'Сайт и SEO', exact: true });
+  const item = menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ });
   await expect(item).toBeFocused();
   await expect(item).toHaveAttribute('href', '/marketing');
   // Escape закрывает панель и возвращает фокус на кнопку
   await page.keyboard.press('Escape');
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   await expect(trigger).toBeFocused();
-  // снова: ↓, к «Маркетингу», → в пункт, Enter переходит
+  // Одиночный раздел открывается по Enter без дублирующего пункта.
   await page.keyboard.press('ArrowDown');
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');

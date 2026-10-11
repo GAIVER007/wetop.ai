@@ -184,6 +184,7 @@ test('overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY', 
   );
   await scope(page, f.otherBusiness, f.locations[2]!);
   await page.goto(`/calendar?date=${day}`);
+  await expect(page.locator('.beauty-grid-day .beauty-tile')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Расписание дня', exact: true })).toBeVisible();
   await expect(page.getByTestId('beauty-grid').getByTestId('beauty-empty-timeline')).toBeVisible();
@@ -439,6 +440,9 @@ test('Beauty onboarding completion opens Today and resumes there', async ({ page
   await expect(page.getByTestId('beauty-today')).toBeVisible();
   await expect(page.getByTestId('today-masters')).toHaveText('0');
   await page.goto('/calendar');
+  await expect(
+    main.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' }),
+  ).toBeVisible();
   await expect(main.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
   await expect(main.getByRole('heading', { name: 'Расписание дня', exact: true })).toBeVisible();
   await expect(main.getByTestId('beauty-grid').getByTestId('beauty-empty-timeline')).toBeVisible();

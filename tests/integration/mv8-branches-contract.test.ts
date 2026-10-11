@@ -247,16 +247,16 @@ it('real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned 
     })).toBe(1);
   } finally {
     await app?.close();
+    await db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+      await tx.auditLog.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+    });
     const own = { business: { organizationId: { in: [orgA, orgB] } } };
     await db.onboardingProgress.deleteMany({ where: { location: own } });
     await db.property.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
     await db.location.deleteMany({ where: own });
     await db.business.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
-    await db.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
-      await tx.auditLog.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
-      await tx.organization.deleteMany({ where: { id: { in: [orgA, orgB] } } });
-    });
+    await db.organization.deleteMany({ where: { id: { in: [orgA, orgB] } } });
     await db.user.deleteMany({ where: { id: user } });
     await db.$disconnect();
   }

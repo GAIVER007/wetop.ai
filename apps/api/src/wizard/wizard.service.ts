@@ -68,6 +68,16 @@ export class WizardService {
         process.env.WIZARD_PUBLIC_HOST
           ? (process.env.TURNSTILE_SITE_KEY ?? null)
           : null,
+      generateSiteKey:
+        process.env.WIZARD_GENERATE_ENABLED === '1' &&
+        process.env.TURNSTILE_SECRET_KEY &&
+        process.env.WIZARD_PUBLIC_HOST
+          ? (process.env.TURNSTILE_SITE_KEY ?? null)
+          : null,
+      generated:
+        d.generatedRevision === d.revision && d.generatedPrompt
+          ? { prompt: d.generatedPrompt, knowledge: d.generatedKnowledge }
+          : null,
       guestSessionId: row.id,
       lastStep: row.lastStep,
       draft: {
@@ -184,6 +194,56 @@ export class WizardService {
       return { id: job.id, state: job.state };
     });
   }
+  async generate(token: string | undefined, body: unknown, ipHash: string) {
+    const row = await this.session(token);
+    if (process.env.WIZARD_GENERATE_ENABLED !== '1')
+      throw new ServiceUnavailableException('Генерация пока не включена');
+    const revision =
+      body && typeof body === 'object' ? (body as { revision?: unknown }).revision : undefined;
+    if (!this.saves.allow(row.id, Date.now()))
+      throw new HttpException(TOO_MANY_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
+    return this.prisma.db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM wizard_drafts WHERE id = ${row.draft.id}::uuid FOR UPDATE`;
+      const fresh = await tx.wizardDraft.findUniqueOrThrow({ where: { id: row.draft.id } });
+      if (fresh.revision !== revision || fresh.agentId)
+        throw new ConflictException('Черновик изменился. Обновите страницу');
+      const config = configObject(fresh.config);
+      if (
+        !fresh.businessName.trim() ||
+        !fresh.niche.trim() ||
+        !['sales', 'support'].includes(config.botType ?? '')
+      )
+        throw new BadRequestException('Укажите название, нишу и сценарий');
+      const existing = await tx.wizardJob.findUnique({
+        where: {
+          draftId_kind_revision: {
+            draftId: fresh.id,
+            kind: 'generate',
+            revision: fresh.revision,
+          },
+        },
+      });
+      if (existing) return { id: existing.id, state: existing.state };
+      if ((await tx.wizardJob.count({ where: { draftId: fresh.id, kind: 'generate' } })) >= 5)
+        throw new HttpException(
+          'Использованы все пять сборок этого черновика',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      const job = await tx.wizardJob.create({
+        data: { draftId: fresh.id, kind: 'generate', revision: fresh.revision },
+      });
+      await tx.wizardEvent.create({
+        data: {
+          guestSessionId: row.id,
+          eventType: 'generation_requested',
+          deduplicationKey: `generate:${job.id}`,
+          payload: { ipHash },
+        },
+      });
+      await tx.wizardSession.update({ where: { id: row.id }, data: { lastStep: 'generating' } });
+      return { id: job.id, state: job.state };
+    });
+  }
   async scanStatus(token: string | undefined) {
     return this.prisma.db.$transaction(
       async (tx) => {
@@ -192,8 +252,22 @@ export class WizardService {
           where: { draftId: row.draft.id, kind: 'scan' },
           orderBy: { createdAt: 'desc' },
         });
+        const generation = await tx.wizardJob.findFirst({
+          where: { draftId: row.draft.id, kind: 'generate' },
+          orderBy: { createdAt: 'desc' },
+        });
         return {
           ...this.view(row),
+          generationsUsed: await tx.wizardJob.count({
+            where: { draftId: row.draft.id, kind: 'generate' },
+          }),
+          generation: generation
+            ? {
+                id: generation.id,
+                state: row.draft.revision === generation.revision ? generation.state : 'stale',
+                error: generation.maskedError,
+              }
+            : null,
           scan: job
             ? {
                 id: job.id,

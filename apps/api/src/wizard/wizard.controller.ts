@@ -68,6 +68,40 @@ export class WizardController {
         .digest('hex'),
     );
   }
+  @Post('generate')
+  @Header('Cache-Control', 'no-store')
+  async generate(
+    @Headers('x-wizard-token') token: string | undefined,
+    @Body() body: { revision?: unknown; challenge?: unknown } | undefined,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    const secret = process.env.TURNSTILE_SECRET_KEY;
+    const host = process.env.WIZARD_PUBLIC_HOST;
+    if (
+      process.env.WIZARD_GENERATE_ENABLED !== '1' ||
+      !secret ||
+      !host ||
+      !process.env.TURNSTILE_SITE_KEY
+    )
+      throw new ServiceUnavailableException('Генерация пока не включена');
+    await this.wizard.status(token);
+    const ip = visitorIp(socketIp, cfConnectingIp);
+    const verdict = await this.turnstile.verify(body?.challenge, {
+      ip,
+      allowedHosts: [host],
+      action: 'wizard',
+      requireBinding: true,
+    });
+    if (!verdict.ok) throw turnstileFailureError(verdict.reason);
+    return this.wizard.generate(
+      token,
+      body,
+      createHmac('sha256', secret)
+        .update(ip ?? 'unknown')
+        .digest('hex'),
+    );
+  }
   @Get('scan')
   @Header('Cache-Control', 'no-store')
   scanStatus(@Headers('x-wizard-token') token: string | undefined) {

@@ -3,6 +3,7 @@ import { TurnstileService } from '../web-booking/turnstile';
 import { Module } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
 import { WizardController } from './wizard.controller';
+import { WizardGenerateWorker } from './wizard-generate-worker';
 import { WizardScanWorker } from './wizard-scan-worker';
 import { WizardService } from './wizard.service';
 import { WizardRetentionService } from './wizard-retention.service';
@@ -18,6 +19,7 @@ import { SellerAgentsService } from './seller-agents.service';
     SellerAgentsService,
     WizardRetentionService,
     WizardScanWorker,
+    WizardGenerateWorker,
     TurnstileService,
   ],
 })

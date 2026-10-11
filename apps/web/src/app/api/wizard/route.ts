@@ -48,6 +48,14 @@ export async function POST(request: Request) {
   if (token && !/^wz_[a-f0-9]{64}$/.test(token))
     return json({ message: 'Сессия мастера недействительна' }, 401);
   try {
+    if (body.operation === 'generate')
+      return json(
+        await wizardApi.generate(
+          token,
+          { revision: body.revision, challenge: body.challenge },
+          request.headers.get('cf-connecting-ip'),
+        ),
+      );
     if (body.operation === 'scan')
       return json(
         await wizardApi.scan(

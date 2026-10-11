@@ -1,5 +1,7 @@
 'use client';
 import { useState } from 'react';
+import { GenerationStep } from './generation-step';
+import type { WizardState } from '../../lib/wizard-types';
 import { S } from './strings';
 
 /**
@@ -10,10 +12,25 @@ export function BuildStep({
   onAnswers,
   onClaim,
   claimDisabled,
+  generationState,
+  generationPolling,
+  busy,
+  onGenerate,
+  onRefresh,
+  onEdit,
 }: {
   onAnswers: (answers: Record<string, string>) => void;
   onClaim: () => void;
   claimDisabled: boolean;
+  generationState: Pick<
+    WizardState,
+    'generation' | 'generated' | 'generationsUsed' | 'generateSiteKey'
+  >;
+  generationPolling: boolean;
+  busy: boolean;
+  onGenerate: (token: string) => void;
+  onRefresh: () => void;
+  onEdit: () => void;
 }) {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -30,8 +47,16 @@ export function BuildStep({
   };
   return (
     <>
+      <GenerationStep
+        state={generationState}
+        polling={generationPolling}
+        busy={busy}
+        onGenerate={onGenerate}
+        onRefresh={onRefresh}
+        onEdit={onEdit}
+      />
       <span className="guest-wizard__eyebrow">{S.build.eyebrow}</span>
-      <h1>{done ? S.build.thanks : S.build.title}</h1>
+      <h2>{done ? S.build.thanks : S.build.title}</h2>
       {!done && question ? (
         <section aria-label="Опрос" className="guest-wizard__survey">
           <p>
@@ -74,8 +99,7 @@ export function BuildStep({
         </section>
       ) : (
         <section aria-label="Тест бота">
-          <h2>{S.build.soonTitle}</h2>
-          <p>{S.build.soonText}</p>
+          {!generationState.generateSiteKey && <p>{S.build.soonText}</p>}
           <div className="guest-wizard__actions">
             <button type="button" className="btn" disabled aria-describedby="test-soon">
               {S.build.testBtn}
@@ -85,14 +109,21 @@ export function BuildStep({
             </span>
           </div>
           <div className="guest-wizard__actions">
-            <button type="button" className="btn btn--secondary" disabled={claimDisabled} onClick={onClaim}>
+            <button
+              type="button"
+              className="btn btn--secondary"
+              disabled={claimDisabled}
+              onClick={onClaim}
+            >
               {S.build.claim}
             </button>
             <a href="/login" target="_blank" rel="noopener noreferrer">
               {S.build.login}
             </a>
           </div>
-          <p className="guest-wizard__note">{S.build.claimNote}</p>
+          <p className="guest-wizard__note">
+            {generationState.generated ? S.generation.handoff : S.build.claimNote}
+          </p>
         </section>
       )}
     </>

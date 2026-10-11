@@ -31,6 +31,11 @@ async function call<T = WizardState>(body: unknown): Promise<T> {
 }
 
 export function useGuestDraft() {
+  const [generationState, setGenerationState] = useState<
+    Pick<WizardState, 'generation' | 'generated' | 'generationsUsed' | 'generateSiteKey'>
+  >({});
+  const [generationPolling, setGenerationPolling] = useState(false);
+  const generationEpoch = useRef(0);
   const [scanSiteKey, setScanSiteKey] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [scanPhase, setScanPhase] = useState('');
@@ -66,6 +71,10 @@ export function useGuestDraft() {
         localStorage.setItem(STORAGE_KEY, state.guestToken);
         token.current = state.guestToken;
       }
+      setGenerationState(state);
+      setGenerationPolling(
+        !!state.generation && ['queued', 'running'].includes(state.generation.state),
+      );
       setScanSiteKey(state.scanSiteKey ?? null);
       if (state.scan && ['queued', 'running'].includes(state.scan.state)) {
         setScanning(true);
@@ -120,6 +129,9 @@ export function useGuestDraft() {
           step: nextStep,
         });
         revision.current = result.draft.revision;
+        generationEpoch.current++;
+        setGenerationPolling(false);
+        setGenerationState(result);
         setSavedJson(snapshot);
         if (patch) setValues(payload);
         setStep(nextStep);
@@ -234,6 +246,57 @@ export function useGuestDraft() {
     }
   }
 
+  useEffect(() => {
+    if (!generationPolling) return;
+    let stopped = false;
+    const epoch = generationEpoch.current;
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      try {
+        const state = await call({ operation: 'scan-status', token: token.current });
+        if (stopped || epoch !== generationEpoch.current) return;
+        setGenerationState(state);
+        if (state.generation && ['queued', 'running'].includes(state.generation.state))
+          timer = setTimeout(() => void poll(), 1500);
+        else setGenerationPolling(false);
+      } catch {
+        if (!stopped && epoch === generationEpoch.current) {
+          setGenerationPolling(false);
+          setError(S.generation.connectionError);
+        }
+      }
+    };
+    void poll();
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+    };
+  }, [generationPolling]);
+
+  async function generate(challenge: string) {
+    if (saving.current || busy || dirty || generationPolling) return;
+    setBusy(true);
+    setError('');
+    try {
+      // A terminal failure is cached. Retry explicitly creates a new revision within the five-build cap.
+      if (generationState.generation?.state === 'failed') {
+        if (!(await save('generating'))) return;
+      }
+      const job = await call<{ id: string; state: string }>({
+        operation: 'generate',
+        token: token.current,
+        revision: revision.current,
+        challenge,
+      });
+      setGenerationState((current) => ({ ...current, generation: { ...job, error: null } }));
+      setGenerationPolling(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : S.generation.failed);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   /** События и опрос: не мешают мастеру, ошибки молча теряем (аналитика не должна ломать путь) */
   const track = useCallback(async (type: 'source_submitted' | 'testbot_cta') => {
     try {
@@ -275,6 +338,13 @@ export function useGuestDraft() {
     }
   }
   return {
+    generationState,
+    generationPolling,
+    generate,
+    resumeGeneration: () => {
+      setError('');
+      setGenerationPolling(true);
+    },
     scanSiteKey,
     scanning,
     scanPhase,

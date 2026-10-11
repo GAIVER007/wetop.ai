@@ -55,5 +55,5 @@ export function ScanChallenge({
       if (id) api?.remove(id);
     };
   }, [siteKey, onToken]);
-  return <div ref={element} aria-label={S.scan.challengeLabel} />;
+  return <div ref={element} role="group" aria-label={S.scan.challengeLabel} />;
 }

@@ -25,6 +25,10 @@ function normalizeUrl(raw: string): string {
 
 export function GuestWizard() {
   const {
+    generationState,
+    generationPolling,
+    generate,
+    resumeGeneration,
     scanSiteKey,
     scanning,
     scanPhase,
@@ -51,8 +55,7 @@ export function GuestWizard() {
   } = useGuestDraft();
   const [urlError, setUrlError] = useState('');
   const [challenge, setChallenge] = useState('');
-  // пока O3 не дал поддержке свой промпт, сценарий один: что бы ни лежало в черновике, это продавец
-  const botType: BotType = 'sales';
+  const botType: BotType = values.botType === 'support' ? 'support' : 'sales';
   const scenario = SCENARIOS.find((item) => item.value === botType);
   const canContinue = values.businessName.trim() !== '' && values.niche.trim() !== '';
 
@@ -179,16 +182,17 @@ export function GuestWizard() {
                       type="button"
                       role="radio"
                       aria-checked={botType === item.value}
-                      disabled={item.soon === true}
+                      disabled={item.value === 'support' && !generationState.generateSiteKey}
                       onClick={() => edit('botType', item.value)}
                     >
                       {item.label}
-                      {item.soon ? ` (${SOON_WORD})` : ''}
+                      {item.value === 'support' && !generationState.generateSiteKey
+                        ? ` (${SOON_WORD})`
+                        : ''}
                     </button>
                   ))}
                 </div>
                 <p className="guest-wizard__note">{scenario?.hint}</p>
-                <p className="guest-wizard__note">{SCENARIOS.find((item) => item.soon)?.hint}</p>
               </fieldset>
               <label className="guest-wizard__url">
                 <span>{S.source.url}</span>
@@ -281,7 +285,19 @@ export function GuestWizard() {
             <BuildStep
               onAnswers={(answers) => void sendSurvey(answers)}
               onClaim={() => void claim()}
-              claimDisabled={busy || dirty}
+              claimDisabled={
+                busy ||
+                dirty ||
+                !!generationState.generated ||
+                generationPolling ||
+                ['queued', 'running'].includes(generationState.generation?.state ?? '')
+              }
+              generationState={generationState}
+              generationPolling={generationPolling}
+              busy={busy || dirty}
+              onGenerate={(token) => void generate(token)}
+              onRefresh={resumeGeneration}
+              onEdit={() => void save('review')}
             />
           )}
           <p role="status" className="guest-wizard__save-state">

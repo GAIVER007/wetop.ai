@@ -476,6 +476,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',
   'POST /wizard/scan': 'public',
+  'POST /wizard/generate': 'public',
   'GET /wizard/scan': 'public',
   'GET /wizard/quota': 'public',
   'POST /wizard/survey': 'public',

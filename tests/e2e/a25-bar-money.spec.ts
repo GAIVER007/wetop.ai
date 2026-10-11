@@ -88,7 +88,11 @@ const query = async (sql: string, params: unknown[] = []) => {
 };
 /** Плитка обзора Бар-2: значение и подсказка (остаток склада в деньгах живёт в подсказке «на сумму …») */
 const kpi = (page: Page, label: string) =>
-  page.locator('.bar-kpi').filter({ has: page.locator('.bar-kpi-label', { hasText: label }) });
+  page
+    .getByRole('main')
+    .getByRole('region', { name: 'Показатели бара' })
+    .locator('.bar-kpi')
+    .filter({ has: page.locator('.bar-kpi-label', { hasText: label }) });
 const stat = (page: Page, label: string) => kpi(page, label).locator('.bar-kpi-value');
 const stockCost = (page: Page) => kpi(page, 'Остаток на складе').locator('.bar-kpi-hint');
 /** Оплачено поставщику: колонка «Оплачено» таблицы /bar/suppliers (на обзоре Бар-2 этой плитки нет) */
@@ -157,9 +161,16 @@ async function receive(page: Page, name: string, doc: string, qty: string, cost:
   await expect(page.locator('tr').filter({ hasText: doc })).toBeVisible();
 }
 const saleForm = (page: Page) => page.locator('#bar-quick-sale .bar-quick-form');
+/** Форма продажи после гидратации: «Продать» включается, когда эффект выставил ключ продажи (D-KEY). Выбор товара до
+ * гидратации React сбрасывает к defaultValue, и браузер не отправит форму с пустым обязательным полем. */
+async function readySaleForm(page: Page) {
+  const form = saleForm(page);
+  await expect(form.getByRole('button', { name: 'Продать' })).toBeEnabled();
+  return form;
+}
 async function sell(page: Page, name: string, qty: string) {
   await page.goto('/bar');
-  const form = saleForm(page);
+  const form = await readySaleForm(page);
   await form
     .locator('select[name=productId]')
     .selectOption({ label: await form.locator('option').filter({ hasText: name }).innerText() });
@@ -388,7 +399,7 @@ test('UI-05 non-KZT auto price refusal preserves editable input', async ({ page 
 
 test('UI-07 unavailable stock and cross-property draft have no partial effect', async ({ page }) => {
   await overview(page, 'KZT');
-  const sale = saleForm(page);
+  const sale = await readySaleForm(page);
   await sale.locator('select[name=productId]').selectOption({ label: 'A25 KZT goods, остаток 1 шт.' });
   await sale.locator('input[name=quantityUnits]').fill('2');
   await sale.getByRole('button', { name: 'Продать' }).click();
@@ -426,6 +437,7 @@ for (const width of [390, 1440])
     test(`UI-visual ${width} ${theme} real USD`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
       await page.addInitScript((theme) => localStorage.setItem('wetop.theme', theme), theme);
+      await page.emulateMedia({ reducedMotion: 'reduce' });
       await overview(page, 'USD');
       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
       await expect(stat(page, 'Выручка бара')).toHaveText('20 USD');
@@ -437,6 +449,16 @@ for (const width of [390, 1440])
       const quantity = saleForm(page).locator('input[name=quantityUnits]');
       await quantity.focus();
       await expect(quantity).toBeFocused();
+      // шторка карточки товара: до (снимок выше) и после открытия; при reduced-motion анимаций в полёте нет
+      const board = page.getByRole('main').getByRole('region', { name: 'Товары и остатки бара' });
+      await board.getByRole('button', { name: 'Изменить A25 USD goods' }).click();
+      const card = page.getByRole('complementary', { name: 'Карточка товара A25 USD goods' });
+      await expect(card).toBeVisible();
+      expect(await card.evaluate((node) => node.getAnimations({ subtree: true }).filter((a) => a.playState === 'running').length)).toBe(0);
+      const drawerAudit = await new AxeBuilder({ page }).include('main').withTags(['wcag2a', 'wcag2aa']).analyze();
+      expect(drawerAudit.violations).toEqual([]);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.screenshot({ path: evidence + `/usd-${width}-${theme}-drawer.png`, fullPage: true });
     });
   }
 
@@ -445,7 +467,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   await newScope('KZT', 'A25 replay ' + Date.now());
   const goods = await legacyStock('KZT', 'A25 replay goods', '5', '1000', '2000');
   await overview(page, 'KZT');
-  const form = saleForm(page);
+  const form = await readySaleForm(page);
   const prepare = async () => {
     await form.locator('select[name=productId]').selectOption(goods.product);
     await form.locator('input[name=quantityUnits]').fill('1');
@@ -469,6 +491,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   expect(await reversed.text()).toContain('уже отменена');
   expect(await call('KZT', '/bar/report')).toEqual(before);
   await page.goto('/bar');
+  await readySaleForm(page);
   await prepare();
   const completed = page.waitForResponse((r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/bar');
   await form.getByRole('button', { name: 'Продать' }).click();

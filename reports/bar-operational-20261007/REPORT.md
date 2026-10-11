@@ -1,6 +1,6 @@
 # BAR financial acceptance candidate
 
-Current candidate: fresh-main base `29ae2a5a24de2a1763cd925f697708b2f2b1cae9`, migration `20261011000084_bar_financial_replay`, 92 migration directories. Earlier migration numbers and results below are historical checkpoints.
+Current candidate: fresh-main base `2d3476cdd2ddd92a8d8d8d2719706f0c34f70f1b`, migration `20261011000084_bar_financial_replay`, 92 migration directories. Earlier migration numbers and results below are historical checkpoints.
 
 Status: implementation candidate. This document records local evidence at the candidate commit; the exact-SHA full GitHub CI and final readiness are recorded in the PR manifest. This report does not authorize merge, release, migration or production deployment.
 
@@ -178,3 +178,12 @@ Previous candidate e1bc6f4b passed unit 4529, site 127, integration 1049, API 4,
 Workflow 38159136845 subsequently completed full GREEN on e1bc6f4b. This is historical complete evidence on the 90-directory chain, not final proof for the newer 92-directory merge. Local 92-directory critical integration `2026-10-11T18-06-31Z-integration-c19e`: 45 PASS / 1 unchanged 5-second T05 Folio timeout. Exact unchanged T05 Folio retry `2026-10-11T18-09-03Z-integration-2cf1` passed in 656 ms. Its 28 non-selected cases are test-name filtering, not new skipped test declarations. No assertions or timeout limits changed.
 
 Merged 92-directory local checks: unit 51 `2026-10-11T18-11-02Z-unit-bb16`, root/API/web typecheck `2026-10-11T18-11-01Z-typecheck-8d6b` and lint `2026-10-11T18-11-01Z-lint-23f0` PASS, with unchanged source fingerprints. No unresolved merge markers remain.
+
+
+## Final profile-menu readiness RED to GREEN and fresh-main sync
+
+Exact-head workflow 38163235973 on 96b230ff passed unit 4546, site 127, integration 1051, API 4, e2e 26, BAR browser 10 with 24 screenshots, bot 1886, Food 24, Beauty 11, Branches 39, UI shard 1 with 419 plus 8 locked-session cases, and UI shard 2 with 395. All 92 migration application/down/schema checks passed. UI shard 3 passed 414 cases and failed one profile-menu cold-navigation case with ERR_ABORTED and route-cleanup timeout. The first attempt is retained as RED, not full GREEN.
+
+An unchanged isolated run reproduced ERR_ABORTED in all three profile-menu cases. Login URL change was followed by script interception before the authenticated header became ready. The setup now waits for the existing profile button to become enabled before installing the gate for the next document. Cold-document disabled/busy styling, blocked early click, normal click and keyboard assertions are unchanged. The same three cases passed after this setup correction in recorded run 2026-10-11T19-01-31Z-e2e-e1ee (3/3); no timeout, skip or assertion was weakened.
+
+Fresh main 2d3476cdd2ddd92a8d8d8d2719706f0c34f70f1b adds permitted hotel search and journal labels plus Restaurant landing copy. These upstream changes are preserved; no new BAR, Finance or migration changes exist. BAR 84 remains free and the merged chain still has 92 directories. A new complete exact-head workflow is required after this sync. Production SSH still times out; HTTP 200 on both domains does not prove deployed SHA or authenticated BAR behavior.

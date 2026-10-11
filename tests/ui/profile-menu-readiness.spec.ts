@@ -32,6 +32,8 @@ test.beforeEach(async ({ page, request }) => {
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
+  // Вход должен завершить рендер и оживить шапку до установки ворот для следующего документа.
+  await expect(page.getByRole('button', { name: 'Меню администратора' })).toBeEnabled();
   // следующий экран грузится «холодно»: HTML сразу, скрипты стойки только после команды
   const gate = new Promise<void>((resolve) => {
     openGate = resolve;

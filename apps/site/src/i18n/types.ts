@@ -301,7 +301,9 @@ export type Dictionary = {
     facts: Array<{ value: string; text: string }>;
     featuresTitle: string;
     featuresLead: string;
-    features: Array<{ icon: IconName; title: string; text: string }>;
+    soon: string;
+    /** Модули для владельца: пункты внутри и пометка «Скоро» у того, чего у ресторана ещё нет. */
+    features: Array<{ icon: IconName; title: string; text: string; points: string[]; soon?: boolean }>;
     growth: {
       badge: string;
       title: string;

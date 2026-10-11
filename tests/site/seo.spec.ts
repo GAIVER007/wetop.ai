@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 
 /*
@@ -70,12 +71,14 @@ test('лендинги: FAQPage и хлебные крошки в разметк
   }
 });
 
-test('дубль /restaurants/ отдаёт вес основной странице и не стоит в sitemap', async ({ page }) => {
-  await page.goto('/restaurants/');
-  const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
-  expect(new URL(canonical ?? '', 'https://wetop.ai').pathname).toBe('/for/restaurants/');
+test('/restaurants/ слита в /for/restaurants/: постоянный редирект и нет в sitemap', async ({ page }) => {
+  // Правило читает Cloudflare Pages; местный статический сервер его не исполняет, поэтому проверяем файл
+  const rules = readFileSync('apps/site/public/_redirects', 'utf8');
+  expect(rules).toMatch(/^\/restaurants\/ \/for\/restaurants\/ 301$/m);
+  expect(rules).toMatch(/^\/restaurants \/for\/restaurants\/ 301$/m);
   const xml = await (await page.request.get('/sitemap.xml')).text();
   expect(xml).not.toContain('wetop.ai/restaurants/<');
+  expect(await page.request.get('/for/restaurants/').then((r) => r.status())).toBe(200);
 });
 
 test('лендинги: видимые крошки, своя картинка ссылки', async ({ page }) => {
@@ -86,4 +89,12 @@ test('лендинги: видимые крошки, своя картинка �
   await expect(crumbs.locator('[aria-current="page"]')).toHaveText('Барбершопы');
   const og = await page.locator('meta[property="og:image"]').getAttribute('content');
   expect(og).toContain('/og/barbershop.jpg');
+});
+
+test('IndexNow: файл ключа отдаётся сайтом и совпадает с ключом скрипта', async ({ page }) => {
+  const key = readFileSync('scripts/site/indexnow.mjs', 'utf8').match(/const KEY = '([0-9a-f]{32})'/)?.[1];
+  expect(key, 'ключ в scripts/site/indexnow.mjs').toBeTruthy();
+  const res = await page.request.get(`/${key}.txt`);
+  expect(res.status()).toBe(200);
+  expect((await res.text()).trim()).toBe(key);
 });

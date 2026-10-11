@@ -135,14 +135,26 @@ export default async function SegmentPage({ params }: Props) {
               </li>
             ))}
           </ul>
-          {item.limits ? (
-            <p className="card glass glass--quiet card__text">
-              {/* одним элементом: у `.card` сетка, и голые куски текста стали бы отдельными строками */}
-              <span>
-                <strong>{t.segments.limitsLabel}:</strong> {typo(item.limits)}
-              </span>
-            </p>
-          ) : null}
+        </section>
+
+        <section className="section section--tight" aria-labelledby="segment-day-title">
+          <div className="section-heading section-heading--center">
+            <p className="eyebrow">{item.metaTitle}</p>
+            <h2 id="segment-day-title" className="section-heading__title">
+              {typo(t.segments.dayTitle)}
+            </h2>
+          </div>
+          <ol className="steps">
+            {t.segments.day[type.direction].map((step, index) => (
+              <li key={step.title} className="step glass">
+                <span className="step__number" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <h3 className="card__title">{typo(step.title)}</h3>
+                <p className="card__text">{typo(step.text)}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
         {type.vertical === 'HOSPITALITY' ? (
@@ -168,6 +180,21 @@ export default async function SegmentPage({ params }: Props) {
             <figcaption>{t.hotel.calendar.note}</figcaption>
           </figure>
         </section>
+        ) : null}
+
+        {item.about ? (
+          <section className="section section--tight" aria-labelledby="segment-about-title">
+            <div className="section-heading section-heading--center">
+              <h2 id="segment-about-title" className="section-heading__title">
+                {typo(item.about.title)}
+              </h2>
+            </div>
+            <div className="prose prose--center">
+              {item.about.text.map((paragraph) => (
+                <p key={paragraph.slice(0, 32)}>{typo(paragraph)}</p>
+              ))}
+            </div>
+          </section>
         ) : null}
 
         <MarketingBlock

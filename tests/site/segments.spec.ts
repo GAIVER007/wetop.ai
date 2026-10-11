@@ -47,6 +47,11 @@ for (const segment of SEGMENTS) {
     await expect(page.locator(`.cta a[href="${segment.secondary}"]`)).toBeVisible();
     const text = await page.locator('body').innerText();
     expect(text, 'название стороннего сервиса на странице').not.toMatch(/exely|travelline/i);
+    // Решение владельца 11.10.2026: на сайте не перечисляем, чего в продукте нет
+    expect(text, 'строка «чего нет»').not.toMatch(/Пока нет|пока не входят|пока не учитываются/i);
+    await expect(page.locator('#segment-day-title')).toHaveText('Как проходит день с WETOP');
+    await expect(page.locator('.steps .step')).toHaveCount(3);
+    expect(await page.locator('.prose--center p').count(), 'текст о формате').toBeGreaterThanOrEqual(2);
     expect(text, 'цифры клиентов и цены').not.toMatch(/\d+\s?(клиент|отел[яей]\b)|\d+\s?₸\s*(в месяц|\/ мес)/i);
     expect(text, '«7 дней» один раз на экран').toMatch(/^(?![\s\S]*7 дней[\s\S]*7 дней)/);
   });

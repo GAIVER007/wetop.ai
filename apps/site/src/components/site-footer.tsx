@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { DIRECTIONS, subtypesOf } from '../lib/landings';
 import { getDictionary } from '../i18n';
 import { companyName, loginLink } from '../lib/site';
 import { getPublishedPosts } from '../lib/posts';
@@ -9,6 +10,8 @@ import { typo } from './typo';
  * Подвал одной строкой (по снимку владельца): бренд и подпись слева, ссылки по центру, © справа;
  * ниже мелкая строка с правовыми страницами. «Блог» — только при опубликованных статьях.
  */
+const DIRECTION_COPY = { hotels: 'hotel', salons: 'salon', restaurants: 'restaurant' } as const;
+
 export function SiteFooter() {
   const t = getDictionary();
   // Год сборки: сайт статический, пересобирается при каждой выкладке.
@@ -51,6 +54,26 @@ export function SiteFooter() {
             © {year} {owner}
           </p>
         </div>
+        {/* Все лендинги направлений и типов бизнеса: внутренние ссылки для людей и поисковиков */}
+        <nav className="site-footer__directions" aria-label={t.footer.directions}>
+          {DIRECTIONS.map((direction) => {
+            const own = t[DIRECTION_COPY[direction]];
+            return (
+              <div key={direction}>
+                <Link className="site-footer__direction" href={`/for/${direction}/`}>
+                  {own.badge}
+                </Link>
+                <ul>
+                  {subtypesOf(direction).map((slug) => (
+                    <li key={slug}>
+                      <Link href={`/for/${slug}/`}>{t.segments.items[slug].metaTitle}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </nav>
         <div className="site-footer__legal">
           <Link href="/privacy/">{t.footer.privacy}</Link>
           <Link href="/terms/">{t.footer.terms}</Link>

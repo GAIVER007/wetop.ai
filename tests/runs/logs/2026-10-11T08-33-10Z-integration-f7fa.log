@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 11.10.2026 13:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит ff174db (claude/platform-integration-counts), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-33-10Z-integration-f7fa.json' 'tests/integration/platform-extensions.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin
+
+ ✓ |integration| tests/integration/platform-extensions.test.ts (8 tests) 244ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  01:33:11
+   Duration  1.37s (transform 40%, import 30%, tests 29%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-33-10Z-integration-f7fa.json
+
+# код выхода 0 · 2 с

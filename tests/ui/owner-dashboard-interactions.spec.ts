@@ -76,6 +76,7 @@ test('slow inventory keeps daily events usable and shows a stable loading card',
   const loading = page.getByRole('status', { name: 'Загружаем загрузку…', exact: true });
   await expect(loading).toBeVisible({ timeout: 2000 });
   // слот карточки измеряем сам по себе: заглушку может успеть сменить настоящая карточка
+  // Измеряем видимый слот один раз, чтобы смена streamed-узла не дала null между вызовами.
   const slot = page.locator('.owner-load:visible').first();
   let loadingHeight: number | null = null;
   await expect

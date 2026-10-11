@@ -15,6 +15,7 @@ export type SegmentSlug =
   | 'hostels'
   | 'mini-hotels'
   | 'apart-hotels'
+  | 'beauty-salons'
   | 'barbershops'
   | 'spa'
   | 'nail-studios'

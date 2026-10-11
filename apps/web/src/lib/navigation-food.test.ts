@@ -16,6 +16,7 @@ describe('Food workspace isolation', () => {
       '/table-reservations',
       '/customers',
       '/menu',
+      '/stock',
       '/employees',
       '/payroll',
       '/dining-areas',
@@ -36,6 +37,7 @@ describe('Food workspace isolation', () => {
     expect(labels.find((i) => i.href === '/orders')?.label).toBe('Заказы');
     expect(labels.find((i) => i.href === '/kitchen')?.label).toBe('Кухня');
     expect(labels.find((i) => i.href === '/menu')?.label).toBe('Меню');
+    expect(labels.find((i) => i.href === '/stock')?.label).toBe('Склад');
     expect(labels.find((i) => i.href === '/employees')?.label).toBe('Сотрудники');
     expect(labels.find((i) => i.href === '/payroll')?.label).toBe('Зарплата');
     expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Бронирования');
@@ -72,6 +74,7 @@ describe('Food workspace isolation', () => {
     expect(routeVertical('/dining-areas')).toBe('FOOD_SERVICE');
     expect(routeVertical('/orders')).toBe('FOOD_SERVICE');
     expect(routeVertical('/kitchen')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/stock')).toBe('FOOD_SERVICE');
     expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
     expect(routeVertical('/payroll')).toBe('FOOD_SERVICE');
     // `/employees` общий у салона и ресторана (ADR-159): принадлежности нет, страницу делит requireVertical

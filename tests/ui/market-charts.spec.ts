@@ -74,6 +74,19 @@ test('три графика: линии загрузки, наличие дан�
   const change = page.getByTestId('market-chart-change');
   await change.getByText('Значения по ночам').click();
   await expect(change.locator('tbody tr').first()).toContainText('+12 п.п.');
+
+  // вывод словами над графиками: что следует из данных, без чтения столбиков
+  await expect(data.locator('.market-chart__lead')).toContainText('2 из 2 соседей');
+  await expect(data.locator('.market-chart__lead')).toContainText('1 из 2 соседей');
+  // полоса полноты: пять ночей с обоими соседями, девять с одним
+  await expect(data.locator('[data-coverage="full"]')).toHaveCount(5);
+  await expect(data.locator('[data-coverage="part"]')).toHaveCount(9);
+  await expect(change.locator('.market-chart__lead')).toHaveText(
+    'В среднем +12 п.п.: соседи заполняются. Ночей с ростом: 14, с падением: 0, всего со сравнением: 14.',
+  );
+  await expect(change).toContainText('со вчерашним замером');
+  // значение подписано над столбиком
+  await expect(change.locator('svg text', { hasText: /^\+12$/ })).toHaveCount(14);
 });
 
 test('без сравнения: график изменения говорит, как его включить, а не рисует нули', async ({
@@ -84,6 +97,7 @@ test('без сравнения: график изменения говорит,
   await page.goto('/market?compare=0');
   const change = page.getByTestId('market-chart-change');
   await expect(change).toContainText('Включите «Изменение»');
+  await expect(change.locator('.market-chart__lead')).toHaveCount(0);
   await expect(change.locator('rect[fill*="chart-2"], rect[fill*="danger"]')).toHaveCount(0);
 });
 

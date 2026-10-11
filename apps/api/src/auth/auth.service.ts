@@ -27,8 +27,10 @@ import {
   normalizeOrganizationName,
   normalizePersonName,
   PRIVACY_POLICY_VERSION,
+  REGISTRATION_LOCALE_MESSAGE,
   REGISTRATION_PHONE_MESSAGE,
   REGISTRATION_PRIVACY_MESSAGE,
+  registrationLocale,
   registrationPhone,
   trialEndsAt,
   validEmail,
@@ -344,6 +346,8 @@ export class AuthService {
       phoneCountry: string;
       phone: string;
       privacyAccepted: boolean;
+      /** Язык интерфейса (Q-REG-1); пропуск означает русский */
+      locale?: unknown;
     },
     now = new Date(),
   ): Promise<RegisterResult> {
@@ -364,6 +368,8 @@ export class AuthService {
     // Контакт первого филиала; Hospitality сохраняет его также у Property.
     const phone = registrationPhone(input.phoneCountry, input.phone);
     if (!phone) throw new BadRequestException(REGISTRATION_PHONE_MESSAGE);
+    const locale = registrationLocale(input.locale);
+    if (!locale) throw new BadRequestException(REGISTRATION_LOCALE_MESSAGE);
     if (input.privacyAccepted !== true) throw new BadRequestException(REGISTRATION_PRIVACY_MESSAGE);
 
     const name = normalizePersonName(input.name);
@@ -383,7 +389,13 @@ export class AuthService {
     try {
       created = await this.prisma.db.$transaction(async (tx) => {
         const org = await tx.organization.create({
-          data: { name: organizationName, status: 'TRIAL', trialEndsAt: trialEndsAt(now) },
+          data: {
+            name: organizationName,
+            status: 'TRIAL',
+            trialEndsAt: trialEndsAt(now),
+            // страна телефона уже проверена `registrationPhone`: код из того же списка
+            countryCode: input.phoneCountry,
+          },
           select: { id: true },
         });
         // Объект новой организации создаётся сразу (мультитенантность, решение владельца 21.09):
@@ -413,7 +425,7 @@ export class AuthService {
           });
         }
         const user = await tx.user.create({
-          data: { email, name, passwordHash, status: 'ACTIVE', lastLoginAt: now },
+          data: { email, name, passwordHash, status: 'ACTIVE', lastLoginAt: now, locale },
           select: { id: true },
         });
         // зарегистрировавший — владелец своей организации (DATA_MODEL §16.1, ADR-083)

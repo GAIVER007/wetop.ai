@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 10.10.2026 23:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит cf107b0 (claude/register-country-locale), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T18-58-28Z-integration-f5ed.json' 'tests/integration/mv2-registration.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt
+
+ ✓ |integration| tests/integration/mv2-registration.test.ts (6 tests) 767ms
+   ✓ MV2 real registration persistence (6)
+     ✓ stores organization country and user locale 514ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  11:58:28
+   Duration  1.77s (tests 58%, transform 24%, import 18%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T18-58-28Z-integration-f5ed.json
+
+# код выхода 0 · 2 с

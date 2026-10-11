@@ -1,0 +1,58 @@
+# Интеграционные (integration) · 11.10.2026 13:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1fff2aa (claude/platform-extensions-test)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-12-02Z-integration-2554.json' 'tests/integration/platform-extensions.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |integration| tests/integration/platform-extensions.test.ts (8 tests | 1 failed) 3467ms
+   ❯ расширения организаций (integration, DATABASE_URL required) (8)
+     ✓ изменение и журнал — одной транзакцией: было, стало, кто 1267ms
+     ✓ отказ базы — ни изменения, ни записи в журнале 47ms
+     × список организаций: люди, почты владельцев и расширение — без броней и гостей 173ms
+     ✓ название: меняется и пишется в журнал, было и стало 66ms
+     ✓ архив: статус SUSPENDED и журнал с прежним статусом; данные организации на месте 71ms
+     ✓ возврат из архива: прежний статус и строка журнала 46ms
+     ✓ второй архив и возврат берут статус из последней записи, а не из первой 60ms
+     ✓ записи об архиве нет: возврат в «только чтение», платный доступ сам не появляется 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/platform-extensions.test.ts > расширения организаций (integration, DATABASE_URL required) > список организаций: люди, почты владельцев и расширение — без броней и гостей
+AssertionError: expected [ 'aiSeller', 'createdAt', 'id', …(8) ] to deeply equal [ 'aiSeller', 'createdAt', 'id', …(6) ]
+
+- Expected
++ Received
+
+  [
+    "aiSeller",
+    "createdAt",
+    "id",
++   "locations",
+    "members",
+    "name",
+    "ownerPending",
+    "owners",
+    "status",
+    "trialEndsAt",
++   "verticals",
+  ]
+
+ ❯ tests/integration/platform-extensions.test.ts:130:41
+    128|     });
+    129|     expect(b).toMatchObject({ members: 0, owners: [], aiSeller: null }…
+    130|     expect(Object.keys(a ?? {}).sort()).toEqual(
+       |                                         ^
+    131|       ['aiSeller', 'createdAt', 'id', 'members', 'name', 'ownerPending…
+    132|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  01:12:08
+   Duration  14.02s (transform 46%, tests 31%, import 22%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-12-02Z-integration-2554.json
+
+# код выхода 1 · 22 с

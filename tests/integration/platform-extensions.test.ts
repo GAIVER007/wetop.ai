@@ -127,9 +127,24 @@ describe.skipIf(!url)('расширения организаций (integration,
       aiSeller: { status: 'ACTIVE', activeUntil: null },
     });
     expect(b).toMatchObject({ members: 0, owners: [], aiSeller: null });
+    // Обзор платформы P1 (ADR-161) добавил направления и число филиалов: это только агрегаты, без броней и гостей
     expect(Object.keys(a ?? {}).sort()).toEqual(
-      ['aiSeller', 'createdAt', 'id', 'members', 'name', 'ownerPending', 'owners', 'status', 'trialEndsAt'].sort(),
+      [
+        'aiSeller',
+        'createdAt',
+        'id',
+        'locations',
+        'members',
+        'name',
+        'ownerPending',
+        'owners',
+        'status',
+        'trialEndsAt',
+        'verticals',
+      ].sort(),
     );
+    expect(typeof a?.locations).toBe('number');
+    expect(Array.isArray(a?.verticals) && a.verticals.every((v) => typeof v === 'string')).toBe(true);
     expect(await repo.organization(orgB)).toMatchObject({ id: orgB, aiSeller: null });
     expect(await repo.organization(randomUUID())).toBeNull();
   });

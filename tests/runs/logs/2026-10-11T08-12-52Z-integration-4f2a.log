@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 11.10.2026 13:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1fff2aa (claude/platform-extensions-test), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-12-52Z-integration-4f2a.json' 'tests/integration/platform-extensions.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |integration| tests/integration/platform-extensions.test.ts (8 tests) 3077ms
+   ✓ расширения организаций (integration, DATABASE_URL required) (8)
+     ✓ изменение и журнал — одной транзакцией: было, стало, кто 619ms
+     ✓ список организаций: люди, почты владельцев и расширение — без броней и гостей 879ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  01:13:05
+   Duration  8.13s (tests 56%, transform 25%, import 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-12-52Z-integration-4f2a.json
+
+# код выхода 0 · 23 с

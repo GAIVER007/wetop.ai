@@ -4,7 +4,7 @@ import { DashMock } from '../../../components/landing/dash-mock';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
-import { JsonLd, breadcrumbLd } from '../../../components/json-ld';
+import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -19,6 +19,7 @@ import { registerLink } from '../../../lib/site';
  */
 export const metadata: Metadata = pageMetadata({
   path: '/for/hotels/',
+  image: '/og/hotel.jpg',
   title: getDictionary().hotel.metaTitle,
   description: getDictionary().hotel.description,
 });
@@ -29,13 +30,14 @@ export default function HotelLandingPage() {
   const register = registerLink(undefined, 'HOSPITALITY').href;
   return (
     <div className="page">
-      <JsonLd
-        data={breadcrumbLd([
-          { name: t.meta.siteName, path: '/' },
-          { name: t.hotel.badge, path: '/for/hotels/' },
-        ])}
-      />
       <div className="container">
+        <Breadcrumbs
+          label={t.a11y.breadcrumbs}
+          trail={[
+            { name: t.a11y.crumbHome, path: '/' },
+            { name: t.hotel.badge, path: '/for/hotels/' },
+          ]}
+        />
         <section className="hotel-hero" aria-labelledby="hotel-title">
           <div>
             <p className="eyebrow">{s.badge}</p>

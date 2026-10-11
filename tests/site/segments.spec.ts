@@ -12,6 +12,7 @@ const SEGMENTS = [
   { path: '/for/hostels/', title: /хостел/i, mustHave: /койк/i, ...HOTEL },
   { path: '/for/mini-hotels/', title: /мини-отел/i, mustHave: /категори/i, ...HOTEL },
   { path: '/for/apart-hotels/', title: /апарт/i, mustHave: /апартамент/i, ...HOTEL },
+  { path: '/for/beauty-salons/', title: /салон красоты/i, mustHave: /косметолог/i, ...BEAUTY },
   { path: '/for/barbershops/', title: /барбершоп/i, mustHave: /барбер/i, ...BEAUTY },
   { path: '/for/spa/', title: /спа/i, mustHave: /процедур/i, ...BEAUTY },
   { path: '/for/nail-studios/', title: /ногтев/i, mustHave: /маникюр/i, ...BEAUTY },
@@ -46,6 +47,11 @@ for (const segment of SEGMENTS) {
     await expect(page.locator(`.cta a[href="${segment.secondary}"]`)).toBeVisible();
     const text = await page.locator('body').innerText();
     expect(text, 'название стороннего сервиса на странице').not.toMatch(/exely|travelline/i);
+    // Решение владельца 11.10.2026: на сайте не перечисляем, чего в продукте нет
+    expect(text, 'строка «чего нет»').not.toMatch(/Пока нет|пока не входят|пока не учитываются/i);
+    await expect(page.locator('#segment-day-title')).toHaveText('Как проходит день с WETOP');
+    await expect(page.locator('.steps .step')).toHaveCount(3);
+    expect(await page.locator('.prose--center p').count(), 'текст о формате').toBeGreaterThanOrEqual(2);
     expect(text, 'цифры клиентов и цены').not.toMatch(/\d+\s?(клиент|отел[яей]\b)|\d+\s?₸\s*(в месяц|\/ мес)/i);
     expect(text, '«7 дней» один раз на экран').toMatch(/^(?![\s\S]*7 дней[\s\S]*7 дней)/);
   });
@@ -66,7 +72,7 @@ test('карточки направлений на главной ведут н�
 test('страницы направлений ведут карточками на свои типы бизнеса', async ({ page }) => {
   for (const [direction, types] of [
     ['/for/hotels/', ['/for/hostels/', '/for/mini-hotels/', '/for/apart-hotels/']],
-    ['/for/salons/', ['/for/barbershops/', '/for/spa/', '/for/nail-studios/']],
+    ['/for/salons/', ['/for/beauty-salons/', '/for/barbershops/', '/for/spa/', '/for/nail-studios/']],
     ['/for/restaurants/', ['/for/cafes/', '/for/bars/']],
   ] as const) {
     await page.goto(direction);

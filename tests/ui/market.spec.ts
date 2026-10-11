@@ -4,13 +4,14 @@ import type { APIRequestContext } from '@playwright/test';
 import { FIXTURE_API, expect, test, devNoise, type Page, goViaMenu } from './fixtures';
 
 /**
- * «Загрузка конкурентов» (ADR-142, план `plans/market-competitor-occupancy-2026-10-03.md`): пункт «Продажи»,
- * пустое состояние, добавить конкурента, внести загрузку по ночам, таблица «вы и рынок» с изменением к вчера,
- * подсказки к цене, «убрать из списка», «только чтение». Подставной API считает тем же доменом, что API.
- * Отели вымышленные (ADR-010).
+ * «Анализ конкурентов» (ADR-142; редизайн COMP3.2, план `plans/competitor-analysis-comp3-2026-10-09.md`):
+ * пункт «Продажи», пустое состояние, добавить конкурента, внести загрузку по ночам, пять плиток,
+ * календарь рыночных сигналов, график «вы и рынок», рекомендация по данным, таблица конкурентов
+ * со статусами, детализация «По ночам», «убрать из списка», «только чтение».
+ * Подставной API считает тем же доменом, что API. Отели вымышленные (ADR-010).
  */
 const API = FIXTURE_API;
-const SHOTS = 'reports/market-competitors-2026-10-03';
+const SHOTS = 'reports/market-redesign-2026-10-09';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
 
@@ -61,11 +62,11 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   page,
 }) => {
   await page.goto('/finance');
-  await goViaMenu(page, 'Продажи', 'Загрузка конкурентов');
+  await goViaMenu(page, 'Продажи', 'Анализ конкурентов');
   await page.waitForURL('**/market');
   const main = page.getByRole('main');
   const grid = page.getByTestId('market-table');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Загрузка конкурентов');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Анализ конкурентов');
   await expect(main.getByTestId('market-empty')).toContainText('Добавьте ближайших конкурентов');
   // одна кнопка «Добавить» на экране и без строки дат: сравнивать пока не с кем
   await expect(main.getByTestId('market-add')).toHaveCount(1);
@@ -100,7 +101,8 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   await expect(row).toContainText('Сбор не подключён');
   await expect(row).not.toContainText('ИИ');
   await expect(row).toContainText('данных нет');
-  await expect(main.getByTestId('market-insights')).toContainText('Нет данных: Отель Тестовый');
+  // единственная подсказка показывается карточкой рекомендации
+  await expect(main.getByTestId('market-reco')).toContainText('Нет данных: Отель Тестовый');
 
   await main.getByRole('button', { name: 'Внести загрузку: Отель Тестовый' }).click();
   const entry = page.getByTestId('market-occupancy-form');
@@ -112,15 +114,16 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   await fields.nth(1).fill('40');
   await entry.getByTestId('market-occupancy-save').click();
   await expect(page.getByText('Загрузка сохранена: 2 ночи')).toBeVisible();
-  // в таблице целые проценты, хранится точно: 88,5 % → «89 %»
-  await expect(row).toContainText('89 %');
-  await expect(row).toContainText('40 %');
+  // в «По ночам» целые проценты, хранится точно: 88,5 % → «89 %»
+  const heat = main.getByTestId('market-table').getByRole('row', { name: /Отель Тестовый/ });
+  await expect(heat).toContainText('89 %');
+  await expect(heat).toContainText('40 %');
   await expect(main.getByTestId('market-row-market')).toContainText('89 %');
   await expect(main.getByTestId('market-row-own')).toBeVisible();
-  await expect(main.getByTestId('market-insights')).not.toContainText('Нет данных');
+  await expect(main.getByTestId('market-reco')).not.toContainText('Нет данных');
 });
 
-test('таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка', async ({
+test('плитки, календарь сигналов, график, рекомендация и таблица конкурентов; убрать из списка', async ({
   page,
   request,
 }) => {
@@ -128,24 +131,44 @@ test('таблица «вы и рынок»: изменение к вчера, �
   await page.goto('/market');
   const main = page.getByRole('main');
   const grid = page.getByTestId('market-table');
+  // «По ночам»: значения, изменение к вчера, метка источника, расстояние и ссылка на соседа
   const altyn = grid.getByRole('row', { name: /Отель Алтын/ });
   await expect(altyn).toContainText('92 %');
   await expect(altyn).toContainText('+12 п.п.');
   await expect(altyn).toContainText('ИИ');
   await expect(altyn).toContainText('200 м');
   await expect(altyn.getByRole('link', { name: 'Отель Алтын' })).toHaveAttribute('href', 'https://example.com/altyn');
-  // средняя по рынку: (92 + 95) / 2 = 93,5 %; в таблице целыми, на плитке до десятых
-  await expect(main.getByTestId('market-row-market')).toContainText('94 %');
+  // таблица конкурентов (SALES2.3b) рядом с подсказками: загрузка сегодня и свежесть данных словом
+  const listed = main.getByTestId('market-competitors').getByRole('row', { name: /Отель Алтын/ });
+  await expect(listed).toContainText('92 %');
+  await expect(listed).toContainText('Актуально');
+
+  // плитки: средняя по рынку до десятых, ночи высокого спроса, рыночные сигналы
   await expect(main.getByTestId('market-tile-market')).toHaveText('93,5 %');
   await expect(main.getByTestId('market-tile-high')).toHaveText('14');
-  // подсказка: высокий спрос, ссылка в календарь цен месяца первой ночи
-  const insight = main.getByTestId('market-insights').locator('li').first();
-  await expect(insight).toContainText(/Рынок почти полон|Высокий спрос/);
-  // цены живут в «Категориях номеров» (раздела «Тарифы и цены» нет с 06.10.2026)
-  await expect(insight.getByRole('link', { name: 'Открыть цены' })).toHaveAttribute(
-    'href',
-    '/rooms/categories',
-  );
+  // рынок прыгнул к вчера на +12 п.п.: каждая дата окна — сигнал «резкое изменение»
+  await expect(main.getByTestId('market-tile-signals')).toHaveText('14');
+  await expect(
+    main.getByTestId('market-calendar').locator('.market-calendar__grid .market-day--shift'),
+  ).toHaveCount(14);
+
+  // график: обе линии и значения по ночам без наведения
+  const chart = main.getByTestId('market-chart');
+  await expect(chart).toBeVisible();
+  await chart.getByText('Значения по ночам').click();
+  await expect(chart.locator('tbody tr')).toHaveCount(14);
+
+  // рекомендация по данным: словами, с основанием и кнопкой к тарифам (цены меняет человек)
+  const reco = main.getByTestId('market-reco');
+  await expect(reco).toContainText(/Рынок почти полон|Высокий спрос/);
+  await expect(reco).toContainText('По данным 2 из 2 конкурентов');
+  await expect(reco.getByTestId('market-reco-rates')).toHaveAttribute('href', '/rooms/categories');
+
+  // в «По ночам» изменение к вчера в клетках
+  const heat = main.getByTestId('market-table').getByRole('row', { name: /Отель Алтын/ });
+  await expect(heat).toContainText('92 %');
+  await expect(heat).toContainText('+12 п.п.');
+  await expect(main.getByTestId('market-row-market')).toContainText('94 %');
 
   // без сравнения изменения нет
   await page.goto('/market?compare=0');
@@ -164,7 +187,15 @@ test('таблица «вы и рынок»: изменение к вчера, �
   await expect(main.getByTestId('market-row-market')).toContainText('92 %');
 });
 
-test('«только чтение»: таблица и подсказки видны, добавлять и вносить нельзя', async ({
+test('календарь сигналов: дата открывает «Историю ночи»', async ({ page, request }) => {
+  const today = await seed(request);
+  await page.goto('/market');
+  await page.getByTestId(`market-day-${today}`).click();
+  await page.waitForURL(`**night=${today}`);
+  await expect(page.getByTestId('market-night-table')).toBeVisible();
+});
+
+test('«только чтение»: показатели и таблицы видны, добавлять и вносить нельзя', async ({
   page,
   request,
 }) => {
@@ -178,6 +209,7 @@ test('«только чтение»: таблица и подсказки вид
   await expect(grid.getByRole('row', { name: /Отель Алтын/ })).toContainText('92 %');
   await expect(main.getByTestId('market-add')).toHaveCount(0);
   await expect(main.getByTestId('market-table').getByRole('button')).toHaveCount(0);
+  await expect(main.getByTestId('market-competitors').getByRole('button')).toHaveCount(0);
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -209,6 +241,9 @@ for (const theme of ['light', 'dark'] as const) {
 
     await seed(request);
     await page.goto('/market');
+    await expect(page.getByTestId('market-calendar')).toBeVisible();
+    await expect(page.getByTestId('market-chart')).toBeVisible();
+    await expect(page.getByTestId('market-competitors')).toBeVisible();
     await expect(page.getByTestId('market-table')).toBeVisible();
     await axe();
     await shot('board');

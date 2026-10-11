@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 09.10.2026 20:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 485145c (claude/market-redesign-comp32), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/market.spec.ts' '--workers=1'
+[WebServer] [Nest] 8001  - 10/09/2026, 8:46:39 AM   ERROR [ExceptionHandler] TypeError: Invalid URL
+[WebServer]     at new URL (node:internal/url:840:25)
+[WebServer]     at new BotPanelClient (/Users/vyacheslav/Desktop/Проекты/WETOP/packages/integrations/src/assistant/bot-panel-client.ts:180:19)
+[WebServer]     at InstanceWrapper.generationBotFromEnv (/Users/vyacheslav/Desktop/Проекты/WETOP/apps/api/src/marketing-site/generation.bot.ts:71:18)
+[WebServer]     at Injector.instantiateClass (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/@nestjs/core/injector/injector.js:444:55)
+[WebServer]     at callback (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/@nestjs/core/injector/injector.js:69:45)
+[WebServer]     at async Injector.resolveConstructorParams (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/@nestjs/core/injector/injector.js:182:24)
+[WebServer]     at async Injector.loadInstance (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/@nestjs/core/injector/injector.js:75:13)
+[WebServer]     at async Injector.loadProvider (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/@nestjs/core/injector/injector.js:109:9)
+[WebServer]     at async file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/@nestjs/core/injector/instance-loader.js:57:13
+[WebServer]     at async Promise.all (index 14) {
+[WebServer]   code: 'ERR_INVALID_URL',
+[WebServer]   input: 'http://seller:8000<DASHBOARD_PATH_PREFIX продавца>'
+[WebServer] }
+[WebServer] npm error Lifecycle script `start` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /Users/vyacheslav/Desktop/Проекты/WETOP/apps/api
+[WebServer] npm error workspace @pms/api@0.0.0
+[WebServer] npm error location /Users/vyacheslav/Desktop/Проекты/WETOP/apps/api
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c tsx src/main.ts
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 33 с

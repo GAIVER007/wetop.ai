@@ -133,7 +133,11 @@ describe.skipIf(process.env.A2_RUNTIME_AUDIT !== '1')('A2 real workspace bootstr
   it('authenticated report reflects stored synthetic values', async () => {
     const response = await get('/bar/report');
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ currency: 'KZT', purchasesMinor: '300', supplierPaidMinor: '0', revenueMinor: '0', costMinor: '0', grossProfitMinor: '0', writeOffMinor: '0', stockCostMinor: '300', supplierDebtMinor: '300' });
+    // Бар-2 (ADR-157) добавил к отчёту месяц к прошлому и популярные: итоги сверяются точно, месяц без привязки к дате прогона
+    const { month, popular, ...totals } = response.body as Record<string, unknown>;
+    expect(totals).toEqual({ currency: 'KZT', purchasesMinor: '300', supplierPaidMinor: '0', revenueMinor: '0', costMinor: '0', grossProfitMinor: '0', writeOffMinor: '0', stockCostMinor: '300', supplierDebtMinor: '300' });
+    expect(popular).toEqual([]);
+    expect(month).toEqual(expect.objectContaining({ revenueMinor: '0', revenuePrevMinor: '0', grossProfitMinor: '0', revenueGrowth: null }));
   });
   it('unauthenticated Bar request is rejected before the service', async () => {
     const response = await get('/bar/categories', false);

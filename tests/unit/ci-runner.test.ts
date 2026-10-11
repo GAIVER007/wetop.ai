@@ -101,6 +101,12 @@ describe('свой раннер CI', () => {
     expect(auth).toMatch(/needs: fast/);
     expect(auth).toContain('tests/ui/playwright.auth.config.ts --workers=2');
     expect(withoutComments(job('ui-shard'))).toContain('--workers=2');
+    // runtime-аудит (O-9) обязателен: своя задача гейта, прогон в закрытом сетевом пространстве, без исторического A3
+    const audit = withoutComments(job('runtime-audit'));
+    expect(audit).toMatch(/runs-on: ubuntu-24\.04/);
+    expect(audit).toContain('scripts/ci/runtime-audit.sh prepare');
+    expect(audit).toContain('scripts/ci/runtime-audit.sh isolated');
+    expect(audit).not.toMatch(/continue-on-error|A3_RUNTIME_AUDIT/);
     // новый кандидат заменяет прежний: его итог уже никому не нужен, а минуты тратятся
     const block = /\nconcurrency:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '';
     expect(withoutComments(block)).toMatch(/cancel-in-progress: true/);

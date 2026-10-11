@@ -1,0 +1,35 @@
+{
+  "command": "npm run start -w apps/api",
+  "wrapper": "inherited outer network.sb",
+  "pid": 72472,
+  "launcherPid": 72428,
+  "cwd": "/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/apps/api",
+  "host": "127.0.0.1",
+  "port": 4407,
+  "databaseIdentity": {
+    "database": "pmslocal",
+    "role": "a24_migrator",
+    "version": "16.14",
+    "port": 55601
+  },
+  "runtimeRoles": [
+    {
+      "rolname": "wetop_app",
+      "rolsuper": false,
+      "rolbypassrls": false
+    },
+    {
+      "rolname": "wetop_service",
+      "rolsuper": false,
+      "rolbypassrls": true
+    }
+  ],
+  "fixtures": {
+    "organization": "af91ad8e-8cf3-43e5-a1c4-54fd9eb9eeeb",
+    "business": "d389b0b8-7cc8-4edb-a68c-81c59774ad5c",
+    "location": "ad817bfb-d910-46b9-9342-50c3f4e86c2c",
+    "property": "f2e92028-f65a-4f14-b0b1-b5eef0b0a8d7",
+    "category": "7306b595-c349-47d3-bcbe-85922b04cb2e",
+    "product": "0121a0df-0fa5-4114-b4f9-09b6463478cc"
+  }
+}

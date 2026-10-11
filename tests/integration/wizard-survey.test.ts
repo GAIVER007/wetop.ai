@@ -3,9 +3,11 @@ import { randomUUID } from 'node:crypto';
 import { createPrismaClient } from '@pms/database';
 import { WizardService } from '../../apps/api/src/wizard/wizard.service';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import { isLocalDatabase } from '../tools/seed-local';
 
-/** Только явный loopback PostgreSQL, рабочую базу объекта не трогаем (как wizard-drafts). */
-const local = process.env.DATABASE_URL?.includes('@127.0.0.1:55432/');
+/** Только loopback PostgreSQL, рабочую базу объекта не трогаем. Раньше условие было зашито на порт 55432,
+ * и тест молча пропускался и на стенде CI (5432), и на любой другой локальной базе */
+const local = isLocalDatabase(process.env.DATABASE_URL ?? '');
 describe.skipIf(!local)('wizard: опрос и события воронки', () => {
   it('опрос заменяется при повторе, событие одно; браузерное событие не дублируется', async () => {
     process.env.WIZARD_ENABLED = '1';

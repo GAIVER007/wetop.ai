@@ -1,0 +1,99 @@
+[
+  {
+    "route": "/health",
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "database": "up",
+      "uptimeSeconds": 0
+    }
+  },
+  {
+    "route": "/bar/categories",
+    "status": 200,
+    "body": [
+      {
+        "id": "7306b595-c349-47d3-bcbe-85922b04cb2e",
+        "propertyId": "f2e92028-f65a-4f14-b0b1-b5eef0b0a8d7",
+        "name": "A2 synthetic category",
+        "defaultMarkupBasis": 0,
+        "active": true,
+        "createdAt": "2026-10-11T08:43:21.619Z"
+      }
+    ]
+  },
+  {
+    "route": "/bar/stock",
+    "status": 200,
+    "body": [
+      {
+        "id": "0121a0df-0fa5-4114-b4f9-09b6463478cc",
+        "propertyId": "f2e92028-f65a-4f14-b0b1-b5eef0b0a8d7",
+        "categoryId": "7306b595-c349-47d3-bcbe-85922b04cb2e",
+        "code": "A2-SYNTHETIC",
+        "name": "A2 synthetic product",
+        "barcode": null,
+        "unitsPerPackage": 1,
+        "markupBasis": null,
+        "salePrice": "150",
+        "minimumStockUnits": "0",
+        "active": true,
+        "createdAt": "2026-10-11T08:43:21.619Z",
+        "updatedAt": "2026-10-11T08:43:21.619Z",
+        "category": {
+          "id": "7306b595-c349-47d3-bcbe-85922b04cb2e",
+          "propertyId": "f2e92028-f65a-4f14-b0b1-b5eef0b0a8d7",
+          "name": "A2 synthetic category",
+          "defaultMarkupBasis": 0,
+          "active": true,
+          "createdAt": "2026-10-11T08:43:21.619Z"
+        },
+        "currency": "KZT",
+        "availableUnits": "3",
+        "stockCostMinor": "300",
+        "lastUnitCostMinor": "100",
+        "lastReceivedDate": "2026-10-07",
+        "lastSupplier": {
+          "id": "9a80fed6-36d0-49e9-a6b1-eac343e5192f",
+          "name": "A2 synthetic supplier"
+        },
+        "nearestExpiry": null
+      }
+    ]
+  },
+  {
+    "route": "/bar/report",
+    "status": 200,
+    "body": {
+      "currency": "KZT",
+      "purchasesMinor": "300",
+      "supplierPaidMinor": "0",
+      "revenueMinor": "0",
+      "costMinor": "0",
+      "grossProfitMinor": "0",
+      "writeOffMinor": "0",
+      "stockCostMinor": "300",
+      "supplierDebtMinor": "300",
+      "month": {
+        "monthStart": "2026-10-01",
+        "purchasesMinor": "300",
+        "purchasesPrevMinor": "0",
+        "revenueMinor": "0",
+        "revenuePrevMinor": "0",
+        "grossProfitMinor": "0",
+        "purchasesGrowth": null,
+        "revenueGrowth": null
+      },
+      "popular": []
+    }
+  },
+  {
+    "route": "/bar/categories",
+    "status": 401,
+    "body": {
+      "message": "Войдите в систему",
+      "error": "Unauthorized",
+      "statusCode": 401
+    }
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "pid": 72395,
+  "cwd": "/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/apps/api",
+  "local": "CONNECTED",
+  "external": "EPERM",
+  "AUTH_REQUIRED": "1",
+  "runtimeRole": "wetop_service"
+}

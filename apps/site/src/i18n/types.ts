@@ -1,5 +1,12 @@
 import type { IconName } from '../components/icon';
 
+export type MarketingCopy = {
+  title: string;
+  lead: string;
+  items: Array<{ icon: IconName; title: string; text: string; soon?: boolean }>;
+  note?: string;
+};
+
 /**
  * Все тексты сайта. Новый язык (казахский, английский) = новый файл рядом с ru.ts того же типа и строка
  * в src/i18n/index.ts; компоненты тексты не хранят.
@@ -160,6 +167,14 @@ export type Dictionary = {
     items: Array<{ q: string; a: string }>;
   };
   /** Калькулятор «прямая бронь против OTA» (`/calculator/`, срез D3). */
+  /** Блок «Маркетинг и ИИ» на лендингах направлений (11.10.2026): `soon` — функции ещё нет, карточка с пометкой. */
+  marketing: {
+    eyebrow: string;
+    soon: string;
+    hotel: MarketingCopy;
+    salon: MarketingCopy;
+    restaurant: MarketingCopy;
+  };
   calculator: {
     metaTitle: string;
     description: string;

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Icon } from '../../../components/icon';
 import { LandingFinal } from '../../../components/landing/landing-final';
+import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -119,6 +120,13 @@ export default function RestaurantLandingPage() {
             </a>
           </div>
         </section>
+
+        <MarketingBlock
+          id="marketing"
+          copy={t.marketing.restaurant}
+          eyebrow={t.marketing.eyebrow}
+          soon={t.marketing.soon}
+        />
 
         <LandingFinal
           faq={{ title: s.faqTitle, items: s.faq }}

@@ -3772,6 +3772,8 @@ button {
   --border: var(--salon-border);
   --primary: var(--salon-text);
   --shadow-card: var(--salon-shadow);
+  --chip-bg: var(--salon-chip);
+  --chip-fg: var(--salon-text);
   background: var(--salon-bg);
   color: var(--salon-text);
 }

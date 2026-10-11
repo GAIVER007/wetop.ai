@@ -381,6 +381,54 @@
     display: block;
   }
 
+  /* Оплата заказа и касса филиала (DATA_MODEL §35, ADR-165) */
+  .rest-pay {
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border);
+  }
+  .rest-pay-sum {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+  }
+  .rest-pay-sum dd {
+    margin: 0;
+    text-align: right;
+    font-weight: 600;
+  }
+  .rest-pay-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rest-pay-list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rest-pay-list li strong {
+    margin-left: auto;
+  }
+  .rest-pay-list li[data-status='VOIDED'] {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+  .rest-pay-void {
+    display: flex;
+    gap: var(--space-2);
+    width: 100%;
+  }
+  .rest-cash-forms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-4);
+  }
   @media (max-width: 960px) {
     .rest-dash-grid {
       grid-template-columns: 1fr;

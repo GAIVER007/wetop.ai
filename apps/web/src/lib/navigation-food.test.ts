@@ -16,6 +16,7 @@ describe('Food workspace isolation', () => {
       '/orders',
       '/kitchen',
       '/menu',
+      '/cashbox',
       '/customers',
       '/employees',
       '/payroll',
@@ -37,7 +38,7 @@ describe('Food workspace isolation', () => {
       'Помощь',
       'Профиль',
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 3, 3]);
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 4, 3]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],
@@ -50,6 +51,7 @@ describe('Food workspace isolation', () => {
     expect(labels.find((i) => i.href === '/menu')?.label).toBe('Меню');
     expect(labels.find((i) => i.href === '/employees')?.label).toBe('Сотрудники');
     expect(labels.find((i) => i.href === '/payroll')?.label).toBe('Зарплата');
+    expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Касса');
     expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Бронирования');
   });
   it('does not expose Food to existing verticals', () => {
@@ -86,6 +88,7 @@ describe('Food workspace isolation', () => {
     expect(routeVertical('/kitchen')).toBe('FOOD_SERVICE');
     expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
     expect(routeVertical('/payroll')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/cashbox')).toBe('FOOD_SERVICE');
     // `/employees` общий у салона и ресторана (ADR-159): принадлежности нет, страницу делит requireVertical
     expect(routeVertical('/employees')).toBeNull();
     expect(routeVertical('/calendar')).toBe('BEAUTY');

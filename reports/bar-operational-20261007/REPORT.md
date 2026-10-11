@@ -1,12 +1,12 @@
 # BAR financial acceptance candidate
 
-Current candidate: fresh-main base `c871865ca2caf074edbbf3d554df61d15dbc5989`, migration `20261011000084_bar_financial_replay`, 90 migration directories. Earlier migration numbers and results below are historical checkpoints.
+Current candidate: fresh-main base `29ae2a5a24de2a1763cd925f697708b2f2b1cae9`, migration `20261011000084_bar_financial_replay`, 92 migration directories. Earlier migration numbers and results below are historical checkpoints.
 
 Status: implementation candidate. This document records local evidence at the candidate commit; the exact-SHA full GitHub CI and final readiness are recorded in the PR manifest. This report does not authorize merge, release, migration or production deployment.
 
 ## Scope and baseline
 
-Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. At that historical checkpoint main had 69 migration directories through canonical 63 and BAR used 64. At the next historical checkpoint main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e added marketing publication migrations 64/65; BAR was renumbered to 66, making 72 directories. At the historical main 791adad02a5955102f32ffa9c6533a29bc4f3757 checkpoint, Site Assets occupied 66/67 and BAR used `20261007000068_bar_financial_replay`, making 74 directories. The current canonical BAR migration is 84 with 90 directories as stated above. Existing BAR 55-57 are preserved.
+Work is isolated in `wetop-bar-acceptance-20261007-src`, branch `codex/bar-operational-acceptance-20261007`, with private PostgreSQL 16 on localhost port 55893. The foreign shared checkout and Supabase were not modified. Main `50f04c5ce104bc366d4854e5bf831b81ddfe665f` was merged into repair checkpoint `d51556355ae8f6298b1e1db8052ef8748b520864`, producing `c4178b3fd11f6dd029698d14a1ecc8d2ac8fdfb6`. Upstream changes concerned design, Food test synchronization and CI coverage; no BAR/Finance/schema migrations changed. At that historical checkpoint main had 69 migration directories through canonical 63 and BAR used 64. At the next historical checkpoint main 89f4e5f726eff42d18e3d1a2f107dbb7b450ce6e added marketing publication migrations 64/65; BAR was renumbered to 66, making 72 directories. At the historical main 791adad02a5955102f32ffa9c6533a29bc4f3757 checkpoint, Site Assets occupied 66/67 and BAR used `20261007000068_bar_financial_replay`, making 74 directories. The current canonical BAR migration is 84 with 92 directories as stated above. Existing BAR 55-57 are preserved.
 
 ## Approved behavior
 
@@ -167,3 +167,14 @@ General UI run 38138089967 found confirmed empty Beauty accessibility errors (AR
 Final main sync: `c871865ca2caf074edbbf3d554df61d15dbc5989`. Its Beauty accessibility changes and singleton Marketing assertions are preserved; the shared renderer keeps the empty timeline's labeled group and keyboard-accessible grid. Local `2026-10-11T17-06-14Z-e2e-a349`: 8 PASS (including Beauty light/dark axe and Marketing keyboard acceptance), 1 unchanged 45-second AI creation navigation timeout before axe. This is partial local evidence, not full GREEN. The document-title assertion remains strict and the full Linux suite must demonstrate the previously reproduced axe case.
 
 Final merged sources: typecheck `2026-10-11T17-10-57Z-typecheck-2649`, lint `2026-10-11T17-10-57Z-lint-0a4e` and unit 20 `2026-10-11T17-10-57Z-unit-f4f8` PASS with stable fingerprints. Full exact-head release-checks is required after the following merge commit.
+
+
+## Fresh main 29ae2a5a impact
+
+During the final UI run, main advanced to `29ae2a5a24de2a1763cd925f697708b2f2b1cae9`: Restaurant cash migrations 86/87 and its approved model, protected vertical 401 login routing, and queued main CI. BAR 84 remains free and unchanged, as do BAR 55-57. The final directory count is 92. Food cash remains upstream scope; this repair does not redesign it. Prisma/RLS/model merges preserve both domains. Three duplicated regression-test conflicts preserve upstream behavior and the stronger persistence/ownership/audit and empty-state assertions. The matching Prisma client was generated and only this task's private localhost test database received migrations 86/87. Production was untouched.
+
+Previous candidate e1bc6f4b passed unit 4529, site 127, integration 1049, API 4, e2e 26, BAR 10 with 24 screenshots, Beauty 11, Food 23, Branches 39, bot 1886, UI shard 2:395 and shard 3:415. Shard 1 had not finished when fresh main required another sync. It is not complete GREEN evidence. A new full exact-head run, including upstream locked-session acceptance, is mandatory.
+
+Workflow 38159136845 subsequently completed full GREEN on e1bc6f4b. This is historical complete evidence on the 90-directory chain, not final proof for the newer 92-directory merge. Local 92-directory critical integration `2026-10-11T18-06-31Z-integration-c19e`: 45 PASS / 1 unchanged 5-second T05 Folio timeout. Exact unchanged T05 Folio retry `2026-10-11T18-09-03Z-integration-2cf1` passed in 656 ms. Its 28 non-selected cases are test-name filtering, not new skipped test declarations. No assertions or timeout limits changed.
+
+Merged 92-directory local checks: unit 51 `2026-10-11T18-11-02Z-unit-bb16`, root/API/web typecheck `2026-10-11T18-11-01Z-typecheck-8d6b` and lint `2026-10-11T18-11-01Z-lint-23f0` PASS, with unchanged source fingerprints. No unresolved merge markers remain.

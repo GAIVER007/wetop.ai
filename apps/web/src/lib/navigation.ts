@@ -69,6 +69,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Экран кухни (KDS)' },
       { href: '/menu', label: 'Меню', icon: 'kettle', requires: 'desk', description: 'Меню и техкарты' },
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
+      { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса ресторана' },
 
       {
         href: '/calendar',
@@ -549,7 +550,7 @@ export const foodMenuSections: MenuSection[] = [
     id: 'orders',
     label: 'Заказы',
     icon: 'receipt',
-    items: [menuItem('/orders'), menuItem('/kitchen'), menuItem('/menu')],
+    items: [menuItem('/orders'), menuItem('/kitchen'), menuItem('/menu'), menuItem('/cashbox')],
   },
   direct('customers', '/customers', 'guests', 'Клиенты'),
   {

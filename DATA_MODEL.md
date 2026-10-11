@@ -50,6 +50,7 @@ v2.11 (06.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; MKT1A,
 v2.15 (09.10.2026): §31 область доступа сотрудника (`membership_scopes`), приостановка членства, данные приглашения: утверждено владельцем 09.10.2026 («давай да делай дальше», Q-286…Q-290, ADR-156); миграции `20261009000072_membership_scopes` и `…073_membership_scopes_grants` на рабочей базе применяет владелец
 v2.13 (07.10.2026; **решения владельца Q-271 и Q-275 от 07.10.2026**; MKT7, `plans/mkt7-publication-preview-domains-2026-10-07.md`): §29.4 `marketing_site_publications` и §29.6 `site_domains` в базе, новый §29.11 `locations.booking_tracked_site_id` (канонический сайт брони филиала) с начальным заполнением; миграции `20261007000064_marketing_publication_domains` и `20261007000065_marketing_publication_grants`
 v2.14 (09.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; O5a, ADR-153, `plans/guest-onboarding-ai-seller-2026-10-09.md`): §13.11 `email_verifications.wizard_session_id`: серверная связь подтверждения почты с гостевым черновиком (nullable FK на `wizard_sessions`, `ON DELETE SET NULL`, частичный уникальный индекс «одна живая связь на сессию»). Кода и миграции нет; миграцию применяет владелец до выкладки O5b
+v2.18 (11.10.2026; **утверждено владельцем 11.10.2026 ответами на три развилки**, ADR-165): §35 оплата заказа ресторана частями и разными способами (`restaurant_payments`), касса филиала (`restaurant_cash_operations`, `restaurant_cash_reconciliations`), выплаты зарплаты из кассы (Q-REST-1, Q-REST-6); без фискализации, скидок и чаевых; миграции №86 и №87, на рабочей базе применяет владелец до выкладки
 v2.17 (10.10.2026; **утверждено владельцем 10.10.2026 ответом «да сохранять страну и язык» на Q-REG-1**, ADR-163): §13.1 `organizations.country_code` (ISO 3166-1 alpha-2, NULL у заведённых раньше; при регистрации страна из окна, она же страна телефона) и §13.2 `users.locale` (`ru`, `kk`, `en`, по умолчанию `ru`; CHECK `users_locale_known`); права `wetop_app` на `users` не расширяются (§17.3); миграция `20261010000083_registration_country_locale`, на рабочей базе применяет владелец до выкладки
 
 > **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
@@ -3668,3 +3669,77 @@ BOOKED/CONFIRMED на сегодня; Уборка = флаг; иначе Сво
 - Версий знаний (документов) здесь нет: у документа в боте нет прошлых редакций, это отдельное решение.
 
 **Миграция** `20261010000078_seller_prompt_versions` (+ `down.sql`), аддитивная; на рабочей базе применяет владелец до выкладки кода. Существующие инструкции получают первую версию при ближайшем сохранении (задним числом история не восстанавливается).
+
+## 35. Ресторан: оплата заказа, касса филиала, выплаты зарплаты (v2.18, УТВЕРЖДЕНО владельцем 11.10.2026 ответами на три развилки: «делим оплату», «выплата из кассы», «пока без скидок и чаевых»; ADR-165, Q-REST-1, Q-REST-6)
+
+Ресторанный филиал получает свою кассу по образцу кассы гостиницы (§21): прошлое не правится,
+ошибка аннулируется статусом `VOIDED`, остатки считаются, а не хранятся. Касса привязана к
+филиалу (`locations`), а не к `properties`: у ресторана объекта гостиницы нет. Перечисления
+`PaymentMethod`, `PaymentStatus` и `CashOperationKind` общие с гостиницей. Фискализации, чеков
+ОФД, скидок, чаевых и возвратов после закрытия заказа в v2.18 нет.
+
+### 35.1 Оплата заказа
+
+- **`restaurant_payments`**: `id` uuid PK, `location_id` FK locations, `order_id` FK
+  restaurant_orders (заказ того же филиала, триггер), `method` PaymentMethod, `amount` bigint > 0
+  (тиыны, ADR-008), `currency` char(3), `status` PaymentStatus DEFAULT COMPLETED,
+  `idempotency_key` varchar(100) (UNIQUE `(location_id, idempotency_key)`: повтор того же
+  нажатия не создаёт второй платёж), `paid_at` timestamptz DEFAULT now, `created_by_id` FK users
+  NULL, `voided_at` timestamptz NULL, `voided_by_id` FK users NULL, `void_reason` varchar(200)
+  NULL, `created_at`. CHECK: аннулированный платёж несёт отметку и причину, действующий нет.
+- **Правила** (домен `orderPayable`, API под замком заказа `FOR UPDATE`):
+  - Оплата частями и разными способами: платежей у заказа сколько угодно, сумма действующих
+    (`COMPLETED`) не больше `total` заказа. Сдача наличными считается на экране, в кассу идёт
+    ровно применённая сумма.
+  - Платить можно, пока заказ не `CLOSED` и не `CANCELLED`.
+  - Когда оплачено ровно `total` и заказ `SERVED`, он закрывается той же транзакцией
+    (`CLOSED`, `closed_at`). Переход `SERVED → CLOSED` вручную требует полной оплаты.
+  - Отменить заказ с действующими платежами нельзя: сначала аннулировать платежи.
+  - Состав заказа нельзя уменьшить ниже уже оплаченной суммы.
+  - Аннулировать платёж можно, пока заказ не `CLOSED` (право `refunds`). Возврат после
+    закрытия заказа: вопрос владельцу, не v2.18.
+- Заказы, закрытые до v2.18, остаются без платежей; выручка отчётов по-прежнему сумма `total`
+  заказов `CLOSED` (§33.4 и `report()` не меняются).
+
+### 35.2 Касса филиала
+
+- **`restaurant_cash_operations`**: `id` uuid PK, `location_id` FK, `kind` CashOperationKind
+  (INCOME, EXPENSE, TRANSFER), `method` PaymentMethod (у TRANSFER способ «откуда»),
+  `method_to` PaymentMethod NULL (только TRANSFER, CHECK, не равен `method`), `amount`
+  bigint > 0, `currency` char(3), `note` varchar(500) NULL, `employee_id` FK employees NULL и
+  `period` date NULL (выплата зарплаты, §35.3; заданы вместе и только у EXPENSE, CHECK; период
+  первое число месяца), `status` PaymentStatus DEFAULT COMPLETED, `occurred_at` timestamptz
+  DEFAULT now, `created_by_id`, `voided_at`, `voided_by_id`, `created_at`. Сотрудник того же
+  бизнеса, что филиал (триггер).
+- **`restaurant_cash_reconciliations`**: `id` uuid PK, `location_id` FK, `method`
+  PaymentMethod, `expected` bigint (остаток по системе в момент сверки), `counted` bigint >= 0,
+  `note` varchar(500) NULL, `created_by_id`, `created_at`. Только дописывается.
+- **Остаток по способу** (домен `cashBalances`, не хранится): Σ действующих платежей заказов
+  + Σ INCOME − Σ EXPENSE − Σ TRANSFER «откуда» + Σ TRANSFER «куда». Аннулированное не
+  считается. Расход и перевод не уводят остаток способа в минус (проверка API под замком
+  филиала).
+- Права как у кассы гостиницы (§21, Q-238): смотреть, проводить операции и сверку
+  может смена (`desk`), аннулировать операцию `refunds`.
+
+### 35.3 Выплаты зарплаты (Q-REST-6)
+
+- Выплата это `restaurant_cash_operations` вида EXPENSE с `employee_id` и `period`; право
+  `staff`. Экран зарплаты показывает по сотруднику «к выплате» (§33.4), «выплачено» (Σ
+  действующих выплат периода) и «осталось».
+- Выплата не больше остатка «осталось» на момент выплаты (иначе 409): двойное нажатие и
+  повторная выплата того же месяца не проходят. Аннулирование выплаты возвращает сумму в
+  «осталось».
+
+### 35.4 RLS, триггеры, права
+
+- RLS `rls_tenant` на трёх таблицах (реестр `packages/database/src/rls.ts`): по
+  `locations.business_id → businesses.organization_id = app_current_org()`.
+- Триггер `restaurant_cash_guard` (BEFORE INSERT OR UPDATE): филиал FOOD_SERVICE; заказ платежа
+  того же филиала; сотрудник выплаты того же бизнеса; родитель неизменяем; у платежа и операции
+  меняются только поля аннулирования (`status`, `voided_at`, `voided_by_id`, `void_reason`).
+  `search_path` закреплён.
+- Права `GRANT` отдельной миграцией: `restaurant_payments` и `restaurant_cash_operations`
+  SELECT, INSERT, UPDATE (аннулирование), без DELETE; `restaurant_cash_reconciliations` SELECT,
+  INSERT.
+- **Миграции** `20261011000086_restaurant_cash` и `20261011000087_restaurant_cash_grants`
+  (+ `down.sql`), аддитивные; на рабочей базе применяет владелец до выкладки кода.

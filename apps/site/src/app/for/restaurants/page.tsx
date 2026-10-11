@@ -95,8 +95,18 @@ export default function RestaurantLandingPage() {
                 <span className="icon-tile">
                   <Icon name={card.icon} />
                 </span>
-                <h3 className="card__title">{typo(card.title)}</h3>
+                <h3 className="card__title">
+                  {typo(card.title)} {card.soon ? <span className="tag">{s.soon}</span> : null}
+                </h3>
                 <p className="card__text">{typo(card.text)}</p>
+                <ul className="verticals__capabilities">
+                  {card.points.map((point) => (
+                    <li key={point}>
+                      <Icon name="check" size={15} />
+                      {typo(point)}
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ul>

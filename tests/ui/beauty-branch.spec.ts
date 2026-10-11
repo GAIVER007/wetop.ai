@@ -58,6 +58,7 @@ test('салон заводится той же формой и открывае
   await expect(main.getByRole('status')).toContainText(
     'Для новой записи нужны услуги и мастера с рабочим графиком.',
   );
+  await expect(main.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги и мастера с рабочим графиком.' })).toBeVisible();
   await page.screenshot({ path: `${SNAPSHOTS}/salon-1440.png`, fullPage: true });
 });
 

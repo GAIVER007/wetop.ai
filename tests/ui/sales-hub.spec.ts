@@ -69,7 +69,7 @@ test('три карточки: конкуренты, ИИ-продавец, ре
   await seedMarket(request);
   await page.goto('/sales');
   const market = page.getByTestId('sales-card-market');
-  await expect(market.getByRole('heading', { name: 'Загрузка конкурентов' })).toBeVisible();
+  await expect(market.getByRole('heading', { name: 'Анализ конкурентов' })).toBeVisible();
   await expect(market.locator('.sales-card__checks li')).toHaveCount(3);
   await expect(market.locator('svg[role="img"]')).toBeVisible();
   await expect(market.getByRole('link', { name: /Открыть аналитику/ })).toHaveAttribute('href', '/market');

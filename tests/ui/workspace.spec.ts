@@ -118,11 +118,11 @@ test('все разделы, карточки и печать открывают
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/finance');
-  // левое меню (ADR-161): панель разделов, «Продажи» → «Загрузка конкурентов»
+  // левое меню (ADR-161): панель разделов, «Продажи» → «Анализ конкурентов»
   const sidebar = page.locator('.sidenav__items');
-  await goViaMenu(page, 'Продажи', 'Загрузка конкурентов');
+  await goViaMenu(page, 'Продажи', 'Анализ конкурентов');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
   // переход закрывает панель; кнопка показывает раздел текущего экрана
   await expect(page.locator('.sidenav__panel')).toBeHidden();
   await expect(page.locator('.sidenav__current')).toHaveText('Продажи');

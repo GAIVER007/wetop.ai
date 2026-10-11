@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, type Page, sideNav } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, sideNav, openSection } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -20,15 +20,23 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные', async ({ page }) => {
+test('обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные', async ({
+  page,
+}) => {
   mkdirSync(SHOTS, { recursive: true });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
   await expect(m.getByRole('heading', { level: 1 })).toHaveText('Бар');
   // шапка: «Добавить товар» главной, затем «Приход», «Продажа», «Инвентаризация» и «⋯»; вкладок на обзоре нет
-  await expect(m.getByRole('link', { name: 'Добавить товар' })).toHaveAttribute('href', '/bar?product=new');
-  await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
+  await expect(m.getByRole('link', { name: 'Добавить товар' })).toHaveAttribute(
+    'href',
+    '/bar?product=new',
+  );
+  await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute(
+    'href',
+    '/bar/receipts/new',
+  );
   await expect(m.getByRole('link', { name: 'Продажа', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
   await expect(m.getByRole('button', { name: 'Ещё разделы бара' })).toBeVisible();
@@ -36,12 +44,24 @@ test('обзор как на макете: шапка, семь плиток, п
   // семь плиток с подписями макета
   const kpis = m.getByRole('region', { name: 'Показатели бара' });
   await expect(kpis.locator('.bar-kpi-label')).toHaveText([
-    'Товаров', 'Остаток на складе', 'Закуплено за месяц', 'Выручка бара', 'Валовая прибыль', 'Долг поставщикам', 'Заканчиваются',
+    'Товаров',
+    'Остаток на складе',
+    'Закуплено за месяц',
+    'Выручка бара',
+    'Валовая прибыль',
+    'Долг поставщикам',
+    'Заканчиваются',
   ]);
   await expect(kpis.locator('.bar-kpi', { hasText: 'Остаток на складе' })).toContainText('107 шт.');
-  await expect(kpis.locator('.bar-kpi', { hasText: 'Закуплено за месяц' })).toContainText('+12% к прошлому месяцу');
-  await expect(kpis.locator('.bar-kpi', { hasText: 'Выручка бара' })).toContainText('+18% к прошлому месяцу');
-  await expect(kpis.locator('.bar-kpi', { hasText: 'Валовая прибыль' })).toContainText('маржинальность 50%');
+  await expect(kpis.locator('.bar-kpi', { hasText: 'Закуплено за месяц' })).toContainText(
+    '+12% к прошлому месяцу',
+  );
+  await expect(kpis.locator('.bar-kpi', { hasText: 'Выручка бара' })).toContainText(
+    '+18% к прошлому месяцу',
+  );
+  await expect(kpis.locator('.bar-kpi', { hasText: 'Валовая прибыль' })).toContainText(
+    'маржинальность 50%',
+  );
   await expect(kpis.locator('.bar-kpi--alarm')).toContainText('2');
   // доска: шесть товаров макета, поставщик и фактическая наценка, статус словом
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
@@ -51,23 +71,35 @@ test('обзор как на макете: шапка, семь плиток, п
   await expect(cola).toContainText('320 ₸');
   await expect(cola).toContainText('88%');
   await expect(cola).toContainText('В норме');
-  await expect(board.locator('tbody tr', { hasText: "Чипсы Lay's 90г" })).toContainText('Нет в наличии');
-  await expect(board.locator('tbody tr', { hasText: 'Red Bull 0.25' })).toContainText('Заканчивается');
+  await expect(board.locator('tbody tr', { hasText: "Чипсы Lay's 90г" })).toContainText(
+    'Нет в наличии',
+  );
+  await expect(board.locator('tbody tr', { hasText: 'Red Bull 0.25' })).toContainText(
+    'Заканчивается',
+  );
   // карточка первого товара открыта справа сразу, как на макете
   const card = m.getByRole('complementary', { name: 'Карточка товара Coca-Cola 0.5' });
   await expect(card).toBeVisible();
-  await expect(card.getByRole('tab', { name: 'Информация' })).toHaveAttribute('aria-selected', 'true');
+  await expect(card.getByRole('tab', { name: 'Информация' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
   await expect(card.getByLabel('Поставщик')).toHaveValue('FoodMaster');
   await expect(card.getByLabel('Артикул (SKU)')).toHaveValue('CC-050');
   // нижний ряд
   const receipts = m.getByRole('region', { name: 'Последние приходы поставщиков' });
   await expect(receipts.locator('tbody tr')).toHaveCount(4);
   await expect(receipts.locator('tbody tr', { hasText: 'П-000122' })).toContainText('Не оплачен');
-  await expect(m.getByRole('link', { name: 'Все приходы' })).toHaveAttribute('href', '/bar/receipts');
+  await expect(m.getByRole('link', { name: 'Все приходы' })).toHaveAttribute(
+    'href',
+    '/bar/receipts',
+  );
   await expect(m.locator('.bar-popular li').first()).toContainText('Coca-Cola 0.5');
   await expect(m.locator('.bar-popular li').first()).toContainText('142 шт.');
   // ничего не уезжает вбок
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
   await page.screenshot({ path: `${SHOTS}/overview-1440.png`, fullPage: true });
 });
 
@@ -88,14 +120,18 @@ test('быстрая продажа одной строкой и фильтры 
   await expect(board.locator('tbody tr')).toHaveCount(1);
   await expect(board.locator('tbody tr')).toContainText("Чипсы Lay's 90г");
   await m.getByLabel('Статус остатка').selectOption('');
-  await m.getByRole('combobox', { name: 'Поставщик', exact: true }).selectOption({ label: 'SnackMarket' });
+  await m
+    .getByRole('combobox', { name: 'Поставщик', exact: true })
+    .selectOption({ label: 'SnackMarket' });
   await expect(board.locator('tbody tr')).toHaveCount(2);
   await m.getByRole('combobox', { name: 'Поставщик', exact: true }).selectOption('');
   await m.getByLabel('Период последнего прихода').selectOption('7');
   await expect(board.locator('tbody tr')).toHaveCount(3);
 });
 
-test('карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание', async ({ page }) => {
+test('карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание', async ({
+  page,
+}) => {
   mkdirSync(SHOTS, { recursive: true });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
@@ -136,7 +172,10 @@ test('«Удалить» уводит товар в архив после воп
   await board.getByRole('checkbox', { name: 'Отметить Red Bull 0.25' }).check();
   await board.getByRole('checkbox', { name: 'Отметить Сок Rich 0.2' }).check();
   await expect(m.getByRole('toolbar', { name: 'Отмеченные товары' })).toContainText('Отмечено: 2');
-  await m.getByRole('toolbar', { name: 'Отмеченные товары' }).getByRole('button', { name: 'Снять отметку' }).click();
+  await m
+    .getByRole('toolbar', { name: 'Отмеченные товары' })
+    .getByRole('button', { name: 'Снять отметку' })
+    .click();
   await board.getByRole('button', { name: "Действия: Чипсы Lay's 90г" }).click();
   await page.getByRole('menuitem', { name: 'Удалить' }).click();
   await expect(page.getByRole('heading', { name: "Удалить «Чипсы Lay's 90г»?" })).toBeVisible();
@@ -145,7 +184,9 @@ test('«Удалить» уводит товар в архив после воп
   await expect(board.locator('tbody tr')).toHaveCount(5);
 });
 
-test('«Добавить товар» открывает карточку нового товара справа; код предлагается из названия', async ({ page }) => {
+test('«Добавить товар» открывает карточку нового товара справа; код предлагается из названия', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
@@ -166,43 +207,64 @@ test('меню: «Бар» живёт в группе «Финансы», адр
   const nav = sideNav(page);
   await expect(nav.locator('.sidenav__current')).toHaveText('Финансы');
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
-  await expect(nav.locator('.sidenav__sub').getByRole('link', { name: 'Оплаты и касса', exact: true })).toBeVisible();
-  await expect(nav.locator('.sidenav__sub').getByRole('link', { name: 'Бар', exact: true })).toHaveAttribute('aria-current', 'page');
+  await openSection(page, 'Финансы');
+  await expect(
+    nav.locator('.sidenav__items').getByRole('link', { name: 'Оплаты и касса', exact: true }),
+  ).toBeVisible();
+  await expect(
+    nav.locator('.sidenav__items').getByRole('link', { name: 'Бар', exact: true }),
+  ).toHaveAttribute('aria-current', 'page');
 });
 
-test('новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом', async ({ page }) => {
+test('новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом', async ({
+  page,
+}) => {
   mkdirSync(SHOTS, { recursive: true });
   await page.goto('/bar/receipts/new');
   const m = main(page);
   await expect(m.getByRole('heading', { level: 1 })).toHaveText('Новый приход');
-  await m.getByLabel('Фото накладной или счёта-фактуры').setInputFiles({ name: 'invoice.png', mimeType: 'image/png', buffer: PNG });
+  await m
+    .getByLabel('Фото накладной или счёта-фактуры')
+    .setInputFiles({ name: 'invoice.png', mimeType: 'image/png', buffer: PNG });
   await m.getByRole('button', { name: 'Распознать и заполнить' }).click();
-  await expect(m.getByRole('status').first()).toContainText('Распознано строк: 2, новых товаров: 1');
+  await expect(m.getByRole('status').first()).toContainText(
+    'Распознано строк: 2, новых товаров: 1',
+  );
   await expect(m.getByLabel('Номер счёта-фактуры')).toHaveValue('SF-123');
   await expect(m.getByLabel('Дата документа')).toHaveValue('2026-10-08');
   await expect(m.getByLabel('Поставщик').locator('option:checked')).toHaveText('FoodMaster');
   // первая строка нашлась по штрихкоду, наценка пришла из категории товара
   const lines = m.locator('.bar-line');
   await expect(lines).toHaveCount(2);
-  await expect(lines.first().getByLabel('Товар').locator('option:checked')).toHaveText('Coca-Cola 0.5');
+  await expect(lines.first().getByLabel('Товар').locator('option:checked')).toHaveText(
+    'Coca-Cola 0.5',
+  );
   await expect(lines.first().getByLabel('Кол-во, шт.')).toHaveValue('24');
   await expect(lines.first().getByLabel('Наценка, %')).toHaveValue('88.00');
   await expect(lines.nth(1).getByLabel('Новый товар: название')).toHaveValue('Сок яблочный 1л');
   await expect(lines.nth(1).getByLabel('Код карточки')).toHaveValue('SOK-YABLOCHNYY-1L');
-  await expect(m.getByText('Количество колы пересчитано из упаковок', { exact: false })).toBeVisible();
+  await expect(
+    m.getByText('Количество колы пересчитано из упаковок', { exact: false }),
+  ).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/receipt-scan.png`, fullPage: true });
   await m.getByRole('button', { name: 'Сохранить приход' }).click();
   await expect(m.getByRole('status').nth(1)).toContainText('Приход проведен');
   await page.goto('/bar/products');
-  await expect(main(page).getByRole('region', { name: 'Товары бара' })).toContainText('Сок яблочный 1л');
+  await expect(main(page).getByRole('region', { name: 'Товары бара' })).toContainText(
+    'Сок яблочный 1л',
+  );
   await page.goto('/bar/receipts');
   await expect(main(page).getByRole('region', { name: 'Приходы бара' })).toContainText('SF-123');
 });
 
-test('скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную', async ({ page }) => {
+test('скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную', async ({
+  page,
+}) => {
   await page.goto('/bar/receipts/new');
   const m = main(page);
-  await m.getByLabel('Фото накладной или счёта-фактуры').setInputFiles({ name: 'invoice.pdf', mimeType: 'application/pdf', buffer: PNG });
+  await m
+    .getByLabel('Фото накладной или счёта-фактуры')
+    .setInputFiles({ name: 'invoice.pdf', mimeType: 'application/pdf', buffer: PNG });
   await m.getByRole('button', { name: 'Распознать и заполнить' }).click();
   await expect(m.getByRole('alert')).toContainText('PDF');
   await m.getByRole('button', { name: 'Строка с новым товаром' }).click();
@@ -211,10 +273,14 @@ test('скан бережёт руки, но не выключает их: PDF �
   await expect(line.getByLabel('Код карточки')).toHaveValue('CHAY-ZELENYY');
 });
 
-test('подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками', async ({ page }) => {
+test('подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками', async ({
+  page,
+}) => {
   await page.goto('/bar/receipts');
   const m = main(page);
-  const row = m.getByRole('region', { name: 'Приходы бара' }).locator('tbody tr', { hasText: 'П-000122' });
+  const row = m
+    .getByRole('region', { name: 'Приходы бара' })
+    .locator('tbody tr', { hasText: 'П-000122' });
   await row.getByRole('button', { name: 'Оплатить' }).click();
   await expect(row).toContainText('Оплачено');
   await page.goto('/bar/products');
@@ -228,11 +294,15 @@ test('подстраницы: оплата долга в приходах, но�
   await expect(products.getByRole('region', { name: 'Товары бара' })).toContainText('Чай чёрный');
   await page.goto('/bar/suppliers');
   const suppliers = main(page);
-  await expect(suppliers.getByRole('region', { name: 'Поставщики бара' })).toContainText('Global Drinks');
+  await expect(suppliers.getByRole('region', { name: 'Поставщики бара' })).toContainText(
+    'Global Drinks',
+  );
   await suppliers.getByLabel('Название').fill('ИП Снабжение');
   await suppliers.getByRole('button', { name: 'Добавить' }).click();
   await expect(suppliers.getByRole('status').first()).toContainText('Поставщик добавлен');
-  await expect(suppliers.getByRole('region', { name: 'Поставщики бара' })).toContainText('ИП Снабжение');
+  await expect(suppliers.getByRole('region', { name: 'Поставщики бара' })).toContainText(
+    'ИП Снабжение',
+  );
 });
 
 test('операции: списание с причиной, журнал продаж и лента движений', async ({ page }) => {

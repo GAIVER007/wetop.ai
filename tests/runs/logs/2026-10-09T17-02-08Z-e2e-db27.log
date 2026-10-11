@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 09.10.2026 22:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит b3a09d3 (claude/market-redesign-comp32), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ds1c-primitives.spec.ts' 'tests/ui/reports-hub.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 2 workers
+
+  ✓   1 tests/ui/ds1c-primitives.spec.ts:16:1 › доля на «Сайт → Аналитика»: родной progress с именем и числом, без ширины строкой стиля (3.8s)
+  ✓   2 tests/ui/reports-hub.spec.ts:41:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (3.8s)
+  ✓   3 tests/ui/ds1c-primitives.spec.ts:33:1 › плитка: тон чертой слева, изменение словами, плитка-ссылка с фокусом (5.6s)
+  ✓   4 tests/ui/reports-hub.spec.ts:107:1 › карточки ведут в готовые экраны с тем же периодом (7.1s)
+  ✓   5 tests/ui/ds1c-primitives.spec.ts:51:1 › день: предыдущий, следующий, «Сегодня» и поле «Дата» с подписью (7.5s)
+  ✓   6 tests/ui/reports-hub.spec.ts:152:1 › пресет «Сегодня» и свой период меняют адрес и числа (5.9s)
+  ✓   8 tests/ui/reports-hub.spec.ts:171:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (7.2s)
+  ✓   7 tests/ui/ds1c-primitives.spec.ts:69:1 › период «Броней»: готовые отрезки ссылками, поля «С» и «По», применяет «Показать», адрес прежний (17.3s)
+  ✓   9 tests/ui/reports-hub.spec.ts:186:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (21.1s)
+  ✓  11 tests/ui/reports-hub.spec.ts:207:1 › телефон: карточки без горизонтальной прокрутки (8.2s)
+  ✓  10 tests/ui/ds1c-primitives.spec.ts:84:1 › размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус (25.3s)
+  ✓  12 tests/ui/reports-hub.spec.ts:217:3 › доступность и снимки, light (12.8s)
+  ✓  13 tests/ui/ds1c-primitives.spec.ts:105:1 › поле: обязательное с родным required и знаком, необязательное словом (10.9s)
+  ✓  14 tests/ui/reports-hub.spec.ts:217:3 › доступность и снимки, dark (5.2s)
+  ✓  15 tests/ui/ds1c-primitives.spec.ts:122:1 › таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки (3.9s)
+  ✓  16 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (4.7s)
+  ✓  17 tests/ui/ds1c-primitives.spec.ts:174:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (light) (23.2s)
+  ✓  18 tests/ui/ds1c-primitives.spec.ts:174:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (dark) (10.8s)
+
+  18 passed (2.0m)
+
+# код выхода 0 · 2 мин 2 с

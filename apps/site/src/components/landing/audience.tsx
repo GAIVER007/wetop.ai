@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getDictionary } from '../../i18n';
+import { subtypesOf } from '../../lib/landings';
 import { Icon } from '../icon';
 
 /*
@@ -8,11 +9,11 @@ import { Icon } from '../icon';
  * направлением, `?vertical=`). Фото со снимка заменены рисунками на SVG: §19.9 запрещает стоки,
  * а кредитов на генерацию своих фото нет; при появлении фото меняется один блок `VerticalArt`.
  */
-const DIRECTION: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
-  HOSPITALITY: '/for/hotels/',
-  BEAUTY: '/for/salons/',
-  FOOD_SERVICE: '/for/restaurants/',
-};
+const DIRECTION = {
+  HOSPITALITY: 'hotels',
+  BEAUTY: 'salons',
+  FOOD_SERVICE: 'restaurants',
+} as const;
 
 /* Фото направлений сгенерированы через KIE по решению владельца 10.10.2026 (ключ в связке ключей
  * Mac, `security find-generic-password -s KIE_API_KEY`); файлы свои, не стоки, людей и текста нет. */
@@ -36,7 +37,7 @@ export function Audience() {
         </div>
         <div className="verticals__grid">
           {t.intro.cards.map((card) => {
-            const hospitality = card.id === 'HOSPITALITY';
+            const direction = DIRECTION[card.id];
             return (
               <article className="verticals__card" key={card.id}>
                 <div className="verticals__head">
@@ -62,24 +63,18 @@ export function Audience() {
                     <img src={PHOTO[card.id]} alt="" loading="lazy" width={592} height={432} />
                   </span>
                 </div>
-                <a className="btn btn--secondary verticals__action" href={DIRECTION[card.id]}>
+                <a className="btn btn--secondary verticals__action" href={`/for/${direction}/`}>
                   {card.action}
                   <Icon name="arrowRight" size={16} />
                 </a>
-                {hospitality ? (
-                  <div className="verticals__segments">
-                    {t.audience.items.map((item) => (
-                      <Link key={item.segment} href={`/for/${item.segment}/`}>
-                        {item.title}
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
-                {card.id === 'FOOD_SERVICE' ? (
-                  <div className="verticals__segments">
-                    <Link href="/restaurants/">{t.restaurants.homeCardLink}</Link>
-                  </div>
-                ) : null}
+                {/* Типы бизнеса направления из общего списка лендингов (lib/landings.ts) */}
+                <div className="verticals__segments">
+                  {subtypesOf(direction).map((slug) => (
+                    <Link key={slug} href={`/for/${slug}/`}>
+                      {t.segments.items[slug].metaTitle}
+                    </Link>
+                  ))}
+                </div>
               </article>
             );
           })}

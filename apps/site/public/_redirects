@@ -1,0 +1,4 @@
+# Постоянные редиректы Cloudflare Pages (11.10.2026): /restaurants/ слита в /for/restaurants/,
+# старые ссылки и вес страницы переходят на основную страницу направления.
+/restaurants /for/restaurants/ 301
+/restaurants/ /for/restaurants/ 301

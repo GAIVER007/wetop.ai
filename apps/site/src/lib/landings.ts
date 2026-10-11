@@ -11,6 +11,7 @@ export const SUBTYPES = {
   hostels: { vertical: 'HOSPITALITY', direction: 'hotels', photo: '/photos/hostel.jpg' },
   'mini-hotels': { vertical: 'HOSPITALITY', direction: 'hotels', photo: '/photos/minihotel.jpg' },
   'apart-hotels': { vertical: 'HOSPITALITY', direction: 'hotels', photo: '/photos/aparthotel.jpg' },
+  'beauty-salons': { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/salon.jpg' },
   barbershops: { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/barbershop.jpg' },
   spa: { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/spa.jpg' },
   'nail-studios': { vertical: 'BEAUTY', direction: 'salons', photo: '/photos/nails.jpg' },

@@ -2252,6 +2252,16 @@
       min-height: 0;
       padding: var(--space-2);
     }
+    .board-kpi__row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-1);
+    }
+    .board-kpi__label,
+    .board-kpi__note {
+      overflow-wrap: normal;
+      word-break: normal;
+    }
     .board-kpi__icon {
       display: none;
     }

@@ -541,7 +541,7 @@ function DayStats({
       <Link
         className="board-kpi board-kpi--free"
         href={availabilityHref}
-        aria-label="Поиск свободных номеров"
+        aria-label="Поиск свободных мест"
       >
         <span className="board-kpi__icon" aria-hidden="true">
           <Icon name="inventory" />
@@ -553,7 +553,7 @@ function DayStats({
           <span className="board-kpi__label">
             Свободно
             <br />
-            номеров
+            мест
           </span>
         </span>
       </Link>
@@ -565,11 +565,7 @@ function DayStats({
           <b className="board-kpi__value" data-testid="day-dirty">
             {dirty}
           </b>
-          <span className="board-kpi__label">
-            Уборка
-            <br />
-            мест
-          </span>
+          <span className="board-kpi__label">Нужна уборка</span>
         </span>
       </div>
       <Link className="board-kpi board-kpi--attention" href="/chessboard?stays=debt" aria-label="Неоплаченные">

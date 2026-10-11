@@ -12,7 +12,7 @@ import { Icon } from '../icon';
 const DIRECTION: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
   HOSPITALITY: '/for/hotels/',
   BEAUTY: '/for/salons/',
-  FOOD_SERVICE: '/for/restaurants/',
+  FOOD_SERVICE: '/restaurants/',
 };
 
 export function Hero() {

@@ -19,8 +19,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
       ...(latest ? { lastModified: latest } : {}),
     },
-    { url: absoluteUrl('/restaurants/'), changeFrequency: 'monthly', priority: 0.8 },
-    ...DIRECTIONS.map((slug) => ({
+    { url: absoluteUrl('/restaurants/'), changeFrequency: 'monthly', priority: 0.9 },
+    // /for/restaurants/ уводит 301 на /restaurants/ (public/_redirects), в карте сайта его нет
+    ...DIRECTIONS.filter((slug) => slug !== 'restaurants').map((slug) => ({
       url: absoluteUrl(`/for/${slug}/`),
       changeFrequency: 'monthly' as const,
       priority: 0.9,

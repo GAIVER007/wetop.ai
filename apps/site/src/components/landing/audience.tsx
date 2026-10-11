@@ -11,7 +11,7 @@ import { Icon } from '../icon';
 const DIRECTION: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
   HOSPITALITY: '/for/hotels/',
   BEAUTY: '/for/salons/',
-  FOOD_SERVICE: '/for/restaurants/',
+  FOOD_SERVICE: '/restaurants/',
 };
 
 /* Фото направлений сгенерированы через KIE по решению владельца 10.10.2026 (ключ в связке ключей
@@ -19,7 +19,7 @@ const DIRECTION: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
 const PHOTO: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
   HOSPITALITY: '/photos/hotel.jpg',
   BEAUTY: '/photos/salon.jpg',
-  FOOD_SERVICE: '/photos/restaurant.jpg',
+  FOOD_SERVICE: '/photos/restaurant-evening.jpg',
 };
 
 export function Audience() {
@@ -73,11 +73,6 @@ export function Audience() {
                         {item.title}
                       </Link>
                     ))}
-                  </div>
-                ) : null}
-                {card.id === 'FOOD_SERVICE' ? (
-                  <div className="verticals__segments">
-                    <Link href="/restaurants/">{t.restaurants.homeCardLink}</Link>
                   </div>
                 ) : null}
               </article>

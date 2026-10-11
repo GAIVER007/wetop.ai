@@ -296,6 +296,7 @@ export default function RestaurantsPage() {
                 {typo(r.moreTitle)}
               </h2>
               <p className="section-heading__lead">{typo(r.moreLead)}</p>
+              <img className="restl__photo" src="/photos/steak.jpg" alt="" loading="lazy" width={1184} height={864} />
             </div>
             <ul className="restl__more">
               {r.more.map((item) => (
@@ -320,6 +321,7 @@ export default function RestaurantsPage() {
                 {typo(r.resultsTitle)}
               </h2>
               <p className="section-heading__lead">{typo(r.resultsLead)}</p>
+              <img className="restl__photo" src="/photos/carbonara.jpg" alt="" loading="lazy" width={900} height={900} />
             </div>
             <ul className="restl__results">
               {r.results.map((item) => (
@@ -392,7 +394,7 @@ export default function RestaurantsPage() {
             </div>
           </div>
         </section>
-        <div className="cta glass glass--strong restl__cta">
+        <div className="cta glass glass--strong landing-final__cta restl__cta">
           <div className="cta__copy">
             <h2 className="cta__title">{typo(r.ctaTitle)}</h2>
             <p className="cta__text">{typo(r.ctaText)}</p>
@@ -419,6 +421,9 @@ export default function RestaurantsPage() {
               {r.ctaNote}
             </span>
           </div>
+          <span className="landing-final__photo">
+            <img src="/photos/restaurant-evening.jpg" alt="" loading="lazy" width={1184} height={888} />
+          </span>
         </div>
       </div>
     </div>

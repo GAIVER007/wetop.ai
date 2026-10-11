@@ -326,7 +326,6 @@ export type Dictionary = {
     /** Рукописные пометки по краям hero, как на макете. */
     noteLeft: string;
     noteRight: string;
-    homeCardLink: string;
     home: string;
     exampleNote: string;
     dash: {

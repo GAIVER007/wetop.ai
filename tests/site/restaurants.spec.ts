@@ -30,6 +30,9 @@ test('/restaurants/ — hero, мокап с планом зала, раздел�
   expect(await page.locator('.restl__results .card').count()).toBe(4);
   await expect(page.getByRole('heading', { name: /технологии на вашей стороне/i })).toBeVisible();
   expect(await page.locator('.restl__steps li').count()).toBe(4);
+  // свои фото: два блюда в разделах и вечерний зал в плите призыва
+  expect(await page.locator('img.restl__photo').count()).toBe(2);
+  await expect(page.locator('.restl__cta .landing-final__photo img')).toHaveAttribute('src', '/photos/restaurant-evening.jpg');
   expect(await page.locator('.faq__list details').count()).toBeGreaterThanOrEqual(4);
   // регистрация с предвыбранным направлением и дорога домой
   const register = page.locator('a[data-auth="register"][href*="FOOD_SERVICE"]');

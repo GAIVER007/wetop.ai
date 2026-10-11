@@ -215,18 +215,47 @@ it('real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned 
     actorOrg = null;
     expect((await fetch(`${base}/branches`)).status).toBe(403);
     actorOrg = orgA;
+    const createdId = randomUUID();
     const create = await fetch(`${base}/branches`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        id: randomUUID(),
+        id: createdId,
         name: 'Тестовый Food',
         vertical: 'FOOD_SERVICE',
         currency: 'AED',
         timezone: 'Asia/Dubai',
       }),
     });
-    expect(create.status).toBe(400);
+    // Вход владельца по направлениям (11.10.2026): Food создаётся без Property.
+    expect(create.status).toBe(201);
+    expect(await create.json()).toMatchObject({
+      id: createdId,
+      locationId: createdId,
+      vertical: 'FOOD_SERVICE',
+    });
+    expect(
+      await db.location.findUniqueOrThrow({
+        where: { id: createdId },
+        include: { business: true },
+      }),
+    ).toMatchObject({
+      name: 'Тестовый Food',
+      currency: 'AED',
+      timezone: 'Asia/Dubai',
+      business: { organizationId: orgA, vertical: 'FOOD_SERVICE' },
+    });
+    expect(await db.property.count({ where: { locationId: createdId } })).toBe(0);
+    expect(
+      await db.auditLog.count({
+        where: {
+          organizationId: orgA,
+          userId: user,
+          entityId: createdId,
+          action: 'location.restaurant_created',
+        },
+      }),
+    ).toBe(1);
   } finally {
     await app?.close();
     const own = { business: { organizationId: { in: [orgA, orgB] } } };
@@ -234,7 +263,11 @@ it('real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned 
     await db.property.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
     await db.location.deleteMany({ where: own });
     await db.business.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
-    await db.organization.deleteMany({ where: { id: { in: [orgA, orgB] } } });
+    await db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+      await tx.auditLog.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+      await tx.organization.deleteMany({ where: { id: { in: [orgA, orgB] } } });
+    });
     await db.user.deleteMany({ where: { id: user } });
     await db.$disconnect();
   }

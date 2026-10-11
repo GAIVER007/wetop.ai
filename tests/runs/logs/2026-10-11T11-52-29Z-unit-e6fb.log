@@ -1,0 +1,19 @@
+# Модульные (unit) · 11.10.2026 16:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит 69193a7 (claude/calendar-specs-from-279), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-52-29Z-unit-e6fb.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-cal
+
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 8ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 6ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 37ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 3ms
+
+ Test Files  4 passed (4)
+      Tests  53 passed (53)
+   Start at  04:52:30
+   Duration  383ms (import 44%, transform 43%, tests 10%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-52-29Z-unit-e6fb.json
+
+# код выхода 0 · 1 с

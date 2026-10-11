@@ -52,7 +52,10 @@ export function JournalBoard({
     router.refresh();
   };
   const column = (employee: BeautyDayColumn) => (
-    <div className="beauty-col-body" style={{ height }}>
+    <div
+      className="beauty-col-body"
+      style={{ height }} /* slop-allow: inline-style высота колонки из длины рабочего дня */
+    >
       {slots.map((m) => {
         const works =
           !employee.timeOff &&
@@ -66,11 +69,12 @@ export function JournalBoard({
             a.startMinutes < m + STEP &&
             m < a.endMinutes,
         );
+        const slot = { top: (m - from) * PX_PER_MIN, height: STEP * PX_PER_MIN };
         return (
           <div
             key={m}
             className={`beauty-slot${works ? '' : ' beauty-slot--off'}`}
-            style={{ top: (m - from) * PX_PER_MIN, height: STEP * PX_PER_MIN }}
+            style={slot} /* slop-allow: inline-style место слота из минут расписания */
           >
             {works && !occupied && (
               <button

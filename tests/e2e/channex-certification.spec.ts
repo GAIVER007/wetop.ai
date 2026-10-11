@@ -248,7 +248,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await page.goto(`/reservations/${number}`);
     await cardTab(page, 'Действия');
     await page.getByRole('main').getByTestId('cancel-reservation').click();
-    await confirmDialog(page, 'Отменить бронь');
+    await confirmDialog(page, 'Подтвердить отмену');
     await expect(page.getByText('отменена').first()).toBeVisible();
     await flush(page, '10. Availability Update (booking cancelled in PMS UI)');
   });

@@ -1,0 +1,73 @@
+[WebServer] (node:56971) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57015) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57049) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+(node:57088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1280px: одна полоса управления и шесть карточек под ней, сетка начинается выше (6.5s)
+  ✓   2 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1366px: одна полоса управления и шесть карточек под ней, сетка начинается выше (4.6s)
+  ✓   3 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1440px: одна полоса управления и шесть карточек под ней, сетка начинается выше (4.4s)
+  ✓   4 tests/ui/chessboard-month.spec.ts:29:1 › все 31 день помещаются по ширине окна (8.7s)
+  ✓   5 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (13.6s)
+  ✘   6 tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card (10.8s)
+(node:58054) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/preview-money-confirmation.spec.ts:9:1 › календарь: оплата без перехода и отказ от незавершённого ввода (6.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '739557167'
+[WebServer] }
+  ✓   8 tests/ui/preview-money-confirmation.spec.ts:54:1 › телефон: возврат в календаре проверяет платёж и подтверждает сумму (7.0s)
+  ✓   9 tests/ui/preview-money-confirmation.spec.ts:130:1 › проведённая оплата остаётся видна при ошибке обновления счёта (5.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '739557167'
+[WebServer] }
+  ✓  10 tests/ui/preview-money-confirmation.spec.ts:151:1 › полный возврат убирает платёж из выбора и освобождает окно после отправки (7.0s)
+  ✓  11 tests/ui/preview-money-confirmation.spec.ts:175:1 › выбор другой брони требует отказа от неподтверждённой оплаты (7.4s)
+  ✓  12 tests/ui/preview-money-confirmation.spec.ts:203:1 › свободная ячейка не теряет неподтверждённую оплату (8.7s)
+
+
+  1) tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card
+
+    TypeError: Cannot read properties of null (reading 'height')
+
+      79 |   await expect.poll(async () => (await slot.boundingBox())?.height ?? null).not.toBeNull();
+      80 |   const box = await slot.boundingBox();
+    > 81 |   expect(Math.abs(box!.height - ready!.height)).toBeLessThan(24);
+         |                        ^
+      82 |   await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible({
+      83 |     timeout: 2000,
+      84 |   });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/owner-dashboard-interactions.spec.ts:81:24
+
+    Error Context: test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card
+  11 passed (1.8m)

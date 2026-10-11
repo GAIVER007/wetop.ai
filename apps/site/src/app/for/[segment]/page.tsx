@@ -73,148 +73,160 @@ export default async function SegmentPage({ params }: Props) {
             { name: item.metaTitle, path: `/for/${slug}/` },
           ]}
         />
-        <section className="hotel-hero" aria-labelledby="segment-title">
-          <div>
-            <p className="eyebrow">{item.metaTitle}</p>
-            <h1 id="segment-title" className="page-header__title">
-              {typo(item.title)}
-            </h1>
-            <p className="page-header__lead">{typo(item.lead)}</p>
-            <div className="hotel-hero__actions">
-              <a className="btn btn--primary btn--lg" href={register} data-auth="register">
-                {t.hotel.primary}
-                <Icon name="arrowRight" size={18} />
-              </a>
-              <a className="btn btn--secondary btn--lg" href="#segment-features">
-                {t.hotel.secondary}
-                <Icon name="arrowDown" size={18} />
-              </a>
+        <div className="landing">
+          <section className="hotel-hero" aria-labelledby="segment-title">
+            <div>
+              <p className="eyebrow">{item.metaTitle}</p>
+              <h1 id="segment-title" className="page-header__title">
+                {typo(item.title)}
+              </h1>
+              <p className="page-header__lead">{typo(item.lead)}</p>
+              <div className="hotel-hero__actions">
+                <a className="btn btn--primary btn--lg" href={register} data-auth="register">
+                  {t.hotel.primary}
+                  <Icon name="arrowRight" size={18} />
+                </a>
+                <a className="btn btn--secondary btn--lg" href="#segment-features">
+                  {t.hotel.secondary}
+                  <Icon name="arrowDown" size={18} />
+                </a>
+              </div>
+              <ul className="hotel-hero__chips">
+                {item.cards.slice(0, 3).map((card) => (
+                  <li key={card.title}>
+                    <Icon name="check" size={15} />
+                    {card.title}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="hotel-hero__chips">
-              {item.cards.slice(0, 3).map((card) => (
-                <li key={card.title}>
-                  <Icon name="check" size={15} />
-                  {card.title}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <figure className="hotel-hero__figure hotel-hero__photo">
-            <img src={type.photo} alt={item.photoAlt ?? ''} width={1184} height={864} fetchPriority="high" />
-          </figure>
-        </section>
+            <figure className="hotel-hero__figure hotel-hero__photo">
+              <img src={type.photo} alt={item.photoAlt ?? ''} width={1184} height={864} fetchPriority="high" />
+            </figure>
+          </section>
 
-        <section
-          id="segment-features"
-          className="section section--tight"
-          aria-labelledby="segment-features-title"
-        >
-          <div className="section-heading section-heading--center">
-            <p className="eyebrow">{t.nav.features}</p>
-            <h2 id="segment-features-title" className="section-heading__title">
-              {typo(t.segments.featuresTitle)}
-            </h2>
-          </div>
-          <ul className="card-grid card-grid--3">
-            {item.cards.map((card) => (
-              <li key={card.title} className="card glass">
-                <span className="icon-tile">
-                  <Icon name={card.icon} />
-                </span>
-                <h3 className="card__title">{typo(card.title)}</h3>
-                <p className="card__text">{typo(card.text)}</p>
-                {card.tags ? (
-                  <ul className="tag-list">
-                    {card.tags.map((tag) => (
-                      <li key={tag} className="tag">
-                        {tag}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
+          {/* Полоса выгод направления: у всех страниц одного направления одна и та же, «Одна платформа» последней */}
+          <ul className="hotel-facts">
+            {parent.facts.map((fact) => (
+              <li key={fact.value} className="hotel-facts__item">
+                <strong>{fact.value}</strong>
+                <span>{typo(fact.text)}</span>
               </li>
             ))}
           </ul>
-        </section>
 
-        <section className="section section--tight" aria-labelledby="segment-day-title">
-          <div className="section-heading section-heading--center">
-            <p className="eyebrow">{item.metaTitle}</p>
-            <h2 id="segment-day-title" className="section-heading__title">
-              {typo(t.segments.dayTitle)}
-            </h2>
-          </div>
-          <ol className="steps">
-            {t.segments.day[type.direction].map((step, index) => (
-              <li key={step.title} className="step glass">
-                <span className="step__number" aria-hidden="true">
-                  {index + 1}
-                </span>
-                <h3 className="card__title">{typo(step.title)}</h3>
-                <p className="card__text">{typo(step.text)}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {type.vertical === 'HOSPITALITY' ? (
-        <section className="hotel-shot" aria-labelledby="segment-calendar-title">
-          <div className="section-heading section-heading--center">
-            <p className="eyebrow">{t.hotel.calendar.eyebrow}</p>
-            <h2 id="segment-calendar-title" className="section-heading__title">
-              {typo(t.hotel.calendar.title)}
-            </h2>
-            <p className="section-heading__lead">{typo(t.hotel.calendar.lead)}</p>
-          </div>
-          <figure className="hotel-shot__frame">
-            <picture>
-              <source srcSet="/screens/calendar-week-dark.png" media="(prefers-color-scheme: dark)" />
-              <img
-                src="/screens/calendar-week-light.png"
-                alt={t.hotel.calendar.alt}
-                width={1440}
-                height={1000}
-                loading="lazy"
-              />
-            </picture>
-            <figcaption>{t.hotel.calendar.note}</figcaption>
-          </figure>
-        </section>
-        ) : null}
-
-        {item.about ? (
-          <section className="section section--tight" aria-labelledby="segment-about-title">
+          <section
+            id="segment-features"
+            className="section section--tight"
+            aria-labelledby="segment-features-title"
+          >
             <div className="section-heading section-heading--center">
-              <h2 id="segment-about-title" className="section-heading__title">
-                {typo(item.about.title)}
+              <p className="eyebrow">{t.nav.features}</p>
+              <h2 id="segment-features-title" className="section-heading__title">
+                {typo(t.segments.featuresTitle)}
               </h2>
             </div>
-            <div className="prose prose--center">
-              {item.about.text.map((paragraph) => (
-                <p key={paragraph.slice(0, 32)}>{typo(paragraph)}</p>
+            <ul className="card-grid card-grid--3">
+              {item.cards.map((card) => (
+                <li key={card.title} className="card glass">
+                  <span className="icon-tile">
+                    <Icon name={card.icon} />
+                  </span>
+                  <h3 className="card__title">{typo(card.title)}</h3>
+                  <p className="card__text">{typo(card.text)}</p>
+                  {card.tags ? (
+                    <ul className="tag-list">
+                      {card.tags.map((tag) => (
+                        <li key={tag} className="tag">
+                          {tag}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
-        ) : null}
 
-        <MarketingBlock
-          id="marketing"
-          copy={t.marketing[own.marketing]}
-          eyebrow={t.marketing.eyebrow}
-          soon={t.marketing.soon}
-        />
+          <section className="section section--tight" aria-labelledby="segment-day-title">
+            <div className="section-heading section-heading--center">
+              <p className="eyebrow">{item.metaTitle}</p>
+              <h2 id="segment-day-title" className="section-heading__title">
+                {typo(t.segments.dayTitle)}
+              </h2>
+            </div>
+            <ol className="steps">
+              {t.segments.day[type.direction].map((step, index) => (
+                <li key={step.title} className="step glass">
+                  <span className="step__number" aria-hidden="true">
+                    {index + 1}
+                  </span>
+                  <h3 className="card__title">{typo(step.title)}</h3>
+                  <p className="card__text">{typo(step.text)}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
 
-        <LandingFinal
-          faq={{ title: t.hotel.faqTitle, items: item.faq ?? [] }}
-          cta={{
-            title: t.segments.ctaTitle,
-            text: t.segments.ctaText,
-            note: t.final.note,
-            register: { href: register, label: t.nav.register },
-            secondary,
-            photo: { src: own.ctaPhoto, alt: '' },
-          }}
-        />
+          {type.vertical === 'HOSPITALITY' ? (
+          <section className="hotel-shot" aria-labelledby="segment-calendar-title">
+            <div className="section-heading section-heading--center">
+              <p className="eyebrow">{t.hotel.calendar.eyebrow}</p>
+              <h2 id="segment-calendar-title" className="section-heading__title">
+                {typo(t.hotel.calendar.title)}
+              </h2>
+              <p className="section-heading__lead">{typo(t.hotel.calendar.lead)}</p>
+            </div>
+            <figure className="hotel-shot__frame">
+              <picture>
+                <source srcSet="/screens/calendar-week-dark.png" media="(prefers-color-scheme: dark)" />
+                <img
+                  src="/screens/calendar-week-light.png"
+                  alt={t.hotel.calendar.alt}
+                  width={1440}
+                  height={1000}
+                  loading="lazy"
+                />
+              </picture>
+              <figcaption>{t.hotel.calendar.note}</figcaption>
+            </figure>
+          </section>
+          ) : null}
+
+          {item.about ? (
+            <section className="section section--tight" aria-labelledby="segment-about-title">
+              <div className="section-heading section-heading--center">
+                <h2 id="segment-about-title" className="section-heading__title">
+                  {typo(item.about.title)}
+                </h2>
+              </div>
+              <div className="prose prose--center">
+                {item.about.text.map((paragraph) => (
+                  <p key={paragraph.slice(0, 32)}>{typo(paragraph)}</p>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          <MarketingBlock
+            id="marketing"
+            copy={t.marketing[own.marketing]}
+            eyebrow={t.marketing.eyebrow}
+            soon={t.marketing.soon}
+          />
+
+          <LandingFinal
+            faq={{ title: t.hotel.faqTitle, items: item.faq ?? [] }}
+            cta={{
+              title: t.segments.ctaTitle,
+              text: t.segments.ctaText,
+              note: t.final.note,
+              register: { href: register, label: t.nav.register },
+              secondary,
+              photo: { src: own.ctaPhoto, alt: '' },
+            }}
+          />
+        </div>
       </div>
     </div>
   );

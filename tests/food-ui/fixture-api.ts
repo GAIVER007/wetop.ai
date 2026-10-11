@@ -235,6 +235,10 @@ app.use(
                 await tx.employee.deleteMany({ where: { business: b } });
                 await tx.beautyService.deleteMany({ where: { business: b } });
                 await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+                // лента склада только дописывается: удаление проходит только под audit_purge (DATA_MODEL §34)
+                await tx.kitchenStockMovement.deleteMany({ where: { location: { business: b } } });
+                await tx.kitchenStockLot.deleteMany({ where: { location: { business: b } } });
+                await tx.kitchenProduct.deleteMany({ where: { business: b } });
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
                 await tx.location.deleteMany({ where: { business: b } });

@@ -263,3 +263,55 @@ export interface PayrollView {
     createdAt: string;
   }>;
 }
+
+// ── Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS). Количества строками («2.5»), деньги строками в minor units ──
+export type StockUnit = 'г' | 'мл' | 'шт';
+export interface StockProductView {
+  id: string;
+  name: string;
+  unit: StockUnit;
+  minQty: string;
+  active: boolean;
+  onHand: string;
+  valueMinor: string;
+  low: boolean;
+  nearestExpiry: string | null;
+}
+export interface StockLotView {
+  id: string;
+  productId: string;
+  supplier: string | null;
+  document: string | null;
+  receivedOn: string;
+  receivedQty: string;
+  remainingQty: string;
+  unitCostMinor: string;
+  expiresOn: string | null;
+  reversed: boolean;
+  reversible: boolean;
+}
+export type StockMovementKind = 'RECEIPT' | 'WRITE_OFF' | 'INVENTORY' | 'REVERSAL';
+export interface StockMovementView {
+  id: string;
+  productId: string;
+  productName: string;
+  unit: StockUnit;
+  lotId: string | null;
+  kind: StockMovementKind;
+  qty: string;
+  costMinor: string;
+  reason: string | null;
+  createdAt: string;
+}
+export interface StockProductInput {
+  name: string;
+  unit: StockUnit;
+  minQty?: string;
+  active?: boolean;
+}
+export interface StockReceiptInput {
+  supplier?: string | null;
+  document?: string | null;
+  receivedOn?: string | null;
+  lines: Array<{ productId: string; qty: string; unitCost: number; expiresOn?: string | null }>;
+}

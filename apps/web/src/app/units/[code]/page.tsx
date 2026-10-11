@@ -10,15 +10,6 @@ import { UnitActions } from './unit-actions';
 import { UnitFacts } from './unit-facts';
 import '../../inventory/inventory.css';
 
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
-
 /**
  * Карточка ячейки: уборка, блокировки, ближайшие проживания. `?blockFrom=&blockTo=` — период из окошка
  * шахматки (ТЗ «Шахматка v2» §31–32): форма блокировки открывается с ним; «по» не включается, как у API.
@@ -82,7 +73,7 @@ export default async function UnitPage({
                 <time dateTime={s.endDate}>{displayDate(s.endDate, 'numeric')}</time>
               </td>
               <td>
-                <StatusBadge status={s.status} label={STATUS_RU[s.status] ?? s.status} />
+                <StatusBadge kind="hospitality" value={s.status} />
               </td>
               <td>{s.guestLabel || '—'}</td>
             </tr>

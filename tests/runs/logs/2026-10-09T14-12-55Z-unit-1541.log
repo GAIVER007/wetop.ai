@@ -1,0 +1,231 @@
+# Модульные (unit) · 09.10.2026 19:12 Алматы · vm
+# коммит 6cc360d (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T14-12-55Z-unit-1541.json' 'apps/api/src/platform/platform.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/platform/platform.controller.test.ts (33 tests | 9 failed) 633ms
+   ❯ раздел «Платформа» — только главный администратор (4)
+     ✓ владелец организации получает 403 и на список, и на изменение 71ms
+     ✓ служебный ключ раздел не открывает: он не человек и не главный администратор 24ms
+     ✓ без входа — 401 от замка 15ms
+     × главному администратору — организации без броней и гостей: название, сроки, люди, владельцы, расширение 39ms
+   ✓ включение «ИИ-продавца» главным администратором (Q-183) (3)
+     ✓ оплачен бессрочно с номером счёта: записано с автором, в ответе — «действует» 19ms
+     ✓ пробный без срока — 400 словами домена, ничего не записано 13ms
+     ✓ неизвестная организация — 404; не идентификатор — 400 28ms
+   ✓ статус организации: подтверждение оплаты (5)
+     ✓ главный администратор подтверждает оплату — ACTIVE, с автором и заметкой 13ms
+     ✓ и переводит обратно в «только чтение» 13ms
+     ✓ другие статусы отсюда не ставятся: приостановка и пробный — не оплата 32ms
+     ✓ владелец организации сам себе оплату не подтверждает — 403 11ms
+     ✓ нет такой организации — 404 5ms
+   ✓ лицензия конструктора сайта филиала (MKT9.2) (3)
+     ✓ владелец организации не видит и не выдаёт себе лицензию: 403, ничего не записано 19ms
+     ✓ главный администратор активирует: записано с автором, ответ «действует» 20ms
+     ✓ пробный без срока: 400; чужой филиал: 404; ничего не записано 14ms
+   ✓ организация: название, архив и возврат (10)
+     ✓ переименование: пробелы сжаты, записано с автором, в ответе новое название 10ms
+     ✓ то же название: ответ 200, лишней записи в журнале нет 6ms
+     ✓ пустое, слишком длинное и не строка: 400, ничего не записано 15ms
+     ✓ переименовывает только главный администратор; нет такой — 404; не идентификатор — 400 8ms
+     ✓ архив: статус SUSPENDED, автор записан, организация остаётся в списке 5ms
+     ✓ свою организацию в архив убрать нельзя: 409, статус не тронут 3ms
+     ✓ уже в архиве — 409; нет такой — 404; владелец — 403 9ms
+     ✓ возврат ставит прежний статус, а не «оплачено» 5ms
+     ✓ прежний статус не найден: возврат в «только чтение», платный доступ сам не появляется 2ms
+     ✓ вернуть из архива можно только организацию из архива: иначе 409; владелец — 403 4ms
+   ❯ создание организации (8)
+     × главный администратор создаёт: 201, название и почта приведены к одному виду, автор записан 4ms
+     × направление салона принимается; письмо не ушло — организация создана, ownerLinkSent false 3ms
+     × пустое, слишком длинное и не строка: 400 словами названия, ничего не создано 2ms
+     × почта владельца не адрес и неизвестное направление: 400, ничего не создано 2ms
+     × отказ службы (почта занята, направление только для пилота) идёт наружу её словами 2ms
+     × владелец организации не создаёт чужие организации: 403; без входа 401 2ms
+     × ссылка владельцу ещё раз: 201 и в ответе только ownerLinkSent; нет такой организации 404; не идентификатор 400 5ms
+     × ссылку владельцу выдаёт только главный администратор; отказ службы идёт наружу 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > раздел «Платформа» — только главный администратор > главному администратору — организации без броней и гостей: название, сроки, люди, владельцы, расширение
+AssertionError: expected [ { …(8) } ] to deeply equal [ { …(9) } ]
+
+- Expected
++ Received
+
+@@ -10,11 +10,10 @@
+      },
+      "createdAt": "2026-09-25T00:00:00.000Z",
+      "id": "5d2f1a9e-8c7b-4e3a-a1f0-6b9c2d4e8f00",
+      "members": 2,
+      "name": "Хостел «Пример»",
+-     "ownerPending": false,
+      "owners": [
+        "<email>",
+      ],
+      "status": "TRIAL",
+      "trialEndsAt": "2026-10-02T00:00:00.000Z",
+
+ ❯ apps/api/src/platform/platform.controller.test.ts:241:28
+    239|   it('главному администратору — организации без броней и гостей: назва…
+    240|     const res = await api().get('/platform/organizations').set(as('ses…
+    241|     expect(res.body.items).toEqual([
+       |                            ^
+    242|       {
+    243|         id: ORG,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > создание организации > главный администратор создаёт: 201, название и почта приведены к одному виду, автор записан
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:485:8
+    483|       .set(as('session-admin'))
+    484|       .send({ name: '  Хостел   «Новый»  ', ownerEmail: '  Vladelec.NE…
+    485|       .expect(201);
+       |        ^
+    486|     expect(creation.created).toEqual([
+    487|       { name: 'Хостел «Новый»', ownerEmail: '<email>…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > создание организации > направление салона принимается; письмо не ушло — организация создана, ownerLinkSent false
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:506:8
+    504|       .set(as('session-admin'))
+    505|       .send({ name: 'Салон «Лотос»', ownerEmail: '<email>…
+    506|       .expect(201);
+       |        ^
+    507|     expect(creation.created[0]).toMatchObject({ vertical: 'BEAUTY' });
+    508|     expect(res.body.ownerLinkSent).toBe(false);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > создание организации > пустое, слишком длинное и не строка: 400 словами названия, ничего не создано
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:517:10
+    515|         .set(as('session-admin'))
+    516|         .send({ name, ownerEmail: '<email>' })
+    517|         .expect(400);
+       |          ^
+    518|       expect(res.body.message).toBe(PLATFORM_NAME_MESSAGE);
+    519|     }
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > создание организации > почта владельца не адрес и неизвестное направление: 400, ничего не создано
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:529:10
+    527|         .set(as('session-admin'))
+    528|         .send({ name: 'Х', ownerEmail })
+    529|         .expect(400);
+       |          ^
+    530|       expect(res.body.message).toBe(PLATFORM_OWNER_EMAIL_MESSAGE);
+    531|     }
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > создание организации > отказ службы (почта занята, направление только для пилота) идёт наружу её словами
+Error: expected 409 "Conflict", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:546:8
+    544|       .set(as('session-admin'))
+    545|       .send({ name: 'Х', ownerEmail: '<email>' })
+    546|       .expect(409);
+       |        ^
+    547|     expect(res.body.message).toBe('Эта почта уже зарегистрирована');
+    548|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > создание организации > владелец организации не создаёт чужие организации: 403; без входа 401
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:551:127
+    549|
+    550|   it('владелец организации не создаёт чужие организации: 403; без вход…
+    551|     await api().post('/platform/organizations').set(as('session-owner'…
+       |                                                                                                                               ^
+    552|     await api().post('/platform/organizations').send({ name: 'Х', owne…
+    553|     expect(creation.created).toHaveLength(0);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > создание организации > ссылка владельцу ещё раз: 201 и в ответе только ownerLinkSent; нет такой организации 404; не идентификатор 400
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:557:104
+    555|
+    556|   it('ссылка владельцу ещё раз: 201 и в ответе только ownerLinkSent; н…
+    557|     const res = await api().post(`/platform/organizations/${ORG}/owner…
+       |                                                                                                        ^
+    558|     expect(res.body).toMatchObject({ ownerLinkSent: true, organization…
+    559|     expect(creation.links).toEqual([ORG]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > создание организации > ссылку владельцу выдаёт только главный администратор; отказ службы идёт наружу
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:566:92
+    564|
+    565|   it('ссылку владельцу выдаёт только главный администратор; отказ служ…
+    566|     await api().post(`/platform/organizations/${ORG}/owner-link`).set(…
+       |                                                                                            ^
+    567|     expect(creation.links).toHaveLength(0);
+    568|     creation.failWith = new ConflictException('Владелец уже задал паро…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 24 passed (33)
+   Start at  14:12:56
+   Duration  3.83s (transform 61%, import 21%, tests 18%)
+
+JSON report written to /tmp/pms-test-2026-10-09T14-12-55Z-unit-1541.json
+
+# код выхода 1 · 5 с

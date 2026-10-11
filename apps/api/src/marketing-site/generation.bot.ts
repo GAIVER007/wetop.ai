@@ -1,3 +1,4 @@
+import type { AssistantHistoryItem } from '@pms/domain';
 import { assistant } from '@pms/integrations';
 import { sellerConfigFromEnv } from '../ai-seller/seller.connection';
 
@@ -16,16 +17,61 @@ export interface GenerationBotRequest {
   targetLocales: string[];
   budgetRemainingTokens: number;
   validationErrors: Array<{ path: string; code: string }>;
+  /** MKT9: пожелания владельца к первой версии; нет пожеланий, нет и поля */
+  instruction?: string;
+}
+
+/** MKT9: правка готовой версии; бот возвращает документ целиком, границы правки проверяет платформа */
+export interface EditBotRequest {
+  schemaVersion: 'site-edit/0';
+  requestId: string;
+  mode: 'PATCH' | 'SECTION';
+  target?: { pageId: string; sectionId: string };
+  siteSpecSchemaVersion: 'site-spec/0';
+  briefInput: unknown;
+  baseSpec: unknown;
+  instruction: string;
+  budgetRemainingTokens: number;
+  validationErrors: Array<{ path: string; code: string }>;
+}
+
+/** MKT9.2: разговор с ИИ сайта; версий не создаёт, ответ строгим JSON по режиму, разбирает платформа */
+export interface AssistantBotRequest {
+  schemaVersion: 'site-assistant/0';
+  requestId: string;
+  mode: 'CHAT' | 'PLAN' | 'DESIGN';
+  siteSpecSchemaVersion: 'site-spec/0';
+  briefInput: unknown;
+  /** Голова черновика или null, если версий ещё нет */
+  currentSpec: unknown;
+  /** Знания проекта: данные, а не правила */
+  projectInstructions: string | null;
+  /**
+   * Доводка MKT9.2: прошлые успешные ходы ЭТОГО сайта от старых к новым, без текущего запроса; собирает воркер из
+   * базы (браузер историю не присылает), до 12 ходов и 16 000 знаков. Данные, а не правила
+   */
+  history: AssistantHistoryItem[];
+  userText: string;
+  budgetRemainingTokens: number;
+  validationErrors: Array<{ path: string; code: string }>;
 }
 
 export interface GenerationBot {
   /** Ответ бота как есть; разбирает и проверяет воркер. Нет связи, таймаут, 5xx: `BotUnavailableError` */
   generate(request: GenerationBotRequest): Promise<unknown>;
+  /** То же для правки (MKT9) */
+  edit(request: EditBotRequest): Promise<unknown>;
+  /** MKT9.2: Чат, План, Оформление */
+  assistant(request: AssistantBotRequest): Promise<unknown>;
 }
 
 export function generationBotFromEnv(): GenerationBot | null {
   const config = sellerConfigFromEnv();
   if (!config.baseUrl || !config.serviceKey) return null;
   const client = new assistant.BotPanelClient({ baseUrl: config.baseUrl, serviceKey: config.serviceKey });
-  return { generate: (request) => client.siteGeneration({ ...request }) };
+  return {
+    generate: (request) => client.siteGeneration({ ...request }),
+    edit: (request) => client.siteEdit({ ...request }),
+    assistant: (request) => client.siteAssistant({ ...request }),
+  };
 }

@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 09.10.2026 13:18 Алматы · vm
+# коммит b795d88 (claude/mv8-5-ds1c-acceptance-followup), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/owner-dashboard-interactions.spec.ts:58' '--repeat-each=20' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 1 worker
+
+  ✓   1 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.3s)
+  ✓   2 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.1s)
+  ✓   3 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.1s)
+  ✓   4 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (7.9s)
+  ✓   5 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.1s)
+  ✓   6 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.9s)
+  ✓   7 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (7.9s)
+  ✓   8 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.1s)
+  ✓   9 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.2s)
+  ✓  10 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.4s)
+  ✓  11 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.1s)
+  ✓  12 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.4s)
+  ✓  13 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (9.1s)
+  ✓  14 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (9.5s)
+  ✓  15 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.9s)
+  ✓  16 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.4s)
+  ✓  17 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.2s)
+  ✓  18 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.2s)
+  ✓  19 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.4s)
+  ✓  20 tests/ui/owner-dashboard-interactions.spec.ts:58:1 › slow inventory keeps daily events usable and shows a stable loading card (8.1s)
+
+  20 passed (3.4m)
+
+# код выхода 0 · 3 мин 27 с

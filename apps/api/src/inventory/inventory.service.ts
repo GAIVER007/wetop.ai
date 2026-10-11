@@ -6,6 +6,12 @@ import {
   type InventoryPropertyInfo,
   type InventoryRepository,
 } from './inventory.repository';
+import {
+  classifyOccupancy,
+  computeTrend,
+  type InventoryTrend,
+  type UnitOccupancy,
+} from './inventory-insight';
 
 export interface InventorySummaryDto extends InventorySummary {
   property: InventoryPropertyInfo;
@@ -74,5 +80,21 @@ export class InventoryService {
           block: state?.block ?? null,
         };
       });
+  }
+
+  /** Динамика сводки за период (7, 30 или 90 дней), восстановленная из существующих записей */
+  async trend(days: number): Promise<InventoryTrend> {
+    await this.load();
+    return computeTrend({ ...(await this.repo.trendSource()), days });
+  }
+
+  /** Кто в месте сегодня: проживает, заезжает или свободно. Только чтение. */
+  async occupancy(): Promise<Array<{ code: string } & UnitOccupancy>> {
+    const model = await this.load();
+    const { today, byCode } = await this.repo.staysToday();
+    return model.plan.units.map((u) => ({
+      code: u.code,
+      ...classifyOccupancy(today, byCode.get(u.code) ?? []),
+    }));
   }
 }

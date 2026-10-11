@@ -17,7 +17,7 @@
 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
 
  FAIL  |integration| tests/integration/bar-operational.test.ts > BAR operational acceptance: real HTTP and PostgreSQL > C01-C08 reconciles drafts, FIFO, cash, Folio, write-off and shortage in minor units
-PrismaClientValidationError: 
+PrismaClientValidationError:
 Invalid `prisma.cashOperation.findMany()` invocation:
 
 {

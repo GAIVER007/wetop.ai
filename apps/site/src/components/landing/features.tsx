@@ -4,9 +4,8 @@ import { SectionHeading } from '../section-heading';
 import { typo } from '../typo';
 
 /*
- * «Что умеет WETOP»: восемь разделов стойки. С 02.10.2026 это не восемь карточек-колонок с абзацем в каждой,
- * а восемь строк-пунктов в две колонки (`.card--compact`): иконка слева, заголовок и одна фраза справа.
- * Раздел просматривают, а не читают: порядок и состав прежние, короче стал текст и форма карточки.
+ * «Возможности» (LAND2, ТЗ §6): шесть задач ежедневной работы сеткой 3×2 на компьютере и 2×3 на
+ * телефоне (CSS `.card-grid--3`). У карточки одна иконка, название и до двух строк текста.
  */
 export function Features() {
   const { features } = getDictionary();
@@ -19,7 +18,7 @@ export function Features() {
           title={features.title}
           lead={features.lead}
         />
-        <ul className="card-grid card-grid--2">
+        <ul className="card-grid card-grid--3 features__grid">
           {features.items.map((item) => (
             <li key={item.title} className="card card--compact glass">
               <span className="icon-tile icon-tile--sm">
@@ -28,15 +27,6 @@ export function Features() {
               <div className="card__body">
                 <h3 className="card__title">{typo(item.title)}</h3>
                 <p className="card__text">{typo(item.text)}</p>
-                {item.tags ? (
-                  <ul className="tag-list">
-                    {item.tags.map((tag) => (
-                      <li key={tag} className="tag">
-                        {tag}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
               </div>
             </li>
           ))}

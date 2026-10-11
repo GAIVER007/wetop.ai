@@ -25,16 +25,36 @@ test('форма брони: детализация цены по дням, су
   await expect(form.getByTestId('price-by-night-sum')).toContainText('средняя стоимость ночи');
 });
 
-test('календарь: сводка дня карточкой справа, управление слева', async ({ page }) => {
+test('календарь: одна полоса управления и шесть карточек под ней, сетка начинается выше', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/chessboard');
   const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(panel).toBeVisible();
   const p = (await panel.boundingBox())!;
-  const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
-  // сводка по образцу Lite PMS (06.10): карточка справа, управление слева от неё, не под ней
-  expect(p.height).toBeLessThanOrEqual(190);
-  expect(c.x + c.width).toBeLessThanOrEqual(p.x + 1);
+  const bar = (await page.locator('.board-toolbar').boundingBox())!;
+  const grid = (await page.locator('.board-wrap').boundingBox())!;
+  // образец владельца (09.10): полоса «Сегодня ‹ › период масштаб длина поиск Фильтры Новая бронь» одной
+  // строкой, под ней шесть карточек в один ряд, затем сетка
+  expect(bar.height).toBeLessThanOrEqual(56);
+  expect(bar.y + bar.height).toBeLessThanOrEqual(p.y + 1);
+  expect(p.height).toBeLessThanOrEqual(96);
+  expect(p.y + p.height).toBeLessThanOrEqual(grid.y + 1);
+  expect(grid.y).toBeLessThanOrEqual(260);
+  const tops = await panel
+    .locator('.board-kpi')
+    .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
+  expect(tops).toHaveLength(6);
+  expect(new Set(tops).size).toBe(1);
+  // все шесть элементов полосы на одной линии
+  const barTops = await page
+    .locator('.board-toolbar')
+    .locator(
+      ':scope > .board-nav > *, :scope > .board-search, :scope > .board-filters-open, :scope > .board-new',
+    )
+    .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 8)));
+  expect(new Set(barTops).size).toBe(1);
   await expect(panel.getByTestId('day-free')).toBeVisible();
   await expect(panel.getByTestId('day-units')).toHaveCount(0);
   await page.screenshot({ path: 'reports/calendar-2026-10-02/header-compact-1440.png' });

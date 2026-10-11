@@ -62,6 +62,11 @@ function make(kind: Kind, source: Asset['source'], defaultAlt: Record<string, st
   };
 }
 
+/** Картинка библиотеки по id: фото категорий склеивают выбор со стендом библиотеки */
+export function fixtureAssetById(id: string): Asset | undefined {
+  return assets.find((a) => a.id === id);
+}
+
 export function resetSiteAssetsFixture() {
   counter = 0;
   storageOff = false;
@@ -74,6 +79,11 @@ export function resetSiteAssetsFixture() {
   published = new Set([assets[0]!.id]);
 }
 resetSiteAssetsFixture();
+
+/** Готовые картинки библиотеки по id и виду: редактор MKT9 проверяет ссылки документа так же, как API */
+export function fixtureAssetKinds(): Map<string, Kind> {
+  return new Map(assets.map((a) => [a.id, a.kind]));
+}
 
 const field = (raw: string, name: string) => new RegExp(`name="${name}"\\r\\n\\r\\n([^\\r]*)`).exec(raw)?.[1];
 const view = () => ({ storage: storageOff ? 'OFF' : 'READY', limits: { maxUploadBytes: MAX }, assets: storageOff ? assets.map((a) => ({ ...a, previewUrl: null })) : assets });

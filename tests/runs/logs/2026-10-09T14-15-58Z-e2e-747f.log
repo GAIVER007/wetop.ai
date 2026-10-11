@@ -1,0 +1,124 @@
+# Сквозные (e2e) · 09.10.2026 19:15 Алматы · vm
+# коммит 35ada50 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (3.1s)
+  ✓  2 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (5.8s)
+  ✓  3 tests/ui/marketing.spec.ts:86:1 › хаб Marketing 2.0: три модуля, у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (2.3s)
+  ✓  4 tests/ui/marketing.spec.ts:154:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (4.5s)
+  ✓  5 tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: light (4.9s)
+  ✘  6 tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: dark (2.8s)
+  ✓  7 tests/ui/marketing.spec.ts:217:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (6.0s)
+
+
+  1) tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: dark ────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 70
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+    +     "help": "Links must be distinguishable without relying on color",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/link-in-text-block?application=playwright",
+    +     "id": "link-in-text-block",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.22,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#48a5ff",
+    +               "parentColor": "#a8b3c5",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.22:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #a8b3c5)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<p class=\"marketing-results__note\">Посещения и заявки сайта смотрите в разделе <a href=\"/website/analytics\">Аналитика сайта</a>. Расходы и доход появятся, когда будет подключена реклама.</p>",
+    +                 "target": Array [
+    +                   ".marketing-results__note",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<p class=\"marketing-results__note\">Посещения и заявки сайта смотрите в разделе <a href=\"/website/analytics\">Аналитика сайта</a>. Расходы и доход появятся, когда будет подключена реклама.</p>",
+    +                 "target": Array [
+    +                   ".marketing-results__note",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.22:1 with the surrounding text. (Minimum contrast is 3:1, link text: #48a5ff, surrounding text: #a8b3c5)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"/website/analytics\">Аналитика сайта</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".marketing-results__note > a[href$=\"analytics\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2a",
+    +       "wcag141",
+    +       "TTv5",
+    +       "TT13.a",
+    +       "EN-301-549",
+    +       "EN-9.1.4.1",
+    +       "RGAAv4",
+    +       "RGAA-10.6.1",
+    +     ],
+    +   },
+    + ]
+
+      197 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      198 |         .analyze();
+    > 199 |       expect(audit.violations).toEqual([]);
+          |                                ^
+      200 |       await page.screenshot({ path: `${SHOTS}/hub-${theme}-${width}.png`, fullPage: true });
+      201 |     }
+      202 |     // телефон: тот же раздел в выдвижном меню, цели не ниже 44 px
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:199:32
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/marketing.spec.ts:176:3 › хаб на компьютере и телефоне, доступность: dark ─────────────
+  6 passed (42.1s)
+
+# код выхода 1 · 43 с

@@ -100,7 +100,7 @@ Running 26 tests using 2 workers
 Сайтов со счётчиком от автотестов: 0 — удалены
 
 
-  1) [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 
+  1) [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92
 
     Error: expect(locator).toHaveText(expected) failed
 
@@ -135,7 +135,7 @@ Running 26 tests using 2 workers
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  2) [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы 
+  2) [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы
 
     Error: expect(received).toBeDefined()
 
@@ -161,8 +161,8 @@ Running 26 tests using 2 workers
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
   2 failed
-    [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 
-    [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы 
+    [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92
+    [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы
   24 passed (1.8m)
 
 # код выхода 1 · 1 мин 48 с

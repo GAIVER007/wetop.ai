@@ -1,0 +1,129 @@
+# Сквозные (e2e) · 10.10.2026 20:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 50ffe96 (claude/gate-fix-1010b)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+  ✓   1 tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (2.2s)
+  ✓   2 tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (2.7s)
+  ✓   3 tests/branches-ui/analytics.spec.ts:131:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (3.5s)
+  ✓   4 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (1.3s)
+  ✓   5 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (1.6s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (1.3s)
+  ✓   7 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (1.6s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (1.4s)
+  ✓   9 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 390 light: accessibility, keyboard and screenshot (1.3s)
+  ✓  10 tests/branches-ui/analytics.spec.ts:173:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (1.4s)
+  ✓  11 tests/branches-ui/analytics.spec.ts:173:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (1.3s)
+  ✓  12 tests/branches-ui/branches.spec.ts:46:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (1.2s)
+  ✓  13 tests/branches-ui/branches.spec.ts:62:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (1.5s)
+  ✓  14 tests/branches-ui/branches.spec.ts:74:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (1.4s)
+  ✓  15 tests/branches-ui/branches.spec.ts:86:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (3.0s)
+  ✓  16 tests/branches-ui/branches.spec.ts:114:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (7.4s)
+  ✓  17 tests/branches-ui/branches.spec.ts:150:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (6.3s)
+  ✘  18 tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (7.1s)
+  ✘  19 tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (7.5s)
+  ✓  20 tests/branches-ui/today.spec.ts:216:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (2.0s)
+  ✓  21 tests/branches-ui/today.spec.ts:233:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (13.1s)
+  ✓  22 tests/branches-ui/today.spec.ts:273:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action (3.2s)
+  ✓  23 tests/branches-ui/today.spec.ts:323:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling (3.2s)
+  ✓  24 tests/branches-ui/today.spec.ts:374:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (4.4s)
+  ✓  25 tests/branches-ui/today.spec.ts:396:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: блоки владельца в «Финансах», без запросов салона и ресторана (2.6s)
+  ✓  26 tests/branches-ui/today.spec.ts:408:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (5.1s)
+  ✓  27 tests/branches-ui/today.spec.ts:440:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (13.5s)
+  ✓  28 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (13.4s)
+  ✓  29 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (8.6s)
+  ✓  30 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (7.5s)
+  ✓  31 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (4.6s)
+  ✓  32 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (8.6s)
+  ✓  33 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (9.3s)
+  ✓  34 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (12.0s)
+  ✓  35 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (13.5s)
+  ✓  36 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (6.1s)
+  ✓  37 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (4.0s)
+  ✓  38 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (3.2s)
+  ✓  39 tests/branches-ui/today.spec.ts:470:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (2.7s)
+
+
+  1) tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('link', { name: 'Сегодня', exact: true }).first()
+    Expected: "page"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('link', { name: 'Сегодня', exact: true }).first() with timeout 5000ms
+      - waiting for getByRole('link', { name: 'Сегодня', exact: true }).first()
+
+
+      160 |       await expect(page.getByTestId('today-upcoming')).toContainText(UNAVAILABLE_MASTER);
+      161 |     // меню салона: «Сегодня» первым пунктом и текущим
+    > 162 |     await expect(page.getByRole('link', { name: 'Сегодня', exact: true }).first()).toHaveAttribute(
+          |                                                                                    ^
+      163 |       'aria-current',
+      164 |       'page',
+      165 |     );
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/gate-wt/tests/branches-ui/today.spec.ts:162:84
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: 'Бронирования', exact: true }).first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: 'Бронирования', exact: true }).first() with timeout 5000ms
+      - waiting for getByRole('link', { name: 'Бронирования', exact: true }).first()
+
+
+      204 |     await expect(
+      205 |       page.getByRole('link', { name: 'Бронирования', exact: true }).first(),
+    > 206 |     ).toBeVisible();
+          |       ^
+      207 |     const calls = await callsSince(request, from);
+      208 |     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);
+      209 |     expect(calls.filter((c) => c === '/food-service/reservations').length).toBeGreaterThanOrEqual(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/gate-wt/tests/branches-ui/today.spec.ts:206:7
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+    tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+  37 passed (3.5m)
+
+# код выхода 1 · 3 мин 28 с

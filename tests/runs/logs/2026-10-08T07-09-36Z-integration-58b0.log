@@ -1,0 +1,52 @@
+# Интеграционные (integration) · 08.10.2026 12:09 Алматы · vm
+# коммит 22c6e31 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T07-09-36Z-integration-58b0.json' 'tests/integration/licensed-site-builder-db.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/licensed-site-builder-db.test.ts (11 tests | 1 failed) 286ms
+   ❯ MKT9.2 licensed site builder: инварианты базы (11)
+     ✓ один филиал, один сайт навсегда: второй сайт нельзя даже после архива первого 10ms
+     ✓ знания проекта: до 5000 знаков 3ms
+     ✓ лицензия: у пробной нужен срок, только гостиничный филиал, одна строка на филиал 9ms
+     ✓ лицензию приложение только читает и только своей организации; служба пишет, удалять не может никто 14ms
+     ✓ разговор ИИ: новая задача только в QUEUED, режим из словаря, ключ запроса один раз на сайт 11ms
+     ✓ разговор ИИ: форма состояния, переходы, конечное состояние не меняется, LICENSE_UNAVAILABLE в словаре 13ms
+     ✓ разговор ИИ: ограничение ответа по размеру, база только своего сайта, версий не создаёт 24ms
+     ✓ разговор ИИ: RLS и права (приложение ставит и читает своё, менять и удалять не может) 26ms
+     ✓ LICENSE_UNAVAILABLE есть и у задач сборки 7ms
+     ✓ закладки: только версия своего сайта, одна на версию, не больше 20 на сайт, подпись до 120 69ms
+     × закладки: RLS (своё ставит и снимает, чужое не видит) 37ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > закладки: RLS (своё ставит и снимает, чужое не видит)
+AssertionError: expected [Function] to throw error matching /row-level security/ but got 'marketing_site_version_bookmarks: вер…'
+
+- Expected:
+/row-level security/
+
++ Received:
+"marketing_site_version_bookmarks: версия другого сайта"
+
+ ❯ tests/integration/licensed-site-builder-db.test.ts:289:137
+    287|       const seen = await attempt(`SELECT id FROM marketing_site_versio…
+    288|       expect(seen.rows.map((r) => r.id)).toEqual([mine]);
+    289|       await expect(insert(attempt, 'marketing_site_version_bookmarks',…
+       |                                                                                                                                         ^
+    290|         /row-level security/,
+    291|       );
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:279:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  07:09:37
+   Duration  4.48s (transform 67%, import 19%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-10-08T07-09-36Z-integration-58b0.json
+
+# код выхода 1 · 5 с

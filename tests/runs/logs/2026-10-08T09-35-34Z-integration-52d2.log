@@ -1,0 +1,188 @@
+# Интеграционные (integration) · 08.10.2026 14:35 Алматы · vm
+# коммит 616c25b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T09-35-34Z-integration-52d2.json' 'tests/integration/licensed-site-builder.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:20371) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/licensed-site-builder.test.ts (24 tests | 8 failed) 7766ms
+   ❯ MKT9.2 licensed site builder (24)
+     ✓ лицензия закрывает запись и ИИ, чтение открыто (3)
+       ✓ без лицензии: заведение сайта 403 SITE_BUILDER_NOT_ENABLED, сайт не появляется; чтение отвечает 859ms
+       ✓ лицензия выключена или срок вышел: каждая запись и каждый ИИ 403, чтение 200, пауза и архив не закрыты 1173ms
+       ✓ лицензия другого филиала той же организации не открывает этот филиал 44ms
+     ✓ заведение сайта и знания проекта (2)
+       ✓ bootstrap: 201 новый с именем филиала, 200 тот же, архив 409 SITE_ARCHIVED; второго сайта нет 117ms
+       ✓ знания проекта: чтение, правка, предел 5000, в журнале только длина 118ms
+     ❯ разговор с ИИ: Чат, План, Оформление (5)
+       ✓ Чат: задача без версии, повтор ключа та же задача; боту уходят знания проекта и голова; разговор хранится на сервере 238ms
+       ✓ ответ, не прошедший проверку платформы, не сохраняется: повтор, затем FAILED SCHEMA_INVALID 439ms
+       × План: вопросы, ответы, план; «Собрать по плану» ставит ровно одну сборку PATCH, повтор отдаёт её же 207ms
+       ✓ план устарел: голова сменилась после плана, сборка по нему 409 BASE_VERSION_CHANGED 213ms
+       ✓ Оформление: три направления; первая сборка с выбранным ставит тему платформой, модели уходит описание 284ms
+     ❯ разговор помнит контекст: история только этого сайта и ответы на вопросы плана (7)
+       × Чат: второй ход видит первый (вопрос и ответ), текущий запрос в историю не попадает 206ms
+       × три хода: на третьем (План) история это два прошлых хода по порядку; упавший ход и упавшая сборка не попадают, успешная сборка попадает 474ms
+       × граница: история только этого сайта; другой филиал, журнал и чужая организация в неё не попадают 353ms
+       × история ограничена 12 последними ходами 166ms
+       × ответ на вопросы плана: следующий запрос несёт исходную просьбу, оба вопроса и оба ответа ровно по одному разу 127ms
+       × ответы проверяются по вопросам родителя: незнакомый, пропуск, повтор, чужой вариант 400; свой при allowCustom проходит; модель не зовётся 144ms
+       × отвечать можно только на успешные вопросы плана своего сайта; чужой филиал получает нейтральный 404 без вопросов 150ms
+     ✓ общие правила ИИ сайта по обеим таблицам (4)
+       ✓ одна активная задача ИИ на сайт: пока ждёт чат, сборка 409 AI_BUSY, и наоборот 139ms
+       ✓ предел часа общий: 10 запросов к ИИ сайта любым режимом, одиннадцатый 429 440ms
+       ✓ общий дневной пул: токены разговора уменьшают остаток сборки 186ms
+       ✓ воркер: лицензию выключили, пока задача ждала, и сборка, и разговор падают LICENSE_UNAVAILABLE без вызова модели 176ms
+     ✓ закладки версий (1)
+       ✓ поставить, переименовать, снять; в истории отдельным списком; чужая версия 404; не больше 20 745ms
+     ✓ платформа: лицензию выдаёт только главный администратор (2)
+       ✓ список гостиничных филиалов со статусом; пробный, активировать, продлить, выключить; журнал было и стало 78ms
+       ✓ партнёр (владелец организации) лицензию не видит через платформу и не выдаёт 17ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder > разговор с ИИ: Чат, План, Оформление > План: вопросы, ответы, план; «Собрать по плану» ставит ровно одну сборку PATCH, повтор отдаёт её же
+AssertionError: {"message":"Лишние поля: replyToRunId","error":"Bad Request","statusCode":400}: expected 400 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 400
+
+ ❯ tests/integration/licensed-site-builder.test.ts:431:32
+    429|
+    430|       const p = await ask(w, 'PLAN', undefined, randomUUID(), { replyT…
+    431|       expect(p.status, p.text).toBe(202);
+       |                                ^
+    432|       fake.state.replies.push({
+    433|         status: 'ok',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder > разговор помнит контекст: история только этого сайта и ответы на вопросы плана > Чат: второй ход видит первый (вопрос и ответ), текущий запрос в историю не попадает
+AssertionError: expected undefined to deeply equal []
+
+- Expected:
+[]
+
++ Received:
+undefined
+
+ ❯ tests/integration/licensed-site-builder.test.ts:532:48
+    530|       fake.state.replies.push(chatReply('Короче: город рядом.'));
+    531|       await worker.tick();
+    532|       expect(fake.state.assistant[0]!.history).toEqual([]);
+       |                                                ^
+    533|       expect(fake.state.assistant[1]!.history).toEqual([
+    534|         { mode: 'CHAT', userText: 'Предложи два варианта первого экран…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder > разговор помнит контекст: история только этого сайта и ответы на вопросы плана > три хода: на третьем (План) история это два прошлых хода по порядку; упавший ход и упавшая сборка не попадают, успешная сборка попадает
+TypeError: Cannot read properties of undefined (reading 'map')
+ ❯ tests/integration/licensed-site-builder.test.ts:566:28
+    564|       const third = fake.state.assistant.at(-1)!;
+    565|       expect(third.userText).toBe('Третий');
+    566|       expect(third.history.map((h) => [h.mode, h.userText, h.assistant…
+       |                            ^
+    567|         ['CHAT', 'Первый', 'Ответ первый'],
+    568|         ['BUILD', 'Заголовок короче', 'Изменение применено к сайту'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder > разговор помнит контекст: история только этого сайта и ответы на вопросы плана > граница: история только этого сайта; другой филиал, журнал и чужая организация в неё не попадают
+AssertionError: expected '{"schemaVersion":"site-assistant/0","…' to contain 'SENTINEL-SITE-A'
+
+Expected: "SENTINEL-SITE-A"
+Received: "{"schemaVersion":"site-assistant/0","requestId":"8338124b-62b1-4ba3-bf28-31177af622b6","mode":"CHAT","siteSpecSchemaVersion":"site-spec/0","briefInput":{"identity":{"displayNameCandidate":"Luxx Aparts","displayNameSource":"PLATFORM","locationName":"Luxx Aparts","propertyName":"Luxx Aparts","address":null,"addressSource":null,"city":null,"countryCode":null,"propertyType":null,"timezone":"Asia/Almaty","currency":"KZT","phone":null,"phoneSource":null,"email":null,"emailSource":null},"stay":{"checkInTime":"14:00","checkOutTime":"12:00"},"accommodations":[{"categoryCode":"cat-a","name":"Номер","kind":"PRIVATE_ROOM","capacityAdults":2,"activeUnits":1}],"capabilities":{"booking":true,"fromPrice":true},"sellerContent":null,"channelContent":null},"currentSpec":{"site":{"seo":{"robots":"INDEX","structuredData":{"type":"HOTEL","includeGeo":false,"includeAddress":false}},"locales":["ru"],"vertical":"HOSPITALITY","displayName":{"ru":"Luxx Aparts"},"defaultLocale":"ru"},"pages":[{"id":"page-home","seo":{"index":true,"title":{"ru":"Гостиница"},"canonical":"SELF","description":{"ru":"Гостиница"},"includeInSitemap":true},"slug":"","title":{"ru":"Luxx Aparts"},"isHome":true,"sections":[{"id":"sec-hero","type":"hero","heading":{"ru":"Первый экран"},"variant":"TEXT_ONLY","primaryAction":{"label":{"ru":"Выбрать даты"},"action":{"kind":"BOOK"}}},{"id":"sec-about","type":"about","heading":{"ru":"О нас"},"variant":"TEXT_ONLY","paragraphs":[{"ru":"Гостиница у вокзала."}]},{"id":"sec-rooms","type":"accommodations","items":[{"title":{"ru":"Номер"},"description":{"ru":"Описание"},"categoryCode":"cat-a"}],"heading":{"ru":"Номера"},"variant":"CARDS"},{"id":"sec-booking","type":"booking","heading":{"ru":"Забронировать"},"variant":"INLINE"}]}],"theme":{"accent":"TEAL","preset":"CALM","radius":"SOFT","density":"COMFORTABLE","typography":"MODERN","colorScheme":"LIGHT"},"navigation":{"footer":[],"header":[]},"integrations":{"booking":{"mode":"WETOP_WIDGET"},"analytics":{"mode":"NONE","consent":"NOT_REQUIRED"}},"schemaVersion":"site-spec/0"},"projectInstructions":null,"userText":"Продолжим","budgetRemainingTokens":149700,"validationErrors":[]}"
+
+ ❯ tests/integration/licensed-site-builder.test.ts:596:20
+    594|       await worker.tick();
+    595|       const sent = JSON.stringify(fake.state.assistant.at(-1));
+    596|       expect(sent).toContain('SENTINEL-SITE-A');
+       |                    ^
+    597|       expect(sent).not.toMatch(/SENTINEL-SITE-B|SENTINEL-OTHER-ORG|SEN…
+    598|       // а сайт B видит только себя
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder > разговор помнит контекст: история только этого сайта и ответы на вопросы плана > история ограничена 12 последними ходами
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/integration/licensed-site-builder.test.ts:631:23
+    629|       await worker.tick();
+    630|       const history = fake.state.assistant.at(-1)!.history;
+    631|       expect(history).toHaveLength(12);
+       |                       ^
+    632|       expect(history[0]!.userText).toBe('старый ход 3');
+    633|       expect(history.at(-1)!.userText).toBe('старый ход 14');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder > разговор помнит контекст: история только этого сайта и ответы на вопросы плана > ответ на вопросы плана: следующий запрос несёт исходную просьбу, оба вопроса и оба ответа ровно по одному разу
+AssertionError: {"message":"Лишние поля: replyToRunId","error":"Bad Request","statusCode":400}: expected 400 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 400
+
+ ❯ tests/integration/licensed-site-builder.test.ts:647:32
+    645|         ],
+    646|       });
+    647|       expect(p.status, p.text).toBe(202);
+       |                                ^
+    648|       fake.state.replies.push({
+    649|         status: 'ok',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder > разговор помнит контекст: история только этого сайта и ответы на вопросы плана > ответы проверяются по вопросам родителя: незнакомый, пропуск, повтор, чужой вариант 400; свой при allowCustom проходит; модель не зовётся
+AssertionError: {"message":"Лишние поля: replyToRunId","error":"Bad Request","statusCode":400}: expected 400 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 400
+
+ ❯ tests/integration/licensed-site-builder.test.ts:685:42
+    683|       expect(await db.siteAiRun.count({ where: { site: { locationId: w…
+    684|       const custom = await reply([{ questionId: 'tone', answer: 'Яркий…
+    685|       expect(custom.status, custom.text).toBe(202);
+       |                                          ^
+    686|     });
+    687|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder.test.ts > MKT9.2 licensed site builder > разговор помнит контекст: история только этого сайта и ответы на вопросы плана > отвечать можно только на успешные вопросы плана своего сайта; чужой филиал получает нейтральный 404 без вопросов
+AssertionError: expected 202 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 202
+
+ ❯ tests/integration/licensed-site-builder.test.ts:694:83
+    692|       const answers = [{ questionId: 'tone', answer: 'Яркий' }, { ques…
+    693|       // без родителя ответы не принимаются, родитель без ответов тоже
+    694|       expect((await ask(w, 'PLAN', undefined, randomUUID(), { answers …
+       |                                                                                   ^
+    695|       expect((await ask(w, 'PLAN', 'Текст', randomUUID(), { replyToRun…
+    696|       expect((await ask(w, 'CHAT', 'Текст', randomUUID(), { replyToRun…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 16 passed (24)
+   Start at  09:35:35
+   Duration  12.11s (tests 75%, transform 17%, import 8%)
+
+JSON report written to /tmp/pms-test-2026-10-08T09-35-34Z-integration-52d2.json
+
+# код выхода 1 · 13 с

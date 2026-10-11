@@ -104,14 +104,14 @@ test('показатели: на телефоне таблица категор�
  * не гаснет, а ведёт туда, где действие начинается, и говорит куда. И второе: подпись стояла в строку
  * с названием и сжимала его — «Продлит / ь прожива / ние»; теперь она под названием.
  */
-test('главная: «Требуют внимания» разбито по важности, сумма равна счётчику; быстрых действий нет', async ({
+test('финансы: «Требуют внимания» разбито по важности, сумма равна счётчику; быстрых действий нет', async ({
   page,
 }) => {
-  await page.goto('/today');
-  // с 03.10 Главная — экран владельца: брони и действия смены живут в «Календаре» и «Бронях»
+  await page.goto('/finance');
+  // с 03.10 экран владельца без действий смены (с 09.10 он живёт в «Финансах»): брони в «Календаре» и «Бронях»
   await expect(page.getByRole('region', { name: 'Быстрые действия' })).toHaveCount(0);
   await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const tally = page.getByTestId('attention-tally');
   await expect(tally.getByRole('listitem')).toHaveText([/Критично/, /Важно/, /К сведению/]);
   const numbers = (await tally.locator('strong').allInnerTexts()).map(Number);

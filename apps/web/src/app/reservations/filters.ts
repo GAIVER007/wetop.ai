@@ -1,5 +1,6 @@
 import { sourceNames } from '../../lib/hotel-api';
 import { CHANNELS } from './sources';
+import { paymentStatus } from '../../lib/status/payment';
 
 /**
  * Отбор «Броней» в адресе (ADR-106, срез R2). Значения совпадают с параметрами GET /hotel/reservations:
@@ -18,14 +19,10 @@ export const dateBases: Record<string, string> = {
   departure: 'выезд',
   created: 'дата создания',
 };
+/** Отбор по оплате: слова из реестра `lib/status/payment` (DS1a), ключи = параметр API */
 export const paymentFilters: Record<string, string> = {
   '': 'Любая оплата',
-  paid: 'Оплачено',
-  partial: 'Оплачено частично',
-  unpaid: 'Не оплачено',
-  due: 'Есть долг',
-  refund: 'К возврату',
-  refunded: 'Возвращено',
+  ...Object.fromEntries(Object.entries(paymentStatus).map(([k, s]) => [k, s.label])),
 };
 export const allocationFilters: Record<string, string> = {
   '': 'Любое размещение',

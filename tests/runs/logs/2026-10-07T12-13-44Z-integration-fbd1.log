@@ -60,7 +60,7 @@ BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
 ⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
 
  FAIL  |integration| tests/integration/bar-operational.test.ts > BAR operational acceptance: real HTTP and PostgreSQL
-PrismaClientKnownRequestError: 
+PrismaClientKnownRequestError:
 Invalid `prisma.auditLog.deleteMany()` invocation:
 
 

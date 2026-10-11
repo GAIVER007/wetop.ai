@@ -1,0 +1,75 @@
+# Интеграционные (integration) · 07.10.2026 22:53 Алматы · vm
+# коммит 0c2e0d8 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T17-53-55Z-integration-d73c.json' 'tests/integration/site-editor.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:3773) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-editor.test.ts (13 tests | 1 failed) 3268ms
+   ❯ MKT9 site editor (13)
+     ✓ история версий: до 100, новые сверху, без документа; чтение с документом; смысловая разница 507ms
+     ✓ чужой филиал: версия, разница и восстановление неотличимы от несуществующих (404); чужая картинка не сохраняется 296ms
+     ✓ восстановление как новый черновик: r1 → новая r4 от r3, источник MANUAL, опубликованная не меняется; устаревшая база 409 591ms
+     ✓ откат MKT7 меняет только опубликованную, восстановление MKT9 только голову 285ms
+     ✓ восстановление версии с картинкой, удалённой из библиотеки: 409 ASSET_UNAVAILABLE, головы нет 112ms
+     ✓ PATCH: постановка, повтор того же ключа, неверная база, пустая и длинная команда, параллельная задача; журнал без текста 210ms
+     ✓ PATCH, воркер: бот получает базу и команду без организации; новая версия AI base+1 с родителем; опубликованная не тронута 252ms
+     ✓ PATCH: ИИ меняет телефон → SCHEMA_INVALID и повтор с путями ошибок; голова сменилась до повтора → BASE_VERSION_CHANGED без модели 186ms
+     ✓ гонка: ИИ работает с r1, человек сохраняет r2 → результат ИИ не применён, версии r3 от ИИ нет 163ms
+     ✓ SECTION: цель проверяется при постановке; бот получает цель; меняется только цель; другая секция → отказ 179ms
+     × бюджет общий для всех видов задач: исчерпан → BUDGET_EXCEEDED без вызова бота 149ms
+     ✓ предел постановок в час считает и правки: 10 задач за час → 429 107ms
+     ✓ архивный сайт: правка, восстановление и сохранение отклоняются 94ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor
+error: new row for relation "marketing_sites" violates check constraint "marketing_sites_published_version"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/site-editor.test.ts:205:7
+    203|       await sql.query(`DELETE FROM marketing_site_publications WHERE s…
+    204|       await sql.query(`DELETE FROM site_domains WHERE site_id IN (${si…
+    205|       await sql.query(`UPDATE marketing_sites SET latest_version_id = …
+       |       ^
+    206|       await sql.query(`UPDATE generation_runs SET output_version_id = …
+    207|       await sql.query(`UPDATE marketing_site_versions SET parent_versi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > бюджет общий для всех видов задач: исчерпан → BUDGET_EXCEEDED без вызова бота
+AssertionError: expected { …(22) } to match object { status: 'QUEUED', …(1) }
+(20 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "errorCode": "SCHEMA_INVALID",
+-   "status": "QUEUED",
++   "errorCode": null,
++   "status": "SUCCEEDED",
+  }
+
+ ❯ tests/integration/site-editor.test.ts:477:43
+    475|     fake.state.replies.push({ status: 'ok', spec: doc('Не то'), model:…
+    476|     await worker.tick();
+    477|     expect(await run(queued.body.run.id)).toMatchObject({ status: 'QUE…
+       |                                           ^
+    478|     await sql.query(`UPDATE generation_runs SET next_attempt_at = now(…
+    479|     await worker.tick();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  17:53:57
+   Duration  9.15s (tests 51%, transform 33%, import 16%)
+
+JSON report written to /tmp/pms-test-2026-10-07T17-53-55Z-integration-d73c.json
+
+# код выхода 1 · 11 с

@@ -1,0 +1,17 @@
+# Линтер (lint) · 09.10.2026 21:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3d8cd3b (claude/market-ai-collector), незакоммиченных файлов набора: 5
+# npx eslint .
+
+/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt/.serp.mts
+  9:142  error  Empty block statement  no-empty
+
+/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt/.serp2.mts
+  9:168  error  Empty block statement  no-empty
+
+/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt/.serp3.mts
+  9:118  error  Empty block statement  no-empty
+
+✖ 3 problems (3 errors, 0 warnings)
+
+
+# код выхода 1 · 12 с

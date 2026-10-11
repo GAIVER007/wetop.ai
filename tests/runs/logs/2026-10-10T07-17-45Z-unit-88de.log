@@ -1,0 +1,30 @@
+# Модульные (unit) · 10.10.2026 12:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-17-45Z-unit-88de.json' 'packages/domain/src/food/restaurant.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| packages/domain/src/food/restaurant.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/food/restaurant.test.ts [ packages/domain/src/food/restaurant.test.ts ]
+Error: Cannot find module './restaurant' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/packages/domain/src/food/restaurant.test.ts
+ ❯ packages/domain/src/food/restaurant.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   ORDER_STATUSES,
+      4|   ORDER_DELAY_MINUTES,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  00:17:56
+   Duration  817ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-17-45Z-unit-88de.json
+
+# код выхода 1 · 12 с

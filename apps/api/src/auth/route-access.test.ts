@@ -50,6 +50,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'DELETE /auth/members/:userId': 'staff',
   'PATCH /auth/members/:userId': 'owner',
   'PATCH /auth/members/:userId/details': 'staff',
+  'GET /auth/access-structure': 'staff',
+  'PUT /auth/members/:userId/scopes': 'staff',
+  'POST /auth/members/:userId/suspend': 'staff',
+  'POST /auth/members/:userId/resume': 'staff',
   'GET /assistant/identity': 'self',
   'GET /assistant/errors': 'service',
   'GET /assistant/organization': 'service',
@@ -74,6 +78,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/products': 'settings',
   'PATCH /bar/products/:id/active': 'settings',
   'PATCH /bar/products/:id/price': 'settings',
+  'PATCH /bar/products/:id': 'settings',
   'GET /bar/suppliers': 'desk',
   'POST /bar/suppliers': 'settings',
   'PATCH /bar/suppliers/:id/active': 'settings',
@@ -89,18 +94,33 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/write-offs': 'desk',
   'POST /bar/inventory-counts': 'desk',
   'POST /bar/receipts': 'desk',
+  // ИИ-скан накладной (ADR-157): читает документ и ничего не создаёт, право как у самого прихода
+  'POST /bar/receipts/scan': 'desk',
   'POST /bar/receipts/:id/post': 'desk',
   'POST /bar/receipts/:id/payments': 'desk',
   // Каталог салона (срез B3, Q-253): читать может смена, цены меняет `rates`, мастеров `property`
   // MV6 Food Service: explicit Business and Location on every route.
   // ── «Маркетинг → Сайт и SEO», ядро сайта (MKT3): право сайта, филиал строго из scope ──
   'GET /marketing/site': 'settings',
-  'POST /marketing/site': 'settings',
+  // MKT9.2: заведение сайта с пустым телом вместо прежнего POST с названием и адресом
+  'POST /marketing/site/bootstrap': 'settings',
+  'GET /marketing/site/context': 'settings',
+  'PATCH /marketing/site/context': 'settings',
+  'GET /marketing/site/conversation': 'settings',
+  'POST /marketing/site/assistant': 'settings',
+  'GET /marketing/site/assistant/:id': 'settings',
+  'POST /marketing/site/assistant/:id/approve': 'settings',
+  'PUT /marketing/site/versions/:id/bookmark': 'settings',
+  'DELETE /marketing/site/versions/:id/bookmark': 'settings',
   'GET /marketing/site/brief': 'settings',
   'POST /marketing/site/generations': 'settings',
   'GET /marketing/site/generations/:id': 'settings',
   'GET /marketing/site/draft': 'settings',
   'POST /marketing/site/versions': 'settings',
+  'GET /marketing/site/versions': 'settings',
+  'GET /marketing/site/versions/:id': 'settings',
+  'GET /marketing/site/versions/:id/diff': 'settings',
+  'POST /marketing/site/versions/:id/restore': 'settings',
   // MKT7: превью, публикация, журнал, откат, пауза, архив и сайт брони филиала (Q-275)
   'POST /marketing/site/preview': 'settings',
   'POST /marketing/site/publish': 'settings',
@@ -133,6 +153,27 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/reservations/:id/status': 'desk',
   'PUT /food-service/reservations/:id/table': 'desk',
   'DELETE /food-service/reservations/:id/table': 'desk',
+  // ── ресторан: меню, заказы, кухня, сотрудники, зарплата (§33, ADR-159) ─────────────────
+  'GET /food-service/menu/categories': 'desk',
+  'POST /food-service/menu/categories': 'property',
+  'PATCH /food-service/menu/categories/:id': 'property',
+  'GET /food-service/menu/items': 'desk',
+  'GET /food-service/menu/items/:id': 'desk',
+  'POST /food-service/menu/items': 'property',
+  'PATCH /food-service/menu/items/:id': 'property',
+  'PUT /food-service/menu/items/:id/ingredients': 'property',
+  'GET /food-service/orders': 'desk',
+  'POST /food-service/orders': 'desk',
+  'PATCH /food-service/orders/:id': 'desk',
+  'POST /food-service/orders/:id/status': 'desk',
+  'POST /food-service/tables/:id/cleaning': 'desk',
+  'GET /food-service/report': 'desk',
+  'GET /food-service/employees': 'desk',
+  'POST /food-service/employees': 'staff',
+  'PATCH /food-service/employees/:id': 'staff',
+  'GET /food-service/payroll': 'staff',
+  'PUT /food-service/employees/:id/pay-settings': 'staff',
+  'POST /food-service/employees/:id/pay-adjustments': 'staff',
   'GET /beauty/customers': 'desk',
   'GET /beauty/services': 'desk',
   'POST /beauty/services': 'rates',
@@ -155,6 +196,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',
   'GET /hotel/settings': 'desk',
+  // фото и договор объекта (ADR-158): читают все с доступом к стойке, договор отдаётся только с правом `settings`
+  'GET /hotel/media': 'desk',
   'GET /hotel/first-steps': 'desk',
   'GET /hotel/onboarding': 'desk',
   'GET /rate-plans': 'desk',
@@ -192,6 +235,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /units/:code/housekeeping': 'desk',
   'GET /inventory/summary': 'desk',
   'GET /inventory/units': 'desk',
+  'GET /inventory/trend': 'desk',
+  'GET /inventory/occupancy': 'desk',
+  'GET /inventory/photos': 'desk',
   'GET /system/freshness': 'desk',
   'GET /system/pii-storage': 'desk',
   // неисправности — работа смены; пробная тревога — настройка оповещений
@@ -227,6 +273,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // «Финансы за период» F1–F2 (ADR-113): то же право, что у отчёта за период
   'GET /finance/debts': 'reports',
   'GET /finance/operations': 'reports',
+  'GET /finance/cashflow': 'reports',
   // касса (DATA_MODEL §21, Q-238): ведёт смена, как оплаты; аннулирование — как возврат; статьи — настройки
   'GET /finance/cash': 'desk',
   'POST /finance/cash/categories': 'settings',
@@ -237,11 +284,14 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/cash/operations/:id/void': 'refunds',
 
   // загрузка конкурентов (ADR-142): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
+  'GET /sales/summary': 'reports',
   'GET /market/occupancy': 'reports',
+  'GET /market/rates': 'reports',
   'GET /market/night': 'reports',
   'POST /market/competitors': 'rates',
   'PATCH /market/competitors/:id': 'rates',
   'PUT /market/competitors/:id/occupancy': 'rates',
+  'PUT /market/competitors/:id/rates': 'rates',
   'GET /market/collector/competitors': 'service',
   'PUT /market/collector/competitors/:id/occupancy': 'service',
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет
@@ -254,6 +304,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // «Настроить тариф» категории (ADR-119): как создание категории, которое тоже привязывает тариф
   'POST /inventory/categories/:code/rate-plan': 'property',
   'PATCH /inventory/categories/:code': 'property',
+  'PUT /inventory/categories/:code/photos': 'property',
   'DELETE /inventory/categories/:code': 'property',
   'POST /inventory/rooms': 'property',
   'PATCH /inventory/rooms/:code': 'property',
@@ -297,6 +348,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── настройки, интеграции, сайт, журнал ─────────────────────────────────────────────────
   'POST /hotel/onboarding': 'settings',
   'PATCH /hotel/settings': 'settings',
+  'POST /hotel/media/photos': 'settings',
+  'DELETE /hotel/media/photos/:id': 'settings',
+  'POST /hotel/media/contract': 'settings',
+  'DELETE /hotel/media/contract': 'settings',
   // каталог услуг «Настроек объекта» (SET3): право `settings` включает «услуги»
   'GET /hotel/services': 'settings',
   'POST /hotel/services': 'settings',
@@ -330,6 +385,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /ai-seller/conversations/:id/takeover': 'dialogs',
   'POST /ai-seller/conversations/:id/release': 'dialogs',
   'POST /ai-seller/conversations/:id/reply': 'dialogs',
+  'PATCH /ai-seller/conversations/:id/handling': 'dialogs',
+  'GET /ai-seller/prompt/versions': 'seller',
+  'POST /ai-seller/prompt/versions/:id/restore': 'seller',
+  'POST /ai-seller/conversations/:id/notes': 'dialogs',
   'GET /ai-seller/profile': 'seller',
   'PUT /ai-seller/profile': 'seller',
   'GET /ai-seller/prompt': 'seller',
@@ -355,9 +414,20 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
 
   // ── «Платформа» — главный администратор (§16.2) ─────────────────────────────────────────
   'GET /platform/organizations': 'platform',
+  'GET /platform/overview': 'platform',
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор
   'PUT /platform/organizations/:id/status': 'platform',
+  // название, архив и возврат организации (ORG1, ADR-ORG1): только главный администратор
+  'PATCH /platform/organizations/:id': 'platform',
+  'POST /platform/organizations/:id/archive': 'platform',
+  'POST /platform/organizations/:id/restore': 'platform',
+  // создание организации и ссылка «задайте пароль» её владельцу (ORG2, ADR-ORG2)
+  'POST /platform/organizations': 'platform',
+  'POST /platform/organizations/:id/owner-link': 'platform',
+  // MKT9.2: лицензии конструктора сайта по филиалам выдаёт только главный администратор
+  'GET /platform/organizations/:id/site-builder': 'platform',
+  'PUT /platform/organizations/:id/site-builder/:locationId': 'platform',
   'GET /platform/support/status': 'platform',
   'GET /platform/support/conversations': 'platform',
   'GET /platform/support/queue': 'platform',
@@ -406,6 +476,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',
   'GET /wizard/quota': 'public',
+  'POST /wizard/survey': 'public',
+  'POST /wizard/event': 'public',
 };
 
 type Handler = (...args: unknown[]) => unknown;
@@ -461,11 +533,25 @@ describe('права маршрутов API (ADR-107)', () => {
     expect(runtime.sort()).toEqual(['GET /sites-runtime/current', 'GET /sites-runtime/preview']);
     // Статус задачи генерации (MKT6) читается по id, но версии и документа не отдаёт (tests/integration/site-generation.test.ts)
     // MKT8: ассет по id только правится (ALT) и удаляется; чтения ассета по id нет ни у управления, ни у рантайма
-    const allowed = ['GET /marketing/site/generations/:id', 'PATCH /marketing/site/assets/:id', 'DELETE /marketing/site/assets/:id'];
+    // MKT9: версия по id читается, сравнивается и восстанавливается только управлением (вошедший, `settings`, строгий
+    // scope филиала); рантайм по-прежнему видит только текущую опубликованную версию и превью по токену
+    const allowed = [
+      'GET /marketing/site/generations/:id',
+      'PATCH /marketing/site/assets/:id',
+      'DELETE /marketing/site/assets/:id',
+      'GET /marketing/site/versions/:id',
+      'GET /marketing/site/versions/:id/diff',
+      'POST /marketing/site/versions/:id/restore',
+      // MKT9.2: разговорная задача читается и план одобряется по id; закладка ставится и снимается у версии этого сайта
+      'GET /marketing/site/assistant/:id',
+      'POST /marketing/site/assistant/:id/approve',
+      'PUT /marketing/site/versions/:id/bookmark',
+      'DELETE /marketing/site/versions/:id/bookmark',
+    ];
     const byId = Object.keys(actual).filter(
       (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) && !allowed.includes(key),
     );
-    expect(byId, 'версия сайта по id не читается ни рантаймом, ни управлением').toEqual([]);
+    expect(byId, 'по id только явно перечисленные маршруты управления').toEqual([]);
     expect(Object.keys(actual).filter((key) => /^GET .*assets\/:id/.test(key))).toEqual([]);
   });
 

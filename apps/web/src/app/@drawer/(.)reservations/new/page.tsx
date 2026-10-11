@@ -7,7 +7,7 @@ export default function NewBookingDrawer({
   searchParams: Promise<SearchParams>;
 }) {
   return (
-    <RouteDrawer title="Новая бронь">
+    <RouteDrawer title="Новая бронь" size="lg">
       <NewReservationPage searchParams={searchParams} />
     </RouteDrawer>
   );

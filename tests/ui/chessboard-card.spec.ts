@@ -22,16 +22,24 @@ test('одинарный клик — предпросмотр без ухода
   const preview = page.getByTestId('stay-preview');
   await expect(preview).toBeVisible();
   await expect(page).toHaveURL('/chessboard');
-  // состав по ТЗ §23: гость → даты → размещение → источник → суммы; технических ID нет
+  // состав по образцу владельца (09.10.2026): статус, гость, «Бронь №…», заезд и выезд, размещение,
+  // гости, оплачено, источник; номер брони теперь показан, как на образце
   await expect(preview.getByTestId('preview-guest')).not.toBeEmpty();
-  await expect(preview.getByTestId('preview-dates')).toContainText('→');
+  await expect(preview).toContainText(`Бронь №${number}`);
+  await expect(preview.getByTestId('preview-dates')).toContainText('Заезд');
+  await expect(preview.getByTestId('preview-dates')).toContainText('Выезд');
+  await expect(preview.getByTestId('preview-dates')).toContainText(/ноч/);
   await expect(preview.getByTestId('preview-place')).not.toBeEmpty();
   await expect(preview.getByTestId('preview-sums')).toContainText('₸');
-  await expect(preview).not.toContainText(number!);
-  await expect(preview.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+  // переходы в карточку брони, гостя и счёт лежат в меню «…» (образец владельца 09.10.2026)
+  await preview.getByRole('button', { name: 'Подробнее о брони', exact: true }).click();
+  await expect(preview.getByRole('menuitem', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
     'href',
     `/reservations/${number}`,
   );
+  // первый Escape закрывает только меню, второй панель
+  await page.keyboard.press('Escape');
+  await expect(preview).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(preview).toBeHidden();
   await expect(stay).toBeFocused();
@@ -50,10 +58,12 @@ test('действия по статусу: подтверждённой — з�
   await page.locator('td[data-status="CONFIRMED"] [data-testid="stay-cell"]').first().click();
   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toBeVisible();
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toHaveCount(0);
-  await expect(preview.getByRole('link', { name: 'Принять оплату', exact: true })).toHaveAttribute(
+  await preview.getByRole('button', { name: 'Подробнее о брони', exact: true }).click();
+  await expect(preview.getByRole('menuitem', { name: 'Принять оплату', exact: true })).toHaveAttribute(
     'href',
     /#booking-finance$/,
   );
+  await page.keyboard.press('Escape');
   await expect(preview.getByRole('link', { name: 'Переселить', exact: true })).toHaveAttribute(
     'href',
     /#booking-actions$/,
@@ -63,6 +73,57 @@ test('действия по статусу: подтверждённой — з�
   await page.locator('td[data-status="CHECKED_IN"] [data-testid="stay-cell"]').first().click();
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toHaveCount(0);
+});
+
+test('повторный щелчок по той же плашке закрывает панель, по другой переключает её', async ({
+  page,
+}) => {
+  await page.goto('/chessboard');
+  const preview = page.getByTestId('stay-preview');
+  const cells = page.getByTestId('stay-cell');
+  // ячейка плашки своя на каждую ночь брони, поэтому «другая плашка» отбирается по номеру брони
+  const number = await cells.first().getAttribute('data-number');
+  await cells.first().click();
+  await expect(preview).toBeVisible();
+  await expect(preview).toContainText(`Бронь №${number}`);
+  await cells.first().click();
+  await expect(preview).toBeHidden();
+  await cells.first().click();
+  await expect(preview).toBeVisible();
+  await page.locator(`[data-testid="stay-cell"]:not([data-number="${number}"])`).first().click();
+  await expect(preview).toBeVisible();
+  await expect(preview).not.toContainText(`Бронь №${number}`);
+});
+
+test('панель брони не висит всегда: нет при загрузке, закрывается щелчком мимо и сменой периода', async ({
+  page,
+}) => {
+  await page.goto('/chessboard');
+  const preview = page.getByTestId('stay-preview');
+  await expect(page.getByTestId('stay-cell').first()).toBeVisible();
+  await expect(preview).toHaveCount(0);
+
+  // щелчок внутри панели её не закрывает
+  await page.getByTestId('stay-cell').first().click();
+  await expect(preview).toBeVisible();
+  await preview.getByTestId('preview-guest').click();
+  await expect(preview).toBeVisible();
+
+  // щелчок мимо (шапка сетки) закрывает
+  await page.locator('.board thead').first().click({ position: { x: 5, y: 5 } });
+  await expect(preview).toHaveCount(0);
+
+  // и карточка показателей
+  await page.getByTestId('stay-cell').first().click();
+  await expect(preview).toBeVisible();
+  await page.getByTestId('day-occupancy').click();
+  await expect(preview).toHaveCount(0);
+
+  // смена периода тоже закрывает: брони в новой сетке может не быть
+  await page.getByTestId('stay-cell').first().click();
+  await expect(preview).toBeVisible();
+  await page.getByRole('link', { name: /^Следующ/ }).click();
+  await expect(preview).toHaveCount(0);
 });
 
 test('«Заселить» из предпросмотра выполняет существующую команду и меняет статус', async ({
@@ -90,8 +151,7 @@ test('подпись подстраивается под ширину: полн�
 }) => {
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
-  // подпись в две строки (имя, затем долг) живёт в «Обычном» виде; «Компактный» по умолчанию прячет вторую строку
-  await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
+  // подпись в две строки (имя, затем даты и долг) живёт в «Обычном» виде, он с 09.10 по умолчанию
   await page.goto('/chessboard');
   // неделя: широкая плашка — полное имя и плашка суммы долга
   await expect(
@@ -99,6 +159,7 @@ test('подпись подстраивается под ширину: полн�
   ).toBeVisible();
   await expect(page.getByTestId('cell-due').filter({ visible: true }).first()).toContainText('₸');
   // 30 дней: одна ночь — «Имя Ф.», полное имя спрятано; долг на узкой — точкой
+  await page.getByTestId('board-length-button').click();
   await page.getByRole('link', { name: '30 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   // M04: однодневная «Гость Букинг»; в той же строке с 1-го числа — длинная бронь следующего месяца
@@ -154,6 +215,7 @@ test('узкая плашка: вторая строка (источник, но
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
   await page.goto('/chessboard');
+  await page.getByTestId('board-length-button').click();
   await page.getByRole('link', { name: '30 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   const oneNight = page.locator('[data-number="20260916-DSG-BDC"] .board-stay-caption');
@@ -185,7 +247,8 @@ test('служебный код скрыт на плашке, источник �
   await page.screenshot({ path: 'reports/chessboard-readable-label.png' });
   await stay.click();
   await expect(page.getByTestId('preview-guest')).toHaveText('Бронь со стойки');
-  await expect(page.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+  await page.getByRole('button', { name: 'Подробнее о брони', exact: true }).click();
+  await expect(page.getByRole('menuitem', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
     'href',
     `/reservations/${number}`,
   );

@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 11.10.2026 10:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит cf107b0 (claude/landing-marketing), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/marketing-block.spec.ts' 'tests/site/salon-landing.spec.ts' 'tests/site/segments.spec.ts'
+
+Running 15 tests using 2 workers
+
+  ✓   1 tests/site/marketing-block.spec.ts:18:3 › /for/hotels/: блок «Маркетинг и ИИ», «Скоро» только у того, чего нет (2.7s)
+  ✓   2 tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (2.7s)
+  ✓   4 tests/site/salon-landing.spec.ts:34:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (459ms)
+  ✓   3 tests/site/marketing-block.spec.ts:18:3 › /for/hostels/: блок «Маркетинг и ИИ», «Скоро» только у того, чего нет (530ms)
+  ✓   6 tests/site/marketing-block.spec.ts:18:3 › /for/mini-hotels/: блок «Маркетинг и ИИ», «Скоро» только у того, чего нет (497ms)
+  ✓   5 tests/site/salon-landing.spec.ts:49:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (841ms)
+  ✓   7 tests/site/marketing-block.spec.ts:18:3 › /for/apart-hotels/: блок «Маркетинг и ИИ», «Скоро» только у того, чего нет (357ms)
+  ✓   9 tests/site/marketing-block.spec.ts:18:3 › /for/salons/: блок «Маркетинг и ИИ», «Скоро» только у того, чего нет (552ms)
+  ✓  10 tests/site/marketing-block.spec.ts:18:3 › /for/restaurants/: блок «Маркетинг и ИИ», «Скоро» только у того, чего нет (287ms)
+  ✓  11 tests/site/segments.spec.ts:15:3 › /for/hostels/ — герой с фото, возможности, календарь, вопросы и призыв (440ms)
+  ✓  12 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — герой с фото, возможности, календарь, вопросы и призыв (422ms)
+  ✓  13 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — герой с фото, возможности, календарь, вопросы и призыв (442ms)
+  ✓  14 tests/site/segments.spec.ts:43:1 › карточки направлений на главной ведут на страницы по типам объектов (309ms)
+  ✓   8 tests/site/salon-landing.spec.ts:70:3 › доступность и вёрстка: light, компьютер и телефон (3.1s)
+  ✓  15 tests/site/salon-landing.spec.ts:70:3 › доступность и вёрстка: dark, компьютер и телефон (2.4s)
+
+  15 passed (29.0s)
+
+# код выхода 0 · 34 с

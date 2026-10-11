@@ -44,3 +44,21 @@ export function parseMarketingSlug(raw: unknown): SlugResult {
     return { ok: false, code: 'reserved_slug', message: `Адрес «${slug}» занят системой WETOP` };
   return { ok: true, slug };
 }
+
+const TRANSLIT: Record<string, string> = {
+  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y', к: 'k', л: 'l', м: 'm',
+  н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'h', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch', ъ: '',
+  ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya', ә: 'a', ғ: 'g', қ: 'k', ң: 'n', ө: 'o', ұ: 'u', ү: 'u', һ: 'h', і: 'i',
+};
+
+/**
+ * Подсказка адреса сайта из названия филиала (MKT9, окно «Создать сайт»): транслит кириллицы, только латиница, цифры и
+ * дефис, 3–40 знаков. Это только подсказка в поле: занятый адрес человек меняет сам, молча он не исправляется
+ */
+export function suggestMarketingSlug(name: string): string {
+  const latin = [...name.toLowerCase()].map((ch) => TRANSLIT[ch] ?? ch).join('');
+  let slug = latin.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/g, '');
+  if (slug.length < 3) slug = `site-${slug || 'hotel'}`.replace(/-+$/g, '');
+  if (RESERVED_SITE_SLUGS.includes(slug)) slug = `${slug}-site`;
+  return parseMarketingSlug(slug).ok ? slug : 'my-hotel';
+}

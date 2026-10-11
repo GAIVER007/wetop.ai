@@ -1,0 +1,20 @@
+# Модульные (unit) · 08.10.2026 20:51 Алматы · vm
+# коммит 1e27513 (claude/mv8-5-ds1b-primitives)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T15-51-17Z-unit-5470.json' 'apps/web/src/components/primitives.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/design-primitive-owner.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 16ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 179ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 10ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 12ms
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 20ms
+
+ Test Files  5 passed (5)
+      Tests  61 passed (61)
+   Start at  15:51:22
+   Duration  1.40s (import 45%, transform 43%, tests 10%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-08T15-51-17Z-unit-5470.json
+
+# код выхода 0 · 6 с

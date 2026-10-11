@@ -1,0 +1,876 @@
+# Сквозные (e2e) · 09.10.2026 19:52 Алматы · vm
+# коммит 1ea3433 (claude/serene-newton-q453ps), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-gate-pr3.spec.ts' 'tests/ui/chessboard-gate-pr7.spec.ts' 'tests/ui/chessboard-gate.spec.ts' 'tests/ui/chessboard-grid.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-unassigned.spec.ts' 'tests/ui/ds1b-primitives.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/housekeeping.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/workspace.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 183 tests using 1 worker
+
+  ✓    1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (5.0s)
+  ✓    2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: одна полоса управления и шесть карточек под ней, сетка начинается выше (6.5s)
+  ✓    3 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (5.6s)
+  ✓    4 tests/ui/chessboard-calendar.spec.ts:47:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (2.6s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-09" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             ...
+[WebServer]                               <PeriodPicker>
+[WebServer]                                 <div className="period-picker">
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-from" className="field fiel...">
+[WebServer]                                       <DateInput id="period-from" name="from" defaultValue="2026-10-05" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-from"
+[WebServer]                                             name="from"
+[WebServer]                                             defaultValue="2026-10-05"
+[WebServer]                                             aria-label="Период: с"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-to" className="field fiel...">
+[WebServer]                                       <DateInput id="period-to" name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-to"
+[WebServer]                                             name="to"
+[WebServer]                                             defaultValue="2026-10-11"
+[WebServer]                                             aria-label="Период: по"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓    5 tests/ui/chessboard-calendar.spec.ts:60:3 › гейт «Календарь»: light (5.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-09" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             ...
+[WebServer]                               <PeriodPicker>
+[WebServer]                                 <div className="period-picker">
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-from" className="field fiel...">
+[WebServer]                                       <DateInput id="period-from" name="from" defaultValue="2026-10-05" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-from"
+[WebServer]                                             name="from"
+[WebServer]                                             defaultValue="2026-10-05"
+[WebServer]                                             aria-label="Период: с"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-to" className="field fiel...">
+[WebServer]                                       <DateInput id="period-to" name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-to"
+[WebServer]                                             name="to"
+[WebServer]                                             defaultValue="2026-10-11"
+[WebServer]                                             aria-label="Период: по"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓    6 tests/ui/chessboard-calendar.spec.ts:60:3 › гейт «Календарь»: dark (5.9s)
+  ✓    7 tests/ui/chessboard-calendar.spec.ts:73:1 › пустая клетка не дублирует дату из шапки календаря (4.0s)
+  ✓    8 tests/ui/chessboard-calendar.spec.ts:81:1 › даты в шапке не повторяют свободные и занятые места (3.7s)
+  ✓    9 tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (6.3s)
+  ✓   10 tests/ui/chessboard-card.spec.ts:48:1 › двойной клик открывает полную карточку брони (8.6s)
+  ✓   11 tests/ui/chessboard-card.spec.ts:54:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить (6.8s)
+  ✓   12 tests/ui/chessboard-card.spec.ts:78:1 › повторный щелчок по той же плашке закрывает панель, по другой переключает её (6.6s)
+  ✓   13 tests/ui/chessboard-card.spec.ts:98:1 › панель брони не висит всегда: нет при загрузке, закрывается щелчком мимо и сменой периода (7.9s)
+  ✓   14 tests/ui/chessboard-card.spec.ts:129:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (6.3s)
+  ✓   15 tests/ui/chessboard-card.spec.ts:148:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (13.7s)
+  ✓   16 tests/ui/chessboard-card.spec.ts:183:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (11.0s)
+  ✓   17 tests/ui/chessboard-card.spec.ts:211:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (6.9s)
+  ✓   18 tests/ui/chessboard-card.spec.ts:227:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (10.1s)
+  ✓   19 tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (3.7s)
+  ✓   20 tests/ui/chessboard-compact-screen.spec.ts:62:1 › свёрнутые категории переживают перезагрузку и разворачиваются (7.3s)
+  ✓   21 tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Обычный» (образец владельца 09.10), сохранённые «Компактный» и «Подробный» восстанавливаются (19.2s)
+  ✓   22 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (4.4s)
+  ✓   23 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (9.7s)
+  ✘   24 tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: light, компактное управление и доступная сетка (8.7s)
+  ✓   25 tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: dark, компактное управление и доступная сетка (25.5s)
+  ✓   26 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (9.2s)
+  ✓   27 tests/ui/chessboard-filters.spec.ts:147:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (5.8s)
+  ✓   28 tests/ui/chessboard-filters.spec.ts:178:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (10.2s)
+  ✓   29 tests/ui/chessboard-filters.spec.ts:243:1 › §37: ничего не найдено — «Сбросить фильтры» (3.8s)
+  ✓   30 tests/ui/chessboard-filters.spec.ts:256:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (8.8s)
+  ✓   31 tests/ui/chessboard-filters.spec.ts:288:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (4.2s)
+  ✓   32 tests/ui/chessboard-filters.spec.ts:306:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (4.0s)
+  ✓   33 tests/ui/chessboard-filters.spec.ts:333:1 › доступность: окошко «Фильтры» открыто (5.1s)
+  ✓   34 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: light (10.9s)
+  ✓   35 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark (10.3s)
+  ✓   36 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: light (13.5s)
+  ✓   37 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: dark (13.6s)
+  ✓   38 tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (6.6s)
+  ✘   39 tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх (2.0m)
+  ✘   40 tests/ui/chessboard-gate.spec.ts:104:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (2.0m)
+  ✓   41 tests/ui/chessboard-grid.spec.ts:12:1 › колонка места объясняет себя подсказкой: вид, код и состояние уборки (4.4s)
+  ✓   42 tests/ui/chessboard-grid.spec.ts:23:1 › свёрнутая категория переживает перезагрузку страницы (8.2s)
+  ✓   43 tests/ui/chessboard-grid.spec.ts:39:1 › строка категории прилипает под шапкой дат при вертикальной прокрутке (3.3s)
+  ✓   44 tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (5.0s)
+  ✓   45 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (5.8s)
+  ✓   46 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (4.5s)
+  ✓   47 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (4.6s)
+  ✓   48 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (3.0s)
+  ✓   49 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (5.9s)
+  ✓   50 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (5.3s)
+  ✓   51 tests/ui/chessboard-mobile.spec.ts:160:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (2.3s)
+  ✓   52 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (3.8s)
+  ✓   53 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (3.8s)
+  ✓   54 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (3.8s)
+  ✓   55 tests/ui/chessboard-mobile.spec.ts:222:1 › мобильная панель меняет заезд без закрытия и показывает выезд (3.1s)
+  ✓   56 tests/ui/chessboard-mobile.spec.ts:242:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (6.8s)
+  ✓   57 tests/ui/chessboard-mobile.spec.ts:271:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (1.8s)
+  ✓   58 tests/ui/chessboard-mobile.spec.ts:294:3 › телефон light: длинное имя и бронь на 28 ночей (4.8s)
+  ✓   59 tests/ui/chessboard-mobile.spec.ts:294:3 › телефон dark: длинное имя и бронь на 28 ночей (5.0s)
+  ✓   60 tests/ui/chessboard-mobile.spec.ts:327:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (8.0s)
+  ✓   61 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (6.4s)
+  ✓   62 tests/ui/chessboard-month.spec.ts:29:1 › все 31 день помещаются по ширине окна (8.0s)
+  ✓   63 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (13.9s)
+  ✓   64 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (11.1s)
+  ✓   65 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (11.0s)
+  ✓   66 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (10.4s)
+  ✓   67 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (12.1s)
+  ✓   68 tests/ui/chessboard-month.spec.ts:94:1 › 30 дней: окно от сегодня, длина окна в раскрывашке, масштаб «День / Неделя / Месяц» в полосе (8.0s)
+  ✓   69 tests/ui/chessboard-month.spec.ts:132:1 › в месяце открываются брони, свободные даты и группы номеров (16.0s)
+  ✓   70 tests/ui/chessboard-month.spec.ts:176:3 › месячная сетка: light, читаемость и адаптивность (45.8s)
+  ✓   71 tests/ui/chessboard-month.spec.ts:176:3 › месячная сетка: dark, читаемость и адаптивность (48.3s)
+  ✘   72 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (17.5s)
+  ✘   73 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (17.7s)
+  ✘   74 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (17.8s)
+  ✓   75 tests/ui/chessboard-statistics.spec.ts:55:1 › today statistics stay available when the calendar shows another month (8.5s)
+  ✓   76 tests/ui/chessboard-statistics.spec.ts:69:1 › empty booking base shows zero occupancy and no urgent bookings (2.7s)
+  ✓   77 tests/ui/chessboard-statistics.spec.ts:83:3 › daily widgets light: accessible labels and contrasts (6.1s)
+  ✓   78 tests/ui/chessboard-statistics.spec.ts:83:3 › daily widgets dark: accessible labels and contrasts (5.1s)
+  ✓   79 tests/ui/chessboard-statistics.spec.ts:100:3 › desktop daily widgets light: accessible pointer targets (4.7s)
+  ✓   80 tests/ui/chessboard-statistics.spec.ts:100:3 › desktop daily widgets dark: accessible pointer targets (5.4s)
+  ✓   81 tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) (6.6s)
+  ✓   82 tests/ui/chessboard-unassigned.spec.ts:116:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом (6.9s)
+  ✓   83 tests/ui/chessboard-unassigned.spec.ts:157:1 › «Разрешить» у «Продано сверх мест» и ссылка с Главной открывают ящик; тон critical (4.8s)
+  ✓   84 tests/ui/chessboard-unassigned.spec.ts:175:1 › «только чтение» (ADR-102): места видны, назначить нельзя, бронь открывается (7.2s)
+  ✓   85 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (5.1s)
+  ✘   86 tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (5.5s)
+  ✓   87 tests/ui/chessboard-week.spec.ts:85:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (5.3s)
+  ✓   88 tests/ui/chessboard-week.spec.ts:117:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (9.5s)
+  ✓   89 tests/ui/chessboard-week.spec.ts:117:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (9.7s)
+  ✓   90 tests/ui/chessboard-week.spec.ts:117:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (10.1s)
+  ✓   91 tests/ui/chessboard-week.spec.ts:137:1 › в неделе работают бронь, категории и создание на воскресенье (8.6s)
+  ✓   92 tests/ui/chessboard-week.spec.ts:177:3 › неделя помещается на экране: light, обе панели и телефон (29.0s)
+  ✓   93 tests/ui/chessboard-week.spec.ts:177:3 › неделя помещается на экране: dark, обе панели и телефон (30.4s)
+  ✓   94 tests/ui/chessboard-week.spec.ts:216:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (4.4s)
+  ✓   95 tests/ui/ds1b-primitives.spec.ts:20:1 › вкладки на странице: стрелки по кругу, Home, End, выбор сразу и фокус на вкладке (3.6s)
+  ✓   96 tests/ui/ds1b-primitives.spec.ts:48:1 › вкладки маршрутами: ссылки с aria-current, стрелки не перехватываются (4.2s)
+  ✓   97 tests/ui/ds1b-primitives.spec.ts:67:1 › переключатель шахматки: ровно один выбран, стрелки и Home/End, выбор помнится (9.2s)
+  ✓   98 tests/ui/ds1b-primitives.spec.ts:100:1 › брони: чипы видов ссылками, полоса инструментов по порядку поиск, отбор, период, действия (3.1s)
+  ✓   99 tests/ui/ds1b-primitives.spec.ts:139:1 › чип: кнопка переключает aria-pressed, число читается в имени (5.5s)
+  ✓  100 tests/ui/ds1b-primitives.spec.ts:158:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (light) (13.0s)
+  ✓  101 tests/ui/ds1b-primitives.spec.ts:158:3 › 390 px: экраны-представители без прокрутки вбок, цели не ниже 44 px, axe (dark) (13.0s)
+  ✓  102 tests/ui/guests-birthdays.spec.ts:15:1 › календарь исключает дни рождения, отдельная страница раскрывает детали (7.4s)
+  ✓  103 tests/ui/guests-birthdays.spec.ts:55:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто (4.7s)
+  ✓  104 tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (11.5s)
+  ✓  105 tests/ui/housekeeping.spec.ts:82:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (10.3s)
+  ✘  106 tests/ui/housekeeping.spec.ts:118:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (16.9s)
+  ✓  107 tests/ui/housekeeping.spec.ts:126:1 › карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку (5.0s)
+  ✓  108 tests/ui/housekeeping.spec.ts:166:1 › карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156) (3.3s)
+  ✓  109 tests/ui/housekeeping.spec.ts:193:1 › выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155) (10.3s)
+  ✓  110 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (23.7s)
+  ✓  111 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (2.2s)
+  ✓  112 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (3.3s)
+  ✘  113 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (18.5s)
+  ✓  114 tests/ui/mobile-adaptation.spec.ts:109:1 › узкий телефон: плитки финансов встают в одну колонку (2.5s)
+  ✓  115 tests/ui/mobile-adaptation.spec.ts:120:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (13.9s)
+  ✓  116 tests/ui/mobile-adaptation.spec.ts:154:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (17.7s)
+  ✓  117 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (7.3s)
+  ✓  118 tests/ui/premium.spec.ts:27:1 › shell: панель, меню профиля, поиск (3.0s)
+  ✓  119 tests/ui/premium.spec.ts:45:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (11.7s)
+  ✓  120 tests/ui/premium.spec.ts:78:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (17.2s)
+  ✓  121 tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (3.0m)
+  ✓  122 tests/ui/premium.spec.ts:179:1 › вход не пускает с чужой почтой и чужим паролем (803ms)
+  ✓  123 tests/ui/premium.spec.ts:196:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (5.5s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✓  124 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (1.2m)
+  ✓  125 tests/ui/workspace.spec.ts:117:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (8.4s)
+  ✓  126 tests/ui/workspace.spec.ts:165:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (4.2s)
+  ✓  127 tests/ui/workspace.spec.ts:188:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (7.4s)
+  ✓  128 tests/ui/workspace.spec.ts:213:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (7.8s)
+  ✓  129 tests/ui/workspace.spec.ts:242:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (7.9s)
+  ✘  130 tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (20.4s)
+  ✓  131 tests/ui/workspace.spec.ts:327:1 › шахматка: подсказка внутри окошка «Фильтры», Escape закрывает окошко целиком (5.1s)
+  ✓  132 tests/ui/workspace.spec.ts:348:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (3.7s)
+  ✓  133 tests/ui/workspace.spec.ts:385:1 › карточка: профиль гостя и заселение проходят через server actions (5.8s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:16:40)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:16:40)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  134 tests/ui/workspace.spec.ts:430:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.8s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:42:13)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  135 tests/ui/workspace.spec.ts:447:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (4.1s)
+  ✓  136 tests/ui/workspace.spec.ts:464:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (3.4s)
+  ✓  137 tests/ui/workspace.spec.ts:484:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (3.5s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:16:40)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  138 tests/ui/workspace.spec.ts:510:1 › сбой API показывает ошибку, повтор восстанавливает страницу (2.8s)
+  ✓  139 tests/ui/workspace.spec.ts:519:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (4.7s)
+  ✓  140 tests/ui/workspace.spec.ts:546:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (1.3s)
+  ✓  141 tests/ui/workspace.spec.ts:558:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.7s)
+  ✓  142 tests/ui/workspace.spec.ts:567:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (5.9s)
+  ✓  143 tests/ui/workspace.spec.ts:576:1 › групповая бронь: разные категории сохраняются при конфликте (2.6s)
+  ✓  144 tests/ui/workspace.spec.ts:607:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (3.7s)
+  ✓  145 tests/ui/workspace.spec.ts:634:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (4.4s)
+  ✓  146 tests/ui/workspace.spec.ts:666:1 › ошибка буфера обмена видна, код остаётся доступен (2.5s)
+  ✓  147 tests/ui/workspace.spec.ts:684:1 › финансы: неверные даты можно исправить без падения страницы (3.2s)
+  ✓  148 tests/ui/workspace.spec.ts:700:1 › ошибка загрузки тарифов не позволяет включить виджет (1.6s)
+  ✓  149 tests/ui/workspace.spec.ts:709:1 › номера: статус уборки, блокировка и снятие сохраняются (6.0s)
+  ✓  150 tests/ui/workspace.spec.ts:739:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (4.6s)
+  ✓  151 tests/ui/workspace.spec.ts:766:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.7s)
+  ✓  152 tests/ui/workspace.spec.ts:778:1 › групповая бронь: три места показывают трёх гостей в итогах (2.3s)
+  ✓  153 tests/ui/workspace.spec.ts:802:1 › неисправности: когда история обрезана, это написано (2.9s)
+  ✓  154 tests/ui/workspace.spec.ts:810:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (4.0s)
+  ✓  155 tests/ui/workspace.spec.ts:822:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (6.8s)
+  ✓  156 tests/ui/workspace.spec.ts:867:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (8.9s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async Object.me (src/lib/api.ts:519:20)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  157 tests/ui/workspace.spec.ts:923:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (19.3s)
+  ✓  158 tests/ui/workspace.spec.ts:993:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (4.4s)
+  ✓  159 tests/ui/workspace.spec.ts:1022:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (3.7s)
+  ✓  160 tests/ui/workspace.spec.ts:1046:1 › гости на сегодня: в списке все, а не первые двадцать пять (2.3s)
+  ✓  161 tests/ui/workspace.spec.ts:1065:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (2.4s)
+  ✓  162 tests/ui/workspace.spec.ts:1078:1 › общие настройки показывают адрес PMS без дублирования контента Channex (2.7s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  163 tests/ui/workspace.spec.ts:1085:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (5.3s)
+  ✓  164 tests/ui/workspace.spec.ts:1117:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (2.7s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:160:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:28:28)
+[WebServer]   158 |         /* тело не JSON */
+[WebServer]   159 |       }
+[WebServer] > 160 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   161 |   }
+[WebServer]   162 |   return (await res.json()) as T;
+[WebServer]   163 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  165 tests/ui/workspace.spec.ts:1139:1 › фонд и категории открываются независимо от сбоя шахматки (5.3s)
+  ✓  166 tests/ui/workspace.spec.ts:1160:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.6s)
+  ✓  167 tests/ui/workspace.spec.ts:1176:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.6s)
+  ✓  168 tests/ui/workspace.spec.ts:1195:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (2.8s)
+  ✓  169 tests/ui/workspace.spec.ts:1210:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (1.3s)
+  ✓  170 tests/ui/workspace.spec.ts:1223:1 › счета: приём оплаты подтверждается суммой на экране (2.8s)
+  ✓  171 tests/ui/workspace.spec.ts:1240:1 › деньги за период: период длиннее года объясняется на странице (1.7s)
+  ✓  172 tests/ui/workspace.spec.ts:1259:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (3.5s)
+  ✓  173 tests/ui/workspace.spec.ts:1281:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (4.5s)
+  ✓  174 tests/ui/workspace.spec.ts:1311:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (4.1s)
+  ✓  175 tests/ui/workspace.spec.ts:1331:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (2.1s)
+  ✓  176 tests/ui/workspace.spec.ts:1347:1 › каналы: входящая бронь ведёт на карточку брони (3.1s)
+  ✓  177 tests/ui/workspace.spec.ts:1365:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (4.3s)
+  ✓  178 tests/ui/workspace.spec.ts:1383:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (3.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  179 tests/ui/workspace.spec.ts:1421:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (4.4s)
+  ✓  180 tests/ui/workspace.spec.ts:1488:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (6.5s)
+  ✓  181 tests/ui/workspace.spec.ts:1567:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (4.7s)
+  ✓  182 tests/ui/workspace.spec.ts:1621:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (6.8s)
+  ✓  183 tests/ui/workspace.spec.ts:1648:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (3.1s)
+
+
+  1) tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: light, компактное управление и доступная сетка 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "targets": Array [
+    +       Array [
+    +         "span[data-span=\"2\"] > .board-stay-line--meta.board-stay-line > .board-stay-dates[data-testid=\"cell-dates\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      104 |       expect(
+      105 |         audit.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
+    > 106 |       ).toEqual([]);
+          |         ^
+      107 |       await page.screenshot({
+      108 |         caret: 'initial',
+      109 |         path: `reports/chessboard-design-2026-09-20/${theme}-${width}.png`,
+        at /home/user/wetop.ai/tests/ui/chessboard-design.spec.ts:106:9
+
+    Error Context: test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх ───────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: '30 дней', exact: true })
+
+
+       97 |     clip: { x: today!.x - 140, y: 0, width: today!.width + 180, height: 700 },
+       98 |   });
+    >  99 |   await page.getByRole('link', { name: '30 дней', exact: true }).click();
+          |                                                                  ^
+      100 |   await expect(page.getByTestId('date-col')).toHaveCount(30);
+      101 |   await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days-dark.png` });
+      102 | });
+        at /home/user/wetop.ai/tests/ui/chessboard-gate.spec.ts:99:66
+
+    Error Context: test-results/chessboard-gate-гейт-тёмная-тема-—-полный-экран-и-верх/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-gate-гейт-тёмная-тема-—-полный-экран-и-верх/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-gate-гейт-тёмная-тема-—-полный-экран-и-верх/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-gate.spec.ts:104:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: '30 дней', exact: true })
+
+
+      127 |   expect(seeded.ok()).toBe(true);
+      128 |   await page.goto('/chessboard');
+    > 129 |   await page.getByRole('link', { name: '30 дней', exact: true }).click();
+          |                                                                  ^
+      130 |   await expect(page.getByTestId('date-col')).toHaveCount(30);
+      131 |   await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days.png` });
+      132 |
+        at /home/user/wetop.ai/tests/ui/chessboard-gate.spec.ts:129:66
+
+    Error Context: test-results/chessboard-gate-гейт-оверб-f9a43-30-дней-и-включённый-фильтр/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-gate-гейт-оверб-f9a43-30-дней-и-включённый-фильтр/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-gate-гейт-оверб-f9a43-30-дней-и-включённый-фильтр/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('group', { name: 'Сегодня на объекте' }).getByText('Задачи')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('group', { name: 'Сегодня на объекте' }).getByText('Задачи') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByText('Задачи')
+        31 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      18 |     // шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание
+      19 |     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+    > 20 |     await expect(panel.getByText('Задачи')).toHaveCount(0);
+         |                                             ^
+      21 |     const panelBox = await panel.boundingBox();
+      22 |     expect(panelBox!.height).toBeLessThanOrEqual(280);
+      23 |     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
+        at /home/user/wetop.ai/tests/ui/chessboard-statistics.spec.ts:20:45
+
+    Error Context: test-results/chessboard-statistics-stat-1853e-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('group', { name: 'Сегодня на объекте' }).getByText('Задачи')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('group', { name: 'Сегодня на объекте' }).getByText('Задачи') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByText('Задачи')
+        31 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      18 |     // шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание
+      19 |     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+    > 20 |     await expect(panel.getByText('Задачи')).toHaveCount(0);
+         |                                             ^
+      21 |     const panelBox = await panel.boundingBox();
+      22 |     expect(panelBox!.height).toBeLessThanOrEqual(280);
+      23 |     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
+        at /home/user/wetop.ai/tests/ui/chessboard-statistics.spec.ts:20:45
+
+    Error Context: test-results/chessboard-statistics-stat-d9659-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-d9659-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-d9659-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('group', { name: 'Сегодня на объекте' }).getByText('Задачи')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('group', { name: 'Сегодня на объекте' }).getByText('Задачи') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Сегодня на объекте' }).getByText('Задачи')
+        31 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      18 |     // шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание
+      19 |     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
+    > 20 |     await expect(panel.getByText('Задачи')).toHaveCount(0);
+         |                                             ^
+      21 |     const panelBox = await panel.boundingBox();
+      22 |     expect(panelBox!.height).toBeLessThanOrEqual(280);
+      23 |     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
+        at /home/user/wetop.ai/tests/ui/chessboard-statistics.spec.ts:20:45
+
+    Error Context: test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px ───
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 44
+    Received:    38
+
+      51 |       await expect(control).toBeVisible();
+      52 |       const box = await control.boundingBox();
+    > 53 |       expect(box!.height).toBeGreaterThanOrEqual(44);
+         |                           ^
+      54 |       expect(box!.width).toBeGreaterThanOrEqual(44);
+      55 |     }
+      56 |     await expect(page.locator('.board-period-pop').getByText('С', { exact: true })).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:53:27
+
+    Error Context: test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/housekeeping.spec.ts:118:1 › шахматка: легенда называет значки уборки и что значит их отсутствие 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('board-legend')
+    Expected substring: "проверена, доступна"
+    Received string:    "подтвержденапроживаетвыехалне подтвержденаремонт, неисправнаблокировкатребует уборкиубрано, ждёт проверкизелёная точка у места: проверено, доступно"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('board-legend') with timeout 15000ms
+      - waiting for getByTestId('board-legend')
+        27 × locator resolved to <div class="legend" data-testid="board-legend">…</div>
+           - unexpected value "подтвержденапроживаетвыехалне подтвержденаремонт, неисправнаблокировкатребует уборкиубрано, ждёт проверкизелёная точка у места: проверено, доступно"
+
+
+      121 |   await expect(legend).toContainText('требует уборки');
+      122 |   await expect(legend).toContainText('убрано, ждёт проверки');
+    > 123 |   await expect(legend).toContainText('проверена, доступна');
+          |                        ^
+      124 | });
+      125 |
+      126 | test('карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку', async ({
+        at /home/user/wetop.ai/tests/ui/housekeeping.spec.ts:123:24
+
+    Error Context: test-results/housekeeping-шахматка-леге-eb5d3--и-что-значит-их-отсутствие/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/housekeeping-шахматка-леге-eb5d3--и-что-значит-их-отсутствие/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/housekeeping-шахматка-леге-eb5d3--и-что-значит-их-отсутствие/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('navigation', { name: 'Готовые периоды' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('navigation', { name: 'Готовые периоды' }) with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Готовые периоды' })
+
+
+      104 |   // готовые периоды с 09.10 живут в раскрывашке периода: строка управления короче, сетка выше
+      105 |   await page.getByTestId('board-period-button').click();
+    > 106 |   await expect(page.getByRole('navigation', { name: 'Готовые периоды' })).toBeVisible();
+          |                                                                           ^
+      107 | });
+      108 |
+      109 | test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/mobile-adaptation.spec.ts:106:75
+
+    Error Context: test-results/mobile-adaptation-телефон--38d0c-ляют-сетку-на-первом-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--38d0c-ляют-сетку-на-первом-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--38d0c-ляют-сетку-на-первом-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.board-stay-caption').filter({ hasText: '←' }).first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.board-stay-caption').filter({ hasText: '←' }).first() with timeout 15000ms
+      - waiting for locator('.board-stay-caption').filter({ hasText: '←' }).first()
+
+
+      303 |   await expect(page.getByTestId('date-col')).toHaveCount(7);
+      304 |   await expect(page.getByTestId('unit-row')).toHaveCount(88);
+    > 305 |   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
+          |                                                                                      ^
+      306 |   // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
+      307 |   const board = page.getByRole('main');
+      308 |   await boardFilter(page, { category: 'MALE' });
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:305:86
+
+    Error Context: test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: light, компактное управление и доступная сетка 
+    tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх ────────────────
+    tests/ui/chessboard-gate.spec.ts:104:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр 
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words 
+    tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px ────
+    tests/ui/housekeeping.spec.ts:118:1 › шахматка: легенда называет значки уборки и что значит их отсутствие 
+    tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране 
+    tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+  173 passed (31.1m)
+
+# код выхода 1 · 31 мин 5 с

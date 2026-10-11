@@ -12,6 +12,7 @@ import {
 } from '../forms';
 import { ManagedSitesNotice, MarketingCrumb, WebsiteTabs } from '../parts';
 import '../../directory.css';
+import '../website.css';
 
 /**
  * «Сайт и онлайн-бронирование → Настройки» (ADR-117): бывшие «Настройки сайта» (`/analytics/setup`) без блока
@@ -31,7 +32,8 @@ export default async function WebsiteSettingsPage() {
     <Page
       crumbs={<MarketingCrumb />}
       title={WEBSITE_TITLE}
-      subtitle="Домены сайта, счётчик посещений и установка кода.">
+      subtitle="Домены сайта, счётчик посещений и установка кода."
+    >
       <WebsiteTabs current="settings" />
       <div className="settings-site">
         <Stack>

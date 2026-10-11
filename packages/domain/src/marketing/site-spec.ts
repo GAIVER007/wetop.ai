@@ -46,11 +46,23 @@ export function plainTextProblem(raw: string): string | null {
   if (TEMPLATE_RE.test(raw)) return 'Шаблоны вида {{…}} и ${…} недопустимы';
   return null;
 }
-const ICONS = [
+/** Значки секций (§8): редактор берёт тот же список, что проверяет валидатор */
+export const SITE_SPEC_ICONS: readonly string[] = Object.freeze([
   'CLOCK', 'PARKING', 'WIFI', 'BREAKFAST', 'LAUNDRY', 'LUGGAGE', 'KITCHEN', 'AIRCON',
   'TRANSFER', 'PETS', 'ACCESSIBLE', 'FAMILY', 'QUIET', 'CENTER', 'STATION', 'STAR',
-];
-const SOCIAL_HOSTS: Record<string, string[]> = {
+]);
+const ICONS = SITE_SPEC_ICONS;
+/** Тема сайта (§6): только перечисления, без своих цветов и CSS */
+export const SITE_SPEC_THEME = Object.freeze({
+  preset: ['CALM', 'WARM', 'NIGHT', 'COAST'],
+  accent: ['TEAL', 'INDIGO', 'TERRACOTTA', 'FOREST', 'GRAPHITE', 'GOLD'],
+  typography: ['MODERN', 'CLASSIC', 'ROUNDED'],
+  radius: ['SHARP', 'SOFT', 'ROUND'],
+  density: ['COMPACT', 'COMFORTABLE'],
+  colorScheme: ['LIGHT'],
+} as const);
+export const SITE_SPEC_LOCALES = LOCALES;
+export const SITE_SPEC_SOCIAL_HOSTS: Readonly<Record<string, readonly string[]>> = {
   INSTAGRAM: ['instagram.com'],
   FACEBOOK: ['facebook.com'],
   TELEGRAM: ['t.me', 'telegram.me'],
@@ -58,6 +70,7 @@ const SOCIAL_HOSTS: Record<string, string[]> = {
   YOUTUBE: ['youtube.com', 'youtu.be'],
   VK: ['vk.com'],
 };
+const SOCIAL_HOSTS = SITE_SPEC_SOCIAL_HOSTS;
 
 type Rec = Record<string, unknown>;
 type Field = (value: unknown, path: string) => void;
@@ -346,12 +359,12 @@ export function validateSiteSpec(input: unknown): SiteSpecResult {
           v,
           p,
           {
-            preset: c.oneOf(['CALM', 'WARM', 'NIGHT', 'COAST']),
-            accent: c.oneOf(['TEAL', 'INDIGO', 'TERRACOTTA', 'FOREST', 'GRAPHITE', 'GOLD']),
-            typography: c.oneOf(['MODERN', 'CLASSIC', 'ROUNDED']),
-            radius: c.oneOf(['SHARP', 'SOFT', 'ROUND']),
-            density: c.oneOf(['COMPACT', 'COMFORTABLE']),
-            colorScheme: c.oneOf(['LIGHT']),
+            preset: c.oneOf(SITE_SPEC_THEME.preset),
+            accent: c.oneOf(SITE_SPEC_THEME.accent),
+            typography: c.oneOf(SITE_SPEC_THEME.typography),
+            radius: c.oneOf(SITE_SPEC_THEME.radius),
+            density: c.oneOf(SITE_SPEC_THEME.density),
+            colorScheme: c.oneOf(SITE_SPEC_THEME.colorScheme),
           },
           ['preset', 'accent', 'typography', 'radius', 'density', 'colorScheme'],
         ),
@@ -706,6 +719,16 @@ const SECTIONS: Record<string, SectionShape> = {
 export const SITE_SPEC_SECTIONS: Readonly<Record<string, readonly string[]>> = Object.freeze(
   Object.fromEntries(Object.entries(SECTIONS).map(([type, shape]) => [type, Object.freeze([...shape.variants])])),
 );
+
+/**
+ * Поля секции, которые знает валидатор (кроме `id`, `type`, `variant`): общий `heading` и поля типа. Нужен реестру
+ * редактора (MKT9): тест сверяет, что у каждой секции редактор знает ровно эти поля, а не свой список
+ */
+export function siteSpecSectionFields(type: string): { fields: string[]; required: string[] } | null {
+  const shape = SECTIONS[type];
+  if (!shape) return null;
+  return { fields: ['heading', ...Object.keys(shape.fields(new Checker()))], required: ['heading', ...shape.required] };
+}
 
 /** Секция по реестру §8; возвращает её идентификатор для проверки ссылок */
 function checkSection(c: Checker, value: unknown, path: string, booking: unknown): string | null {

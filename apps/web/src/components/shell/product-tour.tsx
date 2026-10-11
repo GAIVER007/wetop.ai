@@ -1,6 +1,14 @@
 'use client';
 import { can } from '@pms/domain';
-import { use, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  use,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
 import type { DeskShell } from '../../lib/desk-person';
 import {
   TOUR_RESTART_EVENT,
@@ -177,7 +185,15 @@ export function ProductTour({
       <div
         ref={cardRef}
         className={position ? 'tour__card' : 'tour__card tour__card--center'}
-        style={position ? { top: position.top, left: position.left } : undefined}
+        style={
+          position
+            ? // положение переменными: телефонный медиазапрос ставит своё без !important (MV8.5 DS0b)
+              ({
+                '--tour-top': `${position.top}px`,
+                '--tour-left': `${position.left}px`,
+              } as CSSProperties)
+            : undefined
+        }
       >
         <p className="tour__count">
           {index + 1} из {steps.length}

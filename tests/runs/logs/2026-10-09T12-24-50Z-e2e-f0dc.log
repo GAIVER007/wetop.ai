@@ -1,0 +1,170 @@
+# Сквозные (e2e) · 09.10.2026 17:24 Алматы · vm
+# коммит 90d323d (claude/serene-newton-q453ps), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/mobile-adaptation.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 2 workers
+
+  ✘   1 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (23.0s)
+  ✓   3 tests/ui/chessboard-filters.spec.ts:142:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (7.7s)
+  ✓   2 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: низ страницы не прячется под нижней навигацией (38.1s)
+[WebServer] [browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+  ✓   5 tests/ui/mobile-adaptation.spec.ts:68:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (2.3s)
+  ✓   6 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (3.0s)
+  ✘   4 tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (23.1s)
+  ✓   8 tests/ui/chessboard-filters.spec.ts:238:1 › §37: ничего не найдено — «Сбросить фильтры» (3.9s)
+  ✘   7 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (18.8s)
+  ✓  10 tests/ui/mobile-adaptation.spec.ts:107:1 › узкий телефон: плитки финансов встают в одну колонку (2.4s)
+  ✘   9 tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (17.2s)
+  ✓  11 tests/ui/mobile-adaptation.spec.ts:118:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (14.4s)
+  ✓  12 tests/ui/chessboard-filters.spec.ts:276:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (6.0s)
+  ✓  14 tests/ui/chessboard-filters.spec.ts:294:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (5.7s)
+  ✓  15 tests/ui/chessboard-filters.spec.ts:321:1 › доступность: окошко «Фильтры» открыто (7.3s)
+  ✓  13 tests/ui/mobile-adaptation.spec.ts:152:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (23.0s)
+
+
+  1) tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByLabel('Вид строк календаря')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByLabel('Вид строк календаря') with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Вид строк календаря')
+
+
+      70 |   await expect(main.getByLabel('Категория в календаре')).toBeVisible();
+      71 |   await expect(main.getByLabel('Места в календаре')).toBeVisible();
+    > 72 |   await expect(main.getByLabel('Вид строк календаря')).toBeVisible();
+         |                                                        ^
+      73 |   await expect(main.getByRole('button', { name: 'Номера', exact: true })).toHaveCount(0);
+      74 |   await expect(main.getByRole('button', { name: 'Свободные', exact: true })).toHaveCount(0);
+      75 |
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:72:56
+
+    Error Context: test-results/chessboard-filters-§8–9-ос-c28b2-«Применить»-чипы-«Сбросить»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§8–9-ос-c28b2-«Применить»-чипы-«Сбросить»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§8–9-ос-c28b2-«Применить»-чипы-«Сбросить»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 })
+    Expected substring: "20260913-NEW1"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true }).getByRole('heading', { level: 1 })
+
+
+      224 |       .getByRole('dialog', { name: 'Бронирование', exact: true })
+      225 |       .getByRole('heading', { level: 1 }),
+    > 226 |   ).toContainText(near);
+          |     ^
+      227 |   await page.keyboard.press('Escape');
+      228 |
+      229 |   // 30 дней: найденная далеко справа бронь прокручена в видимую часть сетки
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:226:5
+
+    Error Context: test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('main').getByRole('group', { name: 'Вид строк календаря' }).getByRole('button', { name: 'Компактный', exact: true })
+    Expected: "true"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').getByRole('group', { name: 'Вид строк календаря' }).getByRole('button', { name: 'Компактный', exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('group', { name: 'Вид строк календаря' }).getByRole('button', { name: 'Компактный', exact: true })
+
+
+      258 |   const pick = (name: string) => view.getByRole('button', { name, exact: true });
+      259 |   // без сохранённого выбора «Компактный» (решение владельца 07.10.2026, baseline B)
+    > 260 |   await expect(pick('Компактный')).toHaveAttribute('aria-pressed', 'true');
+          |                                    ^
+      261 |   const height = async () =>
+      262 |     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
+      263 |   const compact = await height();
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:260:36
+
+    Error Context: test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('group', { name: 'Вид календаря' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('group', { name: 'Вид календаря' }) with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Вид календаря' })
+
+
+      102 |   const navigation = await page.locator('.bottom-navigation').boundingBox();
+      103 |   expect(navigation!.y - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
+    > 104 |   await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
+          |                                                                    ^
+      105 | });
+      106 |
+      107 | test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/mobile-adaptation.spec.ts:104:68
+
+    Error Context: test-results/mobile-adaptation-телефон--38d0c-ляют-сетку-на-первом-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--38d0c-ляют-сетку-на-первом-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--38d0c-ляют-сетку-на-первом-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» 
+    tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+    tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится 
+    tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране 
+  11 passed (2.0m)
+
+# код выхода 1 · 2 мин 5 с

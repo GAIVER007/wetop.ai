@@ -1,212 +1,211 @@
 /* «Интеграции» INT1 (ADR-116): карточка подключения из готовых частей — Panel, Badge, кнопки; своих цветов нет */
-.integration-tab__count {
-  margin-left: var(--space-1);
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-.integration-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr));
-  gap: var(--space-4);
-  align-items: start;
-}
-.integration-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  margin: 0;
-  padding: var(--space-6);
-  min-width: 0;
-}
-.integration-card__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-.integration-card__name {
-  margin: 0;
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
-  line-height: var(--leading-tight);
-}
-.integration-card__kind {
-  margin: var(--space-1) 0 0;
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-.integration-card__about,
-.integration-card__how {
-  margin: 0;
-  color: var(--text-2);
-  font-size: var(--text-md);
-  line-height: var(--leading-relaxed);
-}
-.integration-card__issues {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: var(--space-2) var(--space-4);
-  list-style: none;
-  border: 1px solid var(--warning);
-  border-radius: var(--radius-control);
-  background: var(--warning-bg);
-  font-size: var(--text-md);
-}
-.integration-card__issues li {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-.integration-card__facts {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-}
-.integration-card__facts > div {
-  display: grid;
-  grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
-  gap: var(--space-4);
-}
-.integration-card__facts dt {
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-.integration-card__facts dd {
-  margin: 0;
-  font-size: var(--text-md);
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-.integration-card__code {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-}
-.integration-card__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-.integration-card__tech {
-  border-top: 1px solid var(--border);
-  padding-top: var(--space-4);
-}
-.integration-card__tech summary {
-  cursor: pointer;
-  color: var(--text-2);
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-2);
-}
-.integration-card > .note {
-  margin: 0;
-}
-.integration-card__missing {
-  display: block;
-  margin-top: var(--space-1);
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-/* Страница Channex (INT2, ADR-121): подзаголовок с бейджем и две панели рядом на широком экране */
-.integration-subtitle {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-}
-.integration-detail {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
-  gap: var(--space-4);
-  align-items: start;
-}
-@media (max-width: 600px) {
+@layer sections {
+  .integration-tab__count {
+    margin-left: var(--space-1);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .integration-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
   .integration-card {
-    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin: 0;
+    padding: var(--space-6);
+    min-width: 0;
+  }
+  .integration-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .integration-card__name {
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-tight);
+  }
+  .integration-card__kind {
+    margin: var(--space-1) 0 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .integration-card__about,
+  .integration-card__how {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+  }
+  .integration-card__issues {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-2) var(--space-4);
+    list-style: none;
+    border: 1px solid var(--warning);
+    border-radius: var(--radius-control);
+    background: var(--warning-bg);
+    font-size: var(--text-md);
+  }
+  .integration-card__issues li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .integration-card__facts {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
   }
   .integration-card__facts > div {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-1);
+    display: grid;
+    grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
+    gap: var(--space-4);
   }
-  .integration-card__actions > .btn {
-    flex: 1 1 100%;
-    justify-content: center;
+  .integration-card__facts dt {
+    color: var(--muted);
+    font-size: var(--text-sm);
   }
-}
-
-/* One connection workspace; advanced diagnostics expand below the summary. */
-.integrations-page {
-  padding: 16px 24px;
-}
-.integrations-page .page__head {
-  margin-bottom: 16px;
-}
-.integrations-page .page__title {
-  font-size: 28px;
-}
-.integrations-page .page__subtitle {
-  font-size: 13px;
-}
-.integrations-page .settings-tabs {
-  margin-bottom: 16px;
-  border: 0;
-  background: transparent;
-}
-.integrations-page .integration-list {
-  grid-template-columns: minmax(0, 1fr);
-}
-.integrations-page .integration-card {
-  padding: 16px;
-  gap: 16px;
-}
-.integrations-page .integration-card__name {
-  font-size: 18px;
-}
-.integrations-page .integration-card__issues {
-  font-size: 13px;
-  padding: 8px 16px;
-  border: 0;
-}
-.integrations-page .integration-card__facts {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-.integrations-page .integration-card__facts > div {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 4px;
-}
-.integrations-page .integration-card__facts dd {
-  font-size: 14px;
-}
-.integrations-page .integration-card__tech {
-  border: 0;
-  padding-top: 0;
-}
-.integrations-page .integration-card__tech > dl {
-  margin-top: 16px;
-}
-.integrations-page .integration-card .note {
-  margin: 0;
-  font-size: 12px;
-}
-.integration-environment {
-  margin: 0;
-  padding: 8px 16px;
-  border-radius: var(--radius-control);
-  color: var(--text-2);
-  background: var(--surface-muted);
-  font-size: 13px;
-}
-@media (max-width: 700px) {
+  .integration-card__facts dd {
+    margin: 0;
+    font-size: var(--text-md);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .integration-card__code {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+  }
+  .integration-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .integration-card__tech {
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-4);
+  }
+  .integration-card__tech summary {
+    cursor: pointer;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+  }
+  .integration-card > .note {
+    margin: 0;
+  }
+  .integration-card__missing {
+    display: block;
+    margin-top: var(--space-1);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  } /* Страница Channex (INT2, ADR-121): подзаголовок с бейджем и две панели рядом на широком экране */
+  .integration-subtitle {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .integration-detail {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
+  @media (max-width: 600px) {
+    .integration-card {
+      padding: var(--space-4);
+    }
+    .integration-card__facts > div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-1);
+    }
+    .integration-card__actions > .btn {
+      flex: 1 1 100%;
+      justify-content: center;
+    }
+  } /* One connection workspace; advanced diagnostics expand below the summary. */
   .integrations-page {
+    padding: 16px 24px;
+  }
+  .integrations-page .page__head {
+    margin-bottom: 16px;
+  }
+  .integrations-page .page__title {
+    font-size: 28px;
+  }
+  .integrations-page .page__subtitle {
+    font-size: 13px;
+  }
+  .integrations-page .settings-tabs {
+    margin-bottom: 16px;
+    border: 0;
+    background: transparent;
+  }
+  .integrations-page .integration-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .integrations-page .integration-card {
     padding: 16px;
+    gap: 16px;
+  }
+  .integrations-page .integration-card__name {
+    font-size: 18px;
+  }
+  .integrations-page .integration-card__issues {
+    font-size: 13px;
+    padding: 8px 16px;
+    border: 0;
   }
   .integrations-page .integration-card__facts {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
   }
-  .integrations-page .integration-card__head {
-    flex-wrap: wrap;
+  .integrations-page .integration-card__facts > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .integrations-page .integration-card__facts dd {
+    font-size: 14px;
+  }
+  .integrations-page .integration-card__tech {
+    border: 0;
+    padding-top: 0;
+  }
+  .integrations-page .integration-card__tech > dl {
+    margin-top: 16px;
+  }
+  .integrations-page .integration-card .note {
+    margin: 0;
+    font-size: 12px;
+  }
+  .integration-environment {
+    margin: 0;
+    padding: 8px 16px;
+    border-radius: var(--radius-control);
+    color: var(--text-2);
+    background: var(--surface-muted);
+    font-size: 13px;
+  }
+  @media (max-width: 700px) {
+    .integrations-page {
+      padding: 16px;
+    }
+    .integrations-page .integration-card__facts {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+    }
+    .integrations-page .integration-card__head {
+      flex-wrap: wrap;
+    }
   }
 }

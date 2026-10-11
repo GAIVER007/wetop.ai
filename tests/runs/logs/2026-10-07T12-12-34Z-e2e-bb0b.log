@@ -14,10 +14,10 @@
 [WebServer] (node:15993) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
-[WebServer] 
+[WebServer]
 [WebServer]   To migrate automatically, run:
 [WebServer]   npx @next/codemod@canary middleware-to-proxy .
-[WebServer] 
+[WebServer]
 [WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
 
 Running 1 test using 1 worker
@@ -25,17 +25,17 @@ Running 1 test using 1 worker
 (node:15997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 [WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-[WebServer] 
+[WebServer]
 [WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
 [WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
 [WebServer] - Date formatting in a user's locale which doesn't match the server.
 [WebServer] - External changing data without sending a snapshot of it along with the HTML.
 [WebServer] - Invalid HTML tag nesting.
-[WebServer] 
+[WebServer]
 [WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-[WebServer] 
+[WebServer]
 [WebServer] https://react.dev/link/hydration-mismatch
-[WebServer] 
+[WebServer]
 [WebServer]   ...
 [WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
 [WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
@@ -652,19 +652,19 @@ Running 1 test using 1 worker
 [WebServer]                   ...
 [WebServer]                 ...
 [WebServer]       ...
-[WebServer]  
+[WebServer]
 [WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-[WebServer] 
+[WebServer]
 [WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
 [WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
 [WebServer] - Date formatting in a user's locale which doesn't match the server.
 [WebServer] - External changing data without sending a snapshot of it along with the HTML.
 [WebServer] - Invalid HTML tag nesting.
-[WebServer] 
+[WebServer]
 [WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-[WebServer] 
+[WebServer]
 [WebServer] https://react.dev/link/hydration-mismatch
-[WebServer] 
+[WebServer]
 [WebServer]   ...
 [WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
 [WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
@@ -1281,19 +1281,19 @@ Running 1 test using 1 worker
 [WebServer]                   ...
 [WebServer]                 ...
 [WebServer]       ...
-[WebServer]  
+[WebServer]
 [WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-[WebServer] 
+[WebServer]
 [WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
 [WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
 [WebServer] - Date formatting in a user's locale which doesn't match the server.
 [WebServer] - External changing data without sending a snapshot of it along with the HTML.
 [WebServer] - Invalid HTML tag nesting.
-[WebServer] 
+[WebServer]
 [WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-[WebServer] 
+[WebServer]
 [WebServer] https://react.dev/link/hydration-mismatch
-[WebServer] 
+[WebServer]
 [WebServer]   ...
 [WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
 [WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
@@ -1952,19 +1952,19 @@ Running 1 test using 1 worker
 [WebServer]                   ...
 [WebServer]                 ...
 [WebServer]       ...
-[WebServer]  
+[WebServer]
 [WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-[WebServer] 
+[WebServer]
 [WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
 [WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
 [WebServer] - Date formatting in a user's locale which doesn't match the server.
 [WebServer] - External changing data without sending a snapshot of it along with the HTML.
 [WebServer] - Invalid HTML tag nesting.
-[WebServer] 
+[WebServer]
 [WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-[WebServer] 
+[WebServer]
 [WebServer] https://react.dev/link/hydration-mismatch
-[WebServer] 
+[WebServer]
 [WebServer]   ...
 [WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
 [WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
@@ -2680,19 +2680,19 @@ Running 1 test using 1 worker
 [WebServer]                   ...
 [WebServer]                 ...
 [WebServer]       ...
-[WebServer]  
+[WebServer]
 [WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-[WebServer] 
+[WebServer]
 [WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
 [WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
 [WebServer] - Date formatting in a user's locale which doesn't match the server.
 [WebServer] - External changing data without sending a snapshot of it along with the HTML.
 [WebServer] - Invalid HTML tag nesting.
-[WebServer] 
+[WebServer]
 [WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-[WebServer] 
+[WebServer]
 [WebServer] https://react.dev/link/hydration-mismatch
-[WebServer] 
+[WebServer]
 [WebServer]   ...
 [WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
 [WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
@@ -3408,19 +3408,19 @@ Running 1 test using 1 worker
 [WebServer]                   ...
 [WebServer]                 ...
 [WebServer]       ...
-[WebServer]  
+[WebServer]
 [WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-[WebServer] 
+[WebServer]
 [WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
 [WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
 [WebServer] - Date formatting in a user's locale which doesn't match the server.
 [WebServer] - External changing data without sending a snapshot of it along with the HTML.
 [WebServer] - Invalid HTML tag nesting.
-[WebServer] 
+[WebServer]
 [WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-[WebServer] 
+[WebServer]
 [WebServer] https://react.dev/link/hydration-mismatch
-[WebServer] 
+[WebServer]
 [WebServer]   ...
 [WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
 [WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
@@ -4136,7 +4136,7 @@ Running 1 test using 1 worker
 [WebServer]                   ...
 [WebServer]                 ...
 [WebServer]       ...
-[WebServer]  
+[WebServer]
   ✓  1 tests/bar-operational-ui/cycle.spec.ts:2:1 › real BAR cycle persists across browser reloads and reconciles API totals (9.6s)
 
   1 passed (15.9s)

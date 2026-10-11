@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { createPrismaClient } from '@pms/database';
+import { isLocalDatabase } from '../tools/seed-local';
 import { WizardService } from '../../apps/api/src/wizard/wizard.service';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 
 /** Run only on explicit loopback PostgreSQL, never the hotel's working database. */
-const local = process.env.DATABASE_URL?.includes('@127.0.0.1:55432/');
+const local = isLocalDatabase(process.env.DATABASE_URL ?? '');
 describe.skipIf(!local)('wizard persisted session boundary', () => {
   it('restores a draft, isolates tokens, rejects stale writes and expired sessions', async () => {
     process.env.WIZARD_ENABLED = '1';

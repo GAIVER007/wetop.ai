@@ -1,11 +1,13 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { FormGrid } from '../../components/form-grid';
 import { Alert, Button, Field, Input, Select, Textarea } from '../../components/ui';
-import { foodStatusLabels, weekdays } from '../../lib/food-data';
 import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { instantOf, localInput } from '../beauty/time';
 import { mutateFoodReservation } from './actions';
+import { foodStatus } from '../../lib/status/food';
+import { weekdays } from '../../lib/food-data';
 export function ReservationForm({
   data,
   walkIn = false,
@@ -151,14 +153,15 @@ export function ReservationForm({
           )}
         </>
       )}
-      <div className="food-form-row">
-        <Field label="Дата">
-          <Input name="date" type="date" defaultValue={local.slice(0, 10)} required />
+      {/* общий FormGrid и обязательность словами Field (MV8.5 DS1c); остальные ряды формы: DS6 */}
+      <FormGrid columns={2}>
+        <Field label="Дата" required>
+          <Input name="date" type="date" defaultValue={local.slice(0, 10)} />
         </Field>
-        <Field label="Время">
-          <Input name="time" type="time" defaultValue={local.slice(11, 16)} required />
+        <Field label="Время" required>
+          <Input name="time" type="time" defaultValue={local.slice(11, 16)} />
         </Field>
-      </div>
+      </FormGrid>
       <Field label="Период обслуживания">
         <Select
           name="period"
@@ -227,7 +230,7 @@ export function ReservationForm({
         {pending ? 'Сохраняем…' : reservation ? 'Сохранить' : walkIn ? 'Посадить' : 'Создать бронь'}
       </Button>
       {reservation && (
-        <p className="muted">Текущий статус: {foodStatusLabels[reservation.status]}</p>
+        <p className="muted">Текущий статус: {foodStatus[reservation.status].label}</p>
       )}
     </form>
   );

@@ -302,6 +302,11 @@ class Conversation(Base):
     is_active: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
     last_activity_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    # Ведение диалога человеком (S2.6, 0012): кто отвечает за него и что дальше. Сотрудник живёт в базе платформы,
+    # здесь только его идентификатор и имя на момент назначения: бот пользователей платформы не знает.
+    assignee_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID)
+    assignee_name: Mapped[str | None] = mapped_column(sa.String(120))
+    next_step: Mapped[str | None] = mapped_column(sa.String(200))
 
     client: Mapped["Client"] = relationship(back_populates="conversations")
     messages: Mapped[list["Message"]] = relationship(
@@ -309,6 +314,22 @@ class Conversation(Base):
         cascade="all, delete-orphan",
         order_by="Message.created_at",
     )
+
+
+class ConversationNote(Base):
+    """Внутренняя заметка сотрудника к диалогу (S2.6, 0012). Гость её не видит и модель не получает."""
+
+    __tablename__ = "conversation_notes"
+    __table_args__ = (sa.Index("idx_conv_note", "conversation_id", "created_at"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    conversation_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False
+    )
+    author_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID)
+    author_name: Mapped[str] = mapped_column(sa.String(120), nullable=False)
+    body: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False, default=utcnow)
 
 
 # Индекс с DESC объявлен здесь: в __table_args__ строкой направление не задать.

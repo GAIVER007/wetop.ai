@@ -1,0 +1,49 @@
+# Сквозные (e2e) · 08.10.2026 12:53 Алматы · vm
+# коммит 2f32e84 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-builder-licensed.spec.ts' 'tests/ui/site-editor.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 33 tests using 1 worker
+
+  ✓   1 tests/ui/site-builder-licensed.spec.ts:29:1 › лицензии нет: всё видно, правка, ИИ, «Текст» и сохранение закрыты; полоса проекта говорит почему (3.7s)
+  ✓   2 tests/ui/site-builder-licensed.spec.ts:49:1 › срок лицензии вышел: та же закрытая правка, слова «Срок лицензии вышел»; первый экран без лицензии (1.9s)
+  ✓   3 tests/ui/site-builder-licensed.spec.ts:62:1 › режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление (6.1s)
+  ✓   4 tests/ui/site-builder-licensed.spec.ts:78:1 › режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз (14.3s)
+  ✓   5 tests/ui/site-builder-licensed.spec.ts:102:1 › варианты оформления на первом экране: три карточки с выбором, сайт создаётся с выбранным оформлением (10.4s)
+  ✓   6 tests/ui/site-builder-licensed.spec.ts:124:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ (3.5s)
+  ✓   7 tests/ui/site-builder-licensed.spec.ts:156:1 › закладки: звёздочка с подписью, закреплённый список сверху, снять закладку (3.5s)
+  ✓   8 tests/ui/site-builder-licensed.spec.ts:172:1 › знания проекта: сохраняются отдельно от черновика и переживают обновление (2.7s)
+  ✓   9 tests/ui/site-builder-licensed.spec.ts:193:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала (8.7s)
+  ✓  10 tests/ui/site-builder-licensed.spec.ts:221:3 › снимки и доступность ключевых состояний: light (19.6s)
+  ✓  11 tests/ui/site-builder-licensed.spec.ts:221:3 › снимки и доступность ключевых состояний: dark (18.8s)
+  ✓  12 tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами (2.9s)
+  ✓  13 tests/ui/site-editor.spec.ts:75:1 › просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит (2.5s)
+  ✓  14 tests/ui/site-editor.spec.ts:93:1 › открыть в новой вкладке: с несохранёнными правками просит сохранить, без них открывает ссылку (2.2s)
+  ✓  15 tests/ui/site-editor.spec.ts:108:1 › восстановить старую версию как новый черновик (2.5s)
+  ✓  16 tests/ui/site-editor.spec.ts:121:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (2.2s)
+  ✓  17 tests/ui/site-editor.spec.ts:139:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (2.5s)
+  ✓  18 tests/ui/site-editor.spec.ts:157:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (2.0s)
+  ✓  19 tests/ui/site-editor.spec.ts:176:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (2.7s)
+  ✓  20 tests/ui/site-editor.spec.ts:194:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (1.5s)
+  ✓  21 tests/ui/site-editor.spec.ts:204:1 › добавить секцию, переставить и сделать копию с клавиатуры (2.4s)
+  ✓  22 tests/ui/site-editor.spec.ts:226:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (2.1s)
+  ✓  23 tests/ui/site-editor.spec.ts:239:1 › ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было (7.5s)
+  ✓  24 tests/ui/site-editor.spec.ts:265:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна (5.3s)
+  ✓  25 tests/ui/site-editor.spec.ts:283:1 › ИИ с несохранёнными правками: «Сохранить и отправить» сохраняет версию, ошибка ИИ словами, «Повторить запрос» (5.3s)
+  ✓  26 tests/ui/site-editor.spec.ts:300:1 › первый экран MKT9.2: «Сайт для …», без названия, адреса и примеров; факты филиала; сайт создаётся и открывается редактор (4.9s)
+  ✓  27 tests/ui/site-editor.spec.ts:321:1 › первый экран: сайт есть без версий; ошибка ИИ словами, текст на месте (4.6s)
+  ✓  28 tests/ui/site-editor.spec.ts:334:3 › окно «Создать сайт»: снимки и доступность, light (4.1s)
+  ✓  29 tests/ui/site-editor.spec.ts:334:3 › окно «Создать сайт»: снимки и доступность, dark (4.2s)
+  ✓  30 tests/ui/site-editor.spec.ts:354:3 › редактор на компьютере, доступность и снимки: light (15.4s)
+  ✓  31 tests/ui/site-editor.spec.ts:407:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light (6.4s)
+  ✓  32 tests/ui/site-editor.spec.ts:354:3 › редактор на компьютере, доступность и снимки: dark (5.4s)
+  ✓  33 tests/ui/site-editor.spec.ts:407:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark (5.8s)
+
+  33 passed (3.3m)
+
+# код выхода 0 · 3 мин 21 с

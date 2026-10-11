@@ -14,10 +14,10 @@ import type {
 import { formatMoney } from '../../lib/money';
 import { AppointmentCard } from './appointment-card';
 import { AppointmentForm } from './appointment-form';
-import { STATUS_WORD } from './appointment-status';
 import { calendarColumns } from './calendar-columns';
 import { DateBar } from './date-bar';
 import { clock, clockMinutes } from './time';
+import { beautyStatus } from '../../lib/status/beauty';
 
 const STEP = 30;
 const PX_PER_MIN = 1.5;
@@ -95,7 +95,7 @@ export function JournalBoard({
               top: (a.startMinutes - from) * PX_PER_MIN,
               height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN,
             }}
-            title={`${clock(a.startMinutes)}–${clock(a.endMinutes)}, ${a.customer.name}, ${a.serviceName}, ${formatMoney(a.priceMinor, a.currency)}, ${STATUS_WORD[a.status]}`}
+            title={`${clock(a.startMinutes)}–${clock(a.endMinutes)}, ${a.customer.name}, ${a.serviceName}, ${formatMoney(a.priceMinor, a.currency)}, ${beautyStatus[a.status].label}`}
             onClick={() => setPanel({ kind: 'card', row: a })}
           >
             <span className="beauty-tile-time">
@@ -104,7 +104,7 @@ export function JournalBoard({
             <strong className="beauty-tile-name">{a.customer.name}</strong>
             <span className="beauty-tile-service">{a.serviceName}</span>
             <span className="beauty-tile-service">
-              {formatMoney(a.priceMinor, a.currency)} / {STATUS_WORD[a.status]}
+              {formatMoney(a.priceMinor, a.currency)} / {beautyStatus[a.status].label}
             </span>
           </button>
         ))}

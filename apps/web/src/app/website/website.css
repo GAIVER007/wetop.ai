@@ -1,0 +1,47 @@
+@layer sections {
+  /* Перенесено из hotel-settings/settings.css (MV8.5 DS0b): раньше грузилось из layout.tsx */
+  .settings-site .site-settings-card {
+    padding: var(--space-6);
+  }
+  .settings-site .site-settings-card > .facts {
+    margin: var(--space-6) 0;
+  }
+  .settings-site .site-settings-card .panel__title {
+    font-size: var(--text-xl);
+  }
+  .settings-site h2,
+  .settings-site h3 {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-lg);
+  }
+  .settings-site .site-domains-heading {
+    margin-bottom: var(--space-2);
+  }
+  .settings-disclosure {
+    border-top: 1px solid var(--border);
+    padding: var(--space-4) 0;
+    margin-top: var(--space-4);
+  }
+  .settings-disclosure > summary {
+    cursor: pointer;
+    font-weight: var(--weight-semibold);
+    min-height: var(--control-h);
+    align-content: center;
+  }
+  .settings-disclosure > div {
+    padding-top: var(--space-4);
+  }
+  .settings-site .code {
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 600px) {
+    .settings-disclosure > summary {
+      min-height: 44px;
+    }
+    .settings-site .site-settings-card {
+      padding: var(--space-4);
+    }
+  }
+}

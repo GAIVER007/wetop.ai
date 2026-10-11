@@ -1,0 +1,105 @@
+# Модульные (unit) · 08.10.2026 12:20 Алматы · vm
+# коммит 9ae75aa (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T07-20-18Z-unit-f958.json' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/platform' 'packages/integrations/src/assistant'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/platform/platform.controller.test.ts (12 tests | 12 skipped) 20ms
+   ↓ раздел «Платформа» — только главный администратор (4)
+     ↓ владелец организации получает 403 и на список, и на изменение
+     ↓ служебный ключ раздел не открывает: он не человек и не главный администратор
+     ↓ без входа — 401 от замка
+     ↓ главному администратору — организации без броней и гостей: название, сроки, люди, владельцы, расширение
+   ↓ включение «ИИ-продавца» главным администратором (Q-183) (3)
+     ↓ оплачен бессрочно с номером счёта: записано с автором, в ответе — «действует»
+     ↓ пробный без срока — 400 словами домена, ничего не записано
+     ↓ неизвестная организация — 404; не идентификатор — 400
+   ↓ статус организации: подтверждение оплаты (5)
+     ↓ главный администратор подтверждает оплату — ACTIVE, с автором и заметкой
+     ↓ и переводит обратно в «только чтение»
+     ↓ другие статусы отсюда не ставятся: приостановка и пробный — не оплата
+     ↓ владелец организации сам себе оплату не подтверждает — 403
+     ↓ нет такой организации — 404
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 235ms
+ ✓ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (25 tests) 89ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 595ms
+ ✓ |unit| packages/integrations/src/assistant/identity.test.ts (11 tests) 10ms
+ ✓ |unit| apps/api/src/platform/support.queue.test.ts (20 tests) 10ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 109ms
+   ❯ права маршрутов API (ADR-107) (3)
+     ✓ у каждого маршрута — право из таблицы, и в таблице нет лишних строк 64ms
+     × MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 42ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts [ apps/api/src/platform/platform.controller.test.ts ]
+Error: Nest can't resolve dependencies of the PlatformController (Symbol(EXTENSIONS_REPOSITORY), ExtensionsService, ?). Please make sure that the argument SiteBuilderLicenses at index [2] is available in the RootTestModule module.
+
+Potential solutions:
+- Is RootTestModule a valid NestJS module?
+- If SiteBuilderLicenses is a provider, is it part of the current RootTestModule?
+- If SiteBuilderLicenses is exported from a separate @Module, is that module imported within RootTestModule?
+  @Module({
+    imports: [ /* the Module containing SiteBuilderLicenses */ ]
+  })
+
+For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
+ ❯ TestingInjector.lookupComponentInParentModules node_modules/@nestjs/core/injector/injector.js:313:19
+ ❯ TestingInjector.resolveComponentWrapper node_modules/@nestjs/testing/testing-injector.js:16:45
+ ❯ resolveParam node_modules/@nestjs/core/injector/injector.js:149:38
+ ❯ TestingInjector.resolveConstructorParams node_modules/@nestjs/core/injector/injector.js:181:27
+ ❯ TestingInjector.loadInstance node_modules/@nestjs/core/injector/injector.js:75:13
+ ❯ TestingInjector.loadController node_modules/@nestjs/core/injector/injector.js:97:9
+ ❯ node_modules/@nestjs/core/injector/instance-loader.js:69:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts [ apps/api/src/platform/platform.controller.test.ts ]
+TypeError: Cannot read properties of undefined (reading 'close')
+ ❯ apps/api/src/platform/platform.controller.test.ts:94:13
+     92|
+     93| afterAll(async () => {
+     94|   await app.close();
+       |             ^
+     95| });
+     96|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет
+AssertionError: по id только явно перечисленные маршруты управления: expected [ …(4) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "GET /marketing/site/assistant/:id",
++   "POST /marketing/site/assistant/:id/approve",
++   "PUT /marketing/site/versions/:id/bookmark",
++   "DELETE /marketing/site/versions/:id/bookmark",
++ ]
+
+ ❯ apps/api/src/auth/route-access.test.ts:493:73
+    491|       (key) => /\/(marketing\/site|sites-runtime)\/.*:id/.test(key) &&…
+    492|     );
+    493|     expect(byId, 'по id только явно перечисленные маршруты управления'…
+       |                                                                         ^
+    494|     expect(Object.keys(actual).filter((key) => /^GET .*assets\/:id/.te…
+    495|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 5 passed (7)
+      Tests  1 failed | 88 passed | 12 skipped (101)
+   Start at  07:20:20
+   Duration  7.49s (transform 55%, import 37%, tests 7%)
+
+JSON report written to /tmp/pms-test-2026-10-08T07-20-18Z-unit-f958.json
+
+# код выхода 1 · 9 с

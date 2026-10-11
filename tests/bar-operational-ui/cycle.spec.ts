@@ -8,13 +8,13 @@ test('real BAR cycle persists across browser reloads and reconciles API totals',
   const api = async (path: string) => (await request.get(`http://127.0.0.1:55994/bar/${path}`, { headers: { 'x-wetop-session': session, 'x-wetop-scope': `business=${data.side.business};location=${data.side.location}` } })).json();
   const capture = async (name: string, stock: string) => {
     await page.reload();
-    await expect(page.getByRole('heading', { name: 'Бар', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /^Бар/, level: 1 })).toBeVisible();
     expect((await api('report')).stockCostMinor).toBe(stock);
     await page.screenshot({ path: testInfo.outputPath(`${name}.png`), fullPage: true });
   };
-  await page.goto('/bar');
+  await page.goto('/bar/receipts');
   // The intent control becomes enabled only after the client storage subscription hydrates.
-  await expect(page.locator('.bar-sale-form select[name="method"]')).toBeEnabled();
+  await expect(page.getByRole('heading', { name: 'Бар: приходы', exact: true })).toBeVisible();
   for (const id of [data.r1.id, data.r2.id]) {
     const form = page.locator('form').filter({ has: page.locator(`input[name="id"][value="${id}"]`) });
     await submitServerAction(page, form.getByRole('button', { name: 'Провести', exact: true }));
@@ -27,6 +27,7 @@ test('real BAR cycle persists across browser reloads and reconciles API totals',
   await submitServerAction(page, payment.getByRole('button', { name: 'Оплатить', exact: true }));
   await expect(payment.getByRole('status')).toContainText('Оплата поставщику');
   await capture('supplier-payment', '280000');
+  await page.goto('/bar');
   const retail = page.locator('form').filter({ has: page.getByRole('button', { name: 'Продать', exact: true }) });
   await retail.locator('[name="productId"]').selectOption(data.a.id);
   await retail.locator('[name="quantityUnits"]').fill('12');
@@ -37,9 +38,10 @@ test('real BAR cycle persists across browser reloads and reconciles API totals',
   await folio.locator('[name="folioId"]').selectOption(data.side.folio);
   await folio.locator('[name="productId"]').selectOption(data.a.id);
   await folio.locator('[name="quantityUnits"]').fill('3');
-  await submitServerAction(page, folio.getByRole('button', { name: 'Добавить в счет', exact: true }));
+  await submitServerAction(page, folio.getByRole('button', { name: 'Добавить в счёт', exact: true }));
   await expect(folio.getByRole('status')).toContainText('Товар добавлен');
   await capture('folio-sale', '100000');
+  await page.goto('/bar/operations');
   const writeOff = page.locator('form').filter({ has: page.getByRole('button', { name: 'Списать', exact: true }) });
   await writeOff.locator('[name="productId"]').selectOption(data.a.id);
   await writeOff.locator('[name="quantityUnits"]').fill('1');

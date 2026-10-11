@@ -1,0 +1,37 @@
+# Сквозные (e2e) · 07.10.2026 23:45 Алматы · vm
+# коммит da95b99 (claude/sharp-dirac-6s46fw)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 21 tests using 1 worker
+
+  ✓   1 tests/ui/site-editor.spec.ts:21:1 › открыть голову, править героя, «изменено», сохранить: ревизия растёт, история и разница словами (4.8s)
+  ✓   2 tests/ui/site-editor.spec.ts:50:1 › предпросмотр: с несохранёнными правками просит сохранить, без них открывает ссылку (3.1s)
+  ✓   3 tests/ui/site-editor.spec.ts:64:1 › восстановить старую версию как новый черновик (3.4s)
+  ✓   4 tests/ui/site-editor.spec.ts:75:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (2.8s)
+  ✓   5 tests/ui/site-editor.spec.ts:92:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (3.4s)
+  ✓   6 tests/ui/site-editor.spec.ts:110:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (2.7s)
+  ✓   7 tests/ui/site-editor.spec.ts:129:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (4.1s)
+  ✓   8 tests/ui/site-editor.spec.ts:147:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (2.5s)
+  ✓   9 tests/ui/site-editor.spec.ts:156:1 › добавить секцию, переставить и сделать копию с клавиатуры (2.6s)
+  ✓  10 tests/ui/site-editor.spec.ts:173:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (2.6s)
+  ✓  11 tests/ui/site-editor.spec.ts:185:1 › ИИ всего сайта: в очереди → готово, новая версия, разница; команда как данные (6.0s)
+  ✓  12 tests/ui/site-editor.spec.ts:199:1 › ИИ одной секции: цель выбранная секция, команда необязательна (5.9s)
+  ✓  13 tests/ui/site-editor.spec.ts:209:1 › ИИ с несохранёнными правками недоступен; ошибка ИИ словами, команда на месте (6.1s)
+  ✓  14 tests/ui/site-editor.spec.ts:224:1 › окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор (6.4s)
+  ✓  15 tests/ui/site-editor.spec.ts:245:1 › окно «Создать сайт»: сайт есть без версий, адреса нет; ошибка ИИ словами, текст на месте (5.4s)
+  ✓  16 tests/ui/site-editor.spec.ts:258:3 › окно «Создать сайт»: снимки и доступность, light (6.5s)
+  ✓  17 tests/ui/site-editor.spec.ts:258:3 › окно «Создать сайт»: снимки и доступность, dark (6.2s)
+  ✓  18 tests/ui/site-editor.spec.ts:278:3 › редактор на компьютере, доступность и снимки: light (18.0s)
+  ✓  19 tests/ui/site-editor.spec.ts:323:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: light (6.3s)
+  ✓  20 tests/ui/site-editor.spec.ts:278:3 › редактор на компьютере, доступность и снимки: dark (5.8s)
+  ✓  21 tests/ui/site-editor.spec.ts:323:3 › редактор на телефоне 390: вкладки, без вылета вбок, доступность: dark (6.5s)
+
+  21 passed (2.1m)
+
+# код выхода 0 · 2 мин 10 с

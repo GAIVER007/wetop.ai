@@ -33,4 +33,14 @@ export class WizardController {
   quota(@Headers('x-wizard-token') token: string | undefined) {
     return this.wizard.quota(token);
   }
+  @Post('survey')
+  @Header('Cache-Control', 'no-store')
+  survey(@Headers('x-wizard-token') token: string | undefined, @Body() body: unknown) {
+    return this.wizard.survey(token, body);
+  }
+  @Post('event')
+  @Header('Cache-Control', 'no-store')
+  event(@Headers('x-wizard-token') token: string | undefined, @Body() body: unknown) {
+    return this.wizard.event(token, body);
+  }
 }

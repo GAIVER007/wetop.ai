@@ -3,10 +3,10 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { displayDate } from '../../lib/display-date';
-import { STATUS_WORD } from '../beauty/appointment-status';
 import { clock } from '../beauty/time';
 import { loadBeautyToday } from './vertical-load';
 import { VerticalDay, type DayAttention } from './vertical-day';
+import { beautyStatus } from '../../lib/status/beauty';
 
 /** «Сегодня» салона (MV8): день журнала филиала одним запросом `GET /beauty/appointments` */
 export async function BeautyToday() {
@@ -57,7 +57,7 @@ export async function BeautyToday() {
         time: `${clock(u.startMinutes)}–${clock(u.endMinutes)}`,
         title: u.customer,
         detail: `${u.service}, ${u.master}`,
-        status: STATUS_WORD[u.status],
+        status: beautyStatus[u.status].label,
       }))}
       empty="Записей впереди на сегодня нет."
     />

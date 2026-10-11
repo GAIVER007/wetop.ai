@@ -16,9 +16,9 @@ test('T12 catalog creation, discarded cash draft and linked browser void survive
   const db = new pg.Client({ connectionString: url, options: '-c search_path=pms_test,public' });
   await db.connect();
   try {
-    await page.goto('/bar');
+    await page.goto('/bar/products');
     const name = `Synthetic browser category ${randomUUID()}`;
-    const catalog = page.locator('.bar-catalogs section').filter({ has: page.getByRole('heading', { name: 'Категории', exact: true }) });
+    const catalog = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Категории и наценка', exact: true }) });
     await catalog.locator('[name="name"]').fill(name);
     await catalog.locator('[name="markup"]').fill('25');
     await submitServerAction(page, catalog.getByRole('button', { name: 'Добавить', exact: true }));
@@ -35,6 +35,10 @@ test('T12 catalog creation, discarded cash draft and linked browser void survive
     const cashCount = async () => (await db.query('SELECT count(*)::int AS n FROM cash_operations WHERE property_id=$1', [data.side.property])).rows[0].n;
     const count = await cashCount();
     await page.goto('/finance#cash');
+    const tour = page.getByTestId('product-tour');
+    await expect(tour).toBeVisible();
+    await tour.getByRole('button', { name: 'Пропустить', exact: true }).click();
+    await expect(tour).not.toBeVisible();
     await page.getByTestId('cash-expense-btn').click();
     const draft = page.getByTestId('cash-operation-form');
     await draft.getByTestId('cash-amount').fill('999');

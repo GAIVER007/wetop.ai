@@ -1,0 +1,140 @@
+# Модульные (unit) · 09.10.2026 18:00 Алматы · vm
+# коммит 9895ded (claude/stoic-darwin-hjb5x3), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T13-00-45Z-unit-d69b.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (25 tests | 5 failed) 217ms
+   ❯ свой раннер CI (16)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 2ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 0ms
+     × ни одна проверка не идёт на боевой сервер; пуш в main гоняет только гейт, и только на код (ADR-139, ADR-152) 8ms
+     × перед выкладкой: lint, typecheck, unit, главная, бот, база и весь UI; по кнопке или пушем в release-candidate 3ms
+     ✓ база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся 0ms
+     ✓ наборы салона, ресторана и филиалов входят в гейт выкладки параллельно, на своей базе (MV8.5 DS0a) 0ms
+     ✓ сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026) 0ms
+     ✓ тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота 2ms
+     ✓ образ раннера без sudo: под no-new-privileges он не работает 1ms
+     ✓ образ раннера ставит всё, что Playwright просит для Chromium на Ubuntu 24.04 26ms
+     ✓ проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория 1ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 0ms
+     ❯ автоперемотка release (auto-release.yml, ADR-152, решение владельца 09.10.2026) (3)
+       × слушает только итог гейта и кнопку; права ровно contents: write и actions: read 1ms
+       × перематывает только зелёный main, только вперёд и без --force; по кнопке сверяет гейт через API (ADR-139) 1ms
+       × новые миграции перемотку не останавливают: сервер откажет сам и позовёт владельца (ADR-080, AGENTS.md §15) 1ms
+     ✓ эталоны -linux снимает раннер GitHub по кнопке и кладёт отдельной веткой, не в main и не в release 1ms
+   ✓ свой раннер не выполняет код из чужого форка (ADR-137) (5)
+     ✓ образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh 1ms
+     ✓ запрос на слияние из форка: отказ, задача краснеет, а не пропускается 22ms
+     ✓ форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ 29ms
+     ✓ ветка самого репозитория и пуш в main выполняются 32ms
+     ✓ нет файла события или он битый: отказ, а не молчаливый пропуск проверки 17ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся 9ms
+     ✓ токен с пробелом или в кавычках и адрес не GitHub: тоже отказ 25ms
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 23ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > ни одна проверка не идёт на боевой сервер; пуш в main гоняет только гейт, и только на код (ADR-139, ADR-152)
+AssertionError: expected '  workflow_dispatch:\n  push:\n    br…' to contain 'paths-ignore:'
+
+- Expected
++ Received
+
+- paths-ignore:
++   workflow_dispatch:
++   push:
++     branches: [release-candidate]
++
+
+ ❯ tests/unit/ci-runner.test.ts:79:16
+     77|     // документы и отчёты гейт не гоняют: они выкладки не требуют, а м…
+     78|     const on = withoutComments(/\non:\n([\s\S]*?)\n(?=\S)/.exec(RELEAS…
+     79|     expect(on).toContain('paths-ignore:');
+       |                ^
+     80|     for (const path of ["'*.md'", "'docs/**'", "'plans/**'", "'reports…
+     81|       expect(on, path).toContain(path);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > перед выкладкой: lint, typecheck, unit, главная, бот, база и весь UI; по кнопке или пушем в release-candidate
+AssertionError: expected '  workflow_dispatch:\n  push:\n    br…' to match /push:\n\s+branches: \[release-candida…/
+
+- Expected:
+/push:\n\s+branches: \[release-candidate, main\]/
+
++ Received:
+"  workflow_dispatch:
+  push:
+    branches: [release-candidate]
+"
+
+ ❯ tests/unit/ci-runner.test.ts:89:22
+     87|     expect(triggers).toContain('workflow_dispatch:');
+     88|     // c 09.10.2026 (ADR-152) гейт идёт и на пуш кода в main: зелёный …
+     89|     expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate,…
+       |                      ^
+     90|     for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui'])
+     91|       expect(job(name), name).toMatch(/runs-on: ubuntu-24\.04/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > автоперемотка release (auto-release.yml, ADR-152, решение владельца 09.10.2026) > слушает только итог гейта и кнопку; права ровно contents: write и actions: read
+AssertionError: .github/workflows/auto-release.yml: expected '' not to be '' // Object.is equality
+ ❯ tests/unit/ci-runner.test.ts:181:62
+    179|
+    180|     it('слушает только итог гейта и кнопку; права ровно contents: writ…
+    181|       expect(AUTO, '.github/workflows/auto-release.yml').not.toBe('');
+       |                                                              ^
+    182|       const run = withoutComments(AUTO);
+    183|       const on = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > автоперемотка release (auto-release.yml, ADR-152, решение владельца 09.10.2026) > перематывает только зелёный main, только вперёд и без --force; по кнопке сверяет гейт через API (ADR-139)
+AssertionError: expected '' to contain 'github.event.workflow_run.conclusion …'
+
+- Expected
++ Received
+
+- github.event.workflow_run.conclusion == 'success'
+
+ ❯ tests/unit/ci-runner.test.ts:193:19
+    191|     it('перематывает только зелёный main, только вперёд и без --force;…
+    192|       const run = withoutComments(AUTO);
+    193|       expect(run).toContain("github.event.workflow_run.conclusion == '…
+       |                   ^
+    194|       expect(run).toContain("github.event.workflow_run.head_branch == …
+    195|       expect(run).toContain('release-checks.yml/runs?head_sha=');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > автоперемотка release (auto-release.yml, ADR-152, решение владельца 09.10.2026) > новые миграции перемотку не останавливают: сервер откажет сам и позовёт владельца (ADR-080, AGENTS.md §15)
+AssertionError: expected '' to contain 'packages/database/prisma/migrations'
+
+- Expected
++ Received
+
+- packages/database/prisma/migrations
+
+ ❯ tests/unit/ci-runner.test.ts:205:19
+    203|     it('новые миграции перемотку не останавливают: сервер откажет сам …
+    204|       const run = withoutComments(AUTO);
+    205|       expect(run).toContain('packages/database/prisma/migrations');
+       |                   ^
+    206|       expect(run).toContain('--migrations-applied');
+    207|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 20 passed (25)
+   Start at  13:00:46
+   Duration  531ms (tests 59%, transform 33%, import 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T13-00-45Z-unit-d69b.json
+
+# код выхода 1 · 2 с

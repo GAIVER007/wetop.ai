@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 07.10.2026 18:02 Алматы · MacBook-Air-Urij.local
+# коммит dcb9e53 (codex/public-2-visual-slice-1)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '--grep' 'business positioning'
+[WebServer] (node:98032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98107) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98106) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:98122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/site/public-intro.spec.ts:102:1 › business positioning and centered mobile cards without maturity labels (10.6s)
+
+
+  1) tests/site/public-intro.spec.ts:102:1 › business positioning and centered mobile cards without maturity labels 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: locator('.public-intro')
+    Expected pattern: not /пилот|Beauty|Food Service/i
+    Received string: "Платформа для ежедневной работы бизнесаУправляйте бизнесом из одного окнаКлиенты, бронирования и записи, команда и работа филиалов в одном пространстве. Для гостиничного бизнеса, салонов и ресторанов, с инструментами под каждое направление.РегистрацияСмотреть возможностиHospitalityДоступноBeautyПилотFood ServiceПилотРаботает в браузере. Пилотные направления подключаются по приглашению.WETOP.AIСегодняКалендарь размещенийБрониГостиКомандаДемо-пространствоДемо-гостиница, HospitalityСегодня10 октября, примерБлижайшие события12:00Выезд, DEMO-001Демо-гость 01, Номер 12Проживает14:00Заезд, DEMO-002Демо-гость 02, Номер 08Подтверждено15:00Заезд, DEMO-003Демо-гость 03, Койка 04ПодтвержденоТребует вниманияНазначить местоDEMO-004, Категория «Стандарт»Проверить данные гостяDEMO-002, Предстоящий заездПример интерфейса. Данные вымышленные."
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "not toContainText" locator('.public-intro') with timeout 10000ms
+      - waiting for locator('.public-intro')
+        24 × locator resolved to <section id="product" class="public-intro" aria-labelledby="hero-title">…</section>
+           - unexpected value "Платформа для ежедневной работы бизнесаУправляйте бизнесом из одного окнаКлиенты, бронирования и записи, команда и работа филиалов в одном пространстве. Для гостиничного бизнеса, салонов и ресторанов, с инструментами под каждое направление.РегистрацияСмотреть возможностиHospitalityДоступноBeautyПилотFood ServiceПилотРаботает в браузере. Пилотные направления подключаются по приглашению.WETOP.AIСегодняКалендарь размещенийБрониГостиКомандаДемо-пространствоДемо-гостиница, HospitalityСегодня10 октября, примерБлижайшие события12:00Выезд, DEMO-001Демо-гость 01, Номер 12Проживает14:00Заезд, DEMO-002Демо-гость 02, Номер 08Подтверждено15:00Заезд, DEMO-003Демо-гость 03, Койка 04ПодтвержденоТребует вниманияНазначить местоDEMO-004, Категория «Стандарт»Проверить данные гостяDEMO-002, Предстоящий заездПример интерфейса. Данные вымышленные."
+
+
+      104 |   await page.goto('/');
+      105 |   const intro = page.locator('.public-intro');
+    > 106 |   await expect(intro).not.toContainText(/пилот|Beauty|Food Service/i);
+          |                           ^
+      107 |   for (const label of ['Гостиничный бизнес', 'Ресторанный бизнес', 'Салоны красоты']) await expect(intro).toContainText(label);
+      108 |   const cards = page.locator('.verticals__card');
+      109 |   await expect(cards).not.toContainText(/пилот/i);
+        at /private/tmp/wetop-public1-20261007/tests/site/public-intro.spec.ts:106:27
+
+    Error Context: test-results/public-intro-business-posi-8da6f-rds-without-maturity-labels/error-context.md
+
+  1 failed
+    tests/site/public-intro.spec.ts:102:1 › business positioning and centered mobile cards without maturity labels 
+
+# код выхода 1 · 31 с

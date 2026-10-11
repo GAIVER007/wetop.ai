@@ -17,7 +17,12 @@ const row = {
   hasFolios: true,
   unitCodes: ['R01', 'R02'],
   itemsCount: 2,
-  primaryGuest: { id: 'g1', label: 'Вымышленный Гость', phone: '+77010000000', email: 'x@example.invalid' },
+  primaryGuest: {
+    id: 'g1',
+    label: 'Вымышленный Гость',
+    phone: '+77010000000',
+    email: 'x@example.invalid',
+  },
 };
 
 describe('reservationsCsv (H11, ADR-144)', () => {
@@ -29,7 +34,7 @@ describe('reservationsCsv (H11, ADR-144)', () => {
       '\uFEFFБронь;Статус;Источник;Канал;Заезд;Выезд;Ночей;Размещений;Места;Сумма, ₸;Оплачено, ₸;Остаток, ₸',
     );
     expect(line).toBe(
-      '20260913-TEST1;подтверждена;Канал продаж;Booking.com;05.10.2026;08.10.2026;3;2;R01 R02;24000,00;1000,50;22999,50',
+      '20260913-TEST1;Подтверждена;Канал продаж;Booking.com;05.10.2026;08.10.2026;3;2;R01 R02;24000,00;1000,50;22999,50',
     );
     expect(csv).not.toContain('Вымышленный');
     expect(csv).not.toContain('+7701');

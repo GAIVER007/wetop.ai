@@ -1,391 +1,396 @@
 /* Scoped channel workspace: summaries stay visible; operational detail is expandable. */
-.page:has(.channels-tabs) {
-  padding-top: 16px;
-}
-.page:has(.channels-tabs) > .page__head {
-  margin-bottom: 16px;
-}
-.page:has(.channels-tabs) .page__title {
-  font-size: 28px;
-}
-.channels-tabs {
-  gap: 4px;
-  margin-bottom: 16px;
-}
-.channels-tabs a {
-  padding: 8px 16px;
-  font-size: 14px;
-}
-.channels-overview {
-  gap: 16px;
-}
-.channels-overview > .state-bar {
-  padding: 16px 16px;
-  gap: 16px;
-  margin: 0;
-  grid-template-columns: minmax(210px, 1fr) 2fr;
-}
-.channels-overview .state-bar__value {
-  font-size: 20px;
-  line-height: 1.25;
-}
-.channels-overview .state-bar__summary {
-  font-size: 12px;
-  margin-top: 4px;
-}
-.channels-overview .state-bar__facts {
-  gap: 16px;
-}
-.channels-overview .state-bar__facts dt {
-  font-size: 12px;
-}
-.channels-overview .state-bar__facts dd {
-  font-size: 15px;
-}
-.channels-overview .state-bar__sub {
-  font-size: 12px;
-}
-.channels-report {
-  gap: 8px;
-  min-width: 0;
-}
-.channels-report h2 {
-  font-size: 17px;
-}
-.channels-report .note {
-  font-size: 12px;
-  margin: 0;
-}
-.channels-period {
-  gap: 8px;
-  align-items: end;
-}
-.channels-period .field {
-  flex: 0 1 180px;
-}
-/* Компактная полоса периода: 36 px только на компьютере. На телефоне цель нажатия не ниже 44 px
- * (DESIGN.md), иначе это правило перебивает общее и даёт поля и кнопку по 36–40 px. */
-@media (min-width: 601px) {
-  .channels-period input,
-  .channels-period select,
-  .channels-period button {
-    min-height: 36px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    font-size: 13px;
+@layer sections {
+  /* Перенесено из management/hotel.css (MV8.5 DS0b): раньше грузилось из layout.tsx */
+  .channel-amount {
+    display: grid;
+    gap: var(--space-1);
+    font-variant-numeric: tabular-nums;
   }
-}
-.channels-period label {
-  font-size: 12px;
-}
-.channels-report .stats {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-}
-.channels-report .stat {
-  padding: 16px 16px;
-  text-align: left;
-}
-.channels-report .stat__label {
-  font-size: 12px;
-}
-.channels-report .stat__value {
-  font-size: 24px;
-  line-height: 1.2;
-  margin: 4px 0;
-}
-.channels-report .stat__hint {
-  font-size: 12px;
-}
-.channels-report .dir-table th {
-  padding: 8px 16px;
-  font-size: 12px;
-}
-.channels-report .dir-table td {
-  padding: 8px 16px;
-  font-size: 13px;
-}
-.channels-report .cell-sub {
-  font-size: 12px;
-}
-.channels-overview .context-help {
-  margin: 0;
-  font-size: 12px;
-}
-.channels-overview .context-help > summary {
-  padding: 8px 0;
-}
-.channels-report .empty-state {
-  padding: 24px;
-  min-height: 0;
-}
-.channels-report .empty-state__title {
-  font-size: 16px;
-}
-.channels-report .empty-state__text {
-  font-size: 13px;
-}
-@media (max-width: 800px) {
-  .channels-overview > .state-bar {
-    grid-template-columns: 1fr;
+  .page:has(.channels-tabs) {
+    padding-top: 16px;
   }
-  .channels-report .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .page:has(.channels-tabs) > .page__head {
+    margin-bottom: 16px;
   }
-  .channels-period .field {
-    flex: 1 1 140px;
+  .page:has(.channels-tabs) .page__title {
+    font-size: 28px;
   }
   .channels-tabs {
-    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 16px;
   }
   .channels-tabs a {
-    padding: 8px 8px;
-  }
-}
-/* Не на телефоне: там нижний отступ держит место под нижнюю навигацию (workspace.css) */
-@media (min-width: 601px) {
-  .page:has(.channels-overview) {
-    padding-bottom: 16px;
-  }
-}
-.channels-overview .state-bar__state {
-  border: 0;
-  padding-left: 0;
-}
-.channels-overview .state-bar__state p {
-  margin: 4px 0 0;
-}
-.channels-overview > .alert {
-  padding: 8px 16px;
-  font-size: 12px;
-}
-.channels-report > .section-title {
-  margin: 0;
-}
-.channels-report > .channels-period {
-  padding: 0;
-  margin: 0;
-  background: none;
-  border: 0;
-  box-shadow: none;
-}
-.channels-report > .stats {
-  margin: 0;
-}
-.channels-report .stat {
-  min-height: 0;
-  display: block;
-}
-.channels-report .table-scroll {
-  margin: 0;
-}
-.channels-report .dir-table td {
-  height: auto;
-  padding: 8px 16px;
-}
-.channels-report .dir-table .cell-sub {
-  display: inline;
-  margin-left: 8px;
-}
-.channels-overview .context-help > summary {
-  padding: 4px 0;
-}
-@media (min-width: 1000px) {
-  .channels-report .dir-table td {
-    padding-block: 4px;
-  }
-  .channels-report {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-  }
-  .channels-report > .section-title {
-    grid-column: 1;
-  }
-  .channels-report > .note {
-    grid-column: 2;
-    text-align: right;
-  }
-  .channels-report > :not(.section-title):not(.note) {
-    grid-column: 1 / -1;
-  }
-}
-.channels-report .stat__label {
-  margin: 0;
-}
-.channels-report .stat {
-  padding: 8px 16px;
-}
-.channels-overview > .state-bar {
-  min-height: 0;
-  padding: 8px 16px;
-}
-.channels-overview .fact__label {
-  margin: 0;
-  font-size: 12px;
-}
-.channels-overview .state-bar__state {
-  min-height: 0;
-}
-.channels-overview .state-bar__facts dd {
-  margin: 4px 0 0;
-}
-.channels-overview .state-bar__summary {
-  line-height: 1.35;
-}
-.channels-overview {
-  gap: 8px;
-}
-.channels-period .field {
-  gap: 4px;
-}
-.channels-tabs {
-  margin-bottom: 8px;
-  padding: 4px;
-}
-@media (min-width: 1000px) {
-  .page:has(.channels-overview) {
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
   }
   .channels-overview {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
   }
-  .channels-overview > * {
-    grid-column: 1 / -1;
+  .channels-overview > .state-bar {
+    padding: 16px 16px;
+    gap: 16px;
+    margin: 0;
+    grid-template-columns: minmax(210px, 1fr) 2fr;
   }
-  .channels-overview > details:not([open]) {
-    grid-column: auto;
+  .channels-overview .state-bar__value {
+    font-size: 20px;
+    line-height: 1.25;
   }
-}
-
-/* Раздел «Каналы» (ADR-140): подвкладки, поиск, таблица подключений и окно Channex */
-.channel-list__bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-.channel-list__tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  border-bottom: 1px solid var(--border);
-}
-.channel-list__tabs a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 8px 16px;
-  color: var(--muted);
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-}
-.channel-list__tabs a[aria-current='page'] {
-  color: var(--text);
-  border-bottom-color: var(--primary);
-  font-weight: 600;
-}
-.channel-list__count {
-  min-width: 24px;
-  padding: 0 8px;
-  border-radius: var(--radius-full);
-  background: var(--surface-muted);
-  font-size: var(--text-xs);
-  text-align: center;
-}
-.channel-list__search {
-  max-width: 360px;
-}
-.channel-list__sub {
-  display: block;
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-.channel-list__actions {
-  text-align: right;
-}
-.channex-window.ui-overlay {
-  width: min(1100px, calc(100vw - 32px));
-}
-.channex-window__frame {
-  display: block;
-  width: 100%;
-  height: min(720px, calc(100vh - 280px));
-  margin: 8px 0 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  background: var(--surface);
-}
-
-/* Телефон: строка подключения — карточка (как «Проживания» в directory.css), без прокрутки таблицы вбок */
-@media (max-width: 600px) {
-  .tbl.channel-table--connections,
-  .channel-table--connections tbody {
-    display: block;
-    width: 100%;
+  .channels-overview .state-bar__summary {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .channels-overview .state-bar__facts {
+    gap: 16px;
+  }
+  .channels-overview .state-bar__facts dt {
+    font-size: 12px;
+  }
+  .channels-overview .state-bar__facts dd {
+    font-size: 15px;
+  }
+  .channels-overview .state-bar__sub {
+    font-size: 12px;
+  }
+  .channels-report {
+    gap: 8px;
     min-width: 0;
   }
-  .channel-table--connections thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
+  .channels-report h2 {
+    font-size: 17px;
   }
-  .channel-table--connections tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 16px;
-    align-items: center;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
+  .channels-report .note {
+    font-size: 12px;
+    margin: 0;
   }
-  .channel-table--connections tbody tr:last-child {
-    border-bottom: 0;
+  .channels-period {
+    gap: 8px;
+    align-items: end;
   }
-  .channel-table--connections tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
+  .channels-period .field {
+    flex: 0 1 180px;
+  } /* Компактная полоса периода: 36 px только на компьютере. На телефоне цель нажатия не ниже 44 px
+ * (DESIGN.md), иначе это правило перебивает общее и даёт поля и кнопку по 36–40 px. */
+  @media (min-width: 601px) {
+    .channels-period input,
+    .channels-period select,
+    .channels-period button {
+      min-height: 36px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      font-size: 13px;
+    }
+  }
+  .channels-period label {
+    font-size: 12px;
+  }
+  .channels-report .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .channels-report .stat {
+    padding: 16px 16px;
     text-align: left;
   }
-  .channel-table--connections tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
+  .channels-report .stat__label {
+    font-size: 12px;
   }
-  .channel-table--connections tbody td:nth-child(6) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
+  .channels-report .stat__value {
+    font-size: 24px;
+    line-height: 1.2;
+    margin: 4px 0;
   }
-  .channel-table--connections tbody td:nth-child(5) {
-    grid-column: 1 / -1;
-    grid-row: 2;
+  .channels-report .stat__hint {
+    font-size: 12px;
   }
-  .channel-table--connections tbody td:nth-child(2) {
-    grid-column: 1;
-    grid-row: 3;
+  .channels-report .dir-table th {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  .channels-report .dir-table td {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  .channels-report .cell-sub {
+    font-size: 12px;
+  }
+  .channels-overview .context-help {
+    margin: 0;
+    font-size: 12px;
+  }
+  .channels-overview .context-help > summary {
+    padding: 8px 0;
+  }
+  .channels-report .empty-state {
+    padding: 24px;
+    min-height: 0;
+  }
+  .channels-report .empty-state__title {
+    font-size: 16px;
+  }
+  .channels-report .empty-state__text {
+    font-size: 13px;
+  }
+  @media (max-width: 800px) {
+    .channels-overview > .state-bar {
+      grid-template-columns: 1fr;
+    }
+    .channels-report .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .channels-period .field {
+      flex: 1 1 140px;
+    }
+    .channels-tabs {
+      flex-wrap: wrap;
+    }
+    .channels-tabs a {
+      padding: 8px 8px;
+    }
+  } /* Не на телефоне: там нижний отступ держит место под нижнюю навигацию (workspace.css) */
+  @media (min-width: 601px) {
+    .page:has(.channels-overview) {
+      padding-bottom: 16px;
+    }
+  }
+  .channels-overview .state-bar__state {
+    border: 0;
+    padding-left: 0;
+  }
+  .channels-overview .state-bar__state p {
+    margin: 4px 0 0;
+  }
+  .channels-overview > .alert {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  .channels-report > .section-title {
+    margin: 0;
+  }
+  .channels-report > .channels-period {
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+  .channels-report > .stats {
+    margin: 0;
+  }
+  .channels-report .stat {
+    min-height: 0;
+    display: block;
+  }
+  .channels-report .table-scroll {
+    margin: 0;
+  }
+  .channels-report .dir-table td {
+    height: auto;
+    padding: 8px 16px;
+  }
+  .channels-report .dir-table .cell-sub {
+    display: inline;
+    margin-left: 8px;
+  }
+  .channels-overview .context-help > summary {
+    padding: 4px 0;
+  }
+  @media (min-width: 1000px) {
+    .channels-report .dir-table td {
+      padding-block: 4px;
+    }
+    .channels-report {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+    .channels-report > .section-title {
+      grid-column: 1;
+    }
+    .channels-report > .note {
+      grid-column: 2;
+      text-align: right;
+    }
+    .channels-report > :not(.section-title):not(.note) {
+      grid-column: 1 / -1;
+    }
+  }
+  .channels-report .stat__label {
+    margin: 0;
+  }
+  .channels-report .stat {
+    padding: 8px 16px;
+  }
+  .channels-overview > .state-bar {
+    min-height: 0;
+    padding: 8px 16px;
+  }
+  .channels-overview .fact__label {
+    margin: 0;
+    font-size: 12px;
+  }
+  .channels-overview .state-bar__state {
+    min-height: 0;
+  }
+  .channels-overview .state-bar__facts dd {
+    margin: 4px 0 0;
+  }
+  .channels-overview .state-bar__summary {
+    line-height: 1.35;
+  }
+  .channels-overview {
+    gap: 8px;
+  }
+  .channels-period .field {
+    gap: 4px;
+  }
+  .channels-tabs {
+    margin-bottom: 8px;
+    padding: 4px;
+  }
+  @media (min-width: 1000px) {
+    .page:has(.channels-overview) {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .channels-overview {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .channels-overview > * {
+      grid-column: 1 / -1;
+    }
+    .channels-overview > details:not([open]) {
+      grid-column: auto;
+    }
+  } /* Раздел «Каналы» (ADR-140): подвкладки, поиск, таблица подключений и окно Channex */
+  .channel-list__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .channel-list__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .channel-list__tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 16px;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+  }
+  .channel-list__tabs a[aria-current='page'] {
+    color: var(--text);
+    border-bottom-color: var(--primary);
+    font-weight: 600;
+  }
+  .channel-list__count {
+    min-width: 24px;
+    padding: 0 8px;
+    border-radius: var(--radius-full);
+    background: var(--surface-muted);
+    font-size: var(--text-xs);
+    text-align: center;
+  }
+  .channel-list__search {
+    max-width: 360px;
+  }
+  .channel-list__sub {
+    display: block;
+    margin-top: 4px;
+    font-size: var(--text-xs);
+  }
+  /* приглушённый цвет только у подписи-текста: ссылку в таблице красит .tbl a (цвет ячейки) */
+  span.channel-list__sub {
     color: var(--muted);
   }
-  .channel-table--connections tbody td:nth-child(2)::before {
-    content: 'ID в канале: ';
+  .channel-list__actions {
+    text-align: right;
   }
-  .channel-table--connections tbody td:nth-child(4) {
-    grid-column: 1 / -1;
-    grid-row: 4;
+  .channex-window.ui-overlay {
+    width: min(1100px, calc(100vw - 32px));
   }
-  .channel-table--connections tbody td:nth-child(4)::before {
-    content: 'Брони за 30 дней: ';
-    color: var(--muted);
-  }
-  .channel-table--connections tbody td:nth-child(3) {
-    display: none;
+  .channex-window__frame {
+    display: block;
+    width: 100%;
+    height: min(720px, calc(100vh - 280px));
+    margin: 8px 0 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+  } /* Телефон: строка подключения — карточка (как «Проживания» в directory.css), без прокрутки таблицы вбок */
+  @media (max-width: 600px) {
+    .tbl.channel-table--connections,
+    .channel-table--connections tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .channel-table--connections thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .channel-table--connections tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4px 16px;
+      align-items: center;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .channel-table--connections tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .channel-table--connections tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+      text-align: left;
+    }
+    .channel-table--connections tbody td:nth-child(1) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .channel-table--connections tbody td:nth-child(6) {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .channel-table--connections tbody td:nth-child(5) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .channel-table--connections tbody td:nth-child(2) {
+      grid-column: 1;
+      grid-row: 3;
+      color: var(--muted);
+    }
+    .channel-table--connections tbody td:nth-child(2)::before {
+      content: 'ID в канале: ';
+    }
+    .channel-table--connections tbody td:nth-child(4) {
+      grid-column: 1 / -1;
+      grid-row: 4;
+    }
+    .channel-table--connections tbody td:nth-child(4)::before {
+      content: 'Брони за 30 дней: ';
+      color: var(--muted);
+    }
+    .channel-table--connections tbody td:nth-child(3) {
+      display: none;
+    }
   }
 }

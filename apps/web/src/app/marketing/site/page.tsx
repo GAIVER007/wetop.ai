@@ -45,9 +45,14 @@ export default async function MarketingSitePage() {
       title={title}
       subtitle="Предпросмотр, публикация и откат управляемого сайта филиала."
       actions={
-        <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="publication-assets-link">
-          Изображения сайта
-        </Link>
+        <>
+          <Link className="btn btn--secondary" href="/marketing/site/editor" data-testid="publication-editor-link">
+            Редактор сайта
+          </Link>
+          <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="publication-assets-link">
+            Изображения сайта
+          </Link>
+        </>
       }
     >
       {site && loaded.journal && loaded.booking ? (

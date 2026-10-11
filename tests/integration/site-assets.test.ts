@@ -20,6 +20,7 @@ import { MemorySiteAssetStorage, SITE_ASSET_STORAGE } from '../../apps/api/src/m
 import { ASSET_FETCH_DEPS, channexPhotoId, resetAssetRateLimit } from '../../apps/api/src/marketing-site/site-assets.service';
 import type { SafeFetchDeps } from '../../apps/api/src/marketing-site/asset-fetch';
 import { purgeAuditRows } from '../tools/audit-purge';
+import { grantSiteBuilder, purgeSiteBuilderRows } from '../tools/site-builder';
 import { isLocalDatabase } from '../tools/seed-local';
 
 /**
@@ -143,8 +144,9 @@ describe.skipIf(!url)('MKT8 библиотека изображений сайт
     return { status: res.status, body: text ? JSON.parse(text) : null };
   }
   async function createSite(key: keyof typeof L) {
-    const res = await call('POST', '/marketing/site', { location: L[key], body: { name: `MKT8 ${key}`, slug: `mkt8-${key}-${randomUUID().slice(0, 6)}` } });
-    expect(res.status).toBe(201);
+    // MKT9.2: сайт заводится пустым телом, имя и адрес из филиала
+    const res = await call('POST', '/marketing/site/bootstrap', { location: L[key], body: {} });
+    expect(res.status, JSON.stringify(res.body)).toBe(201);
   }
   async function save(key: keyof typeof L, spec: Spec) {
     const site = await siteRow(key);
@@ -239,6 +241,8 @@ describe.skipIf(!url)('MKT8 библиотека изображений сайт
       });
       await db.channelMapping.create({ data: { propertyId: P[key]!, provider: 'channex', providerPropertyId: `cx-${key}-${locationId.slice(0, 6)}` } });
     }
+    // MKT9.2: запись сайта и картинок только при действующей лицензии филиала
+    await grantSiteBuilder(db, [...Object.values(L), lx]);
     const module = await Test.createTestingModule({ imports: [MarketingSiteModule, SitesRuntimeModule] })
       .overrideProvider(PrismaService)
       .useValue({ db })
@@ -274,6 +278,7 @@ describe.skipIf(!url)('MKT8 библиотека изображений сайт
     vi.unstubAllEnvs();
     const orgs = [org, orgB];
     if (sql) {
+      await purgeSiteBuilderRows(sql, [org, orgB]);
       const siteIds = `SELECT s.id FROM marketing_sites s JOIN locations l ON l.id = s.location_id
         JOIN businesses b ON b.id = l.business_id WHERE b.organization_id = ANY($1::uuid[])`;
       await sql.query('BEGIN');
@@ -589,6 +594,7 @@ describe.skipIf(!url)('MKT8 хранилище не настроено', () => {
     await db.user.create({ data: { id: user, email: `mkt8-off-${user}@example.invalid`, passwordHash: 'x' } });
     await db.business.create({ data: { id: hotel, organizationId: org, name: 'Hotel', vertical: 'HOSPITALITY' } });
     await db.location.create({ data: { id: loc, businessId: hotel, name: 'Off', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    await grantSiteBuilder(db, loc);
     const module = await Test.createTestingModule({ imports: [MarketingSiteModule] })
       .overrideProvider(PrismaService)
       .useValue({ db })
@@ -611,6 +617,7 @@ describe.skipIf(!url)('MKT8 хранилище не настроено', () => {
     await app?.close();
     if (db) {
       await purgeAuditRows(db, { organizationId: org });
+      await db.siteBuilderEntitlement.deleteMany({ where: { locationId: loc } });
       await db.location.deleteMany({ where: { id: loc } });
       await db.business.deleteMany({ where: { id: hotel } });
       await db.user.deleteMany({ where: { id: user } });

@@ -1,0 +1,45 @@
+# Сквозные (e2e) · 08.10.2026 10:50 Алматы · vm
+# коммит 10f23ca (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 70
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 29 tests using 1 worker
+
+  ✓   1 tests/ui/marketing.spec.ts:25:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (4.1s)
+  ✓   2 tests/ui/marketing.spec.ts:61:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (5.9s)
+  ✓   3 tests/ui/marketing.spec.ts:86:1 › хаб: карточка «Сайт и SEO» ведёт на /website, будущие продукты без ссылок, ни одного запроса данных (1.8s)
+  ✓   4 tests/ui/marketing.spec.ts:137:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.1s)
+  ✓   5 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: light (4.4s)
+  ✓   6 tests/ui/marketing.spec.ts:159:3 › хаб на компьютере и телефоне, доступность: dark (4.7s)
+  ✓   7 tests/ui/marketing.spec.ts:200:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (5.0s)
+  ✓   8 tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами (3.3s)
+  ✓   9 tests/ui/site-editor.spec.ts:75:1 › просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит (2.5s)
+  ✓  10 tests/ui/site-editor.spec.ts:93:1 › открыть в новой вкладке: с несохранёнными правками просит сохранить, без них открывает ссылку (2.7s)
+  ✓  11 tests/ui/site-editor.spec.ts:108:1 › восстановить старую версию как новый черновик (2.8s)
+  ✓  12 tests/ui/site-editor.spec.ts:121:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (1.9s)
+  ✓  13 tests/ui/site-editor.spec.ts:139:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (2.4s)
+  ✓  14 tests/ui/site-editor.spec.ts:157:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (2.4s)
+  ✓  15 tests/ui/site-editor.spec.ts:176:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (2.4s)
+  ✓  16 tests/ui/site-editor.spec.ts:194:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (1.6s)
+  ✓  17 tests/ui/site-editor.spec.ts:204:1 › добавить секцию, переставить и сделать копию с клавиатуры (2.2s)
+  ✓  18 tests/ui/site-editor.spec.ts:226:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (1.6s)
+  ✓  19 tests/ui/site-editor.spec.ts:239:1 › ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было (7.0s)
+  ✓  20 tests/ui/site-editor.spec.ts:265:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна (5.6s)
+  ✓  21 tests/ui/site-editor.spec.ts:283:1 › ИИ с несохранёнными правками: «Сохранить и отправить» сохраняет версию, ошибка ИИ словами, «Повторить запрос» (5.9s)
+  ✓  22 tests/ui/site-editor.spec.ts:300:1 › окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор (5.0s)
+  ✓  23 tests/ui/site-editor.spec.ts:322:1 › окно «Создать сайт»: сайт есть без версий, адреса нет; ошибка ИИ словами, текст на месте (4.7s)
+  ✓  24 tests/ui/site-editor.spec.ts:335:3 › окно «Создать сайт»: снимки и доступность, light (4.2s)
+  ✓  25 tests/ui/site-editor.spec.ts:335:3 › окно «Создать сайт»: снимки и доступность, dark (3.9s)
+  ✓  26 tests/ui/site-editor.spec.ts:355:3 › редактор на компьютере, доступность и снимки: light (13.7s)
+  ✓  27 tests/ui/site-editor.spec.ts:408:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light (5.9s)
+  ✓  28 tests/ui/site-editor.spec.ts:355:3 › редактор на компьютере, доступность и снимки: dark (5.4s)
+  ✓  29 tests/ui/site-editor.spec.ts:408:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark (5.5s)
+
+  29 passed (2.6m)
+
+# код выхода 0 · 2 мин 37 с

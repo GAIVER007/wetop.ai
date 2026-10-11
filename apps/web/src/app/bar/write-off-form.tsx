@@ -8,7 +8,7 @@ import { writeOffBarAction } from './actions';
 export function WriteOffForm({ stock, scope, readOnly }: { stock: BarStockRow[]; scope: string; readOnly: boolean }) {
   const { state, dispatch, pending, intent, storageError, ready, newIntent } = useBarIntent(scope, 'WRITE_OFF', writeOffBarAction);
   const available = stock.filter((item) => (item.active && BigInt(item.availableUnits) > 0n) || item.id === intent?.payload.productId);
-  return <form action={dispatch} className="panel bar-sale-form">
+  return <form action={dispatch} className="bar-sale-form">
     <fieldset key={intent?.key ?? 'new'} className="bar-intent-fields" disabled={readOnly || pending || !!intent || !!storageError || !ready}>
     <Field label="Товар"><Select name="productId" required defaultValue={intent?.payload.productId ?? ""}><option value="" disabled>Выберите товар</option>{available.map((item) => <option key={item.id} value={item.id}>{item.name}, остаток {item.availableUnits} шт.</option>)}</Select></Field>
     <Field label="Кол-во, шт."><Input name="quantityUnits" defaultValue={intent?.payload.quantityUnits ?? ""} inputMode="numeric" pattern="[0-9]+" required /></Field>

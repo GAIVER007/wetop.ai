@@ -20,6 +20,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { DeskModule } from './desk/desk.module';
 import { FinanceModule } from './finance/finance.module';
 import { MarketModule } from './market/market.module';
+import { SalesModule } from './sales/sales.module';
 import { FreshnessModule } from './freshness/freshness.module';
 import { GuardModule } from './guard/guard.module';
 import { HealthModule } from './health/health.module';
@@ -31,6 +32,7 @@ import { MarketingSiteModule } from './marketing-site/marketing-site.module';
 import { SitesRuntimeModule } from './sites-runtime/sites-runtime.module';
 import { BeautyModule } from './beauty/beauty.module';
 import { HotelModule } from './hotel/hotel.module';
+import { PropertyMediaModule } from './hotel/property-media';
 import { PlatformModule } from './platform/platform.module';
 import { RatesModule } from './rates/rates.module';
 import { ReservationsModule } from './reservations/reservations.module';
@@ -56,6 +58,7 @@ import { DataConnectionModule } from './database/connection';
     MarketingSiteModule,
     SitesRuntimeModule,
     HotelModule,
+    PropertyMediaModule,
     ChessboardModule,
     ReservationsModule,
     ChannelsModule,
@@ -66,6 +69,7 @@ import { DataConnectionModule } from './database/connection';
     AuditModule,
     FinanceModule,
     MarketModule,
+    SalesModule,
     DeskModule,
     DashboardModule,
     AnalyticsModule,

@@ -12,6 +12,10 @@ import {
   checkInvite,
   invitableRoles,
   parseInviteRole,
+  parseScopeAssignments,
+  membershipRoleFor,
+  validateAssignments,
+  type ScopeAssignment,
   type MembershipRole,
   checkSession,
   describeUserAgent,
@@ -28,6 +32,7 @@ import {
   ACCOUNTS_REPOSITORY,
   type AccountsRepository,
   type InviteRecord,
+  type OrganizationStructure,
   type SessionRecord,
 } from './accounts.repository';
 import type { Actor } from './actor';
@@ -52,6 +57,11 @@ export interface InviteView {
   role: MembershipRole;
   /** Может ли этот вошедший его отозвать: тот, кто вправе позвать с этой ролью */
   revocable: boolean;
+  /** Что указал пригласивший (DATA_MODEL §31.3) и назначения; пусто: вся организация */
+  firstName: string | null;
+  lastName: string | null;
+  position: string | null;
+  scopes: ScopeAssignment[];
 }
 
 /** Строка списка «Сотрудники» (ADR-107): кто, роль, с какого дня и что с ним может сделать этот вошедший */
@@ -74,6 +84,14 @@ export interface MemberView {
   position: string | null;
   /** Этот вошедший может поменять ему телефон и должность */
   detailsEditable: boolean;
+  /** Доступ приостановлен (DATA_MODEL §31.2): человек не входит, место в команде за ним остаётся */
+  suspended: boolean;
+  /** Этот вошедший может приостановить или возобновить его доступ: тот же круг, что у отключения */
+  suspendable: boolean;
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §31.1); пусто: вся организация */
+  scopes: ScopeAssignment[];
+  /** Этот вошедший может заменить ему назначения: тот же круг, что у отключения */
+  scopesEditable: boolean;
 }
 
 /** Отказ в действии над сотрудником: сессии нет — `null` у вызова; остальное — здесь */
@@ -102,7 +120,8 @@ export interface InvitePreview {
 
 export type InviteOutcome =
   | { ok: true; invite: InviteView }
-  | { ok: false; reason: 'email' | 'member' | 'owner' | 'limit' | 'role' | 'manager-role' };
+  | { ok: false; reason: 'email' | 'member' | 'owner' | 'limit' | 'role' | 'manager-role' }
+  | { ok: false; reason: 'invalid'; message: string };
 
 @Injectable()
 export class AccountsService {
@@ -168,6 +187,7 @@ export class AccountsService {
     sessionToken: string | null,
     rawEmail: unknown,
     rawRole?: unknown,
+    rawExtra?: unknown,
   ): Promise<InviteOutcome | null> {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
@@ -180,6 +200,21 @@ export class AccountsService {
         : parseInviteRole(rawRole);
     if (!role) return { ok: false, reason: 'role' };
     if (!canInvite(who.role, role)) return { ok: false, reason: 'manager-role' };
+    // имя, телефон, должность и назначения приглашения (DATA_MODEL §31.3): ошибки формы словами, до любой записи
+    const extra = parseInviteExtra(rawExtra);
+    if (!extra.ok) return { ok: false, reason: 'invalid', message: extra.message };
+    let inviteRole: MembershipRole = role;
+    if (extra.scopes.length > 0) {
+      const structure = await this.repo.organizationStructure(who.organizationId);
+      const check = validateAssignments({
+        actor: who.role,
+        assignments: extra.scopes,
+        known: knownOf(structure),
+      });
+      if (!check.ok) return { ok: false, reason: 'invalid', message: check.reason };
+      // роль приглашения при назначениях: старшая из назначенных; роль из формы не может быть выше назначений
+      inviteRole = membershipRoleFor(extra.scopes, role);
+    }
     if (typeof rawEmail !== 'string') return { ok: false, reason: 'email' };
     const email = normalizeEmail(rawEmail);
     if (!isEmailShaped(email)) return { ok: false, reason: 'email' };
@@ -197,13 +232,24 @@ export class AccountsService {
       tokenHash: hashSecret(token),
       expiresAt: inviteExpiresAt(now),
       createdBy: who.userId,
-      role,
+      role: inviteRole,
+      firstName: extra.firstName,
+      lastName: extra.lastName,
+      phone: extra.phone,
+      position: extra.position,
+      scopes: extra.scopes,
     });
     const link = `${this.appUrl.replace(/\/+$/, '')}/invite/${token}`;
     try {
       if (!this.mailReady) throw new Error('Mail is not configured');
       await this.sender.send(
-        mail.inviteLetter(email, who.organizationName, link, INVITE_TTL_MS, MEMBERSHIP_ROLES[role]),
+        mail.inviteLetter(
+          email,
+          who.organizationName,
+          link,
+          INVITE_TTL_MS,
+          MEMBERSHIP_ROLES[inviteRole],
+        ),
       );
     } catch {
       // A possibly delivered link must not grant access after a reported delivery failure.
@@ -271,8 +317,67 @@ export class AccountsService {
         roleEditable:
           !you && canSetRoleAtDesk(who.role, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
         detailsEditable: canEditMemberDetails(who.role, m.role, you),
+        suspendable: !you && canRemoveMember(who.role, m.role),
+        scopesEditable: !you && canRemoveMember(who.role, m.role),
       };
     });
+  }
+
+  /** Бизнесы и филиалы организации для выбора области доступа. `null` — сессии нет, `'staff'` — раздел закрыт */
+  async accessStructure(
+    sessionToken: string | null,
+  ): Promise<OrganizationStructure | 'staff' | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return 'staff';
+    return this.repo.organizationStructure(who.organizationId);
+  }
+
+  /**
+   * Заменить назначения сотрудника (DATA_MODEL §31.1, Q-286, Q-287): список из роли, бизнеса и филиала; пустой список
+   * возвращает работу на всю организацию. Круг тот же, что у отключения: владелец назначает управляющих и
+   * администраторов, управляющий администраторов; себе и владельцу нельзя. Роль в назначении не выше полномочий выдающего.
+   */
+  async setMemberScopes(
+    sessionToken: string | null,
+    userId: string,
+    raw: unknown,
+  ): Promise<
+    | { ok: true; scopes: ScopeAssignment[] }
+    | { ok: false; reason: MemberRefusal }
+    | { ok: false; message: string }
+    | null
+  > {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return { ok: false, reason: 'staff' };
+    const parsed = parseScopeAssignments(raw);
+    if (!parsed.ok) return { ok: false, message: parsed.message };
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return { ok: false, reason: 'missing' };
+    if (target.userId === who.userId) return { ok: false, reason: 'self' };
+    if (target.role === 'OWNER') return { ok: false, reason: 'owner-target' };
+    if (!canRemoveMember(who.role, target.role)) return { ok: false, reason: 'manager-target' };
+    if (parsed.assignments.length > 0) {
+      const structure = await this.repo.organizationStructure(who.organizationId);
+      const check = validateAssignments({
+        actor: who.role,
+        assignments: parsed.assignments,
+        known: knownOf(structure),
+      });
+      if (!check.ok) return { ok: false, message: check.reason };
+    }
+    const write = await this.repo.replaceMemberScopes({
+      organizationId: who.organizationId,
+      userId,
+      assignments: parsed.assignments,
+      by: who.userId,
+      roles: invitableRoles(who.role),
+    });
+    if (write.outcome === 'missing') return { ok: false, reason: 'missing' };
+    if (write.outcome === 'role')
+      return { ok: false, reason: write.role === 'OWNER' ? 'owner-target' : 'manager-target' };
+    return { ok: true, scopes: parsed.assignments };
   }
 
   /** Телефон и должность (TEAM2, Q-244): свои: каждому, кому открыт раздел; чужие: тому, кто вправе отключить */
@@ -330,6 +435,35 @@ export class AccountsService {
     const write = await this.repo.removeMember({
       organizationId: who.organizationId,
       userId,
+      by: who.userId,
+      roles: invitableRoles(who.role),
+    });
+    if (write.outcome === 'missing') return 'missing';
+    if (write.outcome === 'role') return write.role === 'OWNER' ? 'owner-target' : 'manager-target';
+    return 'ok';
+  }
+
+  /**
+   * Приостановить или возобновить доступ (DATA_MODEL §31.2, Q-289): круг тот же, что у отключения (владелец: управляющих
+   * и администраторов, управляющий: администраторов); себя и владельца нельзя. Сессии приостановленного гаснут сразу.
+   */
+  async setMemberSuspended(
+    sessionToken: string | null,
+    userId: string,
+    suspended: boolean,
+  ): Promise<'ok' | MemberRefusal | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return 'staff';
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return 'missing';
+    if (target.userId === who.userId) return 'self';
+    if (target.role === 'OWNER') return 'owner-target';
+    if (!canRemoveMember(who.role, target.role)) return 'manager-target';
+    const write = await this.repo.setMemberSuspended({
+      organizationId: who.organizationId,
+      userId,
+      suspended,
       by: who.userId,
       roles: invitableRoles(who.role),
     });
@@ -461,5 +595,50 @@ function toInviteView(i: InviteRecord, actor: MembershipRole): InviteView {
     createdAt: i.createdAt,
     role: i.role,
     revocable: canInvite(actor, i.role),
+    firstName: i.firstName,
+    lastName: i.lastName,
+    position: i.position,
+    scopes: i.scopes,
+  };
+}
+
+const knownOf = (s: OrganizationStructure) =>
+  s.businesses.map((b) => ({ businessId: b.id, locationIds: b.locations.map((l) => l.id) }));
+
+const NAME_MESSAGE = 'Имя и фамилия: не длиннее 100 знаков.';
+
+/** Необязательное в приглашении: имя, фамилия, телефон, должность, назначения (DATA_MODEL §31.3) */
+function parseInviteExtra(raw: unknown):
+  | {
+      ok: true;
+      firstName: string | null;
+      lastName: string | null;
+      phone: string | null;
+      position: string | null;
+      scopes: ScopeAssignment[];
+    }
+  | { ok: false; message: string } {
+  const b = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const name = (v: unknown): string | null | undefined => {
+    if (v === undefined || v === null || v === '') return null;
+    if (typeof v !== 'string') return undefined;
+    const t = v.replace(/\s+/g, ' ').trim();
+    return t.length > 100 ? undefined : t || null;
+  };
+  const firstName = name(b.firstName);
+  const lastName = name(b.lastName);
+  if (firstName === undefined || lastName === undefined)
+    return { ok: false, message: NAME_MESSAGE };
+  const details = parseMemberDetails({ phone: b.phone, position: b.position });
+  if (!details.ok) return { ok: false, message: details.message };
+  const scopes = parseScopeAssignments(b.scopes);
+  if (!scopes.ok) return { ok: false, message: scopes.message };
+  return {
+    ok: true,
+    firstName,
+    lastName,
+    phone: details.phone,
+    position: details.position,
+    scopes: scopes.assignments,
   };
 }

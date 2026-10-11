@@ -238,6 +238,12 @@ export const RULES: Rule[] = [
     find: (s) => count(s, /\bstyle=\{/g),
   },
   {
+    id: 'important',
+    why: '!important в CSS: каскад решают слои и порядок, исключение только с `slop-allow: important <причина>` (MV8.5 DS0b)',
+    ext: /\.css$/,
+    find: (s) => count(s.replace(/\/\*[\s\S]*?\*\//g, ''), /!\s*important/g),
+  },
+  {
     id: 'breakpoint-literal',
     why: 'точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1)',
     ext: /\.(css|tsx)$/,

@@ -427,7 +427,7 @@ ALTER TABLE
 CREATE INDEX
 CREATE FUNCTION
 CREATE TRIGGER
- seller_agents_backfill 
+ seller_agents_backfill
 ------------------------
                       0
 (1 row)
@@ -437,17 +437,17 @@ CREATE FUNCTION
 CREATE FUNCTION
 CREATE FUNCTION
 CREATE FUNCTION
- seller_scope_assert 
+ seller_scope_assert
 ---------------------
  t
 (1 row)
 
- seller_agents_backfill 
+ seller_agents_backfill
 ------------------------
                       0
 (1 row)
 
- seller_scope_assert 
+ seller_scope_assert
 ---------------------
  t
 (1 row)
@@ -465,7 +465,7 @@ CREATE INDEX
 ALTER TABLE
 CREATE POLICY
 DO
- seller_scope_assert 
+ seller_scope_assert
 ---------------------
  t
 (1 row)

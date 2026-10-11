@@ -113,5 +113,5 @@ test('перетаскивание клетки брони на свободну
   await page.getByRole('main').getByTestId('cancel-reservation').click();
   await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Отменена');
 });

@@ -97,6 +97,8 @@ def test_the_runtime_by_agent_works_on_the_expand_schema(alembic_config, _) -> N
     engine = _engine(alembic_config)
     _legacy_rows(engine)
     command.upgrade(alembic_config, "0009")
+    # точка входа образа доводит базу ещё и до 0012 (ведение диалога, ветка от 0009); модель читает её колонки
+    command.upgrade(alembic_config, "0012")
 
     org = uuid.UUID(ORG)
     with sessionmaker(engine, expire_on_commit=False)() as session:

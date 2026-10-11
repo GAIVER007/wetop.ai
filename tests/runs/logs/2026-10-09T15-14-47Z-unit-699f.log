@@ -1,0 +1,49 @@
+# Модульные (unit) · 09.10.2026 20:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 26973cb (claude/market-ai-collector), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-14-47Z-unit-699f.json' 'scripts/market/collect.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| scripts/market/collect.test.ts (8 tests | 1 failed) 21ms
+   ✓ ИИ-сборщик загрузки конкурентов (6)
+     ✓ открывает страницу на каждую ночь, оценивает загрузку и пишет снимок с паузой между страницами 13ms
+     ✓ страница закрыта проверкой площадки: не обходит, останавливается по соседу, уже оценённое пишет 1ms
+     ✓ Booking.com отвечает автомату 202 и пустой страницей: это проверка площадки, модель не зовём 0ms
+     ✓ модель увидела проверку на странице с кодом 200: то же самое, дальше не идёт 0ms
+     ✓ без ссылки на площадку или без числа номеров страницу не открывает 0ms
+     ✓ проверка без записи: читает и оценивает, в WETOP ничего не пишет 0ms
+   ❯ блок номеров со страницы (1)
+     × Ostrovok: только «Заезд»…«Расположение»; без границ текст обрезается до отзывов с именами гостей 5ms
+   ✓ ответ модели (1)
+     ✓ принимает только то, что прошло проверку; остаток бывает только у «продаётся» 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/market/collect.test.ts > блок номеров со страницы > Ostrovok: только «Заезд»…«Расположение»; без границ текст обрезается до отзывов с именами гостей
+AssertionError: expected 'Only 2 rooms left\nGuest' to be 'Only 2 rooms left' // Object.is equality
+
+- Expected
++ Received
+
+  Only 2 rooms left
++ Guest
+
+ ❯ scripts/market/collect.test.ts:131:110
+    129|     expect(pageSection(url, page)).toBe('Заезд\n20 окт\nНа нашем сайте…
+    130|     expect(pageSection(url, 'Подтвердите, что вы не робот\nОтзывы\nИва…
+    131|     expect(pageSection('https://www.booking.com/hotel/kz/a.html', 'Onl…
+       |                                                                                                              ^
+    132|   });
+    133| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  08:14:48
+   Duration  334ms (transform 76%, import 16%, tests 7%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-14-47Z-unit-699f.json
+
+# код выхода 1 · 1 с

@@ -152,7 +152,7 @@ test('карточка: отмена, незаезд и выселение с д
   await page.getByRole('main').getByTestId('cancel-reservation').click();
   await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Отменена');
 
   // незаезд
   await request.post(`${fixture}/__test/reset`);
@@ -170,7 +170,7 @@ test('карточка: отмена, незаезд и выселение с д
   // исчезает, когда ответ применён.
   await expect(page.getByRole('main').getByTestId('no-show-ui-item')).toHaveCount(0);
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('незаезд');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Незаезд');
   await expect(
     page.getByRole('main').getByTestId('stay-row').first().getByRole('cell').first(),
   ).toHaveText('—');
@@ -190,7 +190,7 @@ test('карточка: отмена, незаезд и выселение с д
   await expect(dialog.getByTestId('debt-amount')).toHaveText('Долг 16 000 ₸ останется на счёте');
   await dialog.getByRole('button', { name: 'Оставить' }).click();
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Проживает');
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('check-out-ui-item').click();
   await page
@@ -198,7 +198,7 @@ test('карточка: отмена, незаезд и выселение с д
     .getByRole('button', { name: 'Выселить с долгом' })
     .click();
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('выселен');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Выехал');
 });
 
 test('карточка: предварительная бронь названа словом, место за ней держится', async ({

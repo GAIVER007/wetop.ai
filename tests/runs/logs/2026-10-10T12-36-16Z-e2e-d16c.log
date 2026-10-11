@@ -1,0 +1,121 @@
+# Сквозные (e2e) · 10.10.2026 17:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 07544da (claude/beauty-salons-landing), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 81 tests using 2 workers
+
+  ✓   1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (10.3s)
+  ✓   2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (11.1s)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (977ms)
+  ✓   5 tests/site/homepage-blocks.spec.ts:21:1 › главная объясняет платформу и оставляет регистрацию в мобильной шапке (229ms)
+  ✓   6 tests/site/homepage-blocks.spec.ts:32:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (505ms)
+  ✓   4 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (1.3s)
+  ✓   7 tests/site/homepage-blocks.spec.ts:63:1 › содержимое блоков видно сразу: шесть возможностей, две большие карточки продаж, четыре шага (893ms)
+  ✓   8 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (2.2s)
+  ✓   9 tests/site/homepage-blocks.spec.ts:82:1 › первый экран: две кнопки в строку, направления сразу после Hero (1.7s)
+  ✓  11 tests/site/homepage-blocks.spec.ts:95:1 › карточки блоков читаются одной фразой, а не абзацем (668ms)
+  ✓  10 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (1.0s)
+  ✓  12 tests/site/homepage-blocks.spec.ts:110:1 › «Продажи и ИИ»: примеры подписаны вымышленными, ИИ назван отдельным расширением (20.7s)
+  ✓  13 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (23.0s)
+  ✓  15 tests/site/auth-dialog.spec.ts:198:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (4.7s)
+  ✓  14 tests/site/homepage-blocks.spec.ts:138:1 › первый экран: дашборд подписан примером и не имитирует кнопки (7.3s)
+  ✓  16 tests/site/auth-dialog.spec.ts:211:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (3.5s)
+  ✓  17 tests/site/homepage-blocks.spec.ts:153:1 › на главной нет дорожной карты направлений и слова «пилот» (3.4s)
+  ✓  19 tests/site/homepage-blocks.spec.ts:166:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (708ms)
+  ✓  18 tests/site/auth-dialog.spec.ts:223:1 › на телефоне окно открывается из меню и не шире экрана (1.6s)
+  ✓  20 tests/site/homepage-blocks.spec.ts:178:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (967ms)
+  ✓  22 tests/site/homepage-blocks.spec.ts:188:1 › карточка призыва и подвал: правовые страницы, контакты, без чисел клиентов (497ms)
+  ✓  23 tests/site/homepage-blocks.spec.ts:214:1 › в текстах главной нет длинного тире и разделителя « · » (1.4s)
+  ✓  24 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (715ms)
+  ✓  25 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (784ms)
+  ✓  26 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (3.4s)
+  ✓  27 tests/site/homepage-blocks.spec.ts:222:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (4.5s)
+  ✘  21 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (1.0m)
+  ✓  28 tests/site/homepage-blocks.spec.ts:242:1 › блоки доступны в обеих темах (58.4s)
+  ✓  29 tests/site/homepage-blocks.spec.ts:256:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (9.4s)
+  ✓  30 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects BEAUTY without granting pilot access (3.7s)
+  ✓  32 tests/site/auth-dialog.spec.ts:296:3 › MV2 selector preselects FOOD_SERVICE without granting pilot access (6.4s)
+  ✓  31 tests/site/homepage-blocks.spec.ts:271:3 › /privacy/: заголовок, редакция, доступность (9.1s)
+  ✓  33 tests/site/landing.spec.ts:23:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (2.4s)
+  ✓  34 tests/site/homepage-blocks.spec.ts:271:3 › /terms/: заголовок, редакция, доступность (1.2s)
+  ✓  36 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (1.6s)
+  ✓  35 tests/site/landing.spec.ts:29:3 › / — открывается, доступна и без «TODO» на экране (3.1s)
+  ✓  38 tests/site/landing.spec.ts:44:3 › / — на телефоне нет горизонтальной прокрутки (953ms)
+  ✓  37 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (2.1s)
+  ✓  39 tests/site/landing.spec.ts:29:3 › /blog/ — открывается, доступна и без «TODO» на экране (1.3s)
+  ✓  40 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (1.4s)
+  ✓  41 tests/site/landing.spec.ts:44:3 › /blog/ — на телефоне нет горизонтальной прокрутки (258ms)
+  ✓  42 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (1.6s)
+  ✓  43 tests/site/landing.spec.ts:29:3 › /for/hotels/ — открывается, доступна и без «TODO» на экране (1.8s)
+  ✓  45 tests/site/landing.spec.ts:44:3 › /for/hotels/ — на телефоне нет горизонтальной прокрутки (165ms)
+  ✓  44 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (972ms)
+  ✓  46 tests/site/landing.spec.ts:29:3 › /for/salons/ — открывается, доступна и без «TODO» на экране (1.4s)
+  ✓  47 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (820ms)
+  ✓  48 tests/site/landing.spec.ts:44:3 › /for/salons/ — на телефоне нет горизонтальной прокрутки (257ms)
+  ✓  49 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (3.0s)
+  ✓  50 tests/site/landing.spec.ts:29:3 › /for/restaurants/ — открывается, доступна и без «TODO» на экране (2.9s)
+  ✓  52 tests/site/landing.spec.ts:44:3 › /for/restaurants/ — на телефоне нет горизонтальной прокрутки (218ms)
+  ✓  53 tests/site/landing.spec.ts:29:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (1.2s)
+  ✓  54 tests/site/landing.spec.ts:44:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (1.3s)
+  ✓  51 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (3.5s)
+  ✓  56 tests/site/public-intro.spec.ts:57:1 › new header registration: keyboard activation and focus return on mobile (666ms)
+  ✓  55 tests/site/landing.spec.ts:29:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (1.4s)
+  ✓  58 tests/site/landing.spec.ts:44:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (1.1s)
+  ✓  57 tests/site/public-intro.spec.ts:77:1 › direction pages preselect the correct vertical in existing AuthDialog (4.8s)
+  ✓  60 tests/site/public-intro.spec.ts:97:1 › hero chips open a description popover with a link to the direction page (1.2s)
+  ✓  59 tests/site/landing.spec.ts:29:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (4.5s)
+  ✓  61 tests/site/public-intro.spec.ts:119:1 › business positioning: three verticals, no maturity labels, five capabilities each (728ms)
+  ✓  62 tests/site/landing.spec.ts:44:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (258ms)
+  ✓  64 tests/site/salon-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (303ms)
+  ✓  65 tests/site/salon-landing.spec.ts:31:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (246ms)
+  ✓  66 tests/site/salon-landing.spec.ts:46:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (714ms)
+  ✓  63 tests/site/landing.spec.ts:29:3 › /calculator/ — открывается, доступна и без «TODO» на экране (2.1s)
+  ✓  68 tests/site/landing.spec.ts:44:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (233ms)
+  ✓  69 tests/site/landing.spec.ts:29:3 › /privacy/ — открывается, доступна и без «TODO» на экране (1.6s)
+  ✓  67 tests/site/salon-landing.spec.ts:67:3 › доступность и вёрстка: light, компьютер и телефон (2.8s)
+  ✓  70 tests/site/landing.spec.ts:44:3 › /privacy/ — на телефоне нет горизонтальной прокрутки (734ms)
+  ✓  72 tests/site/landing.spec.ts:29:3 › /terms/ — открывается, доступна и без «TODO» на экране (1.6s)
+  ✓  73 tests/site/landing.spec.ts:44:3 › /terms/ — на телефоне нет горизонтальной прокрутки (500ms)
+  ✓  71 tests/site/salon-landing.spec.ts:67:3 › доступность и вёрстка: dark, компьютер и телефон (5.3s)
+  ✓  74 tests/site/landing.spec.ts:57:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (2.8s)
+  ✓  76 tests/site/landing.spec.ts:75:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (128ms)
+  ✓  75 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (655ms)
+  ✓  78 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (599ms)
+  ✓  77 tests/site/landing.spec.ts:88:1 › главная: регистрация открыта, маркетинговых обещаний trial нет (1.0s)
+  ✓  79 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (872ms)
+  ✓  80 tests/site/landing.spec.ts:142:1 › первый экран объясняет платформу, направления и зрелость (641ms)
+  ✓  81 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (657ms)
+
+
+  1) tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 ──
+
+    Test timeout of 60000ms exceeded.
+
+    Error: expect(locator).toBeChecked() failed
+
+    Locator:  locator('input[name="vertical"][value="BEAUTY"]')
+    Expected: checked
+    Received: undefined
+
+    Call log:
+      - Expect "toBeChecked" locator('input[name="vertical"][value="BEAUTY"]') with timeout 10000ms
+      - waiting for locator('input[name="vertical"][value="BEAUTY"]')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      261 |       await expect(page.locator('input[name="vertical"][value="BEAUTY"]')).toBeChecked();
+      262 |       await page.reload();
+    > 263 |       await expect(page.locator('input[name="vertical"][value="BEAUTY"]')).toBeChecked();
+          |                                                                            ^
+      264 |       await page.screenshot({
+      265 |         path: `${report}/site-register-${theme}-${width}.png`,
+      266 |         caret: 'initial',
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/beauty-landing/tests/site/auth-dialog.spec.ts:263:76
+
+    Error Context: test-results/auth-dialog-снимки-окна-ре-b53eb-светлая-и-тёмная-1440-и-390/error-context.md
+
+  1 failed
+    tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 ───
+  80 passed (3.9m)
+
+# код выхода 1 · 4 мин 21 с

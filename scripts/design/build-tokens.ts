@@ -221,7 +221,9 @@ export function buildTokensCss(tree: TokenTree): string {
     ' * СГЕНЕРИРОВАНО из design/tokens.json командой `npm run design:tokens` — руками не править.',
     ' * Правила и смысл каждого токена — DESIGN.md. Тест scripts/design/build-tokens.test.ts',
     ' * сверяет этот файл с генератором: ручная правка делает его красным.',
+    ' * Слой `tokens` (DESIGN.md §20.6): порядок слоёв объявлен первым в globals.css.',
     ' */',
+    '@layer tokens {',
   ];
   for (const [name, spec] of Object.entries(tree.themes)) {
     const body: string[] = [`  color-scheme: ${spec.colorScheme};`];
@@ -235,6 +237,7 @@ export function buildTokensCss(tree: TokenTree): string {
     if (spec.media) lines.push(`@media ${spec.media} {`, ...block.map((l) => `  ${l}`), '}');
     else lines.push(...block);
   }
+  lines.push('}');
   return `${lines.join('\n')}\n`;
 }
 
@@ -288,6 +291,12 @@ export const CONTRAST_PAIRS: ContrastPair[] = [
     bg: 'color.semantic.primary',
     min: 4.5,
     note: 'текст главной кнопки',
+  },
+  {
+    fg: 'color.semantic.on-primary',
+    bg: 'color.semantic.primary-hover',
+    min: 4.5,
+    note: 'текст главной кнопки под курсором',
   },
   {
     fg: 'color.semantic.primary',

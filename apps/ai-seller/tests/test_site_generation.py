@@ -281,3 +281,15 @@ def test_malformed_body_is_422_without_details(app_client) -> None:
     response = client.post("/internal/site-generation", json={"schemaVersion": "x"}, headers={"X-Service-Key": SERVICE_KEY})
     assert response.status_code == 422 and response.json() == {"status": "bad_request"}
     assert router.calls == []
+
+
+def test_owner_wishes_are_a_data_block_not_rules() -> None:
+    """MKT9: пожелания владельца к первой версии идут отдельным блоком данных после брифа, в правила не попадают."""
+    wish = "Акцент на тишину. " + INJECTION
+    system, user = build_messages(body(instruction=wish))
+    assert wish not in system["content"]
+    assert user["content"].index("ДАННЫЕ") < user["content"].index("ПОЖЕЛАНИЯ ВЛАДЕЛЬЦА") < user["content"].index(wish)
+    # без пожеланий блока нет; длинные пожелания не принимаются
+    assert "ПОЖЕЛАНИЯ ВЛАДЕЛЬЦА" not in build_messages(body())[1]["content"]
+    with pytest.raises(ValueError):
+        body(instruction="x" * 1801)

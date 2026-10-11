@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, goViaMenu } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -23,14 +23,12 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец', async ({ page }) => {
   await signIn(page);
-  const sidebar = page.locator('.workspace-header .topmenu');
-  await sidebar.getByRole('button', { name: 'Продажи', exact: true }).click();
-  await sidebar.getByRole('link', { name: 'ИИ-продавцы', exact: true }).click();
+  await goViaMenu(page, 'Продажи', 'ИИ-продавцы');
   await expect(page).toHaveURL(/\/ai-agents$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
   const seller = page.getByTestId('agent-seller');
@@ -43,9 +41,8 @@ test('партнёр: пункт меню «ИИ-агенты», на входе
   await seller.getByRole('link', { name: 'Открыть' }).click();
   await expect(page).toHaveURL(/\/ai-seller/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
-  // страницы продавца подсвечивают тот же пункт меню; список группы закрыт, пункт скрыт
-  // от дерева доступности — ищем по CSS, как top-menu.spec
-  await expect(sidebar.locator('a[aria-current="page"]')).toHaveText('ИИ-продавцы');
+  // страницы продавца подсвечивают тот же пункт левого меню (ADR-161)
+  await expect(page.locator('.sidenav__sub a[aria-current="page"]')).toHaveText('ИИ-продавцы');
 });
 
 test('главный администратор: к техподдержке — переключателем агентов на «ИИ-продавце»', async ({

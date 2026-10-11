@@ -16,6 +16,7 @@ import { MarketingSiteModule } from '../../apps/api/src/marketing-site/marketing
 import { SITE_VERSION_BODY_LIMIT, useApiBodyParsers } from '../../apps/api/src/body-parsers';
 import { purgeAuditRows } from '../tools/audit-purge';
 import { seedSpecAssets } from '../tools/site-assets';
+import { grantSiteBuilder, purgeSiteBuilderRows } from '../tools/site-builder';
 import { isLocalDatabase } from '../tools/seed-local';
 
 /**
@@ -49,6 +50,10 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
     salon = randomUUID(),
     inArchivedBusiness = randomUUID(),
     b1 = randomUUID();
+  // MKT9.2: адрес сайта строится из имени филиала; общая часть имени у двух филиалов проверяет суффикс
+  const tag = randomUUID().replace(/[^a-z]/g, '').slice(0, 5) || 'abcde';
+  const sharedName = `Степной ветер ${tag}`;
+  const sharedSlug = `stepnoy-veter-${tag}`;
   const pointer = (business: string, location?: string) =>
     location ? `business=${business};location=${location}` : `business=${business}`;
   const A1 = pointer(hotel, a1);
@@ -115,7 +120,7 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
     const location = (id: string, businessId: string, status: 'ACTIVE' | 'ARCHIVED' = 'ACTIVE') => ({
       id,
       businessId,
-      name: `Loc ${id.slice(0, 4)}`,
+      name: id === a1 || id === a2 ? sharedName : `Loc ${id.slice(0, 4)}`,
       timezone: 'Asia/Almaty',
       currency: 'KZT',
       status,
@@ -132,6 +137,8 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
     });
     // MKT8: картинки примера SiteSpec уже лежат в библиотеке филиала a1 (сохранение версии их проверяет)
     await seedSpecAssets(db, a1, SPEC);
+    // MKT9.2: запись сайта только при действующей лицензии филиала (её выдаёт главный администратор)
+    await grantSiteBuilder(db, [a1, a2, b1]);
     const module = await Test.createTestingModule({ imports: [MarketingSiteModule] })
       .overrideProvider(PrismaService)
       .useValue({ db })
@@ -157,6 +164,7 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
   afterAll(async () => {
     await app?.close();
     if (sql) {
+      await purgeSiteBuilderRows(sql, [orgA, orgB]);
       // Версии неизменяемы: уборка снимает сторожа правами владельца таблицы, как журнал в rls-isolation.test.ts.
       // У wetop_app такого пути нет: ни права ALTER TABLE, ни UPDATE и DELETE на версии.
       await sql.query('BEGIN');
@@ -192,7 +200,7 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
     ])('%s: 409 «Выберите филиал»', async (_label, scope) => {
       for (const [method, path, body] of [
         ['GET', '/marketing/site', undefined],
-        ['POST', '/marketing/site', { name: 'Сайт', slug: 'scope-409' }],
+        ['POST', '/marketing/site/bootstrap', {}],
         ['GET', '/marketing/site/draft', undefined],
         ['POST', '/marketing/site/versions', { baseRevision: 0, spec: SPEC }],
       ] as const) {
@@ -211,7 +219,7 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
     ])('%s: 403, без отката в организацию', async (_label, scope) => {
       const r = await call('GET', '/marketing/site', { scope });
       expect(r.status).toBe(403);
-      const created = await call('POST', '/marketing/site', { scope, body: { name: 'Сайт', slug: 'scope-403' } });
+      const created = await call('POST', '/marketing/site/bootstrap', { scope, body: {} });
       expect(created.status).toBe(403);
     });
 
@@ -228,54 +236,56 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
     });
   });
 
-  describe('создание сайта', () => {
+  describe('заведение сайта (MKT9.2 bootstrap): имя и адрес из филиала, один филиал один сайт', () => {
     it('сайта нет: пустой ответ, черновика нет', async () => {
-      expect(await call('GET', '/marketing/site')).toEqual({ status: 200, body: { site: null } });
+      const r = await call('GET', '/marketing/site');
+      expect(r.status).toBe(200);
+      expect(r.body).toMatchObject({ site: null, archived: false, locationName: sharedName, builder: { access: 'active' } });
       expect((await call('GET', '/marketing/site/draft')).status).toBe(404);
       const save = await call('POST', '/marketing/site/versions', { body: { baseRevision: 0, spec: SPEC } });
       expect(save.status).toBe(404);
     });
 
-    it('тело принимает только имя и адрес: филиал, бизнес и организация из тела дают 400', async () => {
-      for (const extra of [{ locationId: a2 }, { businessId: hotel }, { organizationId: orgB }, { state: 'PUBLISHED' }]) {
-        const r = await call('POST', '/marketing/site', { body: { name: 'Сайт', slug: 'spoof-site', ...extra } });
+    it('прежний POST /marketing/site с названием и адресом снят: 404, сайт не заводится', async () => {
+      const r = await call('POST', '/marketing/site', { body: { name: 'Сайт', slug: 'legacy-path' } });
+      expect(r.status).toBe(404);
+      expect(await db.marketingSite.count({ where: { slug: 'legacy-path' } })).toBe(0);
+    });
+
+    it('тело пустое: имя, адрес, филиал, бизнес и организация из тела дают 400', async () => {
+      for (const extra of [{ name: 'Сайт' }, { slug: 'spoof-site' }, { locationId: a2 }, { businessId: hotel }, { organizationId: orgB }, { state: 'PUBLISHED' }]) {
+        const r = await call('POST', '/marketing/site/bootstrap', { body: extra });
         expect(r.status, JSON.stringify(extra)).toBe(400);
       }
-      expect(await db.marketingSite.count({ where: { slug: 'spoof-site' } })).toBe(0);
+      expect(await db.marketingSite.count({ where: { locationId: a1 } })).toBe(0);
     });
 
-    it('неверный и зарезервированный адрес: 400', async () => {
-      expect((await call('POST', '/marketing/site', { body: { name: 'Сайт', slug: 'A b' } })).status).toBe(400);
-      expect((await call('POST', '/marketing/site', { body: { name: 'Сайт', slug: 'admin' } })).status).toBe(400);
-      expect((await call('POST', '/marketing/site', { body: { name: '  ', slug: 'stepnoy-veter' } })).status).toBe(400);
-    });
-
-    it('создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409', async () => {
-      const r = await call('POST', '/marketing/site', { body: { name: 'Степной ветер', slug: 'Stepnoy-Veter' } });
+    it('заводит сайт филиала из scope в DRAFT с именем и адресом из филиала; повтор 200 тот же сайт', async () => {
+      const r = await call('POST', '/marketing/site/bootstrap', { body: {} });
       expect(r.status).toBe(201);
-      expect(r.body.site).toMatchObject({ name: 'Степной ветер', slug: 'stepnoy-veter', state: 'DRAFT', latest: null });
+      expect(r.body.site).toMatchObject({ name: sharedName, slug: sharedSlug, state: 'DRAFT', latest: null });
       const row = await db.marketingSite.findUniqueOrThrow({ where: { id: r.body.site.id } });
       expect(row.locationId).toBe(a1);
       expect(row.createdById).toBe(userA);
-      const again = await call('POST', '/marketing/site', { body: { name: 'Ещё', slug: 'another-one' } });
-      expect(again.status).toBe(409);
+      const again = await call('POST', '/marketing/site/bootstrap', { body: {} });
+      expect(again.status).toBe(200);
+      expect(again.body.site.id).toBe(row.id);
+      expect(await db.marketingSite.count({ where: { locationId: a1 } })).toBe(1);
       const audit = await db.auditLog.findFirstOrThrow({ where: { organizationId: orgA, action: 'marketing.site.created' } });
       expect(audit.entityId).toBe(row.id);
     });
 
-    it('адрес занят сайтом другого филиала: 409, без молчаливой замены', async () => {
-      const r = await call('POST', '/marketing/site', { scope: A2, body: { name: 'Второй', slug: 'stepnoy-veter' } });
-      expect(r.status).toBe(409);
-      expect(r.body.message).toMatch(/адрес/i);
-      const ok = await call('POST', '/marketing/site', { scope: A2, body: { name: 'Второй', slug: 'second-site' } });
-      expect(ok.status).toBe(201);
+    it('адрес занят сайтом другого филиала: детерминированный суффикс, а не отказ', async () => {
+      const r = await call('POST', '/marketing/site/bootstrap', { scope: A2, body: {} });
+      expect(r.status).toBe(201);
+      expect(r.body.site.slug).toBe(`${sharedSlug}-2`);
     });
 
     it('чужой филиал той же организации видит только свой сайт', async () => {
       const own = await call('GET', '/marketing/site');
       const other = await call('GET', '/marketing/site', { scope: A2 });
-      expect(own.body.site.slug).toBe('stepnoy-veter');
-      expect(other.body.site.slug).toBe('second-site');
+      expect(own.body.site.slug).toBe(sharedSlug);
+      expect(other.body.site.slug).toBe(`${sharedSlug}-2`);
     });
   });
 
@@ -374,7 +384,7 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
 
     it('API чужой организации не видит сайт и не может писать в него', async () => {
       const r = await call('GET', '/marketing/site', { user: 'B', scope: pointer(otherHotel, b1) });
-      expect(r.body).toEqual({ site: null });
+      expect(r.body).toMatchObject({ site: null, instructions: null });
       const spoof = await call('GET', '/marketing/site', { user: 'B', scope: A1 });
       expect(spoof.status).toBe(403);
     });
@@ -639,11 +649,11 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
       expect(await db.marketingSiteVersion.count({ where: { siteId, revision: revision + 1 } })).toBe(0);
     });
 
-    it('другой маршрут JSON по-прежнему режется на 100 КБ: создание сайта с телом 150 КБ даёт 413', async () => {
+    it('другой маршрут JSON по-прежнему режется на 100 КБ: знания проекта с телом 150 КБ дают 413', async () => {
       const before = await db.marketingSite.count({ where: { location: { business: { organizationId: orgA } } } });
-      const body = { name: 'x'.repeat(150 * 1024), slug: `big-${randomUUID().slice(0, 8)}` };
+      const body = { instructions: 'x'.repeat(150 * 1024) };
       expect(bytes(body)).toBeGreaterThan(100 * 1024);
-      const r = await call('POST', '/marketing/site', { scope: A2, body });
+      const r = await call('PATCH', '/marketing/site/context', { scope: A2, body });
       expect(r.status).toBe(413);
       expect(await db.marketingSite.count({ where: { location: { business: { organizationId: orgA } } } })).toBe(before);
     });

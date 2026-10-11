@@ -87,7 +87,6 @@ export async function retryEventAction(revisionId: string): Promise<ChannelActio
 function refreshChannelViews() {
   for (const path of [
     '/chessboard',
-    '/today',
     '/management/analytics',
     '/management/analytics/occupancy',
     '/rooms/availability',

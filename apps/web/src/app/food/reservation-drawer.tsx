@@ -3,11 +3,12 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { Alert, Badge, Button, Field, Select } from '../../components/ui';
-import { foodStatusActions, foodStatusLabels } from '../../lib/food-data';
+import { foodStatusActions } from '../../lib/food-data';
 import type { FoodStatus, FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 import { mutateFoodReservation } from './actions';
 import { ReservationForm } from './reservation-form';
+import { foodStatus } from '../../lib/status/food';
 export type ReservationDraft =
   { kind: 'create'; walkIn: boolean; tableId?: string } | { kind: 'view'; id: string };
 export function ReservationDrawer({
@@ -80,7 +81,7 @@ export function ReservationDrawer({
           <div className="food-section-heading">
             <h3>{[r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ')}</h3>
             <Badge tone={r.status === 'SEATED' ? 'ok' : 'neutral'}>
-              {foodStatusLabels[r.status]}
+              {foodStatus[r.status].label}
             </Badge>
           </div>
           <dl>

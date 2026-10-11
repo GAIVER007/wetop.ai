@@ -23,17 +23,17 @@ def run_entrypoint(tmp_path, revision):
 def test_runtime_rollout_stops_at_expand_revision(tmp_path):
     result, commands = run_entrypoint(tmp_path, '0004')
     assert result.returncode == 0
-    assert commands == ['upgrade 0009', 'started']
+    assert commands == ['upgrade 0009', 'upgrade 0012', 'started']
 
 
 def test_already_contracted_database_is_not_downgraded(tmp_path):
     result, commands = run_entrypoint(tmp_path, '0010 (head)')
     assert result.returncode == 0
-    assert commands == ['started']
+    assert commands == ['upgrade 0012', 'started']
 
 
 def test_unknown_future_revision_refuses_to_start(tmp_path):
-    result, commands = run_entrypoint(tmp_path, '0012 (head)')
+    result, commands = run_entrypoint(tmp_path, '0099 (head)')
     assert result.returncode != 0
     assert commands == []
 
@@ -41,4 +41,24 @@ def test_unknown_future_revision_refuses_to_start(tmp_path):
 def test_telegram_revision_is_accepted_without_implicit_migration(tmp_path):
     result, commands = run_entrypoint(tmp_path, '0011 (head)')
     assert result.returncode == 0
-    assert commands == ['started']
+    assert commands == ['upgrade 0012', 'started']
+
+
+def test_handling_branch_alone_is_accepted_and_does_not_reapply_contraction(tmp_path):
+    """База на 0009 + 0012 (так выглядит выкладка образа с ведением диалога): 0010 не трогаем."""
+    result, commands = run_entrypoint(tmp_path, '0012 (head)')
+    assert result.returncode == 0
+    assert commands == ['upgrade 0009', 'upgrade 0012', 'started']
+
+
+def test_two_heads_are_read_together(tmp_path):
+    """Суженная база плюс ведение диалога: `alembic current` печатает обе строки."""
+    result, commands = run_entrypoint(tmp_path, '0011 (head)\n0012 (head)')
+    assert result.returncode == 0
+    assert commands == ['upgrade 0012', 'started']
+
+
+def test_fresh_database_gets_expand_and_handling(tmp_path):
+    result, commands = run_entrypoint(tmp_path, '')
+    assert result.returncode == 0
+    assert commands == ['upgrade 0009', 'upgrade 0012', 'started']

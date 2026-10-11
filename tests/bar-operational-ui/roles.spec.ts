@@ -13,9 +13,14 @@ test('D4 STAFF keeps desk controls without settings or refunds', async ({ page, 
   await page.goto('/bar');
   await expect(page.getByRole('heading', { name: 'Бар', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Продать', exact: true })).toBeEnabled();
+  await page.goto('/bar/receipts/new');
   await expect(page.getByRole('button', { name: 'Сохранить приход', exact: true })).toBeEnabled();
+  await page.goto('/bar/operations');
   await expect(page.getByRole('button', { name: 'Вернуть на склад', exact: true })).toHaveCount(0);
-  for (const button of await page.locator('.bar-catalogs button[type="submit"]').all()) await expect(button).toBeDisabled();
+  await page.goto('/bar/products');
+  const settings = page.locator('form button[type="submit"]');
+  expect(await settings.count()).toBeGreaterThan(0);
+  for (const button of await settings.all()) await expect(button).toBeDisabled();
   await page.screenshot({ path: testInfo.outputPath('staff-desk-only.png'), fullPage: true });
 });
 
@@ -32,9 +37,15 @@ test('D4 READ_ONLY disables every BAR edit under a real OWNER session', async ({
     await db.query("UPDATE organizations SET status='READ_ONLY' WHERE id=$1", [data.side.org]);
     expect((await context.request.post('http://127.0.0.1:55994/__test/login')).ok()).toBe(true);
     await page.reload();
-    for (const button of await page.locator('.bar-catalogs button, .bar-receipt-form button, .bar-sale-form button[type="submit"], .bar-folio-form button[type="submit"], .bar-inventory-form button[type="submit"], .bar-price-form button[type="submit"]').all()) await expect(button).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Сохранить приход', exact: true })).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Зафиксировать', exact: true })).toBeDisabled();
+    for (const screen of ['/bar', '/bar/operations', '/bar/receipts', '/bar/receipts/new', '/bar/products', '/bar/suppliers']) {
+      await page.goto(screen);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      const writes = page.locator('form button[type="submit"]');
+      expect(await writes.count(), screen).toBeGreaterThan(0);
+      for (const button of await writes.all()) await expect(button).toBeDisabled();
+      await expect(page.getByRole('button', { name: 'Вернуть на склад', exact: true })).toHaveCount(0);
+    }
+    await page.goto('/bar');
     await page.screenshot({ path: testInfo.outputPath('read-only-no-edits.png'), fullPage: true });
   } finally { await db.query("UPDATE organizations SET status='ACTIVE' WHERE id=$1", [data.side.org]); await db.end(); }
 });

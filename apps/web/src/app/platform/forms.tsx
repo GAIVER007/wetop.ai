@@ -1,13 +1,21 @@
 'use client';
-import { useActionState } from 'react';
+import { useActionState, useTransition } from 'react';
 import { EXTENSION_STATUSES } from '@pms/domain';
 import { DateInput } from '../../components/date-field';
+import { useConfirm } from '../../components/use-confirm';
 import { Alert, Button, Field, Grid, Input, Notice, Row, Select } from '../../components/ui';
 import type { ExtensionChangeBody } from '../../lib/api';
 import {
+  archiveOrganizationAction,
   changeAiSellerAction,
   changeStatusAction,
+  createOrganizationAction,
+  renameOrganizationAction,
+  restoreOrganizationAction,
+  sendOwnerLinkAction,
+  type CreateOrganizationResult,
   type ExtensionFormResult,
+  type OrganizationActionResult,
   type StatusFormResult,
 } from './actions';
 
@@ -138,6 +146,177 @@ export function StatusForm({
           data-testid="platform-status-readonly"
         >
           Только чтение
+        </Button>
+      </Row>
+    </form>
+  );
+}
+
+/** Название организации (ORG1, ADR-ORG1): сжимает пробелы и проверяет API, отказ его словами */
+export function RenameForm({
+  organizationId,
+  organizationName,
+}: {
+  organizationId: string;
+  organizationName: string;
+}) {
+  const [state, action, pending] = useActionState<OrganizationActionResult | null, FormData>(
+    renameOrganizationAction.bind(null, organizationId),
+    null,
+  );
+  return (
+    <form
+      action={action}
+      className="stack"
+      aria-label="Название организации"
+      data-testid="platform-rename-form"
+    >
+      <Field label="Название">
+        <Input
+          key={`${organizationName}-${state?.attempt ?? 0}`}
+          name="name"
+          defaultValue={organizationName}
+          maxLength={200}
+          required
+        />
+      </Field>
+      {state?.error && <Alert data-testid="platform-rename-error">{state.error}</Alert>}
+      {state?.message && <Notice data-testid="platform-rename-result">{state.message}</Notice>}
+      <Row>
+        <Button type="submit" disabled={pending} aria-busy={pending}>
+          {pending ? 'Сохраняю…' : 'Сохранить название'}
+        </Button>
+      </Row>
+    </form>
+  );
+}
+
+/**
+ * Архив вместо удаления (ORG1, ADR-ORG1, Q-282): люди организации не входят, данные целы, вернуть можно. Перед архивом
+ * спрашиваем окном стойки, возврат без вопроса. Свою организацию в архив убрать нельзя.
+ */
+export function ArchiveForm({
+  organizationId,
+  organizationName,
+  archived,
+  own,
+}: {
+  organizationId: string;
+  organizationName: string;
+  archived: boolean;
+  own: boolean;
+}) {
+  const [state, action, pending] = useActionState<OrganizationActionResult | null, FormData>(
+    (archived ? restoreOrganizationAction : archiveOrganizationAction).bind(null, organizationId),
+    null,
+  );
+  const { ask, dialog } = useConfirm();
+  const [, startTransition] = useTransition();
+  async function submit() {
+    if (!archived) {
+      const ok = await ask({
+        title: `Убрать «${organizationName}» в архив?`,
+        body: 'Люди организации перестанут входить в платформу. Данные сохранятся, организация останется в списке архивных. Вернуть её можно в любой момент.',
+        confirmLabel: 'Убрать в архив',
+      });
+      if (!ok) return;
+    }
+    startTransition(() => action(new FormData()));
+  }
+  return (
+    <div className="stack" role="group" aria-label="Архив" data-testid="platform-archive-form">
+      {own && (
+        <p className="settings-note">
+          Свою организацию в архив убрать нельзя: вы потеряли бы доступ к платформе.
+        </p>
+      )}
+      {archived && (
+        <p className="settings-note">
+          Организация в архиве: люди не входят, данные сохранены. Возврат вернёт прежнее состояние, а
+          если его не удалось определить, организация станет «только чтение».
+        </p>
+      )}
+      {state?.error && <Alert data-testid="platform-archive-error">{state.error}</Alert>}
+      {state?.message && <Notice data-testid="platform-archive-result">{state.message}</Notice>}
+      <Row>
+        <Button
+          type="button"
+          tone={archived ? 'primary' : 'secondary'}
+          disabled={pending || own}
+          aria-busy={pending}
+          data-testid={archived ? 'platform-restore' : 'platform-archive'}
+          onClick={submit}
+        >
+          {pending ? 'Выполняю…' : archived ? 'Вернуть из архива' : 'Убрать в архив'}
+        </Button>
+      </Row>
+      {dialog}
+    </div>
+  );
+}
+
+/**
+ * Создание организации главным администратором (ORG2, ADR-ORG2, Q-283): название, почта владельца и направление.
+ * Владелец сам задаёт пароль по ссылке из письма, главному администратору токен не виден. Проверяет API.
+ */
+export function CreateOrganizationForm() {
+  const [state, action, pending] = useActionState<CreateOrganizationResult | null, FormData>(
+    createOrganizationAction,
+    null,
+  );
+  return (
+    <form
+      key={state?.attempt ?? 0}
+      action={action}
+      className="stack"
+      aria-label="Новая организация"
+      data-testid="platform-create-form"
+    >
+      <Grid min={240}>
+        <Field label="Название организации">
+          <Input name="name" required maxLength={200} placeholder="Например, Хостел «Пример»" />
+        </Field>
+        <Field label="Почта владельца">
+          <Input name="ownerEmail" type="email" required maxLength={320} placeholder="vladelec@example.com" />
+        </Field>
+        <Field label="Направление">
+          <Select name="vertical" defaultValue="HOSPITALITY">
+            <option value="HOSPITALITY">Гостиница, хостел или апартаменты</option>
+            <option value="BEAUTY">Салон красоты или студия</option>
+          </Select>
+        </Field>
+      </Grid>
+      <p className="settings-note">
+        Организация создаётся с пробным периодом и одним филиалом. Владельцу уйдёт письмо со ссылкой: по ней он сам
+        задаёт пароль и подтверждает почту. Ссылка действует 24 часа, один раз; вам она не показывается.
+      </p>
+      {state?.error && <Alert data-testid="platform-create-error">{state.error}</Alert>}
+      {state?.message && <Notice data-testid="platform-create-result">{state.message}</Notice>}
+      <Row>
+        <Button type="submit" disabled={pending} aria-busy={pending}>
+          {pending ? 'Создаю…' : 'Создать организацию'}
+        </Button>
+      </Row>
+    </form>
+  );
+}
+
+/** Ссылка «задайте пароль» ещё раз: владельцу, который пароль ещё не задал (письмо не дошло, срок вышел) */
+export function OwnerLinkForm({ organizationId, owner }: { organizationId: string; owner: string }) {
+  const [state, action, pending] = useActionState<OrganizationActionResult | null, FormData>(
+    sendOwnerLinkAction.bind(null, organizationId),
+    null,
+  );
+  return (
+    <form action={action} className="stack" aria-label="Ссылка владельцу" data-testid="platform-owner-link-form">
+      <p className="settings-note">
+        Владелец {owner} ещё не задал пароль. Новая ссылка гасит прежнюю; чаще раза в пять минут письмо не уходит.
+      </p>
+      {state?.error && <Alert data-testid="platform-owner-link-error">{state.error}</Alert>}
+      {state?.message && <Notice data-testid="platform-owner-link-result">{state.message}</Notice>}
+      <Row>
+        <Button type="submit" tone="secondary" disabled={pending} aria-busy={pending}>
+          {pending ? 'Отправляю…' : 'Отправить ссылку ещё раз'}
         </Button>
       </Row>
     </form>

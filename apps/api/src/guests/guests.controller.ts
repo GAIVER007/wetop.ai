@@ -62,6 +62,14 @@ export class GuestsController {
       to?: string;
       visits?: string;
       sort?: string;
+      view?: string;
+      source?: string;
+      debt?: string;
+      fresh?: string;
+      nocontact?: string;
+      period?: string;
+      periodFrom?: string;
+      periodTo?: string;
     },
   ) {
     return this.service.directory(query);

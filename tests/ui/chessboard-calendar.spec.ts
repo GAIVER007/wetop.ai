@@ -33,7 +33,7 @@ test('календарь: заголовок, сводка дня и быстр�
   const arrival = (await dateColumns.first().getAttribute('data-date'))!;
   const last = (await dateColumns.last().getAttribute('data-date'))!;
   const departure = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
-  await expect(page.getByRole('link', { name: 'Поиск свободных номеров' })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'Поиск свободных мест' })).toHaveAttribute(
     'href',
     `/rooms/availability?arrival=${arrival}&departure=${departure}`,
   );

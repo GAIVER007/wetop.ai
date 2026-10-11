@@ -91,6 +91,7 @@ test('панель брони: календарь открывается пов�
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/chessboard');
+  await expect(page.locator('.board-stage')).toHaveAttribute('data-docked', 'true');
   await page.getByTestId('stay-cell').first().dblclick();
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer).toBeVisible();

@@ -29,6 +29,7 @@ async function openWeek(page: Page, request: APIRequestContext): Promise<string>
   };
   const from = add(stay.arrivalDate, -1);
   await page.goto(`/chessboard?from=${from}&to=${add(from, 6)}`);
+  await expect(page.locator('.board-stage')).toHaveAttribute('data-docked', 'true');
   return stay.arrivalDate;
 }
 

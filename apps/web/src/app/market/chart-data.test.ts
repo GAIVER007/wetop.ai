@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MarketView } from '../../lib/api';
-import { buildChartRows, buildPriceRows, shortMoney, linePath } from './chart-data';
+import { buildChartRows, buildPriceRows, changeSummary, coverageRuns, shortMoney, linePath, type ChartRow } from './chart-data';
 
 type Board = MarketView['board'];
 const cell = (date: string, bp: number | null, deltaBp: number | null = null) => ({ date, bp, deltaBp, source: null });
@@ -80,5 +80,53 @@ describe('цены рынка для графика', () => {
     expect(shortMoney(4_200_000)).toBe('42 тыс.');
     expect(shortMoney(4_250_000)).toBe('42,5 тыс.');
     expect(shortMoney(95_000)).toBe('950');
+  });
+});
+
+const row = (date: string, withData: number, total: number, changeBp: number | null = null): ChartRow => ({
+  date,
+  own: null,
+  market: null,
+  min: null,
+  max: null,
+  withData,
+  total,
+  changeBp,
+});
+
+describe('coverageRuns: ночи подряд с одинаковой полнотой данных', () => {
+  it('склеивает соседние ночи с тем же «N из M» и рвёт на смене', () => {
+    const runs = coverageRuns([
+      row('2026-10-09', 2, 2),
+      row('2026-10-10', 2, 2),
+      row('2026-10-11', 1, 2),
+      row('2026-10-12', 0, 2),
+      row('2026-10-13', 1, 2),
+    ]);
+    expect(runs).toEqual([
+      { from: '2026-10-09', to: '2026-10-10', withData: 2, total: 2 },
+      { from: '2026-10-11', to: '2026-10-11', withData: 1, total: 2 },
+      { from: '2026-10-12', to: '2026-10-12', withData: 0, total: 2 },
+      { from: '2026-10-13', to: '2026-10-13', withData: 1, total: 2 },
+    ]);
+  });
+  it('пустой период даёт пустой список', () => {
+    expect(coverageRuns([])).toEqual([]);
+  });
+});
+
+describe('changeSummary: что произошло с загрузкой соседей к прошлому замеру', () => {
+  it('среднее только по ночам со сравнением, отдельно счёт роста и падения', () => {
+    expect(
+      changeSummary([
+        row('2026-10-09', 1, 1, 1200),
+        row('2026-10-10', 1, 1, -300),
+        row('2026-10-11', 1, 1, null),
+        row('2026-10-12', 1, 1, 0),
+      ]),
+    ).toEqual({ avgBp: 300, up: 1, down: 1, nights: 3 });
+  });
+  it('без сравнения сводки нет, а не ноль', () => {
+    expect(changeSummary([row('2026-10-09', 1, 1, null)])).toBeNull();
   });
 });

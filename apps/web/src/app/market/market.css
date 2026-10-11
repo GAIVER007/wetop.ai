@@ -96,6 +96,11 @@
   .market-chart figcaption h2 {
     margin: 0 0 var(--space-1);
   }
+  .market-chart__lead {
+    margin: 0 0 var(--space-1);
+    color: var(--text);
+    font-weight: var(--weight-semibold);
+  }
   .market-chart__note {
     margin: 0 0 var(--space-2);
     color: var(--muted);

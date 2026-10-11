@@ -25,6 +25,8 @@ describe.skipIf(!url)('расширения организаций (integration,
   const orgC = randomUUID();
   const owner = randomUUID();
   const staff = randomUUID();
+  const salon = randomUUID();
+  const restaurant = randomUUID();
   const now = new Date('2026-09-25T09:00:00.000Z');
   const until = new Date('2026-10-02T18:59:59.999Z');
 
@@ -57,6 +59,20 @@ describe.skipIf(!url)('расширения организаций (integration,
         { userId: staff, organizationId: orgA, role: 'STAFF' },
       ],
     });
+    // направления и филиалы для таблицы платформы (ADR-163): салон заведён раньше ресторана
+    await db.business.createMany({
+      data: [
+        { id: salon, organizationId: orgA, name: `Салон ${mark}`, vertical: 'BEAUTY', createdAt: new Date('2026-09-01T00:00:00Z') },
+        { id: restaurant, organizationId: orgA, name: `Ресторан ${mark}`, vertical: 'FOOD_SERVICE', createdAt: new Date('2026-09-10T00:00:00Z') },
+      ],
+    });
+    await db.location.createMany({
+      data: [
+        { businessId: salon, name: `Салон, центр ${mark}`, timezone: 'Asia/Almaty', currency: 'KZT' },
+        { businessId: salon, name: `Салон, север ${mark}`, timezone: 'Asia/Almaty', currency: 'KZT' },
+        { businessId: restaurant, name: `Ресторан ${mark}`, timezone: 'Asia/Almaty', currency: 'KZT' },
+      ],
+    });
   });
 
   afterAll(async () => {
@@ -64,6 +80,8 @@ describe.skipIf(!url)('расширения организаций (integration,
     await purgeAuditRows(db, { entityType: 'organization', entityId: { in: [orgA, orgB, orgC] } });
     await db.organizationExtension.deleteMany({ where: { organizationId: { in: [orgA, orgB, orgC] } } });
     await db.membership.deleteMany({ where: { organizationId: { in: [orgA, orgB, orgC] } } });
+    await db.location.deleteMany({ where: { businessId: { in: [salon, restaurant] } } });
+    await db.business.deleteMany({ where: { id: { in: [salon, restaurant] } } });
     await db.user.deleteMany({ where: { id: { in: [owner, staff] } } });
     await db.organization.deleteMany({ where: { id: { in: [orgA, orgB, orgC] } } });
     await db.$disconnect();
@@ -123,8 +141,9 @@ describe.skipIf(!url)('расширения организаций (integration,
     expect(a).toMatchObject({
       name: `Тест расширений ${mark}`,
       members: 2,
-      verticals: [],
-      locations: 0,
+      // направления по порядку заведения бизнесов, филиалы суммой по всем бизнесам (ADR-163)
+      verticals: ['BEAUTY', 'FOOD_SERVICE'],
+      locations: 3,
       owners: [`ext-owner-${mark}@example.invalid`],
       aiSeller: { status: 'ACTIVE', activeUntil: null },
     });

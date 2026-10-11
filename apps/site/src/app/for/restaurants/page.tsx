@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Icon } from '../../../components/icon';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
+import { SubtypeLinks } from '../../../components/landing/subtype-links';
+import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -10,12 +12,13 @@ import { registerLink } from '../../../lib/site';
 /*
  * Лендинг «Для ресторанов» (10.10.2026): каркас гостиничного (`app/for/hotels/page.tsx`) в базовой
  * палитре; в герое цветное фото зала (сгенерировано через KIE по решению владельца, свой файл) вместо
- * мокапа. Возможности — только влитый контур FOOD_SERVICE §28 (план зала, столы, брони, периоды);
- * меню и кухня из невлитой ветки не обещаются. Текст по §19.9; «7 дней» по ADR-098, один раз на экран.
+ * мокапа. Возможности — ресторанный модуль (ADR-159, DATA_MODEL §33): зал, брони, заказы и кухня,
+ * меню с техкартами, смены и зарплата. Текст по §19.9; «7 дней» по ADR-098, один раз на экран.
  * Блоки переиспользуют классы `.hotel-*` групповыми селекторами (реестр §19.5, строка `.restaurant-*`).
  */
 export const metadata: Metadata = pageMetadata({
   path: '/for/restaurants/',
+  image: '/og/restaurant.jpg',
   title: getDictionary().restaurant.metaTitle,
   description: getDictionary().restaurant.description,
 });
@@ -27,6 +30,13 @@ export default function RestaurantLandingPage() {
   return (
     <div className="page">
       <div className="container">
+        <Breadcrumbs
+          label={t.a11y.breadcrumbs}
+          trail={[
+            { name: t.a11y.crumbHome, path: '/' },
+            { name: t.restaurant.badge, path: '/for/restaurants/' },
+          ]}
+        />
         <section className="hotel-hero restaurant-hero" aria-labelledby="restaurant-title">
           <div>
             <p className="eyebrow">{s.badge}</p>
@@ -54,7 +64,7 @@ export default function RestaurantLandingPage() {
             </ul>
           </div>
           <figure className="hotel-hero__figure restaurant-hero__photo">
-            <img src="/photos/restaurant.jpg" alt={s.photoAlt} width={1184} height={864} />
+            <img src="/photos/restaurant.jpg" alt={s.photoAlt} width={1184} height={864} fetchPriority="high" />
           </figure>
         </section>
 
@@ -85,8 +95,18 @@ export default function RestaurantLandingPage() {
                 <span className="icon-tile">
                   <Icon name={card.icon} />
                 </span>
-                <h3 className="card__title">{typo(card.title)}</h3>
+                <h3 className="card__title">
+                  {typo(card.title)} {card.soon ? <span className="tag">{s.soon}</span> : null}
+                </h3>
                 <p className="card__text">{typo(card.text)}</p>
+                <ul className="verticals__capabilities">
+                  {card.points.map((point) => (
+                    <li key={point}>
+                      <Icon name="check" size={15} />
+                      {typo(point)}
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ul>
@@ -120,6 +140,8 @@ export default function RestaurantLandingPage() {
             </a>
           </div>
         </section>
+
+        <SubtypeLinks direction="restaurants" title={t.segments.typesTitle.restaurants} />
 
         <MarketingBlock
           id="marketing"

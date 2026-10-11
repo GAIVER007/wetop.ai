@@ -8081,7 +8081,10 @@ createServer(async (req, res) => {
       for (const r of allCards())
         for (const f of finance(r).folios)
           for (const p of f.payments)
-            if (p.paymentId === paymentId) {
+            if (
+              p.paymentId === paymentId &&
+              (verb !== 'refunds' || !line || f.id === String(body['folioId'] ?? ''))
+            ) {
               line = { folioId: f.id, amountMinor: p.allocatedMinor, method: p.method };
               number = r.confirmationNumber;
             }
@@ -8098,7 +8101,9 @@ createServer(async (req, res) => {
           const refundMinor = parseMoney(String(body['amount'] ?? ''));
           assertRefundWithin({
             allocatedMinor: BigInt(line.amountMinor),
-            refundedMinor,
+            refundedMinor: refundLines
+              .filter((x) => x.paymentId === paymentId && x.folioId === line!.folioId)
+              .reduce((sum, x) => sum + BigInt(x.amountMinor), 0n),
             refundMinor,
           });
           refundLines.push({
@@ -8135,7 +8140,18 @@ createServer(async (req, res) => {
         return send(200, finance(reservation));
       }
       const methodCode = String(body['method'] ?? '');
-      if (!['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL', 'DEPOSIT', 'CARD_GUARANTEE'].includes(methodCode)) {
+      if (
+        ![
+          'CASH',
+          'CARD_TERMINAL',
+          'KASPI',
+          'HALYK',
+          'BANK_TRANSFER_PERSON',
+          'BANK_TRANSFER_LEGAL',
+          'DEPOSIT',
+          'CARD_GUARANTEE',
+        ].includes(methodCode)
+      ) {
         voidedPayments.delete(paymentId);
         return send(400, { message: 'method — один из способов оплаты' });
       }
@@ -8165,7 +8181,9 @@ createServer(async (req, res) => {
       if (!reservation) return send(404, { message: `Счёт ${folioId} не найден` });
       const kind = String(body['kind'] ?? '');
       if (!['SERVICE', 'PENALTY', 'ADJUSTMENT'].includes(kind))
-        return send(400, { message: 'kind — один из SERVICE, PENALTY, ADJUSTMENT (проживание начисляет система)' });
+        return send(400, {
+          message: 'kind — один из SERVICE, PENALTY, ADJUSTMENT (проживание начисляет система)',
+        });
       const quantity = body['quantity'] === undefined ? 1 : Number(body['quantity']);
       if (!Number.isInteger(quantity) || quantity < 1)
         return send(400, { message: 'quantity — целое число от 1' });
@@ -8175,11 +8193,16 @@ createServer(async (req, res) => {
       try {
         if (kind === 'SERVICE') {
           const svc = serviceCatalog.find((x) => x.code === body['serviceCode'] && x.active);
-          if (!svc) return send(400, { message: `Услуга «${String(body['serviceCode'])}» не найдена в справочнике` });
+          if (!svc)
+            return send(400, {
+              message: `Услуга «${String(body['serviceCode'])}» не найдена в справочнике`,
+            });
           serviceCode = svc.code;
           if (!description) description = svc.name;
           unitPriceMinor =
-            body['unitPrice'] === undefined ? BigInt(svc.priceMinor) : parseMoney(String(body['unitPrice']));
+            body['unitPrice'] === undefined
+              ? BigInt(svc.priceMinor)
+              : parseMoney(String(body['unitPrice']));
         } else {
           if (!description) return send(400, { message: 'description — за что начисление' });
           unitPriceMinor = parseMoney(String(body['unitPrice'] ?? ''));
@@ -8189,7 +8212,10 @@ createServer(async (req, res) => {
       }
       if (kind === 'ADJUSTMENT' ? unitPriceMinor === 0n : unitPriceMinor <= 0n)
         return send(400, {
-          message: kind === 'ADJUSTMENT' ? 'Корректировка не может быть нулевой' : 'Цена должна быть больше нуля',
+          message:
+            kind === 'ADJUSTMENT'
+              ? 'Корректировка не может быть нулевой'
+              : 'Цена должна быть больше нуля',
         });
       if (kind === 'ADJUSTMENT' && unitPriceMinor < 0n && !can(uiRole, 'refunds'))
         return send(403, { message: ADJUSTMENT_DOWN_MESSAGE });
@@ -8215,7 +8241,9 @@ createServer(async (req, res) => {
       if (!charge) return send(404, { message: 'Начисление не найдено' });
       if (charge.voidedAt) return send(409, { message: 'Начисление уже сторнировано' });
       charge.voidedAt = `${today}T12:30:00Z`;
-      const reservation = allCards().find((r) => finance(r).folios.some((f) => f.id === charge.folioId))!;
+      const reservation = allCards().find((r) =>
+        finance(r).folios.some((f) => f.id === charge.folioId),
+      )!;
       return send(200, finance(reservation));
     }
     if (path === '/finance/payments') {

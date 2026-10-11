@@ -3,7 +3,16 @@ import type { MarketRates, MarketView } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { SectionTitle } from '../../components/ui';
 import { formatMoney } from '../../lib/money';
-import { buildChartRows, buildPriceRows, linePath, shortMoney, type PriceRow } from './chart-data';
+import {
+  buildChartRows,
+  buildPriceRows,
+  changeSummary,
+  coverageRuns,
+  linePath,
+  shortMoney,
+  type ChartRow,
+  type PriceRow,
+} from './chart-data';
 
 /**
  * Три графика экрана «Загрузка конкурентов» (SALES2.3), чистый SVG без клиентского кода: токены `--chart-*`, подсказка
@@ -21,6 +30,7 @@ const pct = (bp: number | null) => (bp === null ? 'нет данных' : format
 
 function Frame<R extends { date: string }>({
   title,
+  lead,
   note,
   children,
   rows,
@@ -28,6 +38,8 @@ function Frame<R extends { date: string }>({
   columns,
 }: {
   title: string;
+  /** Вывод одной фразой над графиком: что из него следует, без чтения столбиков */
+  lead?: string | undefined;
   note?: string;
   children: React.ReactNode;
   rows: R[];
@@ -38,6 +50,7 @@ function Frame<R extends { date: string }>({
     <figure className="market-chart" data-testid={testId}>
       <figcaption>
         <SectionTitle first>{title}</SectionTitle>
+        {lead && <p className="market-chart__lead">{lead}</p>}
         {note && <p className="market-chart__note">{note}</p>}
       </figcaption>
       <div className="market-chart__scroll" tabIndex={0} role="group" aria-label={`${title}: график, прокручивается на узком экране`}>
@@ -110,11 +123,6 @@ export function MarketCharts({ board, rates }: { board: MarketView['board']; rat
     { key: 'own', label: 'Вы', stroke: 'var(--chart-1)', dash: undefined, width: 3 },
   ] as const;
 
-  // третий график: среднее изменение к прошлому снимку вокруг нуля
-  const maxChange = Math.max(500, ...rows.map((r) => Math.abs(r.changeBp ?? 0)));
-  const yChange = (bp: number) => Math.round(PAD.t + PLOT.h / 2 - (bp / maxChange) * (PLOT.h / 2));
-  const comparing = board.compareDays > 0;
-  const barW = Math.min(24, Math.max(2, band - 2));
 
   return (
     <section className="market-charts" aria-label="Графики" data-testid="market-charts">
@@ -169,72 +177,172 @@ export function MarketCharts({ board, rates }: { board: MarketView['board']; rat
         </ul>
       </Frame>
 
-      <Frame
-        testId="market-chart-data"
-        title="Наличие данных по соседям"
-        note="Сколько соседей из списка внесено на каждую ночь. Ночи без данных не значат, что отель пуст."
-        rows={rows}
-        columns={[{ head: 'С данными', cell: (r) => `${r.withData} из ${r.total}` }]}
-      >
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Сколько соседей внесено на каждую ночь" className="market-chart__svg">
-          <Axes
-            rows={rows}
-            ticks={[
-              { y: PAD.t + PLOT.h, label: '0' },
-              { y: PAD.t, label: String(rows[0]?.total ?? 0) },
-            ]}
-          />
-          {rows.map((r, i) => {
-            const total = Math.max(r.total, 1);
-            const h = (r.withData / total) * PLOT.h;
-            return (
-              <g key={r.date}>
-                <rect x={x(i) - barW / 2} y={PAD.t} width={barW} height={PLOT.h} fill="var(--chart-1-soft)" />
-                <rect x={x(i) - barW / 2} y={PAD.t + PLOT.h - h} width={barW} height={h} fill="var(--chart-1)">
-                  <title>{`${displayDate(r.date)}: ${r.withData} из ${r.total}`}</title>
-                </rect>
-              </g>
-            );
-          })}
-        </svg>
-      </Frame>
+      <CoverageChart rows={rows} />
+      <ChangeChart rows={rows} compareDays={board.compareDays} />
+    </section>
+  );
+}
 
-      <Frame
-        testId="market-chart-change"
-        title="Изменение к прошлому снимку"
-        note={comparing ? 'Среднее изменение загрузки соседей, в процентных пунктах.' : 'Включите «Изменение» в строке выше: сейчас сравнения нет.'}
-        rows={rows}
-        columns={[{ head: 'Изменение', cell: (r) => (r.changeBp === null ? 'нет данных' : formatPoints(Math.round(r.changeBp / 100) * 100)) }]}
-      >
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Среднее изменение загрузки соседей к прошлому снимку" className="market-chart__svg">
-          <Axes
-            rows={rows}
-            ticks={[
-              { y: yChange(maxChange), label: formatPoints(maxChange) },
-              { y: yChange(0), label: '0' },
-              { y: yChange(-maxChange), label: formatPoints(-maxChange) },
-            ]}
-          />
-          {rows.map((r, i) => {
-            if (r.changeBp === null) return null;
-            const y0 = yChange(0);
-            const y1 = yChange(r.changeBp);
-            return (
+/** «11–15 окт.» в одном месяце, «28 окт. – 3 нояб.» через границу месяца */
+const span = (from: string, to: string) =>
+  from === to
+    ? displayDate(from)
+    : from.slice(0, 7) === to.slice(0, 7)
+      ? `${Number(from.slice(8, 10))}–${displayDate(to)}`
+      : `${displayDate(from)} – ${displayDate(to)}`;
+
+/** Полнота словами: короткий период пересказывается отрезками, длинный пёстрый счётом ночей */
+function coverageLead(rows: ChartRow[]): string {
+  const runs = coverageRuns(rows);
+  const total = runs[0]?.total ?? 0;
+  if (!runs.length) return '';
+  if (runs.every((r) => r.withData === r.total)) return `На все ночи внесены данные всех соседей (${total} из ${total}).`;
+  if (runs.length <= 4)
+    return `${runs.map((r) => `${span(r.from, r.to)}: ${r.withData === 0 ? 'нет данных' : `${r.withData} из ${r.total} соседей`}`).join('; ')}.`;
+  const count = (f: (r: ChartRow) => boolean) => rows.filter(f).length;
+  return `Данные всех соседей на ${count((r) => r.withData === r.total)} ночах из ${rows.length}, части соседей на ${count((r) => r.withData > 0 && r.withData < r.total)}, нет данных на ${count((r) => r.withData === 0)}.`;
+}
+
+const COVERAGE = [
+  { key: 'full', label: 'все соседи' },
+  { key: 'part', label: 'часть соседей' },
+  { key: 'none', label: 'нет данных' },
+] as const;
+type Coverage = (typeof COVERAGE)[number]['key'];
+const coverageOf = (r: ChartRow): Coverage => (r.withData === 0 ? 'none' : r.withData >= r.total ? 'full' : 'part');
+
+/** Ячейка полосы: заполнена целиком, наполовину или пустая пунктирная, чтобы состояние читалось и без цвета */
+function CoverageCell({ x, y, w, h, state }: { x: number; y: number; w: number; h: number; state: Coverage }) {
+  if (state === 'none')
+    return <rect x={x} y={y} width={w} height={h} rx={4} fill="none" stroke="var(--muted-2)" strokeDasharray="3 3" />;
+  return (
+    <>
+      <rect x={x} y={y} width={w} height={h} rx={4} fill="var(--chart-1-soft)" />
+      <rect x={x} y={state === 'full' ? y : y + h / 2} width={w} height={state === 'full' ? h : h / 2} rx={4} fill="var(--chart-1)" />
+    </>
+  );
+}
+
+const STRIP = { h: 64, top: 6, cell: 28 };
+
+function CoverageChart({ rows }: { rows: ChartRow[] }) {
+  const band = PLOT.w / Math.max(rows.length, 1);
+  const cellW = Math.max(2, Math.min(40, band - 4));
+  const every = rows.length > 20 ? 5 : rows.length > 10 ? 2 : 1;
+  return (
+    <Frame
+      testId="market-chart-data"
+      title="Полнота данных по соседям"
+      lead={coverageLead(rows)}
+      note="Чем меньше соседей внесено на ночь, тем меньше стоит доверять средней по рынку на эту ночь. Ночь без данных не значит, что отель пуст: просто нет замера."
+      rows={rows}
+      columns={[{ head: 'С данными', cell: (r) => `${r.withData} из ${r.total}` }]}
+    >
+      <svg viewBox={`0 0 ${W} ${STRIP.h}`} width="100%" role="img" aria-label="Полнота данных по соседям на каждую ночь" className="market-chart__svg">
+        {rows.map((r, i) => {
+          const x0 = PAD.l + i * band + (band - cellW) / 2;
+          return (
+            <g key={r.date} data-coverage={coverageOf(r)}>
+              <CoverageCell x={x0} y={STRIP.top} w={cellW} h={STRIP.cell} state={coverageOf(r)} />
+              <title>{`${displayDate(r.date)}: ${r.withData} из ${r.total} соседей`}</title>
+              {i % every === 0 && (
+                <text x={x0 + cellW / 2} y={STRIP.top + STRIP.cell + 20} textAnchor="middle" fontSize={13} fill="var(--muted-2)">
+                  {Number(r.date.slice(8, 10))}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+      <ul className="market-chart__legend" aria-label="Обозначения">
+        {COVERAGE.map((c) => (
+          <li key={c.key}>
+            <svg width="20" height="14" aria-hidden="true">
+              <CoverageCell x={1} y={1} w={18} h={12} state={c.key} />
+            </svg>
+            {c.label}
+          </li>
+        ))}
+      </ul>
+    </Frame>
+  );
+}
+
+const compareWord = (days: number) =>
+  days === 1 ? 'со вчерашним замером' : days === 7 ? 'с замером неделю назад' : `с замером ${days} дн. назад`;
+const points = (bp: number) => formatPoints(Math.round(bp / 100) * 100);
+
+function changeLead(rows: ChartRow[]): string | undefined {
+  const s = changeSummary(rows);
+  if (!s) return undefined;
+  const avg = Math.round(s.avgBp / 100) * 100;
+  const word = avg > 0 ? 'соседи заполняются' : avg < 0 ? 'соседи освобождаются' : 'загрузка соседей не изменилась';
+  return `В среднем ${points(avg)}: ${word}. Ночей с ростом: ${s.up}, с падением: ${s.down}, всего со сравнением: ${s.nights}.`;
+}
+
+/**
+ * Изменение загрузки соседей к прошлому замеру. Шкала от фактических значений (ноль внизу, если всё в плюс), а не
+ * симметричная: иначе половина графика пустая. Значение подписано над столбиком, пока столбики не слишком узкие.
+ */
+function ChangeChart({ rows, compareDays }: { rows: ChartRow[]; compareDays: number }) {
+  const comparing = compareDays > 0;
+  const band = PLOT.w / Math.max(rows.length, 1);
+  const x = (i: number) => Math.round(PAD.l + i * band + band / 2);
+  const barW = Math.min(24, Math.max(2, band - 2));
+  const values = rows.flatMap((r) => (r.changeBp === null ? [] : [r.changeBp]));
+  const hi = Math.max(0, ...values);
+  const lo = Math.min(0, ...values);
+  const room = Math.max(hi - lo, 500) * 0.22; // место под подпись значения
+  const top = hi + (hi > 0 || lo === 0 ? room : 0);
+  const bottom = lo - (lo < 0 ? room : 0);
+  const y = (bp: number) => Math.round(PAD.t + ((top - bp) / (top - bottom)) * PLOT.h);
+  const labelled = band >= 30;
+  // подписи на столбиках уже называют значения; крайние отметки шкалы нужны, только когда подписей нет
+  const ticks = [{ y: y(0), label: '0' }];
+  if (!labelled && hi > 0) ticks.unshift({ y: y(hi), label: points(hi) });
+  if (!labelled && lo < 0) ticks.push({ y: y(lo), label: points(lo) });
+  return (
+    <Frame
+      testId="market-chart-change"
+      title="Как меняется загрузка соседей"
+      lead={comparing ? changeLead(rows) : undefined}
+      note={
+        comparing
+          ? `Сравнение ${compareWord(compareDays)}: на сколько в среднем выросла или упала загрузка соседей на каждую ночь. «+12 п.п.» значит, например, было 80 %, стало 92 %.`
+          : 'Включите «Изменение» в строке выше: сейчас сравнения нет.'
+      }
+      rows={rows}
+      columns={[{ head: 'Изменение', cell: (r) => (r.changeBp === null ? 'нет данных' : points(r.changeBp)) }]}
+    >
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Изменение загрузки соседей по ночам" className="market-chart__svg">
+        <Axes rows={rows} ticks={ticks} />
+        <line x1={PAD.l} x2={W - PAD.r} y1={y(0)} y2={y(0)} stroke="var(--muted-2)" strokeWidth={1.5} />
+        {rows.map((r, i) => {
+          if (!comparing || r.changeBp === null) return null;
+          const y0 = y(0);
+          const y1 = y(r.changeBp);
+          const up = r.changeBp >= 0;
+          return (
+            <g key={r.date}>
               <rect
-                key={r.date}
                 x={x(i) - barW / 2}
                 y={Math.min(y0, y1)}
                 width={barW}
                 height={Math.max(1, Math.abs(y1 - y0))}
-                fill={r.changeBp >= 0 ? 'var(--chart-2)' : 'var(--danger)'}
+                fill={up ? 'var(--chart-2)' : 'var(--danger)'}
               >
-                <title>{`${displayDate(r.date)}: ${formatPoints(Math.round(r.changeBp / 100) * 100)}`}</title>
+                <title>{`${displayDate(r.date)}: ${points(r.changeBp)}`}</title>
               </rect>
-            );
-          })}
-        </svg>
-      </Frame>
-    </section>
+              {labelled && (
+                <text x={x(i)} y={up ? y1 - 6 : y1 + 16} textAnchor="middle" fontSize={13} fill="var(--text-2)">
+                  {points(r.changeBp).replace(' п.п.', '')}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </Frame>
   );
 }
 

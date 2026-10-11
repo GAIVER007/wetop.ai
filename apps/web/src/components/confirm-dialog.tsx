@@ -16,6 +16,7 @@ export function ConfirmDialog({
   cancelLabel = 'Оставить как есть',
   tone = 'danger',
   pending = false,
+  confirmDisabled = false,
   onConfirm,
   onCancel,
 }: {
@@ -27,6 +28,7 @@ export function ConfirmDialog({
   tone?: ButtonTone | undefined;
   /** пока команда идёт — кнопки отключены, на главной текст «Выполняю…» */
   pending?: boolean | undefined;
+  confirmDisabled?: boolean | undefined;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -76,7 +78,12 @@ export function ConfirmDialog({
             >
               {cancelLabel}
             </Button>
-            <Button type="button" tone={tone} onClick={onConfirm} disabled={pending}>
+            <Button
+              type="button"
+              tone={tone}
+              onClick={onConfirm}
+              disabled={pending || confirmDisabled}
+            >
               {pending ? 'Выполняю…' : confirmLabel}
             </Button>
           </div>

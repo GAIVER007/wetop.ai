@@ -237,7 +237,7 @@ function MarketCard({ board }: { board: MarketView['board'] | null }) {
           <Icon name="analytics" />
         </span>
         <div>
-          <h2 id="sales-market-title">Загрузка конкурентов</h2>
+          <h2 id="sales-market-title">Анализ конкурентов</h2>
           <p>Мониторинг рынка, сравнение загрузки, подсказки к цене.</p>
         </div>
       </div>

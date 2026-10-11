@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 11.10.2026 13:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит ff174db (claude/market-charts-clarity), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/market-charts.spec.ts' '-g' 'три графика|без сравнения'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1200ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-charts/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей (22.5s)
+  ✓  2 tests/ui/market-charts.spec.ts:92:1 › без сравнения: график изменения говорит, как его включить, а не рисует нули (4.3s)
+
+
+  1) tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('market-chart-data').locator('.market-chart__lead')
+    Expected substring: "2 из 2 соседей"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('market-chart-data').locator('.market-chart__lead') with timeout 15000ms
+      - waiting for getByTestId('market-chart-data').locator('.market-chart__lead')
+
+
+      77 |
+      78 |   // вывод словами над графиками: что следует из данных, без чтения столбиков
+    > 79 |   await expect(data.locator('.market-chart__lead')).toContainText('2 из 2 соседей');
+         |                                                     ^
+      80 |   await expect(data.locator('.market-chart__lead')).toContainText('1 из 2 соседей');
+      81 |   // полоса полноты: пять ночей с обоими соседями, девять с одним
+      82 |   await expect(data.locator('[data-coverage="full"]')).toHaveCount(5);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-charts/tests/ui/market-charts.spec.ts:79:53
+
+    Error Context: test-results/market-charts-три-графика--ef77a--значения-доступны-таблицей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-charts-три-графика--ef77a--значения-доступны-таблицей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-charts-три-графика--ef77a--значения-доступны-таблицей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей 
+  1 passed (54.7s)
+
+# код выхода 1 · 59 с

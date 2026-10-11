@@ -36,6 +36,38 @@ export function buildChartRows(board: MarketView['board']): ChartRow[] {
   });
 }
 
+/** Ночи подряд с одинаковой полнотой данных («9–13 окт.: 2 из 2 соседей»): так полноту читают словами, а не столбиками */
+export interface CoverageRun {
+  from: string;
+  to: string;
+  withData: number;
+  total: number;
+}
+export function coverageRuns(rows: ChartRow[]): CoverageRun[] {
+  const runs: CoverageRun[] = [];
+  for (const r of rows) {
+    const last = runs.at(-1);
+    if (last && last.withData === r.withData && last.total === r.total) last.to = r.date;
+    else runs.push({ from: r.date, to: r.date, withData: r.withData, total: r.total });
+  }
+  return runs;
+}
+
+/**
+ * Сводка изменения загрузки соседей к прошлому замеру: среднее по ночам, где сравнение есть, и счёт ночей роста и
+ * падения. Порога «заметно» нет намеренно: сводка пересказывает числа, оценку делает человек.
+ */
+export function changeSummary(rows: ChartRow[]): { avgBp: number; up: number; down: number; nights: number } | null {
+  const values = rows.flatMap((r) => (r.changeBp === null ? [] : [r.changeBp]));
+  if (!values.length) return null;
+  return {
+    avgBp: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+    up: values.filter((v) => v > 0).length,
+    down: values.filter((v) => v < 0).length,
+    nights: values.length,
+  };
+}
+
 /** Путь линии: рвётся на пропуске, одиночная точка остаётся точкой */
 export function linePath(
   values: Array<number | null>,

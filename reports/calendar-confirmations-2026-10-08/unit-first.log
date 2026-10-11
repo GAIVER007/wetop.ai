@@ -1,0 +1,280 @@
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008
+
+[Nest] 13189  - 10/08/2026, 10:41:21 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 13189  - 10/08/2026, 10:41:21 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 13189  - 10/08/2026, 10:41:21 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 13186  - 10/08/2026, 10:41:22 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 13186  - 10/08/2026, 10:41:22 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 13186  - 10/08/2026, 10:41:22 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 13186  - 10/08/2026, 10:41:22 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 13183  - 09/10/2026, 10:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+[Nest] 13186  - 10/08/2026, 10:41:22 AM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 13186  - 10/08/2026, 10:41:22 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+[Nest] 13902  - 10/08/2026, 10:41:28 AM   ERROR [OutboxWorker] Менеджер каналов отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+[Nest] 14595  - 10/08/2026, 10:41:29 AM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ❯ |unit| apps/api/src/accounts/invites.controller.test.ts (13 tests | 1 failed) 494ms
+   ❯ приглашение: отзыв и предел в сутки (3)
+     × больше 20 приглашений за сутки — 429 словами, письма нет 66ms
+[Nest] 14681  - 10/08/2026, 10:41:29 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 14681  - 10/08/2026, 10:41:29 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 14681  - 10/08/2026, 10:41:29 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 14681  - 10/08/2026, 10:41:29 AM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 14681  - 10/08/2026, 10:41:29 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 14681  - 10/08/2026, 10:41:29 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 14681  - 10/08/2026, 10:41:29 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 14681  - 10/08/2026, 10:41:29 AM    WARN [WebhookHealthService] в менеджере каналов зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 14681  - 10/08/2026, 10:41:29 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 14681  - 10/08/2026, 10:41:29 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 14681  - 10/08/2026, 10:41:29 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 14681  - 10/08/2026, 10:41:29 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 14681  - 10/08/2026, 10:41:29 AM     LOG [WebhookHealthService] адрес webhook https://api.wetop.test/channels/channex/webhook: отвечает
+[Nest] 14681  - 10/08/2026, 10:41:29 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 14681  - 10/08/2026, 10:41:29 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 14803  - 10/08/2026, 10:41:31 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Proxy.applyChanges (/Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ❯ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 2 failed | 1 skipped) 34520ms
+   ❯ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     × R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 7142ms
+     × размер в R2 не совпал: сбой, статус не тронут 6647ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 2 failed) 28439ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     × смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 6969ms
+     × схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 5665ms
+ ❯ |unit| tests/unit/shift-check-wrapper.test.ts (4 tests | 1 failed) 4748ms
+   ❯ scripts/ops/shift-check.sh (4)
+     × пустая таблица и незнакомый ключ: код 2, контейнер не зовётся 142ms
+ ❯ |unit| tests/unit/guard-run.test.ts (8 tests | 2 failed) 29789ms
+   ❯ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     × заданы оба: платит ключ, токен подписки процессу агента не достаётся 6419ms
+   ❯ дежурный агент: дневной потолок денег (ADR-137) (4)
+     × вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 8490ms
+[Nest] 35539  - 10/08/2026, 10:42:39 AM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 35539  - 10/08/2026, 10:42:39 AM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 35937  - 10/08/2026, 10:42:41 AM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+[Nest] 36163  - 10/08/2026, 10:42:43 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): Connection terminated
+[Nest] 36163  - 10/08/2026, 10:42:43 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): очередь недоступна
+[Nest] 36163  - 10/08/2026, 10:42:43 AM   ERROR [AriPublisher] След потерянной дельты не записан: и журнал недоступен
+[Nest] 38399  - 10/08/2026, 10:42:50 AM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ❯ |unit| tests/unit/auto-deploy.test.ts (16 tests | 5 failed) 91017ms
+   ❯ scripts/ops/auto-deploy.sh (16)
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 11002ms
+     × флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 6313ms
+     × --migrations-applied с номером вершины выкладывает ровно её, другую — нет 6507ms
+     × release перемотали после отказа — флаг со старой вершиной не выкладывает новую 7571ms
+     × после сборки не отвечает — возвращает прежний коммит и прежний образ 7121ms
+ ❯ |unit| tests/unit/repo-sync.test.ts (25 tests | 1 failed) 108885ms
+   ❯ repo-sync.sh: папка бота, перенесённая внутрь рабочей (7)
+     × находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает 4151ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:164:3
+    162|   });
+    163|
+    164|   it('владелец применил миграции и назвал вершину — выкладывает ровно …
+       |   ^
+    165|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    166|     const refusal = run();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:182:3
+    180|
+    181|   // Проверка исправлений 26.09: отказ на A, release ушёл на B, cron о…
+    182|   it('флаг без вершины не принимается и тогда, когда cron уже отказал …
+       |   ^
+    183|     commit('packages/database/prisma/migrations/0002_more/migration.sq…
+    184|     const before = head();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > --migrations-applied с номером вершины выкладывает ровно её, другую — нет
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:208:3
+    206|   });
+    207|
+    208|   it('--migrations-applied с номером вершины выкладывает ровно её, дру…
+       |   ^
+    209|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    210|     expect(run().code).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > release перемотали после отказа — флаг со старой вершиной не выкладывает новую
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:231:3
+    229|   });
+    230|
+    231|   it('release перемотали после отказа — флаг со старой вершиной не вык…
+       |   ^
+    232|     const applied = commit('packages/database/prisma/migrations/0002_m…
+    233|     expect(run().code).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > после сборки не отвечает — возвращает прежний коммит и прежний образ
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:271:3
+    269|   });
+    270|
+    271|   it('после сборки не отвечает — возвращает прежний коммит и прежний о…
+       |   ^
+    272|     const before = head();
+    273|     const target = commit('apps/web/page.txt', 'broken\n', 'broken');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: сбой виден (ADR-137) > R2 отказал: код 1, текст ошибки в сообщении, статус не тронут
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-backup-offsite.test.ts:235:3
+    233|   });
+    234|
+    235|   it('R2 отказал: код 1, текст ошибки в сообщении, статус не тронут', …
+       |   ^
+    236|     const s = sandbox();
+    237|     s.dump('wetop-20261002T233000Z.dump');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL  |unit| tests/unit/db-backup-offsite.test.ts > вторая копия вне сервера: сбой виден (ADR-137) > размер в R2 не совпал: сбой, статус не тронут
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-backup-offsite.test.ts:244:3
+    242|   });
+    243|
+    244|   it('размер в R2 не совпал: сбой, статус не тронут', () => {
+       |   ^
+    245|     const s = sandbox();
+    246|     s.dump('wetop-20261002T233000Z.dump');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > смешанная schema-миграция с GRANT не выполняется второй раз после восстановления
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:117:3
+    115|   });
+    116|
+    117|   it('смешанная schema-миграция с GRANT не выполняется второй раз посл…
+       |   ^
+    118|     const s = sandbox();
+    119|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:126:3
+    124|   });
+    125|
+    126|   it('схема public из копии не пересоздаётся: её записи вычеркнуты из …
+       |   ^
+    127|     const s = sandbox();
+    128|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > заданы оба: платит ключ, токен подписки процессу агента не достаётся
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:109:3
+    107|   });
+    108|
+    109|   it('заданы оба: платит ключ, токен подписки процессу агента не доста…
+       |   ^
+    110|     const s = sandbox();
+    111|     const r = s.run({ ANTHROPIC_API_KEY: 'api-key', CLAUDE_CODE_OAUTH_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/14]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > вчерашний счётчик не мешает: новые сутки начинаются с первого запуска
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:156:3
+    154|   });
+    155|
+    156|   it('вчерашний счётчик не мешает: новые сутки начинаются с первого за…
+       |   ^
+    157|     const s = sandbox();
+    158|     writeFileSync(s.runsFile, '2000-01-01 4\n');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/14]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает
+AssertionError: expected 'Папка: /private/var/folders/sl/5hhh0s…' to contain '--archive-nested'
+
+- Expected
++ Received
+
+- --archive-nested
++ Папка: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-DR3qJR/WETOP
++   ✓ origin → /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-DR3qJR/GAIVER007/wetop.ai.git
++ Git: ветка main, коммит 618995a; origin/main 618995a
++   ✓ совпадает с origin/main
++   · неотслеживаемых файлов: 1 (git status)
++   ✗ ещё одна копия репозитория рядом: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-DR3qJR/seed (618995a от 2026-10-08)
++   → оставить одну папку: службы launchd, .env и тесты живут в одной (AGENTS.md §17)
++   ✗ внутри папки вторая копия репозитория: Чат агент/WETOP (ветка ai-seller)
++   · это старая папка бота: с 24.09 он живёт в apps/ai-seller ветки main, со всей историей
++   · всё из неё уже на GitHub; .env и данные переедут вместе с папкой
++ /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/scripts/ops/repo-sync.sh: line 283: top_rel�: unbound variable
++
+
+ ❯ tests/unit/repo-sync.test.ts:545:17
+    543|     expect(out).toMatch(/apps\/ai-seller/);
+    544|     expect(out).toMatch(/всё из неё уже на GitHub/);
+    545|     expect(out).toContain('--archive-nested');
+       |                 ^
+    546|     expect(out).not.toContain('SECRET=1');
+    547|     expect(existsSync(join(top, 'WETOP', '.env'))).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/14]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > пустая таблица и незнакомый ключ: код 2, контейнер не зовётся
+AssertionError: expected '/Users/urijzapojnov/Documents/ChatGPT…' to contain 'нужно ГГГГ-ММ-ДД'
+
+- Expected
++ Received
+
+- нужно ГГГГ-ММ-ДД
++ /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/scripts/ops/shift-check.sh: line 61: day�: unbound variable
++
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:100:69
+     98|     expect(s.run(['--date', '2026-10-06'], '  \n\n').code).toBe(2);
+     99|     expect(s.run(['--force'], 'событие\tбронь\n').code).toBe(2);
+    100|     expect(s.run(['--date', '06.10.2026'], 'событие\tбронь\n').err).to…
+       |                                                                     ^
+    101|     expect(s.read('calls')).toBe('');
+    102|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/14]⎯
+
+ FAIL  |unit| apps/api/src/accounts/invites.controller.test.ts > приглашение: отзыв и предел в сутки > больше 20 приглашений за сутки — 429 словами, письма нет
+Error: socket hang up
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/14]⎯
+
+
+ Test Files  7 failed | 373 passed | 1 skipped (381)
+      Tests  14 failed | 3396 passed | 4 skipped (3414)
+   Start at  10:41:18
+   Duration  120.43s (tests 82%, import 13%, transform 5%)
+

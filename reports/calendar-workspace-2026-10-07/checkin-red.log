@@ -1,0 +1,61 @@
+[WebServer] (node:78818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78837) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78838) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78865) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:78888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-card.spec.ts:72:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (18.6s)
+
+
+  1) tests/ui/chessboard-card.spec.ts:72:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('stay-preview')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('stay-preview') with timeout 15000ms
+      - waiting for getByTestId('stay-preview')
+
+
+      88 |   await expect(checkedIn).toBeVisible();
+      89 |   const preview = page.getByTestId('stay-preview');
+    > 90 |   await expect(preview).toBeVisible();
+         |                         ^
+      91 |   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toHaveCount(0);
+      92 |   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
+      93 |   await expect(preview.getByTestId('preview-status')).toContainText('Заселён');
+        at /private/tmp/wetop-calendar-workspace-20261007/tests/ui/chessboard-card.spec.ts:90:25
+
+    Error Context: test-results/chessboard-card-«Заселить»-6bd84-щую-команду-и-меняет-статус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-«Заселить»-6bd84-щую-команду-и-меняет-статус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-«Заселить»-6bd84-щую-команду-и-меняет-статус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-card.spec.ts:72:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус 

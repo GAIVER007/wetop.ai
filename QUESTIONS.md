@@ -1329,6 +1329,16 @@ Owner T11 decision, 2026-10-07: deny BAR reverse for closed or any paid Folio. P
 
 BAR gates final status, 2026-10-07: C10/C12/C14 and D1-D4 above are RESOLVED by the owner responses and the T11 decision. Earlier pending/BLOCKED paragraphs record the historical approval sequence, not the current authorization. Implementation follows the accepted plan; merge/release/production still require a separate exact-SHA approval.
 
+## Q-OCCUPANCY-FIXED-20261007
+
+Владелец просит убрать изменение числа гостей из действий брони и задавать число через тип номера (1 или 2). Форма в карточке будет убрана. DATA_MODEL.md предусматривает тарифы двухместной категории для 1 и 2 гостей. Требует уточнения: всегда подставлять 2 и цену за двоих при создании либо сохранять выбор 1/2 только при создании. До ответа правила цены, сохранённые гости и API не меняются.
+
+### Q-CALENDAR-DEPLOY-20261008: чужие миграции перед календарём
+
+Проверка сервера 08.10.2026: deployed e3fadd02bb8dbbae2d20028118819d576c064e30, refused afe78398bd873e4e93f0aa5262416d447252ce93. Причина в /var/log/wetop-deploy.log: marketing_site_core (60), marketing_site_grants (61). Календарь не требует миграций. Применение этих production migrations отдельно выполняет владелец по утверждённому плану с backup/validation/rollback. Не обходить отказ и не перематывать release назад. После применения и зелёного final-SHA release-checks проверить штатную выкладку и рабочие маршруты.
+
+Q-CALENDAR-DEPLOY-20261008: RESOLVED 08.10.2026. Сервер deployed 0d108ca8ad66ca24282ef060e4599bbdf7efb7fa, refused отсутствует. Календарь не вводит миграций. Требуется обычная проверка и выкладка кандидата поверх актуального release.
+
 ## Q-ACTIONS-BUDGET: бюджет GitHub Actions под автовыкладку (09.10.2026, OPEN, за владельцем)
 
 ADR-152 включил гейт на каждый пуш кода в `main`. Прогон гейта стоит около 95 минут, бесплатных минут 2000 в месяц,

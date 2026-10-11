@@ -1,5 +1,7 @@
 # BAR financial acceptance candidate
 
+Current candidate: fresh-main base `0491010ddbd23c277a464c022ee9854fffd09b02`, migration `20261011000084_bar_financial_replay`, 90 migration directories. Earlier migration numbers and results below are historical checkpoints.
+
 Status: implementation candidate. This document records local evidence at the candidate commit; the exact-SHA full GitHub CI and final readiness are recorded in the PR manifest. This report does not authorize merge, release, migration or production deployment.
 
 ## Scope and baseline
@@ -118,3 +120,6 @@ Upstream advanced again to ff174dbaebaaa2f248d641938975036877a24b03 with profile
 Final UI review reproduced real legacy-grid collisions with permanent geometry checks: RED 2026-10-11T09-28-07Z-e2e-0f5b, both cases failed, unchanged source during execution. BAR form overrides now live in the existing sections layer; retail/Folio inputs and product-card recovery are readable and normal-click usable. Cash void SSR exposed an enabled button before hydration: RED 2026-10-11T09-34-15Z-unit-98d9, GREEN 2026-10-11T09-34-53Z-unit-cb78. The control is unavailable until its own confirmation handler hydrates, without changing D2/D4 or money behavior. Full real-session browser run 2026-10-11T09-35-56Z-e2e-111c: 10 PASS, zero skips, includes geometry and cash-void persistence.
 
 Full local integration on published predecessor a0241cdf and a fresh UTC PostgreSQL database: 2026-10-11T09-19-10Z-integration-5c99, 1049 PASS, 16 existing skips, zero failures. No assertion or timeout changes were made. Complete fast CI for predecessor a0241cdf: 4512 unit PASS (7 existing platform skips), lint/typecheck PASS and 111 site checks PASS; BAR/Food/Beauty/Branches CI jobs passed. That run was cancelled when final visual/readiness defects required source changes. It is not final exact-head GREEN. Final immutable CI evidence and counts are reported in the PR description after the last source commit; do not create a post-CI source change or treat predecessor evidence as current readiness.
+
+
+Final breakpoint regression: exact-head CI `38129589983` passed lint/types and 4516 unit cases, but rejected one newly introduced 560px breakpoint in BAR. The new breakpoint was changed to the approved 600px threshold without changing the design baseline, assertions or timeouts. Design guard replay `2026-10-11T09-55-48Z-unit-3085` passed all 18 cases. The two preceding local commands used incorrect recorder arguments and were interrupted; they are not acceptance evidence. Full browser and CI must pass on the corrected head before readiness.

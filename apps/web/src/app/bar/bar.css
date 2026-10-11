@@ -901,7 +901,7 @@
   @media (max-width: 600px) {
     .bar-inline > .bar-intent-fields { grid-column: 1 / -1; grid-template-columns: 1fr; }
   }
-  @media (max-width: 560px) {
+  @media (max-width: 600px) {
     .bar-payment-form > .bar-intent-fields { grid-column: 1 / -1; grid-template-columns: 1fr; }
   }
 }

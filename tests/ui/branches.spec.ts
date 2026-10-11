@@ -147,7 +147,8 @@ test('переключатель филиалов сохраняет разде�
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const mobile = page.locator('.mobile-navigation');
   await mobile.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
-  await expect(mobile.getByRole('button', { name: /Филиал Север Тестовая/ })).toHaveAttribute(
+  // в кнопке между названием и адресом подписано направление (#403): «Филиал Север Гостиничный бизнес Тестовая улица…»
+  await expect(mobile.getByRole('button', { name: /Филиал Север .*Тестовая улица/ })).toHaveAttribute(
     'aria-pressed',
     'true',
   );

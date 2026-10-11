@@ -292,7 +292,7 @@
     }
     .sidenav__bottom {
       max-width: 180px;
-      gap: 2px;
+      gap: var(--space-1);
     }
     .sidenav__bottom:not(:has([data-testid])) {
       display: none;
@@ -310,7 +310,7 @@
       cursor: wait;
     }
   }
-  @media (min-width: 961px) and (max-width: 1250px) {
+  @media (min-width: 961px) and (max-width: 1279px) {
     .sidenav__bottom {
       max-width: 140px;
     }

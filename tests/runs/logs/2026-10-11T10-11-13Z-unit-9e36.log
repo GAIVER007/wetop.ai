@@ -1,0 +1,21 @@
+# Модульные (unit) · 11.10.2026 15:11 Алматы · MacBook-Air-Urij.local
+# коммит 0491010 (codex/ai-seller-wizard-scan-20261011), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-11-13Z-unit-9e36.json' 'apps/api/src/wizard' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/web-booking/turnstile.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ✓ |unit| apps/api/src/wizard/wizard-input.test.ts (4 tests) 17ms
+ ✓ |unit| apps/api/src/wizard/wizard-turnstile.test.ts (1 test) 40ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 67ms
+ ✓ |unit| apps/api/src/wizard/wizard-scan.controller.test.ts (1 test) 333ms
+   ✓ requires configured rollout, session and captcha before enqueuing 331ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 96ms
+
+ Test Files  5 passed (5)
+      Tests  36 passed (36)
+   Start at  14:11:14
+   Duration  6.42s (transform 50%, import 45%, tests 5%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-11-13Z-unit-9e36.json
+
+# код выхода 0 · 8 с

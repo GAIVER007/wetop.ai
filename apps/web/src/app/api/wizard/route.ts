@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     step?: unknown;
     answers?: unknown;
     type?: unknown;
+    challenge?: unknown;
   };
   try {
     body = JSON.parse(raw);
@@ -47,6 +48,15 @@ export async function POST(request: Request) {
   if (token && !/^wz_[a-f0-9]{64}$/.test(token))
     return json({ message: 'Сессия мастера недействительна' }, 401);
   try {
+    if (body.operation === 'scan')
+      return json(
+        await wizardApi.scan(
+          token,
+          { revision: body.revision, challenge: body.challenge },
+          request.headers.get('cf-connecting-ip'),
+        ),
+      );
+    if (body.operation === 'scan-status') return json(await wizardApi.scanStatus(token));
     if (body.operation === 'claim') return json(await sellerAgentsApi.claim(token));
     if (body.operation === 'open')
       return json(

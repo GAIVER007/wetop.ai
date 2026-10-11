@@ -1,0 +1,33 @@
+# Интеграционные (integration) · 11.10.2026 15:01 Алматы · MacBook-Air-Urij.local
+# коммит 0491010 (codex/ai-seller-wizard-scan-20261011), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-01-14Z-integration-2711.json' '--config' 'tests/wizard-scan.config.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ❯ |integration| tests/integration/wizard-scan.test.ts (1 test | 1 failed) 287ms
+   × enqueues one scan for concurrent requests at the same revision 276ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/wizard-scan.test.ts > enqueues one scan for concurrent requests at the same revision
+TypeError: service.scan is not a function
+ ❯ tests/integration/wizard-scan.test.ts:24:78
+     22|   ids.push(opened.guestSessionId);
+     23|   await service.save(opened.guestToken, { revision: 0, step: 'source',…
+     24|   const outcomes = await Promise.all(Array.from({ length: 4 }, () => s…
+       |                                                                              ^
+     25|   expect(new Set(outcomes.map((r) => r.id)).size).toBe(1);
+     26|   expect(await db.wizardJob.count({ where: { draft: { guestSessionId: …
+ ❯ tests/integration/wizard-scan.test.ts:24:44
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  14:01:17
+   Duration  1.39s (transform 51%, import 26%, tests 22%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-01-14Z-integration-2711.json
+
+# код выхода 1 · 4 с

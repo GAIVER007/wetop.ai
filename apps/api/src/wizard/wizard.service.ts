@@ -44,11 +44,14 @@ export class WizardService {
     if (process.env.WIZARD_ENABLED !== '1')
       throw new ServiceUnavailableException('Гостевой мастер пока не включён');
   }
-  private async session(token: string | undefined) {
+  private async session(
+    token: string | undefined,
+    db: Pick<PrismaService['db'], 'wizardSession'> = this.prisma.db,
+  ) {
     this.enabled();
     if (!token || !/^wz_[a-f0-9]{64}$/.test(token))
       throw new UnauthorizedException('Откройте мастер заново');
-    const row = await this.prisma.db.wizardSession.findUnique({
+    const row = await db.wizardSession.findUnique({
       where: { tokenHash: hash(token) },
       include: { draft: true },
     });
@@ -59,6 +62,12 @@ export class WizardService {
   private view(row: Awaited<ReturnType<WizardService['session']>>) {
     const d = row.draft;
     return {
+      scanSiteKey:
+        process.env.WIZARD_SCAN_ENABLED === '1' &&
+        process.env.TURNSTILE_SECRET_KEY &&
+        process.env.WIZARD_PUBLIC_HOST
+          ? (process.env.TURNSTILE_SITE_KEY ?? null)
+          : null,
       guestSessionId: row.id,
       lastStep: row.lastStep,
       draft: {
@@ -74,7 +83,7 @@ export class WizardService {
   }
   async open(token: string | undefined, ref: unknown, ip: string | null = null) {
     this.enabled();
-    if (token) return this.view(await this.session(token));
+    if (token) return this.scanStatus(token);
     if (ip && !this.opens.allow(ip, Date.now()))
       throw new HttpException(TOO_MANY_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
     const ttl = Number(process.env.WIZARD_SESSION_TTL_SECONDS);
@@ -96,7 +105,7 @@ export class WizardService {
     return { ...this.view({ ...row, draft: row.draft! }), guestToken };
   }
   async status(token: string | undefined) {
-    return this.view(await this.session(token));
+    return this.scanStatus(token);
   }
   async save(token: string | undefined, body: unknown) {
     const row = await this.session(token);
@@ -134,6 +143,71 @@ export class WizardService {
       });
     });
     return this.status(token);
+  }
+  async scan(token: string | undefined, body: unknown, ipHash = hash('unknown')) {
+    const row = await this.session(token);
+    const revision =
+      body && typeof body === 'object' ? (body as { revision?: unknown }).revision : undefined;
+    if (revision !== row.draft.revision || row.draft.agentId)
+      throw new ConflictException('Черновик изменился. Обновите страницу');
+    const siteUrl = configObject(row.draft.config).siteUrl;
+    if (!siteUrl) throw new BadRequestException('Укажите адрес сайта');
+    if (!this.saves.allow(row.id, Date.now()))
+      throw new HttpException(TOO_MANY_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
+    return this.prisma.db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM wizard_drafts WHERE id = ${row.draft.id}::uuid FOR UPDATE`;
+      const fresh = await tx.wizardDraft.findUniqueOrThrow({ where: { id: row.draft.id } });
+      if (fresh.revision !== revision || fresh.agentId)
+        throw new ConflictException('Черновик изменился. Обновите страницу');
+      const job = await tx.wizardJob.upsert({
+        where: {
+          draftId_kind_revision: {
+            draftId: row.draft.id,
+            kind: 'scan',
+            revision: row.draft.revision,
+          },
+        },
+        create: { draftId: row.draft.id, kind: 'scan', revision: row.draft.revision },
+        update: {},
+      });
+      await tx.wizardEvent.createMany({
+        data: [
+          {
+            guestSessionId: row.id,
+            eventType: 'scan_requested',
+            deduplicationKey: `scan:${job.id}`,
+            payload: { ipHash },
+          },
+        ],
+        skipDuplicates: true,
+      });
+      return { id: job.id, state: job.state };
+    });
+  }
+  async scanStatus(token: string | undefined) {
+    return this.prisma.db.$transaction(
+      async (tx) => {
+        const row = await this.session(token, tx);
+        const job = await tx.wizardJob.findFirst({
+          where: { draftId: row.draft.id, kind: 'scan' },
+          orderBy: { createdAt: 'desc' },
+        });
+        return {
+          ...this.view(row),
+          scan: job
+            ? {
+                id: job.id,
+                state:
+                  row.draft.revision !== job.revision + (job.state === 'succeeded' ? 1 : 0)
+                    ? 'stale'
+                    : job.state,
+                error: job.maskedError,
+              }
+            : null,
+        };
+      },
+      { isolationLevel: 'RepeatableRead' },
+    );
   }
   async quota(token: string | undefined) {
     const row = await this.session(token);

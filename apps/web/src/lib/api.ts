@@ -3310,6 +3310,12 @@ const ipHeader = (ip?: string | null): Record<string, string> =>
 
 /** Fixed guest operations: no browser-supplied backend path or credentials. */
 export const wizardApi = {
+  scan: (token: string, body: unknown, ip?: string | null) =>
+    sendJson<{ id: string; state: string }>('POST', '/wizard/scan', body, {
+      'x-wizard-token': token, ...ipHeader(ip),
+    }),
+  scanStatus: (token: string) =>
+    getJson<import('./wizard-types').WizardState>('/wizard/scan', { 'x-wizard-token': token }),
   open: (token: string, ref: string, ip?: string | null) =>
     sendJson<import('./wizard-types').WizardState>(
       'POST',

@@ -1,4 +1,6 @@
 export interface WizardState {
+  scanSiteKey?: string | null;
+  scan?: { id: string; state: string; error: string | null } | null;
   guestSessionId: string;
   guestToken?: string;
   lastStep: string;

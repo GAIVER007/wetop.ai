@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 11.10.2026 23:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит c871865 (codex/compact-navigation-20261011), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/journal-action-labels.spec.ts' '--workers=1'
+[WebServer] (node:18006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18086) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18087) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:18095) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/journal-action-labels.spec.ts:3:1 › события филиалов и проверки остатков подписаны по-русски в фильтре журнала (18.7s)
+
+
+  1) tests/ui/journal-action-labels.spec.ts:3:1 › события филиалов и проверки остатков подписаны по-русски в фильтре журнала 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('combobox', { name: 'Действие', exact: true }).getByRole('option', { name: 'Салон создан', exact: true })
+    Expected: "location.salon_created"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('combobox', { name: 'Действие', exact: true }).getByRole('option', { name: 'Салон создан', exact: true }) with timeout 15000ms
+      - waiting for getByRole('combobox', { name: 'Действие', exact: true }).getByRole('option', { name: 'Салон создан', exact: true })
+
+
+      11 |   await page.getByText('Фильтры журнала', { exact: true }).click();
+      12 |   const actions = page.getByRole('combobox', { name: 'Действие', exact: true });
+    > 13 |   await expect(actions.getByRole('option', { name: 'Салон создан', exact: true })).toHaveAttribute('value', 'location.salon_created');
+         |                                                                                    ^
+      14 |   await expect(actions.getByRole('option', { name: 'Ресторан создан', exact: true })).toHaveAttribute('value', 'location.restaurant_created');
+      15 |   await expect(actions.getByRole('option', { name: 'Остатки в каналах проверены', exact: true })).toHaveAttribute('value', 'channex.availabilityRead');
+      16 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/journal-action-labels.spec.ts:13:84
+
+    Error Context: test-results/journal-action-labels-собы-23bd4-по-русски-в-фильтре-журнала/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/journal-action-labels-собы-23bd4-по-русски-в-фильтре-журнала/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/journal-action-labels-собы-23bd4-по-русски-в-фильтре-журнала/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/journal-action-labels.spec.ts:3:1 › события филиалов и проверки остатков подписаны по-русски в фильтре журнала 
+
+# код выхода 1 · 26 с

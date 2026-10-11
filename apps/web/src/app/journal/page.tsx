@@ -95,6 +95,9 @@ const ACTION_RU: Record<string, string> = {
   'channex.booking.cancelled': 'бронь из канала отменена',
   'channex.setup': 'Менеджер каналов: объект и категории',
   'channex.fullSync': 'Менеджер каналов: полная выгрузка',
+  'channex.availabilityRead': 'Остатки в каналах проверены',
+  'location.salon_created': 'Салон создан',
+  'location.restaurant_created': 'Ресторан создан',
   'rates.bulk': 'цены / ограничения изменены',
   'unit.block': 'ячейка заблокирована',
   'unit.unblock': 'блокировка снята',
@@ -363,6 +366,7 @@ const ENTITY_RU: Record<string, string> = {
   Charge: 'Начисление',
   Folio: 'Счёт',
   organization: 'Организация',
+  location: 'Филиал',
   user: 'Сотрудник',
 };
 

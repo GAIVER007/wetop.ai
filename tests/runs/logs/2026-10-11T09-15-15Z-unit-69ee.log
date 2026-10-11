@@ -1,0 +1,132 @@
+# Модульные (unit) · 11.10.2026 14:15 Алматы · MacBook-Air-Urij.local
+# коммит a0241cd (codex/bar-operational-acceptance-20261007)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T09-15-15Z-unit-69ee.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/db-backup-offsite.test.ts' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/guard-run.test.ts' 'tests/unit/shift-check-wrapper.test.ts' 'tests/unit/test-journal-merge.test.ts' 'apps/api/src/rate-window.test.ts' 'tests/unit/launchd-status.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 72814ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 4861ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1841ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 4839ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 4466ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 6413ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 4744ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 3900ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 5566ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 4944ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 5289ms
+     ✓ локальные правки в клоне — не затирает их 3664ms
+     ✓ историю ветки переписали — не выкладывает поверх 4077ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2997ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 4748ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 4470ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 5990ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 2 failed) 25692ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ без --yes-replace-production ничего не делает 59ms
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 3650ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 2451ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 2919ms
+     × пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 6310ms
+     × транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 5530ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 4763ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 18115ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 3633ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 3314ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 2998ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 2837ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 3249ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1997ms
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 1 skipped) 19695ms
+   ✓ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     ✓ последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 3814ms
+     ✓ шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 2511ms
+     ✓ закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере 760ms
+   ✓ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     ✓ ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 1637ms
+     ✓ настройки читаются из .env клона, как у db-backup.sh 1969ms
+     ✓ Telegram: токен в адресе через stdin, а не аргументом 1680ms
+   ✓ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     ✓ ночная копия старше 26 часов: наружу не несём, сообщаем 1733ms
+     ✓ R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 2770ms
+     ✓ размер в R2 не совпал: сбой, статус не тронут 1591ms
+     ✓ rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 979ms
+ ✓ |unit| tests/unit/launchd-status.test.ts (4 tests) 6611ms
+   ✓ status.sh: состояние туннеля (4)
+     ✓ ни tunnel, ни domain не загружены, но адрес отвечает — говорит, что туннель работает 1848ms
+     ✓ адрес молчит и задача не загружена — говорит, что туннеля нет 1518ms
+     ✓ задача загружена и адрес отвечает — обычная строка без предупреждения 1820ms
+     ✓ задача загружена, а снаружи молчит — называет это расхождением 1422ms
+ ✓ |unit| tests/unit/test-journal-merge.test.ts (3 tests) 3936ms
+   ✓ журнал прогонов: две ветки сливаются без конфликта (1)
+     ✓ у каждой ветки свой прогон от одного предка, merge-tree чистый 550ms
+   ✓ журнал из записей: test:status видит то же, что видел по общему файлу (2)
+     ✓ нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты 3382ms
+ ❯ |unit| tests/unit/shift-check-wrapper.test.ts (4 tests | 1 failed) 1783ms
+   ❯ scripts/ops/shift-check.sh (4)
+     ✓ таблица из файла: один вход в контейнер, аргументы как есть, новые строки в журнал вне клона 519ms
+     ✓ повторный срез: журнал целиком уходит в контейнер после разделителя, без новых строк файл не меняется 504ms
+     × пустая таблица и незнакомый ключ: код 2, контейнер не зовётся 54ms
+     ✓ без --date день смены сегодняшний по Алматы 704ms
+ ✓ |unit| apps/api/src/rate-window.test.ts (6 tests) 99ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:135:3
+    133|   });
+    134|
+    135|   it('пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma среза…
+       |   ^
+    136|     const s = sandbox();
+    137|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:144:3
+    142|   });
+    143|
+    144|   it('транзакция упала: код 1 и прямое «откатилось целиком», пароль в …
+       |   ^
+    145|     const s = sandbox({ psqlFails: true });
+    146|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > пустая таблица и незнакомый ключ: код 2, контейнер не зовётся
+AssertionError: expected '/Users/urijzapojnov/wetop-bar-accepta…' to contain 'нужно ГГГГ-ММ-ДД'
+
+- Expected
++ Received
+
+- нужно ГГГГ-ММ-ДД
++ /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/scripts/ops/shift-check.sh: line 61: day�: unbound variable
++
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:100:69
+     98|     expect(s.run(['--date', '2026-10-06'], '  \n\n').code).toBe(2);
+     99|     expect(s.run(['--force'], 'событие\tбронь\n').code).toBe(2);
+    100|     expect(s.run(['--date', '06.10.2026'], 'событие\tбронь\n').err).to…
+       |                                                                     ^
+    101|     expect(s.read('calls')).toBe('');
+    102|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  3 failed | 56 passed | 1 skipped (60)
+   Start at  09:15:19
+   Duration  154.29s (tests 98%, transform 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T09-15-15Z-unit-69ee.json
+
+# код выхода 1 · 2 мин 38 с

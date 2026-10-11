@@ -1,0 +1,18 @@
+# Типы (typecheck) · 11.10.2026 14:38 Алматы · MacBook-Air-Urij.local
+# коммит a0241cd (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 5
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/unit/finance-cash-void-ready.test.ts(6,35): error TS6142: Module '../../apps/web/src/app/finance/cash' was resolved to '/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/web/src/app/finance/cash.tsx', but '--jsx' is not set.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 7 с

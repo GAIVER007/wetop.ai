@@ -29,6 +29,13 @@ test('real BAR cycle persists across browser reloads and reconciles API totals',
   await capture('supplier-payment', '280000');
   await page.goto('/bar');
   const retail = page.locator('form').filter({ has: page.getByRole('button', { name: 'Продать', exact: true }) });
+  const productBox = await retail.locator('[name="productId"]').boundingBox();
+  const quantityBox = await retail.locator('[name="quantityUnits"]').boundingBox();
+  const methodBox = await retail.locator('[name="method"]').boundingBox();
+  expect(productBox!.width).toBeGreaterThan(100);
+  expect(methodBox!.width).toBeGreaterThan(80);
+  expect(productBox!.x + productBox!.width).toBeLessThanOrEqual(quantityBox!.x);
+  expect(quantityBox!.x + quantityBox!.width).toBeLessThanOrEqual(methodBox!.x);
   await retail.locator('[name="productId"]').selectOption(data.a.id);
   await retail.locator('[name="quantityUnits"]').fill('12');
   await submitServerAction(page, retail.getByRole('button', { name: 'Продать', exact: true }));

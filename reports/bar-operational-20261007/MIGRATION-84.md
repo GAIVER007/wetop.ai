@@ -6,6 +6,12 @@ Approved scope: D1/D2/D3 and T11, 2026-10-07. Migration: `20261011000084_bar_fin
 
 Only the isolated localhost PostgreSQL at port 55893 is authorized in this task. Production readiness and domain verification are requested. AGENTS.md §18 reserves code merge and production migration application for the owner; the agent does not manually advance release. No production migration has been applied. Before a separately authorized production rollout: take a complete database backup and schema dump with the existing secret-managed connection, verify restore to a separate database, retain the deployment SHA and migration ledger. Do not print credentials.
 
+## Owner-controlled production order
+
+Before a production action, read the actual deployed SHA and migration ledger. Do not assume that only migration 84 is pending. Reconcile the ordered pending list against fresh main and the approved rollout. Take and verify a complete backup restore in a separate environment. Ensure an interval without BAR writes while the migration backfills history and the matching application version is deployed.
+
+The owner merges only the fully green PR. The owner applies the approved pending migrations and acknowledges the exact release candidate to `wetop-auto-deploy --migrations-applied <sha>` according to docs/deploy.md. The agent does not manually advance release. Re-enable BAR writes only after the deployed SHA, images, health, authenticated BAR routes and debt/warehouse reconciliation are verified. If historical validation fails, keep the prior application and reconcile the named rows under an approved plan; do not delete history or bypass the validation.
+
 ## Preflight and backfill
 
 The migration requires an administrative BYPASSRLS role for historical validation. Each legacy sale must have exactly one sale line, a complete SALE movement quantity and FIFO cost matching the persisted sale, a valid existing client key and the expected retail/Folio relation. A partial restock fails the migration. Stop and reconcile the named synthetic/production rows rather than inventing a financial policy or deleting history.

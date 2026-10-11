@@ -1,0 +1,72 @@
+# Интеграционные (integration) · 11.10.2026 14:11 Алматы · MacBook-Air-Urij.local
+# коммит a0241cd (codex/bar-operational-acceptance-20261007)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T09-11-48Z-integration-e5c3.json' 'tests/integration/licensed-site-builder.test.ts' 'tests/integration/site-editor.test.ts' 'tests/integration/finance-operations.test.ts' 'tests/integration/sales-summary.test.ts' 'tests/integration/rates-derived-api.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+(node:56304) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/licensed-site-builder.test.ts (27 tests) 23347ms
+   ✓ MKT9.2 licensed site builder (27)
+     ✓ лицензия закрывает запись и ИИ, чтение открыто (3)
+       ✓ без лицензии: заведение сайта 403 SITE_BUILDER_NOT_ENABLED, сайт не появляется; чтение отвечает 888ms
+       ✓ лицензия выключена или срок вышел: каждая запись и каждый ИИ 403, чтение 200, пауза и архив не закрыты 2442ms
+     ✓ заведение сайта и знания проекта (3)
+       ✓ bootstrap одновременно: ровно одна строка; два филиала дают два разных сайта 504ms
+       ✓ знания проекта: чтение, правка, предел 5000, в журнале только длина 315ms
+     ✓ разговор с ИИ: Чат, План, Оформление (5)
+       ✓ Чат: задача без версии, повтор ключа та же задача; боту уходят знания проекта и голова; разговор хранится на сервере 557ms
+       ✓ План: вопросы, ответы, план; «Собрать по плану» ставит ровно одну сборку PATCH, повтор отдаёт её же 353ms
+       ✓ Оформление: три направления; первая сборка с выбранным ставит тему платформой, модели уходит описание 351ms
+     ✓ разговор помнит контекст: история только этого сайта и ответы на вопросы плана (7)
+       ✓ три хода: на третьем (План) история это два прошлых хода по порядку; упавший ход и упавшая сборка не попадают, успешная сборка попадает 798ms
+       ✓ граница: история только этого сайта; другой филиал, журнал и чужая организация в неё не попадают 2937ms
+       ✓ история ограничена 12 последними ходами 897ms
+       ✓ ответ на вопросы плана: следующий запрос несёт исходную просьбу, оба вопроса и оба ответа ровно по одному разу 683ms
+       ✓ ответы проверяются по вопросам родителя: незнакомый, пропуск, повтор, чужой вариант 400; свой при allowCustom проходит; модель не зовётся 1553ms
+       ✓ отвечать можно только на успешные вопросы плана своего сайта; чужой филиал получает нейтральный 404 без вопросов 849ms
+     ✓ общие правила ИИ сайта по обеим таблицам (5)
+       ✓ одна активная задача ИИ на сайт: пока ждёт чат, сборка 409 AI_BUSY, и наоборот 441ms
+       ✓ предел часа общий: 10 запросов к ИИ сайта любым режимом, одиннадцатый 429 326ms
+     ✓ закладки версий (1)
+       ✓ поставить, переименовать, снять; в истории отдельным списком; чужая версия 404; не больше 20 3775ms
+     ✓ платформа: лицензию выдаёт только главный администратор (3)
+       ✓ список гостиничных филиалов со статусом; пробный, активировать, продлить, выключить; журнал было и стало 752ms
+       ✓ сохранение лицензии само перепроверяет филиал в своей транзакции: чужая организация или не гостиница, ничего не записано 307ms
+ ❯ |integration| tests/integration/rates-derived-api.test.ts (1 test | 1 failed) 5098ms
+   ❯ derived rate plans and promo codes API (1)
+     × creates and edits a derived plan and a promo code with validation and audit 5089ms
+(node:56489) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-editor.test.ts (14 tests) 3845ms
+   ✓ MKT9 site editor (14)
+     ✓ история версий: до 100, новые сверху, без документа; чтение с документом; смысловая разница 920ms
+     ✓ SECTION: цель проверяется при постановке; бот получает цель; меняется только цель; другая секция → отказ 504ms
+     ✓ окно «Создать сайт»: пожелания к первой версии хранятся в задаче, уходят боту отдельным полем, наружу и в журнал не попадают 428ms
+ ✓ |integration| tests/integration/sales-summary.test.ts (4 tests) 1125ms
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 1095ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rates-derived-api.test.ts > derived rate plans and promo codes API > creates and edits a derived plan and a promo code with validation and audit
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/rates-derived-api.test.ts:20:3
+     18|  */
+     19| describe.skipIf(!process.env.DATABASE_URL)('derived rate plans and pro…
+     20|   it('creates and edits a derived plan and a promo code with validatio…
+       |   ^
+     21|     const db = createPrismaClient(),
+     22|       marker = randomUUID();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 47 passed (48)
+   Start at  09:12:02
+   Duration  84.88s (tests 47%, import 29%, transform 24%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T09-11-48Z-integration-e5c3.json
+
+# код выхода 1 · 1 мин 39 с

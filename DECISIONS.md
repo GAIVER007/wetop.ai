@@ -6626,3 +6626,10 @@ S7 (аналитика салона); S6 «Финансы/Зарплата» з�
 ## BAR financial acceptance sync, 2026-10-11
 
 Problem: the approved financial repair predates the current BAR workspace, product-card write-off entry, document scanner, period metrics and timezone-correct Folio service dates. Preserve all upstream contracts together with permanent replay, supplier-debt compensation, separate FIFO loss and refunds/read-only policy. Persistent browser intent is required on both write-off entry points; the card uses its product resource namespace within the same user/business/location/kind scope. Migration number 68 is occupied; after checking the complete directory through 83, the unpublished repair moves to 20261011000084_bar_financial_replay. No previously released migration is rewritten. Production schema remains owner-controlled, and code publication requires full exact-head GREEN under current AGENTS.md section 18.
+
+
+### BAR financial acceptance UI readiness, 2026-10-11
+
+Problem: upstream BAR inline forms and the preserved acceptance selectors share legacy grid classes; lower-priority CSS layers do not override the current sections layer. Recovery fields and action buttons must stay readable and clickable. Cash void SSR also exposes a button before its confirmation handler hydrates, losing early clicks.
+
+Decision: keep the existing BAR sections layer and explicit form grids, with permanent desktop geometry assertions and normal-click replay coverage. Make the cash void button unavailable and busy until its own client handler hydrates, following the existing profile-menu readiness pattern. Supplier debt, audit, authorization and confirmation policy remain the approved D2/D4 contract. No accounting rule or backend contract is added.

@@ -29,6 +29,7 @@ test.describe('BAR persistent browser intents with real SessionGuard', () => {
       ? page.locator('.bar-payment-form').filter({ has: page.locator(`input[value="${data.r1.id}"]`) })
       : kind === 'WRITE_OFF' ? page.locator('.bar-sale-form').filter({ has: page.locator('select[name="reason"]') })
       : page.locator('.bar-sale-form').filter({ has: page.locator('select[name="method"]') });
+    if (kind === 'CARD_WRITE_OFF') expect((await form.locator('[name="reason"]').boundingBox())!.width).toBeGreaterThan(100);
     if (kind === 'SUPPLIER_PAYMENT') await form.locator('[name="amount"]').fill('10');
     else {
       if (kind !== 'CARD_WRITE_OFF') await form.locator('[name="productId"]').selectOption(data.a.id);

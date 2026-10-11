@@ -247,7 +247,9 @@ export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
   const workers = [0, 1].map((index): UiWorkerRuntime => {
     const workerRoot = join(root, `worker-${index}`);
     const uiDir = join(workerRoot, 'tests/ui');
-    const fixturePort = fixtureBase + index;
+    // шаг 20, а не 1: 4312 стойка держит под демо-источник (api.ts отвечает 503 без APP_DEMO_MODE),
+    // 4318 занят другим стендом; соседний порт молча ронял все тесты второго worker
+    const fixturePort = fixtureBase + index * 20;
     const webPort = webBase + index;
     const sitePort = siteBase + index;
     const runtime = {

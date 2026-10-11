@@ -226,9 +226,19 @@ it('real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned 
         timezone: 'Asia/Dubai',
       }),
     });
-    expect(create.status).toBe(400);
+    expect(create.status).toBe(201);
+    expect(await create.json()).toMatchObject({
+      name: 'Тестовый Food',
+      vertical: 'FOOD_SERVICE',
+      currency: 'AED',
+      timezone: 'Asia/Dubai',
+    });
   } finally {
     await app?.close();
+    await db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+      await tx.auditLog.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+    });
     const own = { business: { organizationId: { in: [orgA, orgB] } } };
     await db.onboardingProgress.deleteMany({ where: { location: own } });
     await db.property.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });

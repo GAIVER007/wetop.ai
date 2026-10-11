@@ -335,6 +335,24 @@ button {
  * Пилюля прямым ребёнком карточки: карточка выкладывает детей колонкой и растягивает их по ширине,
  * из-за чего ссылка превращалась в плашку во всю карточку и ломалась на две строки (02.10.2026).
  */
+.card__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+}
+/* Карточка-ссылка: щелчок по всей карточке ведёт по ссылке заголовка (у `.glass` уже position: relative) */
+.card__title a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.card__title a {
+  color: inherit;
+}
 .card > .link-arrow {
   align-self: flex-start;
 }
@@ -3234,6 +3252,34 @@ button {
 .site-footer__row .site-footer__brand p {
   font-size: 0.8125rem;
   color: var(--muted);
+}
+.site-footer__directions {
+  display: grid;
+  gap: 20px;
+  padding: 8px 0 24px;
+  font-size: 0.875rem;
+}
+@media (min-width: 40rem) {
+  .site-footer__directions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.site-footer__directions ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.site-footer__directions a {
+  color: var(--text-2);
+}
+.site-footer__directions a:hover {
+  color: var(--primary);
+}
+.site-footer__directions .site-footer__direction {
+  color: var(--text);
+  font-weight: 600;
 }
 .site-footer__legal {
   display: flex;

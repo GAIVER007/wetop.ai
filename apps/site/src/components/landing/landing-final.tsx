@@ -1,4 +1,5 @@
 import { Icon } from '../icon';
+import { JsonLd, faqLd } from '../json-ld';
 import { typo } from '../typo';
 
 type Faq = { title: string; items: Array<{ q: string; a: string }> };
@@ -33,6 +34,7 @@ export function LandingFinal({
 }) {
   return (
     <section id={sectionId} className="landing-final section" aria-labelledby="landing-faq-title">
+      {faq.items.length > 0 ? <JsonLd data={faqLd(faq.items)} /> : null}
       <div className="container">
         <div className="landing-final__faq faq">
           <div className="section-heading section-heading--center">

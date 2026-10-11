@@ -41,7 +41,10 @@ test('T09 real API 503 and expired SessionGuard retain intent across login', asy
     expect((await db.query('SELECT count(*)::int AS n FROM bar_operation_intents WHERE key=$1', [intent.key])).rows[0].n).toBe(0);
     await page.screenshot({ path: testInfo.outputPath('503-preserved-intent.png'), fullPage: true });
     expect((await request.post('http://127.0.0.1:55994/auth/logout', { headers: { 'x-wetop-session': session } })).ok()).toBe(true);
-    await form.getByRole('button', { name: 'Проверить результат', exact: true }).click();
+    await Promise.all([
+      page.waitForURL(/127\.0\.0\.1:55995\/\?next=.*#login/),
+      form.getByRole('button', { name: 'Проверить результат', exact: true }).click(),
+    ]);
     await expect(page).toHaveURL(/127\.0\.0\.1:55995\/\?next=.*#login/);
     const savedBrowser = await context.storageState();
     expect(savedBrowser.origins.find(origin => origin.origin === 'http://127.0.0.1:55993')?.localStorage.find(row => row.name === storageKey)?.value).toBe(persisted);

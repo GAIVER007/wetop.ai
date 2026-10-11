@@ -20,7 +20,7 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные', async ({ page }) => {
+test('обзор как на макете: шапка, восемь плиток, продажа строкой, доска, приходы и популярные', async ({ page }) => {
   mkdirSync(SHOTS, { recursive: true });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
@@ -33,16 +33,17 @@ test('обзор как на макете: шапка, семь плиток, п
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
   await expect(m.getByRole('button', { name: 'Ещё разделы бара' })).toBeVisible();
   await expect(m.getByRole('navigation', { name: 'Разделы бара' })).toHaveCount(0);
-  // семь плиток с подписями макета
+  // Семь показателей макета и отдельный согласованный FIFO-убыток.
   const kpis = m.getByRole('region', { name: 'Показатели бара' });
   await expect(kpis.locator('.bar-kpi-label')).toHaveText([
-    'Товаров', 'Остаток на складе', 'Закуплено за месяц', 'Выручка бара', 'Валовая прибыль', 'Долг поставщикам', 'Заканчиваются',
+    'Товаров', 'Остаток на складе', 'Закуплено за месяц', 'Выручка бара', 'Валовая прибыль', 'Долг поставщикам', 'Заканчиваются', 'Убыток без возврата товара',
   ]);
   await expect(kpis.locator('.bar-kpi', { hasText: 'Остаток на складе' })).toContainText('107 шт.');
   await expect(kpis.locator('.bar-kpi', { hasText: 'Закуплено за месяц' })).toContainText('+12% к прошлому месяцу');
   await expect(kpis.locator('.bar-kpi', { hasText: 'Выручка бара' })).toContainText('+18% к прошлому месяцу');
   await expect(kpis.locator('.bar-kpi', { hasText: 'Валовая прибыль' })).toContainText('маржинальность 50%');
   await expect(kpis.locator('.bar-kpi--alarm')).toContainText('2');
+  await expect(kpis.locator('.bar-kpi', { hasText: 'Убыток без возврата товара' })).toContainText('0 ₸');
   // доска: шесть товаров макета, поставщик и фактическая наценка, статус словом
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
   await expect(board.locator('tbody tr')).toHaveCount(6);

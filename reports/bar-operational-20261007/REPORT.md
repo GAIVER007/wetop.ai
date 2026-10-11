@@ -1,6 +1,6 @@
 # BAR financial acceptance candidate
 
-Current candidate: fresh-main base `0491010ddbd23c277a464c022ee9854fffd09b02`, migration `20261011000084_bar_financial_replay`, 90 migration directories. Earlier migration numbers and results below are historical checkpoints.
+Current candidate: fresh-main base `db87145d58341d1df064f6eae15d27672abd4d29`, migration `20261011000084_bar_financial_replay`, 90 migration directories. Earlier migration numbers and results below are historical checkpoints.
 
 Status: implementation candidate. This document records local evidence at the candidate commit; the exact-SHA full GitHub CI and final readiness are recorded in the PR manifest. This report does not authorize merge, release, migration or production deployment.
 
@@ -123,3 +123,18 @@ Full local integration on published predecessor a0241cdf and a fresh UTC Postgre
 
 
 Final breakpoint regression: exact-head CI `38129589983` passed lint/types and 4516 unit cases, but rejected one newly introduced 560px breakpoint in BAR. The new breakpoint was changed to the approved 600px threshold without changing the design baseline, assertions or timeouts. Design guard replay `2026-10-11T09-55-48Z-unit-3085` passed all 18 cases. The two preceding local commands used incorrect recorder arguments and were interrupted; they are not acceptance evidence. Full browser and CI must pass on the corrected head before readiness.
+
+
+Fresh-main follow-up: main `db87145d58341d1df064f6eae15d27672abd4d29` adds approved site/SEO, Market UI and calendar test-label updates, without BAR/Finance/schema or migration changes. Sync completed without conflicts; migration 84 remains free. CI `38130205837` passed unit 4517, site 124, integration 1049, API checks 4, e2e 26, BAR browser 10 and all 90 migration/drift/down checks; UI shard 2 rejected two stale housekeeping label expectations after the upstream label became `Уборка и проверка`. Three exact expected strings were updated while retaining counts, statuses and timeouts. Local six-case housekeeping GREEN: `2026-10-11T10-33-10Z-e2e-379b`, source unchanged, isolated ports 55991/55992. The first attempt stopped because port 4311 belonged to a foreign checkout; no foreign process was interrupted. Targeted unit GREEN: `10-34-39Z-unit-ca32`, 39 PASS. The final synced head requires a new complete CI; preceding results do not mark it ready.
+
+Old-head UI shard 3 found three additional stale calendar labels (free-place link and housekeeping label). Fresh main already contains their upstream fix from PR 399; those tests were not weakened locally. The full workflow must be rerun after synchronization.
+
+
+Old-head shard 1 also found the BAR overview's stale seven-KPI contract, another free-place label, and three calendar gesture/readiness failures. The approved eighth KPI (no-restock FIFO loss) now has an exact label and zero-value assertion in the synthetic UI contract. Local reproduction `2026-10-11T10-42-40Z-e2e-e878` retained four failures. Traces showed the resize target outside the grid viewport and range coordinates captured before client geometry settled. Tests now await existing React hydration readiness and loaded fonts, scroll the target into view, and retain the exact original nights, dates, confirmation and persistence assertions. The drawer test awaits hydration before its normal double click. Availability waits for its real navigation; no forced click, skip, assertion weakening or timeout increase was added. GREEN `2026-10-11T10-47-56Z-e2e-c2b4`: all seven targeted UI cases PASS, source unchanged.
+
+Synced local BAR replay `2026-10-11T10-37-44Z-e2e-7d0f`: nine PASS, one login redirect assertion reached its unchanged five-second bound while actual navigation remained pending. The session test now awaits actual login navigation before the same URL/storage assertions, within its original test deadline. This partial run is not full GREEN; repeat evidence and the complete new-head CI remain mandatory.
+
+
+Post-navigation BAR replay `2026-10-11T10-51-34Z-e2e-1b06`: eight PASS, two role cases reached the unchanged 90-second test deadline during page.goto (products/suppliers). Login redirect recovery passed. Mac telemetry at this run: encrypted swap 16 GB used of 16 GB, zero free; load about 10. Foreign processes were not touched. This local partial run is disclosed, not described as full GREEN; the exact-head disposable Linux CI must prove the complete ten-case role/replay matrix.
+
+Final synced checks: root/API/web types PASS `2026-10-11T10-59-45Z-typecheck-a095`; lint PASS `10-59-59Z-lint-4a8b`. All targeted UI failures have causal RED/GREEN evidence. Final exact-head CI is still required for full readiness.

@@ -1,0 +1,18 @@
+# Типы (typecheck) · 09.10.2026 22:16 Алматы · vm
+# коммит 61cda9d (claude/quirky-newton-qkhfgz)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/team/team-board.tsx(290,28): error TS2322: Type '"warning"' is not assignable to type 'BadgeTone | undefined'.
+
+# код выхода 1 · 35 с

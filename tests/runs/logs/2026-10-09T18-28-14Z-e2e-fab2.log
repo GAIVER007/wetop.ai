@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 09.10.2026 23:28 Алматы · vm
+# коммит a17fa14 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/top-menu.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (4.1s)
+  ✓  2 tests/ui/top-menu.spec.ts:120:1 › вложенные адреса подсвечивают свою вкладку (7.7s)
+  ✓  3 tests/ui/top-menu.spec.ts:156:3 › шапка ровная, без прокрутки вбок и доступная: light (4.3s)
+  ✓  4 tests/ui/top-menu.spec.ts:156:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.2s)
+
+  4 passed (29.1s)
+
+# код выхода 0 · 30 с

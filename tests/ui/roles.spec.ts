@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, menuLinks } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -19,16 +19,11 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF') =>
   request.post(`${API}/__test/control`, { data: { role } });
-
-const menuLinks = (page: Page) =>
-  page
-    .locator('.workspace-header .topmenu a')
-    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 const shot = (page: Page, name: string) =>
   page.screenshot({ path: `reports/roles-2026-09-27/${name}.png`, fullPage: true });
@@ -39,16 +34,17 @@ test('администратор: в меню — работа с гостями
 }) => {
   await signIn(page);
   await asRole(request, 'STAFF');
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect
     .poll(() => menuLinks(page))
     .toEqual([
-      '/today',
+      // группа «Финансы» (ADR-157): «Оплаты и касса» и «Бар» подряд
+      '/finance',
+      '/bar',
       '/chessboard',
       // «Гости и бронирования» (поручение владельца 09.10.2026): одна вкладка на месте «Броней» и «Гостей»
       '/guests',
-      '/finance',
-      '/bar',
+      '/sales',
       '/market',
       '/ai-agents',
       '/reports',
@@ -126,7 +122,8 @@ test('администратор принимает оплату, но возв�
     const form = page.getByTestId('payment-form').first();
     await form.locator('[name=amount]').fill('1000');
     await form.locator('[name=note]').fill(note);
-    await form.getByRole('button', { name: 'Принять оплату' }).click();
+    await form.getByRole('button', { name: 'Проверить оплату' }).click();
+    await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
     await expect(page.getByTestId('payment-row').filter({ hasText: note })).toHaveCount(1);
   };
 
@@ -220,7 +217,7 @@ test('управляющий: журнал и платформа закрыты;
 }) => {
   await signIn(page);
   await asRole(request, 'MANAGER');
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect.poll(() => menuLinks(page)).toContain('/market');
   const links = await menuLinks(page);
   for (const href of ['/channels', '/hotel-settings', '/team', '/connections'])

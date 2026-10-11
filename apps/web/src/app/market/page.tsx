@@ -2,13 +2,14 @@ import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import {
   can,
+  competitorPlatform,
   demandLevel,
   formatOccupancy,
   formatPoints,
   type DemandLevel,
 } from '@pms/domain';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
-import { marketApi, type MarketInsight, type MarketView } from '../../lib/api';
+import { marketApi, type MarketRates, type MarketView } from '../../lib/api';
 import { hotelToday, validDate } from '../../lib/hotel-api';
 import { displayDate, displayDay } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
@@ -23,6 +24,7 @@ import {
   Button,
   EmptyState,
   Field,
+  Grid as AutoGrid,
   SectionTitle,
   Select,
   Stat,
@@ -30,10 +32,12 @@ import {
   cx,
 } from '../../components/ui';
 import { CompetitorButton, NightDrawer } from './drawers';
+import { MarketCharts } from './market-charts';
+import { CompetitorsTable } from './competitors-table';
 import { signalCells, signalNights } from './derive';
 import { SignalCalendar } from './calendar';
 import { OccupancyChart } from './chart';
-import { CompetitorsTable } from './competitors-table';
+import { insightText } from './insight-text';
 import '../directory.css';
 import './market.css';
 
@@ -54,47 +58,6 @@ const dayHead = (d: string) => ({
   wd: weekday.format(new Date(`${d}T00:00:00Z`)),
   day: displayDate(d),
 });
-const range = (i: { from: string; to: string }) =>
-  i.from === i.to ? displayDate(i.from) : `${displayDate(i.from)} → ${displayDate(i.to)}`;
-
-/** Слова подсказки (ADR-142 п. 4): что видно на рынке и что с этим сделать; цены человек меняет сам */
-function insightText(i: MarketInsight): { title: string; text: string; tone: 'warn' | 'ok' | 'info' } {
-  const nights = pluralRu(i.nights, ['ночь', 'ночи', 'ночей']);
-  const market = i.marketBp === null ? '' : `рынок ${pct(i.marketBp)}`;
-  const own = i.ownBp === null ? '' : `, у вас ${pct(i.ownBp)}`;
-  switch (i.kind) {
-    case 'high-behind':
-      return {
-        title: `Рынок почти полон, у вас есть места: ${range(i)}`,
-        text: `${market}${own} (${nights}). Соседи распроданы: цену на эти даты можно поднять.`,
-        tone: 'warn',
-      };
-    case 'high':
-      return {
-        title: `Высокий спрос: ${range(i)}`,
-        text: `${market}${own} (${nights}). Проверьте, что ваша цена не ниже рынка.`,
-        tone: 'info',
-      };
-    case 'low-ahead':
-      return {
-        title: `Вы продаёте лучше рынка: ${range(i)}`,
-        text: `${market}${own} (${nights}). Цену держите, скидка не нужна.`,
-        tone: 'ok',
-      };
-    case 'low':
-      return {
-        title: `Спрос слабый: ${range(i)}`,
-        text: `${market}${own} (${nights}). Подумайте об акции или промокоде на эти даты.`,
-        tone: 'info',
-      };
-    case 'missing':
-      return {
-        title: `Нет данных: ${i.competitors?.join(', ')}`,
-        text: 'Внесите их загрузку, и средняя по рынку станет точнее.',
-        tone: 'info',
-      };
-  }
-}
 
 const LEVEL_WORD: Record<DemandLevel, string> = {
   high: 'высокий спрос',
@@ -105,8 +68,8 @@ const LEVEL_WORD: Record<DemandLevel, string> = {
 /**
  * «Анализ конкурентов» (ADR-142; редизайн COMP3.2, план `plans/competitor-analysis-comp3-2026-10-09.md`):
  * пять показателей, календарь рыночных сигналов, график «вы и рынок», рекомендация по данным,
- * таблица конкурентов и детализация «По ночам». Данные вносит человек или ИИ-коллектор; цен
- * конкурентов пока нет (линия `competitor_rates`), показатели цен появятся после неё.
+ * таблица конкурентов и детализация «По ночам». Данные вносит человек или ИИ-коллектор; цены соседей (SALES2.3, `competitor_rates`)
+ * идут вторым необязательным запросом: таблица конкурентов и графики цен.
  */
 export default async function MarketPage({
   searchParams,
@@ -123,7 +86,9 @@ export default async function MarketPage({
   const night = sp.night && validDate(sp.night) ? sp.night : null;
   const base = new URLSearchParams({ from, days: String(days), asOf, compare: String(compare) });
   const nightHref = (d: string) => `/market?${base}&night=${d}`;
-  const [loaded, shell, nightLoaded] = await Promise.all([
+  const district = sp.district ?? '';
+  const category = sp.category ?? '';
+  const [loaded, shell, nightLoaded, rates] = await Promise.all([
     marketApi.occupancy({ from, days, asOf, compare }).then(
       (r) => ({ ok: true as const, r }),
       (e: unknown) => {
@@ -141,6 +106,14 @@ export default async function MarketPage({
           },
         )
       : null,
+    // цены вторым, необязательным запросом: сбой не роняет страницу загрузки, график и столбцы цен просто не рисуются
+    marketApi.rates({ from, days, asOf, compare }).then(
+      (r): MarketRates | null => r,
+      (e: unknown) => {
+        unstable_rethrow(e);
+        return null;
+      },
+    ),
   ]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'rates'));
@@ -164,19 +137,19 @@ export default async function MarketPage({
       width="wide"
       title="Анализ конкурентов"
       subtitle={subtitle}
-      actions={editable ? <CompetitorButton primary={empty} /> : undefined}
+      // одна кнопка «Добавить» на экране: пусто, она в пустом состоянии; есть конкуренты, в шапке
+      actions={editable && !empty ? <CompetitorButton defaultOpen={sp.add === '1'} /> : undefined}
     >
-      <Toolbar from={from} days={days} asOf={asOf} compare={compare} today={today} />
+      {!empty && <Toolbar from={from} days={days} asOf={asOf} compare={compare} today={today} />}
       {empty ? (
         <EmptyState
           icon={<Icon name="analytics" />}
           title="Добавьте ближайших конкурентов"
           data-testid="market-empty"
-          actions={editable ? <CompetitorButton primary /> : undefined}
+          details={<HowItWorks />}
+          actions={editable ? <CompetitorButton primary defaultOpen={sp.add === '1'} /> : undefined}
         >
-          Три-пять отелей рядом с вами, с которыми гость сравнивает вас при выборе. Вносите их
-          загрузку на ближайшие ночи, и WETOP покажет, где рынок почти полон и цену можно поднять,
-          а где спрос слабый и нужна акция.{' '}
+          Три-пять отелей рядом с вами, с которыми гость сравнивает вас при выборе.{' '}
           {!editable && 'Добавлять конкурентов могут владелец и управляющий.'}
         </EmptyState>
       ) : (
@@ -203,32 +176,72 @@ export default async function MarketPage({
             </section>
             <Recommendation view={view} asOf={asOf} />
           </div>
-          <div
-            className={cx(
-              'market-main',
-              view.board.insights.length <= 1 && 'market-main--single',
-            )}
-          >
-            <section className="market-block" aria-labelledby="market-competitors-title">
-              <SectionTitle id="market-competitors-title">Конкуренты</SectionTitle>
-              <CompetitorsTable view={view} editable={editable} />
-            </section>
+          <div className={cx('market-main', view.board.insights.length <= 1 && 'market-main--single')}>
+            <CompetitorsTable
+              view={view}
+              rates={rates}
+              today={today}
+              editable={editable}
+              district={district}
+              category={category}
+              keep={[...base.entries()]}
+            />
             <Insights view={view} />
           </div>
+          <MarketCharts board={view.board} rates={rates && rates.board.summary.competitorsWithData > 0 ? rates : null} />
           <Grid view={view} nightHref={nightHref} />
           {night && (
             <NightDrawer date={night} history={nightLoaded} closeHref={`/market?${base}`} />
           )}
         </>
       )}
-      <p className="market-note" data-testid="market-source-note">
-        Сейчас загрузку конкурентов вносите вы: процент занятых номеров на ночь, по тому, что видно
-        на их странице бронирования. Автоматический сбор ИИ-агентом готовим. Ваша загрузка берётся
-        из календаря: занятые места от всех, включая заблокированные. Цен конкурентов в разделе пока
-        нет: без проверенного источника они не показываются.
-      </p>
+      {!empty && (
+        <p className="market-note" data-testid="market-source-note">
+          Ваша загрузка берётся из календаря: занятые места от всех, включая заблокированные. Загрузку и цены
+          соседей вносите вы или загружаете из файла; снимки сборщика подписаны «ИИ». Сайты бронирования мы
+          автоматически не читаем, их условия это запрещают; автоматический сбор из разрешённого источника
+          пока не подключён.
+        </p>
+      )}
     </Page>
   );
+}
+
+/**
+ * Как работает раздел: три шага. Источник загрузки не обещаем: сбор с площадок не решён (Q-257 открыт, ADR-142
+ * запрещает автоматически читать площадки), поэтому шаг 2 говорит «вручную или сборщиком».
+ */
+function HowItWorks() {
+  return (
+    <AutoGrid min={180} role="list" className="market-steps" data-testid="market-steps">
+      <div role="listitem">
+        <strong>Добавьте соседа</strong>
+        название, расстояние и число номеров
+      </div>
+      <div role="listitem">
+        <strong>Загрузка соседей обновляется</strong>
+        вручную или сборщиком: процент занятых номеров на каждую ближайшую ночь
+      </div>
+      <div role="listitem">
+        <strong>WETOP подсказывает цену</strong>
+        где рынок почти полон, цену можно поднять; где пусто, пора акция
+      </div>
+    </AutoGrid>
+  );
+}
+
+/**
+ * Кто даёт данные по соседу: «ИИ», только если в окне есть снимки сборщика (`AI_AGENT`). Ссылка на площадку есть, а
+ * сборщика нет: «Сбор не подключён» (не обещаем сбор до решения Q-257). Ссылки нет: «вручную».
+ */
+function tracking(c: { url: string | null; sources: string[] }): {
+  word: string;
+  tone: 'info' | 'neutral';
+} {
+  if (c.sources.includes('AI_AGENT')) return { word: 'ИИ', tone: 'info' };
+  return competitorPlatform(c.url)
+    ? { word: 'Сбор не подключён', tone: 'neutral' }
+    : { word: 'вручную', tone: 'neutral' };
 }
 
 function Toolbar({
@@ -271,7 +284,7 @@ function Toolbar({
             ))}
           </Select>
         </Field>
-        <Button type="submit" tone="secondary" size="sm">
+        <Button type="submit" tone="secondary">
           Показать
         </Button>
         {(from !== today || asOf !== today) && (
@@ -397,8 +410,13 @@ function Cell({ bp, delta }: { bp: number | null; delta?: number | null | undefi
   );
 }
 
-/** Детализация «По ночам»: тепловая таблица «вы и рынок»; действия строк переехали в «Конкуренты» */
-function Grid({ view, nightHref }: { view: MarketView; nightHref: (date: string) => string }) {
+function Grid({
+  view,
+  nightHref,
+}: {
+  view: MarketView;
+  nightHref: (date: string) => string;
+}) {
   const { board } = view;
   return (
     <section className="market-grid" aria-labelledby="market-grid-title">
@@ -437,24 +455,37 @@ function Grid({ view, nightHref }: { view: MarketView; nightHref: (date: string)
               <Cell key={o.date} bp={o.bp} />
             ))}
           </tr>
-          {board.competitors.map((c) => (
-            <tr key={c.id} data-testid={`market-row-${c.id}`}>
-              <th scope="row" className="market-table__name">
-                <span className="market-name">{c.name}</span>
-                <span className="market-sub">
-                  {[
-                    c.distanceM !== null ? `${c.distanceM} м` : null,
-                    c.lastObservedOn ? `данные от ${displayDay(c.lastObservedOn)}` : 'данных нет',
-                  ]
-                    .filter(Boolean)
-                    .join(', ')}
-                </span>
-              </th>
-              {c.cells.map((cell) => (
-                <Cell key={cell.date} bp={cell.bp} delta={cell.deltaBp} />
-              ))}
-            </tr>
-          ))}
+          {board.competitors.map((c) => {
+            return (
+              <tr key={c.id} data-testid={`market-row-${c.id}`}>
+                <th scope="row" className="market-table__name">
+                  <span className="market-name">
+                    {c.url ? (
+                      <a href={c.url} target="_blank" rel="noreferrer noopener">
+                        {c.name}
+                      </a>
+                    ) : (
+                      c.name
+                    )}
+                    <Badge tone={tracking(c).tone} data-testid={`market-tracking-${c.id}`}>
+                      {tracking(c).word}
+                    </Badge>
+                  </span>
+                  <span className="market-sub">
+                    {[
+                      c.distanceM !== null ? `${c.distanceM} м` : null,
+                      c.lastObservedOn ? `данные от ${displayDay(c.lastObservedOn)}` : 'данных нет',
+                    ]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </span>
+                </th>
+                {c.cells.map((cell) => (
+                  <Cell key={cell.date} bp={cell.bp} delta={cell.deltaBp} />
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
         <tfoot>
           <tr className="market-row--market" data-testid="market-row-market">

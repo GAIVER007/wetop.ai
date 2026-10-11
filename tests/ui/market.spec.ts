@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import type { APIRequestContext } from '@playwright/test';
-import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page, goViaMenu } from './fixtures';
 
 /**
  * «Анализ конкурентов» (ADR-142; редизайн COMP3.2, план `plans/competitor-analysis-comp3-2026-10-09.md`):
@@ -55,19 +55,26 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку', async ({
   page,
 }) => {
-  await page.goto('/today');
-  await page.locator('.topmenu').getByRole('button', { name: 'Продажи' }).click();
-  await page.locator('.topmenu').getByRole('link', { name: 'Анализ конкурентов' }).click();
+  await page.goto('/finance');
+  await goViaMenu(page, 'Продажи', 'Анализ конкурентов');
   await page.waitForURL('**/market');
   const main = page.getByRole('main');
+  const grid = page.getByTestId('market-table');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Анализ конкурентов');
   await expect(main.getByTestId('market-empty')).toContainText('Добавьте ближайших конкурентов');
+  // одна кнопка «Добавить» на экране и без строки дат: сравнивать пока не с кем
+  await expect(main.getByTestId('market-add')).toHaveCount(1);
+  await expect(main.getByTestId('market-form')).toHaveCount(0);
+  // шаги без обещаний сбора с площадок (Q-257 открыт)
+  await expect(main.getByTestId('market-steps')).toContainText('Загрузка соседей обновляется');
+  await expect(main.getByTestId('market-steps')).toContainText('вручную или сборщиком');
+  await expect(main.getByTestId('market-steps')).not.toContainText('Booking');
 
   // отказ словами у формы, введённое не теряется
   await main.getByTestId('market-empty').getByTestId('market-add').click();
@@ -81,15 +88,23 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   await form.getByTestId('market-save').click();
   await expect(page.getByText('Конкурент добавлен')).toBeVisible();
 
-  // таблица конкурентов: расстояние, честное «Недостаточно данных», дата данных
-  const comp = main.getByTestId('market-competitors').getByRole('row', { name: /Отель Тестовый/ });
-  await expect(comp).toContainText('300 м');
-  await expect(comp).toContainText('Недостаточно данных');
-  await expect(comp).toContainText('данных нет');
+  const row = grid.getByRole('row', { name: /Отель Тестовый/ });
+  await expect(row).toContainText('300 м');
+  await expect(row).toContainText('вручную');
+  await expect(main.getByTestId('market-add')).toHaveCount(1);
+  await expect(main.getByTestId('market-form')).toBeVisible();
+  // ссылка на площадку: метка честно говорит, что сбора нет
+  await main.getByRole('button', { name: 'Изменить: Отель Тестовый' }).click();
+  await expect(page.getByLabel('Страница соседа на площадке (для будущего сбора)')).toBeVisible();
+  await page.getByTestId('market-url').fill('https://www.booking.com/hotel/kz/test.ru.html');
+  await page.getByTestId('market-save').click();
+  await expect(row).toContainText('Сбор не подключён');
+  await expect(row).not.toContainText('ИИ');
+  await expect(row).toContainText('данных нет');
   // единственная подсказка показывается карточкой рекомендации
   await expect(main.getByTestId('market-reco')).toContainText('Нет данных: Отель Тестовый');
 
-  await comp.getByRole('button', { name: 'Внести загрузку: Отель Тестовый' }).click();
+  await main.getByRole('button', { name: 'Внести загрузку: Отель Тестовый' }).click();
   const entry = page.getByTestId('market-occupancy-form');
   const fields = entry.locator('input[name^="p:"]');
   await fields.nth(0).fill('150');
@@ -103,8 +118,6 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
   const heat = main.getByTestId('market-table').getByRole('row', { name: /Отель Тестовый/ });
   await expect(heat).toContainText('89 %');
   await expect(heat).toContainText('40 %');
-  // средняя конкурента за окно: (88,5 + 40) / 2 = 64 %
-  await expect(comp).toContainText('64 %');
   await expect(main.getByTestId('market-row-market')).toContainText('89 %');
   await expect(main.getByTestId('market-row-own')).toBeVisible();
   await expect(main.getByTestId('market-reco')).not.toContainText('Нет данных');
@@ -117,15 +130,18 @@ test('плитки, календарь сигналов, график, реко�
   const today = await seed(request);
   await page.goto('/market');
   const main = page.getByRole('main');
-
-  // таблица конкурентов: средняя за окно, динамика, статус, метка ИИ, ссылка
-  const altyn = main.getByTestId('market-competitors').getByRole('row', { name: /Отель Алтын/ });
+  const grid = page.getByTestId('market-table');
+  // «По ночам»: значения, изменение к вчера, метка источника, расстояние и ссылка на соседа
+  const altyn = grid.getByRole('row', { name: /Отель Алтын/ });
   await expect(altyn).toContainText('92 %');
   await expect(altyn).toContainText('+12 п.п.');
-  await expect(altyn).toContainText('Высокий спрос');
   await expect(altyn).toContainText('ИИ');
   await expect(altyn).toContainText('200 м');
   await expect(altyn.getByRole('link', { name: 'Отель Алтын' })).toHaveAttribute('href', 'https://example.com/altyn');
+  // таблица конкурентов (SALES2.3b) рядом с подсказками: загрузка сегодня и свежесть данных словом
+  const listed = main.getByTestId('market-competitors').getByRole('row', { name: /Отель Алтын/ });
+  await expect(listed).toContainText('92 %');
+  await expect(listed).toContainText('Актуально');
 
   // плитки: средняя по рынку до десятых, ночи высокого спроса, рыночные сигналы
   await expect(main.getByTestId('market-tile-market')).toHaveText('93,5 %');
@@ -156,22 +172,18 @@ test('плитки, календарь сигналов, график, реко�
 
   // без сравнения изменения нет
   await page.goto('/market?compare=0');
-  await expect(
-    main.getByTestId('market-table').getByRole('row', { name: /Отель Алтын/ }),
-  ).not.toContainText('п.п.');
+  await expect(grid.getByRole('row', { name: /Отель Алтын/ })).not.toContainText('п.п.');
   // снимок «на вчера»: видно вчерашние 80 %, сегодняшних ещё не было
   await page.goto(`/market?asOf=${plus(today, -1)}&compare=0`);
-  await expect(main.getByTestId('market-table').getByRole('row', { name: /Отель Алтын/ })).toContainText('80 %');
-  await expect(
-    main.getByTestId('market-competitors').getByRole('row', { name: /Хостел Сити/ }),
-  ).toContainText('Недостаточно данных');
+  await expect(grid.getByRole('row', { name: /Отель Алтын/ })).toContainText('80 %');
+  await expect(grid.getByRole('row', { name: /Хостел Сити/ })).toContainText('данных нет');
 
   await page.goto('/market');
   await main.getByTestId('market-edit-00000000-0000-4000-8000-00000000000b').click();
   await page.getByTestId('market-archive').click();
   await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Убрать' }).click();
   await expect(page.getByText('Конкурент убран из списка')).toBeVisible();
-  await expect(main.getByRole('row', { name: /Хостел Сити/ })).toHaveCount(0);
+  await expect(grid.getByRole('row', { name: /Хостел Сити/ })).toHaveCount(0);
   await expect(main.getByTestId('market-row-market')).toContainText('92 %');
 });
 
@@ -192,8 +204,9 @@ test('«только чтение»: показатели и таблицы ви
   await control(request, { orgTrialDays: 'ended' });
   await page.goto('/market');
   const main = page.getByRole('main');
+  const grid = page.getByTestId('market-table');
   await expect(page.getByTestId('read-only-banner')).toBeVisible();
-  await expect(main.getByTestId('market-competitors').getByRole('row', { name: /Отель Алтын/ })).toContainText('92 %');
+  await expect(grid.getByRole('row', { name: /Отель Алтын/ })).toContainText('92 %');
   await expect(main.getByTestId('market-add')).toHaveCount(0);
   await expect(main.getByTestId('market-table').getByRole('button')).toHaveCount(0);
   await expect(main.getByTestId('market-competitors').getByRole('button')).toHaveCount(0);
@@ -250,8 +263,9 @@ test('«Заполнить все ночи» ставит одно значен�
   const today = await seed(request);
   await page.goto('/market');
   const main = page.getByRole('main');
-  const comp = main.getByTestId('market-competitors');
-  await comp.getByRole('button', { name: 'Внести загрузку: Хостел Сити' }).click();
+  const grid = page.getByTestId('market-table');
+  const city = grid.getByRole('row', { name: /Хостел Сити/ });
+  await main.getByRole('button', { name: 'Внести загрузку: Хостел Сити' }).click();
   const entry = page.getByTestId('market-occupancy-form');
   await entry.getByTestId('market-fill-value').fill('70');
   await entry.getByTestId('market-fill').click();
@@ -259,15 +273,14 @@ test('«Заполнить все ночи» ставит одно значен�
   await expect(entry.getByTestId(`market-p-${plus(today, 13)}`)).toHaveValue('70');
   await entry.getByTestId('market-occupancy-save').click();
   await expect(page.getByText('Загрузка сохранена: 14 ночей')).toBeVisible();
-  const city = main.getByTestId('market-table').getByRole('row', { name: /Хостел Сити/ });
   await expect(city).toContainText('70 %');
   await expect(city).not.toContainText('95 %');
 
   // у «Алтына» снимок вчера 80 %, сегодня 92 %: без правок «Сохранить» подтверждает сегодняшние 92 %
-  await comp.getByRole('button', { name: 'Внести загрузку: Отель Алтын' }).click();
+  const altyn = grid.getByRole('row', { name: /Отель Алтын/ });
+  await main.getByRole('button', { name: 'Внести загрузку: Отель Алтын' }).click();
   await page.getByTestId('market-occupancy-save').click();
   await expect(page.getByText('Загрузка сохранена: 14 ночей')).toBeVisible();
-  const altyn = main.getByTestId('market-table').getByRole('row', { name: /Отель Алтын/ });
   await expect(altyn).toContainText('92 %');
   await expect(altyn).toContainText('+12 п.п.');
 });

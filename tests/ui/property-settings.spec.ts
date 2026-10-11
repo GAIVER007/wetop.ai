@@ -25,7 +25,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов', async ({
@@ -59,7 +59,7 @@ test('один заголовок на трёх вкладках, без «Об�
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
     await expect(main.locator('.page__crumbs')).toContainText('Настройки объекта');
   }
-  await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText(
+  await expect(page.locator('.sidenav__sub [aria-current="page"]')).toHaveText(
     'Объект',
   );
 

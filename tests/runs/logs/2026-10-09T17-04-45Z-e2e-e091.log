@@ -1,0 +1,31 @@
+# Сквозные (e2e) · 09.10.2026 22:04 Алматы · vm
+# коммит 45517ba (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/login-access.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (2.0s)
+  ✓   2 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (5.7s)
+  ✓   3 tests/ui/login-access.spec.ts:55:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (1.5s)
+  ✓   4 tests/ui/login-access.spec.ts:62:1 › сбой API сохраняет поля, повтор после восстановления работает (3.7s)
+  ✓   5 tests/ui/login-access.spec.ts:73:1 › клавиатура, показ пароля и блокировка повторной отправки (3.4s)
+  ✓   6 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — light (6.0s)
+  ✓   7 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — dark (5.8s)
+  ✓   8 tests/ui/login-access.spec.ts:124:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.3s)
+  ✓   9 tests/ui/login-access.spec.ts:135:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (4.9s)
+  ✓  10 tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение (1.6s)
+  ✓  11 tests/ui/login-access.spec.ts:161:1 › старая ссылка mode=register открывает регистрацию на главной (1.4s)
+  ✓  12 tests/ui/login-access.spec.ts:166:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (4.4s)
+  ✓  13 tests/ui/login-access.spec.ts:179:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (640ms)
+  ✓  14 tests/ui/login-access.spec.ts:184:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.1s)
+  ✓  15 tests/ui/login-access.spec.ts:195:1 › занятая почта и короткий пароль не создают сессию (2.3s)
+
+  15 passed (55.3s)
+
+# код выхода 0 · 56 с

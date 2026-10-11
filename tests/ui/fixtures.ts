@@ -15,7 +15,8 @@
  * `reservations-states`, «загрузка словом» в `system-screens` и `channex-screens`). Длинное
  * ожидание здесь отдавало бы им уже загруженную страницу и проверяло пустоту вместо скелетона.
  */
-import { test as base, expect, type Page } from '@playwright/test';
+import { test as base, expect, type Locator, type Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 const STREAM_GRACE_MS = 700;
 
@@ -68,6 +69,28 @@ async function settleTheme(page: Page, scheme: 'light' | 'dark' | 'no-preference
     .catch(() => undefined);
 }
 
+/**
+ * Тот же класс без смены темы (разбор 09.10.2026, «История ночи» в `market.spec`): панель выезжает CSS-анимацией
+ * `drawer-in`, и axe, позванный сразу после щелчка, мерил полупрозрачный текст, цвета плавали от прогона к прогону.
+ * Обёртка `emulateMedia` тут не срабатывает (темы не меняли, анимация не переход), поэтому ждём перед каждым
+ * замером axe: конец всех конечных анимаций и переходов, с потолком. Бесконечные (спиннер) не ждём.
+ */
+const MOTION_SETTLE_MS = 1000;
+const SETTLE_MOTION = `Promise.race([
+  Promise.all(document.getAnimations()
+    .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+    .map((a) => a.finished.catch(() => undefined))),
+  new Promise((r) => setTimeout(r, ${MOTION_SETTLE_MS})),
+]).then(() => true)`;
+
+const axeAnalyze = AxeBuilder.prototype.analyze;
+AxeBuilder.prototype.analyze = async function analyze(this: AxeBuilder) {
+  // `page` у AxeBuilder приватное поле; публичного способа дождаться страницы перед замером нет
+  const page = (this as unknown as { page: Page }).page;
+  await page.evaluate(SETTLE_MOTION).catch(() => undefined);
+  return axeAnalyze.call(this);
+};
+
 export * from '@playwright/test';
 
 /**
@@ -86,6 +109,35 @@ export const devNoise = /Failed to execute 'measure' on 'Performance'/;
  * проверка его ловит (разбор полного UI 03.10.2026, `docs/history/2026-10-03-double-shift.md`).
  */
 export const HEADER_GROWTH_PX = 28;
+
+/**
+ * Оживил ли React этот узел. Сервер рисует кнопку раньше, чем браузер получит и выполнит скрипты стойки, и клик в
+ * этот промежуток пропадает: кнопка видна, а обработчика у неё ещё нет. Признак оживления: служебное свойство React
+ * на самом узле (`__reactProps$…`), его ставят вместе с обработчиками (тот же признак, что у `ai-seller.spec.ts`).
+ * На медленном раннере GitHub промежуток доходит до секунд: TESTING.md, строки 20.09 (`real-data`), 27.09
+ * (`ai-seller`) и 03.10 (`login-access`, release-checks #7).
+ */
+export async function hydrated(target: Locator): Promise<void> {
+  await expect
+    .poll(
+      () =>
+        target.evaluate((node) => Object.keys(node).some((key) => key.startsWith('__reactProps$'))),
+      { message: 'React не оживил элемент: скрипты стойки не дошли или упали', timeout: 30_000 },
+    )
+    .toBe(true);
+}
+
+/**
+ * «Меню администратора» в шапке: нажать, когда React оживил кнопку, и убедиться, что меню раскрылось. Спеки открывают
+ * меню профиля только так (сторож `tests/unit/ui-profile-menu.test.ts`); возвращает саму кнопку.
+ */
+export async function openProfileMenu(page: Page): Promise<Locator> {
+  const menu = page.getByRole('button', { name: 'Меню администратора' });
+  await hydrated(menu);
+  await menu.click();
+  await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  return menu;
+}
 
 /**
  * Обучение в стойке (ADR-100) само открывается на Главной у вошедшего, пока в браузере нет отметки «пройдено».
@@ -164,4 +216,34 @@ export async function boardFilter(page: Page, pick: { category?: string; state?:
   if (pick.state !== undefined) await pop.getByLabel('Места в календаре').selectOption(pick.state);
   await pop.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(pop).toBeHidden();
+}
+
+/**
+ * Левое меню (ADR-161). `sideNav`: навигация «Разделы» в колонке слева; `menuLinks`: все адреса меню, каждый ровно
+ * один раз (подразделы всех разделов лежат в панели, виден один).
+ */
+export const sideNav = (page: Page) => page.locator('.sidenav');
+export const menuLinks = (page: Page) =>
+  page
+    .locator('.sidenav__items a')
+    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+
+/** Открывает панель разделов наведением на кнопку текущего раздела и показывает подразделы `section` */
+export async function openSection(page: Page, section: string) {
+  const nav = sideNav(page);
+  // шапка клиентская: до гидрации наведение без обработчика, поэтому повтор. Мышь сперва уводим: после перехода
+  // панель закрывается по смене адреса, а курсор, уже стоящий на кнопке, нового pointerenter не даёт
+  await expect(async () => {
+    await page.mouse.move(page.viewportSize()!.width - 1, page.viewportSize()!.height - 1);
+    await nav.locator('.sidenav__current').hover();
+    await expect(nav.locator('.sidenav__panel')).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
+  await nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) }).hover();
+  return nav.locator('.sidenav__items > :not([hidden])');
+}
+
+/** Переход через панель: раздел → подраздел, как человек мышью */
+export async function goViaMenu(page: Page, section: string, item: string) {
+  const items = await openSection(page, section);
+  await items.getByRole('link', { name: item, exact: true }).click();
 }

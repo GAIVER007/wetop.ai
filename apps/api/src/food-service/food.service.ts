@@ -301,18 +301,32 @@ export class FoodService {
     foodMay('desk');
     const s = await foodScope(this.prisma.db),
       p = page(query);
+    const rows = await this.prisma.db.customer.findMany({
+      where: {
+        ...(p.cursor ? { id: { gt: p.cursor } } : {}),
+        organizationId: s.organizationId,
+        status: 'ACTIVE',
+        businesses: { some: { businessId: s.businessId } },
+      },
+      select: { id: true, firstName: true, lastName: true, phone: true, status: true },
+      orderBy: { id: 'asc' },
+      take: p.limit + 1,
+    });
+    // «Постоянный гость» на экране клиентов (ADR-159): визит = посажен или завершён в этом филиале
+    const visits = rows.length
+      ? await this.prisma.db.restaurantReservation.groupBy({
+          by: ['customerId'],
+          where: {
+            locationId: s.locationId,
+            customerId: { in: rows.map((r) => r.id) },
+            status: { in: ['SEATED', 'COMPLETED'] },
+          },
+          _count: { _all: true },
+        })
+      : [];
+    const byCustomer = new Map(visits.map((v) => [v.customerId, v._count._all]));
     return paged(
-      await this.prisma.db.customer.findMany({
-        where: {
-          ...(p.cursor ? { id: { gt: p.cursor } } : {}),
-          organizationId: s.organizationId,
-          status: 'ACTIVE',
-          businesses: { some: { businessId: s.businessId } },
-        },
-        select: { id: true, firstName: true, lastName: true, phone: true, status: true },
-        orderBy: { id: 'asc' },
-        take: p.limit + 1,
-      }),
+      rows.map((r) => ({ ...r, visits: byCustomer.get(r.id) ?? 0 })),
       p.limit,
     );
   }

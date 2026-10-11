@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 09.10.2026 17:37 Алматы · vm
+# коммит ce21ea3 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/finance-home-merge.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/finance-home-merge.spec.ts:17:1 › финансы: один раздел с блоками Главной и деньгами кассы (3.5s)
+  ✓  2 tests/ui/finance-home-merge.spec.ts:61:1 › /today гостиницы перенаправляет в финансы (2.0s)
+  ✓  3 tests/ui/finance-home-merge.spec.ts:67:1 › меню: «Финансы» первой вкладкой, «Главной» нет (1.3s)
+  ✓  4 tests/ui/finance-home-merge.spec.ts:75:1 › телефон: сводка первым экраном, фильтры достижимы (1.4s)
+
+  4 passed (16.1s)
+
+# код выхода 0 · 17 с

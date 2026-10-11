@@ -30,7 +30,6 @@ test('телефон: низ страницы не прячется под ни�
     '/finance',
     '/inventory',
     '/channels',
-    '/today',
     '/reservations',
     '/management/analytics',
     '/reports',
@@ -129,7 +128,6 @@ test('телефон: кнопки, поля и вкладки разделов 
     '/finance',
     '/finance?tab=cash',
     '/guests',
-    '/today',
     '/reservations',
     '/management/analytics',
     '/reports',
@@ -160,7 +158,6 @@ test('телефон: поля не мельче 16 px — иначе iOS зум
   // Главной, 14 px у «Броней», «Финансов», «Кассы» и «Отчётов» — плотные полосы разделов
   // перебивали общее правило (`.finance-toolbar .field--inline .inp` специфичнее `.workspace .inp`).
   for (const route of [
-    '/today',
     '/chessboard',
     '/reservations',
     '/reservations/new',

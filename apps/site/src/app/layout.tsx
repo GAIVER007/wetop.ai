@@ -8,6 +8,8 @@ import { SiteHeader } from '../components/site-header';
 import { getDictionary, localeInfo } from '../i18n';
 import { websiteOpenGraph } from '../lib/metadata';
 import { assistantScriptSrc, resetLink, siteAuthEndpoint, siteUrl } from '../lib/site';
+import { JsonLd } from '../components/json-ld';
+import { absoluteUrl } from '../lib/site';
 import { siteConfig } from '../site.config';
 import './tokens.css';
 import './globals.css';
@@ -84,6 +86,30 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
         <SiteFooter />
+        {/* Организация и сайт для поисковиков (schema.org): имя, адрес, контакт; цен и отзывов нет (§19.9) */}
+        <JsonLd
+          data={{
+            '@graph': [
+              {
+                '@type': 'Organization',
+                '@id': absoluteUrl('/#organization'),
+                name: t.meta.siteName,
+                url: absoluteUrl('/'),
+                logo: absoluteUrl('/og.png'),
+                email: siteConfig.company.email,
+                address: { '@type': 'PostalAddress', addressLocality: siteConfig.company.city },
+              },
+              {
+                '@type': 'WebSite',
+                '@id': absoluteUrl('/#website'),
+                name: t.meta.siteName,
+                url: absoluteUrl('/'),
+                inLanguage: localeInfo().htmlLang,
+                publisher: { '@id': absoluteUrl('/#organization') },
+              },
+            ],
+          }}
+        />
         <AuthDialog texts={t.auth} urls={authUrls} />
         <noscript>
           <p>

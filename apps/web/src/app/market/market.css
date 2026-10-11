@@ -2,6 +2,58 @@
    Цвет клетки — уровень спроса (Q-258): высокий от 85 %, слабый до 50 %; текст всегда `--text`, цвет только фоном,
    а слово уровня есть в подсказке клетки и в легенде. */
 @layer sections {
+  /* Список конкурентов (SALES2.3b): шапка с отбором и таблица со свежестью данных */
+  .market-list {
+    margin: var(--space-6) 0;
+    min-width: 0;
+  }
+  .market-list__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+  .market-list__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+  }
+  .market-list__filters .field {
+    margin: 0;
+    white-space: nowrap;
+  }
+  .market-list__filters select.inp {
+    width: auto;
+  }
+  /* скрытая подпись «Действия» (sr-only, position: absolute) без опоры уезжала за край прокрутки и раздвигала страницу */
+  .market-list__table th {
+    position: relative;
+  }
+  .market-list__table td.market-row-actions {
+    display: table-cell;
+    white-space: nowrap;
+  }
+  .market-monitoring {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin: var(--space-4) 0 0;
+  }
+  .market-monitoring legend {
+    padding: 0 var(--space-2);
+    font-weight: var(--weight-medium);
+  }
+  .market-check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--touch-target);
+  }
+
   .market-controls {
     margin-bottom: var(--space-6);
   }
@@ -27,6 +79,69 @@
   }
   .market-reset {
     font-size: var(--text-sm);
+  }
+  .market-charts {
+    display: grid;
+    gap: var(--space-4);
+    margin: var(--space-6) 0;
+  }
+  .market-chart {
+    margin: 0;
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    min-width: 0;
+  }
+  .market-chart figcaption h2 {
+    margin: 0 0 var(--space-1);
+  }
+  .market-chart__lead {
+    margin: 0 0 var(--space-1);
+    color: var(--text);
+    font-weight: var(--weight-semibold);
+  }
+  .market-chart__note {
+    margin: 0 0 var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  /* холст 720 на всю ширину раздувал бы шрифт осей на широком экране, а на телефоне делал бы его нечитаемым:
+     график не шире 960 и не уже 560, а узкий экран прокручивает его внутри карточки */
+  .market-chart__scroll {
+    overflow-x: auto;
+  }
+  .market-chart__svg {
+    display: block;
+    height: auto;
+    min-width: 560px;
+    max-width: 960px;
+  }
+  .market-chart__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-sm);
+    color: var(--text-2);
+  }
+  .market-chart__legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .market-chart__table {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .market-chart__table summary {
+    cursor: pointer;
+    min-height: var(--control-h-sm);
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary);
   }
   .market-tiles {
     display: grid;
@@ -384,7 +499,7 @@
     font-size: var(--text-xs);
     color: var(--muted);
   }
-  .market-chart__legend {
+  .market-trend__legend {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2) var(--space-4);
@@ -394,57 +509,44 @@
     font-size: var(--text-xs);
     color: var(--muted);
   }
-  .market-chart__legend li {
+  .market-trend__legend li {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
   }
-  .market-chart__swatch {
+  .market-trend__swatch {
     display: inline-block;
     width: 16px;
     height: 4px;
     border-radius: var(--radius-xs);
   }
-  .market-chart__swatch--own {
+  .market-trend__swatch--own {
     background: var(--chart-1);
   }
-  .market-chart__swatch--market {
+  .market-trend__swatch--market {
     background: var(--chart-2);
   }
-  .market-chart__data {
+  .market-trend__data {
     margin-top: var(--space-2);
     font-size: var(--text-sm);
   }
-  .market-chart__data summary {
+  .market-trend__data summary {
     min-height: var(--target-min);
     display: flex;
     align-items: center;
     cursor: pointer;
     color: var(--text-2);
   }
-  .market-chart__data table {
+  .market-trend__data table {
     width: 100%;
     border-collapse: collapse;
     font-variant-numeric: tabular-nums;
   }
-  .market-chart__data th,
-  .market-chart__data td {
+  .market-trend__data th,
+  .market-trend__data td {
     padding: var(--space-1) var(--space-2);
     border-bottom: 1px solid var(--border-soft);
     text-align: left;
-  }
-  .market-comp-table .market-comp-name {
-    text-align: left;
-    min-width: 180px;
-  }
-  .market-comp-table td {
-    vertical-align: middle;
-  }
-  .market-comp-delta .is-up {
-    color: var(--success);
-  }
-  .market-comp-delta .is-down {
-    color: var(--danger);
   }
   .market-nodata {
     font-size: var(--text-sm);
@@ -466,78 +568,28 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
-  @media (max-width: 600px) {
-    /* Строка таблицы конкурентов складывается в карточку (приём .fund-cat-table, DESIGN.md §8) */
-    .tbl.market-comp-table,
-    .market-comp-table tbody {
-      display: block;
-      width: 100%;
-      min-width: 0;
-    }
-    .market-comp-table thead {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-    }
-    .market-comp-table tbody tr {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: var(--space-1) var(--space-4);
-      padding: var(--space-2) 0;
-      border-bottom: 1px solid var(--border-soft);
-    }
-    .market-comp-table tbody tr:last-child {
-      border-bottom: 0;
-    }
-    .market-comp-table tbody th,
-    .market-comp-table tbody td {
-      display: block;
-      padding: 0;
-      border: 0;
-      min-width: 0;
-      white-space: normal;
-    }
-    .market-comp-table tbody .market-comp-name {
-      grid-column: 1;
-      grid-row: 1;
-    }
-    .market-comp-table tbody .market-comp-status {
-      grid-column: 2;
-      grid-row: 1;
-      justify-self: end;
-    }
-    .market-comp-table tbody .market-comp-dist {
-      grid-column: 1;
-      grid-row: 2;
-      color: var(--muted);
-      font-size: var(--text-sm);
-    }
-    .market-comp-table tbody .market-comp-avg {
-      grid-column: 1;
-      grid-row: 3;
-      font-size: var(--text-sm);
-    }
-    .market-comp-table tbody .market-comp-avg::before {
-      content: 'Загрузка за период: ';
-      color: var(--muted);
-    }
-    .market-comp-table tbody .market-comp-delta {
-      grid-column: 2;
-      grid-row: 3;
-      justify-self: end;
-      font-size: var(--text-sm);
-    }
-    .market-comp-table tbody .market-comp-seen {
-      grid-column: 1;
-      grid-row: 4;
-      color: var(--muted);
-      font-size: var(--text-xs);
-    }
-    .market-comp-table tbody .market-comp-actions {
-      grid-column: 1 / -1;
-      grid-row: 5;
-    }
+  /* Три шага в пустом состоянии (слот `details` у EmptyState): сетка из `Grid`, здесь только вид пункта и номер */
+  .market-steps {
+    counter-reset: market-step;
+    margin-top: var(--space-6);
+    text-align: left;
+  }
+  .market-steps > * {
+    counter-increment: market-step;
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-control);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .market-steps strong {
+    color: var(--text);
+  }
+  .market-steps strong::before {
+    content: counter(market-step) '. ';
+    color: var(--primary);
   }
 }

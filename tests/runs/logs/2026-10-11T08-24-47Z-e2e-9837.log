@@ -1,0 +1,247 @@
+# Сквозные (e2e) · 11.10.2026 13:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1fff2aa (claude/gate-integration-fix)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4031687153'
+[WebServer] }
+  ✘  1 tests/onboarding/onboarding.spec.ts:8:3 › BEAUTY: trusted adapter, persistence, back/next, completion, keyboard and axe (24.3s)
+[WebServer] ⨯ Error: Филиал недоступен
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:15:17)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 403,
+[WebServer]   digest: 'API_403'
+[WebServer] }
+  ✘  2 tests/onboarding/onboarding.spec.ts:8:3 › FOOD_SERVICE: trusted adapter, persistence, back/next, completion, keyboard and axe (12.1s)
+[WebServer] ⨯ Error: Филиал недоступен
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:15:17)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 403,
+[WebServer]   digest: 'API_403'
+[WebServer] }
+  ✘  3 tests/onboarding/onboarding.spec.ts:62:1 › READ_ONLY displays data without mutation controls (8.2s)
+[WebServer] ⨯ Error: Филиал недоступен
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:15:17)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 403,
+[WebServer]   digest: 'API_403'
+[WebServer] }
+  ✘  4 tests/onboarding/onboarding.spec.ts:68:1 › Hospitality existing categories persist on reload and provision real inventory (1.0m)
+
+
+  1) tests/onboarding/onboarding.spec.ts:8:3 › BEAUTY: trusted adapter, persistence, back/next, completion, keyboard and axe 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  "http://127.0.0.1:55803/register/setup?vertical=HOSPITALITY"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="ru" data-theme="dark">…</html>
+           - unexpected value "http://127.0.0.1:55803/register/setup?vertical=HOSPITALITY"
+
+
+      47 |     // MV8: рабочий экран дня один на все направления
+      48 |     const landing = /\/today$/;
+    > 49 |     await expect(page).toHaveURL(landing);
+         |                        ^
+      50 |     await page.reload();
+      51 |     await expect(page).toHaveURL(landing);
+      52 |     expect(await (await request.get(`${api}/onboarding`)).json()).toMatchObject({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/onboarding/onboarding.spec.ts:49:24
+
+    Error Context: test-results/onboarding-BEAUTY-trusted--c0ac5-completion-keyboard-and-axe/error-context.md
+
+    Error Context: test-results/onboarding-BEAUTY-trusted--c0ac5-completion-keyboard-and-axe/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-BEAUTY-trusted--c0ac5-completion-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/onboarding-BEAUTY-trusted--c0ac5-completion-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/onboarding/onboarding.spec.ts:8:3 › FOOD_SERVICE: trusted adapter, persistence, back/next, completion, keyboard and axe 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Настройте Food Service"
+    Received: "Не удалось загрузить данные"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 5000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        13 × locator resolved to <h1 class="page__title">Не удалось загрузить данные</h1>
+           - unexpected value "Не удалось загрузить данные"
+
+
+      13 |     await page.goto('/register/setup?vertical=HOSPITALITY');
+      14 |     const main = page.getByRole('main');
+    > 15 |     await expect(main.getByRole('heading', { level: 1 })).toHaveText(
+         |                                                           ^
+      16 |       vertical === 'BEAUTY' ? 'Настройте Beauty' : 'Настройте Food Service',
+      17 |     );
+      18 |     await main.getByLabel('Название бизнеса').fill('Новый тестовый бизнес');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/onboarding/onboarding.spec.ts:15:59
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      3 | const api = 'http://127.0.0.1:55804';
+      4 | test.afterAll(async ({ request }) => {
+    > 5 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+        |                                                              ^
+      6 | });
+      7 | for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
+      8 |   test(`${vertical}: trusted adapter, persistence, back/next, completion, keyboard and axe`, async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/onboarding/onboarding.spec.ts:5:62
+
+    Error Context: test-results/onboarding-FOOD-SERVICE-tr-9c874-completion-keyboard-and-axe/error-context.md
+
+    Error Context: test-results/onboarding-FOOD-SERVICE-tr-9c874-completion-keyboard-and-axe/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-FOOD-SERVICE-tr-9c874-completion-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/onboarding-FOOD-SERVICE-tr-9c874-completion-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/onboarding/onboarding.spec.ts:62:1 › READ_ONLY displays data without mutation controls ──
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: getByRole('main').getByLabel('Название бизнеса')
+    Expected: disabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('main').getByLabel('Название бизнеса') with timeout 5000ms
+      - waiting for getByRole('main').getByLabel('Название бизнеса')
+
+
+      63 |   await request.post(`${api}/__test/reset`, { data: { vertical: 'BEAUTY', readOnly: true } });
+      64 |   await page.goto('/register/setup');
+    > 65 |   await expect(page.getByRole('main').getByLabel('Название бизнеса')).toBeDisabled();
+         |                                                                       ^
+      66 |   await expect(page.getByRole('button', { name: 'Продолжить', exact: true })).toHaveCount(0);
+      67 | });
+      68 | test('Hospitality existing categories persist on reload and provision real inventory', async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/onboarding/onboarding.spec.ts:65:71
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      3 | const api = 'http://127.0.0.1:55804';
+      4 | test.afterAll(async ({ request }) => {
+    > 5 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+        |                                                              ^
+      6 | });
+      7 | for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
+      8 |   test(`${vertical}: trusted adapter, persistence, back/next, completion, keyboard and axe`, async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/onboarding/onboarding.spec.ts:5:62
+
+    Error Context: test-results/onboarding-READ-ONLY-displays-data-without-mutation-controls/error-context.md
+
+    Error Context: test-results/onboarding-READ-ONLY-displays-data-without-mutation-controls/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-READ-ONLY-displays-data-without-mutation-controls/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/onboarding-READ-ONLY-displays-data-without-mutation-controls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/onboarding/onboarding.spec.ts:68:1 › Hospitality existing categories persist on reload and provision real inventory 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByLabel('Название категории')
+
+
+      73 |   await page.goto('/register/setup');
+      74 |   const main = page.getByRole('main');
+    > 75 |   await main.getByLabel('Название категории').fill('Тестовый номер');
+         |                                               ^
+      76 |   await main.getByLabel(/Цена за ночь/).fill('21000');
+      77 |   await main.getByRole('button', { name: 'Сохранить', exact: true }).click();
+      78 |   await expect(main.getByRole('status')).toHaveText('Сохранено');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/onboarding/onboarding.spec.ts:75:47
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      3 | const api = 'http://127.0.0.1:55804';
+      4 | test.afterAll(async ({ request }) => {
+    > 5 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+        |                                                              ^
+      6 | });
+      7 | for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
+      8 |   test(`${vertical}: trusted adapter, persistence, back/next, completion, keyboard and axe`, async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/onboarding/onboarding.spec.ts:5:62
+
+    Error Context: test-results/onboarding-Hospitality-exi-0d53f-nd-provision-real-inventory/error-context.md
+
+    Error Context: test-results/onboarding-Hospitality-exi-0d53f-nd-provision-real-inventory/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-Hospitality-exi-0d53f-nd-provision-real-inventory/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/onboarding-Hospitality-exi-0d53f-nd-provision-real-inventory/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/onboarding/onboarding.spec.ts:8:3 › BEAUTY: trusted adapter, persistence, back/next, completion, keyboard and axe 
+    tests/onboarding/onboarding.spec.ts:8:3 › FOOD_SERVICE: trusted adapter, persistence, back/next, completion, keyboard and axe 
+    tests/onboarding/onboarding.spec.ts:62:1 › READ_ONLY displays data without mutation controls ───
+    tests/onboarding/onboarding.spec.ts:68:1 › Hospitality existing categories persist on reload and provision real inventory 
+
+# код выхода 1 · 2 мин 32 с

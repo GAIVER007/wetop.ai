@@ -1,0 +1,99 @@
+# Сквозные (e2e) · 11.10.2026 13:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1fff2aa (claude/gate-integration-fix)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+[WebServer] [fx] GET /auth/me actor=BEAUTY/c82faf4d
+[WebServer] [fx] GET /auth/me actor=BEAUTY/c82faf4d
+[WebServer] [fx] GET /onboarding actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] GET /auth/me actor=BEAUTY/c82faf4d
+[WebServer] [fx] GET /auth/me actor=BEAUTY/c82faf4d
+[WebServer] [fx] GET /onboarding actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] GET /auth/me actor=BEAUTY/c82faf4d
+[WebServer] [fx] GET /beauty/appointments actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 404
+[WebServer] [fx] GET /auth/me actor=BEAUTY/c82faf4d
+[WebServer] [fx] GET /branches actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 404
+[WebServer] [fx] GET /beauty/appointments actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 404
+[WebServer] [fx] GET /onboarding actor=BEAUTY/c82faf4d
+[WebServer] [fx]   -> 200
+  ✓  1 tests/onboarding/onboarding.spec.ts:8:3 › BEAUTY: trusted adapter, persistence, back/next, completion, keyboard and axe (4.6s)
+[WebServer] [fx] GET /auth/me actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx] GET /auth/me actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx] GET /onboarding actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 200
+[WebServer] [fx] GET /auth/me actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx] GET /auth/me actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx] GET /onboarding actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 200
+[WebServer] [fx] GET /auth/me actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx] GET /branches actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 404
+[WebServer] [fx] GET /auth/me actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx] GET /branches actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 404
+[WebServer] [fx] GET /onboarding actor=FOOD_SERVICE/627e7e0a
+[WebServer] [fx]   -> 200
+  ✓  2 tests/onboarding/onboarding.spec.ts:8:3 › FOOD_SERVICE: trusted adapter, persistence, back/next, completion, keyboard and axe (3.0s)
+[WebServer] [fx] GET /auth/me actor=BEAUTY/d5651d0d
+[WebServer] [fx] GET /auth/me actor=BEAUTY/d5651d0d
+[WebServer] [fx] GET /onboarding actor=BEAUTY/d5651d0d
+[WebServer] [fx]   -> 200
+  ✓  3 tests/onboarding/onboarding.spec.ts:62:1 › READ_ONLY displays data without mutation controls (328ms)
+[WebServer] [fx] GET /auth/me actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx] GET /auth/me actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx] GET /onboarding actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] GET /hotel/onboarding actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /onboarding actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] GET /auth/me actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx] GET /auth/me actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx] GET /onboarding actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] GET /hotel/onboarding actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] POST /hotel/onboarding actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx]   -> 200
+[WebServer] [fx] GET /auth/me actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx] GET /hotel/settings actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx]   -> 404
+[WebServer] [fx] GET /hotel/onboarding actor=HOSPITALITY/9cc1a71d
+[WebServer] [fx]   -> 200
+  ✓  4 tests/onboarding/onboarding.spec.ts:68:1 › Hospitality existing categories persist on reload and provision real inventory (737ms)
+
+  4 passed (12.9s)
+
+# код выхода 0 · 14 с

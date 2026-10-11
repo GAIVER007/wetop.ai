@@ -1,0 +1,192 @@
+# Сквозные (e2e) · 09.10.2026 22:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0bf3fec (claude/sales2-impl), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ai-seller-dialogs.spec.ts' '--workers=1' '--timeout=180000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/ai-seller-dialogs.spec.ts:20:1 › три колонки на широком экране: список, переписка, карточка гостя (2.5s)
+  ✓  2 tests/ui/ai-seller-dialogs.spec.ts:38:1 › без выбранного диалога справа подсказка, а не пустота (863ms)
+  ✘  3 tests/ui/ai-seller-dialogs.spec.ts:43:1 › поиск по имени оставляет подходящие строки, ненайденное говорит словами, сброс возвращает всё (997ms)
+  ✓  4 tests/ui/ai-seller-dialogs.spec.ts:59:1 › канал в адресе отбирает диалоги; режим и поиск сохраняются в ссылках отбора (1.2s)
+  ✘  5 tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: light, 1440px (16.2s)
+  ✘  6 tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: light, 390px (16.2s)
+  ✘  7 tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: dark, 1440px (16.3s)
+  ✘  8 tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: dark, 390px (16.4s)
+
+
+  1) tests/ui/ai-seller-dialogs.spec.ts:43:1 › поиск по имени оставляет подходящие строки, ненайденное говорит словами, сброс возвращает всё 
+
+    Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Найти' }) resolved to 2 elements:
+        1) <button data-tour="search" class="workspace-search" aria-label="Найти гостя или бронь">…</button> aka getByRole('button', { name: 'Найти гостя или бронь' })
+        2) <button type="submit" class="btn btn--secondary btn--sm">Найти</button> aka getByTestId('seller-dialogs-search').getByRole('button', { name: 'Найти' })
+
+    Call log:
+      - waiting for getByRole('button', { name: 'Найти' })
+
+
+      47 |   await expect(page.getByTestId('seller-dialogs').getByRole('row')).toHaveCount(3);
+      48 |   await page.getByRole('textbox', { name: 'Имя гостя' }).fill('А');
+    > 49 |   await page.getByRole('button', { name: 'Найти' }).click();
+         |                                                     ^
+      50 |   await expect(page).toHaveURL(/q=/);
+      51 |   await expect(page.getByTestId('seller-dialogs').getByRole('row')).toHaveCount(2);
+      52 |   await page.getByRole('textbox', { name: 'Имя гостя' }).fill('Яяя');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller-dialogs.spec.ts:49:53
+
+    Error Context: test-results/ai-seller-dialogs-поиск-по-ca3dc-ловами-сброс-возвращает-всё/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-dialogs-поиск-по-ca3dc-ловами-сброс-возвращает-всё/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-dialogs-поиск-по-ca3dc-ловами-сброс-возвращает-всё/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: light, 1440px ─────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('seller-dialog-client')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('seller-dialog-client') with timeout 15000ms
+      - waiting for getByTestId('seller-dialog-client')
+
+
+      72 |       await page.setViewportSize({ width, height: 900 });
+      73 |       await page.goto(`/ai-seller/dialogs?id=${DIALOG}`);
+    > 74 |       await expect(page.getByTestId('seller-dialog-client')).toBeVisible();
+         |                                                              ^
+      75 |       const scan = await new AxeBuilder({ page }).analyze();
+      76 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+      77 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller-dialogs.spec.ts:74:62
+
+    Error Context: test-results/ai-seller-dialogs-доступность-и-снимки-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-dialogs-доступность-и-снимки-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-dialogs-доступность-и-снимки-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: light, 390px ──────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('seller-dialog-client')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('seller-dialog-client') with timeout 15000ms
+      - waiting for getByTestId('seller-dialog-client')
+
+
+      72 |       await page.setViewportSize({ width, height: 900 });
+      73 |       await page.goto(`/ai-seller/dialogs?id=${DIALOG}`);
+    > 74 |       await expect(page.getByTestId('seller-dialog-client')).toBeVisible();
+         |                                                              ^
+      75 |       const scan = await new AxeBuilder({ page }).analyze();
+      76 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+      77 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller-dialogs.spec.ts:74:62
+
+    Error Context: test-results/ai-seller-dialogs-доступность-и-снимки-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-dialogs-доступность-и-снимки-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-dialogs-доступность-и-снимки-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: dark, 1440px ──────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('seller-dialog-client')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('seller-dialog-client') with timeout 15000ms
+      - waiting for getByTestId('seller-dialog-client')
+
+
+      72 |       await page.setViewportSize({ width, height: 900 });
+      73 |       await page.goto(`/ai-seller/dialogs?id=${DIALOG}`);
+    > 74 |       await expect(page.getByTestId('seller-dialog-client')).toBeVisible();
+         |                                                              ^
+      75 |       const scan = await new AxeBuilder({ page }).analyze();
+      76 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+      77 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller-dialogs.spec.ts:74:62
+
+    Error Context: test-results/ai-seller-dialogs-доступность-и-снимки-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-dialogs-доступность-и-снимки-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-dialogs-доступность-и-снимки-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: dark, 390px ───────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('seller-dialog-client')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('seller-dialog-client') with timeout 15000ms
+      - waiting for getByTestId('seller-dialog-client')
+
+
+      72 |       await page.setViewportSize({ width, height: 900 });
+      73 |       await page.goto(`/ai-seller/dialogs?id=${DIALOG}`);
+    > 74 |       await expect(page.getByTestId('seller-dialog-client')).toBeVisible();
+         |                                                              ^
+      75 |       const scan = await new AxeBuilder({ page }).analyze();
+      76 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+      77 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/tests/ui/ai-seller-dialogs.spec.ts:74:62
+
+    Error Context: test-results/ai-seller-dialogs-доступность-и-снимки-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-dialogs-доступность-и-снимки-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-dialogs-доступность-и-снимки-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/ai-seller-dialogs.spec.ts:43:1 › поиск по имени оставляет подходящие строки, ненайденное говорит словами, сброс возвращает всё 
+    tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: light, 1440px ──────────────────
+    tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: light, 390px ───────────────────
+    tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: dark, 1440px ───────────────────
+    tests/ui/ai-seller-dialogs.spec.ts:70:5 › доступность и снимки: dark, 390px ────────────────────
+  3 passed (1.4m)
+
+# код выхода 1 · 1 мин 22 с

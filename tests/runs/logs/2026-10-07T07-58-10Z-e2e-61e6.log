@@ -1,0 +1,43 @@
+# Сквозные (e2e) · 07.10.2026 12:58 Алматы · MacBook-Air-Urij.local
+# коммит e3fadd0 (codex/calendar-release-20261007), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/calendar-workspace.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' '--workers=1'
+[WebServer] (node:30487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30853) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31271) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+(node:32756) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/calendar-workspace.spec.ts:7:1 › calendar fills notebook screen with a side summary and frozen headings (10.9s)
+  ✓   2 tests/ui/calendar-workspace.spec.ts:29:1 › expanded calendar restores the workspace with Escape and remembers density (14.7s)
+  ✓   3 tests/ui/calendar-workspace.spec.ts:45:1 › booking menu and keyboard remain usable in the expanded calendar (8.8s)
+  ✓   4 tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview (9.9s)
+  ✓   5 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (8.6s)
+  ✓   6 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (6.3s)
+  ✓   7 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (6.6s)
+  ✓   8 tests/ui/chessboard-statistics.spec.ts:54:1 › today statistics stay available when the calendar shows another month (20.5s)
+  ✓   9 tests/ui/chessboard-statistics.spec.ts:68:1 › empty booking base shows zero occupancy and no urgent bookings (7.0s)
+  ✓  10 tests/ui/chessboard-statistics.spec.ts:82:3 › daily widgets light: accessible labels and contrasts (7.4s)
+  ✓  11 tests/ui/chessboard-statistics.spec.ts:82:3 › daily widgets dark: accessible labels and contrasts (6.5s)
+  ✓  12 tests/ui/chessboard-statistics.spec.ts:99:3 › desktop daily widgets light: accessible pointer targets (6.5s)
+  ✓  13 tests/ui/chessboard-statistics.spec.ts:99:3 › desktop daily widgets dark: accessible pointer targets (6.6s)
+
+  13 passed (2.5m)
+
+# код выхода 0 · 2 мин 40 с

@@ -1,0 +1,17 @@
+# Модульные (unit) · 09.10.2026 21:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bdd5e4 (claude/sales2-impl), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T16-32-04Z-unit-2845.json' 'tests/unit/design-slop' 'tests/unit/build-tokens' 'apps/web/src/lib/ai-seller'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl
+
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 7ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (29 tests) 5ms
+
+ Test Files  2 passed (2)
+      Tests  47 passed (47)
+   Start at  09:32:05
+   Duration  599ms (transform 62%, import 35%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T16-32-04Z-unit-2845.json
+
+# код выхода 0 · 2 с

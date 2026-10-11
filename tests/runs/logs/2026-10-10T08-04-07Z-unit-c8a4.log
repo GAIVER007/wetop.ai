@@ -1,0 +1,168 @@
+# Модульные (unit) · 10.10.2026 13:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит fc5d7e0 (claude/market-ai-collector), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T08-04-07Z-unit-c8a4.json' 'scripts/market/collect.test.ts' 'packages/domain/src/market/occupancy.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ❯ |unit| packages/domain/src/market/occupancy.test.ts (24 tests | 1 failed) 23ms
+   ✓ parseOccupancyPercent (3)
+     ✓ процент в базисные пункты: целый, с запятой и точкой, знак процента 3ms
+     ✓ пусто: значения нет 0ms
+     ✓ мимо 0…100, больше двух знаков после запятой и не число: отказ словами 1ms
+   ✓ formatOccupancy и demandLevel (2)
+     ✓ без лишних нулей, запятая 0ms
+     ✓ уровни спроса по порогам Q-258 0ms
+   ✓ parseCompetitorInput (3)
+     ✓ название обязательно при создании, поля чистятся 1ms
+     ✓ пустые необязательные поля при правке снимаются (null) 0ms
+     ✓ отрицательное расстояние, ноль номеров, адрес не http: отказ 0ms
+   ✓ marketDates (1)
+     ✓ окно подряд, через границу месяца 0ms
+   ✓ buildMarketBoard (8)
+     ✓ своя загрузка из календаря: занято от занято + свободно + блок 1ms
+     ✓ клетка конкурента: последний снимок не позже даты снимка и изменение к сравнению 1ms
+     ✓ конкуренты по расстоянию, без расстояния последними 0ms
+     ✓ средняя по рынку: простое среднее по конкурентам с данными; разница с вами 0ms
+     ✓ итог окна: рынок средним по дням, вы от суммы клеток, дни высокого спроса 0ms
+     ✓ подсказки: высокий спрос с отставанием, высокий спрос, слабый спрос, нет данных 1ms
+     ✓ ночи одного правила подряд склеиваются в отрезок, подсказок не больше пяти 1ms
+     ✓ пустой календарь (нет мест) и рынок без данных: прочерки, без деления на ноль 0ms
+   ✓ buildNightHistory (2)
+     ✓ по дням снимка: значение переносится до нового снимка, отмечено, был ли снимок в этот день; темп рынка 0ms
+     ✓ нет снимков: пустая история, темп неизвестен; дней не больше предела, свежие остаются 0ms
+   ✓ competitorPlatform (1)
+     ✓ площадка по ссылке конкурента: по ней ИИ-сборщик понимает, где смотреть свободные номера 0ms
+   ✓ estimateNightOccupancy (1)
+     ✓ оценка загрузки ночи по странице площадки: распродано, сколько можно забронировать, неизвестно 0ms
+   ✓ platformNightUrl (1)
+     ✓ адрес страницы соседа на одну ночь: даты, один взрослый (хостел на двоих вариантов не показывает) 1ms
+   ❯ уровень наличия (DATA_MODEL §23.1) (2)
+     × по странице: нет предложений, малый видимый остаток, есть места; закрыто и не разобрано без уровня 8ms
+     ✓ по проценту (ручной ввод и старые снимки): пороги подсказок Q-258 0ms
+ ❯ |unit| scripts/market/collect.test.ts (9 tests | 3 failed) 150ms
+   ❯ ИИ-сборщик загрузки конкурентов (7)
+     × открывает страницу на каждую ночь, оценивает загрузку и пишет снимок с паузой между страницами 124ms
+     × страница закрыта проверкой площадки: не обходит, останавливается по соседу, уже оценённое пишет 2ms
+     ✓ Booking.com отвечает автомату 202 и пустой страницей: это проверка площадки, модель не зовём 0ms
+     ✓ страница не загрузилась (таймаут): ночь без оценки, остальные ночи и соседи идут дальше 1ms
+     ✓ модель увидела проверку на странице с кодом 200: то же самое, дальше не идёт 1ms
+     × без ссылки на площадку страницу не открывает; без числа номеров пишет только уровень 6ms
+     ✓ проверка без записи: читает и оценивает, в WETOP ничего не пишет 2ms
+   ✓ блок номеров со страницы (1)
+     ✓ Ostrovok: только «Заезд»…«Расположение»; без границ текст обрезается до отзывов с именами гостей 9ms
+   ✓ ответ модели (1)
+     ✓ принимает только то, что прошло проверку; остаток бывает только у «продаётся» 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/market/collect.test.ts > ИИ-сборщик загрузки конкурентов > открывает страницу на каждую ночь, оценивает загрузку и пишет снимок с паузой между страницами
+AssertionError: expected [ { id: 'a', entries: [ …(2) ] } ] to deeply equal [ { id: 'a', entries: [ …(3) ] } ]
+
+- Expected
++ Received
+
+  [
+    {
+      "entries": [
+        {
+          "date": "2026-10-09",
+-         "level": "AVAILABLE",
+          "percent": 75,
+        },
+        {
+          "date": "2026-10-10",
+-         "level": "SOLD_OUT",
+          "percent": 100,
+-       },
+-       {
+-         "date": "2026-10-11",
+-         "level": "AVAILABLE",
+        },
+      ],
+      "id": "a",
+    },
+  ]
+
+ ❯ scripts/market/collect.test.ts:58:22
+     56|     ]);
+     57|     // процент там, где он считается; уровень у каждой разобранной ноч…
+     58|     expect(s.writes).toEqual([
+       |                      ^
+     59|       {
+     60|         id: 'a',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| scripts/market/collect.test.ts > ИИ-сборщик загрузки конкурентов > страница закрыта проверкой площадки: не обходит, останавливается по соседу, уже оценённое пишет
+AssertionError: expected [ { id: 'a', entries: [ { …(2) } ] } ] to deeply equal [ { id: 'a', entries: [ { …(3) } ] } ]
+
+- Expected
++ Received
+
+@@ -1,11 +1,10 @@
+  [
+    {
+      "entries": [
+        {
+          "date": "2026-10-09",
+-         "level": "FEW_LEFT",
+          "percent": 90,
+        },
+      ],
+      "id": "a",
+    },
+
+ ❯ scripts/market/collect.test.ts:82:22
+     80|     expect(report?.outcome).toBe('blocked');
+     81|     expect(report?.reason).toContain('не обходим');
+     82|     expect(s.writes).toEqual([{ id: 'a', entries: [{ date: '2026-10-09…
+       |                      ^
+     83|   });
+     84|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| scripts/market/collect.test.ts > ИИ-сборщик загрузки конкурентов > без ссылки на площадку страницу не открывает; без числа номеров пишет только уровень
+AssertionError: expected [] to have a length of 3 but got +0
+
+- Expected
++ Received
+
+- 3
++ 0
+
+ ❯ scripts/market/collect.test.ts:131:21
+    129|     );
+    130|     const reports = await s.run();
+    131|     expect(s.pages).toHaveLength(3);
+       |                     ^
+    132|     expect(reports.map((r) => r.outcome)).toEqual(['skipped', 'skipped…
+    133|     expect(s.writes[0]?.entries).toEqual([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts > уровень наличия (DATA_MODEL §23.1) > по странице: нет предложений, малый видимый остаток, есть места; закрыто и не разобрано без уровня
+AssertionError: expected 'AVAILABLE' to be 'FEW_LEFT' // Object.is equality
+
+Expected: "FEW_LEFT"
+Received: "AVAILABLE"
+
+ ❯ packages/domain/src/market/occupancy.test.ts:351:78
+    349|     expect(availabilityLevelFromPage({ status: 'available', roomsLeft:…
+    350|     // видна только сумма: она и решает
+    351|     expect(availabilityLevelFromPage({ status: 'available', roomsLeft:…
+       |                                                                              ^
+    352|     expect(availabilityLevelFromPage({ status: 'available', roomsLeft:…
+    353|     expect(availabilityLevelFromPage({ status: 'blocked', roomsLeft: n…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 29 passed (33)
+   Start at  01:04:12
+   Duration  1.66s (transform 75%, import 13%, tests 10%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T08-04-07Z-unit-c8a4.json
+
+# код выхода 1 · 7 с

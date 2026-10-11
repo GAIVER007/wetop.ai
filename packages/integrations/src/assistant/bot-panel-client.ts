@@ -264,6 +264,16 @@ export class BotPanelClient {
     return this.json('POST', `/conversations/${encodeURIComponent(id)}/release`);
   }
 
+  /** Ответственный и следующий шаг (S2.6): поля, которых нет в теле, бот не трогает */
+  handling(id: string, body: Json): Promise<Json> {
+    return this.json('PATCH', `/conversations/${encodeURIComponent(id)}/handling`, body);
+  }
+
+  /** Внутренняя заметка к диалогу (S2.6) */
+  addNote(id: string, body: Json): Promise<Json> {
+    return this.json('POST', `/conversations/${encodeURIComponent(id)}/notes`, body);
+  }
+
   reply(id: string, text: string): Promise<Json> {
     return this.json('POST', `/conversations/${encodeURIComponent(id)}/reply`, { text });
   }

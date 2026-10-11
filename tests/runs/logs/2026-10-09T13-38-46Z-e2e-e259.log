@@ -1,0 +1,119 @@
+# Сквозные (e2e) · 09.10.2026 18:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3112eff (claude/market-honest-empty-state), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/guests-birthdays' 'beauty-schedule' 'analytics-units' 'team' 'finance-cash' 'desk-tasks' 'ds1c-primitives' 'date-field' 'categories-price' 'housekeeping' 'reports-hub' 'chessboard-filters.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 87 tests using 1 worker
+
+  ✓   1 tests/ui/analytics-units.spec.ts:52:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (1.5s)
+  ✓   2 tests/ui/analytics-units.spec.ts:95:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (1.5s)
+  ✓   3 tests/ui/analytics-units.spec.ts:116:1 › отказ API — словами на своём экране, не падение страницы (1.1s)
+  ✓   4 tests/ui/analytics-units.spec.ts:128:1 › телефон: таблица без горизонтальной прокрутки страницы (1.0s)
+  ✓   5 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, light (3.0s)
+  ✓   6 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, dark (3.0s)
+  ✓   7 tests/ui/beauty-schedule.spec.ts:78:1 › неделя мастера ставится и читается словами (6.4s)
+  ✓   8 tests/ui/beauty-schedule.spec.ts:99:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (4.7s)
+  ✓   9 tests/ui/beauty-schedule.spec.ts:126:1 › два интервала через перерыв сохраняются (4.4s)
+  ✓  10 tests/ui/beauty-schedule.spec.ts:146:1 › отсутствие предупреждает о записях, снимается с вопросом (3.9s)
+  ✓  11 tests/ui/beauty-schedule.spec.ts:181:1 › отсутствие с концом раньше начала не уходит на сервер (3.8s)
+  ✓  12 tests/ui/beauty-schedule.spec.ts:196:1 › мастер переставляется между филиалами, снятый филиал забирает свой график (5.8s)
+  ✓  13 tests/ui/beauty-schedule.spec.ts:234:1 › график на телефоне: без прокрутки вбок (3.4s)
+  ✓  14 tests/ui/beauty-schedule.spec.ts:250:3 › график доступен в светлой теме (4.3s)
+  ✓  15 tests/ui/beauty-schedule.spec.ts:250:3 › график доступен в тёмной теме (4.5s)
+  ✓  16 tests/ui/categories-price.spec.ts:19:1 › categories: price column, create with price, edit price, delete, archive and refusal (5.4s)
+  ✓  17 tests/ui/categories-price.spec.ts:128:1 › /rates ведёт в «Категории номеров», в меню раздела «Тарифы и цены» нет (1.5s)
+  ✓  18 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (2.7s)
+  ✓  19 tests/ui/chessboard-filters.spec.ts:142:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (1.6s)
+  ✓  20 tests/ui/chessboard-filters.spec.ts:173:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (3.4s)
+  ✓  21 tests/ui/chessboard-filters.spec.ts:238:1 › §37: ничего не найдено — «Сбросить фильтры» (1.0s)
+  ✓  22 tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (2.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  23 tests/ui/chessboard-filters.spec.ts:276:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (1.0s)
+  ✓  24 tests/ui/chessboard-filters.spec.ts:294:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (1.3s)
+  ✓  25 tests/ui/chessboard-filters.spec.ts:321:1 › доступность: окошко «Фильтры» открыто (1.7s)
+  ✓  26 tests/ui/date-field.spec.ts:24:1 › показатели за период: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает (1.3s)
+  ✓  27 tests/ui/date-field.spec.ts:56:1 › показатели за период: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности (1.8s)
+  ✓  28 tests/ui/date-field.spec.ts:80:1 › телефон: кнопки календаря нет, родное поле остаётся (803ms)
+  ✓  29 tests/ui/date-field.spec.ts:89:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (2.3s)
+  ✓  30 tests/ui/desk-tasks.spec.ts:29:1 › создать задачу, увидеть в «Сегодня», закрыть и открыть снова; счётчик в панели календаря (3.1s)
+  ✓  31 tests/ui/desk-tasks.spec.ts:77:1 › ошибка словами у формы, введённое не теряется (927ms)
+  ✓  32 tests/ui/desk-tasks.spec.ts:88:1 › «только чтение»: список виден, создавать и закрывать нельзя (1.2s)
+  ✓  33 tests/ui/desk-tasks.spec.ts:108:3 › снимки и доступность: light (1.8s)
+  ✓  34 tests/ui/desk-tasks.spec.ts:108:3 › снимки и доступность: dark (3.1s)
+  ✓  35 tests/ui/ds1c-primitives.spec.ts:16:1 › доля на «Сайт → Аналитика»: родной progress с именем и числом, без ширины строкой стиля (1.3s)
+  ✓  36 tests/ui/ds1c-primitives.spec.ts:33:1 › плитка: тон чертой слева, изменение словами, плитка-ссылка с фокусом (2.1s)
+  ✓  37 tests/ui/ds1c-primitives.spec.ts:51:1 › день: предыдущий, следующий, «Сегодня» и поле «Дата» с подписью (2.1s)
+  ✓  38 tests/ui/ds1c-primitives.spec.ts:69:1 › период «Броней»: готовые отрезки ссылками, поля «С» и «По», применяет «Показать», адрес прежний (3.6s)
+  ✓  39 tests/ui/ds1c-primitives.spec.ts:84:1 › размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус (3.0s)
+  ✓  40 tests/ui/ds1c-primitives.spec.ts:105:1 › поле: обязательное с родным required и знаком, необязательное словом (2.0s)
+  ✓  41 tests/ui/ds1c-primitives.spec.ts:122:1 › таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки (1.4s)
+  ✓  42 tests/ui/ds1c-primitives.spec.ts:140:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (1.8s)
+  ✓  43 tests/ui/ds1c-primitives.spec.ts:174:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (light) (7.4s)
+  ✓  44 tests/ui/ds1c-primitives.spec.ts:174:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (dark) (7.2s)
+  ✓  45 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (2.8s)
+  ✓  46 tests/ui/finance-cash-first.spec.ts:67:3 › касса: доступность и верстка 1440 (1.3s)
+  ✓  47 tests/ui/finance-cash-first.spec.ts:67:3 › касса: доступность и верстка 390 (1.5s)
+  ✓  48 tests/ui/finance-cash-first.spec.ts:67:3 › касса: доступность и верстка 360 (1.4s)
+  ✓  49 tests/ui/finance-cash-first.spec.ts:96:1 › касса: первый экран без лишних кнопок, действия внутри управления (1.1s)
+  ✓  50 tests/ui/finance-cash-first.spec.ts:115:1 › касса: визуальная иерархия итогов и спокойный сброс (933ms)
+  ✓  51 tests/ui/finance-cash-first.spec.ts:133:1 › касса: тёмное оформление читается на телефоне (1.8s)
+  ✓  52 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (1.4s)
+  ✓  53 tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (2.9s)
+  ✓  54 tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (2.1s)
+  ✓  55 tests/ui/finance-cash.spec.ts:112:1 › статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода (2.7s)
+  ✓  56 tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны (1.7s)
+  ✓  57 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, light (1.6s)
+  ✓  58 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, dark (1.7s)
+  ✓  59 tests/ui/finance-cash.spec.ts:174:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (1.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1318812177'
+[WebServer] }
+  ✓  60 tests/ui/finance-cash.spec.ts:202:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (2.7s)
+  ✓  61 tests/ui/guests-birthdays.spec.ts:15:1 › календарь исключает дни рождения, отдельная страница раскрывает детали (4.3s)
+  ✓  62 tests/ui/guests-birthdays.spec.ts:55:1 › нет дат рождения: отдельная страница говорит, что в неделю пусто (1.3s)
+  ✓  63 tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (1.9s)
+  ✓  64 tests/ui/housekeeping.spec.ts:80:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (2.7s)
+  ✓  65 tests/ui/housekeeping.spec.ts:111:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (704ms)
+  ✓  66 tests/ui/housekeeping.spec.ts:119:1 › карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку (2.4s)
+  ✓  67 tests/ui/housekeeping.spec.ts:159:1 › карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156) (1.7s)
+  ✓  68 tests/ui/housekeeping.spec.ts:186:1 › выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155) (3.2s)
+  ✓  69 tests/ui/reports-hub.spec.ts:41:1 › хаб: заголовок, период месяцем, группы и числа — те же, что отдаёт API (1.8s)
+  ✓  70 tests/ui/reports-hub.spec.ts:107:1 › карточки ведут в готовые экраны с тем же периодом (1.6s)
+  ✓  71 tests/ui/reports-hub.spec.ts:152:1 › пресет «Сегодня» и свой период меняют адрес и числа (1.1s)
+  ✓  72 tests/ui/reports-hub.spec.ts:171:1 › сбой одного запроса не роняет хаб: карточка говорит «не загрузилось», остальные живут (626ms)
+  ✓  73 tests/ui/reports-hub.spec.ts:186:1 › CSV долгов: кнопка на вкладке «Долги», файл без имён гостей (1.3s)
+  ✓  74 tests/ui/reports-hub.spec.ts:207:1 › телефон: карточки без горизонтальной прокрутки (806ms)
+  ✓  75 tests/ui/reports-hub.spec.ts:217:3 › доступность и снимки, light (2.3s)
+  ✓  76 tests/ui/reports-hub.spec.ts:217:3 › доступность и снимки, dark (1.8s)
+  ✓  77 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (1.8s)
+  ✓  78 tests/ui/team.spec.ts:54:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (1.6s)
+  ✓  79 tests/ui/team.spec.ts:71:1 › ошибка приглашения — словами в панели, ввод не стирается (1.5s)
+  ✓  80 tests/ui/team.spec.ts:83:1 › «Отключить» — только после подтверждения с последствием (1.6s)
+  ✓  81 tests/ui/team.spec.ts:95:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке (1.6s)
+  ✓  82 tests/ui/team.spec.ts:116:1 › неверный телефон: словами в панели, введённое не стирается (1.9s)
+  ✓  83 tests/ui/team.spec.ts:130:1 › управляющий: роль не меняет, приглашает только администраторов (1.1s)
+  ✓  84 tests/ui/team.spec.ts:143:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (576ms)
+  ✓  85 tests/ui/team.spec.ts:154:1 › администратору раздел закрыт: гейт и меню без пункта (1.6s)
+  ✓  86 tests/ui/team.spec.ts:163:3 › снимки TEAM1 и доступность: light (2.6s)
+  ✓  87 tests/ui/team.spec.ts:163:3 › снимки TEAM1 и доступность: dark (2.5s)
+
+  87 passed (3.4m)
+
+# код выхода 0 · 3 мин 27 с

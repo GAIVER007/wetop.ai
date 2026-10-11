@@ -1,0 +1,37 @@
+# Типы (typecheck) · 10.10.2026 12:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8364a37 (claude/market-ai-collector), незакоммиченных файлов набора: 3
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/market/market.repository.ts(212,5): error TS2322: Type '{ competitorId: string; stayDate: string; observedOn: string; occupancyBp: number | null; source: CompetitorObservationSource; }[]' is not assignable to type 'MarketReading[]'.
+  Type '{ competitorId: string; stayDate: string; observedOn: string; occupancyBp: number | null; source: CompetitorObservationSource; }' is not assignable to type 'MarketReading'.
+    Types of property 'occupancyBp' are incompatible.
+      Type 'number | null' is not assignable to type 'number'.
+        Type 'null' is not assignable to type 'number'.
+apps/api/src/market/market.repository.ts(228,5): error TS2322: Type '{ competitorId: string; stayDate: string; observedOn: string; occupancyBp: number | null; source: CompetitorObservationSource; }[]' is not assignable to type 'MarketReading[]'.
+  Type '{ competitorId: string; stayDate: string; observedOn: string; occupancyBp: number | null; source: CompetitorObservationSource; }' is not assignable to type 'MarketReading'.
+    Types of property 'occupancyBp' are incompatible.
+      Type 'number | null' is not assignable to type 'number'.
+        Type 'null' is not assignable to type 'number'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/market/market.repository.ts(212,5): error TS2322: Type '{ competitorId: string; stayDate: string; observedOn: string; occupancyBp: number | null; source: CompetitorObservationSource; }[]' is not assignable to type 'MarketReading[]'.
+  Type '{ competitorId: string; stayDate: string; observedOn: string; occupancyBp: number | null; source: CompetitorObservationSource; }' is not assignable to type 'MarketReading'.
+    Types of property 'occupancyBp' are incompatible.
+      Type 'number | null' is not assignable to type 'number'.
+        Type 'null' is not assignable to type 'number'.
+apps/api/src/market/market.repository.ts(228,5): error TS2322: Type '{ competitorId: string; stayDate: string; observedOn: string; occupancyBp: number | null; source: CompetitorObservationSource; }[]' is not assignable to type 'MarketReading[]'.
+  Type '{ competitorId: string; stayDate: string; observedOn: string; occupancyBp: number | null; source: CompetitorObservationSource; }' is not assignable to type 'MarketReading'.
+    Types of property 'occupancyBp' are incompatible.
+      Type 'number | null' is not assignable to type 'number'.
+        Type 'null' is not assignable to type 'number'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 34 мин 25 с

@@ -74,6 +74,18 @@ describe('SellerClient — адреса и ключ', () => {
     expect(header(calls[3]!, 'content-type')).toBe('application/json');
   });
 
+  it('ведение диалога: PATCH handling и POST notes, id экранируется, тело уходит JSON', async () => {
+    const { calls, seller } = client(() => Response.json({ status: 'ok' }));
+    await seller.handling('a b', { next_step: 'Позвонить' });
+    await seller.addNote('c1', { body: 'Заметка', author_name: 'Алия' });
+    expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
+      'PATCH http://seller:8000/panel-x/conversations/a%20b/handling',
+      'POST http://seller:8000/panel-x/conversations/c1/notes',
+    ]);
+    expect(JSON.parse(String(calls[0]!.init.body))).toEqual({ next_step: 'Позвонить' });
+    expect(JSON.parse(String(calls[1]!.init.body))).toEqual({ body: 'Заметка', author_name: 'Алия' });
+  });
+
   it('знания: список и загрузка файлом в поле file', async () => {
     const { calls, seller } = client(() => Response.json({ status: 'ok', chunks: 3 }));
     await seller.knowledge();

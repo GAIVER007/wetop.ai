@@ -53,7 +53,7 @@ export function OccupancyChart({ points }: { points: ChartPoint[] }) {
     return parts.join(' ');
   };
   return (
-    <div className="chart market-chart" data-testid="market-chart">
+    <div className="chart market-trend" data-testid="market-chart">
       <svg
         viewBox={`0 0 ${W} ${H}`}
         width="100%"
@@ -121,17 +121,17 @@ export function OccupancyChart({ points }: { points: ChartPoint[] }) {
           </div>
         </div>
       )}
-      <ul className="market-chart__legend" aria-hidden="true">
+      <ul className="market-trend__legend" aria-hidden="true">
         <li>
-          <span className="market-chart__swatch market-chart__swatch--own" />
+          <span className="market-trend__swatch market-trend__swatch--own" />
           Вы
         </li>
         <li>
-          <span className="market-chart__swatch market-chart__swatch--market" />
+          <span className="market-trend__swatch market-trend__swatch--market" />
           Средняя по рынку
         </li>
       </ul>
-      <details className="market-chart__data">
+      <details className="market-trend__data">
         <summary>Значения по ночам</summary>
         <table>
           <thead>

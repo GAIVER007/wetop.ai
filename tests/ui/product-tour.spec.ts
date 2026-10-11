@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page, openProfileMenu } from './fixtures';
 
 /**
  * Обучение в стойке (plans/site-auth-dialog-tour-2026-09-27.md, Д4, ADR-100): после первого входа на Главной само
@@ -21,7 +21,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('первый вход: обучение открывается само, идёт по шагам и больше само не открывается', async ({
@@ -35,10 +35,10 @@ test('первый вход: обучение открывается само, �
 
   await tour.getByRole('button', { name: 'Далее' }).click();
   await expect(tour.getByRole('heading', { name: 'Поиск по всей стойке' })).toBeVisible();
-  // На компактной Главной поиск открывается клавиатурой, шаг остаётся по центру.
-  await expect(page.locator('[data-tour="search"]')).toBeHidden();
-  await expect(page.locator('.tour__hole')).toHaveCount(0);
-  await expect(page.locator('.tour__card--center')).toBeVisible();
+  // С 09.10 стартовый экран — «Обзор бизнеса» с обычной шапкой: поиск виден и подсвечивается вырезом.
+  await expect(page.locator('[data-tour="search"]')).toBeVisible();
+  await expect(page.locator('.tour__hole')).toBeVisible();
+  await expect(page.locator('.tour__card--center')).toHaveCount(0);
   await expect(tour).toContainText('⌘ K / Ctrl K');
   await page.screenshot({ path: 'test-results/product-tour-2-search.png' });
 
@@ -58,7 +58,7 @@ test('первый вход: обучение открывается само, �
   await expect(page.getByTestId('product-tour')).toBeHidden();
 
   // повтор — из меню профиля
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.getByTestId('tour-restart').click();
   await expect(
     page.getByTestId('product-tour').getByRole('heading', { name: 'Добро пожаловать в WETOP' }),
@@ -69,7 +69,7 @@ test('видимый поиск в календаре подсвечиваетс
   await signIn(page);
   await page.getByTestId('product-tour').getByRole('button', { name: 'Пропустить' }).click();
   await page.goto('/chessboard');
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.getByTestId('tour-restart').click();
   const tour = page.getByTestId('product-tour');
   await tour.getByLabel('Тема обучения').selectOption({ label: '2. Поиск по всей стойке' });
@@ -131,7 +131,7 @@ test('меню содержит только обучение, личность 
   ).toBeVisible();
   await expect(tour.locator('ol li')).toHaveCount(3);
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   const menu = page.locator('.profile-dropdown');
   await expect(menu.getByTestId('tour-restart')).toHaveText('Обучение работе в WETOP');
   await expect(menu).not.toContainText('Тема устройства');
@@ -166,7 +166,7 @@ test('обучение подсвечивает поиск в разделе г�
   await expect(page.getByTestId('product-tour')).toBeVisible();
   await page.keyboard.press('Escape');
   await page.goto('/guests');
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.getByTestId('tour-restart').click();
   const tour = page.getByTestId('product-tour');
   await tour.getByRole('button', { name: 'Далее' }).click();

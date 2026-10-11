@@ -8,10 +8,16 @@ describe('Food workspace isolation', () => {
     expect(
       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.map((i) => i.href)),
     ).toEqual([
+      // состав и порядок — макет «WETOP для ресторанов» (ADR-159)
       '/today',
+      '/orders',
       '/floor-plan',
+      '/kitchen',
       '/table-reservations',
       '/customers',
+      '/menu',
+      '/employees',
+      '/payroll',
       '/dining-areas',
       '/staff',
       '/management/analytics',
@@ -21,12 +27,17 @@ describe('Food workspace isolation', () => {
     ]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => i.href)).toEqual([
       '/today',
+      '/orders',
       '/floor-plan',
-      '/table-reservations',
-      '/customers',
+      '/kitchen',
     ]);
     const labels = menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items);
-    expect(labels.find((i) => i.href === '/today')?.label).toBe('Сегодня');
+    expect(labels.find((i) => i.href === '/today')?.label).toBe('Главная');
+    expect(labels.find((i) => i.href === '/orders')?.label).toBe('Заказы');
+    expect(labels.find((i) => i.href === '/kitchen')?.label).toBe('Кухня');
+    expect(labels.find((i) => i.href === '/menu')?.label).toBe('Меню');
+    expect(labels.find((i) => i.href === '/employees')?.label).toBe('Сотрудники');
+    expect(labels.find((i) => i.href === '/payroll')?.label).toBe('Зарплата');
     expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Бронирования');
   });
   it('does not expose Food to existing verticals', () => {
@@ -34,15 +45,21 @@ describe('Food workspace isolation', () => {
       expect(menuSectionsFor(owner, v).flatMap((s) => s.items.map((i) => i.href))).not.toContain(
         '/floor-plan',
       );
-      if (v === 'HOSPITALITY')
-        expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({ href: '/today', label: 'Главная' });
+      if (v === 'HOSPITALITY') {
+        // первая вкладка гостиницы — группа «Финансы» (ADR-157): первый пункт «Оплаты и касса»
+        expect(menuSectionsFor(owner, v)[0]!.label).toBe('Финансы');
+        expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({
+          href: '/finance',
+          label: 'Оплаты и касса',
+        });
+      }
     }
   });
   it('uses canonical landings and verified scope', () => {
-    // MV8: один рабочий экран дня на все направления
+    // MV8: рабочий экран дня салона и ресторана; гостиница стартует с единых «Финансов» (09.10.2026)
     expect(landingForVertical('FOOD_SERVICE')).toBe('/today');
     expect(landingForVertical('BEAUTY')).toBe('/today');
-    expect(landingForVertical('HOSPITALITY')).toBe('/today');
+    expect(landingForVertical('HOSPITALITY')).toBe('/finance');
     expect(
       deskShellOf({
         user: { email: 'synthetic@example.invalid', name: null },
@@ -53,6 +70,12 @@ describe('Food workspace isolation', () => {
   it('identifies isolated routes before API access', () => {
     expect(routeVertical('/floor-plan')).toBe('FOOD_SERVICE');
     expect(routeVertical('/dining-areas')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/orders')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/kitchen')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/payroll')).toBe('FOOD_SERVICE');
+    // `/employees` общий у салона и ресторана (ADR-159): принадлежности нет, страницу делит requireVertical
+    expect(routeVertical('/employees')).toBeNull();
     expect(routeVertical('/calendar')).toBe('BEAUTY');
     expect(routeVertical('/chessboard')).toBe('HOSPITALITY');
     expect(routeVertical('/customers')).toBeNull();

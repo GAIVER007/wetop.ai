@@ -6,7 +6,7 @@ import { Suspense, use, useEffect, useRef, useState, type ReactNode } from 'reac
 import { Icon } from './icon';
 import { Sidebar } from './shell/sidebar';
 import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
-import { TopMenu } from './shell/top-menu';
+import { SideNav } from './shell/side-nav';
 import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
@@ -25,9 +25,9 @@ import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
 
 /**
- * Оболочка стойки (ADR-134): шапка из двух липких строк. Первая: знак WETOP, объект с переключателем
- * филиала, поиск ⌘K, «Демо», тема, меню профиля. Вторая: строка разделов (`TopMenu`). До 960 px вместо
- * строки разделов кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
+ * Оболочка стойки: слева контекстное меню (`SideNav`, ADR-161, вместо строки вкладок ADR-134), справа шапка
+ * одной липкой строкой: объект с переключателем филиала, поиск ⌘K, «Демо», тема, меню профиля. До 960 px меню
+ * слева нет: знак в шапке, кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
  */
 export function TopNav({
   children,
@@ -71,6 +71,14 @@ export function TopNav({
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
+  // Шапку рисует сервер, а обработчик меню профиля навешивает React после загрузки скриптов стойки: на
+  // медленной сети между ними секунды, кнопка в это время выглядит рабочей, а клик по ней пропадает
+  // (release-checks #7, спек profile-menu-readiness). До первого рендера на клиенте кнопка недоступна и
+  // помечена занятой; разметка сервера и первого клиентского рендера одна, расхождения гидрации нет
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(true);
+  }, []);
   // Сочетание поиска словами той ОС, на которой человек сидит: ⌘ бывает только у Apple
   const [searchKey, setSearchKey] = useState('⌘ K');
   const { setTheme } = useTheme();
@@ -118,6 +126,7 @@ export function TopNav({
         <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
           К содержимому
         </a>
+        <SideNav path={path} desk={desk} />
         <header className="workspace-header">
           <div className="workspace-header__row">
             <button
@@ -130,7 +139,7 @@ export function TopNav({
             <Link
               className="workspace-brand"
               href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
-              aria-label="WETOP, Главная"
+              aria-label="WETOP, стартовый экран"
             >
               <span className="workspace-mark">W</span>
               <span className="brand-name">
@@ -199,6 +208,8 @@ export function TopNav({
                   aria-label="Меню администратора"
                   aria-expanded={profile}
                   aria-controls="profile-dropdown"
+                  aria-busy={!ready}
+                  disabled={!ready}
                   onClick={() => setProfile(!profile)}
                 >
                   <Suspense fallback={<HeaderPerson person={null} />}>
@@ -244,7 +255,6 @@ export function TopNav({
               </div>
             </div>
           </div>
-          <TopMenu path={path} desk={desk} />
         </header>
         <div className="workspace-body">
           <Suspense fallback={null}>

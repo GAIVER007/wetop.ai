@@ -17,9 +17,9 @@ const out = `reports/mv8-5-ds0b-2026-10-07/${phase}`;
 // Playwright чистит перед прогоном), в репозиторий идёт только итог сравнения
 const stylesOut = `${process.env['DS0B_STYLES_DIR'] ?? 'reports/mv8-5-ds0b-2026-10-07/styles'}/${phase}`;
 
-const SCREENS = ['/today', '/chessboard', '/reservations', '/guests'];
+const SCREENS = ['/finance', '/chessboard', '/reservations', '/guests'];
 const DEFAULT_STYLE_ROUTES = [
-  '/today',
+  '/finance',
   '/chessboard',
   '/reservations',
   '/reservations/new',
@@ -27,7 +27,6 @@ const DEFAULT_STYLE_ROUTES = [
   '/inventory',
   '/rooms/categories',
   '/rooms/availability',
-  '/finance',
   '/channels',
   '/hotel-settings',
   '/management/analytics',
@@ -187,7 +186,7 @@ const HOVER_TARGETS = [
   '.seg a',
   '.tbl td a',
   '.facts a',
-  '.topmenu__tab',
+  '.sidenav__link',
 ];
 const HOVER_PROPS = [
   'background-color',

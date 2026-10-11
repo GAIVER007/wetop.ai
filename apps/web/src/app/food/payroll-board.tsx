@@ -15,8 +15,14 @@ import {
 } from '../../components/ui';
 import { Tabs } from '../../components/tabs';
 import { Segmented } from '../../components/segmented';
-import { wholeTenge } from '../../lib/dashboard-format';
-import type { PayModel, PayrollRow, PayrollView } from '../../lib/food-types';
+import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
+import {
+  FOOD_PAYMENT_METHODS,
+  type FoodPaymentMethod,
+  type PayModel,
+  type PayrollRow,
+  type PayrollView,
+} from '../../lib/food-types';
 import { mutateStaff } from './restaurant-actions';
 
 const MODEL_LABEL: Record<PayModel, string> = {
@@ -175,6 +181,74 @@ function AdjustmentDrawer({
   );
 }
 
+/** Выплата из кассы филиала (§35.3): не больше остатка за месяц */
+function PayoutDrawer({
+  scopeKey,
+  month,
+  currency,
+  row,
+  close,
+}: {
+  scopeKey: string;
+  month: string;
+  currency: string;
+  row: PayrollRow;
+  close: () => void;
+}) {
+  const router = useRouter();
+  const [error, setError] = useState('');
+  const [pending, start] = useTransition();
+  const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  const [amount, setAmount] = useState(String(BigInt(row.remainingMinor) / 100n));
+  function submit() {
+    const tenge = Number(amount);
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    start(async () => {
+      const result = await mutateStaff(scopeKey, {
+        kind: 'payout',
+        id: row.employeeId,
+        body: { period: month, method, amount: tenge * 100 },
+      });
+      if (result.error) setError(result.error);
+      else {
+        router.refresh();
+        close();
+      }
+    });
+  }
+  return (
+    <Overlay open onClose={close} title={`Выплата: ${row.name}`} drawer className="food-drawer" trapFocus>
+      <div className="food-form" data-testid="payout">
+        {error && <Alert>{error}</Alert>}
+        <p className="muted">
+          К выплате за месяц {wholeTenge(row.totalMinor, currency)}, выплачено{' '}
+          {wholeTenge(row.paidMinor, currency)}. Деньги уйдут расходом из кассы.
+        </p>
+        <Field label="Способ">
+          <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
+            {FOOD_PAYMENT_METHODS.map((m) => (
+              <option key={m} value={m}>
+                {METHOD_RU[m] ?? m}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Сумма, ₸">
+          <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} />
+        </Field>
+        <div className="food-actions">
+          <Button disabled={pending} onClick={submit}>
+            Выплатить
+          </Button>
+          <Button tone="secondary" disabled={pending} onClick={close}>
+            Отмена
+          </Button>
+        </div>
+      </div>
+    </Overlay>
+  );
+}
+
 /** «Зарплата и финансы» по макету (ADR-159): фонд, премии, штрафы, к выплате; расчёт не хранится (§33.4) */
 export function PayrollBoard({
   scopeKey,
@@ -188,6 +262,7 @@ export function PayrollBoard({
   const router = useRouter();
   const [settings, setSettings] = useState<PayrollRow | null>(null);
   const [adjust, setAdjust] = useState<PayrollRow | null>(null);
+  const [payout, setPayout] = useState<PayrollRow | null>(null);
   const names = new Map(payroll.rows.map((r) => [r.employeeId, r.name]));
   const staffTable = payroll.rows.length === 0 ? (
     <EmptyState title="Сотрудников пока нет" />
@@ -195,7 +270,7 @@ export function PayrollBoard({
     <Table>
       <thead>
         <tr>
-          {['Сотрудник', 'Модель', 'Ставка', 'Продажи', 'Премии', 'Штрафы', 'К выплате'].map(
+          {['Сотрудник', 'Модель', 'Ставка', 'Продажи', 'Премии', 'Штрафы', 'К выплате', 'Выплачено', 'Осталось'].map(
             (h) => (
               <th key={h}>{h}</th>
             ),
@@ -220,6 +295,8 @@ export function PayrollBoard({
             <td>
               <strong>{wholeTenge(r.totalMinor, payroll.currency)}</strong>
             </td>
+            <td>{wholeTenge(r.paidMinor, payroll.currency)}</td>
+            <td data-testid="payroll-remaining">{wholeTenge(r.remainingMinor, payroll.currency)}</td>
             <td>
               {write && (
                 <span className="food-inline-actions">
@@ -229,6 +306,11 @@ export function PayrollBoard({
                   <Button tone="ghost" onClick={() => setAdjust(r)}>
                     Начислить
                   </Button>
+                  {BigInt(r.remainingMinor) > 0n && (
+                    <Button tone="ghost" onClick={() => setPayout(r)}>
+                      Выплатить
+                    </Button>
+                  )}
                 </span>
               )}
             </td>
@@ -298,6 +380,12 @@ export function PayrollBoard({
           tone="info"
           testId="payroll-total"
         />
+        <Stat
+          label="Выплачено"
+          value={wholeTenge(payroll.totals.paidMinor, payroll.currency)}
+          hint="из кассы за месяц"
+          testId="payroll-paid"
+        />
       </Stats>
       <Tabs
         label="Зарплата"
@@ -307,6 +395,15 @@ export function PayrollBoard({
         ]}
       />
       {settings && <PayDrawer scopeKey={scopeKey} row={settings} close={() => setSettings(null)} />}
+      {payout && (
+        <PayoutDrawer
+          scopeKey={scopeKey}
+          month={payroll.month}
+          currency={payroll.currency}
+          row={payout}
+          close={() => setPayout(null)}
+        />
+      )}
       {adjust && (
         <AdjustmentDrawer
           scopeKey={scopeKey}

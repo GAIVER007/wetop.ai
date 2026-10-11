@@ -1,0 +1,24 @@
+{
+  "environment": {
+    "host": "Mac владельца (Darwin 23.3.0, arm64), собственный blobless-клон GitHub в scratchpad сессии",
+    "node": "v24.19.0",
+    "npm": "11.17.0",
+    "database": "своя PostgreSQL 16.14 (scripts/ops/local-db.sh, сборка из npm), порт 55435, PGDATA в $TMPDIR; роли wetop_app/wetop_service из миграций; для A29 созданы a29_service и a29_tenant",
+    "browser": "Playwright chromium из npm ci ветки (не сборка раннера GitHub)",
+    "machineLoad": "load average 8–23 из-за параллельных сессий владельца (Playwright, eslint, next dev соседних worktree)"
+  },
+  "runs": [
+    {"suite": "lint", "id": "2026-10-10T15-12-54Z-lint-ffd8", "sha": "a668521fd611f33d2a9ed6c80dcb71bf77a5da56", "result": "PASS", "counts": null, "kind": "NEW"},
+    {"suite": "typecheck root", "id": "2026-10-10T15-13-22Z-typecheck-dfc5", "sha": "a668521fd611f33d2a9ed6c80dcb71bf77a5da56", "result": "PASS", "kind": "NEW", "note": "api и web tsc --noEmit отдельно тоже чисто (без записи в журнал)"},
+    {"suite": "unit (полный)", "id": "2026-10-10T15-13-41Z-unit-384b", "sha": "a668521fd611f33d2a9ed6c80dcb71bf77a5da56", "result": "PASS", "counts": {"collected": 4478, "pass": 4474, "fail": 0, "skip": 4}, "workers": 4, "kind": "NEW"},
+    {"suite": "integration (полный)", "id": "2026-10-10T15-16-15Z-integration-5659", "sha": "a668521fd611f33d2a9ed6c80dcb71bf77a5da56", "result": "PASS", "counts": {"collected": 1073, "pass": 987, "fail": 0, "skip": 86}, "kind": "NEW", "limitation": "86 пропусков: opt-in runtime-матрицы A2/A3/A26 (нужен изолированный Linux-гость, O-9) и прочие штатные skipIf; пропуск не засчитан как PASS"},
+    {"suite": "integration connection-schema-a29", "id": "2026-10-10T15-17-29Z-integration-cf23", "sha": "a668521fd611f33d2a9ed6c80dcb71bf77a5da56", "result": "PASS", "counts": {"collected": 7, "pass": 7, "fail": 0, "skip": 0}, "kind": "NEW", "note": "admin=postgres, service=a29_service, tenant=a29_tenant на настоящей PostgreSQL 16.14"},
+    {"suite": "UI tests/ui: bar, drawer-contrast-a29, a28-ui-transitions, finance-card-actions, finance-cash-first, workspace", "id": "2026-10-10T15-17-48Z-e2e-8135", "sha": "a668521fd611f33d2a9ed6c80dcb71bf77a5da56", "result": "FAIL_REPRODUCED", "counts": {"collected": 94, "pass": 70, "fail": 24, "skip": 0}, "kind": "NEW", "classification": "TEST_HARNESS_DEFECT", "cause": "все 24 падения в проекте main-ui-1: харнесс A29 давал второму worker порт 4312, api.ts резервирует его под демо-источник (503 без APP_DEMO_MODE); main-ui-0 67/67 зелёный. Исправлено коммитом 5306d26c"},
+    {"suite": "UI тот же набор после исправления портов", "id": "2026-10-10T20-32-03Z-e2e-d516", "sha": "a668521f + незакоммиченная правка isolated-workers.ts (= 5306d26c по содержимому набора)", "result": "SETUP_FAILURE", "counts": {"collected": 0}, "kind": "NEW", "classification": "ENVIRONMENT_LIMITATION", "cause": "next dev не поднялся за 120 с (Slow filesystem 1,3 с, нагрузка 15–23 от соседних сессий, машина засыпала); ноль собранных тестов не считается PASS"},
+    {"suite": "release-checks (удалённый гейт)", "id": "GitHub Actions run 38115688656", "sha": "5306d26c936e92e21eb66f9f38fd6f09cc6bbd51", "result": "RUNNING на момент записи", "kind": "NEW", "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38115688656"}
+  ],
+  "reusedEvidence": [
+    {"what": "A28 runtime-матрицы деньги/auth UTC и LA, 36+36 сценариев; FULL_UNIT 4090/4094; FULL_INTEGRATION 952/997", "source": "candidate-2.8.json в a28-evidence (сессия Codex, 08.10)", "applicability": "PASS_AT_SOURCE на 7fa89343 поверх e77f8951; к дереву ветки порта не переносится"}
+  ],
+  "lostInReboot": "Прогоны первой итерации до перезагрузки Mac 10.10 (lint c61d, unit fe84/64df/3ea1, integration и UI) утрачены вместе с клоном; их результаты не используются как доказательство."
+}

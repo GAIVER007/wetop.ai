@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, openProfileMenu, test } from './fixtures';
 
 const SITE = 'http://127.0.0.1:3002';
 const APP = 'http://127.0.0.1:3102';
@@ -60,6 +60,22 @@ test('сессия работает в новой вкладке; выход в�
   await page.goto('/today');
   await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
   await tab.close();
+});
+test('выход через меню снимает сессию и снова закрывает защищённые страницы', async ({
+  page,
+  context,
+}) => {
+  await page.goto('/login');
+  await login(page);
+  await expect(page).toHaveURL(`${APP}/finance`);
+  await openProfileMenu(page);
+  await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти', exact: true }).click();
+  await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
+  expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
+  for (const path of ['/today', '/chessboard', '/reservations']) {
+    await page.goto(`${APP}${path}`);
+    await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
+  }
 });
 test('регистрация на главной → письмо → подтверждение → рабочее место', async ({
   page,

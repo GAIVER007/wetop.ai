@@ -1,5 +1,5 @@
 import type { APIRequestContext, Page } from '@playwright/test';
-import { FIXTURE_API, test, expect } from './fixtures';
+import { FIXTURE_API, test, expect, hydrated } from './fixtures';
 
 /**
  * Доска по умолчанию — текущая неделя, а брони фикстуры стоят «вокруг сегодня»: в пятницу–воскресенье
@@ -53,6 +53,8 @@ test('мышь: правый край добавляет две ночи тол�
   const targetDate = new Date(`${last}T12:00:00Z`);
   targetDate.setUTCDate(targetDate.getUTCDate() + 2);
   const target = row.locator(`td[data-date="${targetDate.toISOString().slice(0, 10)}"]`);
+  await hydrated(handle);
+  await page.evaluate('document.fonts.ready');
   await target.scrollIntoViewIfNeeded();
   await handle.scrollIntoViewIfNeeded();
   const from = (await handle.boundingBox())!;

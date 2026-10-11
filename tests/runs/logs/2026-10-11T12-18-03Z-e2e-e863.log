@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 11.10.2026 17:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит b811e67 (claude/restaurant-payments-plan), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/restaurant.spec.ts' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'оплата частями'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:55975) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/food-ui/restaurant.spec.ts:148:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (10.4s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:148:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByText('Оплачен', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByText('Оплачен', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('dialog').getByText('Оплачен', { exact: true })
+
+
+      177 |   await expect(payment.getByLabel('Сумма, ₸')).toHaveValue('280');
+      178 |   await payment.getByRole('button', { name: 'Принять оплату' }).click();
+    > 179 |   await expect(dialog.getByText('Оплачен', { exact: true })).toBeVisible();
+          |                                                              ^
+      180 |   await expect(payment.getByTestId('order-paid')).toContainText('780 ₸');
+      181 |   await expect(payment.getByRole('button', { name: 'Принять оплату' })).toHaveCount(0);
+      182 |   await page.keyboard.press('Escape');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/food-ui/restaurant.spec.ts:179:62
+
+    Error Context: test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:148:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+
+# код выхода 1 · 19 с

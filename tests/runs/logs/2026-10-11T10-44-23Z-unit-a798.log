@@ -1,0 +1,19 @@
+# Модульные (unit) · 11.10.2026 15:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит db87145 (claude/port-356-guests-analytics), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-44-23Z-unit-a798.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-356
+
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 5ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 7ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 50ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 5ms
+
+ Test Files  4 passed (4)
+      Tests  53 passed (53)
+   Start at  03:44:25
+   Duration  328ms (import 54%, transform 28%, tests 15%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-44-23Z-unit-a798.json
+
+# код выхода 0 · 2 с

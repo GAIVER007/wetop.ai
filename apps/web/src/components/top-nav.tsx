@@ -126,7 +126,6 @@ export function TopNav({
         <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
           К содержимому
         </a>
-        <SideNav path={path} desk={desk} />
         <header className="workspace-header">
           <div className="workspace-header__row">
             <button
@@ -146,6 +145,7 @@ export function TopNav({
                 WETOP<span>.AI</span>
               </span>
             </Link>
+            <SideNav path={path} desk={desk} />
             {/* объект и филиал: переехали сюда из бокового меню (ADR-134); до 960 px они вверху меню телефона */}
             <div className="workspace-header__property">
               <Suspense

@@ -9,6 +9,9 @@
   .beauty-note {
     color: var(--muted);
   } /* Каталог салона (срез B3): полоса над таблицей, панели правки, список умений */
+  .beauty-note a {
+    text-decoration: underline;
+  }
   .beauty-bar {
     display: flex;
     flex-wrap: wrap;

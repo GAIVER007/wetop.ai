@@ -1,0 +1,17 @@
+# Модульные (unit) · 11.10.2026 16:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит d611be5 (claude/restaurant-payments-plan), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-57-16Z-unit-5808.json' 'packages/domain/src/food/cash.test.ts' 'packages/domain/src/food/restaurant.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| packages/domain/src/food/restaurant.test.ts (17 tests) 4ms
+ ✓ |unit| packages/domain/src/food/cash.test.ts (10 tests) 4ms
+
+ Test Files  2 passed (2)
+      Tests  27 passed (27)
+   Start at  04:57:17
+   Duration  100ms (transform 64%, import 20%, tests 11%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-57-16Z-unit-5808.json
+
+# код выхода 0 · 1 с

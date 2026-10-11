@@ -17,12 +17,26 @@ if (!keyFile.ok || (await keyFile.text()).trim() !== KEY) {
   throw new Error('файл ключа IndexNow не отдаётся сайтом: сначала выложите сайт (npm run site:deploy)');
 }
 
-for (const endpoint of ['https://yandex.com/indexnow', 'https://api.indexnow.org/indexnow']) {
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json; charset=utf-8' },
-    body: JSON.stringify({ host: HOST, key: KEY, keyLocation: `https://${HOST}/${KEY}.txt`, urlList }),
-  });
-  // 200 и 202 значат «принято»; 422 — адрес не того домена, 403 — ключ не подтвердился
-  console.log(`${endpoint}: ${res.status} (${urlList.length} адресов)`);
+// Общий узел IndexNow сам передаёт адреса всем участникам (Яндекс, Bing и др.); прямые адреса дублируют на случай
+// его сбоя. Прямой yandex.com бывает недоступен из сети: сбой одного адреса не отменяет остальные.
+let accepted = 0;
+for (const endpoint of [
+  'https://api.indexnow.org/indexnow',
+  'https://www.bing.com/indexnow',
+  'https://yandex.com/indexnow',
+]) {
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ host: HOST, key: KEY, keyLocation: `https://${HOST}/${KEY}.txt`, urlList }),
+      signal: globalThis.AbortSignal.timeout(20_000),
+    });
+    // 200 и 202 значат «принято»; 422 — адрес не того домена, 403 — ключ не подтвердился
+    if (res.status === 200 || res.status === 202) accepted += 1;
+    console.log(`${endpoint}: ${res.status} (${urlList.length} адресов)`);
+  } catch (error) {
+    console.log(`${endpoint}: не ответил (${error.cause?.code ?? error.name})`);
+  }
 }
+if (accepted === 0) throw new Error('ни один адрес IndexNow не принял список');

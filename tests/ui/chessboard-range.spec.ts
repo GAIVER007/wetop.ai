@@ -1,5 +1,5 @@
 import type { APIRequestContext, Locator, Page } from '@playwright/test';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, hydrated } from './fixtures';
 
 /**
  * Шахматка v2, PR 5 (ТЗ §31–32): создание брони выделением и щелчок по пустой клетке.
@@ -38,6 +38,10 @@ const cell = (page: Page, unit: string, date: string) =>
 
 /** Прижать мышь на одной клетке и провести до другой (обычные события указателя, не HTML5 drag) */
 async function sweep(page: Page, from: Locator, to: Locator) {
+  await hydrated(from);
+  await page.evaluate('document.fonts.ready');
+  await to.scrollIntoViewIfNeeded();
+  await from.scrollIntoViewIfNeeded();
   const a = (await from.boundingBox())!;
   const b = (await to.boundingBox())!;
   await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);

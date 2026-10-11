@@ -1,0 +1,122 @@
+# Сквозные (e2e) · 09.10.2026 17:00 Алматы · vm
+# коммит 75035ac (claude/profile-menu-ready), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.reuse.config.ts' '--workers=1' 'tests/ui/profile-menu-readiness.spec.ts'
+
+Running 3 tests using 1 worker
+
+  ✘  1 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (25.5s)
+  ✘  2 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (18.3s)
+  ✘  3 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (18.1s)
+
+
+  1) tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator:  getByRole('button', { name: 'Меню администратора' })
+    Expected: disabled
+    Received: enabled
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('button', { name: 'Меню администратора' }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Меню администратора' })
+        33 × locator resolved to <button data-tour="profile" aria-expanded="false" class="profile-trigger" aria-label="Меню администратора" aria-controls="profile-dropdown">…</button>
+           - unexpected value "enabled"
+
+
+      56 |   // шапка нарисована сервером, скрипты стойки ещё за воротами
+      57 |   await expect(menu).toBeVisible();
+    > 58 |   await expect(menu).toBeDisabled();
+         |                      ^
+      59 |   await expect(menu).toHaveAttribute('aria-busy', 'true');
+      60 |   await expect(menu).toHaveCSS('cursor', 'progress');
+      61 |   await expect(menu).toHaveAttribute('aria-expanded', 'false');
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/profile-menu-readiness.spec.ts:58:22
+
+    Error Context: test-results/profile-menu-readiness-до--8e311-ие-по-ней-меню-не-открывает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-до--8e311-ие-по-ней-меню-не-открывает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-до--8e311-ие-по-ней-меню-не-открывает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator:  getByRole('button', { name: 'Меню администратора' })
+    Expected: disabled
+    Received: enabled
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('button', { name: 'Меню администратора' }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Меню администратора' })
+        30 × locator resolved to <button data-tour="profile" aria-expanded="false" class="profile-trigger" aria-label="Меню администратора" aria-controls="profile-dropdown">…</button>
+           - unexpected value "enabled"
+
+
+      70 |   const menu = page.getByRole('button', { name: 'Меню администратора' });
+      71 |   // исходное состояние: до готовности, иначе проверка не о том
+    > 72 |   await expect(menu).toBeDisabled();
+         |                      ^
+      73 |   openGate();
+      74 |   await expect(menu).toBeEnabled();
+      75 |   await expect(menu).toHaveAttribute('aria-busy', 'false');
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/profile-menu-readiness.spec.ts:72:22
+
+    Error Context: test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator:  getByRole('button', { name: 'Меню администратора' })
+    Expected: disabled
+    Received: enabled
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('button', { name: 'Меню администратора' }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Меню администратора' })
+        29 × locator resolved to <button data-tour="profile" aria-expanded="false" class="profile-trigger" aria-label="Меню администратора" aria-controls="profile-dropdown">…</button>
+           - unexpected value "enabled"
+
+
+      84 |   await page.goto('/chessboard', { waitUntil: 'commit' });
+      85 |   const menu = page.getByRole('button', { name: 'Меню администратора' });
+    > 86 |   await expect(menu).toBeDisabled();
+         |                      ^
+      87 |   openGate();
+      88 |   await expect(menu).toBeEnabled();
+      89 |   await menu.focus();
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/profile-menu-readiness.spec.ts:86:22
+
+    Error Context: test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает 
+    tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом 
+    tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова 
+
+# код выхода 1 · 1 мин 11 с

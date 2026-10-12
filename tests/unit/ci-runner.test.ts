@@ -92,7 +92,10 @@ describe('свой раннер CI', () => {
     const fast = withoutComments(job('fast'));
     for (const step of ['npm run lint', 'npm run typecheck', 'vitest run --project unit', 'npm run site:check'])
       expect(fast, step).toContain(step);
-    expect(withoutComments(job('ui-shard'))).toMatch(/shard: \[1, 2, 3\]/);
+    const uiShard = withoutComments(job('ui-shard'));
+    expect(uiShard).toMatch(/shard: \[1, 2, 3, 4\]/);
+    expect(uiShard).toContain('--config tests/ui/playwright.config.ts --shard=${{ matrix.shard }}/4');
+    expect(uiShard).toContain('--config tests/ui/playwright.auth.config.ts');
     const summary = withoutComments(job('ui'));
     expect(summary).toContain('needs: ui-shard');
     expect(summary).toContain('test "$UI_RESULT" = success');

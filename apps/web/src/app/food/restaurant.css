@@ -264,25 +264,34 @@
     justify-self: start;
   }
 
-  /* ── Меню: строки блюд по макету ── */
+  /* ── Меню: таблица блюд по макету (экран 8) ── */
   .rest-menu-list {
-    display: grid;
+    min-width: 0;
   }
-  .rest-menu-row {
+  .rest-menu-name {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-2) 0;
-    border-top: 1px solid var(--border);
+    gap: var(--space-2);
   }
-  .rest-menu-row:first-child {
-    border-top: 0;
+  .rest-menu-name small {
+    display: block;
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .rest-menu-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  /* подпись переключателя только для программы чтения: щелчок по дорожке доходит до поля */
+  .rest-menu-status .switch__track {
+    pointer-events: none;
   }
   .rest-menu-thumb {
     overflow: hidden;
     flex: 0 0 auto;
-    width: 44px;
-    height: 44px;
+    width: var(--space-10);
+    height: var(--space-10);
     display: grid;
     place-items: center;
     border-radius: var(--radius-lg);
@@ -310,15 +319,6 @@
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
   }
-  .rest-menu-main {
-    display: grid;
-    gap: var(--space-1);
-    min-width: 0;
-    flex: 1;
-  }
-  .rest-menu-main small {
-    color: var(--text-2);
-  }
   .rest-menu-row .rest-menu-price {
     font-variant-numeric: tabular-nums;
     font-weight: 600;
@@ -327,7 +327,8 @@
   .rest-menu-row .rest-menu-actions {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    justify-content: flex-end;
+    gap: var(--space-2);
   }
 
   /* ── Техкарта: строки состава и итоги ── */
@@ -649,13 +650,6 @@
     .rest-tech-grid {
       grid-template-columns: 1fr 1fr;
     }
-    .rest-menu-row {
-      flex-wrap: wrap;
-    }
-    .rest-menu-row .rest-menu-actions {
-      width: 100%;
-      justify-content: space-between;
-    }
     /* телефон: зал в два столбца, столы меньше, длинный стол той же ширины */
     .food-table-grid.rest-hall {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -912,5 +906,59 @@
     .rest-pos-layout {
       grid-template-columns: minmax(0, 1fr);
     }
+  }
+}
+
+@layer sections {
+  /* ── Карточка стола (макет, экран 2; ТЗ §5.4) ── */
+  .rest-table-panel {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .rest-table-panel__now {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-muted);
+    font-size: var(--text-sm);
+  }
+  .rest-table-panel__actions {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .rest-table-panel h3 {
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .rest-table-panel__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-1);
+  }
+  .rest-table-panel__list button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: var(--space-10);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-solid);
+    color: var(--text);
+    font-size: var(--text-sm);
+    text-align: left;
+    cursor: pointer;
+  }
+  .rest-table-panel__list button span:first-child {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+  }
+  .rest-table-panel__list .badge {
+    margin-left: auto;
   }
 }

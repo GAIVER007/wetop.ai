@@ -27,25 +27,14 @@ import { foodStatus } from '../../lib/status/food';
 import { setTableCleaning } from './restaurant-actions';
 import { GuestMarks } from './guest-marks';
 import { TimelineBoard } from './timeline-board';
+import { TablePanel, KIND_LABEL, KIND_TONE, type TableKind } from './table-panel';
+import { Tabs } from '../../components/tabs';
 
 /** Фигура стола на рисунке зала по вместимости: модель хранит только места, не форму (§33.3) */
 const tableShape = (capacity: number) =>
   capacity <= 2 ? 'round' : capacity <= 4 ? 'square' : 'long';
 
 /** Статус стола на плане (§33.3): занят (заказ или посажены), бронь, уборка, свободен */
-type TableKind = 'FREE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING';
-const KIND_LABEL: Record<TableKind, string> = {
-  FREE: 'Свободен',
-  OCCUPIED: 'Занят',
-  RESERVED: 'Бронь',
-  CLEANING: 'Уборка',
-};
-const KIND_TONE: Record<TableKind, 'neutral' | 'danger' | 'info' | 'warn'> = {
-  FREE: 'neutral',
-  OCCUPIED: 'danger',
-  RESERVED: 'info',
-  CLEANING: 'warn',
-};
 export function WorkspaceBoard({
   data,
   floor,
@@ -69,6 +58,7 @@ export function WorkspaceBoard({
   const [table, setTable] = useState('');
   const [floorArea, setFloorArea] = useState('');
   const [view, setView] = useState<'timeline' | 'list'>(listView ? 'list' : 'timeline');
+  const [panelTable, setPanelTable] = useState<string | null>(null);
   const [cleaningPending, startCleaning] = useTransition();
   const [cleaningError, setCleaningError] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
@@ -136,6 +126,13 @@ export function WorkspaceBoard({
     });
   return (
     <div className="food-workspace">
+      <Tabs
+        label="Зал"
+        items={[
+          { href: `/floor-plan?date=${data.date}`, label: 'План зала', current: floor },
+          { href: `/table-reservations?date=${data.date}`, label: 'Расписание', current: !floor },
+        ]}
+      />
       {cleaningError && <Alert>{cleaningError}</Alert>}
       <div className="food-section-heading">
         <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
@@ -211,7 +208,11 @@ export function WorkspaceBoard({
             <>
               {data.areas.filter((a) => a.active).length > 1 && (
                 <ChipGroup label="Зал">
-                  <Chip selected={!floorArea} onClick={() => setFloorArea('')}>
+                  <Chip
+                    selected={!floorArea}
+                    count={activeTables.length}
+                    onClick={() => setFloorArea('')}
+                  >
                     Все залы
                   </Chip>
                   {data.areas
@@ -221,6 +222,7 @@ export function WorkspaceBoard({
                       <Chip
                         key={a.id}
                         selected={floorArea === a.id}
+                        count={activeTables.filter((t) => t.areaId === a.id).length}
                         onClick={() => setFloorArea(a.id)}
                       >
                         {a.name}
@@ -263,12 +265,8 @@ export function WorkspaceBoard({
                                   type="button"
                                   className="food-table-main rest-tbl"
                                   aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
-                                  onClick={() => {
-                                    if (r) open(r);
-                                    else if (order) router.push('/orders');
-                                    else if (write && kind === 'FREE')
-                                      setDraft({ kind: 'create', walkIn: false, tableId: t.id });
-                                  }}
+                                  data-table-id={t.id}
+                                  onClick={() => setPanelTable(t.id)}
                                 >
                                   <strong>{t.name}</strong>
                                   <small>{pluralRu(t.capacity, ['место', 'места', 'мест'])}</small>
@@ -478,6 +476,48 @@ export function WorkspaceBoard({
           )}
         </>
       )}
+      {panelTable &&
+        (() => {
+          const t = data.tables.find((x) => x.id === panelTable);
+          if (!t) return null;
+          // фокус возвращается на стол плана, а не на кнопку закрытой карточки
+          const handoff = (next: () => void) => {
+            setPanelTable(null);
+            requestAnimationFrame(() => {
+              document.querySelector<HTMLElement>(`[data-table-id="${t.id}"]`)?.focus();
+              next();
+            });
+          };
+          return (
+            <TablePanel
+              table={t}
+              areaName={data.areas.find((a) => a.id === t.areaId)?.name ?? ''}
+              kind={tableKind(t)}
+              current={occupying.find((r) => r.table?.id === t.id)}
+              order={orderByTable.get(t.id)}
+              day={data.reservations
+                .filter(
+                  (r) =>
+                    r.table?.id === t.id &&
+                    ['BOOKED', 'CONFIRMED', 'SEATED'].includes(r.status) &&
+                    localInput(r.startsAt, data.timezone).slice(0, 10) === data.date,
+                )
+                .sort((a, b) => a.startsAt.localeCompare(b.startsAt))}
+              write={write}
+              clock={clock}
+              close={() => setPanelTable(null)}
+              openReservation={(r) => handoff(() => open(r))}
+              openOrders={() => router.push('/orders')}
+              book={() => handoff(() => setDraft({ kind: 'create', walkIn: false, tableId: t.id }))}
+              walkIn={() => handoff(() => setDraft({ kind: 'create', walkIn: true, tableId: t.id }))}
+              toggleCleaning={() => {
+                setPanelTable(null);
+                toggleCleaning(t);
+              }}
+              cleaningPending={cleaningPending}
+            />
+          );
+        })()}
       {draft && (
         <ReservationDrawer
           data={data}

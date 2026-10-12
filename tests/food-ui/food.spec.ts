@@ -150,7 +150,10 @@ test('walk-in is seated immediately and persisted after reload', async ({ page, 
   await expect(dialog).toContainText('За столом');
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await page.reload();
+  // щелчок по столу открывает карточку стола (макет, экран 2), бронь из неё
   await page.getByRole('button', { name: 'Стол 7, За столом' }).click();
+  await expect(page.getByTestId('table-panel')).toContainText('Анна Тестовая');
+  await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
   await expect(dialog.getByRole('button', { name: 'Снять стол', exact: true })).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Завершить', exact: true }).click();
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
@@ -198,7 +201,8 @@ test('real API screenshots, keyboard and axe', async ({ page, request }) => {
       }
       await page.goto(`/floor-plan?date=${date}&time=19:00`);
       await page.getByRole('button', { name: 'Стол 7, Подтверждено' }).click();
-      await expect(page.getByRole('dialog')).toBeVisible();
+      await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
+      await expect(page.getByRole('dialog', { name: 'Бронирование' })).toBeVisible();
       await settled(page);
       await page.screenshot({
         path: `${shots}/reservation-drawer-${theme}-${width}.png`,

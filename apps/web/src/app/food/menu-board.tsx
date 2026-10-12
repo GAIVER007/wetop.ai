@@ -10,6 +10,7 @@ import {
   Field,
   Input,
   Select,
+  Table,
   Textarea,
 } from '../../components/ui';
 import { Chip, ChipGroup } from '../../components/chip';
@@ -486,53 +487,89 @@ export function MenuBoard({
         />
       ) : (
         <div className="rest-menu-list" data-testid="menu-list">
-          {list.map((m) => (
-            <div className="rest-menu-row" key={m.id}>
-              <span className="rest-menu-thumb" aria-hidden="true">
-                {m.photoUrl ? (
-                  <img src={m.photoUrl} alt="" width={44} height={44} loading="lazy" />
-                ) : (
-                  <Icon name="kettle" />
-                )}
-              </span>
-              <div className="rest-menu-main">
-                <strong>{m.name}</strong>
-                <small>
-                  {categoryName.get(m.categoryId) ?? 'Без категории'}
-                  {m.weightGrams ? `, ${m.weightGrams} г` : ''}
-                  {m.totals?.foodCostPct != null ? `, food cost ${m.totals.foodCostPct} %` : ''}
-                </small>
-              </div>
-              <span className="rest-menu-price">{wholeTenge(m.priceMinor, m.currency)}</span>
-              <span className="rest-menu-actions">
-                {!m.active && <Badge>Скрыто из меню</Badge>}
-                {ctx.write && (
-                  <label className="switch">
-                    <span className="switch__text">
-                      <span className="switch__label">В меню</span>
+          <Table density="compact" caption="Блюда меню" captionHidden>
+            <thead>
+              <tr>
+                <th scope="col">Название</th>
+                <th scope="col">Категория</th>
+                <th scope="col" className="num">
+                  Цена
+                </th>
+                <th scope="col" className="num">
+                  Food cost
+                </th>
+                <th scope="col">Статус</th>
+                <th scope="col">
+                  <span className="sr-only">Действия</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.map((m) => (
+                <tr className="rest-menu-row" key={m.id}>
+                  <td>
+                    <span className="rest-menu-name">
+                      <span className="rest-menu-thumb" aria-hidden="true">
+                        {m.photoUrl ? (
+                          <img src={m.photoUrl} alt="" width={44} height={44} loading="lazy" />
+                        ) : (
+                          <Icon name="kettle" />
+                        )}
+                      </span>
+                      <span>
+                        <strong>{m.name}</strong>
+                        {m.weightGrams ? <small>{m.weightGrams} г</small> : null}
+                      </span>
                     </span>
-                    <input
-                      className="switch__input"
-                      type="checkbox"
-                      role="switch"
-                      checked={m.active}
-                      disabled={pending}
-                      onChange={() => toggle(m)}
-                    />
-                    <span className="switch__track" aria-hidden="true" />
-                  </label>
-                )}
-                <Button tone="secondary" onClick={() => setTech(m)}>
-                  Техкарта
-                </Button>
-                {ctx.write && (
-                  <Button tone="ghost" onClick={() => setDish(m)}>
-                    Изменить
-                  </Button>
-                )}
-              </span>
-            </div>
-          ))}
+                  </td>
+                  <td>{categoryName.get(m.categoryId) ?? 'Без категории'}</td>
+                  <td className="num rest-menu-price">{wholeTenge(m.priceMinor, m.currency)}</td>
+                  <td className="num">
+                    {m.totals?.foodCostPct != null && m.totals.costMinor !== '0'
+                      ? `${m.totals.foodCostPct} %`
+                      : '—'}
+                  </td>
+                  <td>
+                    <span className="rest-menu-status">
+                      {m.active ? (
+                        <Badge tone="ok">Активно</Badge>
+                      ) : (
+                        <Badge>Скрыто из меню</Badge>
+                      )}
+                      {ctx.write && (
+                        <label className="switch">
+                          <span className="switch__text">
+                            <span className="switch__label sr-only">В меню</span>
+                          </span>
+                          <input
+                            className="switch__input"
+                            type="checkbox"
+                            role="switch"
+                            checked={m.active}
+                            disabled={pending}
+                            onChange={() => toggle(m)}
+                          />
+                          <span className="switch__track" aria-hidden="true" />
+                        </label>
+                      )}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="rest-menu-actions">
+                      <Button tone="secondary" size="sm" onClick={() => setTech(m)}>
+                        Техкарта
+                      </Button>
+                      {ctx.write && (
+                        <Button tone="ghost" size="sm" onClick={() => setDish(m)}>
+                          Изменить
+                        </Button>
+                      )}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </div>
       )}
       {dish && (

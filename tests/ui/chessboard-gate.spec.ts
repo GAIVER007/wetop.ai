@@ -1,4 +1,4 @@
-import { FIXTURE_API, boardFilter, expect, test } from './fixtures';
+import { FIXTURE_API, chooseBoardPeriod, boardFilter, expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -39,10 +39,9 @@ test('гейт: светлая тема — полный экран, верх, �
   });
   // заголовок и главное действие
   await page.locator('.page__head').screenshot({ path: `${DIR}/header.png` });
-  // полоса календаря (образец владельца 09.10.2026): «Сегодня», стрелки, «Октябрь 2026 ▾»,
-  // «День / Неделя / Месяц», «7 дней ▾», поиск, «Фильтры», «Новая бронь»
+  // Единая полоса: «Сегодня», стрелки, диапазон, поиск, фильтры и новая бронь.
   await page.locator('.board-toolbar').screenshot({ path: `${DIR}/controls.png` });
-  // раскрытый период: поля С / По и «Применить»
+  // Раскрытый период: пресеты, календарь, поля и применение.
   await page.getByTestId('board-period-button').click();
   await expect(page.getByRole('button', { name: 'Применить', exact: true })).toBeVisible();
   await page.screenshot({
@@ -50,11 +49,8 @@ test('гейт: светлая тема — полный экран, верх, �
     path: `${DIR}/controls-dates-open.png`,
     clip: { x: 0, y: 0, width: 900, height: 560 },
   });
-  await page.getByTestId('board-period-button').click();
-  // длина окна: 7, 14, 30 дней
-  await page.getByTestId('board-length-button').click();
-  await expect(page.getByRole('link', { name: '14 дней', exact: true })).toBeVisible();
-  await page.getByTestId('board-length-button').click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('board-length-button')).toHaveCount(0);
   // строка поиска и фильтров: поиск, категория, тип места, статусы
   await page.locator('.board-toolbar').screenshot({ path: `${DIR}/toolbar.png` });
 
@@ -96,9 +92,8 @@ test('гейт: тёмная тема — полный экран и верх', 
     path: `${DIR}/today-column-dark.png`,
     clip: { x: today!.x - 140, y: 0, width: today!.width + 180, height: 700 },
   });
-  // длина окна живёт в раскрывашке «7 дней ▾» (09.10.2026): сначала раскрыть, потом выбрать
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  // 30 дней выбираются в едином контроле периода.
+  await chooseBoardPeriod(page, '30 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days-dark.png` });
 });
@@ -128,16 +123,14 @@ test('гейт: овербукинг (critical), режим 30 дней и вк�
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
   await page.goto('/chessboard');
-  // длина окна живёт в раскрывашке «7 дней ▾» (09.10.2026): сначала раскрыть, потом выбрать
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  // Возврат к семи дням через тот же контрол.
+  await chooseBoardPeriod(page, '30 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days.png` });
 
   // включённый фильтр: категория номеров — показано 16 из 88, счётчик и «Сбросить» на виду
   // (с PR 7 тип места — в окошке «Фильтры», в строке остались категория и места)
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: '7 дней', exact: true }).click();
+  await chooseBoardPeriod(page, '7 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await boardFilter(page, { category: 'ROOM' });
   await expect(page.getByTestId('unit-row')).toHaveCount(16);

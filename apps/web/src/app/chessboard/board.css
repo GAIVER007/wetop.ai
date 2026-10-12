@@ -1889,21 +1889,14 @@
     }
   }
 
-  /*
-   * Календарь по образцу владельца (09.10.2026, картинка «Шахматка»): одна полоса «Сегодня ‹ ›
-   * Октябрь 2026 ▾ День / Неделя / Месяц 14 дней ▾ поиск Фильтры Новая бронь», под ней шесть
-   * карточек показателей, затем сетка. Блок стоит последним и перекрывает прежние правила полосы.
-   */
+  /* Заголовок и главное действие остаются видимыми над компактной полосой календаря. */
   .page--board > .page__head {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--control-h);
+    margin: 0;
     padding: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
   }
   .board-toolbar {
     display: flex;
@@ -2876,7 +2869,7 @@
     align-items: center;
   }
   .calendar-page .page__title {
-    font-size: var(--text-xl);
+    font-size: var(--text-2xl);
     line-height: 1.2;
   }
   .calendar-workspace {
@@ -3080,6 +3073,9 @@
     }
   }
   @media (max-width: 600px) {
+    .calendar-page .page__title {
+      font-size: var(--text-xl);
+    }
     .page.calendar-page {
       height: auto;
       overflow: visible;

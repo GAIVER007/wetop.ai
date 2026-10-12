@@ -6,10 +6,10 @@ import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
-import { Alert, Button, Legend, cx } from '../../components/ui';
+import { Alert, Button, Legend } from '../../components/ui';
 import { Toolbar } from '../../components/toolbar';
 import { DateInput } from '../../components/date-field';
-import { PeriodPicker } from '../../components/period-picker';
+import { DateRangePopover } from '../../components/date-range-popover';
 import { ChessboardGrid } from './board-grid';
 import { BoardTodayLink } from './board-today-link';
 import { BoardMenu } from './board-menu';
@@ -108,30 +108,9 @@ export default async function ChessboardPage({
   const isMonth = from === month.from && to === month.to;
   const week = weekPeriod(from);
   const isWeek = from === week.from && to === week.to;
-  const weekHref = (offset = 0) => {
-    const period = weekPeriod(from, offset);
-    return `/chessboard?from=${period.from}&to=${period.to}`;
-  };
   const monthHref = (offset = 0) => {
     const period = monthPeriod(from, offset);
     return `/chessboard?from=${period.from}&to=${period.to}`;
-  };
-  const periodLabel = new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).formatRange(new Date(`${from}T00:00:00Z`), new Date(`${to}T00:00:00Z`));
-  const shortPeriodLabel = new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'UTC',
-  }).formatRange(new Date(`${from}T00:00:00Z`), new Date(`${to}T00:00:00Z`));
-  /** Произвольное окно от сегодня; календарные режимы сохраняют границы недели/месяца. */
-  const window = (days: number) => {
-    const t = new Date(`${today}T00:00:00Z`);
-    t.setUTCDate(t.getUTCDate() + days - 1);
-    return `/chessboard?from=${today}&to=${t.toISOString().slice(0, 10)}`;
   };
   const shift = (days: number) => {
     const f = new Date(`${board.from}T00:00:00Z`);
@@ -141,23 +120,6 @@ export default async function ChessboardPage({
     return `/chessboard?from=${f.toISOString().slice(0, 10)}&to=${t.toISOString().slice(0, 10)}`;
   };
 
-  const sameMonth = from.slice(0, 7) === to.slice(0, 7);
-  const monthTitle = (() => {
-    const parts = new Intl.DateTimeFormat('ru-RU', {
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'UTC',
-    }).formatToParts(new Date(`${from}T00:00:00Z`));
-    const m = parts.find((x) => x.type === 'month')?.value ?? '';
-    const y = parts.find((x) => x.type === 'year')?.value ?? '';
-    return `${m.charAt(0).toUpperCase()}${m.slice(1)} ${y}`;
-  })();
-  /** Подпись кнопки периода: «Октябрь 2026» в пределах месяца, иначе короткий отрезок («28 сент. – 4 окт.») */
-  const rangeTitle = sameMonth ? monthTitle : shortPeriodLabel;
-  const lengthLabel = pluralRu(board.dates.length, ['день', 'дня', 'дней']);
-  const isDay = board.dates.length === 1;
-  const dayDate = from <= today && today <= to ? today : from;
-  const dayHref = `/chessboard?from=${dayDate}&to=${dayDate}`;
   const current = from <= today && today <= to ? board : todayBoard;
   const todaySummary = current?.summary[today];
   const units = todaySummary
@@ -212,7 +174,7 @@ export default async function ChessboardPage({
       <BoardTodayLink />
       <span className="board-nav-arrows">
         <Link
-          href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
+          href={isMonth ? monthHref(-1) : shift(-board.dates.length)}
           className="icon-button"
           aria-label={
             isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
@@ -221,7 +183,7 @@ export default async function ChessboardPage({
           <Icon name="chevron" className="rotate-left" />
         </Link>
         <Link
-          href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
+          href={isMonth ? monthHref(1) : shift(board.dates.length)}
           className="icon-button"
           aria-label={
             isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
@@ -230,101 +192,17 @@ export default async function ChessboardPage({
           <Icon name="chevron" />
         </Link>
       </span>
-      {/* Образец владельца 09.10.2026: «Октябрь 2026 ▾» раскрывает выбор дат («С» / «По»); ключ по
-          периоду: после перехода раскрывашка закрыта, поля несут новые даты. */}
-      <BoardMenu
-        resetKey={`${board.from}-${board.to}`}
-        className="board-period-menu"
-        testId="board-period-button"
-        title={periodLabel}
-        summary={
-          <>
-            <Icon name="board" className="board-period-icon" />
-            <span className="board-period-label">{rangeTitle}</span>
-            <Icon name="chevron" className="board-period-caret" />
-          </>
-        }
-      >
-        <div className="board-period-pop">
-          <form method="get" className="board-period-form">
-            <PeriodPicker from={board.from} to={board.to} fromName="from" toName="to" />
-            <Button tone="secondary" type="submit">
-              Применить
-            </Button>
-          </form>
-        </div>
-      </BoardMenu>
-      <nav className="seg board-scale" aria-label="Масштаб календаря">
-        <Link
-          href={dayHref}
-          className={cx(isDay && 'is-on')}
-          aria-current={isDay ? 'page' : undefined}
-        >
-          День
-        </Link>
-        <Link
-          href={weekHref()}
-          className={cx(isWeek && 'is-on')}
-          aria-current={isWeek ? 'page' : undefined}
-        >
-          Неделя
-        </Link>
-        <Link
-          href={monthHref()}
-          className={cx(isMonth && 'is-on')}
-          aria-current={isMonth ? 'page' : undefined}
-        >
-          Месяц
-        </Link>
-      </nav>
-      {/* Длина окна: 7 дней, календарная неделя, 14 и 30, от сегодня (ТЗ «Шахматка v2» §6–7).
-          «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
-      <BoardMenu
-        resetKey={`${board.from}-${board.to}`}
-        className="board-length-menu"
-        testId="board-length-button"
-        summary={
-          <>
-            <span>{lengthLabel}</span>
-            <Icon name="chevron" className="board-period-caret" />
-          </>
-        }
-      >
-        <nav className="board-length-pop" aria-label="Длина периода">
-          <Link
-            href={weekHref()}
-            className={cx(isWeek && 'is-on')}
-            aria-current={isWeek ? 'page' : undefined}
-          >
-            7 дней
-          </Link>
-          <Link
-            href={window(14)}
-            className={cx(board.dates.length === 14 && 'is-on')}
-            aria-current={board.dates.length === 14 ? 'page' : undefined}
-          >
-            14 дней
-          </Link>
-          <Link
-            href={window(30)}
-            className={cx(board.dates.length === 30 && !isMonth && 'is-on')}
-            aria-current={board.dates.length === 30 && !isMonth ? 'page' : undefined}
-          >
-            30 дней
-          </Link>
-        </nav>
-      </BoardMenu>
+      <DateRangePopover
+        from={board.from}
+        to={board.to}
+        today={today}
+        maxDays={MAX_CHESSBOARD_DAYS}
+        action="/chessboard"
+        triggerTestId="board-period-button"
+      />
     </div>
   );
-  const actions = (
-    <>
-      <CalendarExpandButton compact />
-      <Link className="btn board-new" href="/reservations/new">
-        <Icon name="plus" />
-        <span className="board-new__label">Новая бронь</span>
-      </Link>
-    </>
-  );
+  const actions = <CalendarExpandButton compact />;
   const kpis = day ? (
     <DayStats
       day={day}
@@ -342,7 +220,17 @@ export default async function ChessboardPage({
 
   return (
     <CalendarWorkspace summary={null} nativeLayout>
-      <Page width="full" title="Календарь" className="page--board calendar-page">
+      <Page
+        width="full"
+        title="Календарь"
+        className="page--board calendar-page"
+        actions={
+          <Link className="btn board-new" href="/reservations/new">
+            <Icon name="plus" />
+            <span className="board-new__label">Новая бронь</span>
+          </Link>
+        }
+      >
         {overbooked.length > 0 && (
           <Alert boxed data-testid="overbooked-callout">
             Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}

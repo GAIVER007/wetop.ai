@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, chooseBoardPeriod, expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -69,9 +69,8 @@ for (const theme of ['light', 'dark'] as const) {
     await page.keyboard.press('Escape');
 
     // 30 дней: узкие плашки — «Имя Ф.», точка долга; длинные — имя у края при прокрутке
-    // длина окна живёт в раскрывашке «7 дней ▾» (09.10.2026): сначала раскрыть, потом выбрать
-    await page.getByTestId('board-length-button').click();
-    await page.getByRole('link', { name: '30 дней', exact: true }).click();
+    // 30 дней выбираются в едином контроле периода.
+    await chooseBoardPeriod(page, '30 дней');
     await expect(page.getByTestId('date-col')).toHaveCount(30);
     await toTop();
     await page.screenshot({ caret: 'initial', path: `${DIR}/${theme}-30-days.png` });

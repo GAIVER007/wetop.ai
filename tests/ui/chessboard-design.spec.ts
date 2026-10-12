@@ -36,8 +36,8 @@ test('статусы шахматки понятны без открытия и�
 
 test('ручные даты раскрываются с клавиатуры и сбрасываются при смене периода', async ({ page }) => {
   await page.goto('/chessboard');
-  // раскрывашка периода (09.10.2026): подпись периода сама кнопка, внутри чипы и поля «С» / «По»
-  const menu = page.locator('.board-period-menu');
+  // Один контрол периода содержит календарь, пресеты и поля дат.
+  const menu = page.locator('.board-nav .date-range');
   const opener = page.getByTestId('board-period-button');
   await expect(menu).toHaveJSProperty('open', false);
   await expect(page.getByLabel('Период: с', { exact: true })).toBeHidden();

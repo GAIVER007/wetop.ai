@@ -39,13 +39,13 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await expect(main.locator('.board-toolbar').getByLabel('Категория в календаре')).toHaveCount(0);
     await page.getByTestId('board-period-button').click();
-    // готовые периоды (7/14/30, месяц) с 09.10 живут в раскрывашке периода
+    // Пресеты и ручные даты доступны в одном контроле.
     for (const control of [
       main.getByLabel('Период: с', { exact: true }),
       main.getByLabel('Период: по', { exact: true }),
       main.getByRole('button', { name: 'Применить', exact: true }),
-      main.getByRole('link', { name: 'Предыдущая неделя', exact: true }),
-      main.getByRole('link', { name: 'Неделя', exact: true }),
+      main.getByRole('button', { name: '7 дней', exact: true }),
+      main.getByTestId('board-period-button'),
       toggle,
     ]) {
       await expect(control).toBeVisible();
@@ -54,10 +54,12 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       expect(box!.height, label).toBeGreaterThanOrEqual(44);
       expect(box!.width, label).toBeGreaterThanOrEqual(44);
     }
-    await expect(page.locator('.board-period-pop').getByText('С', { exact: true })).toBeVisible();
-    await expect(page.locator('.board-period-pop').getByText('По', { exact: true })).toBeVisible();
-    // раскрывашка периода закрывается, чтобы не накрывать кнопку «Фильтры» под ней
-    await page.getByTestId('board-period-button').click();
+    await expect(page.locator('.date-range__inputs').getByText('С', { exact: true })).toBeVisible();
+    await expect(
+      page.locator('.date-range__inputs').getByText('По', { exact: true }),
+    ).toBeVisible();
+    // На телефоне панель перекрывает верхнюю полосу: Escape закрывает её перед фильтрами.
+    await page.keyboard.press('Escape');
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     const filters = page.getByRole('dialog', { name: 'Фильтры календаря' });
@@ -229,10 +231,6 @@ test('по умолчанию видна текущая неделя с поне
   );
   await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
   await expect(page.getByTestId('date-col').last().locator('.board__wd')).toHaveText('вс');
-  // «7 дней» с 09.10 живёт в раскрывашке длины окна и отмечает текущую неделю
-  await page.getByTestId('board-length-button').click();
-  await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  await expect(page.getByTestId('board-period-button')).toHaveCount(1);
+  await expect(page.getByTestId('board-length-button')).toHaveCount(0);
 });

@@ -76,6 +76,14 @@ export function presetRange(
   return { from: today, to: addDays(today, (preset === 'today' ? 1 : Number(preset)) - 1) };
 }
 
+function activePreset(from: string, to: string, today: string): DateRangePreset {
+  for (const preset of ['today', '7', '14', '30', 'month'] as const) {
+    const range = presetRange(preset, today);
+    if (range?.from === from && range.to === to) return preset;
+  }
+  return 'custom';
+}
+
 const presets: { value: DateRangePreset; label: string }[] = [
   { value: 'today', label: 'Сегодня' },
   { value: '7', label: '7 дней' },
@@ -106,7 +114,9 @@ export function DateRangePopover({
   const id = useId();
   const [start, setStart] = useState(from);
   const [end, setEnd] = useState(to);
-  const [selectedPreset, setSelectedPreset] = useState<DateRangePreset>('custom');
+  const [selectedPreset, setSelectedPreset] = useState<DateRangePreset>(() =>
+    activePreset(from, to, today),
+  );
   const [view, setView] = useState(() =>
     monthStart(parseDate(from) ?? parseDate(today) ?? new Date()),
   );
@@ -117,7 +127,7 @@ export function DateRangePopover({
     setStart(from);
     setEnd(to);
     setView(monthStart(parseDate(from) ?? parseDate(today) ?? new Date()));
-    setSelectedPreset('custom');
+    setSelectedPreset(activePreset(from, to, today));
     setSelectingEnd(false);
     setError('');
     if (ref.current) ref.current.open = false;
@@ -262,6 +272,7 @@ export function DateRangePopover({
                   <input
                     name="from"
                     type="date"
+                    aria-label="Период: с"
                     value={start}
                     onChange={(event) => {
                       setStart(event.target.value);
@@ -276,6 +287,7 @@ export function DateRangePopover({
                   <input
                     name="to"
                     type="date"
+                    aria-label="Период: по"
                     value={end}
                     onChange={(event) => {
                       setEnd(event.target.value);

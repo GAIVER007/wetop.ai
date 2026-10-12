@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, chooseBoardPeriod, expect, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 3 (ТЗ §18–§25, §58): карточка брони и быстрый предпросмотр.
@@ -184,8 +184,7 @@ test('подпись подстраивается под ширину: полн�
   ).toBeVisible();
   await expect(page.getByTestId('cell-due').filter({ visible: true }).first()).toContainText('₸');
   // 30 дней: одна ночь — «Имя Ф.», полное имя спрятано; долг на узкой — точкой
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  await chooseBoardPeriod(page, '30 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   // M04: однодневная «Гость Букинг»; в той же строке с 1-го числа — длинная бронь следующего месяца
   const oneNight = page.locator('[data-number="20260916-DSG-BDC"] .board-stay-caption');
@@ -240,8 +239,7 @@ test('узкая плашка: вторая строка (источник, но
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
   await page.goto('/chessboard');
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  await chooseBoardPeriod(page, '30 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   const oneNight = page.locator('[data-number="20260916-DSG-BDC"] .board-stay-caption');
   await expect(oneNight.locator('.board-stay-line--meta')).toBeHidden();

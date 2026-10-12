@@ -22,7 +22,9 @@ test.beforeEach(async ({ page, request }) => {
   await page.setViewportSize(PHONE);
 });
 
-test('телефон: скрытое меню доступно на основных маршрутах без нижней панели и переполнения', async ({ page }) => {
+test('телефон: скрытое меню доступно на основных маршрутах без нижней панели и переполнения', async ({
+  page,
+}) => {
   test.slow(); // обход 13 разделов: на холодном `next dev` первая сборка каждого занимает секунды
   for (const route of [
     '/guests',
@@ -65,10 +67,7 @@ test('телефон: чипы отборов — цели нажатия не �
   expect((await view.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 
   await page.goto('/finance');
-  const chip = page
-    .getByRole('navigation', { name: 'Готовые периоды' })
-    .getByRole('link')
-    .first();
+  const chip = page.getByRole('navigation', { name: 'Готовые периоды' }).getByRole('link').first();
   await expect(chip).toBeVisible();
   expect((await chip.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });
@@ -83,12 +82,15 @@ test('телефон: сводка и управление оставляют с
   expect((await summary.boundingBox())!.height).toBeLessThanOrEqual(280);
   const board = await grid.boundingBox();
   expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(700);
-  expect(PHONE.height - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
-  // с 09.10 период живёт в раскрывашке «Октябрь 2026 ▾» только полями «С» и «По» (образец владельца), готовых
-  // периодов в ней нет; длина окна 7 / 14 / 30 дней стоит в своей раскрывашке
+  expect(
+    PHONE.height - board!.y,
+    'первый экран показывает минимум 80 px сетки',
+  ).toBeGreaterThanOrEqual(80);
+  // Один контрол периода содержит пресеты, календарь и ручные даты.
   await page.getByTestId('board-period-button').click();
   await expect(page.getByLabel('Период: с', { exact: true })).toBeVisible();
   await expect(page.getByLabel('Период: по', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '14 дней', exact: true })).toBeVisible();
 });
 
 test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
@@ -129,7 +131,9 @@ test('телефон: кнопки, поля и вкладки разделов 
           const r = el.getBoundingClientRect();
           return r.height > 0 && r.width > 0 && r.height < 44;
         })
-        .map((el) => (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 24)),
+        .map((el) =>
+          (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 24),
+        ),
     );
     expect(small, `${route}: цели ниже 44 px — ${small.join(', ')}`).toEqual([]);
   }

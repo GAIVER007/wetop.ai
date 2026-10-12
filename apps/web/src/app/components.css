@@ -2976,6 +2976,11 @@
     flex: none;
     color: var(--text-2);
   }
+  .date-range > summary span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .date-range__panel {
     position: absolute;
     z-index: calc(var(--layer-header) - 1);
@@ -3137,6 +3142,15 @@
     }
   }
   @media (max-width: 600px) {
+    .date-range {
+      max-width: calc(100vw - var(--space-8));
+    }
+    .date-range > summary,
+    .date-range__inputs input,
+    .date-range__footer .btn,
+    .date-range__month button {
+      min-height: var(--touch-target);
+    }
     .date-range__panel {
       position: fixed;
       top: auto;

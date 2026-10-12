@@ -522,6 +522,28 @@
     outline: 3px solid var(--primary);
     outline-offset: 2px;
   }
+  /* QR-код ссылки на оценку (§40): светлый фон и в тёмной теме, тихая зона в самом SVG */
+  .rest-qr-box {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+  }
+  .rest-qr {
+    width: 200px;
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+  }
+  .rest-qr svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .rest-qr-link {
+    overflow-wrap: anywhere;
+    font-size: var(--text-sm);
+  }
   .rest-cash-forms {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));

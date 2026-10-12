@@ -218,6 +218,14 @@ test('заказы: создание с экрана, оплата частям�
   await expect(dialog.getByText('Оплачен', { exact: true })).toBeVisible();
   await expect(payment.getByTestId('order-paid')).toContainText('780 ₸');
   await expect(payment.getByRole('button', { name: 'Принять оплату' })).toHaveCount(0);
+  // оценка гостя после оплаты (§39): 4 звезды и комментарий, повторно оценить нельзя
+  const rating = dialog.getByTestId('order-rating');
+  await rating.getByRole('radio', { name: '4 из 5' }).click();
+  await rating.getByLabel('Комментарий гостя').fill('Вкусно, но долго');
+  await rating.getByRole('button', { name: 'Отправить оценку' }).click();
+  await expect(rating.getByLabel('Оценка 4 из 5')).toBeVisible();
+  await expect(rating).toContainText('Вкусно, но долго');
+  expect((await new AxeBuilder({ page }).include('[data-testid="order-drawer"]').analyze()).violations).toEqual([]);
   await page.keyboard.press('Escape');
   // вкладки: закрытый заказ в «Закрыты», счётчики совпадают
   await expect(page.getByRole('button', { name: 'Закрыты' })).toContainText('1');
@@ -226,6 +234,11 @@ test('заказы: создание с экрана, оплата частям�
   await expect(page.locator('tbody tr').first()).toContainText('Оплачен');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
+  // рейтинг официанта по оценкам гостей на экране «Сотрудники»
+  await page.goto('/employees');
+  await expect(
+    page.locator('tbody tr', { hasText: waiter.name }).getByTestId('employee-rating'),
+  ).toContainText('4 ★, 1 оценка');
 });
 
 test('кухня: колонки KDS и переходы кнопками', async ({ page, request }) => {
@@ -422,6 +435,14 @@ test('отчёт за период: выручка, средний чек, оп�
   expect([r.costMinor, r.grossProfitMinor, r.foodCostPct, r.shortages]).toEqual(['0', '266000', 0, []]);
   const bad = await request.get(`${api}/food-service/period-report?from=${day}&to=2000-01-01`, { headers });
   expect(bad.status()).toBe(400);
+  // оценка гостя (§39): только после оплаты и только одна
+  const rate = (id: string, stars: number) =>
+    request.post(`${api}/food-service/orders/${id}/rating`, { headers, data: { stars } });
+  expect((await rate(a.id, 5)).ok()).toBe(true);
+  expect((await rate(a.id, 1)).status()).toBe(409);
+  const fresh = await order([{ menuItemId: pasta.id, qty: 1 }]);
+  expect((await rate(fresh.id, 5)).status()).toBe(409);
+  expect((await rate(a.id, 6)).status()).toBe(400);
 });
 
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({

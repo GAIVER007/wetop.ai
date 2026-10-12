@@ -108,6 +108,8 @@ export const restaurantApi = {
     sendJson<OrderView>('POST', `${idPath('orders', id)}/status`, body),
   payOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/payments`, body),
+  rateOrder: (id: string, body: { stars: number; comment: string | null }) =>
+    sendJson<OrderView>('POST', `${idPath('orders', id)}/rating`, body),
   voidPayment: (id: string, reason: string) =>
     sendJson<OrderView>('POST', `${idPath('payments', id)}/void`, { reason }),
   cash: () => getJsonPublic<FoodCashView>(`${base}/cash`),

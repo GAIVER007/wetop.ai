@@ -200,6 +200,8 @@ export interface OrderView {
   nextStatuses: OrderStatus[];
   items: OrderItemView[];
   payments: OrderPaymentView[];
+  /** §39: оценка гостя после оплаты */
+  rating?: { stars: number; comment: string | null; createdAt: string } | null;
 }
 export type FoodPaymentMethod =
   | 'CASH'
@@ -310,6 +312,8 @@ export interface FoodEmployee {
   shift: string | null;
   onShift: boolean;
   salesTodayMinor: string;
+  /** §39: рейтинг по оценкам гостей; average null, пока оценок нет */
+  rating?: { average: number | null; count: number };
 }
 export type PayModel = 'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT' | 'BONUS_ONLY';
 export interface PayrollRow {

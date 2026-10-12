@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 12.10.2026 17:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 47b86b0 (claude/fix-login-landing-spec)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/system-screens.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'вход и профиль'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (3.1s)
+
+
+  1) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3100/profile/access
+    Call log:
+      - navigating to "http://127.0.0.1:3100/profile/access", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/system-screens.spec.ts:315:14
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+# код выхода 1 · 10 с

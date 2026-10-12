@@ -392,12 +392,12 @@
     }
   }
   @media (max-width: 960px) {
-    /* строки разделов нет: одна строка шапки 60 px, объект вверху меню телефона */
+    /* UI3.1: одна строка шапки 56 px, объект вверху меню телефона */
     .workspace {
-      --header-h: 60px;
+      --header-h: calc(var(--header-row-h) + env(safe-area-inset-top, 0px));
     }
     .workspace-header__row {
-      min-height: 60px;
+      min-height: var(--header-row-h);
     }
     .workspace-header__property {
       display: none;
@@ -415,11 +415,10 @@
     .workspace-brand .brand-name {
       display: none;
     }
-    /* Нижняя навигация — fixed ~70 px (ADR-050): без запаса последние строки страницы уходят под неё.
-   * Правило живёт здесь, а не в блоке ≤360: иначе на обычном телефоне (375–430 px) его нет. */
+    /* UI3.1: нижней навигации нет, остаётся отступ содержимого и safe-area. */
     .workspace .page,
     .workspace .page--full {
-      padding: 22px 16px calc(90px + env(safe-area-inset-bottom, 0px));
+      padding: 22px 16px calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
     }
     /* Телефон целиком. ADR-134 свёл эти правила в блок ≤360 px, и на обычном телефоне (361–600 px)
    * перестали действовать цели 44 px, размер заголовка и отступы панелей: кнопки падали до 36 px. */

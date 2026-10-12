@@ -13,68 +13,79 @@ import { DataFreshness } from '../data-freshness';
 import { Icon } from '../icon';
 import { cx } from '../ui';
 
-/**
- * Левая контекстная навигация (ТЗ «Новая навигация админки», поручение владельца 10.10.2026, ADR-161).
- * Видна только кнопка текущего раздела и его подразделы. Наведение или щелчок по кнопке открывает панель:
- * слева все разделы, справа подразделы того, на который наведён курсор. Щелчок по пункту ведёт на страницу,
- * панель закрывается, меню слева показывает новый раздел. Состав и права из `menuSectionsFor` (ADR-107).
- * До 960 px меню нет: окно «Навигация» (`Sidebar`) и нижняя панель телефона.
- */
-export function SideNav({ path, desk }: { path: string; desk?: Promise<DeskShell> | undefined }) {
+/** UI3.1: one trigger, shared access registry, no persistent navigation column. */
+export function SideNav({
+  path,
+  desk,
+  dismissKey,
+}: {
+  path: string;
+  desk?: Promise<DeskShell> | undefined;
+  dismissKey: string;
+}) {
   return (
     <aside className="sidenav">
-      {/* пока API не ответил, меню пустое: разделы появляются, а не исчезают (ADR-107) */}
       <Suspense fallback={null}>
-        <GrantedMenu desk={desk} path={path} />
+        <GrantedMenu desk={desk} path={path} dismissKey={dismissKey} />
       </Suspense>
-      <div className="sidenav__bottom">
-        <Suspense fallback={null}>
-          <GrantedTrial desk={desk} />
-        </Suspense>
-        {/* Свежесть данных Channex и очереди ARI: общий опрос оболочки, своего запроса нет */}
-        <span className="sidenav__freshness">
-          <DataFreshness />
-        </span>
-      </div>
     </aside>
   );
 }
 
-function GrantedMenu({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
+function GrantedMenu({
+  desk,
+  path,
+  dismissKey,
+}: {
+  desk: Promise<DeskShell> | undefined;
+  path: string;
+  dismissKey: string;
+}) {
   const shell = desk ? use(desk) : null;
   return (
-    <Menu sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)} path={path} />
+    <Menu
+      sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)}
+      path={path}
+      dismissKey={dismissKey}
+      trial={shell?.trial ?? null}
+    />
   );
 }
 
-/** Задержка закрытия: курсор успевает дойти от кнопки до панели, ТЗ §6 «закрывается при уходе курсора» */
-const CLOSE_DELAY = 150;
-
-function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
+function Menu({
+  sections,
+  path,
+  dismissKey,
+  trial,
+}: {
+  sections: MenuSection[];
+  path: string;
+  dismissKey: string;
+  trial: string | null;
+}) {
   const active = activeMenuRoute(path);
-  const current = sections.find((section) => section.items.some((item) => item.href === active));
+  const current = sections.find((s) => s.items.some((item) => item.href === active));
   const [ready, setReady] = useState(false);
-  useEffect(() => setReady(true), []);
-  const label = current?.label ?? 'Разделы';
   const [open, setOpen] = useState(false);
-  const [hovered, setHovered] = useState<string | undefined>(undefined);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const root = useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState<string>();
+  const root = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
   const shown = sections.find((s) => s.id === hovered) ?? current ?? sections[0];
-
-  const show = () => {
-    clearTimeout(timer.current);
-    if (!open) setHovered(current?.id);
-    setOpen(true);
-  };
-  const hide = (delay = 0) => {
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setOpen(false), delay);
-  };
-  useEffect(() => () => clearTimeout(timer.current), []);
-  useEffect(() => setOpen(false), [path]);
+  useEffect(() => setReady(true), []);
+  useEffect(() => {
+    setOpen(false);
+  }, [path, dismissKey]);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 960px)');
+    const close = () => setOpen(false);
+    media.addEventListener('change', close);
+    window.addEventListener('popstate', close);
+    return () => {
+      media.removeEventListener('change', close);
+      window.removeEventListener('popstate', close);
+    };
+  }, []);
   useEffect(() => {
     if (!open) return;
     const outside = (event: PointerEvent) => {
@@ -83,28 +94,43 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
     document.addEventListener('pointerdown', outside);
     return () => document.removeEventListener('pointerdown', outside);
   }, [open]);
-
-  // Панель уже в разметке (flushSync ниже), поэтому фокус ставится сразу, без кадра анимации:
-  // requestAnimationFrame в фоновой вкладке не срабатывает
-  const linksOf = (column: Element | null | undefined) =>
-    [...(column?.querySelectorAll<HTMLElement>('a') ?? [])].filter(
-      (a) => a.getClientRects().length,
+  const controls = (column: Element | null | undefined) =>
+    [...(column?.querySelectorAll<HTMLElement>('a, button') ?? [])].filter(
+      (el) => el.getClientRects().length,
     );
-  const focusIn = (column: 'sections' | 'items', index = 0) =>
-    linksOf(root.current?.querySelector(`[data-column="${column}"]`))[index]?.focus();
-
-  // Клавиатура (ТЗ §9): ↑↓ по столбцу, → в подразделы, ← обратно к разделу, Escape закрывает
-  const onPanelKey = (event: KeyboardEvent<HTMLDivElement>) => {
+  const focusIn = (column: string, index = 0) =>
+    controls(root.current?.querySelector(`[data-column="${column}"]`))[index]?.focus();
+  const show = () => {
+    flushSync(() => {
+      setHovered(current?.id);
+      setOpen(true);
+    });
+    focusIn(
+      'sections',
+      Math.max(
+        0,
+        sections.findIndex((s) => s.id === current?.id),
+      ),
+    );
+  };
+  const navigate = () => setOpen(false);
+  const onPanelKey = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setOpen(false);
+      trigger.current?.focus();
+      return;
+    }
     const target = event.target as HTMLElement;
     const column = target.closest<HTMLElement>('[data-column]');
     if (!column) return;
-    const links = linksOf(column);
-    const index = links.indexOf(target);
-    const move: Record<string, () => void> = {
-      ArrowDown: () => links[(index + 1) % links.length]?.focus(),
-      ArrowUp: () => links[(index - 1 + links.length) % links.length]?.focus(),
-      Home: () => links[0]?.focus(),
-      End: () => links.at(-1)?.focus(),
+    const items = controls(column);
+    const index = items.indexOf(target);
+    const actions: Record<string, () => void> = {
+      ArrowDown: () => items[(index + 1) % items.length]?.focus(),
+      ArrowUp: () => items[(index - 1 + items.length) % items.length]?.focus(),
+      Home: () => items[0]?.focus(),
+      End: () => items.at(-1)?.focus(),
       ArrowRight: () => column.dataset.column === 'sections' && focusIn('items'),
       ArrowLeft: () =>
         column.dataset.column === 'items' &&
@@ -115,131 +141,127 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
             sections.findIndex((s) => s.id === shown?.id),
           ),
         ),
-      Escape: () => {
-        setOpen(false);
-        trigger.current?.focus();
-      },
     };
-    const action = move[event.key];
-    if (!action) return;
-    event.preventDefault();
-    action();
+    if (actions[event.key]) {
+      event.preventDefault();
+      actions[event.key]!();
+    }
   };
-
-  const panelId = `${id}-panel`;
   return (
-    <nav className="sidenav__nav" aria-label="Разделы">
-      <div
-        className="sidenav__menu"
-        ref={root}
-        onPointerEnter={() => clearTimeout(timer.current)}
-        onPointerLeave={(event) => event.pointerType === 'mouse' && hide(CLOSE_DELAY)}
-        onBlur={(event) => {
-          if (
-            !(event.relatedTarget instanceof Node) ||
-            !root.current?.contains(event.relatedTarget)
-          )
-            hide();
+    <nav
+      ref={root}
+      className="sidenav__nav"
+      aria-label="Разделы"
+      onKeyDown={onPanelKey}
+      onBlur={(event) => {
+        if (
+          event.relatedTarget instanceof Node &&
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          setOpen(false);
+      }}
+    >
+      <button
+        ref={trigger}
+        type="button"
+        className="sidenav__current"
+        aria-label="Открыть меню"
+        title={current?.label ?? 'Разделы'}
+        aria-expanded={open}
+        aria-controls={id}
+        disabled={!ready}
+        aria-busy={!ready}
+        onClick={() => (open ? setOpen(false) : show())}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            show();
+          }
         }}
       >
-        <button
-          ref={trigger}
-          type="button"
-          className="sidenav__current"
-          aria-expanded={open}
-          aria-controls={panelId}
-          aria-label={`${label}: все разделы`}
-          disabled={!ready}
-          aria-busy={!ready}
-          onClick={() => (open ? hide() : show())}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') return hide();
-            if (event.key !== 'ArrowDown') return;
-            event.preventDefault();
-            flushSync(show);
-            focusIn(
-              'sections',
-              Math.max(
-                0,
-                sections.findIndex((s) => s.id === current?.id),
-              ),
-            );
-          }}
-        >
-          <Icon name={current?.icon ?? 'menu'} />
-          <span>{label}</span>
-          <Icon className="sidenav__chevron" name="down" width={16} />
-        </button>
-        <div
-          id={panelId}
-          className="sidenav__panel"
-          data-open={open || undefined}
-          data-single={shown?.items.length === 1 || undefined}
-          onKeyDown={onPanelKey}
-        >
-          <div className="sidenav__sections" data-column="sections">
-            {sections.map((section) => (
-              <Link
-                key={section.id}
-                href={section.items[0]!.href}
-                prefetch={false}
-                data-tour={`section-${section.id}`}
-                className={cx(
-                  'sidenav__section',
-                  section.id === shown?.id && 'is-shown',
-                  section.id === current?.id && 'has-current-page',
-                )}
-                aria-current={section.id === current?.id ? 'true' : undefined}
-                onPointerEnter={() => setHovered(section.id)}
-                onFocus={() => setHovered(section.id)}
-                onClick={() => setOpen(false)}
-              >
+        <Icon name="menu" />
+        <span className="sr-only">{current?.label ?? 'Разделы'}</span>
+      </button>
+      <div id={id} className="sidenav__panel" hidden={!open} data-open={open || undefined}>
+        <div className="sidenav__sections" data-column="sections">
+          {sections.map((section) => {
+            const single = section.direct ? section.items[0] : undefined;
+            const contents = (
+              <>
                 <Icon name={section.icon} />
                 <span>{section.label}</span>
-                {section.items.length > 1 && (
-                  <Icon className="sidenav__more" name="chevron" width={14} />
-                )}
+                {!single && <Icon name="chevron" className="sidenav__more" />}
+              </>
+            );
+            const props = {
+              className: cx(
+                'sidenav__section',
+                section.id === shown?.id && 'is-shown',
+                section.id === current?.id && 'has-current-page',
+              ),
+              'data-tour': `section-${section.id}`,
+              onPointerEnter: () => setHovered(section.id),
+              onFocus: () => setHovered(section.id),
+            };
+            return single ? (
+              <Link
+                key={section.id}
+                {...props}
+                href={single.href}
+                prefetch={false}
+                aria-current={single.href === active ? 'page' : undefined}
+                onClick={navigate}
+              >
+                {contents}
               </Link>
-            ))}
-          </div>
-          {/* подразделы всех разделов в разметке, виден один: каждый адрес меню ровно один раз (`hidden`) */}
-          <div className="sidenav__items" data-column="items">
-            {sections.map((section) => (
-              <div key={section.id} hidden={section.id !== shown?.id || section.items.length === 1}>
-                <p className="sidenav__title">
-                  <Icon name={section.icon} />
-                  <span>{section.label}</span>
-                </p>
-                {section.items.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    prefetch={false}
-                    className={cx('sidenav__link', item.href === active && 'is-active')}
-                    aria-current={item.href === active ? 'page' : undefined}
-                    onClick={() => setOpen(false)}
-                  >
-                    <Icon name={item.icon} />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
-              </div>
-            ))}
-          </div>
+            ) : (
+              <button
+                key={section.id}
+                {...props}
+                type="button"
+                aria-expanded={shown?.id === section.id}
+                aria-controls={`${id}-${section.id}`}
+                onClick={() => setHovered(section.id)}
+              >
+                {contents}
+              </button>
+            );
+          })}
+        </div>
+        <div className="sidenav__items" data-column="items" hidden={!!shown?.direct}>
+          {sections.map((section) => (
+            <div
+              key={section.id}
+              id={`${id}-${section.id}`}
+              hidden={section.id !== shown?.id || !!section.direct}
+            >
+              <p className="sidenav__title">{section.label}</p>
+              {section.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  prefetch={false}
+                  className={cx('sidenav__link', item.href === active && 'is-active')}
+                  aria-current={!section.direct && item.href === active ? 'page' : undefined}
+                  onClick={navigate}
+                >
+                  <Icon name={item.icon} />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="sidenav__bottom">
+          {trial && (
+            <span className="sidenav__trial" data-testid="trial-line" data-tour="trial">
+              <Icon name="clock" />
+              <span>{trial}</span>
+            </span>
+          )}
+          <DataFreshness />
         </div>
       </div>
     </nav>
-  );
-}
-
-/** Пробный период организации: на каждом экране, а не только на `/login` (ТЗ ux-retention п. 2.7) */
-function GrantedTrial({ desk }: { desk: Promise<DeskShell> | undefined }) {
-  const trial = desk ? use(desk).trial : null;
-  if (!trial) return null;
-  return (
-    <span className="sidenav__trial" data-testid="trial-line" data-tour="trial" title={trial}>
-      <Icon name="clock" width={16} />
-      <span>{trial}</span>
-    </span>
   );
 }

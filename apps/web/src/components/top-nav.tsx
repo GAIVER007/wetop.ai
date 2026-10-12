@@ -1,8 +1,8 @@
 'use client';
-import { landingForVertical, type WebVertical } from '../lib/vertical-landing';
+import { landingForVertical } from '../lib/vertical-landing';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Suspense, use, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Suspense, use, useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react';
 import { Icon } from './icon';
 import { Sidebar } from './shell/sidebar';
 import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
@@ -10,25 +10,12 @@ import { SideNav } from './shell/side-nav';
 import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
-import { cx } from './ui';
-import {
-  CLOSED_ACCESS,
-  PENDING_ACCESS,
-  activeMenuRoute,
-  allowedItem,
-  phoneNavigationFor,
-  type NavigationAccess,
-} from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
 
-/**
- * Оболочка стойки: слева контекстное меню (`SideNav`, ADR-161, вместо строки вкладок ADR-134), справа шапка
- * одной липкой строкой: объект с переключателем филиала, поиск ⌘K, «Демо», тема, меню профиля. До 960 px меню
- * слева нет: знак в шапке, кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
- */
+/** UI3.1: одна строка шапки, скрытое меню и отдельная мобильная поверхность. */
 export function TopNav({
   children,
   demo = false,
@@ -45,6 +32,8 @@ export function TopNav({
   desk?: Promise<DeskShell>;
 }) {
   const path = usePathname() ?? '';
+  const menuDestination = useRef<string | null>(null);
+  const cancelMenuFocus = useRef<(() => void) | null>(null);
   const router = useRouter();
   const shell = desk ? use(desk) : null;
   const scopeKey = shell?.scopeKey ?? 'unresolved';
@@ -118,11 +107,54 @@ export function TopNav({
   }, [path, beauty, food, router]);
   useEffect(() => {
     setProfile(false);
+    setMenu(false);
+    const focusRequested = menuDestination.current === path;
+    menuDestination.current = null;
+    if (focusRequested) cancelMenuFocus.current = focusMainWhenReady();
+    return () => cancelMenuFocus.current?.();
   }, [path]);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 960px)');
+    const cancelFocus = () => {
+      menuDestination.current = null;
+      cancelMenuFocus.current?.();
+    };
+    const close = () => {
+      setMenu(false);
+      cancelFocus();
+    };
+    media.addEventListener('change', close);
+    window.addEventListener('popstate', close);
+    window.addEventListener('pointerdown', cancelFocus);
+    window.addEventListener('keydown', cancelFocus);
+    return () => {
+      media.removeEventListener('change', close);
+      window.removeEventListener('popstate', close);
+      window.removeEventListener('pointerdown', cancelFocus);
+      window.removeEventListener('keydown', cancelFocus);
+      cancelFocus();
+    };
+  }, []);
+  const onMenuNavigation = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    const link =
+      event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
+    if (!link?.closest('.sidenav__panel, .mobile-navigation') || link.target === '_blank') return;
+    const url = new URL(link.href);
+    if (url.origin !== window.location.origin) return;
+    cancelMenuFocus.current?.();
+    if (url.pathname === path) cancelMenuFocus.current = focusMainWhenReady();
+    else menuDestination.current = url.pathname;
+  };
   if (path.includes('/print') || path === '/login' || path === '/register') return <>{children}</>;
   return (
     <DataFreshnessProvider enabled={hospitality}>
-      <div className="workspace" data-scope-switching={scopeSwitching || undefined}>
+      <div
+        className="workspace"
+        data-scope-switching={scopeSwitching || undefined}
+        onClickCapture={onMenuNavigation}
+      >
         <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
           К содержимому
         </a>
@@ -130,11 +162,22 @@ export function TopNav({
           <div className="workspace-header__row">
             <button
               className="icon-button mobile-menu"
-              onClick={() => setMenu(true)}
+              onClick={() => {
+                setProfile(false);
+                setSearch(false);
+                setMenu(true);
+              }}
+              disabled={!ready}
+              aria-expanded={menu}
               aria-label="Открыть меню"
             >
               <Icon name="menu" />
             </button>
+            <SideNav
+              path={path}
+              desk={desk}
+              dismissKey={`${scopeKey}:${scopeSwitching}:${search}:${profile}:${menu}`}
+            />
             <Link
               className="workspace-brand"
               href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
@@ -145,7 +188,7 @@ export function TopNav({
                 WETOP<span>.AI</span>
               </span>
             </Link>
-            <SideNav path={path} desk={desk} />
+
             {/* объект и филиал: переехали сюда из бокового меню (ADR-134); до 960 px они вверху меню телефона */}
             <div className="workspace-header__property">
               <Suspense
@@ -276,18 +319,9 @@ export function TopNav({
             </main>
           )}
         </div>
-        {/* Нижняя панель телефона: первые четыре вкладки шапки (работа смены) и «Ещё» (ADR-050, ADR-134) */}
-        <nav className="bottom-navigation" aria-label="Основная навигация">
-          <Suspense fallback={<BottomNavLinks access={PENDING_ACCESS} path={path} />}>
-            <GrantedBottomNav desk={desk} path={path} />
-          </Suspense>
-          <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
-            <Icon name="more" />
-            <span>Ещё</span>
-          </button>
-        </nav>
         <Overlay
           open={menu}
+          trapFocus
           onClose={() => setMenu(false)}
           title="Навигация"
           className="mobile-navigation"
@@ -308,45 +342,40 @@ export function TopNav({
   );
 }
 
-/**
- * Нижняя панель телефона — первый раздел бокового меню, в том же порядке и с теми же подписями;
- * закрытые вошедшему пункты скрыты, как в самом меню (ADR-107). Пока ответа /auth/me нет —
- * PENDING_ACCESS, как у Sidebar: панель не мигает пустотой на каждом переходе.
- */
-function BottomNavLinks({
-  access,
-  path,
-  vertical,
-}: {
-  access: NavigationAccess;
-  path: string;
-  vertical?: WebVertical | undefined;
-}) {
-  return phoneNavigationFor(vertical)
-    .filter((item) => allowedItem(item, access))
-    .map((n) => (
-      <Link
-        key={n.href}
-        href={n.href}
-        // как в шапке и выдвижном меню: на /reservations активен пункт «Гости и бронирования», своего пункта у «Броней» нет (09.10.2026)
-        className={cx(activeMenuRoute(path) === n.href && 'is-active')}
-        aria-current={activeMenuRoute(path) === n.href ? 'page' : undefined}
-      >
-        <Icon name={n.icon} />
-        <span>{n.shortLabel ?? n.label}</span>
-      </Link>
-    ));
-}
-
-function GrantedBottomNav({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
-  const shell = desk ? use(desk) : null;
-  return (
-    <BottomNavLinks
-      access={shell?.access ?? CLOSED_ACCESS}
-      path={path}
-      vertical={shell?.vertical}
-    />
-  );
+/** Focus only the completed route, then detach; user interaction cancels this from TopNav. */
+function focusMainWhenReady(): () => void {
+  const content = document.querySelector('.workspace-content');
+  if (!content) return () => undefined;
+  let frame = 0;
+  let stopped = false;
+  const stop = () => {
+    stopped = true;
+    observer.disconnect();
+    cancelAnimationFrame(frame);
+  };
+  const focus = () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => {
+      if (stopped) return;
+      const main = document.getElementById('main-content');
+      if (!main?.getClientRects().length || main.getAttribute('aria-busy') === 'true') return;
+      const loading = [
+        ...main.querySelectorAll<HTMLElement>('.loading-state[aria-busy="true"]'),
+      ].some((element) => element.getClientRects().length > 0);
+      if (loading) return;
+      main.focus({ preventScroll: true });
+      stop();
+    });
+  };
+  const observer = new MutationObserver(focus);
+  observer.observe(content, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['aria-busy', 'hidden', 'class'],
+  });
+  focus();
+  return stop;
 }
 
 function GrantedHeaderPerson({ desk }: { desk: Promise<DeskShell> | undefined }) {

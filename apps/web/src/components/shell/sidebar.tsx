@@ -4,7 +4,6 @@ import { Suspense, use, useEffect, useId, useState } from 'react';
 import {
   CLOSED_ACCESS,
   activeMenuRoute,
-  menuSections,
   menuSectionsFor,
   type MenuSection,
 } from '../../lib/navigation';
@@ -32,8 +31,10 @@ export function Sidebar({
   /** Что открыто вошедшему и кто он (ADR-083); пока API не ответил — меню без закрытых пунктов */
   desk?: Promise<DeskShell> | undefined;
 }) {
+  const shell = desk ? use(desk) : null;
+  const sections = menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical);
   const active = activeMenuRoute(path);
-  const activeSection = menuSections.find((section) =>
+  const activeSection = sections.find((section) =>
     section.items.some((item) => item.href === active),
   )?.id;
   const [expanded, setExpanded] = useState<string | null>(activeSection ?? null);

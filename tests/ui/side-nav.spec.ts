@@ -2,10 +2,8 @@ import { FIXTURE_API, expect, test, devNoise, menuLinks, openSection, sideNav } 
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
-/**
- * Левая контекстная навигация (ТЗ «Новая навигация админки», ADR-161): видна кнопка текущего раздела и его
- * подразделы; наведение открывает панель всех разделов, наведение на раздел показывает справа его подразделы,
- * щелчок ведёт на страницу и обновляет меню. На телефоне и планшете по-прежнему окно «Навигация» и нижняя панель.
+/** UI3.1: одна кнопка меню, hover/focus раскрывает подразделы, переход закрывает панель.
+ * Mobile использует отдельное окно навигации без нижней панели.
  */
 const routes = [
   '/ai-agents',
@@ -39,13 +37,13 @@ const SECTIONS = [
 ];
 
 const fixture = FIXTURE_API;
-const SHOTS = 'reports/side-nav-2026-10-10';
+const SHOTS = 'reports/ui3-1-2026-10-11/regression';
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню', async ({
+test('UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу', async ({
   page,
 }) => {
   await page.goto('/finance');
@@ -82,9 +80,11 @@ test('ТЗ §4: текущий раздел виден, наведение от�
   await expect(panel).toBeHidden();
   // 5. меню слева обновилось: новый раздел и его подразделы
   await expect(trigger).toHaveText('Продажи');
-  // ТЗ §6: уход курсора закрывает панель
+  // UI3.1: уход курсора сохраняет панель, внешний щелчок закрывает
   await openSection(page, 'Настройки');
   await page.mouse.move(1200, 800);
+  await expect(panel).toBeVisible();
+  await page.mouse.click(1200, 800);
   await expect(panel).toBeHidden();
   // раздел из одного пункта: щелчок по самому разделу ведёт на страницу
   await openSection(page, 'Календарь');
@@ -140,14 +140,14 @@ test('вложенные адреса показывают свой раздел
   test.setTimeout(90_000);
   const nav = sideNav(page);
   const trigger = nav.locator('.sidenav__current');
-  const current = nav.locator('.sidenav__items [aria-current="page"]');
+  const current = nav.locator('[aria-current="page"]');
   await page.goto('/hotel-settings/services');
   await expect(trigger).toHaveText('Настройки');
   await expect(current).toHaveText('Объект');
   // «Номерной фонд»: раздел из одного пункта, подразделов под кнопкой нет (ADR-108)
   await page.goto('/rooms/categories');
   await expect(trigger).toHaveText('Номерной фонд');
-  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Номерной фонд');
+  await expect(nav.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
   // сайт: один пункт «Сайт и SEO» раздела «Маркетинг» (MKT2)
   await page.goto('/website/settings');
   await expect(trigger).toHaveText('Маркетинг');
@@ -193,11 +193,11 @@ for (const theme of ['light', 'dark'] as const) {
         expect(audit.violations).toEqual([]);
       }
       if (width === 1440) await page.screenshot({ path: `${SHOTS}/panel-${theme}-${width}.png` });
-      await page.mouse.move(width - 10, 880);
+      await page.mouse.click(width - 10, 880);
       await expect(nav.locator('.sidenav__panel')).toBeHidden();
       if (width === 1440) await page.screenshot({ path: `${SHOTS}/sales-${theme}-${width}.png` });
     }
-    // телефон: колонки нет, работают выдвижное меню и нижняя панель
+    // телефон: колонки нет, работает скрытое выдвижное меню
     await page.setViewportSize({ width: 390, height: 844 });
     await expect(nav).toBeHidden();
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
@@ -207,7 +207,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.keyboard.press('Escape');
     await expect(drawer).not.toBeVisible();
     const bottom = page.locator('.bottom-navigation');
-    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Продажи']);
+    await expect(bottom).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
       true,
     );
@@ -220,7 +220,7 @@ test('кнопка текущего раздела находится в шап�
   await page.goto('/today');
   const button = page
     .locator('.workspace-header')
-    .getByRole('button', { name: 'Финансы: все разделы', exact: true });
+    .getByRole('button', { name: 'Открыть меню', exact: true });
   await expect(button).toBeEnabled();
   await expect(button).toHaveText('Финансы');
   await button.click();

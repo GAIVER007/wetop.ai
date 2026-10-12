@@ -27,10 +27,10 @@ export async function HospitalityAnalytics({
     <Page
       actions={
         <>
-          <Link className="btn btn-secondary" href="/management/analytics?scope=organization">
+          <Link className="btn btn--secondary" href="/management/analytics?scope=organization">
             Сводка направлений
           </Link>
-          <Link className="btn btn-secondary" href="/branches">
+          <Link className="btn btn--secondary" href="/branches">
             Все филиалы
           </Link>
         </>

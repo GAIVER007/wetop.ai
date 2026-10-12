@@ -90,7 +90,7 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
               <input type="date" name="to" defaultValue={to} required />
             </label>
             {organization && <input type="hidden" name="scope" value="organization" />}
-            <button className="btn btn-primary" type="submit">
+            <button className="btn btn--primary" type="submit">
               Показать
             </button>
           </form>

@@ -110,6 +110,9 @@ export const restaurantApi = {
     sendJson<OrderView>('POST', `${idPath('orders', id)}/payments`, body),
   rateOrder: (id: string, body: { stars: number; comment: string | null }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/rating`, body),
+  /** Ссылка на оценку с телефона гостя (§40): ключ только в ответе, 72 часа */
+  ratingLink: (id: string) =>
+    sendJson<{ token: string; expiresAt: string }>('POST', `${idPath('orders', id)}/rating-link`, {}),
   voidPayment: (id: string, reason: string) =>
     sendJson<OrderView>('POST', `${idPath('payments', id)}/void`, { reason }),
   cash: () => getJsonPublic<FoodCashView>(`${base}/cash`),

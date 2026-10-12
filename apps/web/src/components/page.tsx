@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { cx } from './ui';
 
 /**
@@ -43,5 +44,18 @@ export function Page({
       </header>
       {children}
     </main>
+  );
+}
+
+/**
+ * Крошка «назад в раздел» одного вида на всех экранах: стрелка, название раздела с заглавной (мастер-проход UI,
+ * этап 2). Стрелка скрыта от читалки, имя ссылки равно названию раздела.
+ */
+export function BackCrumb({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link href={href}>
+      <span aria-hidden="true">← </span>
+      {children}
+    </Link>
   );
 }

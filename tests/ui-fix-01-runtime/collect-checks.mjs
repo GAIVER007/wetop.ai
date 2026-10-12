@@ -38,5 +38,18 @@ for (const root of ['.', 'ui-fix-01-baseline']) {
 mkdirSync('reports/ui-fix-01-2026-10-12', { recursive: true });
 writeFileSync(
   'reports/ui-fix-01-2026-10-12/remote-checks.json',
-  JSON.stringify({ candidate: process.env.GITHUB_SHA, records }, null, 2) + '\n',
+  JSON.stringify(
+    {
+      candidate: process.env.GITHUB_SHA,
+      outcomes: Object.fromEntries(
+        ['ADDRESSED', 'RUNTIME', 'REGRESSION', 'BEFORE', 'AFTER', 'STALE_RED'].map((name) => [
+          name,
+          process.env[`PROOF_${name}`] ?? 'unknown',
+        ]),
+      ),
+      records,
+    },
+    null,
+    2,
+  ) + '\n',
 );

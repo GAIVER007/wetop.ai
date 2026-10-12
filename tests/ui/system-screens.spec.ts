@@ -311,7 +311,8 @@ test('вход и профиль: «Вы вошли» без точек, при�
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(/\/today/);
+  // Hospitality завершается на /finance; переход с промежуточного /today гоняется с redirect.
+  await expect(page).toHaveURL(/\/finance$/);
   await page.goto('/profile/access');
   await expect(main).toContainText('как Дана Тестова, admin@wetop.test');
   await expect(main).not.toContainText(' · ');

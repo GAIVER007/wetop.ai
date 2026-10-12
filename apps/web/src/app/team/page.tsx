@@ -31,13 +31,22 @@ export default async function TeamPage() {
           authApi.invites(token, info),
           authApi.members(token, info),
           // Отказ и невалидный ответ не означают доступ ко всей организации.
-          authApi.accessStructure(token, info)
-            .then((value) => validAccessStructure(value) ? value : null)
-            .catch((error: unknown) => { unstable_rethrow(error); return null; }),
+          authApi
+            .accessStructure(token, info)
+            .then((value) => (validAccessStructure(value) ? value : null))
+            .catch((error: unknown) => {
+              unstable_rethrow(error);
+              return null;
+            }),
         ])
       : [[], [], null];
   return (
-    <TeamProvider key={me.user?.organizationId ?? 'unknown'} role={team && role ? role : null} structure={structure}>
+    <TeamProvider
+      key={me.user?.organizationId ?? 'unknown'}
+      role={team && role ? role : null}
+      structure={structure}
+      expectedOrganizationId={me.user?.organizationId ?? null}
+    >
       <Page
         title="Сотрудники и доступ"
         subtitle={
@@ -52,7 +61,8 @@ export default async function TeamPage() {
             <TeamNavigation current="team" owner={role === 'OWNER'} />
             {!structure && (
               <Notice role="alert">
-                Не удалось загрузить структуру доступа. Приглашения и изменение области доступа недоступны.
+                Не удалось загрузить структуру доступа. Приглашения и изменение области доступа
+                недоступны.
                 <RefreshButton label="Повторить загрузку" />
               </Notice>
             )}

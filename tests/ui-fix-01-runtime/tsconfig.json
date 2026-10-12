@@ -2,7 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "noEmit": true,
-    "types": ["node"]
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
-  "include": ["./*.ts"]
+  "include": ["./*.ts", "../../apps/api/src/**/*.ts"]
 }

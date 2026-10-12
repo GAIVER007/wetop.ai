@@ -60,12 +60,20 @@ jobs:
         run: npx playwright install --with-deps chromium
       - run: npm run site:check
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() && !startsWith(github.ref, 'refs/heads/codex/ui-fix-01-')
         with:
           name: site-check-results
           path: |
             tests/site/test-results
             test-results
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: failure() && startsWith(github.ref, 'refs/heads/codex/ui-fix-01-')
+        with:
+          name: site-check-results
+          path: |
+            tests/site/test-results/**/*.png
+            test-results/**/*.png
           if-no-files-found: ignore
 
   bot:
@@ -175,10 +183,17 @@ jobs:
           E2E_AUTH: '1'
         run: npx playwright test --workers=2
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() && !startsWith(github.ref, 'refs/heads/codex/ui-fix-01-')
         with:
           name: e2e-results
           path: test-results
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: failure() && startsWith(github.ref, 'refs/heads/codex/ui-fix-01-')
+        with:
+          name: e2e-results
+          path: |
+            test-results/**/*.png
           if-no-files-found: ignore
 
   ui-shard:
@@ -218,12 +233,21 @@ jobs:
           UI_BROWSER_CHANNEL: chromium
         run: npx playwright test --config tests/ui/playwright.auth.config.ts
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() && !startsWith(github.ref, 'refs/heads/codex/ui-fix-01-')
         with:
           name: ui-results-${{ matrix.shard }}
           path: |
             test-results
             reports/ui-quality
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        if: failure() && startsWith(github.ref, 'refs/heads/codex/ui-fix-01-')
+        with:
+          name: ui-results-${{ matrix.shard }}
+          path: |
+            test-results/**/*.png
+            reports/ui-quality/**/*.png
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -279,12 +303,20 @@ jobs:
       - name: Браузерный набор на подставном API и настоящей схеме
         run: npx playwright test --config tests/${{ matrix.suite }}/playwright.config.ts
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() && !startsWith(github.ref, 'refs/heads/codex/ui-fix-01-')
         with:
           name: ui-vertical-${{ matrix.suite }}
           path: |
             tests/${{ matrix.suite }}/test-results
             test-results
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: failure() && startsWith(github.ref, 'refs/heads/codex/ui-fix-01-')
+        with:
+          name: ui-vertical-${{ matrix.suite }}
+          path: |
+            tests/${{ matrix.suite }}/test-results/**/*.png
+            test-results/**/*.png
           if-no-files-found: ignore
 
   ui:
@@ -359,7 +391,7 @@ jobs:
         id: addressed
         continue-on-error: true
         run: |
-          npm run test:record -- unit tests/unit/food-customer-update.test.ts apps/web/src/app/team/scope-model.test.ts apps/web/src/app/help/help.test.ts apps/web/src/app/platform/support/kb-forms.test.ts
+          npm run test:record -- unit tests/unit/food-customer-update.test.ts apps/web/src/app/team/scope-model.test.ts apps/web/src/app/help/help.test.ts apps/web/src/app/platform/support/kb-forms.test.ts apps/web/src/app/login/actions.test.ts
           npm run test:record -- integration tests/integration/member-scopes.test.ts
       - name: Real web API DB and KB storage
         id: runtime
@@ -392,6 +424,28 @@ jobs:
           npm ci --no-audit --no-fund
           npm run generate -w @pms/database
           npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-visual.spec.ts
+      - name: Expected RED for stale scope UI on fixed baseline
+        id: stale_red
+        continue-on-error: true
+        env:
+          UI_FIXTURE_PORT: '4371'
+          UI_WEB_PORT: '3171'
+        run: |
+          cp tests/ui/ui-fix-01-access.spec.ts ui-fix-01-baseline/tests/ui/
+          cp apps/web/src/app/login/actions.test.ts ui-fix-01-baseline/apps/web/src/app/login/
+          cd ui-fix-01-baseline
+          set +e
+          npm run test:record -- unit apps/web/src/app/login/actions.test.ts
+          unit_result=$?
+          set -e
+          test "$unit_result" -eq 1
+          node -e "const fs=require('fs'); const p='tests/runs/entries/'; const files=fs.readdirSync(p).sort(); const r=JSON.parse(fs.readFileSync(p+files.at(-1))); if(r.codeChangedDuringRun || r.counts.total!==7 || r.counts.failed!==2 || r.counts.passed!==5) process.exit(1);"
+          set +e
+          npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-access.spec.ts --grep "scope switch closes"
+          result=$?
+          set -e
+          test "$result" -eq 1
+          node -e "const fs=require('fs'); const p='tests/runs/entries/'; const files=fs.readdirSync(p).sort(); const r=JSON.parse(fs.readFileSync(p+files.at(-1))); if(r.codeChangedDuringRun || r.counts.total!==1 || r.counts.failed!==1 || r.counts.passed!==0) process.exit(1);"
       - name: Matching Linux after screenshots
         id: after
         continue-on-error: true
@@ -408,9 +462,17 @@ jobs:
           REGRESSION: ${{ steps.regression.outcome }}
           BEFORE: ${{ steps.before.outcome }}
           AFTER: ${{ steps.after.outcome }}
-        run: test "$ADDRESSED" = success && test "$RUNTIME" = success && test "$REGRESSION" = success && test "$BEFORE" = success && test "$AFTER" = success
+          STALE_RED: ${{ steps.stale_red.outcome }}
+        run: test "$ADDRESSED" = success && test "$RUNTIME" = success && test "$REGRESSION" = success && test "$BEFORE" = success && test "$AFTER" = success && test "$STALE_RED" = success
       - name: Collect safe verification records
         if: always()
+        env:
+          PROOF_ADDRESSED: ${{ steps.addressed.outcome }}
+          PROOF_RUNTIME: ${{ steps.runtime.outcome }}
+          PROOF_REGRESSION: ${{ steps.regression.outcome }}
+          PROOF_BEFORE: ${{ steps.before.outcome }}
+          PROOF_AFTER: ${{ steps.after.outcome }}
+          PROOF_STALE_RED: ${{ steps.stale_red.outcome }}
         run: node tests/ui-fix-01-runtime/collect-checks.mjs
       - uses: actions/upload-artifact@v4
         if: always()

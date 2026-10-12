@@ -57,3 +57,29 @@ test('C-P1-1 malformed successful response does not allow a broad invitation', a
   const hits = await (await request.get(`${FIXTURE_API}/__test/hits`)).json();
   expect(hits.byRequest['POST /auth/invites'] ?? 0).toBe(0);
 });
+
+test('scope switch closes the old invitation and blocks commands until recovery', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${FIXTURE_API}/__test/reset`);
+  await page.goto('/auth/fallback');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/finance');
+  await page.goto('/team');
+  await page.getByTestId('team-invite').click();
+  const form = page.locator('form.team-invite-form');
+  await expect(form).toBeVisible();
+  await form.getByLabel('Почта приглашённого').fill('switch-pending@example.invalid');
+  await page.evaluate(() => window.dispatchEvent(new Event('wetop-scope-switch')));
+  await expect(form).not.toBeVisible();
+  await form.evaluate((element) => (element as HTMLFormElement).requestSubmit());
+  await expect(page.getByTestId('team-invite')).toBeDisabled();
+  await page.keyboard.press('Enter');
+  const hits = await (await request.get(`${FIXTURE_API}/__test/hits`)).json();
+  expect(hits.byRequest['POST /auth/invites'] ?? 0).toBe(0);
+  await page.evaluate(() => window.dispatchEvent(new Event('wetop-scope-switch-failed')));
+  await expect(page.getByTestId('team-invite')).toBeEnabled();
+});

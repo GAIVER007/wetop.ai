@@ -190,6 +190,20 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
         ).scopes,
       ).toEqual([{ role: 'STAFF', businessId: state.businessId, locationId: null }]);
 
+      const wholeOrganizationEmail = `whole-organization-${state.run}@example.invalid`;
+      const wholeOrganization = await request.post(`${API}/auth/invites`, {
+        headers: { authorization: `Bearer ${token}` },
+        data: { email: wholeOrganizationEmail, role: 'STAFF', scopes: [] },
+      });
+      expect(wholeOrganization.status()).toBe(201);
+      const organizationInvite = await db.invite.findFirstOrThrow({
+        where: { organizationId: state.organizationId, email: wholeOrganizationEmail },
+      });
+      expect(organizationInvite.role).toBe('STAFF');
+      expect(
+        organizationInvite.scopes === null || JSON.stringify(organizationInvite.scopes) === '[]',
+      ).toBe(true);
+
       const before = await db.invite.count({ where: { organizationId: state.organizationId } });
       for (const [emailPrefix, scopes] of [
         [

@@ -15,6 +15,8 @@ async function open(
     .getByTestId('kb-catalog')
     .getByRole('link', { name: /только чтение/ })
     .click();
+  await page.waitForURL((url) => url.searchParams.has('id'));
+  await expect(page.getByTestId('kb-entry').getByLabel('Текст знания')).toBeVisible();
 }
 async function publishes(request: import('@playwright/test').APIRequestContext) {
   const hits = await (await request.get(`${FIXTURE_API}/__test/hits`)).json();

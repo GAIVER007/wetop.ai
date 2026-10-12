@@ -966,12 +966,13 @@ export function ChessboardGrid({
           ref={filtersButton}
           type="button"
           className="btn btn--secondary board-filters-open"
+          aria-label={activeFilters > 0 ? `Фильтры ${activeFilters}` : 'Фильтры'}
           aria-haspopup="dialog"
           aria-expanded={!!filtersAnchor}
           onClick={(e) => (filtersAnchor ? closeFilters(false) : setFiltersAnchor(e.currentTarget))}
         >
           <Icon name="filter" />
-          Фильтры{' '}
+          <span className="board-filters-label">Фильтры</span>{' '}
           {activeFilters > 0 && <span className="board-filters-count">{activeFilters}</span>}
         </button>
         <Fragment key="actions">{actions}</Fragment>

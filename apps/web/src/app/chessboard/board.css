@@ -3368,3 +3368,30 @@
     }
   }
 }
+
+@layer sections {
+  @container calendar-screen (width < 360px) {
+    .calendar-shell .board-toolbar .board-search {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .calendar-shell .board-toolbar .board-filters-open,
+    .calendar-shell .board-toolbar .calendar-expand {
+      position: relative;
+      flex: none;
+      width: var(--touch-target);
+      min-width: var(--touch-target);
+      height: var(--touch-target);
+      padding: 0;
+    }
+    .calendar-shell .board-toolbar .board-filters-label {
+      display: none;
+    }
+    .calendar-shell .board-toolbar .board-filters-count {
+      position: absolute;
+      top: 0;
+      right: 0;
+      transform: translate(25%, -25%);
+    }
+  }
+}

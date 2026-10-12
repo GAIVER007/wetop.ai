@@ -531,7 +531,7 @@ export const menuSections: MenuSection[] = [
       // на «ИИ-продавце»: своего пункта меню у неё нет, маршрут /platform/support остаётся в реестре ради прав
       menuItem('/platform'),
     ],
-    match: ['/branches', '/hotel-settings', '/connections', '/team', '/staff'],
+    match: ['/branches', '/hotel-settings', '/connections', '/team', '/staff', '/platform'],
   },
 ];
 

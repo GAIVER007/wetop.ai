@@ -87,6 +87,27 @@ export function kbSaveCompletion(
   };
 }
 
+export function kbSaveRouting({
+  entryDocumentId,
+  requestDocumentId,
+  createdId,
+  savedValues,
+  currentValues,
+}: {
+  entryDocumentId: string | null;
+  requestDocumentId: string | null;
+  createdId: string | null;
+  savedValues: KbEditorValues | null;
+  currentValues: KbEditorValues;
+}): { effectiveDocumentId: string | null; navigateToId: string | null } {
+  const effectiveDocumentId = createdId ?? requestDocumentId;
+  const clean = savedValues != null && kbValuesEqual(savedValues, currentValues);
+  return {
+    effectiveDocumentId,
+    navigateToId: !entryDocumentId && effectiveDocumentId && clean ? effectiveDocumentId : null,
+  };
+}
+
 export function KbEntryEditor({ entry }: { entry: KbEditable }) {
   return <KbEntryEditorForm key={entry.id ?? 'new'} entry={entry} />;
 }
@@ -96,11 +117,15 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
   const initialValues = kbEditorValues(entry);
   const [values, setValues] = useState(initialValues);
   const [savedValues, setSavedValues] = useState(initialValues);
+  const [documentId, setDocumentId] = useState(entry.id);
+  const [savedDocumentId, setSavedDocumentId] = useState(entry.id);
   const [result, setResult] = useState<KbSimpleResult | null>(null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
   const valuesRef = useRef(values);
   const savedValuesRef = useRef(savedValues);
+  const documentIdRef = useRef(documentId);
+  const savedDocumentIdRef = useRef(savedDocumentId);
   const busyRef = useRef(false);
   const aliveRef = useRef(true);
 
@@ -121,20 +146,31 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
 
   const save = () => {
     if (busyRef.current) return;
-    const documentId = entry.id;
+    const requestDocumentId = documentIdRef.current;
     const submittedValues = { ...valuesRef.current };
     busyRef.current = true;
     start(async () => {
       try {
-        const saved = await kbSaveAction(documentId, submittedValues);
+        const saved = await kbSaveAction(requestDocumentId, submittedValues);
         if (!aliveRef.current) return;
         const completion = kbSaveCompletion(saved, submittedValues, valuesRef.current);
+        const routing = kbSaveRouting({
+          entryDocumentId: entry.id,
+          requestDocumentId,
+          createdId: saved.createdId,
+          savedValues: completion.savedValues,
+          currentValues: valuesRef.current,
+        });
         setResult(completion.result);
         if (completion.savedValues) {
+          documentIdRef.current = routing.effectiveDocumentId;
+          savedDocumentIdRef.current = routing.effectiveDocumentId;
+          setDocumentId(routing.effectiveDocumentId);
+          setSavedDocumentId(routing.effectiveDocumentId);
           savedValuesRef.current = completion.savedValues;
           setSavedValues(completion.savedValues);
         }
-        if (saved.createdId) router.replace(kbHref({ id: saved.createdId }));
+        if (routing.navigateToId) router.replace(kbHref({ id: routing.navigateToId }));
       } finally {
         busyRef.current = false;
       }
@@ -142,10 +178,11 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
   };
 
   const publish = async () => {
-    if (!entry.id) return;
+    const currentDocumentId = documentIdRef.current;
+    if (!currentDocumentId) return;
     const blockReason = kbPublishBlockReason({
-      documentId: entry.id,
-      savedDocumentId: entry.id,
+      documentId: currentDocumentId,
+      savedDocumentId: savedDocumentIdRef.current,
       values: valuesRef.current,
       savedValues: savedValuesRef.current,
       busy: busyRef.current || pending,
@@ -161,9 +198,10 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
       cancelLabel: 'Не публиковать',
     });
     if (!ok || !aliveRef.current) return;
+    const confirmedDocumentId = documentIdRef.current;
     const confirmedBlockReason = kbPublishBlockReason({
-      documentId: entry.id,
-      savedDocumentId: entry.id,
+      documentId: confirmedDocumentId,
+      savedDocumentId: savedDocumentIdRef.current,
       values: valuesRef.current,
       savedValues: savedValuesRef.current,
       busy: busyRef.current,
@@ -172,10 +210,11 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
       setResult({ error: confirmedBlockReason, message: null });
       return;
     }
+    if (!confirmedDocumentId) return;
     busyRef.current = true;
     start(async () => {
       try {
-        const published = await kbPublishAction(entry.id!);
+        const published = await kbPublishAction(confirmedDocumentId);
         if (aliveRef.current) setResult(published.error
           ? { error: `Сохранено, но не опубликовано: ${published.error}`, message: null }
           : published);
@@ -185,10 +224,17 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
     });
   };
 
-  const move = (status: string) =>
-    start(async () => setResult(await kbStatusAction(entry.id!, status)));
+  const move = (status: string) => {
+    const currentDocumentId = documentIdRef.current;
+    if (!entry.id || !currentDocumentId || currentDocumentId !== entry.id) return;
+    start(async () => setResult(await kbStatusAction(currentDocumentId, status)));
+  };
 
-  const actions = entry.id ? kbActions(entry.status) : [];
+  const actions: ReturnType<typeof kbActions> = entry.id
+    ? kbActions(entry.status)
+    : documentId
+      ? ['publish']
+      : [];
   return (
     <Stack>
       <form
@@ -236,7 +282,12 @@ function KbEntryEditorForm({ entry }: { entry: KbEditable }) {
             {pending ? 'Сохраняю…' : 'Сохранить'}
           </Button>
           {actions.includes('publish') && (
-            <Button type="button" tone="secondary" onClick={publish} disabled={pending || dirty}>
+            <Button
+              type="button"
+              tone="secondary"
+              onClick={publish}
+              disabled={pending || dirty || documentId !== savedDocumentId}
+            >
               Опубликовать
             </Button>
           )}

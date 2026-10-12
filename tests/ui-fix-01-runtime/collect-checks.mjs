@@ -2,7 +2,7 @@ import process from 'node:process';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 const records = [];
-for (const root of ['.', 'ui-fix-01-baseline']) {
+for (const root of ['.', 'ui-fix-01-baseline', 'ui-fix-01-new-draft-red']) {
   let paths;
   try {
     paths = execFileSync(
@@ -19,7 +19,12 @@ for (const root of ['.', 'ui-fix-01-baseline']) {
   for (const path of paths) {
     const r = JSON.parse(readFileSync(`${root}/${path}`, 'utf8'));
     records.push({
-      source: root === '.' ? 'candidate' : 'baseline',
+      source:
+        root === '.'
+          ? 'candidate'
+          : root === 'ui-fix-01-baseline'
+            ? 'baseline'
+            : 'prior-candidate-new-draft-red',
       id: r.id,
       suite: r.suite,
       args: r.args,
@@ -42,10 +47,9 @@ writeFileSync(
     {
       candidate: process.env.GITHUB_SHA,
       outcomes: Object.fromEntries(
-        ['ADDRESSED', 'RUNTIME', 'REGRESSION', 'BEFORE', 'AFTER', 'STALE_RED'].map((name) => [
-          name,
-          process.env[`PROOF_${name}`] ?? 'unknown',
-        ]),
+        ['ADDRESSED', 'RUNTIME', 'REGRESSION', 'BEFORE', 'AFTER', 'STALE_RED', 'NEW_DRAFT_RED'].map(
+          (name) => [name, process.env[`PROOF_${name}`] ?? 'unknown'],
+        ),
       ),
       records,
     },

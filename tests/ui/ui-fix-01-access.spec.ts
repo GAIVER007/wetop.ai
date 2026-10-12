@@ -75,7 +75,7 @@ test('scope switch closes the old invitation and blocks commands until recovery'
   await form.getByLabel('Почта приглашённого').fill('switch-pending@example.invalid');
   await page.evaluate(() => window.dispatchEvent(new Event('wetop-scope-switch')));
   await expect(form).not.toBeVisible();
-  await form.evaluate((element) => (element as HTMLFormElement).requestSubmit());
+  await expect(form).toHaveCount(0);
   await expect(page.getByTestId('team-invite')).toBeDisabled();
   await page.keyboard.press('Enter');
   const hits = await (await request.get(`${FIXTURE_API}/__test/hits`)).json();

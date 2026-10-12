@@ -446,6 +446,27 @@ jobs:
           set -e
           test "$result" -eq 1
           node -e "const fs=require('fs'); const p='tests/runs/entries/'; const files=fs.readdirSync(p).sort(); const r=JSON.parse(fs.readFileSync(p+files.at(-1))); if(r.codeChangedDuringRun || r.counts.total!==1 || r.counts.failed!==1 || r.counts.passed!==0) process.exit(1);"
+      - uses: actions/checkout@v4
+        with:
+          ref: ddba4e1bc35ff43fb8cd681725257bd95a414b65
+          path: ui-fix-01-new-draft-red
+      - name: Expected RED for initial create B with typed C
+        id: new_draft_red
+        continue-on-error: true
+        env:
+          UI_FIXTURE_PORT: '4371'
+          UI_WEB_PORT: '3171'
+        run: |
+          cp tests/ui/ui-fix-01-kb.spec.ts ui-fix-01-new-draft-red/tests/ui/
+          cd ui-fix-01-new-draft-red
+          npm ci --no-audit --no-fund
+          npm run generate -w @pms/database
+          set +e
+          npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-kb.spec.ts --grep "initial create B"
+          result=$?
+          set -e
+          test "$result" -eq 1
+          node -e "const fs=require('fs'); const p='tests/runs/entries/'; const files=fs.readdirSync(p).sort(); const r=JSON.parse(fs.readFileSync(p+files.at(-1))); if(r.codeChangedDuringRun || r.counts.total!==1 || r.counts.failed!==1 || r.counts.passed!==0) process.exit(1);"
       - name: Matching Linux after screenshots
         id: after
         continue-on-error: true
@@ -463,7 +484,8 @@ jobs:
           BEFORE: ${{ steps.before.outcome }}
           AFTER: ${{ steps.after.outcome }}
           STALE_RED: ${{ steps.stale_red.outcome }}
-        run: test "$ADDRESSED" = success && test "$RUNTIME" = success && test "$REGRESSION" = success && test "$BEFORE" = success && test "$AFTER" = success && test "$STALE_RED" = success
+          NEW_DRAFT_RED: ${{ steps.new_draft_red.outcome }}
+        run: test "$ADDRESSED" = success && test "$RUNTIME" = success && test "$REGRESSION" = success && test "$BEFORE" = success && test "$AFTER" = success && test "$STALE_RED" = success && test "$NEW_DRAFT_RED" = success
       - name: Collect safe verification records
         if: always()
         env:
@@ -473,6 +495,7 @@ jobs:
           PROOF_BEFORE: ${{ steps.before.outcome }}
           PROOF_AFTER: ${{ steps.after.outcome }}
           PROOF_STALE_RED: ${{ steps.stale_red.outcome }}
+          PROOF_NEW_DRAFT_RED: ${{ steps.new_draft_red.outcome }}
         run: node tests/ui-fix-01-runtime/collect-checks.mjs
       - uses: actions/upload-artifact@v4
         if: always()

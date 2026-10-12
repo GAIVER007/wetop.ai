@@ -3,6 +3,7 @@ import {
   kbEditorValues,
   kbPublishBlockReason,
   kbSaveCompletion,
+  kbSaveRouting,
   type KbEditable,
   type KbEditorValues,
 } from './kb-forms';
@@ -76,6 +77,40 @@ describe('редактор базы знаний C-P1-2', () => {
     expect(completion.savedValues).toEqual(values('B'));
     expect(completion.result).toEqual({ error: null, message: 'Сохранено.' });
     expect(publishBlock(values('B'), completion.savedValues!)).toBeNull();
+  });
+
+  it('после create B с текущим C остаётся на форме и следующий save использует созданный ID', () => {
+    const created = kbSaveRouting({
+      entryDocumentId: null,
+      requestDocumentId: null,
+      createdId: 'doc-created',
+      savedValues: values('B'),
+      currentValues: values('C'),
+    });
+
+    expect(created).toEqual({ effectiveDocumentId: 'doc-created', navigateToId: null });
+
+    const updated = kbSaveRouting({
+      entryDocumentId: null,
+      requestDocumentId: created.effectiveDocumentId,
+      createdId: null,
+      savedValues: values('C'),
+      currentValues: values('C'),
+    });
+
+    expect(updated).toEqual({ effectiveDocumentId: 'doc-created', navigateToId: 'doc-created' });
+  });
+
+  it('чистый initial create сохраняет прежний немедленный переход', () => {
+    expect(
+      kbSaveRouting({
+        entryDocumentId: null,
+        requestDocumentId: null,
+        createdId: 'doc-created',
+        savedValues: values('B'),
+        currentValues: values('B'),
+      }),
+    ).toEqual({ effectiveDocumentId: 'doc-created', navigateToId: 'doc-created' });
   });
 
   it('смена документа сбрасывает значения и блокирует старое подтверждение', () => {

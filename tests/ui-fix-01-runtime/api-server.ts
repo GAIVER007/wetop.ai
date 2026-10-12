@@ -69,6 +69,7 @@ const sender = new mail.StubMailSender();
 const moduleRef = await Test.createTestingModule({
   imports: [AppModule],
   controllers: [RuntimeRoleController],
+  providers: [PrismaService],
 })
   .overrideProvider('MAIL_SENDER')
   .useValue(sender)

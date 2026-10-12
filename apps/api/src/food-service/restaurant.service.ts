@@ -15,6 +15,8 @@ import {
   orderNext,
   orderPayment,
   parseOrderRating,
+  hashSessionToken,
+  newSessionToken,
   ratingSummary,
   foodCostSummary,
   milliText,
@@ -46,6 +48,8 @@ import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } fro
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { StockService } from './stock.service';
 
+/** Срок ссылки на оценку с телефона гостя (§40) */
+const RATING_LINK_TTL_MS = 72 * 3_600_000;
 const OPEN_STATUSES: OrderStatus[] = ['NEW', 'COOKING', 'READY', 'SERVED'];
 const orderInclude = {
   table: { include: { area: { select: { name: true } } } },
@@ -946,6 +950,29 @@ export class RestaurantService {
       });
       const row = await tx.restaurantOrder.findUniqueOrThrow({ where: { id: r.id }, include: orderInclude });
       return orderView(row);
+    });
+  }
+
+  /**
+   * Ссылка на оценку с телефона гостя (§40, ADR-170): ключ 256 бит уходит только в ответ и QR-код, в базе его SHA-256;
+   * живёт 72 часа, повторная выдача заменяет прежнюю
+   */
+  async ratingLink(idRaw: string) {
+    return this.write('desk', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      await tx.$queryRaw`SELECT id FROM restaurant_orders WHERE id=${id}::uuid AND location_id=${s.locationId}::uuid FOR UPDATE`;
+      const r = await tx.restaurantOrder.findFirst({ where: { id, locationId: s.locationId }, include: { rating: true } });
+      if (!r) throw new NotFoundException('Заказ не найден');
+      if (r.status !== 'CLOSED') throw new ConflictException('Оценку гость ставит после оплаты заказа');
+      if (r.rating) throw new ConflictException('Заказ уже оценён');
+      const token = newSessionToken();
+      const expiresAt = new Date(Date.now() + RATING_LINK_TTL_MS);
+      await tx.restaurantOrder.update({
+        where: { id: r.id },
+        data: { ratingTokenHash: hashSessionToken(token), ratingTokenExpiresAt: expiresAt },
+      });
+      await this.audit(tx, s, 'restaurant_order', r.id, 'food.order.rating_link', { expiresAt: expiresAt.toISOString() });
+      return { token, expiresAt: expiresAt.toISOString() };
     });
   }
 

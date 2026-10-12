@@ -16,7 +16,8 @@ import type {
 } from '../../lib/food-types';
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
-import { mutateOrder } from './restaurant-actions';
+import { mutateOrder, orderRatingLink } from './restaurant-actions';
+import { QrCode, StarsInput } from './rating-parts';
 
 export interface OrderContext {
   scopeKey: string;
@@ -56,6 +57,7 @@ function RatingPanel({
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
+  const [link, setLink] = useState<{ url: string; expiresAt: string } | null>(null);
   if (order.status !== 'CLOSED') return null;
   if (order.rating)
     return (
@@ -84,32 +86,40 @@ function RatingPanel({
       }
     });
   }
+  function qr() {
+    start(async () => {
+      const result = await orderRatingLink(ctx.scopeKey, order.id);
+      if (result.error || !result.token) return setError(result.error ?? 'Ссылка не выдана');
+      setError('');
+      setLink({ url: `${window.location.origin}/rate/${result.token}`, expiresAt: result.expiresAt ?? '' });
+    });
+  }
   return (
     <section className="rest-rating" aria-label="Оцените обслуживание" data-testid="order-rating">
       {error && <Alert>{error}</Alert>}
       <strong>Оцените обслуживание{order.waiter ? `: ${order.waiter.name}` : ''}</strong>
-      <div className="rest-stars" role="radiogroup" aria-label="Звёзды">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            role="radio"
-            aria-checked={stars === n}
-            aria-label={`${n} из 5`}
-            className="rest-star"
-            data-on={n <= stars}
-            onClick={() => setStars(n)}
-          >
-            {n <= stars ? '★' : '☆'}
-          </button>
-        ))}
-      </div>
+      <StarsInput value={stars} onChange={setStars} />
       <Field label="Комментарий гостя">
         <Input value={comment} maxLength={500} onChange={(e) => setComment(e.target.value)} />
       </Field>
       <Button disabled={pending} onClick={send}>
         Отправить оценку
       </Button>
+      {link ? (
+        <div className="rest-qr-box" data-testid="order-rating-qr">
+          <QrCode text={link.url} label="QR-код: оценка с телефона гостя" />
+          <p className="muted">
+            Гость наводит камеру и ставит оценку сам. Ссылка одна на заказ и действует 72 часа.
+          </p>
+          <a href={link.url} target="_blank" rel="noreferrer" className="rest-qr-link">
+            {link.url}
+          </a>
+        </div>
+      ) : (
+        <Button tone="secondary" disabled={pending} onClick={qr}>
+          QR-код для гостя
+        </Button>
+      )}
     </section>
   );
 }

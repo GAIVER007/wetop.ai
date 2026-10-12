@@ -32,7 +32,9 @@ export interface OrderContext {
   categories: MenuCategory[];
   menuItems: MenuItemView[];
 }
-export type OrderDraft = { kind: 'create'; tableId?: string } | { kind: 'view'; order: OrderView };
+export type OrderDraft =
+  | { kind: 'create'; tableId?: string; items?: OrderItemInput[] }
+  | { kind: 'view'; order: OrderView };
 
 const STATUS_ACTION: Record<OrderStatus, string> = {
   NEW: 'Вернуть в новые',
@@ -391,7 +393,8 @@ export function OrderDrawer({
   const [items, setItems] = useState<OrderItemInput[]>(
     order?.items
       .filter((i) => i.menuItemId)
-      .map((i) => ({ menuItemId: i.menuItemId!, qty: i.qty, notes: i.notes })) ?? [],
+      .map((i) => ({ menuItemId: i.menuItemId!, qty: i.qty, notes: i.notes })) ??
+      (draft.kind === 'create' ? (draft.items ?? []) : []),
   );
   const areaName = useMemo(
     () => new Map(ctx.areas.map((a) => [a.id, a.name])),

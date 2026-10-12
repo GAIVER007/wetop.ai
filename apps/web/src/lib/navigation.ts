@@ -72,6 +72,10 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/stock', label: 'Склад', icon: 'stock', requires: 'desk', description: 'Склад кухни: ингредиенты и остатки' },
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
       { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса ресторана' },
+      // макет ресторана из 14 экранов (12.10.2026): бар, финансы и настройки ресторана своими экранами
+      { href: '/drinks', label: 'Бар', icon: 'breakfast', requires: 'desk', description: 'Бар: напитки и заказы' },
+      { href: '/restaurant-finance', label: 'Финансы', icon: 'money', requires: 'reports', description: 'Выручка, расходы и поступления ресторана' },
+      { href: '/restaurant-settings', label: 'Настройки', icon: 'settings', requires: 'property', description: 'Часы работы, бронирования и разделы ресторана' },
 
       {
         href: '/calendar',
@@ -574,12 +578,18 @@ export const foodMenuSections: MenuSection[] = [
     items: [
       menuItem('/orders'),
       menuItem('/kitchen'),
+      menuItem('/drinks'),
       menuItem('/menu'),
       menuItem('/stock'),
-      menuItem('/cashbox'),
     ],
   },
   direct('customers', '/customers', 'guests', 'Клиенты'),
+  {
+    id: 'money',
+    label: 'Финансы',
+    icon: 'money',
+    items: [menuItem('/restaurant-finance'), menuItem('/cashbox')],
+  },
   {
     id: 'team',
     label: 'Команда',
@@ -588,6 +598,7 @@ export const foodMenuSections: MenuSection[] = [
     match: ['/team'],
   },
   direct('analytics', '/management/analytics', 'analytics'),
+  direct('settings', '/restaurant-settings', 'settings', 'Настройки'),
   direct('journal', '/journal', 'journal'),
   direct('help', '/help', 'help'),
   direct('profile', '/profile', 'guests'),

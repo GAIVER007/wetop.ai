@@ -44,8 +44,9 @@ test('обзор: плитки, рост, направления, статусы
 
   // денег нет и не выдумано: ни MRR, ни ₽, только честное объяснение со ссылкой на решение
   const billing = page.getByTestId('platform-no-billing');
-  await expect(billing).toContainText('ADR-102');
-  await expect(billing).toContainText('Q-PA-1');
+  // ссылки на внутренние документы (ADR, QUESTIONS.md) из интерфейса убраны мастер-проходом UI 11.10.2026
+  await expect(billing).toContainText('появятся вместе с биллингом');
+  await expect(billing).not.toContainText('QUESTIONS.md');
   // слово MRR есть в объяснении, а числа рядом с ним быть не должно
   expect(await page.locator('main').innerText()).not.toMatch(/MRR\D{0,3}\d/);
   await expect(page.locator('main')).not.toContainText('₽');

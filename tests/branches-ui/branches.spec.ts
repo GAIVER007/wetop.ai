@@ -58,7 +58,7 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await expect(page).toHaveURL(/\/branches$/);
     expect(await scopeCookie(page)).toBe('');
     await expect(
-      page.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+      page.getByRole('heading', { name: 'Сводка по гостиницам', exact: true }),
     ).toBeVisible();
     // Смешанная организация: в гостиничной сводке только отель, салон и рестораны не показываются нулями
     const summary = page.getByRole('table', { name: 'Статистика по филиалам' });

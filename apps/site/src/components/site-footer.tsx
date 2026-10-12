@@ -46,7 +46,9 @@ export function SiteFooter() {
                 </li>
               ) : null}
               <li>
-                <a href={loginLink().href}>{t.nav.login}</a>
+                <a href={loginLink().href} data-auth="login">
+                  {t.nav.login}
+                </a>
               </li>
             </ul>
           </nav>

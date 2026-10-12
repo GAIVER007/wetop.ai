@@ -70,8 +70,8 @@ export function ExtensionForm({
         </Field>
       </Grid>
       <p className="settings-note">
-        Пробному доступу нужен срок. У «оплачен» пустой срок — бессрочно, например у своей
-        гостиницы. «Выключен» — раздел пропадёт из меню, ничего не удаляется. Каждое изменение
+        Пробному доступу нужен срок. У «оплачен» пустой срок означает бессрочно, например у своей
+        организации. «Выключен»: раздел пропадёт из меню, ничего не удаляется. Каждое изменение
         пишется в журнал.
       </p>
       {state?.error && <Alert data-testid="platform-extension-error">{state.error}</Alert>}
@@ -274,7 +274,7 @@ export function CreateOrganizationForm() {
     >
       <Grid min={240}>
         <Field label="Название организации">
-          <Input name="name" required maxLength={200} placeholder="Например, Хостел «Пример»" />
+          <Input name="name" required maxLength={200} placeholder="Например, «Пример»" />
         </Field>
         <Field label="Почта владельца">
           <Input name="ownerEmail" type="email" required maxLength={320} placeholder="vladelec@example.com" />
@@ -283,6 +283,7 @@ export function CreateOrganizationForm() {
           <Select name="vertical" defaultValue="HOSPITALITY">
             <option value="HOSPITALITY">Гостиница, хостел или апартаменты</option>
             <option value="BEAUTY">Салон красоты или студия</option>
+            <option value="FOOD_SERVICE">Кафе или ресторан</option>
           </Select>
         </Field>
       </Grid>

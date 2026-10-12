@@ -108,7 +108,7 @@ async function create(page: Page, walkIn = false) {
   if (walkIn)
     await dialog
       .getByRole('combobox', { name: 'Стол', exact: true })
-      .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+      .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
   await dialog
     .getByRole('button', { name: walkIn ? 'Посадить' : 'Создать бронь', exact: true })
     .click();
@@ -124,7 +124,7 @@ test('empty restaurant catalog and complete persisted desk flow', async ({ page,
   await page.getByRole('button', { name: /19:00, Анна Тестовая/ }).click();
   await dialog
     .getByRole('combobox', { name: 'Назначить стол', exact: true })
-    .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+    .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
   await dialog.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await expect(dialog).toContainText('Основной зал, Стол 7');
   await dialog.getByRole('button', { name: 'Подтвердить', exact: true }).click();
@@ -161,7 +161,7 @@ test('real API screenshots, keyboard and axe', async ({ page, request }) => {
   const d = await create(page);
   await d
     .getByRole('combobox', { name: 'Назначить стол', exact: true })
-    .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+    .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await d.getByRole('button', { name: 'Подтвердить', exact: true }).click();
   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
@@ -473,7 +473,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await expect(d).toContainText('Обновлено');
   // Правка сохранилась и refresh доехал: доска позади панели показывает новое число гостей.
   // Без этого следующее действие гонится с обновлением и токен стареет (та же болезнь, что adabb06e3)
-  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 5 гостя');
+  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 5 гостей');
   await expect(
     d
       .getByRole('combobox', { name: 'Назначить стол', exact: true })

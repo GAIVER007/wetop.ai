@@ -8,6 +8,7 @@ import { instantOf, localInput } from '../beauty/time';
 import { mutateFoodReservation } from './actions';
 import { foodStatus } from '../../lib/status/food';
 import { weekdays } from '../../lib/food-data';
+import { pluralRu } from '../../lib/plural';
 export function ReservationForm({
   data,
   walkIn = false,
@@ -207,7 +208,8 @@ export function ReservationForm({
             <option value="">{walkIn ? 'Выберите стол' : 'Не назначать сейчас'}</option>
             {tables.map((t) => (
               <option key={t.id} value={t.id} disabled={t.capacity < party}>
-                {data.areas.find((a) => a.id === t.areaId)?.name}, {t.name}, {t.capacity} мест
+                {data.areas.find((a) => a.id === t.areaId)?.name}, {t.name},{' '}
+                {pluralRu(t.capacity, ['место', 'места', 'мест'])}
               </option>
             ))}
           </Select>

@@ -39,7 +39,7 @@ export async function BranchWorkspace({
             <summary>Реквизиты организации</summary>
             <p className="muted">ID: {organization.id}</p>
           </details>
-          <p>Один аккаунт, отдельный номерной фонд и настройки каждого филиала.</p>
+          <p>Один аккаунт, у каждого филиала свои данные и настройки.</p>
         </Panel>
         {canCreate && (
           <Panel>

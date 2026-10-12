@@ -24,7 +24,7 @@ export default async function MenuPage() {
       ),
     ]);
     return (
-      <Page title="Меню" subtitle="Блюда, цены и техкарты. Правка меню — право «объект»">
+      <Page title="Меню" subtitle="Блюда, цены и техкарты">
         <div key={shell.scopeKey}>
           <MenuBoard
             ctx={{

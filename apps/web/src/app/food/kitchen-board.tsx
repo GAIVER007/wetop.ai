@@ -91,32 +91,33 @@ export function KitchenBoard({
     <div className="food-workspace" data-testid="kitchen-board">
       {error && <Alert>{error}</Alert>}
       <div className="rest-kds">
-          {COLUMNS.map((col) => {
-            const list = orders.filter((o) => o.status === col.id);
-            return (
-              <section className="rest-kds-col" key={col.id} aria-label={col.title}>
-                <h2>
-                  {col.title} <Badge>{list.length}</Badge>
-                </h2>
-                {list.map((o) => card(o, { status: col.action, button: col.button }))}
-                {list.length === 0 && <p className="muted">Пусто</p>}
-              </section>
-            );
-          })}
-          <section className="rest-kds-col" aria-label="Задерживаются">
-            <h2>
-              Задерживаются <Badge tone={delayed.length ? 'danger' : 'neutral'}>{delayed.length}</Badge>
-            </h2>
-            {delayed.map((o) =>
-              card(
-                o,
-                o.status === 'NEW'
-                  ? { status: 'COOKING', button: 'Принять' }
-                  : { status: 'READY', button: 'Готово' },
-              ),
-            )}
-            {delayed.length === 0 && <p className="muted">Кухня успевает</p>}
-          </section>
+        {COLUMNS.map((col) => {
+          const list = orders.filter((o) => o.status === col.id && !delayed.includes(o));
+          return (
+            <section className="rest-kds-col" key={col.id} aria-label={col.title}>
+              <h2>
+                {col.title} <Badge>{list.length}</Badge>
+              </h2>
+              {list.map((o) => card(o, { status: col.action, button: col.button }))}
+              {list.length === 0 && <p className="muted">Пусто</p>}
+            </section>
+          );
+        })}
+        <section className="rest-kds-col" aria-label="Задерживаются">
+          <h2>
+            Задерживаются{' '}
+            <Badge tone={delayed.length ? 'danger' : 'neutral'}>{delayed.length}</Badge>
+          </h2>
+          {delayed.map((o) =>
+            card(
+              o,
+              o.status === 'NEW'
+                ? { status: 'COOKING', button: 'Принять' }
+                : { status: 'READY', button: 'Готово' },
+            ),
+          )}
+          {delayed.length === 0 && <p className="muted">Кухня успевает</p>}
+        </section>
       </div>
     </div>
   );

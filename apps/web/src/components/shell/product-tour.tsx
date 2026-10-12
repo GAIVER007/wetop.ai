@@ -18,12 +18,24 @@ import {
 } from './tour-steps';
 import './product-tour.css';
 
-/** Элемент шага на экране: есть в разметке и у него есть размер (свёрнутое меню телефона не в счёт). */
+/**
+ * Элемент шага на экране: есть в разметке, у него есть размер и он видим (свёрнутое меню телефона и закрытая
+ * панель разделов не в счёт). Раздел меню прячется в панели за кнопкой раздела: тогда шаг показывает кнопку.
+ */
 function findTarget(target: string): HTMLElement | null {
-  const nodes = document.querySelectorAll<HTMLElement>(`[data-tour="${target}"]`);
-  for (const node of nodes) {
+  const visible = (node: HTMLElement) => {
     const rect = node.getBoundingClientRect();
-    if (rect.width > 0 && rect.height > 0) return node;
+    return (
+      rect.width > 0 &&
+      rect.height > 0 &&
+      (node.checkVisibility?.({ visibilityProperty: true, opacityProperty: true }) ?? true)
+    );
+  };
+  const nodes = document.querySelectorAll<HTMLElement>(`[data-tour="${target}"]`);
+  for (const node of nodes) if (visible(node)) return node;
+  if (target.startsWith('section-')) {
+    const trigger = document.querySelector<HTMLElement>('[data-tour="sections"]');
+    if (trigger && visible(trigger)) return trigger;
   }
   return null;
 }

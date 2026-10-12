@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 12.10.2026 14:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 351e87c (claude/kitchen-consumption), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-18-26Z-integration-1032.json' 'tests/integration/kitchen-stock.test.ts' 'tests/integration/restaurant-cash-database.test.ts' 'tests/integration/mv6-food-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |integration| tests/integration/kitchen-stock.test.ts (5 tests | 1 failed) 285ms
+   ❯ Kitchen stock: RLS, ownership, append-only ledger (5)
+     ✓ три таблицы: свои строки видны, чужой и пустой арендатор не видят, сервис видит всех 200ms
+     ✓ лента только дописывается: у ролей нет UPDATE и DELETE, а владельцу мешает триггер 30ms
+     ✓ принадлежность: чужой продукт, чужая партия, не ресторан и смена родителя отклоняются 25ms
+     ✓ CHECK: остаток не больше прихода и не ниже нуля, единица только г, мл, шт, нулевое движение нельзя 9ms
+     × охраняемый откат: с данными отказывает, на пустых таблицах убирает их 10ms
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (4 tests) 235ms
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (2 tests) 93ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/kitchen-stock.test.ts > Kitchen stock: RLS, ownership, append-only ledger > охраняемый откат: с данными отказывает, на пустых таблицах убирает их
+error: update or delete on table "kitchen_products" violates foreign key constraint "menu_item_ingredients_product_id_fkey" on table "menu_item_ingredients"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/kitchen-stock.test.ts:176:7
+    174|       await db.query('DELETE FROM kitchen_stock_movements');
+    175|       await db.query('DELETE FROM kitchen_stock_lots');
+    176|       await db.query('DELETE FROM kitchen_products');
+       |       ^
+    177|       // откат идёт в обратном порядке: сначала §38 (093 ссылается на …
+    178|       const downConsumption = readFileSync(
+ ❯ rollback tests/integration/kitchen-stock.test.ts:26:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 10 passed (11)
+   Start at  02:18:27
+   Duration  1.98s (tests 51%, transform 27%, import 22%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-18-26Z-integration-1032.json
+
+# код выхода 1 · 3 с

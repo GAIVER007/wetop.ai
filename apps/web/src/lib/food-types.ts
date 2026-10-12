@@ -118,6 +118,8 @@ export interface MenuCategory {
 }
 export interface MenuIngredient {
   id: string;
+  /** §38: ингредиент склада, null — строка не списывается */
+  productId?: string | null;
   name: string;
   normQty: string;
   unit: string;
@@ -165,6 +167,7 @@ export interface IngredientInput {
   normQty: string;
   unit: 'г' | 'мл' | 'шт';
   unitCost: number;
+  productId?: string | null;
 }
 export interface OrderItemView {
   id: string;
@@ -372,7 +375,14 @@ export interface StockLotView {
   reversed: boolean;
   reversible: boolean;
 }
-export type StockMovementKind = 'RECEIPT' | 'WRITE_OFF' | 'INVENTORY' | 'REVERSAL';
+export type StockMovementKind =
+  | 'RECEIPT'
+  | 'WRITE_OFF'
+  | 'INVENTORY'
+  | 'REVERSAL'
+  | 'CONSUMPTION'
+  | 'SHORTAGE'
+  | 'CONSUMPTION_RETURN';
 export interface StockMovementView {
   id: string;
   productId: string;
@@ -408,4 +418,9 @@ export interface FoodPeriodReport {
   payments: Array<{ method: string; amountMinor: string; count: number }>;
   topDishes: Array<{ name: string; qty: number; revenueMinor: string }>;
   waiters: Array<{ name: string; orders: number; revenueMinor: string }>;
+  /** §38: себестоимость проданного по ленте склада, валовая прибыль, фудкост и недостачи */
+  costMinor: string;
+  grossProfitMinor: string;
+  foodCostPct: number | null;
+  shortages: Array<{ name: string; unit: string; qty: string }>;
 }

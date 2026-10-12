@@ -181,3 +181,89 @@ test('снимки и axe в двух темах на 1440 и 390', async ({ pag
       await expect(page.getByRole('dialog')).not.toBeVisible();
     }
 });
+
+test('списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает', async ({
+  page,
+  request,
+}) => {
+  const { headers } = await reset(page, request);
+  const beef = await seedBeef(request, headers);
+  const category = await post(request, headers, '/food-service/menu/categories', { name: 'Горячее' });
+  const steak = await post(request, headers, '/food-service/menu/items', {
+    categoryId: category.id,
+    name: 'Стейк Рибай',
+    price: 900000,
+  });
+  // строка техкарты связана со складом: 300 г на порцию; строка без связи склад не трогает
+  const put = await request.put(`${api}/food-service/menu/items/${steak.id}/ingredients`, {
+    headers,
+    data: {
+      ingredients: [
+        { name: 'Говядина Рибай', normQty: '300', unit: 'г', unitCost: 600000, productId: beef.id },
+        { name: 'Соль', normQty: '2', unit: 'г', unitCost: 10000 },
+      ],
+    },
+  });
+  expect(put.ok()).toBe(true);
+  // ингредиент склада другой единицы в техкарту не встаёт
+  const wrong = await request.put(`${api}/food-service/menu/items/${steak.id}/ingredients`, {
+    headers,
+    data: { ingredients: [{ name: 'Говядина', normQty: '1', unit: 'шт', unitCost: 1, productId: beef.id }] },
+  });
+  expect(wrong.status()).toBe(400);
+  const onHand = async () =>
+    (await (await request.get(`${api}/food-service/stock/products`, { headers })).json()).items.find(
+      (p: { id: string }) => p.id === beef.id,
+    ).onHand;
+  const toReady = async (qty: number) => {
+    let o = await post(request, headers, '/food-service/orders', {
+      guestCount: 2,
+      items: [{ menuItemId: steak.id, qty }],
+    });
+    for (const status of ['COOKING', 'READY'])
+      o = await post(request, headers, `/food-service/orders/${o.id}/status`, {
+        expectedStatus: o.status,
+        expectedUpdatedAt: o.updatedAt,
+        status,
+      });
+    return o;
+  };
+  // 2 порции = 600 г из ранней партии
+  await toReady(2);
+  expect(await onHand()).toBe('2400');
+  // 9 порций = 2 700 г, на складе 2 400: списано всё, 300 г недостачей, кухню не остановили
+  const big = await toReady(9);
+  expect(big.status).toBe('READY');
+  expect(await onHand()).toBe('0');
+  const moves = await (await request.get(`${api}/food-service/stock/movements`, { headers })).json();
+  const kinds = moves.items.map((m: { kind: string }) => m.kind);
+  expect(kinds).toContain('CONSUMPTION');
+  expect(moves.items.find((m: { kind: string }) => m.kind === 'SHORTAGE').qty).toBe('-300');
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const report = async () =>
+    (await request.get(`${api}/food-service/period-report?from=${day}&to=${day}`, { headers })).json();
+  // в отчёте за день: себестоимость по партиям FIFO (600 г по 6 000 + 1 400 г по 6 000 + 1 000 г по 7 000) и недостача
+  expect((await report()).shortages).toEqual([{ name: 'Говядина Рибай', unit: 'г', qty: '300' }]);
+  expect((await report()).costMinor).toBe('1900000');
+  // отмена после «Готово» возвращает 2 400 г на партии и гасит недостачу
+  await post(request, headers, `/food-service/orders/${big.id}/status`, {
+    expectedStatus: big.status,
+    expectedUpdatedAt: big.updatedAt,
+    status: 'CANCELLED',
+  });
+  expect(await onHand()).toBe('2400');
+  // после отмены в себестоимости только первый заказ: 600 г по 6 000 ₸/кг = 3 600 ₸, недостачи нет
+  expect((await report()).costMinor).toBe('360000');
+  expect((await report()).shortages).toEqual([]);
+  // экран: в техкарте видна связь со складом, в ленте склада расход и недостача по заказу
+  await page.goto('/menu');
+  await page.getByRole('button', { name: /Техкарта/ }).first().click();
+  await expect(page.getByLabel('Склад для строки 1')).toHaveValue(beef.id);
+  await expect(page.getByLabel('Склад для строки 2')).toHaveValue('');
+  await page.keyboard.press('Escape');
+  await page.goto('/stock');
+  await page.getByRole('tab', { name: /Движения|История/ }).click();
+  await expect(page.getByRole('tabpanel')).toContainText('Расход по заказу');
+  await expect(page.getByRole('tabpanel')).toContainText('Недостача по заказу');
+  await expect(page.getByRole('tabpanel')).toContainText('Возврат по отмене');
+});

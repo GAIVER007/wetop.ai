@@ -25,7 +25,15 @@ interface Ctx {
 }
 
 const UNITS = ['г', 'мл', 'шт'] as const;
-type Row = { name: string; normQty: string; unit: (typeof UNITS)[number]; unitCost: string };
+type Row = {
+  name: string;
+  normQty: string;
+  unit: (typeof UNITS)[number];
+  unitCost: string;
+  /** §38: ингредиент склада той же единицы; «Готово» по заказу списывает его */
+  productId: string | null;
+};
+type StockOption = { id: string; name: string; unit: string };
 
 /** Предварительный счёт в тенге для живой строки; точный целочисленный счёт делает API (§33.1) */
 function rowCost(row: Row): number {
@@ -161,10 +169,12 @@ function DishDrawer({
 function TechCardDrawer({
   ctx,
   item,
+  stock,
   close,
 }: {
   ctx: Ctx;
   item: MenuItemView;
+  stock: StockOption[];
   close: () => void;
 }) {
   const router = useRouter();
@@ -176,6 +186,7 @@ function TechCardDrawer({
       normQty: i.normQty,
       unit: (UNITS as readonly string[]).includes(i.unit) ? (i.unit as Row['unit']) : 'г',
       unitCost: String(BigInt(i.unitCostMinor) / 100n),
+      productId: i.productId ?? null,
     })),
   );
   const [tech, setTech] = useState(item.techNotes ?? '');
@@ -196,7 +207,13 @@ function TechCardDrawer({
         setError('У каждой строки нужны название, норма и цена');
         return;
       }
-      ingredients.push({ name: r.name.trim(), normQty: qty, unit: r.unit, unitCost: cost });
+      ingredients.push({
+        name: r.name.trim(),
+        normQty: qty,
+        unit: r.unit,
+        unitCost: cost,
+        productId: r.productId,
+      });
     }
     start(async () => {
       const replaced = await mutateMenu(ctx.scopeKey, {
@@ -258,7 +275,7 @@ function TechCardDrawer({
             <Select
               aria-label="Единица"
               value={r.unit}
-              onChange={(e) => set(index, { unit: e.target.value as Row['unit'] })}
+              onChange={(e) => set(index, { unit: e.target.value as Row['unit'], productId: null })}
             >
               {UNITS.map((u) => (
                 <option key={u} value={u}>
@@ -281,11 +298,33 @@ function TechCardDrawer({
             >
               ×
             </Button>
+            {stock.length > 0 && (
+              <Select
+                className="rest-tech-link"
+                aria-label={`Склад для строки ${index + 1}`}
+                value={r.productId ?? ''}
+                onChange={(e) => {
+                  const p = stock.find((x) => x.id === e.target.value);
+                  set(index, { productId: p?.id ?? null, ...(p && !r.name.trim() ? { name: p.name } : {}) });
+                }}
+              >
+                <option value="">Не списывать со склада</option>
+                {stock
+                  .filter((p) => p.unit === r.unit)
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      Списывать со склада: {p.name}
+                    </option>
+                  ))}
+              </Select>
+            )}
           </div>
         ))}
         <Button
           tone="secondary"
-          onClick={() => setRows([...rows, { name: '', normQty: '', unit: 'г', unitCost: '' }])}
+          onClick={() =>
+            setRows([...rows, { name: '', normQty: '', unit: 'г', unitCost: '', productId: null }])
+          }
         >
           + Ингредиент
         </Button>
@@ -333,10 +372,13 @@ export function MenuBoard({
   ctx,
   categories,
   items,
+  stock = [],
 }: {
   ctx: Ctx;
   categories: MenuCategory[];
   items: MenuItemView[];
+  /** Ингредиенты склада для связи строк техкарты (§38); пусто, если склада нет */
+  stock?: StockOption[];
 }) {
   const router = useRouter();
   const [error, setError] = useState('');
@@ -502,7 +544,8 @@ export function MenuBoard({
           close={() => setDish(null)}
         />
       )}
-      {tech && <TechCardDrawer ctx={ctx} item={tech} close={() => setTech(null)} />}
+      {tech && <TechCardDrawer
+          stock={stock} ctx={ctx} item={tech} close={() => setTech(null)} />}
     </div>
   );
 }

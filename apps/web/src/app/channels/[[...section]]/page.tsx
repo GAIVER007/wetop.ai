@@ -39,6 +39,7 @@ import { categoryMappings, planMappings } from '../mapping';
 import { Icon } from '../../../components/icon';
 import '../../directory.css';
 import '../channels.css';
+import { CHANNEL_TABS, ChannelTabs } from '../tabs';
 
 /**
  * Модуль «Каналы продаж» (ADR-112, поручение владельца 27.09.2026): один вход вместо пунктов
@@ -46,19 +47,9 @@ import '../channels.css';
  * сколько броней принесли каналы?»), технический слой — очередь, payload, попытки, внутренние ID —
  * раскрывается «Техническими деталями» и живёт на вкладках «Синхронизация» и «События»; опасные
  * ручные команды — в «Настройке подключения» на вкладке «Подключения», только владельцу.
- * Вкладки — как у «Настроек гостиницы» (`.settings-tabs`); команды, их `data-testid` и порядок
+ * Вкладки: общий `Tabs` (`channels/tabs.tsx`); команды, их `data-testid` и порядок
  * не менялись — на них стоит запись показа для сертификации Channex.
  */
-const tabs = [
-  { view: '', href: '/channels', label: 'Обзор' },
-  // Раздел «Каналы» (ADR-140): подключённые и все доступные каналы Channex — как в прежней системе
-  { view: 'list', href: '/channels/list', label: 'Каналы' },
-  { view: 'connections', href: '/connections/channex', label: 'Настройка подключения' },
-  { view: 'mapping', href: '/channels/mapping', label: 'Сопоставление' },
-  { view: 'sync', href: '/channels/sync', label: 'Синхронизация' },
-  { view: 'events', href: '/channels/events', label: 'События' },
-] as const;
-
 const subtitles: Record<string, string> = {
   '': 'Состояние обмена с каналами и брони по источникам.',
   list: 'Подключённые каналы, брони за 30 дней и все каналы, которые можно подключить.',
@@ -105,7 +96,7 @@ export default async function ChannelSalesPage({
     for (const key of ['status', 'type', 'q', 'page'] as const) if (sp[key]) u.set(key, sp[key]);
     redirect(`/channels/events?${u.toString()}`);
   }
-  const tab = tabs.find((item) => item.view === view);
+  const tab = CHANNEL_TABS.find((item) => item.view === view);
   if (!tab) notFound();
   return (
     <Page
@@ -114,18 +105,7 @@ export default async function ChannelSalesPage({
       crumbs={view ? <BackCrumb href="/channels">Каналы продаж</BackCrumb> : undefined}
       actions={view === 'connections' ? <RefreshButton label="Проверить соединение" /> : undefined}
     >
-      <nav className="settings-tabs channels-tabs" aria-label="Каналы продаж">
-        {tabs.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={false}
-            aria-current={item.view === view ? 'page' : undefined}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <ChannelTabs current={view} />
       {view === '' && <Overview sp={sp} />}
       {view === 'list' && <ChannelList sp={sp} />}
       {view === 'connections' && <ChannelConnectionSetup />}

@@ -6,23 +6,6 @@
     gap: var(--space-1);
     font-variant-numeric: tabular-nums;
   }
-  .page:has(.channels-tabs) {
-    padding-top: 16px;
-  }
-  .page:has(.channels-tabs) > .page__head {
-    margin-bottom: 16px;
-  }
-  .page:has(.channels-tabs) .page__title {
-    font-size: 28px;
-  }
-  .channels-tabs {
-    gap: 4px;
-    margin-bottom: 16px;
-  }
-  .channels-tabs a {
-    padding: 8px 16px;
-    font-size: 14px;
-  }
   .channels-overview {
     gap: 16px;
   }
@@ -141,12 +124,6 @@
     .channels-period .field {
       flex: 1 1 140px;
     }
-    .channels-tabs {
-      flex-wrap: wrap;
-    }
-    .channels-tabs a {
-      padding: 8px 8px;
-    }
   } /* Не на телефоне: там нижний отступ держит место под нижнюю навигацию (workspace.css) */
   @media (min-width: 601px) {
     .page:has(.channels-overview) {
@@ -243,10 +220,6 @@
   }
   .channels-period .field {
     gap: 4px;
-  }
-  .channels-tabs {
-    margin-bottom: 8px;
-    padding: 4px;
   }
   @media (min-width: 1000px) {
     .page:has(.channels-overview) {

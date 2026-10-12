@@ -5,6 +5,7 @@ import { flushSync } from 'react-dom';
 import {
   CLOSED_ACCESS,
   activeMenuRoute,
+  currentPlace,
   menuSectionsFor,
   type MenuSection,
 } from '../../lib/navigation';
@@ -52,10 +53,13 @@ const CLOSE_DELAY = 150;
 
 function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
   const active = activeMenuRoute(path);
-  const current = sections.find((section) => section.items.some((item) => item.href === active));
+  const place = currentPlace(sections, path);
+  const current = place.section;
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
-  const label = current?.label ?? 'Разделы';
+  const label = place.label;
+  // Касание (планшет): первое касание раздела с подразделами только раскрывает их, без перехода (ТЗ §3)
+  const pointer = useRef<string>('mouse');
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<string | undefined>(undefined);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -95,6 +99,7 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
 
   // Клавиатура (ТЗ §9): ↑↓ по столбцу, → в подразделы, ← обратно к разделу, Escape закрывает
   const onPanelKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    pointer.current = 'mouse';
     const target = event.target as HTMLElement;
     const column = target.closest<HTMLElement>('[data-column]');
     if (!column) return;
@@ -146,6 +151,7 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
           ref={trigger}
           type="button"
           className="sidenav__current"
+          data-tour="sections"
           aria-expanded={open}
           aria-controls={panelId}
           aria-label={`${label}: все разделы`}
@@ -154,19 +160,18 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
           onClick={() => (open ? hide() : show())}
           onKeyDown={(event) => {
             if (event.key === 'Escape') return hide();
-            if (event.key !== 'ArrowDown') return;
+            // ↓, Enter и пробел открывают панель с фокусом на текущем разделе, ↑ на последнем
+            if (!['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) return;
             event.preventDefault();
             flushSync(show);
+            const index = sections.findIndex((s) => s.id === current?.id);
             focusIn(
               'sections',
-              Math.max(
-                0,
-                sections.findIndex((s) => s.id === current?.id),
-              ),
+              event.key === 'ArrowUp' ? sections.length - 1 : Math.max(0, index),
             );
           }}
         >
-          <Icon name={current?.icon ?? 'menu'} />
+          <Icon name={place.icon} />
           <span>{label}</span>
           <Icon className="sidenav__chevron" name="down" width={16} />
         </button>
@@ -174,7 +179,6 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
           id={panelId}
           className="sidenav__panel"
           data-open={open || undefined}
-          data-single={shown?.items.length === 1 || undefined}
           onKeyDown={onPanelKey}
         >
           <div className="sidenav__sections" data-column="sections">
@@ -190,9 +194,21 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
                   section.id === current?.id && 'has-current-page',
                 )}
                 aria-current={section.id === current?.id ? 'true' : undefined}
-                onPointerEnter={() => setHovered(section.id)}
+                onPointerDown={(event) => (pointer.current = event.pointerType)}
+                onPointerEnter={(event) => event.pointerType === 'mouse' && setHovered(section.id)}
                 onFocus={() => setHovered(section.id)}
-                onClick={() => setOpen(false)}
+                onClick={(event) => {
+                  if (
+                    (pointer.current === 'touch' || pointer.current === 'pen') &&
+                    section.items.length > 1 &&
+                    section.id !== shown?.id
+                  ) {
+                    event.preventDefault();
+                    setHovered(section.id);
+                    return;
+                  }
+                  setOpen(false);
+                }}
               >
                 <Icon name={section.icon} />
                 <span>{section.label}</span>
@@ -202,10 +218,23 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
               </Link>
             ))}
           </div>
-          {/* подразделы всех разделов в разметке, виден один: каждый адрес меню ровно один раз (`hidden`) */}
-          <div className="sidenav__items" data-column="items">
+          {/* подразделы всех разделов в разметке, виден один: каждый адрес меню ровно один раз (`hidden`).
+              У раздела из одного пункта справа его описание без второй ссылки: ширина панели не прыгает */}
+          <div className="sidenav__items" data-column="items" role="group" aria-label="Подразделы">
+            {shown && shown.items.length === 1 && (
+              <div>
+                <p className="sidenav__title">
+                  <Icon name={shown.icon} />
+                  <span>{shown.label}</span>
+                </p>
+                <p className="sidenav__hint">{shown.items[0]!.description}</p>
+              </div>
+            )}
             {sections.map((section) => (
-              <div key={section.id} hidden={section.id !== shown?.id || section.items.length === 1}>
+              <div
+                key={section.id}
+                hidden={section.id !== shown?.id || section.items.length === 1}
+              >
                 <p className="sidenav__title">
                   <Icon name={section.icon} />
                   <span>{section.label}</span>

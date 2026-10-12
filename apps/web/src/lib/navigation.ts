@@ -61,9 +61,9 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
     label: 'Рабочее место',
     items: [
-      { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'План зала' },
-      { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Бронирования' },
-      { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы и столы' },
+      { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'Столы зала сейчас: свободны, забронированы, заняты, ждут уборки.' },
+      { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Брони столов на день: время, гости, стол и статус.' },
+      { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы, столы и их вместимость.' },
       // Ресторан по ТЗ владельца 09.10.2026 (ADR-159)
       { href: '/orders', label: 'Заказы', icon: 'receipt', requires: 'desk', description: 'Заказы ресторана' },
       { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Экран кухни (KDS)' },
@@ -76,50 +76,50 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Календарь',
         icon: 'board',
         requires: 'desk',
-        description: 'Календарь',
+        description: 'Записи дня по мастерам на оси времени и свободные окна.',
       },
       {
         href: '/appointments',
         label: 'Записи',
         icon: 'booking',
         requires: 'desk',
-        description: 'Записи',
+        description: 'Все записи дня списком: клиент, услуга, мастер и статус.',
       },
       {
         href: '/customers',
         label: 'Клиенты',
         icon: 'guests',
         requires: 'desk',
-        description: 'Клиенты',
+        description: 'Клиенты бизнеса: контакты и история визитов.',
       },
       {
         href: '/employees',
         label: 'Мастера',
         icon: 'guests',
         requires: 'desk',
-        description: 'Мастера',
+        description: 'Мастера филиала: что умеют и где работают.',
       },
       {
         href: '/services',
         label: 'Услуги',
         icon: 'rates',
         requires: 'desk',
-        description: 'Услуги',
+        description: 'Каталог услуг: длительность и цена.',
       },
       {
         href: '/staff',
         label: 'Сотрудники и доступ',
         icon: 'guests',
         requires: 'staff',
-        description: 'Сотрудники и доступ',
+        description: 'Люди организации: роли, приглашения и доступ.',
       },
-      { href: '/help', label: 'Помощь', icon: 'help', requires: 'desk', description: 'Помощь' },
+      { href: '/help', label: 'Помощь', icon: 'help', requires: 'desk', description: 'Ответы на частые вопросы и связь с поддержкой.' },
       {
         href: '/profile',
         label: 'Профиль',
         icon: 'guests',
         requires: 'desk',
-        description: 'Профиль',
+        description: 'Ваши данные, вход и оформление.',
       },
       {
         href: '/beauty',
@@ -419,7 +419,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         href: '/platform',
         label: 'Организации',
         icon: 'inventory',
-        description: 'Гостиницы платформы и их расширения — только для главного администратора.',
+        description: 'Организации платформы и их расширения: только для главного администратора.',
         requires: 'platform',
       },
     ],
@@ -436,6 +436,11 @@ export interface MenuSection {
   items: NavigationItem[];
   /** Раздел из одного пункта: вкладка в шапке и прямая ссылка в меню телефона без раскрывашки (ADR-108) */
   direct?: boolean;
+  /**
+   * Адреса вне пунктов меню, которые принадлежат разделу: карточка места в «Номерном фонде», задачи смены
+   * в «Календаре», мастера салона в «Мастерах». По ним кнопка раздела в шапке называет раздел, а не «Разделы»
+   */
+  match?: string[];
 }
 
 // Метаданные и дочерние ссылки нужны страницам-обзорам. Меню группирует тот же
@@ -446,9 +451,15 @@ function menuItem(href: string, label?: string): NavigationItem {
   return label ? { ...item, label } : item;
 }
 
-function direct(id: string, href: string, icon: IconName, label?: string): MenuSection {
+function direct(
+  id: string,
+  href: string,
+  icon: IconName,
+  label?: string,
+  match?: string[],
+): MenuSection {
   const item = menuItem(href, label);
-  return { id, label: item.label, icon, direct: true, items: [item] };
+  return { id, label: item.label, icon, direct: true, items: [item], ...(match ? { match } : {}) };
 }
 
 /**
@@ -469,10 +480,11 @@ export const menuSections: MenuSection[] = [
     icon: 'money',
     items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar')],
   },
-  direct('chessboard', '/chessboard', 'board'),
+  // задачи смены открываются из панели «Сегодня» календаря (ADR-145): раздел тот же
+  direct('chessboard', '/chessboard', 'board', undefined, ['/tasks']),
   // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список
   // броней со всеми отборами и экспортом открывается кнопкой на нём, адреса и права страниц прежние
-  direct('guests', '/guests', 'guests'),
+  direct('guests', '/guests', 'guests', undefined, ['/reservations']),
   {
     id: 'sales',
     label: 'Продажи',
@@ -484,6 +496,7 @@ export const menuSections: MenuSection[] = [
       menuItem('/channels'),
       menuItem('/ai-agents', 'ИИ-продавцы'),
     ],
+    match: ['/ai-seller', '/channel-manager'],
   },
   {
     // MKT2: «Сайт и SEO» ведёт в хаб; страницы сайта (`/website/*`) подсвечивают его же (`activeMenuRoute`)
@@ -491,6 +504,7 @@ export const menuSections: MenuSection[] = [
     label: 'Маркетинг',
     icon: 'send',
     items: [menuItem('/marketing', 'Сайт и SEO')],
+    match: ['/website'],
   },
   {
     // хаб REP1 плюс «Аналитика» одной группой; «Оплаты» — вкладка «Финансов» (ADR-134)
@@ -498,8 +512,9 @@ export const menuSections: MenuSection[] = [
     label: 'Отчёты',
     icon: 'analytics',
     items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics')],
+    match: ['/management'],
   },
-  direct('inventory', '/inventory', 'bed'),
+  direct('inventory', '/inventory', 'bed', undefined, ['/units', '/rooms', '/rates']),
   {
     id: 'settings',
     label: 'Настройки',
@@ -516,18 +531,22 @@ export const menuSections: MenuSection[] = [
       // на «ИИ-продавце»: своего пункта меню у неё нет, маршрут /platform/support остаётся в реестре ради прав
       menuItem('/platform'),
     ],
+    match: ['/branches', '/hotel-settings', '/connections', '/team', '/staff'],
   },
 ];
 
 /** Verified Business.vertical selects the working Beauty routes (MV5). */
 export const beautyMenuSections: MenuSection[] = [
   direct('today', '/today', 'today', 'Сегодня'),
-  direct('calendar', '/calendar', 'board'),
+  // `/beauty` прежний адрес календаря салона: тот же экран
+  direct('calendar', '/calendar', 'board', undefined, ['/beauty']),
   direct('appointments', '/appointments', 'booking'),
   direct('customers', '/customers', 'guests'),
-  direct('employees', '/employees', 'guests'),
-  direct('services', '/services', 'rates'),
-  direct('team', '/staff', 'guests'),
+  direct('employees', '/employees', 'guests', undefined, ['/beauty/masters']),
+  // «График» салона отдельной вкладкой (решение владельца №1 по плану DS2, 09.10.2026)
+  direct('schedule', '/beauty/schedule', 'clock'),
+  direct('services', '/services', 'rates', undefined, ['/beauty/services']),
+  direct('team', '/staff', 'guests', undefined, ['/team']),
   direct('analytics', '/management/analytics', 'analytics'),
   direct('journal', '/journal', 'journal'),
   direct('help', '/help', 'help'),
@@ -558,6 +577,7 @@ export const foodMenuSections: MenuSection[] = [
     label: 'Команда',
     icon: 'guests',
     items: [menuItem('/employees', 'Сотрудники'), menuItem('/payroll'), menuItem('/staff')],
+    match: ['/team'],
   },
   direct('analytics', '/management/analytics', 'analytics'),
   direct('journal', '/journal', 'journal'),
@@ -700,6 +720,43 @@ export function activeMenuRoute(path: string): string | undefined {
   // сайт объекта, продукт «Маркетинга»: в меню один пункт «Сайт и SEO» (MKT2)
   if (route === '/website') return '/marketing';
   return route;
+}
+
+/**
+ * Раздел меню, в котором находится адрес: сначала по пункту (`activeMenuRoute`), иначе по самому длинному
+ * совпадению `match`. Один ответ для кнопки раздела в шапке, меню телефона и нижней панели (ТЗ мастер-прохода §3)
+ */
+export function activeSectionOf(sections: MenuSection[], path: string): MenuSection | undefined {
+  const route = activeMenuRoute(path);
+  const byItem = route && sections.find((s) => s.items.some((i) => i.href === route));
+  if (byItem) return byItem;
+  const within = (href: string) => path === href || path.startsWith(`${href}/`);
+  let best: { section: MenuSection; length: number } | undefined;
+  for (const section of sections)
+    for (const href of section.match ?? [])
+      if (within(href) && href.length > (best?.length ?? -1)) best = { section, length: href.length };
+  return best?.section;
+}
+
+/** Страницы вне разделов меню (профиль, помощь, филиалы): кнопка в шапке называет страницу */
+const PAGE_LABELS: Array<{ href: string; label: string; icon: IconName }> = [
+  { href: '/profile', label: 'Профиль', icon: 'person' },
+  { href: '/help', label: 'Помощь', icon: 'help' },
+  { href: '/branches', label: 'Филиалы', icon: 'hotel' },
+  { href: '/onboarding', label: 'Настройка объекта', icon: 'settings' },
+  { href: '/platform/support', label: 'Техподдержка', icon: 'chat' },
+  { href: '/journal', label: 'Журнал операций', icon: 'journal' },
+];
+
+/** Что написать на кнопке раздела: раздел меню, иначе название страницы, иначе «Разделы» */
+export function currentPlace(
+  sections: MenuSection[],
+  path: string,
+): { label: string; icon: IconName; section?: MenuSection } {
+  const section = activeSectionOf(sections, path);
+  if (section) return { label: section.label, icon: section.icon, section };
+  const page = PAGE_LABELS.find((p) => path === p.href || path.startsWith(`${p.href}/`));
+  return page ? { label: page.label, icon: page.icon } : { label: 'Разделы', icon: 'menu' };
 }
 
 /** Страницы агентов лежат под своими адресами, но в меню это один пункт «ИИ-агенты» */

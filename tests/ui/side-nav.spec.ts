@@ -86,9 +86,10 @@ test('ТЗ §4: текущий раздел виден, наведение от�
   await openSection(page, 'Настройки');
   await page.mouse.move(1200, 800);
   await expect(panel).toBeHidden();
-  // раздел из одного пункта: щелчок по самому разделу ведёт на страницу
+  // раздел из одного пункта: справа его описание без второй ссылки (ширина панели не прыгает,
+  // мастер-проход UI 11.10.2026), щелчок по самому разделу ведёт на страницу
   await openSection(page, 'Календарь');
-  await expect(nav.locator('.sidenav__items')).toBeHidden();
+  await expect(nav.locator('.sidenav__items')).toContainText('Размещение по номерам');
   await expect(nav.getByRole('link', { name: 'Календарь', exact: true })).toHaveCount(1);
   await nav.locator('.sidenav__section', { hasText: /^Календарь$/ }).click();
   await expect(page).toHaveURL(/\/chessboard$/);
@@ -158,6 +159,24 @@ test('вложенные адреса показывают свой раздел
   await page.goto('/connections');
   await expect(trigger).toHaveText('Настройки');
   await expect(current).toHaveText('Подключения');
+  // адреса вне пунктов меню называют свой раздел, а не «Разделы» (мастер-проход UI 11.10.2026)
+  await page.goto('/units/R01');
+  await expect(trigger).toHaveText('Номерной фонд');
+  await page.goto('/tasks');
+  await expect(trigger).toHaveText('Календарь');
+  await page.goto('/profile');
+  await expect(trigger).toHaveText('Профиль');
+});
+
+test('касание раздела на планшете раскрывает подразделы, а не уводит со страницы', async ({ page }) => {
+  await page.goto('/finance');
+  const nav = sideNav(page);
+  await nav.locator('.sidenav__current').click();
+  const sales = nav.locator('.sidenav__section', { hasText: /^Продажи$/ });
+  await sales.dispatchEvent('pointerdown', { pointerType: 'touch' });
+  await sales.click();
+  await expect(page).toHaveURL(/\/finance$/);
+  await expect(nav.locator('.sidenav__items > :not([hidden]) .sidenav__title')).toHaveText('Продажи');
 });
 
 for (const theme of ['light', 'dark'] as const) {

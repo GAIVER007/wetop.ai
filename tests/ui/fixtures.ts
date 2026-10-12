@@ -233,13 +233,18 @@ export async function openSection(page: Page, section: string) {
   const nav = sideNav(page);
   // шапка клиентская: до гидрации наведение без обработчика, поэтому повтор. Мышь сперва уводим: после перехода
   // панель закрывается по смене адреса, а курсор, уже стоящий на кнопке, нового pointerenter не даёт
+  // Увод мыши запускает закрытие панели через 150 мс (CLOSE_DELAY): открытой она может быть ещё мгновение.
+  // Поэтому ждём закрытия и открываем заново, а наведение на раздел проверяем внутри того же повтора
+  const panel = nav.locator('.sidenav__panel');
   await expect(async () => {
     await page.mouse.move(page.viewportSize()!.width - 1, page.viewportSize()!.height - 1);
+    await page.waitForTimeout(250);
     if ((await nav.locator('.sidenav__current').getAttribute('aria-expanded')) !== 'true')
       await nav.locator('.sidenav__current').click();
-    await expect(nav.locator('.sidenav__panel')).toBeVisible({ timeout: 1_000 });
+    await expect(panel).toBeVisible({ timeout: 1_000 });
+    await nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) }).hover();
+    await expect(panel).toBeVisible({ timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
-  await nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) }).hover();
   return nav.locator('.sidenav__items > :not([hidden])');
 }
 

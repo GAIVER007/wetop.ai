@@ -45,9 +45,19 @@ const KIND_TONE: Record<TableKind, 'neutral' | 'danger' | 'info' | 'warn'> = {
   RESERVED: 'info',
   CLEANING: 'warn',
 };
-export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: boolean }) {
+export function WorkspaceBoard({
+  data,
+  floor,
+  startNew = false,
+}: {
+  data: FoodWorkspace;
+  floor: boolean;
+  startNew?: boolean;
+}) {
   const router = useRouter();
-  const [draft, setDraft] = useState<ReservationDraft | null>(null);
+  const [draft, setDraft] = useState<ReservationDraft | null>(
+    startNew && data.canDesk && !data.readOnly ? { kind: 'create', walkIn: false } : null,
+  );
   const [period, setPeriod] = useState('');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');

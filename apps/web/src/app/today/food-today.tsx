@@ -4,6 +4,7 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { BADGE_TONE, Badge, EmptyState, Panel, Stat, Stats } from '../../components/ui';
 import { LineChart } from '../../components/line-chart';
+import { Icon } from '../../components/icon';
 import { loadErrorProps } from '../../lib/load-error';
 import { displayDate } from '../../lib/display-date';
 import { wholeTenge, type Delta } from '../../lib/dashboard-format';
@@ -98,70 +99,145 @@ export async function FoodToday() {
     (_, h) => `${String(h).padStart(2, '0')}:00`,
   );
   const clock = (iso: string) => localInput(iso, branch.timezone).slice(11, 16);
+  const clockNow = clock(new Date().toISOString());
+  const hour = Number(clockNow.slice(0, 2));
+  const greeting =
+    hour < 5 ? 'Доброй ночи!' : hour < 12 ? 'Доброе утро!' : hour < 18 ? 'Добрый день!' : 'Добрый вечер!';
+  const expectedGuests = coming.reduce((acc, r) => acc + r.partySize, 0);
+  const seatedGuests = coming
+    .filter((r) => r.status === 'SEATED')
+    .reduce((acc, r) => acc + r.partySize, 0);
+  const freeTables = t.tablesTotal - t.tablesOccupied;
   return (
     <Page
-      title="Главная"
-      subtitle={`${branch.name}, ${displayDate(date, 'full')}`}
+      title={greeting}
+      subtitle={`Сегодня, ${displayDate(date, 'full')} · ${branch.name}`}
       actions={
-        <Link className="btn" href="/floor-plan">
-          Открыть план зала
-        </Link>
+        <span className="rest-now" data-testid="today-now">
+          <Icon name="clock" />
+          Сейчас в зале <strong>{clockNow}</strong>
+        </span>
       }
     >
       <div className="rest-dash" data-testid="food-today">
-        <Stats min={190}>
+        <Stats min={170} className="rest-kpis">
           <Stat
-            label="Занято столов"
-            value={`${t.tablesOccupied} / ${t.tablesTotal}`}
-            hint={occupancyPct === null ? 'столы не настроены' : `${occupancyPct} %`}
+            label="Бронирования"
+            value={m.planned}
+            hint={`впереди сегодня, всего ${reservations.reservations.length}`}
+            testId="today-planned"
+          />
+          <Stat
+            label="Ожидаемые гости"
+            value={expectedGuests}
+            hint="по броням дня"
+            testId="today-expected-guests"
+          />
+          <Stat
+            label="Гости в зале"
+            value={seatedGuests}
+            hint="посажены по броням"
+            testId="today-seated-guests"
+          />
+          <Stat
+            label="Свободные столы"
+            value={freeTables}
+            hint={
+              occupancyPct === null
+                ? 'столы не настроены'
+                : `из ${t.tablesTotal}, занято ${t.tablesOccupied} / ${t.tablesTotal}`
+            }
             testId="today-tables"
           />
           <Stat
-            label="Заказов сегодня"
-            value={t.ordersCount}
-            delta={deltaOf(t.ordersDeltaPct)}
-            testId="today-orders"
-          />
-          <Stat
-            label="Выручка"
+            label="Выручка сегодня"
             value={wholeTenge(t.revenueMinor, report.currency)}
             delta={deltaOf(t.revenueDeltaPct)}
             hint="оплаченные заказы"
             testId="today-revenue"
           />
-          <Stat
-            label="В очереди на кухне"
-            value={t.kitchenQueue}
-            hint={
-              t.kitchenAvgWaitMinutes === null ? 'очередь пуста' : `среднее ${t.kitchenAvgWaitMinutes} мин`
-            }
-            tone={t.kitchenQueue > 0 ? 'info' : 'neutral'}
-            testId="today-kitchen"
-          />
-          <Stat
-            label="Сотрудников на смене"
-            value={t.staffOnShift}
-            hint={`из ${t.staffTotal} по графику`}
-            testId="today-staff"
-          />
         </Stats>
-        {attention.length > 0 && (
-          <Panel title="Требуют внимания" aria-label="Требуют внимания">
-            <ul className="vertical-today__attention">
-              {attention.map((a) => (
-                <li key={a.testId} data-testid={a.testId}>
-                  <span>{a.text}</span>
-                  <Link className="btn btn--ghost btn--sm" href={a.href}>
-                    {a.action}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+        <div className="rest-dash-main">
+          <Panel>
+            <div className="food-section-heading">
+              <h2>Ближайшие бронирования</h2>
+              <Link href={reservationsHref}>Все брони</Link>
+            </div>
+            {m.upcoming.length === 0 ? (
+              <p className="muted">Броней впереди на сегодня нет.</p>
+            ) : (
+              <table className="rest-upcoming" data-testid="today-upcoming">
+                <caption className="sr-only">Ближайшие брони сегодня</caption>
+                <thead className="sr-only">
+                  <tr>
+                    <th scope="col">Время</th>
+                    <th scope="col">Гость</th>
+                    <th scope="col">Гостей</th>
+                    <th scope="col">Стол</th>
+                    <th scope="col">Статус</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {m.upcoming.map((u) => (
+                    <tr key={u.id}>
+                      <td>
+                        <time dateTime={u.startsAt}>{clock(u.startsAt)}</time>
+                      </td>
+                      <th scope="row">{u.guest}</th>
+                      <td className="muted">{pluralRu(u.partySize, ['гость', 'гостя', 'гостей'])}</td>
+                      <td className="muted">{u.table ? `Стол ${u.table}` : 'Без стола'}</td>
+                      <td>
+                        <Badge tone={BADGE_TONE[statusTone(foodStatus, u.status)]}>
+                          {foodStatus[u.status].label}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </Panel>
-        )}
+          <div className="rest-dash-side">
+            <Panel>
+              <h2>Быстрые действия</h2>
+              <div className="rest-quick">
+                <Link className="btn" href="/table-reservations?new=1">
+                  <Icon name="plus" />
+                  Новая бронь
+                </Link>
+                <Link className="btn btn--secondary" href="/floor-plan" aria-label="Открыть план зала">
+                  <Icon name="today" />
+                  План зала
+                </Link>
+                <Link className="btn btn--secondary" href="/customers">
+                  <Icon name="search" />
+                  Найти гостя
+                </Link>
+                <Link className="btn btn--secondary" href={reservationsHref}>
+                  <Icon name="board" />
+                  Расписание броней
+                </Link>
+              </div>
+            </Panel>
+            {attention.length > 0 && (
+              <Panel title="Требуют внимания" aria-label="Требуют внимания">
+                <ul className="vertical-today__attention">
+                  {attention.map((a) => (
+                    <li key={a.testId} data-testid={a.testId}>
+                      <span>{a.text}</span>
+                      <Link className="btn btn--ghost btn--sm" href={a.href}>
+                        {a.action}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+            )}
+          </div>
+        </div>
         <div className="rest-dash-grid">
           <Panel>
-            <h2>Выручка сегодня</h2>
+            <h2>Выручка по часам</h2>
             {hourly.some((v) => v > 0) ? (
               <LineChart
                 series={[
@@ -181,7 +257,9 @@ export async function FoodToday() {
           </Panel>
           <Panel>
             <div className="food-section-heading">
-              <h2>Последние заказы</h2>
+              <h2>
+                Последние заказы <small data-testid="today-orders">{t.ordersCount}</small>
+              </h2>
               <Link href="/orders">Все заказы</Link>
             </div>
             {report.latestOrders.length === 0 ? (
@@ -204,36 +282,6 @@ export async function FoodToday() {
             )}
           </Panel>
         </div>
-        <Panel>
-          <div className="food-section-heading">
-            <h2>
-              Ближайшие брони{' '}
-              <small>
-                за день: <span data-testid="today-planned">{m.planned}</span>
-              </small>
-            </h2>
-            <Link href={reservationsHref}>Бронирования</Link>
-          </div>
-          {m.upcoming.length === 0 ? (
-            <p className="muted">Броней впереди на сегодня нет.</p>
-          ) : (
-            <div className="rest-latest">
-              {m.upcoming.map((u) => (
-                <div className="rest-latest-row" key={u.id}>
-                  <strong>{u.guest}</strong>
-                  <time>{clock(u.startsAt)}</time>
-                  <span className="rest-latest-sum">
-                    <small>
-                      {pluralRu(u.partySize, ['гость', 'гостя', 'гостей'])},{' '}
-                      {u.table ? `стол ${u.table}` : 'без стола'}
-                    </small>
-                    <Badge>{foodStatus[u.status].label}</Badge>
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </Panel>
       </div>
     </Page>
   );

@@ -272,10 +272,12 @@ test('главная: плитки, последние заказы и выру�
   });
   expect((await serveAndPay(request, headers, order)).status).toBe('CLOSED');
   await page.goto('/today');
-  await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
+  // «Главная» по макету ресторана (экран 1): приветствие по времени дня вместо слова «Главная»
+  await expect(page.getByRole('heading', { level: 1, name: /^(Доброе|Добрый|Доброй)/ })).toBeVisible();
   await expect(page.getByTestId('today-orders')).toContainText('1');
   await expect(page.getByTestId('today-revenue')).toContainText('780 ₸');
-  await expect(page.getByTestId('today-tables')).toContainText('0 / 1');
+  // заказ оплачен и закрыт: стол снова свободен, плитка показывает свободные столы
+  await expect(page.getByTestId('today-tables')).toHaveText('1');
   await expect(page.getByTestId('today-latest-orders')).toContainText('Стол 7');
   await expect(page.getByTestId('today-revenue-chart')).toBeVisible();
   const axe = await new AxeBuilder({ page }).include('main').analyze();

@@ -2,12 +2,117 @@
   /* ── Главная ресторана (макет ADR-159): плитки, график, последние заказы ── */
   .rest-dash {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-4);
+  }
+  /* плотность макета: заголовки блоков строкой с ссылкой справа, панели без лишних полей */
+  .rest-dash .stats {
+    margin-bottom: 0;
+  }
+  .rest-dash .panel {
+    padding: var(--space-4);
+    gap: var(--space-2);
+  }
+  .rest-dash .food-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .rest-dash .panel > h2,
+  .rest-dash .food-section-heading h2 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .rest-dash .rest-latest-row .rest-latest-sum {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rest-dash .food-section-heading a {
+    font-size: var(--text-sm);
+  }
+  /* плитки дня по макету: подпись, число, изменение слева, без центровки общего `.stats` */
+  .rest-kpis .stat {
+    justify-content: flex-start;
+    text-align: left;
+    min-height: 0;
+  }
+  .rest-now {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .rest-now strong {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-dash-main {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .rest-dash-side {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .rest-quick {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .rest-quick .btn {
+    justify-content: flex-start;
+    gap: var(--space-2);
+    min-height: var(--space-12);
+  }
+  .rest-upcoming {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+  .rest-upcoming td,
+  .rest-upcoming th[scope='row'] {
+    padding: var(--space-2) var(--space-2);
+    border-top: 1px solid var(--border);
+    text-align: left;
+    font-weight: var(--weight-regular);
+    vertical-align: middle;
+  }
+  .rest-upcoming tbody tr:first-child > * {
+    border-top: 0;
+  }
+  .rest-upcoming th[scope='row'] {
+    font-weight: var(--weight-semibold);
+  }
+  .rest-upcoming td:first-child {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+    width: 1%;
+    white-space: nowrap;
+  }
+  .rest-upcoming td:last-child {
+    text-align: right;
+  }
+  @media (max-width: 1023px) {
+    .rest-dash-main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 639px) {
+    .rest-upcoming td:nth-child(4) {
+      display: none;
+    }
   }
   .rest-dash-grid {
     display: grid;
     grid-template-columns: 1.4fr 1fr;
-    gap: var(--space-6);
+    gap: var(--space-4);
     align-items: start;
   }
   .rest-latest {

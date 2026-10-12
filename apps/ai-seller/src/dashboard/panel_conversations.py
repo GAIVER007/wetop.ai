@@ -25,7 +25,7 @@ from src.agent_scope import AgentScope
 from src.dashboard.auth_router import request_agent
 from src.dashboard.panel_common import SANDBOX_CHANNEL, iso, log_action, mask_name, sessions
 from src.db.base import ConversationMode, MessageRole, utcnow
-from src.db.models import Client, Conversation, Message
+from src.db.models import Client, Conversation, ConversationNote, Message
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +38,29 @@ class ReplyIn(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     text: str
+
+
+NEXT_STEP_MAX = 200
+NAME_MAX = 120
+NOTE_MAX = 2000
+
+
+class HandlingIn(BaseModel):
+    """Ведение диалога: поле, которого в теле нет, не трогаем; пустая строка или null снимает значение."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    next_step: str | None = None
+    assignee_user_id: uuid.UUID | None = None
+    assignee_name: str | None = None
+
+
+class NoteIn(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    body: str
+    author_user_id: uuid.UUID | None = None
+    author_name: str
 
 
 def build_reply_sender(
@@ -243,12 +266,37 @@ async def conversation_card(conv_id: uuid.UUID, scope: AgentScope | None = Depen
         client = await session.get(Client, conv.client_id)
         stmt = sa.select(Message).where(Message.conversation_id == conv_id).order_by(Message.created_at)
         messages = (await session.execute(stmt)).scalars().all()
+        notes = (
+            await session.execute(
+                sa.select(ConversationNote)
+                .where(ConversationNote.conversation_id == conv_id)
+                .order_by(ConversationNote.created_at)
+            )
+        ).scalars().all()
     return {
         "id": str(conv.id),
         "mode": conv.mode.value,
         "stage": conv.funnel_stage.value,
         "closed": not conv.is_active,
         "lead_data": dict(conv.lead_data or {}),
+        "handling": {
+            "assignee": (
+                {"user_id": str(conv.assignee_user_id) if conv.assignee_user_id else None, "name": conv.assignee_name}
+                if conv.assignee_name
+                else None
+            ),
+            "next_step": conv.next_step,
+        },
+        "notes": [
+            {
+                "id": str(n.id),
+                "author": n.author_name,
+                "author_user_id": str(n.author_user_id) if n.author_user_id else None,
+                "text": n.body,
+                "at": iso(n.created_at),
+            }
+            for n in notes
+        ],
         "contact": {
             "name": client.name,
             "phone": client.phone,
@@ -288,6 +336,76 @@ async def takeover(conv_id: uuid.UUID, scope: AgentScope | None = Depends(reques
 async def release(conv_id: uuid.UUID, scope: AgentScope | None = Depends(request_agent)) -> dict:
     """Возврат боту — тоже кнопкой, а не по таймеру."""
     return await _switch_mode(conv_id, ConversationMode.BOT_ACTIVE, "release", scope)
+
+
+def _clean(value: str | None, limit: int, field: str) -> str | None:
+    text = (value or "").strip()
+    if len(text) > limit:
+        raise HTTPException(status_code=400, detail=f"{field}: не больше {limit} знаков")
+    return text or None
+
+
+@router.patch("/conversations/{conv_id}/handling")
+async def handling(
+    conv_id: uuid.UUID, body: HandlingIn, scope: AgentScope | None = Depends(request_agent)
+) -> dict:
+    """Ответственный и следующий шаг. В журнал идёт, что поменялось, а не сам текст шага."""
+    sent = body.model_fields_set
+    async with sessions()() as session:
+        conv = await session.get(Conversation, conv_id)
+        if conv is None or _foreign(conv, scope):
+            raise HTTPException(status_code=404, detail="диалог не найден")
+        changed: list[str] = []
+        if "next_step" in sent:
+            conv.next_step = _clean(body.next_step, NEXT_STEP_MAX, "Следующий шаг")
+            changed.append("next_step")
+        if "assignee_name" in sent or "assignee_user_id" in sent:
+            name = _clean(body.assignee_name, NAME_MAX, "Имя ответственного")
+            conv.assignee_name = name
+            conv.assignee_user_id = body.assignee_user_id if name else None
+            changed.append("assignee")
+        if not changed:
+            raise HTTPException(status_code=400, detail="нечего менять")
+        log_action(session, action="handling", payload={"changed": changed}, conversation_id=conv.id)
+        await session.commit()
+        result = {
+            "assignee": {"user_id": str(conv.assignee_user_id) if conv.assignee_user_id else None, "name": conv.assignee_name}
+            if conv.assignee_name
+            else None,
+            "next_step": conv.next_step,
+        }
+    return result
+
+
+@router.post("/conversations/{conv_id}/notes")
+async def add_note(
+    conv_id: uuid.UUID, body: NoteIn, scope: AgentScope | None = Depends(request_agent)
+) -> dict:
+    """Внутренняя заметка. В журнал идёт длина, не текст: в заметке может быть что угодно о госте."""
+    text = (body.body or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="пустая заметка")
+    if len(text) > NOTE_MAX:
+        raise HTTPException(status_code=400, detail=f"Заметка: не больше {NOTE_MAX} знаков")
+    author = _clean(body.author_name, NAME_MAX, "Имя автора")
+    if author is None:
+        raise HTTPException(status_code=400, detail="не указан автор")
+    async with sessions()() as session:
+        conv = await session.get(Conversation, conv_id)
+        if conv is None or _foreign(conv, scope):
+            raise HTTPException(status_code=404, detail="диалог не найден")
+        note = ConversationNote(
+            conversation_id=conv.id,
+            author_user_id=body.author_user_id,
+            author_name=author,
+            body=text,
+            created_at=utcnow(),
+        )
+        session.add(note)
+        log_action(session, action="note", payload={"length": len(text)}, conversation_id=conv.id)
+        await session.commit()
+        note_id, at = note.id, note.created_at
+    return {"id": str(note_id), "author": author, "text": text, "at": iso(at)}
 
 
 @router.post("/conversations/{conv_id}/close")

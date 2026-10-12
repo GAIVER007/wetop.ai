@@ -19,14 +19,16 @@ export function TeamAndStart() {
             </h2>
             <p className="section-heading__lead">{typo(t.team.lead)}</p>
           </div>
-          <ul className="card-grid card-grid--3 team-start__cards">
+          <ul className="card-grid team-start__cards">
             {t.team.items.map((item) => (
-              <li key={item.title} className="card glass">
+              <li key={item.title} className="card card--compact glass">
                 <span className="icon-tile icon-tile--sm">
                   <Icon name={item.icon} size={20} />
                 </span>
-                <h3 className="card__title">{typo(item.title)}</h3>
-                <p className="card__text">{typo(item.text)}</p>
+                <div className="card__body">
+                  <h3 className="card__title">{typo(item.title)}</h3>
+                  <p className="card__text">{typo(item.text)}</p>
+                </div>
               </li>
             ))}
           </ul>

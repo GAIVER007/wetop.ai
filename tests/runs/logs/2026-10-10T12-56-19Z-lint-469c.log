@@ -1,0 +1,11 @@
+# Линтер (lint) · 10.10.2026 17:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2341cfb (claude/platform-superadmin), незакоммиченных файлов набора: 14
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/apps/web/src/app/platform/page.tsx
+  7:3  error  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 4 мин 36 с

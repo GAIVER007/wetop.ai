@@ -1,0 +1,224 @@
+# Сквозные (e2e) · 10.10.2026 16:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c6bc57 (claude/restaurant-module-tz), незакоммиченных файлов набора: 58
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/restaurant.spec.ts' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/food-ui/restaurant.spec.ts:81:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (10.5s)
+[WebServer] (node:15545) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  2 tests/food-ui/restaurant.spec.ts:129:1 › заказы: создание с экрана, статусы до «Оплачен», вкладки считают (9.2s)
+  ✘  3 tests/food-ui/restaurant.spec.ts:160:1 › кухня: колонки KDS и переходы кнопками (4.7s)
+  ✓  4 tests/food-ui/restaurant.spec.ts:181:1 › главная: плитки, последние заказы и выручка после закрытия (3.6s)
+  ✓  5 tests/food-ui/restaurant.spec.ts:207:1 › план зала: заказ занимает стол, уборка включается и видна легенда (4.4s)
+  ✘  6 tests/food-ui/restaurant.spec.ts:237:1 › сотрудники: список с продажами, добавление и правка (5.4s)
+  ✘  7 tests/food-ui/restaurant.spec.ts:259:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (2.6s)
+  ✘  8 tests/food-ui/restaurant.spec.ts:310:1 › клиенты: вкладки и «Постоянный гость» от двух визитов (2.8s)
+  ✓  9 tests/food-ui/restaurant.spec.ts:362:1 › навигация ресторана: пункты макета на месте и ведут на экраны (1.8s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:160:1 › кухня: колонки KDS и переходы кнопками ───────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 35
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the order of headings is semantically correct",
+    +     "help": "Heading levels should only increase by one",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/heading-order?application=playwright",
+    +     "id": "heading-order",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "heading-order",
+    +             "impact": "moderate",
+    +             "message": "Heading order invalid",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Heading order invalid",
+    +         "html": "<h3 class=\"empty-state__title\">Открытых заказов нет</h3>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "h3",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      176 |   await expect(page.getByText('Открытых заказов нет')).toBeVisible();
+      177 |   const axe = await new AxeBuilder({ page }).include('main').analyze();
+    > 178 |   expect(axe.violations).toEqual([]);
+          |                          ^
+      179 | });
+      180 |
+      181 | test('главная: плитки, последние заказы и выручка после закрытия', async ({ page, request }) => {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/restaurant.spec.ts:178:26
+
+    Error Context: test-results/restaurant-кухня-колонки-KDS-и-переходы-кнопками/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-кухня-колонки-KDS-и-переходы-кнопками/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-кухня-колонки-KDS-и-переходы-кнопками/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/restaurant.spec.ts:237:1 › сотрудники: список с продажами, добавление и правка ──
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 35
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure table headers have discernible text",
+    +     "help": "Table header text should not be empty",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/empty-table-header?application=playwright",
+    +     "id": "empty-table-header",
+    +     "impact": "minor",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "has-visible-text",
+    +             "impact": "minor",
+    +             "message": "Element does not have text that is visible to screen readers",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element does not have text that is visible to screen readers",
+    +         "html": "<th></th>",
+    +         "impact": "minor",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "th:nth-child(7)",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.name-role-value",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      254 |   await expect(page.locator('tbody tr', { hasText: 'Петров Максим' })).toBeVisible();
+      255 |   const axe = await new AxeBuilder({ page }).include('main').analyze();
+    > 256 |   expect(axe.violations).toEqual([]);
+          |                          ^
+      257 | });
+      258 |
+      259 | test('зарплата: оклад + процент, премия и штраф, плитки месяца', async ({ page, request }) => {
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/restaurant.spec.ts:256:26
+
+    Error Context: test-results/restaurant-сотрудники-список-с-продажами-добавление-и-правка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-сотрудники-список-с-продажами-добавление-и-правка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-сотрудники-список-с-продажами-добавление-и-правка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/restaurant.spec.ts:259:1 › зарплата: оклад + процент, премия и штраф, плитки месяца 
+
+    Error: locator.fill: Error: strict mode violation: getByRole('dialog').getByLabel('Процент от заказов') resolved to 2 elements:
+        1) <select class="inp">…</select> aka getByLabel('Модель оплатыОкладПроцент от заказовОклад + процентТолько премии')
+        2) <input min="0" max="100" value="0" class="inp" type="number"/> aka getByRole('spinbutton', { name: 'Процент от заказов' })
+
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Процент от заказов')
+
+
+      279 |   await dialog.getByLabel('Модель оплаты').selectOption('FIXED_PLUS_PERCENT');
+      280 |   await dialog.getByLabel('Оклад за месяц, ₸').fill('40000');
+    > 281 |   await dialog.getByLabel('Процент от заказов').fill('5');
+          |                                                 ^
+      282 |   await dialog.getByRole('button', { name: 'Сохранить' }).click();
+      283 |   await expect(dialog).not.toBeVisible();
+      284 |   // продажи 3 900, 5 % = 195; оклад 40 000 → к выплате 40 195
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/restaurant.spec.ts:281:49
+
+    Error Context: test-results/restaurant-зарплата-оклад--9ae83-ремия-и-штраф-плитки-месяца/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-зарплата-оклад--9ae83-ремия-и-штраф-плитки-месяца/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-зарплата-оклад--9ae83-ремия-и-штраф-плитки-месяца/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/food-ui/restaurant.spec.ts:310:1 › клиенты: вкладки и «Постоянный гость» от двух визитов 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('tbody tr').filter({ hasText: 'Сергей Иванов' })
+    Expected substring: "Постоянный гость"
+    Error: strict mode violation: locator('tbody tr').filter({ hasText: 'Сергей Иванов' }) resolved to 4 elements:
+        1) <tr>…</tr> aka getByRole('row', { name: 'Сергей Иванов +7 700 123-45-' })
+        2) <tr>…</tr> aka getByText('16:21–17:21Сергей Иванов2')
+        3) <tr>…</tr> aka getByText('16:21–17:21Сергей Иванов3')
+        4) <tr>…</tr> aka getByLabel('Постоянные гости').getByText('Сергей Иванов+7 700 123-45-')
+
+    Call log:
+      - Expect "toContainText" locator('tbody tr').filter({ hasText: 'Сергей Иванов' }) with timeout 5000ms
+      - waiting for locator('tbody tr').filter({ hasText: 'Сергей Иванов' })
+
+
+      353 |   await expect(page.getByRole('tab', { name: /Все/ })).toBeVisible();
+      354 |   const row = page.locator('tbody tr', { hasText: 'Сергей Иванов' });
+    > 355 |   await expect(row).toContainText('Постоянный гость');
+          |                     ^
+      356 |   await page.getByRole('tab', { name: /Бронирования/ }).click();
+      357 |   await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
+      358 |   await page.getByRole('tab', { name: /Постоянные гости/ }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/food-ui/restaurant.spec.ts:355:21
+
+    Error Context: test-results/restaurant-клиенты-вкладки-78437-нный-гость»-от-двух-визитов/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-клиенты-вкладки-78437-нный-гость»-от-двух-визитов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-клиенты-вкладки-78437-нный-гость»-от-двух-визитов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/food-ui/restaurant.spec.ts:160:1 › кухня: колонки KDS и переходы кнопками ────────────────
+    tests/food-ui/restaurant.spec.ts:237:1 › сотрудники: список с продажами, добавление и правка ───
+    tests/food-ui/restaurant.spec.ts:259:1 › зарплата: оклад + процент, премия и штраф, плитки месяца 
+    tests/food-ui/restaurant.spec.ts:310:1 › клиенты: вкладки и «Постоянный гость» от двух визитов ─
+  5 passed (1.0m)
+
+# код выхода 1 · 1 мин 3 с

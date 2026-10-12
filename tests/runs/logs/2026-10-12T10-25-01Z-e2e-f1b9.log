@@ -1,0 +1,632 @@
+# Сквозные (e2e) · 12.10.2026 15:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит ba04c15 (claude/ui-master-pass2), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/ai-seller-dialogs.spec.ts' 'tests/ui/ai-seller-overview.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/analytics-channels.spec.ts' 'tests/ui/analytics-design.spec.ts' 'tests/ui/analytics-occupancy.spec.ts' 'tests/ui/analytics-units.spec.ts' 'tests/ui/analytics-v2.spec.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/channels-list.spec.ts' 'tests/ui/channels-reconcile.spec.ts' 'tests/ui/integrations-channex.spec.ts' 'tests/ui/integrations.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/unified-sections.spec.ts' 'tests/ui/website.spec.ts'
+
+Running 157 tests using 1 worker
+
+  ✓    1 tests/ui/ai-seller-dialogs.spec.ts:21:1 › три колонки на широком экране: список, переписка, карточка гостя (3.9s)
+  ✓    2 tests/ui/ai-seller-dialogs.spec.ts:40:1 › без выбранного диалога справа подсказка, а не пустота (952ms)
+  ✓    3 tests/ui/ai-seller-dialogs.spec.ts:45:1 › поиск по имени оставляет подходящие строки, ненайденное говорит словами, сброс возвращает всё (7.7s)
+  ✓    4 tests/ui/ai-seller-dialogs.spec.ts:61:1 › канал в адресе отбирает диалоги; режим и поиск сохраняются в ссылках отбора (7.3s)
+  ✓    5 tests/ui/ai-seller-dialogs.spec.ts:74:1 › ответственный: «Взять себе» закрепляет за вошедшим, «Снять» убирает (6.0s)
+  ✓    6 tests/ui/ai-seller-dialogs.spec.ts:84:1 › следующий шаг сохраняется и переживает обновление; слишком длинный отклоняется словами (8.0s)
+  ✓    7 tests/ui/ai-seller-dialogs.spec.ts:96:1 › заметки: появляются списком с автором, пустая не уходит, гость их не получает (6.3s)
+  ✓    8 tests/ui/ai-seller-dialogs.spec.ts:113:1 › срок расширения вышел: ведение видно, но менять и писать заметки нельзя (4.5s)
+  ✓    9 tests/ui/ai-seller-dialogs.spec.ts:125:5 › доступность и снимки: light, 1440px (5.2s)
+  ✓   10 tests/ui/ai-seller-dialogs.spec.ts:125:5 › доступность и снимки: light, 390px (10.5s)
+  ✓   11 tests/ui/ai-seller-dialogs.spec.ts:125:5 › доступность и снимки: dark, 1440px (16.0s)
+  ✓   12 tests/ui/ai-seller-dialogs.spec.ts:125:5 › доступность и снимки: dark, 390px (8.0s)
+  ✓   13 tests/ui/ai-seller-dialogs.spec.ts:143:1 › версии инструкции: пока их нет, сказано словами (1.9s)
+  ✓   14 tests/ui/ai-seller-dialogs.spec.ts:149:1 › версии инструкции: новые сверху, текущая без кнопки, возврат делает прежний текст текущим (3.8s)
+  ✓   15 tests/ui/ai-seller-dialogs.spec.ts:169:1 › срок расширения вышел: версии видно, вернуть нельзя (1.1s)
+  ✓   16 tests/ui/ai-seller-overview.spec.ts:24:1 › вкладки по макету: обзор, настройка, диалоги, знания, подключения, сценарии, аналитика (926ms)
+  ✓   17 tests/ui/ai-seller-overview.spec.ts:31:1 › обзор: восемь плиток, числа из бота и из сводки продаж (1.9s)
+  ✓   18 tests/ui/ai-seller-overview.spec.ts:48:1 › обзор: диалог, которому нужен человек, виден списком и ведёт в диалоги (3.1s)
+  ✓   19 tests/ui/ai-seller-overview.spec.ts:60:1 › сводка продаж не посчиталась: сказано словами, плитки бота живы (1.1s)
+  ✓   20 tests/ui/ai-seller-overview.spec.ts:68:1 › аналитика: таблица периода и прошлого такого же, период переключается (1.3s)
+  ✓   21 tests/ui/ai-seller-overview.spec.ts:83:1 › подключения: сводка каналов называет состояние каждого и не придумывает подключённого (1.6s)
+  ✓   22 tests/ui/ai-seller-overview.spec.ts:101:1 › аналитика: работа продавца за сутки, доля без человека, передачи и время первого ответа (1.5s)
+  ✓   23 tests/ui/ai-seller-overview.spec.ts:109:1 › аналитика: сводка недоступна, сказано словами (1.3s)
+  ✓   24 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, light, 1440px (2.5s)
+  ✓   25 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, light, 390px (1.9s)
+  ✓   26 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, dark, 1440px (2.0s)
+  ✓   27 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, dark, 390px (2.3s)
+  ✓   28 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, light, 1440px (3.3s)
+  ✓   29 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, light, 390px (4.2s)
+  ✓   30 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, dark, 1440px (2.9s)
+  ✓   31 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, dark, 390px (2.2s)
+  ✓   32 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, light, 1440px (2.3s)
+  ✓   33 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, light, 390px (2.3s)
+  ✓   34 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, dark, 1440px (2.6s)
+  ✓   35 tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, dark, 390px (2.4s)
+  ✓   36 tests/ui/ai-seller-overview.spec.ts:133:1 › сценарии: работает «Продажи», «Поддержка сайта» помечена «скоро», конструктор честно назван будущим (1.3s)
+  ✓   37 tests/ui/ai-seller.spec.ts:62:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (5.5s)
+  ✓   38 tests/ui/ai-seller.spec.ts:106:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (3.1s)
+  ✓   39 tests/ui/ai-seller.spec.ts:137:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.7s)
+  ✓   40 tests/ui/ai-seller.spec.ts:167:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (1.9s)
+  ✓   41 tests/ui/ai-seller.spec.ts:184:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (4.2s)
+  ✓   42 tests/ui/ai-seller.spec.ts:221:1 › продавец недоступен — метка, причина и обещание повтора (3.2s)
+  ✓   43 tests/ui/ai-seller.spec.ts:232:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (23.2s)
+  ✘   44 tests/ui/ai-seller.spec.ts:251:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (48.6s)
+  ✓   45 tests/ui/ai-seller.spec.ts:265:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (10.7s)
+  ✓   46 tests/ui/ai-seller.spec.ts:302:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (16.3s)
+  ✓   47 tests/ui/ai-seller.spec.ts:345:1 › карточка диалога по неизвестному id не падает, а говорит словами (4.5s)
+  ✓   48 tests/ui/ai-seller.spec.ts:351:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (14.1s)
+  ✓   49 tests/ui/ai-seller.spec.ts:379:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (17.1s)
+  ✓   50 tests/ui/ai-seller.spec.ts:394:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (21.1s)
+  ✓   51 tests/ui/ai-seller.spec.ts:412:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (23.6s)
+  ✘   52 tests/ui/ai-seller.spec.ts:444:1 › снимки экранов раздела (1.5m)
+  ✓   53 tests/ui/ai-seller.spec.ts:472:1 › Все агенты возвращает в единый каталог, а не только к черновикам (19.4s)
+  ✓   54 tests/ui/ai-seller.spec.ts:481:1 › закрытое расширение: администратор видит действие для управления доступом (44.3s)
+  ✓   55 tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API (6.4s)
+  ✓   56 tests/ui/analytics-channels.spec.ts:88:1 › отбор по каналу, каналы без броней и сравнение: из полосы отбора (3.9s)
+  ✓   57 tests/ui/analytics-channels.spec.ts:119:1 › CSV: те же строки и итог, с разделителем «;» и BOM (10.3s)
+  ✓   58 tests/ui/analytics-channels.spec.ts:135:1 › пустой период и отказ API: словами, не падение страницы (21.8s)
+  ✓   59 tests/ui/analytics-channels.spec.ts:153:1 › телефон: страница без горизонтальной прокрутки (1.9s)
+  ✓   60 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, light (9.3s)
+  ✓   61 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, dark (13.8s)
+  ✓   62 tests/ui/analytics-channels.spec.ts:181:1 › вход в отчёт: из раздела «Каналы» и с хаба «Отчёты» с тем же периодом (24.3s)
+  ✓   63 tests/ui/analytics-design.spec.ts:20:1 › аналитика и статистика: подпись периода — одной строкой без разрывов (18.4s)
+  ✓   64 tests/ui/analytics-design.spec.ts:50:1 › аналитика: нижние таблицы не обрезаются, пустые состояния говорят словами и ведут к подключению (3.3s)
+  ✓   65 tests/ui/analytics-occupancy.spec.ts:34:1 › по умолчанию — сегодняшний день: пять плиток, категории и шахматка на этот день (2.2s)
+  ✓   66 tests/ui/analytics-occupancy.spec.ts:75:1 › знаменатель по ADR-155: закрытое для продажи место вычитается из фонда загрузки (2.9s)
+  ✓   67 tests/ui/analytics-occupancy.spec.ts:121:1 › без размещения: групповая бронь на три койки без места — три проживания и ссылка разместить (3.2s)
+  ✓   68 tests/ui/analytics-occupancy.spec.ts:154:1 › номера и койки: свои категории, своя средняя, шахматка открывается на том же типе (3.5s)
+  ✓   69 tests/ui/analytics-occupancy.spec.ts:189:1 › период: ночи вместо мест, стрелки дня, сравнение выключается (3.6s)
+  ✓   70 tests/ui/analytics-occupancy.spec.ts:217:1 › старые адреса: «Статистика» с датой и некорректная дата (2.2s)
+  ✓   71 tests/ui/analytics-occupancy.spec.ts:230:1 › сбой API не уносит полосу периода и повторяет тот же день (1.1s)
+  ✓   72 tests/ui/analytics-occupancy.spec.ts:246:1 › телефон: без прокрутки вбок, строка категории — карточкой (1.8s)
+  ✓   73 tests/ui/analytics-occupancy.spec.ts:275:1 › снимки для визуального гейта AN2 (22.8s)
+  ✓   74 tests/ui/analytics-units.spec.ts:52:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (3.1s)
+  ✓   75 tests/ui/analytics-units.spec.ts:95:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (2.3s)
+  ✓   76 tests/ui/analytics-units.spec.ts:116:1 › отказ API — словами на своём экране, не падение страницы (2.2s)
+  ✓   77 tests/ui/analytics-units.spec.ts:128:1 › телефон: таблица без горизонтальной прокрутки страницы (1.9s)
+  ✓   78 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, light (3.7s)
+  ✓   79 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, dark (2.9s)
+  ✓   80 tests/ui/analytics-v2.spec.ts:68:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (2.4s)
+  ✓   81 tests/ui/analytics-v2.spec.ts:87:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (1.6s)
+  ✓   82 tests/ui/analytics-v2.spec.ts:125:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (3.6s)
+  ✓   83 tests/ui/analytics-v2.spec.ts:150:1 › рост отмен — красный, падение — зелёный; сравнение выключается (2.1s)
+  ✓   84 tests/ui/analytics-v2.spec.ts:163:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (1.9s)
+  ✓   85 tests/ui/analytics-v2.spec.ts:186:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (1.5s)
+  ✓   86 tests/ui/analytics-v2.spec.ts:203:1 › телефон: без прокрутки вбок, плитки в две колонки (3.8s)
+  ✓   87 tests/ui/analytics-v2.spec.ts:214:1 › снимки для визуального гейта AN1 (55.7s)
+  ✓   88 tests/ui/channels-compact.spec.ts:7:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (1.7s)
+  ✓   89 tests/ui/channels-compact.spec.ts:28:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (2.0s)
+  ✓   90 tests/ui/channels-compact.spec.ts:49:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (1.2s)
+  ✓   91 tests/ui/channels-compact.spec.ts:57:1 › sync never calls an empty disconnected queue successful (897ms)
+  ✓   92 tests/ui/channels-list.spec.ts:24:1 › вкладка «Каналы»: подключённые с ID, названием, бронями за 30 дней и честным статусом (927ms)
+  ✓   93 tests/ui/channels-list.spec.ts:63:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых (4.1s)
+  ✓   94 tests/ui/channels-list.spec.ts:78:1 › владелец открывает окно Channex; после «Готово» окно закрывается (5.3s)
+  ✓   95 tests/ui/channels-list.spec.ts:88:1 › владелец подтягивает будущие брони канала, который это умеет; у другого канала пункта нет (5.5s)
+  ✓   96 tests/ui/channels-list.spec.ts:101:1 › управляющий видит каналы, но не подключает: окно Channex только у владельца (33.9s)
+  ✘   97 tests/ui/channels-list.spec.ts:114:1 › Channex не ответил: причина словами, брони мимо подключений видны (49.9s)
+  -   98 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 1440px
+  -   99 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 390px
+  -  100 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: dark, 1440px
+  -  101 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: dark, 390px
+  -  102 tests/ui/channels-list.spec.ts:148:1 › снимок «Все доступные» и окна Channex
+  ✓  103 tests/ui/channels-reconcile.spec.ts:13:1 › свежая сверка без расхождений (7.3s)
+  ✓  104 tests/ui/channels-reconcile.spec.ts:22:1 › канал видит больше мест: расхождение с числом ночей и что делает сторож (1.4s)
+  ✓  105 tests/ui/integrations-channex.spec.ts:36:1 › работает: соединение, сопоставление и webhook словами, ключей нет, вкладки модуля на месте (4.2s)
+  ✓  106 tests/ui/integrations-channex.spec.ts:81:1 › webhook не отвечает: причина словами и тот же вывод на карточке «Подключений» (1.5s)
+  ✓  107 tests/ui/integrations-channex.spec.ts:98:1 › устарело: очередь стоит, карточка «Подключений» зовёт в очередь (961ms)
+  ✓  108 tests/ui/integrations-channex.spec.ts:111:1 › интеграция у другой организации: проверить нельзя, это сказано словами (952ms)
+  ✓  109 tests/ui/integrations-channex.spec.ts:122:1 › ключ не задан: так и сказано, кнопки настройки без ключа не работают (15.0s)
+  ✓  110 tests/ui/integrations-channex.spec.ts:134:1 › телефон: страница без прокрутки вбок (1.7s)
+  ✓  111 tests/ui/integrations-channex.spec.ts:155:3 › /connections: пока соединение проверяется, заголовок тот же, что у страницы (1.8s)
+  ✓  112 tests/ui/integrations-channex.spec.ts:155:3 › /connections/channex: пока соединение проверяется, заголовок тот же, что у страницы (1.1s)
+  ✓  113 tests/ui/integrations-channex.spec.ts:167:3 › снимки страницы настройки Channex для владельца, light (14.7s)
+  ✓  114 tests/ui/integrations-channex.spec.ts:167:3 › снимки страницы настройки Channex для владельца, dark (14.1s)
+  ✓  115 tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек (4.5s)
+  ✓  116 tests/ui/integrations.spec.ts:79:1 › требует внимания: причины словами и ссылки прямо к месту исправления (1.2s)
+  ✓  117 tests/ui/integrations.spec.ts:97:1 › интеграция у другой организации: «Подключённые» пусты, Channex — в «Доступных» без ложной кнопки (5.2s)
+  ✓  118 tests/ui/integrations.spec.ts:118:1 › ключ Channex не задан — не подключено, а не «работает» (3.0s)
+  ✓  119 tests/ui/integrations.spec.ts:126:1 › только чтение: список и состояние видны, подключение — после оплаты (4.0s)
+  ✓  120 tests/ui/integrations.spec.ts:136:1 › не владелец технических деталей не видит; администратору раздел закрыт (3.6s)
+  ✓  121 tests/ui/integrations.spec.ts:151:1 › телефон: карточка без прокрутки вбок (1.3s)
+  ✓  122 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, light (6.6s)
+  ✓  123 tests/ui/integrations.spec.ts:167:3 › INT1, стоп-гейт: снимки для владельца, dark (21.6s)
+  ✘  124 tests/ui/integrations.spec.ts:195:1 › подключения различают два тарифных плана и десять сопоставлений (45.6s)
+  ✓  125 tests/ui/platform-support.spec.ts:41:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (10.3s)
+  ✓  126 tests/ui/platform-support.spec.ts:55:1 › главный администратор: сводка, очередь, карточка — кто пишет (29.2s)
+  ✘  127 tests/ui/platform-support.spec.ts:95:1 › знания помощника: список и загрузка документа (47.2s)
+  ✘  128 tests/ui/platform-support.spec.ts:115:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (53.7s)
+  ✓  129 tests/ui/platform-support.spec.ts:167:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (22.6s)
+  ✓  130 tests/ui/platform-support.spec.ts:184:1 › помощник не подключён — раздел говорит, что вписать владельцу (19.8s)
+  ✓  131 tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: light, 1440px (34.2s)
+  ✘  132 tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: dark, 1440px (2.2m)
+  ✘  133 tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: light, 390px (2.1m)
+  ✘  134 tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: dark, 390px (2.2m)
+  ✘  135 tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение видны на ноутбуке сразу, вбок не прокручивается (58.0s)
+  ✘  136 tests/ui/unified-sections.spec.ts:29:1 › интеграции: незавершённая настройка не называется подключением (47.4s)
+  ✘  137 tests/ui/unified-sections.spec.ts:35:1 › адаптивный обзор разделов (45.6s)
+  ✓  138 tests/ui/website.spec.ts:29:1 › старые адреса ведут во вкладки модуля и сохраняют период (12.6s)
+  ✓  139 tests/ui/website.spec.ts:40:1 › одна точка входа в меню и четыре вкладки со своим адресом (6.0s)
+  ✓  140 tests/ui/website.spec.ts:70:1 › домен-заглушка — «Сайт ещё не подключён», а не зелёный сайт (4.4s)
+  ✓  141 tests/ui/website.spec.ts:93:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц (24.4s)
+  ✓  142 tests/ui/website.spec.ts:124:1 › «Интеграции» больше не показывают сайт (48.3s)
+  ✓  143 tests/ui/website.spec.ts:132:1 › настройки: пауза и удаление — в «Опасной зоне», с подтверждением (31.0s)
+  ✓  144 tests/ui/website.spec.ts:145:1 › MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409 (36.3s)
+  ✘  145 tests/ui/website.spec.ts:168:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок (49.9s)
+  ✓  146 tests/ui/website.spec.ts:199:1 › WEB2 · домены списком: заглушка уходит, неверный адрес словами, последний не убирается (34.2s)
+  ✘  147 tests/ui/website.spec.ts:242:1 › WEB2 · счётчик: состояние словами и одно действие (51.1s)
+  ✓  148 tests/ui/website.spec.ts:277:1 › WEB2 · окно установки: код, GTM, конструкторы; доступно, закрывается Escape (22.4s)
+  ✘  149 tests/ui/website.spec.ts:302:1 › снимки WEB2 (46.5s)
+  ✓  150 tests/ui/website.spec.ts:352:1 › WEB3 · бронирование: состояние, демо только у работающего, что увидит гость (27.3s)
+  ✓  151 tests/ui/website.spec.ts:384:1 › WEB3 · без адреса сайта демо не предлагается, код виджета — есть (2.6s)
+  ✓  152 tests/ui/website.spec.ts:398:1 › WEB3 · тариф сайта: смена видна в состоянии и в «Что увидит гость» (3.1s)
+  ✓  153 tests/ui/website.spec.ts:416:1 › WEB3 · окно установки виджета: код, место и цвет, проверка; доступно, закрывается Escape (2.2s)
+  ✓  154 tests/ui/website.spec.ts:442:1 › снимки WEB3 (16.8s)
+  ✓  155 tests/ui/website.spec.ts:491:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором (4.2s)
+  ✓  156 tests/ui/website.spec.ts:514:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия (12.2s)
+  ✓  157 tests/ui/website.spec.ts:536:1 › снимки WEB4 (10.5s)
+
+
+  1) tests/ui/ai-seller.spec.ts:251:1 › старые адреса вкладок ведут на новые, а не в «не найдено» ──
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3151/ai-seller/data", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/ai-seller.spec.ts:259:16
+
+    Error Context: test-results/ai-seller-старые-адреса-вк-2dc50-а-новые-а-не-в-«не-найдено»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-старые-адреса-вк-2dc50-а-новые-а-не-в-«не-найдено»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-старые-адреса-вк-2dc50-а-новые-а-не-в-«не-найдено»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-seller.spec.ts:444:1 › снимки экранов раздела ─────────────────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Tearing down "context" exceeded the test timeout of 45000ms.
+
+    Error Context: test-results/ai-seller-снимки-экранов-раздела/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-снимки-экранов-раздела/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-снимки-экранов-раздела/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/channels-list.spec.ts:114:1 › Channex не ответил: причина словами, брони мимо подключений видны 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+    ============================================================
+
+      16 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      17 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 18 |   await page.waitForURL('**/finance');
+         |              ^
+      19 | }
+      20 | test.beforeEach(async ({ request }) => {
+      21 |   await request.post(`${fixture}/__test/reset`, { headers });
+        at signIn (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/channels-list.spec.ts:18:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/channels-list.spec.ts:119:3
+
+    Error Context: test-results/channels-list-Channex-не-о-d6f7d-рони-мимо-подключений-видны/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-list-Channex-не-о-d6f7d-рони-мимо-подключений-видны/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-list-Channex-не-о-d6f7d-рони-мимо-подключений-видны/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/integrations.spec.ts:195:1 › подключения различают два тарифных плана и десять сопоставлений 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/integrations-подключения-р-9559e-лана-и-десять-сопоставлений/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-подключения-р-9559e-лана-и-десять-сопоставлений/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-подключения-р-9559e-лана-и-десять-сопоставлений/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/platform-support.spec.ts:95:1 › знания помощника: список и загрузка документа ────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.screenshot: Test timeout of 45000ms exceeded.
+    Call log:
+      - taking page screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+
+
+      33 |     window.scrollTo(0, 0);
+      34 |   });
+    > 35 |   await page.screenshot({
+         |              ^
+      36 |     path: `reports/platform-support-2026-09-25/${name}.png`,
+      37 |     fullPage: true,
+      38 |   });
+        at shot (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/platform-support.spec.ts:35:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/platform-support.spec.ts:112:3
+
+    Error Context: test-results/platform-support-знания-по-7e9c3-список-и-загрузка-документа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-support-знания-по-7e9c3-список-и-загрузка-документа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-support-знания-по-7e9c3-список-и-загрузка-документа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/platform-support.spec.ts:115:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3151/today"
+      navigated to "http://127.0.0.1:3151/finance"
+    ============================================================
+
+      21 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      22 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 23 |   await page.waitForURL('**/finance');
+         |              ^
+      24 | }
+      25 |
+      26 | const control = (request: APIRequestContext, body: Record<string, unknown>) =>
+        at signIn (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/platform-support.spec.ts:23:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/platform-support.spec.ts:119:3
+
+    Error Context: test-results/platform-support-настройка-1ec05--отвечает-по-новым-правилам/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-support-настройка-1ec05--отвечает-по-новым-правилам/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-support-настройка-1ec05--отвечает-по-новым-правилам/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: dark, 1440px ────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: visible
+    Received: undefined
+
+
+      209 |       ]) {
+      210 |         await page.goto(route);
+    > 211 |         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+          |                                                               ^
+      212 |         const result = await new AxeBuilder({ page })
+      213 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      214 |           .analyze();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/platform-support.spec.ts:211:63
+
+    Error Context: test-results/platform-support-доступность-«Техподдержки»-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-support-доступность-«Техподдержки»-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-support-доступность-«Техподдержки»-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: light, 390px ────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: visible
+    Received: undefined
+
+
+      209 |       ]) {
+      210 |         await page.goto(route);
+    > 211 |         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+          |                                                               ^
+      212 |         const result = await new AxeBuilder({ page })
+      213 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      214 |           .analyze();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/platform-support.spec.ts:211:63
+
+    Error Context: test-results/platform-support-доступность-«Техподдержки»-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-support-доступность-«Техподдержки»-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-support-доступность-«Техподдержки»-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: dark, 390px ─────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3151/platform/support", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/platform-support.spec.ts:210:20
+
+    Error Context: test-results/platform-support-доступность-«Техподдержки»-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-support-доступность-«Техподдержки»-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-support-доступность-«Техподдержки»-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение видны на ноутбуке сразу, вбок не прокручивается 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      3 |
+      4 | const API = FIXTURE_API;
+    > 5 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      6 |   await request.post(`${API}/__test/reset`);
+      7 |   await page.setViewportSize({ width: 1366, height: 768 });
+      8 |   await page.goto('/auth/fallback');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/unified-sections.spec.ts:5:6
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Email', { exact: true })
+
+
+       7 |   await page.setViewportSize({ width: 1366, height: 768 });
+       8 |   await page.goto('/auth/fallback');
+    >  9 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+         |                                                   ^
+      10 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      11 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      12 |   await page.waitForURL('**/finance');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/unified-sections.spec.ts:9:51
+
+    Error Context: test-results/unified-sections-настройки-a1e9e-разу-вбок-не-прокручивается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-sections-настройки-a1e9e-разу-вбок-не-прокручивается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-sections-настройки-a1e9e-разу-вбок-не-прокручивается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/unified-sections.spec.ts:29:1 › интеграции: незавершённая настройка не называется подключением 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      3 |
+      4 | const API = FIXTURE_API;
+    > 5 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      6 |   await request.post(`${API}/__test/reset`);
+      7 |   await page.setViewportSize({ width: 1366, height: 768 });
+      8 |   await page.goto('/auth/fallback');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/unified-sections.spec.ts:5:6
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+    ============================================================
+
+      10 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      11 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 12 |   await page.waitForURL('**/finance');
+         |              ^
+      13 | });
+      14 |
+      15 | test('настройки: основные поля и сохранение видны на ноутбуке сразу, вбок не прокручивается', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/unified-sections.spec.ts:12:14
+
+    Error Context: test-results/unified-sections-интеграци-3d47d--не-называется-подключением/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-sections-интеграци-3d47d--не-называется-подключением/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-sections-интеграци-3d47d--не-называется-подключением/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/unified-sections.spec.ts:35:1 › адаптивный обзор разделов ───────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: visible
+    Received: undefined
+
+
+      44 |   ]) {
+      45 |     await page.goto(route);
+    > 46 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+         |                                                           ^
+      47 |     await page.screenshot({
+      48 |       path: `reports/unified-sections-2026-10-01/${route.replaceAll('/', '-')}.png`,
+      49 |       fullPage: true,
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/unified-sections.spec.ts:46:59
+
+    Error Context: test-results/unified-sections-адаптивный-обзор-разделов/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-sections-адаптивный-обзор-разделов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-sections-адаптивный-обзор-разделов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/website.spec.ts:168:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Сайт и онлайн-бронирование"
+    Received: ""
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      182 |         await page.setViewportSize({ width, height: 900 });
+      183 |         await page.goto(path);
+    > 184 |         await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(TITLE);
+          |                                                                                 ^
+      185 |         expect(
+      186 |           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      187 |           `${path} шире экрана ${width}`,
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/website.spec.ts:184:81
+
+    Error Context: test-results/website-четыре-вкладки-дос-17d52--телефон-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/website-четыре-вкладки-дос-17d52--телефон-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/website-четыре-вкладки-дос-17d52--телефон-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/website.spec.ts:242:1 › WEB2 · счётчик: состояние словами и одно действие ───────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('main').getByTestId('counter-state')
+    Expected: "quiet"
+    Received: ""
+
+
+      264 |   });
+      265 |   await page.reload();
+    > 266 |   await expect(counter).toHaveAttribute('data-state', 'quiet');
+          |                         ^
+      267 |   await expect(main.getByTestId('counter-title')).toHaveText('Сегодня событий нет');
+      268 |   await request.patch(`${API}/analytics/sites/ui-site`, {
+      269 |     headers: TEST_CLIENT,
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/website.spec.ts:266:25
+
+    Error Context: test-results/website-WEB2-·-счётчик-состояние-словами-и-одно-действие/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/website-WEB2-·-счётчик-состояние-словами-и-одно-действие/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/website-WEB2-·-счётчик-состояние-словами-и-одно-действие/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/website.spec.ts:302:1 › снимки WEB2 ─────────────────────────────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('dialog', { name: 'Установка счётчика WETOP' })
+    Expected: visible
+    Received: undefined
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Установка счётчика WETOP' }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Установка счётчика WETOP' })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      337 |     await shot(page, `settings-working-${theme}`);
+      338 |     await page.getByTestId('site-install').click();
+    > 339 |     await expect(page.getByRole('dialog', { name: 'Установка счётчика WETOP' })).toBeVisible();
+          |                                                                                  ^
+      340 |     await shot(page, `install-drawer-${theme}`, false);
+      341 |     await page.keyboard.press('Escape');
+      342 |     await page.setViewportSize({ width: 390, height: 844 });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/website.spec.ts:339:82
+
+    Error Context: test-results/website-снимки-WEB2/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/website-снимки-WEB2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/website-снимки-WEB2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15 failed
+    tests/ui/ai-seller.spec.ts:251:1 › старые адреса вкладок ведут на новые, а не в «не найдено» ───
+    tests/ui/ai-seller.spec.ts:444:1 › снимки экранов раздела ──────────────────────────────────────
+    tests/ui/channels-list.spec.ts:114:1 › Channex не ответил: причина словами, брони мимо подключений видны 
+    tests/ui/integrations.spec.ts:195:1 › подключения различают два тарифных плана и десять сопоставлений 
+    tests/ui/platform-support.spec.ts:95:1 › знания помощника: список и загрузка документа ─────────
+    tests/ui/platform-support.spec.ts:115:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам 
+    tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: dark, 1440px ─────────────
+    tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: light, 390px ─────────────
+    tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: dark, 390px ──────────────
+    tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение видны на ноутбуке сразу, вбок не прокручивается 
+    tests/ui/unified-sections.spec.ts:29:1 › интеграции: незавершённая настройка не называется подключением 
+    tests/ui/unified-sections.spec.ts:35:1 › адаптивный обзор разделов ─────────────────────────────
+    tests/ui/website.spec.ts:168:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок 
+    tests/ui/website.spec.ts:242:1 › WEB2 · счётчик: состояние словами и одно действие ─────────────
+    tests/ui/website.spec.ts:302:1 › снимки WEB2 ───────────────────────────────────────────────────
+  5 did not run
+  137 passed (40.7m)
+
+# код выхода 1 · 40 мин 45 с

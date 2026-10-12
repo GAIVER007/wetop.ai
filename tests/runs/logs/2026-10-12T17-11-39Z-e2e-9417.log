@@ -1,0 +1,118 @@
+# Сквозные (e2e) · 12.10.2026 22:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит c2c2347 (claude/ui-goto-aborted), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/login-access.spec.ts:31' 'tests/ui/password-reset.spec.ts:29' 'tests/ui/sessions.spec.ts:36'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✘  1 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (16.3s)
+  ✘  2 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (16.0s)
+  ✘  3 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (3.1s)
+
+
+  1) tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' }) with timeout 15000ms
+      - waiting for getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' })
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+
+
+      31 | test('главная просит почту и пароль, без второго рекламного экрана', async ({ page }) => {
+      32 |   await page.goto('/login');
+    > 33 |   await expect(dialog(page).getByRole('heading', { name: 'Вход в WETOP' })).toBeVisible();
+         |                                                                             ^
+      34 |   await expect(dialog(page).getByLabel('Пароль', { exact: true })).toHaveAttribute(
+      35 |     'autocomplete',
+      36 |     'current-password',
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:33:77
+
+    Error Context: test-results/login-access-главная-проси-2ab7c-з-второго-рекламного-экрана/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-главная-проси-2ab7c-з-второго-рекламного-экрана/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-главная-проси-2ab7c-з-второго-рекламного-экрана/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>"
+    Received: "chrome-error://chromewebdata/"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        - locator resolved to <html lang="ru" data-theme="light">…</html>
+        - unexpected value "http://127.0.0.1:3138/login/set-password?token=<скрыто>"
+        32 × locator resolved to <html dir="ltr" lang="ru">…</html>
+           - unexpected value "chrome-error://chromewebdata/"
+
+
+      33 |   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
+      34 |
+    > 35 |   await expect(page).toHaveURL('http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>');
+         |                      ^
+      36 |   await expect(page.getByRole('dialog')).toContainText('Пароль сохранён');
+      37 |
+      38 |   await page.getByLabel('Почта', { exact: true }).fill('<email>');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/password-reset.spec.ts:35:22
+
+    Error Context: test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет 
+
+    Error: page.waitForURL: net::ERR_CONNECTION_REFUSED
+    =========================== logs ===========================
+    waiting for navigation to "http://127.0.0.1:3002/?next=%2Ftoday#login" until "load"
+    ============================================================
+
+      42 |   const main = page.getByRole('main');
+      43 |   await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
+    > 44 |   await page.waitForURL('http://127.0.0.1:3002/?next=%2Ftoday#login');
+         |              ^
+      45 |   await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+      46 |   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
+      47 | });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/sessions.spec.ts:44:14
+
+    Error Context: test-results/sessions-«Завершить-все-се-c57f3-ащает-форму-куки-больше-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sessions-«Завершить-все-се-c57f3-ащает-форму-куки-больше-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sessions-«Завершить-все-се-c57f3-ащает-форму-куки-больше-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана 
+    tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним 
+    tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет 
+
+# код выхода 1 · 44 с

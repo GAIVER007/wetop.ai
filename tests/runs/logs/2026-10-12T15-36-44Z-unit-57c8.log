@@ -1,0 +1,59 @@
+# Модульные (unit) · 12.10.2026 20:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит c2c2347 (codex/growth-reference-design), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-36-44Z-unit-57c8.json' 'apps/web/src/app/growth/business-screen.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ❯ |unit| apps/web/src/app/growth/business-screen.test.ts (7 tests | 2 failed) 82ms
+   ❯ Разделы роста по направлению бизнеса (7)
+     × маркетинг салона сохраняет композицию трёх модулей и результатов 54ms
+     × продажи ресторана показывают хаб с показателями и честной доступностью модулей 6ms
+     ✓ BEAUTY: продажи не запрашивают гостиничные данные 8ms
+     ✓ BEAUTY: маркетинг открывает общие модули без ссылки на гостиничный сайт 2ms
+     ✓ FOOD_SERVICE: продажи не запрашивают гостиничные данные 3ms
+     ✓ FOOD_SERVICE: маркетинг открывает общие модули без ссылки на гостиничный сайт 1ms
+     ✓ для салона каталог ведёт к услугам, для ресторана к блюдам 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/growth/business-screen.test.ts > Разделы роста по направлению бизнеса > маркетинг салона сохраняет композицию трёх модулей и результатов
+AssertionError: expected '<main id="main-content" tabindex="-1"…' to contain 'marketing-hub__modules'
+
+Expected: "marketing-hub__modules"
+Received: "<main id="main-content" tabindex="-1" class="page"><header class="page__head"><div class="page__heading"><h1 class="page__title">Маркетинг</h1><div class="page__subtitle">Салон и студия</div></div></header><div class="food-catalog-grid" data-testid="business-marketing"><section class="panel"><b class="panel__title">Реклама</b><p>Кампании и рекламные материалы. Подключение рекламных кабинетов пока недоступно.</p><a class="btn btn--secondary" href="/marketing/ads">Открыть</a></section><section class="panel"><b class="panel__title">Контент</b><p>Рабочий экран контента. Генерация и публикация пока недоступны.</p><a class="btn btn--secondary" href="/marketing/content">Открыть</a></section><section class="panel"><b class="panel__title">Клиенты</b><p>Клиентская база вашего бизнеса.</p><a class="btn btn--secondary" href="/customers">Открыть</a></section><section class="panel"><b class="panel__title">Результаты</b><p>Показатели филиала. Атрибуция заявок рекламе пока не подключена.</p><a class="btn btn--secondary" href="/management/analytics">Открыть</a></section></div><p class="muted">Конструктор сайта и SEO пока поддерживают гостиничный объект. Для этого направления они ещё не подключены.</p></main>"
+
+ ❯ apps/web/src/app/growth/business-screen.test.ts:19:18
+     17|   it('маркетинг салона сохраняет композицию трёх модулей и результатов…
+     18|     const html = renderToStaticMarkup(createElement(BusinessGrowthScre…
+     19|     expect(html).toContain('marketing-hub__modules');
+       |                  ^
+     20|     expect(html).toContain('Сайт и SEO');
+     21|     expect(html).toContain('Результаты за 30 дней');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/growth/business-screen.test.ts > Разделы роста по направлению бизнеса > продажи ресторана показывают хаб с показателями и честной доступностью модулей
+AssertionError: expected '<main id="main-content" tabindex="-1"…' to contain 'sales-kpis'
+
+Expected: "sales-kpis"
+Received: "<main id="main-content" tabindex="-1" class="page restaurant-page"><header class="page__head"><div class="page__heading"><h1 class="page__title">Продажи</h1><div class="page__subtitle">Кафе и ресторан</div></div></header><div class="food-catalog-grid" data-testid="business-sales"><section class="panel"><b class="panel__title">Заказы</b><p>Открытые заказы, состав и статус обслуживания.</p><a class="btn btn--secondary" href="/orders">Открыть</a></section><section class="panel"><b class="panel__title">Меню и цены</b><p>Каталог и действующие цены вашего бизнеса.</p><a class="btn btn--secondary" href="/menu">Открыть</a></section><section class="panel"><b class="panel__title">Клиенты</b><p>Клиенты и история обращений.</p><a class="btn btn--secondary" href="/customers">Открыть</a></section><section class="panel"><b class="panel__title">Аналитика продаж</b><p>Показатели выбранного филиала за период.</p><a class="btn btn--secondary" href="/management/analytics">Открыть</a></section></div></main>"
+
+ ❯ apps/web/src/app/growth/business-screen.test.ts:27:18
+     25|   it('продажи ресторана показывают хаб с показателями и честной доступ…
+     26|     const html = renderToStaticMarkup(createElement(BusinessGrowthScre…
+     27|     expect(html).toContain('sales-kpis');
+       |                  ^
+     28|     expect(html).toContain('Анализ конкурентов');
+     29|     expect(html).toContain('ИИ-продавец');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  08:36:49
+   Duration  3.02s (transform 73%, import 24%, tests 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-36-44Z-unit-57c8.json
+
+# код выхода 1 · 8 с

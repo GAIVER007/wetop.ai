@@ -60,7 +60,7 @@ function Ideas() {
 }
 
 export default async function MarketingContentPage() {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   return (
     <Page
       crumbs={<BackToModules />}

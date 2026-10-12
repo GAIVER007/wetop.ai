@@ -1,0 +1,641 @@
+# Сквозные (e2e) · 09.10.2026 17:07 Алматы · vm
+# коммит 6bef208 (claude/profile-menu-ready)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.reuse.config.ts' '--workers=1' 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/product-tour.spec.ts' 'tests/ui/real-data.spec.ts' 'tests/ui/accessibility.spec.ts'
+
+Running 45 tests using 1 worker
+
+  ✓   1 tests/ui/accessibility.spec.ts:59:5 › доступность всех разделов: light, 1440px (2.3m)
+  ✓   2 tests/ui/accessibility.spec.ts:59:5 › доступность всех разделов: dark, 1440px (1.9m)
+  ✓   3 tests/ui/accessibility.spec.ts:59:5 › доступность всех разделов: light, 390px (1.8m)
+  ✓   4 tests/ui/accessibility.spec.ts:59:5 › доступность всех разделов: dark, 390px (1.9m)
+  ✓   5 tests/ui/accessibility.spec.ts:130:5 › доступность открытых форм и drawer: light, 1440px (10.8s)
+  ✓   6 tests/ui/accessibility.spec.ts:130:5 › доступность открытых форм и drawer: dark, 1440px (10.5s)
+  ✓   7 tests/ui/accessibility.spec.ts:130:5 › доступность открытых форм и drawer: light, 390px (8.6s)
+  ✓   8 tests/ui/accessibility.spec.ts:130:5 › доступность открытых форм и drawer: dark, 390px (9.1s)
+  ✓   9 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (3.6s)
+  ✓  10 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (8.8s)
+  ✓  11 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (3.6s)
+  ✓  12 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (4.5s)
+  ✓  13 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (5.3s)
+  ✓  14 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (15.6s)
+  ✓  15 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (16.7s)
+  ✓  16 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (3.0s)
+  ✓  17 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (7.5s)
+  ✓  18 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (3.2s)
+  ✓  19 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (3.0s)
+  ✓  20 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (9.3s)
+  ✓  21 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (1.4s)
+  ✓  22 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (10.6s)
+  ✓  23 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (11.6s)
+  ✓  24 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (6.4s)
+  ✓  25 tests/ui/premium.spec.ts:27:1 › shell: панель, меню профиля, поиск (3.1s)
+  ✘  26 tests/ui/premium.spec.ts:45:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (44.5s)
+  ✓  27 tests/ui/premium.spec.ts:78:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (16.6s)
+  ✘  28 tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (44.2s)
+  ✘  29 tests/ui/premium.spec.ts:179:1 › вход не пускает с чужой почтой и чужим паролем (423ms)
+  ✘  30 tests/ui/premium.spec.ts:196:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (427ms)
+  ✘  31 tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается (458ms)
+  ✘  32 tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии (384ms)
+  ✘  33 tests/ui/product-tour.spec.ts:91:1 › последний шаг — профиль, «Начать работу» закрывает обучение (440ms)
+  ✘  34 tests/ui/product-tour.spec.ts:107:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край (390ms)
+  ✘  35 tests/ui/product-tour.spec.ts:122:1 › меню содержит только обучение, личность и выход; темы можно выбирать (538ms)
+  ✘  36 tests/ui/product-tour.spec.ts:144:1 › администратор на телефоне видит рабочие темы без настроек владельца (413ms)
+  ✘  37 tests/ui/product-tour.spec.ts:164:1 › обучение подсвечивает поиск в разделе гостей (448ms)
+  ✘  38 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (449ms)
+  ✘  39 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (425ms)
+  ✘  40 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (456ms)
+  ✘  41 tests/ui/real-data.spec.ts:21:1 › источник и агрегаты проекта видны главному администратору в «Платформе», а не на «Интеграциях» (439ms)
+  ✘  42 tests/ui/real-data.spec.ts:41:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (445ms)
+  ✘  43 tests/ui/real-data.spec.ts:61:1 › название гостиницы в каркасе и обзоре поступает из backend (401ms)
+  ✘  44 tests/ui/real-data.spec.ts:70:1 › недоступный API не скрывается за демо или выдуманным объектом (400ms)
+  ✘  45 tests/ui/real-data.spec.ts:84:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (404ms)
+
+
+  1) tests/ui/premium.spec.ts:45:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Бронирование', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true })
+
+
+      50 |   await page.getByTestId('stay-cell').first().dblclick();
+      51 |   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
+    > 52 |   await expect(drawer).toBeVisible();
+         |                        ^
+      53 |   await expect(drawer.getByRole('heading', { level: 1 })).toContainText('Бронь');
+      54 |   await drawer.getByRole('tab', { name: 'Счета', exact: true }).click();
+      55 |   await expect(drawer.getByTestId('folio-panel')).toBeVisible();
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/premium.spec.ts:52:24
+
+    Error Context: test-results/premium-drawer-бронь-откры-eada8--Escape-возвращает-контекст/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-drawer-бронь-откры-eada8--Escape-возвращает-контекст/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-drawer-бронь-откры-eada8--Escape-возвращает-контекст/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/today
+    Call log:
+      - navigating to "http://127.0.0.1:3100/today", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/premium.spec.ts:154:18
+
+    Error Context: test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/premium.spec.ts:179:1 › вход не пускает с чужой почтой и чужим паролем ───────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/premium.spec.ts:180:14
+
+    Error Context: test-results/premium-вход-не-пускает-с-чужой-почтой-и-чужим-паролем/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-вход-не-пускает-с-чужой-почтой-и-чужим-паролем/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-вход-не-пускает-с-чужой-почтой-и-чужим-паролем/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/premium.spec.ts:196:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/premium.spec.ts:199:14
+
+    Error Context: test-results/premium-список-броней-выбо-61986--телефон-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-список-броней-выбо-61986--телефон-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-список-броней-выбо-61986--телефон-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at signIn (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:20:14)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:30:9
+
+    Error Context: test-results/product-tour-первый-вход-о-e0af3--больше-само-не-открывается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/product-tour-первый-вход-о-e0af3--больше-само-не-открывается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/product-tour-первый-вход-о-e0af3--больше-само-не-открывается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at signIn (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:20:14)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:69:9
+
+    Error Context: test-results/product-tour-видимый-поиск-96452-тся-с-сохранением-геометрии/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/product-tour-видимый-поиск-96452-тся-с-сохранением-геометрии/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/product-tour-видимый-поиск-96452-тся-с-сохранением-геометрии/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/product-tour.spec.ts:91:1 › последний шаг — профиль, «Начать работу» закрывает обучение 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at signIn (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:20:14)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:92:9
+
+    Error Context: test-results/product-tour-последний-шаг-15e95--работу»-закрывает-обучение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/product-tour-последний-шаг-15e95--работу»-закрывает-обучение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/product-tour-последний-шаг-15e95--работу»-закрывает-обучение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/product-tour.spec.ts:107:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at signIn (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:20:14)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:111:9
+
+    Error Context: test-results/product-tour-на-телефоне-ш-c9b36-у-ничего-не-уезжает-за-край/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/product-tour-на-телефоне-ш-c9b36-у-ничего-не-уезжает-за-край/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/product-tour-на-телефоне-ш-c9b36-у-ничего-не-уезжает-за-край/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/product-tour.spec.ts:122:1 › меню содержит только обучение, личность и выход; темы можно выбирать 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at signIn (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:20:14)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:123:9
+
+    Error Context: test-results/product-tour-меню-содержит-63e30-и-выход-темы-можно-выбирать/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/product-tour-меню-содержит-63e30-и-выход-темы-можно-выбирать/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/product-tour-меню-содержит-63e30-и-выход-темы-можно-выбирать/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/product-tour.spec.ts:144:1 › администратор на телефоне видит рабочие темы без настроек владельца 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at signIn (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:20:14)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:150:9
+
+    Error Context: test-results/product-tour-администратор-62716-темы-без-настроек-владельца/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/product-tour-администратор-62716-темы-без-настроек-владельца/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/product-tour-администратор-62716-темы-без-настроек-владельца/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/product-tour.spec.ts:164:1 › обучение подсвечивает поиск в разделе гостей ───────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at signIn (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:20:14)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/product-tour.spec.ts:165:9
+
+    Error Context: test-results/product-tour-обучение-подсвечивает-поиск-в-разделе-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/product-tour-обучение-подсвечивает-поиск-в-разделе-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/product-tour-обучение-подсвечивает-поиск-в-разделе-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/profile-menu-readiness.spec.ts:30:14
+
+    Error Context: test-results/profile-menu-readiness-до--8e311-ие-по-ней-меню-не-открывает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-до--8e311-ие-по-ней-меню-не-открывает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-до--8e311-ие-по-ней-меню-не-открывает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/profile-menu-readiness.spec.ts:30:14
+
+    Error Context: test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-пос-11583--открывается-обычным-кликом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/profile-menu-readiness.spec.ts:30:14
+
+    Error Context: test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-menu-readiness-пос-455ff-вает-Пробел-открывает-снова/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/real-data.spec.ts:21:1 › источник и агрегаты проекта видны главному администратору в «Платформе», а не на «Интеграциях» 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/connections
+    Call log:
+      - navigating to "http://127.0.0.1:3100/connections", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/real-data.spec.ts:25:14
+
+    Error Context: test-results/real-data-источник-и-агрег-a0314-орме»-а-не-на-«Интеграциях»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-data-источник-и-агрег-a0314-орме»-а-не-на-«Интеграциях»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-data-источник-и-агрег-a0314-орме»-а-не-на-«Интеграциях»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/real-data.spec.ts:41:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/auth/fallback
+    Call log:
+      - navigating to "http://127.0.0.1:3100/auth/fallback", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at signIn (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/real-data.spec.ts:10:14)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/real-data.spec.ts:48:9
+
+    Error Context: test-results/real-data-ошибка-базы-не-п-58b64--повтор-обновляет-состояние/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-data-ошибка-базы-не-п-58b64--повтор-обновляет-состояние/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-data-ошибка-базы-не-п-58b64--повтор-обновляет-состояние/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/real-data.spec.ts:61:1 › название гостиницы в каркасе и обзоре поступает из backend ─
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/today
+    Call log:
+      - navigating to "http://127.0.0.1:3100/today", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/real-data.spec.ts:63:14
+
+    Error Context: test-results/real-data-название-гостини-cc911-обзоре-поступает-из-backend/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-data-название-гостини-cc911-обзоре-поступает-из-backend/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-data-название-гостини-cc911-обзоре-поступает-из-backend/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/real-data.spec.ts:70:1 › недоступный API не скрывается за демо или выдуманным объектом 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/connections
+    Call log:
+      - navigating to "http://127.0.0.1:3100/connections", waiting until "load"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/real-data.spec.ts:72:14
+
+    Error Context: test-results/real-data-недоступный-API--b2f19-емо-или-выдуманным-объектом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-data-недоступный-API--b2f19-емо-или-выдуманным-объектом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-data-недоступный-API--b2f19-емо-или-выдуманным-объектом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/real-data.spec.ts:84:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/new
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/new", waiting until "commit"
+
+
+       at fixtures.ts:140
+
+      138 |     const goto = page.goto.bind(page);
+      139 |     page.goto = async (url, options) => {
+    > 140 |       const response = await goto(url, options);
+          |                              ^
+      141 |       await settleStreaming(page);
+      142 |       return response;
+      143 |     };
+        at _Page.goto (/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/fixtures.ts:140:30)
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/real-data.spec.ts:92:16
+
+    Error Context: test-results/real-data-поздняя-загрузка-d5156--ввод-формы-и-открытое-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-data-поздняя-загрузка-d5156--ввод-формы-и-открытое-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-data-поздняя-загрузка-d5156--ввод-формы-и-открытое-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/accessibility.spec.ts (8.5m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  19 failed
+    tests/ui/premium.spec.ts:45:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст 
+    tests/ui/premium.spec.ts:120:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+    tests/ui/premium.spec.ts:179:1 › вход не пускает с чужой почтой и чужим паролем ────────────────
+    tests/ui/premium.spec.ts:196:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок 
+    tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается 
+    tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии 
+    tests/ui/product-tour.spec.ts:91:1 › последний шаг — профиль, «Начать работу» закрывает обучение 
+    tests/ui/product-tour.spec.ts:107:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край 
+    tests/ui/product-tour.spec.ts:122:1 › меню содержит только обучение, личность и выход; темы можно выбирать 
+    tests/ui/product-tour.spec.ts:144:1 › администратор на телефоне видит рабочие темы без настроек владельца 
+    tests/ui/product-tour.spec.ts:164:1 › обучение подсвечивает поиск в разделе гостей ─────────────
+    tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает 
+    tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом 
+    tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова 
+    tests/ui/real-data.spec.ts:21:1 › источник и агрегаты проекта видны главному администратору в «Платформе», а не на «Интеграциях» 
+    tests/ui/real-data.spec.ts:41:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние 
+    tests/ui/real-data.spec.ts:61:1 › название гостиницы в каркасе и обзоре поступает из backend ───
+    tests/ui/real-data.spec.ts:70:1 › недоступный API не скрывается за демо или выдуманным объектом 
+    tests/ui/real-data.spec.ts:84:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню 
+  26 passed (12.8m)
+
+# код выхода 1 · 12 мин 51 с

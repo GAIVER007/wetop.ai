@@ -4,7 +4,7 @@ import { unitsApi } from '../../../lib/api';
 import { hotelToday, validDate } from '../../../lib/hotel-api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { displayDate } from '../../../lib/display-date';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { UnitActions } from './unit-actions';
 import { UnitFacts } from './unit-facts';
@@ -36,7 +36,7 @@ export default async function UnitPage({
   return (
     <Page
       width="medium"
-      crumbs={<Link href="/chessboard">← календарь</Link>}
+      crumbs={<BackCrumb href="/inventory">Номерной фонд</BackCrumb>}
       title={`Ячейка ${unit.code}`}
       subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
     >

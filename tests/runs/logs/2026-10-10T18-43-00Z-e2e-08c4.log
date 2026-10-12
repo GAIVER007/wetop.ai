@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 10.10.2026 23:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c2c916 (claude/sidebar-navigation), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/design-refresh.spec.ts' 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/side-nav.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/design-refresh.spec.ts:9:1 › финансы: деньги на первом экране, кнопки брони нет (3.0s)
+  ✓   2 tests/ui/design-refresh.spec.ts:32:1 › период «Финансов» и «Аналитики» на телефоне: подписанные поля и цели не меньше 44 px (2.8s)
+  ✓   3 tests/ui/design-refresh.spec.ts:76:1 › финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике» (2.4s)
+  ✓   4 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (8.0s)
+  ✓   5 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (7.8s)
+  ✓   6 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (7.6s)
+  ✓   7 tests/ui/design-refresh.spec.ts:105:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (7.8s)
+  ✓   8 tests/ui/finance-home-merge.spec.ts:19:1 › обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек (1.1s)
+  ✓   9 tests/ui/finance-home-merge.spec.ts:102:1 › очередь «Требуют внимания» открывается из «Все задачи» (1.0s)
+  ✓  10 tests/ui/finance-home-merge.spec.ts:109:1 › /today гостиницы перенаправляет в финансы (986ms)
+  ✓  11 tests/ui/finance-home-merge.spec.ts:117:1 › меню: «Финансы» первой вкладкой, «Главной» нет (956ms)
+  ✓  12 tests/ui/finance-home-merge.spec.ts:126:1 › период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию (1.1s)
+  ✓  13 tests/ui/finance-home-merge.spec.ts:138:1 › телефон: показатели первым экраном, фильтры достижимы (1.1s)
+  ✓  14 tests/ui/side-nav.spec.ts:56:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (3.6s)
+  ✓  15 tests/ui/side-nav.spec.ts:106:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (1.4s)
+  ✓  16 tests/ui/side-nav.spec.ts:143:1 › вложенные адреса показывают свой раздел (3.4s)
+  ✓  17 tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: light (3.0s)
+  ✓  18 tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: dark (3.0s)
+
+  18 passed (1.1m)
+
+# код выхода 0 · 1 мин 5 с

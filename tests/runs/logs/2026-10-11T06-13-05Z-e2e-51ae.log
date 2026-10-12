@@ -1,0 +1,33 @@
+# Сквозные (e2e) · 11.10.2026 11:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 907a513 (claude/kitchen-fs2-stock), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/stock.spec.ts' 'tests/food-ui/restaurant.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/food-ui/restaurant.spec.ts:81:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (3.0s)
+[WebServer] (node:53367) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 tests/food-ui/restaurant.spec.ts:129:1 › заказы: создание с экрана, статусы до «Оплачен», вкладки считают (2.8s)
+  ✓   3 tests/food-ui/restaurant.spec.ts:160:1 › кухня: колонки KDS и переходы кнопками (1.5s)
+  ✓   4 tests/food-ui/restaurant.spec.ts:182:1 › главная: плитки, последние заказы и выручка после закрытия (1.2s)
+  ✓   5 tests/food-ui/restaurant.spec.ts:208:1 › план зала: заказ занимает стол, уборка включается и видна легенда (1.4s)
+  ✓   6 tests/food-ui/restaurant.spec.ts:238:1 › сотрудники: список с продажами, добавление и правка (1.4s)
+  ✓   7 tests/food-ui/restaurant.spec.ts:260:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (2.5s)
+  ✓   8 tests/food-ui/restaurant.spec.ts:311:1 › клиенты: вкладки и «Постоянный гость» от двух визитов (1.0s)
+  ✓   9 tests/food-ui/restaurant.spec.ts:364:1 › навигация ресторана: пункты макета на месте и ведут на экраны (567ms)
+  ✓  10 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (1.8s)
+  ✓  11 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (1.5s)
+  ✓  12 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9 (1.4s)
+  ✓  13 tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет (1.2s)
+  ✓  14 tests/food-ui/stock.spec.ts:136:1 › роли: администратор работает со складом, но не правит справочник; только чтение (1.4s)
+  ✓  15 tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 (8.3s)
+
+  15 passed (36.1s)
+
+# код выхода 0 · 37 с

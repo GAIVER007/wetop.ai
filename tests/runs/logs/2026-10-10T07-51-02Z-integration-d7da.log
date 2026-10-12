@@ -1,0 +1,56 @@
+# Интеграционные (integration) · 10.10.2026 12:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8364a37 (claude/market-ai-collector), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-51-02Z-integration-d7da.json' 'tests/integration/competitor-availability-level.test.ts' 'tests/integration/market-occupancy.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+No test files found, exiting with code 0
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-51-02Z-integration-d7da.json
+filter: tests/integration/competitor-availability-level.test.ts, tests/integration/market-occupancy.test.ts
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: копия данных в pms_test не сделана, схема не изменена: column "availability_level" does not exist
+ ❯ copyLiveData tests/tools/test-schema.ts:223:11
+    221|   } catch (e) {
+    222|     await client.query('ROLLBACK');
+    223|     throw new Error(`копия данных в ${TEST_SCHEMA} не сделана, схема н…
+       |           ^
+    224|       cause: e,
+    225|     });
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:102:39
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+Caused by: error: column "availability_level" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ copyLiveData tests/tools/test-schema.ts:210:19
+ ❯ ensureTestSchema tests/tools/test-schema.ts:102:39
+ ❯ Object.setup tests/integration-setup.ts:14:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 255, severity: 'ERROR', code: '42703', detail: 'There is a column named "availability_level" in table "competitor_occupancy", but it cannot be referenced from this part of the query.', hint: undefined, position: '373', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', routine: 'errorMissingColumn' }
+
+
+
+
+# код выхода 1 · 16 с

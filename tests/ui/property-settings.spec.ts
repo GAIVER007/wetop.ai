@@ -25,7 +25,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов', async ({
@@ -55,17 +55,21 @@ test('один заголовок на трёх вкладках, без «Об�
     );
     await expect(main.getByTestId(check)).toBeVisible();
     await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
-    await expect(main.locator('.page__subtitle')).toContainText('Здесь вы настраиваете данные филиала');
+    await expect(main.locator('.page__subtitle')).toContainText(
+      'Здесь вы настраиваете данные филиала',
+    );
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
     await expect(main.locator('.page__crumbs')).toContainText('Настройки объекта');
   }
-  await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText(
-    'Объект',
-  );
+  await expect(page.locator('.sidenav__items [aria-current="page"]')).toHaveText('Объект');
 
   await tabs.getByRole('link', { name: 'Основное', exact: true }).click();
   const general = main.getByTestId('stored-property');
-  for (const section of ['Основная информация', 'Расположение и классификация', 'Юридические данные'])
+  for (const section of [
+    'Основная информация',
+    'Расположение и классификация',
+    'Юридические данные',
+  ])
     await expect(general.getByRole('heading', { name: section, level: 2 })).toBeVisible();
   // «Основное» по верстке владельца (ADR-158) содержит и заезд с правилами; «Проживание» показывает их отдельно
   await expect(main.getByTestId('stay-settings')).toBeVisible();

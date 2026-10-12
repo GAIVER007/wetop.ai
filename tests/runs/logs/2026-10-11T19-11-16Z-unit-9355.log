@@ -1,0 +1,55 @@
+# Модульные (unit) · 12.10.2026 00:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2d3476c (claude/restaurant-vip-birthdays), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T19-11-16Z-unit-9355.json' 'apps/api/src/sites-runtime/sites-runtime.controller.test.ts' 'tests/unit/auto-deploy.test.ts' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (29 tests) 600ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 10046ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ только токен подписки: отказ до первого круга, модель не зовётся 351ms
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 2454ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 1937ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1367ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1241ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 1534ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1101ms
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 11357ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 3828ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 2487ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 1532ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 937ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 996ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 1272ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 34012ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 2414ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1152ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 3021ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 1347ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 2563ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 1448ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1062ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 1827ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 3481ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 3023ms
+     ✓ локальные правки в клоне — не затирает их 1693ms
+     ✓ историю ветки переписали — не выкладывает поверх 4346ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 1853ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 2004ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1603ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1166ms
+
+ Test Files  4 passed (4)
+      Tests  60 passed (60)
+   Start at  12:11:21
+   Duration  34.48s (tests 90%, import 7%, transform 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T19-11-16Z-unit-9355.json
+
+# код выхода 0 · 40 с

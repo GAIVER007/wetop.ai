@@ -1,0 +1,312 @@
+{"route":"/finance","view":"1440-light","status":200,"errors":[],"url":"/finance","scrollW":1440,"clientW":1440,"height":1980,"h1":["Обзор бизнеса"],"nav":"Финансы"}
+{"route":"/today","view":"1440-light","status":200,"errors":[],"url":"/finance","scrollW":1440,"clientW":1440,"height":1980,"h1":["Обзор бизнеса"],"nav":"Финансы"}
+{"route":"/calendar","view":"1440-light","status":200,"errors":[],"url":"/calendar","scrollW":1440,"clientW":1440,"height":931,"h1":["Календарь"],"nav":"Разделы"}
+{"route":"/chessboard","view":"1440-light","status":200,"errors":[],"url":"/chessboard","scrollW":1440,"clientW":1440,"height":900,"h1":["Календарь"],"nav":"Календарь"}
+{"route":"/guests","view":"1440-light","status":200,"errors":[],"url":"/guests","scrollW":1440,"clientW":1440,"height":906,"h1":["Гости и бронирования"],"nav":"Гости и бронирования"}
+{"route":"/guests/ui-guest","view":"1440-light","status":200,"errors":[],"url":"/guests/ui-guest","scrollW":1440,"clientW":1440,"height":900,"h1":["Гость Тестовый"],"nav":"Гости и бронирования"}
+{"route":"/guests/birthdays","view":"1440-light","status":200,"errors":[],"url":"/guests/birthdays","scrollW":1440,"clientW":1440,"height":900,"h1":["Дни рождения"],"nav":"Гости и бронирования"}
+{"route":"/reservations","view":"1440-light","status":200,"errors":[],"url":"/reservations","scrollW":1440,"clientW":1440,"height":906,"h1":["Брони"],"nav":"Гости и бронирования"}
+{"route":"/reservations/new","view":"1440-light","status":200,"errors":[],"url":"/reservations/new","scrollW":1440,"clientW":1440,"height":995,"h1":["Новая бронь"],"nav":"Гости и бронирования"}
+{"route":"/reservations/20260913-TESTAA","view":"1440-light","status":200,"errors":[],"url":"/reservations/20260913-TESTAA","scrollW":1440,"clientW":1440,"height":900,"h1":["Бронь 20260913-TESTAA"],"nav":"Гости и бронирования"}
+{"route":"/reservations/20260913-TESTAA/print","view":"1440-light","status":200,"errors":[],"url":"/reservations/20260913-TESTAA/print","scrollW":1440,"clientW":1440,"height":900,"h1":["Регистрационная карта гостя"],"nav":null}
+{"route":"/reservations/20260913-TESTAA/print/contract","view":"1440-light","status":200,"errors":[],"url":"/reservations/20260913-TESTAA/print/contract","scrollW":1440,"clientW":1440,"height":900,"h1":["Договор на оказание услуг по временному проживанию"],"nav":null}
+{"route":"/reservations/20260913-TESTAA/print/invoice","view":"1440-light","status":200,"errors":[],"url":"/reservations/20260913-TESTAA/print/invoice","scrollW":1440,"clientW":1440,"height":900,"h1":["Счёт на оплату — Счёт № 20260913-TESTAA"],"nav":null}
+{"route":"/inventory","view":"1440-light","status":200,"errors":[],"url":"/inventory","scrollW":1440,"clientW":1440,"height":901,"h1":["Номерной фонд"],"nav":"Номерной фонд"}
+{"route":"/units/R01","view":"1440-light","status":200,"errors":[],"url":"/units/R01","scrollW":1440,"clientW":1440,"height":1155,"h1":["Ячейка R01"],"nav":"Номерной фонд"}
+{"route":"/rooms","view":"1440-light","status":200,"errors":[],"url":"/inventory","scrollW":1440,"clientW":1440,"height":901,"h1":["Номерной фонд"],"nav":"Номерной фонд"}
+{"route":"/rooms/categories","view":"1440-light","status":200,"errors":[],"url":"/rooms/categories","scrollW":1440,"clientW":1440,"height":900,"h1":["Категории номеров"],"nav":"Номерной фонд"}
+{"route":"/rates","view":"1440-light","status":200,"errors":[],"url":"/rooms/categories","scrollW":1440,"clientW":1440,"height":900,"h1":["Категории номеров"],"nav":"Номерной фонд"}
+{"route":"/channels","view":"1440-light","status":200,"errors":[],"url":"/channels","scrollW":1440,"clientW":1440,"height":900,"h1":["Каналы продаж"],"nav":"Продажи"}
+{"route":"/channels/events/ui-rev-new-2","view":"1440-light","status":200,"errors":[],"url":"/channels/events/ui-rev-new-2","scrollW":1440,"clientW":1440,"height":900,"h1":["Страница не найдена"],"nav":"Продажи"}
+{"route":"/channel-manager","view":"1440-light","status":200,"errors":[],"url":"/channels","scrollW":1440,"clientW":1440,"height":900,"h1":["Каналы продаж"],"nav":"Продажи"}
+{"route":"/connections","view":"1440-light","status":200,"errors":[],"url":"/connections","scrollW":1440,"clientW":1440,"height":900,"h1":["Подключения"],"nav":"Настройки"}
+{"route":"/connections/channex","view":"1440-light","status":200,"errors":[],"url":"/connections/channex","scrollW":1440,"clientW":1440,"height":900,"h1":["Подключение каналов"],"nav":"Настройки"}
+{"route":"/tasks","view":"1440-light","status":200,"errors":[],"url":"/tasks","scrollW":1440,"clientW":1440,"height":900,"h1":["Задачи"],"nav":"Календарь"}
+{"route":"/hotel-settings","view":"1440-light","status":200,"errors":[],"url":"/hotel-settings","scrollW":1440,"clientW":1440,"height":1646,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/stay","view":"1440-light","status":200,"errors":[],"url":"/hotel-settings/stay","scrollW":1440,"clientW":1440,"height":968,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/services","view":"1440-light","status":200,"errors":[],"url":"/hotel-settings/services","scrollW":1440,"clientW":1440,"height":900,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/sales","view":"1440-light","status":200,"errors":[],"url":"/hotel-settings/sales","scrollW":1440,"clientW":1440,"height":900,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/documents","view":"1440-light","status":200,"errors":[],"url":"/hotel-settings/documents","scrollW":1440,"clientW":1440,"height":900,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/services","view":"1440-light","status":200,"errors":[],"url":"/services","scrollW":1440,"clientW":1440,"height":900,"h1":["Услуги"],"nav":"Разделы"}
+{"route":"/bar","view":"1440-light","status":200,"errors":[],"url":"/bar","scrollW":1440,"clientW":1440,"height":1275,"h1":["Бар"],"nav":"Финансы"}
+{"route":"/bar/products","view":"1440-light","status":200,"errors":[],"url":"/bar/products","scrollW":1440,"clientW":1440,"height":1060,"h1":["Бар: товары"],"nav":"Финансы"}
+{"route":"/bar/suppliers","view":"1440-light","status":200,"errors":[],"url":"/bar/suppliers","scrollW":1440,"clientW":1440,"height":900,"h1":["Бар: поставщики"],"nav":"Финансы"}
+{"route":"/bar/receipts","view":"1440-light","status":200,"errors":[],"url":"/bar/receipts","scrollW":1440,"clientW":1440,"height":900,"h1":["Бар: приходы"],"nav":"Финансы"}
+{"route":"/bar/receipts/new","view":"1440-light","status":200,"errors":[],"url":"/bar/receipts/new","scrollW":1440,"clientW":1440,"height":1009,"h1":["Новый приход"],"nav":"Финансы"}
+{"route":"/bar/operations","view":"1440-light","status":200,"errors":[],"url":"/bar/operations","scrollW":1440,"clientW":1440,"height":900,"h1":["Бар: операции"],"nav":"Финансы"}
+{"route":"/sales","view":"1440-light","status":200,"errors":[],"url":"/sales","scrollW":1440,"clientW":1440,"height":900,"h1":["Продажи"],"nav":"Продажи"}
+{"route":"/ai-seller","view":"1440-light","status":200,"errors":[],"url":"/ai-seller","scrollW":1440,"clientW":1440,"height":900,"h1":["ИИ-продавец"],"nav":"Продажи"}
+{"route":"/ai-seller/agents","view":"1440-light","status":200,"errors":[],"url":"/ai-seller/agents","scrollW":1440,"clientW":1440,"height":900,"h1":["Мои ИИ-продавцы"],"nav":"Продажи"}
+{"route":"/ai-seller/agents/new","view":"1440-light","status":200,"errors":[],"url":"/ai-seller/agents/new","scrollW":1440,"clientW":1440,"height":1047,"h1":["Новый ИИ-продавец"],"nav":"Продажи"}
+{"route":"/ai-agents","view":"1440-light","status":200,"errors":[],"url":"/ai-agents","scrollW":1440,"clientW":1440,"height":900,"h1":["ИИ-продавцы"],"nav":"Продажи"}
+{"route":"/ai-agents/new","view":"1440-light","status":200,"errors":[],"url":"/ai-agents/new","scrollW":1440,"clientW":1440,"height":900,"h1":["Новый AI-продавец"],"nav":"Продажи"}
+{"route":"/management","view":"1440-light","status":200,"errors":[],"url":"/management/analytics","scrollW":1440,"clientW":1440,"height":901,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics","view":"1440-light","status":200,"errors":[],"url":"/management/analytics","scrollW":1440,"clientW":1440,"height":901,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics/occupancy","view":"1440-light","status":200,"errors":[],"url":"/management/analytics/occupancy","scrollW":1440,"clientW":1440,"height":901,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics/units","view":"1440-light","status":200,"errors":[],"url":"/management/analytics/units","scrollW":1440,"clientW":1440,"height":4086,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics/channels","view":"1440-light","status":200,"errors":[],"url":"/management/analytics/channels","scrollW":1440,"clientW":1440,"height":900,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/reports","view":"1440-light","status":200,"errors":[],"url":"/reports","scrollW":1440,"clientW":1440,"height":938,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/overview","view":"1440-light","status":200,"errors":[],"url":"/reports/overview","scrollW":1440,"clientW":1440,"height":901,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/finance","view":"1440-light","status":200,"errors":[],"url":"/reports/finance","scrollW":1440,"clientW":1440,"height":2044,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/occupancy","view":"1440-light","status":200,"errors":[],"url":"/reports/occupancy","scrollW":1440,"clientW":1440,"height":901,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/units","view":"1440-light","status":200,"errors":[],"url":"/reports/units","scrollW":1440,"clientW":1440,"height":4088,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/form-910","view":"1440-light","status":200,"errors":[],"url":"/reports/form-910","scrollW":1440,"clientW":1440,"height":900,"h1":["Доход для формы 910"],"nav":"Отчёты"}
+{"route":"/reports/print?form=day","view":"1440-light","status":200,"errors":[],"url":"/reports/print?form=day","scrollW":1440,"clientW":1440,"height":900,"h1":["Сводка дня"],"nav":null}
+{"route":"/market","view":"1440-light","status":200,"errors":[],"url":"/market","scrollW":1440,"clientW":1440,"height":900,"h1":["Анализ конкурентов"],"nav":"Продажи"}
+{"route":"/marketing","view":"1440-light","status":200,"errors":[],"url":"/marketing","scrollW":1440,"clientW":1440,"height":900,"h1":["Маркетинг"],"nav":"Маркетинг"}
+{"route":"/marketing/site","view":"1440-light","status":200,"errors":[],"url":"/marketing/site","scrollW":1440,"clientW":1440,"height":900,"h1":["Публикация сайта"],"nav":"Маркетинг"}
+{"route":"/marketing/site/editor","view":"1440-light","status":200,"errors":["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."],"url":"/marketing/site/editor","scrollW":1440,"clientW":1440,"height":1098,"h1":["Редактор сайта"],"nav":"Маркетинг"}
+{"route":"/marketing/site/assets","view":"1440-light","status":200,"errors":[],"url":"/marketing/site/assets","scrollW":1440,"clientW":1440,"height":1167,"h1":["Изображения сайта"],"nav":"Маркетинг"}
+{"route":"/marketing/ads","view":"1440-light","status":200,"errors":[],"url":"/marketing/ads","scrollW":1440,"clientW":1440,"height":900,"h1":["Реклама"],"nav":"Маркетинг"}
+{"route":"/marketing/content","view":"1440-light","status":200,"errors":[],"url":"/marketing/content","scrollW":1440,"clientW":1440,"height":1187,"h1":["Контент"],"nav":"Маркетинг"}
+{"route":"/website","view":"1440-light","status":200,"errors":[],"url":"/website","scrollW":1440,"clientW":1440,"height":900,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/website/settings","view":"1440-light","status":200,"errors":[],"url":"/website/settings","scrollW":1440,"clientW":1440,"height":1429,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/website/booking","view":"1440-light","status":200,"errors":[],"url":"/website/booking","scrollW":1440,"clientW":1440,"height":1198,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/website/analytics","view":"1440-light","status":200,"errors":[],"url":"/website/analytics","scrollW":1440,"clientW":1440,"height":1992,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/platform","view":"1440-light","status":200,"errors":[],"url":"/platform","scrollW":1440,"clientW":1440,"height":900,"h1":["Организации"],"nav":"Настройки"}
+{"route":"/platform/support","view":"1440-light","status":200,"errors":[],"url":"/platform/support","scrollW":1440,"clientW":1440,"height":900,"h1":["Техподдержка"],"nav":"Настройки"}
+{"route":"/branches","view":"1440-light","status":200,"errors":[],"url":"/branches","scrollW":1440,"clientW":1440,"height":983,"h1":["Организация и филиалы"],"nav":"Настройки"}
+{"route":"/team","view":"1440-light","status":200,"errors":[],"url":"/team","scrollW":1440,"clientW":1440,"height":900,"h1":["Сотрудники и доступ"],"nav":"Настройки"}
+{"route":"/team/roles","view":"1440-light","status":200,"errors":[],"url":"/team/roles","scrollW":1440,"clientW":1440,"height":900,"h1":["Сотрудники и доступ"],"nav":"Настройки"}
+{"route":"/staff","view":"1440-light","status":200,"errors":[],"url":"/team","scrollW":1440,"clientW":1440,"height":900,"h1":["Сотрудники и доступ"],"nav":"Настройки"}
+{"route":"/profile","view":"1440-light","status":200,"errors":[],"url":"/profile","scrollW":1440,"clientW":1440,"height":900,"h1":["Настройки рабочего места"],"nav":"Профиль"}
+{"route":"/profile/access","view":"1440-light","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/help","view":"1440-light","status":200,"errors":[],"url":"/help","scrollW":1440,"clientW":1440,"height":900,"h1":["Помощь"],"nav":"Помощь"}
+{"route":"/incidents","view":"1440-light","status":200,"errors":[],"url":"/incidents","scrollW":1440,"clientW":1440,"height":900,"h1":["Неисправности"],"nav":"Настройки"}
+{"route":"/journal","view":"1440-light","status":200,"errors":[],"url":"/journal","scrollW":1440,"clientW":1440,"height":900,"h1":["Журнал операций"],"nav":"Настройки"}
+{"route":"/status","view":"1440-light","status":200,"errors":[],"url":"/status","scrollW":1440,"clientW":1440,"height":900,"h1":["Состояние WETOP"],"nav":null}
+{"route":"/onboarding","view":"1440-light","status":200,"errors":[],"url":"/finance","scrollW":1440,"clientW":1440,"height":1980,"h1":["Обзор бизнеса"],"nav":"Финансы"}
+{"route":"/create","view":"1440-light","status":200,"errors":["Failed to load resource: the server responded with a status of 501 (Not Implemented)"],"url":"/create","scrollW":1440,"clientW":1440,"height":900,"h1":["Создайте ИИ-продавца за 3 минуты"],"nav":null}
+{"route":"/design-system","view":"1440-light","status":200,"errors":[],"url":"/design-system","scrollW":1440,"clientW":1440,"height":43824,"h1":["Дизайн-система"],"nav":"Разделы"}
+{"route":"/login","view":"1440-light","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/login/check-email","view":"1440-light","status":200,"errors":[],"url":"/login/check-email","scrollW":1440,"clientW":1440,"height":900,"h1":["Подтвердитевашу почту."],"nav":null}
+{"route":"/login/reset","view":"1440-light","status":200,"errors":[],"url":"/login/reset","scrollW":1440,"clientW":1440,"height":900,"h1":["Забыли пароль?Это решаемо."],"nav":null}
+{"route":"/login/set-password","view":"1440-light","status":200,"errors":[],"url":"/login/set-password","scrollW":1440,"clientW":1440,"height":900,"h1":["Придумайтесебе пароль."],"nav":null}
+{"route":"/login/verify","view":"1440-light","status":200,"errors":[],"url":"/login/verify","scrollW":1440,"clientW":1440,"height":900,"h1":["Почтиготово."],"nav":null}
+{"route":"/register","view":"1440-light","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/register/setup","view":"1440-light","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/register/complete","view":"1440-light","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/invite/fixture-invite-token","view":"1440-light","status":200,"errors":[],"url":"/invite/fixture-invite-token","scrollW":1440,"clientW":1440,"height":900,"h1":["Вас приглашают"],"nav":null}
+{"route":"/appointments","view":"1440-light","status":200,"errors":[],"url":"/appointments","scrollW":1440,"clientW":1440,"height":900,"h1":["Записи"],"nav":"Разделы"}
+{"route":"/customers","view":"1440-light","status":200,"errors":[],"url":"/customers","scrollW":1440,"clientW":1440,"height":900,"h1":["Клиенты"],"nav":"Разделы"}
+{"route":"/employees","view":"1440-light","status":200,"errors":[],"url":"/employees","scrollW":1440,"clientW":1440,"height":900,"h1":["Мастера"],"nav":"Разделы"}
+{"route":"/payroll","view":"1440-light","status":200,"errors":[],"url":"/payroll","scrollW":1440,"clientW":1440,"height":900,"h1":["Зарплата и финансы"],"nav":"Разделы"}
+{"route":"/cashbox","view":"1440-light","status":200,"errors":[],"url":"/cashbox","scrollW":1440,"clientW":1440,"height":900,"h1":["Касса"],"nav":"Разделы"}
+{"route":"/floor-plan","view":"1440-light","status":200,"errors":[],"url":"/floor-plan","scrollW":1440,"clientW":1440,"height":900,"h1":["План зала"],"nav":"Разделы"}
+{"route":"/dining-areas","view":"1440-light","status":200,"errors":[],"url":"/dining-areas","scrollW":1440,"clientW":1440,"height":900,"h1":["Залы и столы"],"nav":"Разделы"}
+{"route":"/table-reservations","view":"1440-light","status":200,"errors":[],"url":"/table-reservations","scrollW":1440,"clientW":1440,"height":900,"h1":["Бронирования"],"nav":"Разделы"}
+{"route":"/menu","view":"1440-light","status":200,"errors":[],"url":"/menu","scrollW":1440,"clientW":1440,"height":900,"h1":["Меню"],"nav":"Разделы"}
+{"route":"/kitchen","view":"1440-light","status":200,"errors":[],"url":"/kitchen","scrollW":1440,"clientW":1440,"height":900,"h1":["Кухня"],"nav":"Разделы"}
+{"route":"/orders","view":"1440-light","status":200,"errors":[],"url":"/orders","scrollW":1440,"clientW":1440,"height":900,"h1":["Заказы"],"nav":"Разделы"}
+{"route":"/beauty","view":"1440-light","status":200,"errors":[],"url":"/beauty","scrollW":1440,"clientW":1440,"height":931,"h1":["Календарь"],"nav":"Разделы"}
+{"route":"/beauty/schedule","view":"1440-light","status":200,"errors":[],"url":"/beauty/schedule","scrollW":1440,"clientW":1440,"height":900,"h1":["График"],"nav":"Разделы"}
+{"route":"/beauty/masters","view":"1440-light","status":200,"errors":[],"url":"/beauty/masters","scrollW":1440,"clientW":1440,"height":900,"h1":["Мастера"],"nav":"Разделы"}
+{"route":"/beauty/services","view":"1440-light","status":200,"errors":[],"url":"/beauty/services","scrollW":1440,"clientW":1440,"height":900,"h1":["Услуги"],"nav":"Разделы"}
+{"route":"/finance","view":"1440-dark","status":200,"errors":[],"url":"/finance","scrollW":1440,"clientW":1440,"height":1980,"h1":["Обзор бизнеса"],"nav":"Финансы"}
+{"route":"/today","view":"1440-dark","status":200,"errors":[],"url":"/finance","scrollW":1440,"clientW":1440,"height":1980,"h1":["Обзор бизнеса"],"nav":"Финансы"}
+{"route":"/calendar","view":"1440-dark","status":200,"errors":[],"url":"/calendar","scrollW":1440,"clientW":1440,"height":931,"h1":["Календарь"],"nav":"Разделы"}
+{"route":"/chessboard","view":"1440-dark","status":200,"errors":[],"url":"/chessboard","scrollW":1440,"clientW":1440,"height":900,"h1":["Календарь"],"nav":"Календарь"}
+{"route":"/guests","view":"1440-dark","status":200,"errors":[],"url":"/guests","scrollW":1440,"clientW":1440,"height":906,"h1":["Гости и бронирования"],"nav":"Гости и бронирования"}
+{"route":"/guests/ui-guest","view":"1440-dark","status":200,"errors":[],"url":"/guests/ui-guest","scrollW":1440,"clientW":1440,"height":900,"h1":["Гость Тестовый"],"nav":"Гости и бронирования"}
+{"route":"/guests/birthdays","view":"1440-dark","status":200,"errors":[],"url":"/guests/birthdays","scrollW":1440,"clientW":1440,"height":900,"h1":["Дни рождения"],"nav":"Гости и бронирования"}
+{"route":"/reservations","view":"1440-dark","status":200,"errors":[],"url":"/reservations","scrollW":1440,"clientW":1440,"height":906,"h1":["Брони"],"nav":"Гости и бронирования"}
+{"route":"/reservations/new","view":"1440-dark","status":200,"errors":[],"url":"/reservations/new","scrollW":1440,"clientW":1440,"height":995,"h1":["Новая бронь"],"nav":"Гости и бронирования"}
+{"route":"/reservations/20260913-TESTAA","view":"1440-dark","status":200,"errors":[],"url":"/reservations/20260913-TESTAA","scrollW":1440,"clientW":1440,"height":900,"h1":["Бронь 20260913-TESTAA"],"nav":"Гости и бронирования"}
+{"route":"/reservations/20260913-TESTAA/print","view":"1440-dark","status":200,"errors":[],"url":"/reservations/20260913-TESTAA/print","scrollW":1440,"clientW":1440,"height":900,"h1":["Регистрационная карта гостя"],"nav":null}
+{"route":"/reservations/20260913-TESTAA/print/contract","view":"1440-dark","status":200,"errors":[],"url":"/reservations/20260913-TESTAA/print/contract","scrollW":1440,"clientW":1440,"height":900,"h1":["Договор на оказание услуг по временному проживанию"],"nav":null}
+{"route":"/reservations/20260913-TESTAA/print/invoice","view":"1440-dark","status":200,"errors":[],"url":"/reservations/20260913-TESTAA/print/invoice","scrollW":1440,"clientW":1440,"height":900,"h1":["Счёт на оплату — Счёт № 20260913-TESTAA"],"nav":null}
+{"route":"/inventory","view":"1440-dark","status":200,"errors":[],"url":"/inventory","scrollW":1440,"clientW":1440,"height":901,"h1":["Номерной фонд"],"nav":"Номерной фонд"}
+{"route":"/units/R01","view":"1440-dark","status":200,"errors":[],"url":"/units/R01","scrollW":1440,"clientW":1440,"height":1155,"h1":["Ячейка R01"],"nav":"Номерной фонд"}
+{"route":"/rooms","view":"1440-dark","status":200,"errors":[],"url":"/inventory","scrollW":1440,"clientW":1440,"height":901,"h1":["Номерной фонд"],"nav":"Номерной фонд"}
+{"route":"/rooms/categories","view":"1440-dark","status":200,"errors":[],"url":"/rooms/categories","scrollW":1440,"clientW":1440,"height":900,"h1":["Категории номеров"],"nav":"Номерной фонд"}
+{"route":"/rates","view":"1440-dark","status":200,"errors":[],"url":"/rooms/categories","scrollW":1440,"clientW":1440,"height":900,"h1":["Категории номеров"],"nav":"Номерной фонд"}
+{"route":"/channels","view":"1440-dark","status":200,"errors":[],"url":"/channels","scrollW":1440,"clientW":1440,"height":900,"h1":["Каналы продаж"],"nav":"Продажи"}
+{"route":"/channels/events/ui-rev-new-2","view":"1440-dark","status":200,"errors":[],"url":"/channels/events/ui-rev-new-2","scrollW":1440,"clientW":1440,"height":900,"h1":["Страница не найдена"],"nav":"Продажи"}
+{"route":"/channel-manager","view":"1440-dark","status":200,"errors":[],"url":"/channels","scrollW":1440,"clientW":1440,"height":900,"h1":["Каналы продаж"],"nav":"Продажи"}
+{"route":"/connections","view":"1440-dark","status":200,"errors":[],"url":"/connections","scrollW":1440,"clientW":1440,"height":900,"h1":["Подключения"],"nav":"Настройки"}
+{"route":"/connections/channex","view":"1440-dark","status":200,"errors":[],"url":"/connections/channex","scrollW":1440,"clientW":1440,"height":900,"h1":["Подключение каналов"],"nav":"Настройки"}
+{"route":"/tasks","view":"1440-dark","status":200,"errors":[],"url":"/tasks","scrollW":1440,"clientW":1440,"height":900,"h1":["Задачи"],"nav":"Календарь"}
+{"route":"/hotel-settings","view":"1440-dark","status":200,"errors":[],"url":"/hotel-settings","scrollW":1440,"clientW":1440,"height":1646,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/stay","view":"1440-dark","status":200,"errors":[],"url":"/hotel-settings/stay","scrollW":1440,"clientW":1440,"height":968,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/services","view":"1440-dark","status":200,"errors":[],"url":"/hotel-settings/services","scrollW":1440,"clientW":1440,"height":900,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/sales","view":"1440-dark","status":200,"errors":[],"url":"/hotel-settings/sales","scrollW":1440,"clientW":1440,"height":900,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/documents","view":"1440-dark","status":200,"errors":[],"url":"/hotel-settings/documents","scrollW":1440,"clientW":1440,"height":900,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/services","view":"1440-dark","status":200,"errors":[],"url":"/services","scrollW":1440,"clientW":1440,"height":900,"h1":["Услуги"],"nav":"Разделы"}
+{"route":"/bar","view":"1440-dark","status":200,"errors":[],"url":"/bar","scrollW":1440,"clientW":1440,"height":1275,"h1":["Бар"],"nav":"Финансы"}
+{"route":"/bar/products","view":"1440-dark","status":200,"errors":[],"url":"/bar/products","scrollW":1440,"clientW":1440,"height":1060,"h1":["Бар: товары"],"nav":"Финансы"}
+{"route":"/bar/suppliers","view":"1440-dark","status":200,"errors":[],"url":"/bar/suppliers","scrollW":1440,"clientW":1440,"height":900,"h1":["Бар: поставщики"],"nav":"Финансы"}
+{"route":"/bar/receipts","view":"1440-dark","status":200,"errors":[],"url":"/bar/receipts","scrollW":1440,"clientW":1440,"height":900,"h1":["Бар: приходы"],"nav":"Финансы"}
+{"route":"/bar/receipts/new","view":"1440-dark","status":200,"errors":[],"url":"/bar/receipts/new","scrollW":1440,"clientW":1440,"height":1009,"h1":["Новый приход"],"nav":"Финансы"}
+{"route":"/bar/operations","view":"1440-dark","status":200,"errors":[],"url":"/bar/operations","scrollW":1440,"clientW":1440,"height":900,"h1":["Бар: операции"],"nav":"Финансы"}
+{"route":"/sales","view":"1440-dark","status":200,"errors":[],"url":"/sales","scrollW":1440,"clientW":1440,"height":900,"h1":["Продажи"],"nav":"Продажи"}
+{"route":"/ai-seller","view":"1440-dark","status":200,"errors":[],"url":"/ai-seller","scrollW":1440,"clientW":1440,"height":900,"h1":["ИИ-продавец"],"nav":"Продажи"}
+{"route":"/ai-seller/agents","view":"1440-dark","status":200,"errors":[],"url":"/ai-seller/agents","scrollW":1440,"clientW":1440,"height":900,"h1":["Мои ИИ-продавцы"],"nav":"Продажи"}
+{"route":"/ai-seller/agents/new","view":"1440-dark","status":200,"errors":[],"url":"/ai-seller/agents/new","scrollW":1440,"clientW":1440,"height":1047,"h1":["Новый ИИ-продавец"],"nav":"Продажи"}
+{"route":"/ai-agents","view":"1440-dark","status":200,"errors":[],"url":"/ai-agents","scrollW":1440,"clientW":1440,"height":900,"h1":["ИИ-продавцы"],"nav":"Продажи"}
+{"route":"/ai-agents/new","view":"1440-dark","status":200,"errors":[],"url":"/ai-agents/new","scrollW":1440,"clientW":1440,"height":900,"h1":["Новый AI-продавец"],"nav":"Продажи"}
+{"route":"/management","view":"1440-dark","status":200,"errors":[],"url":"/management/analytics","scrollW":1440,"clientW":1440,"height":901,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics","view":"1440-dark","status":200,"errors":[],"url":"/management/analytics","scrollW":1440,"clientW":1440,"height":901,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics/occupancy","view":"1440-dark","status":200,"errors":[],"url":"/management/analytics/occupancy","scrollW":1440,"clientW":1440,"height":901,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics/units","view":"1440-dark","status":200,"errors":[],"url":"/management/analytics/units","scrollW":1440,"clientW":1440,"height":4086,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics/channels","view":"1440-dark","status":200,"errors":[],"url":"/management/analytics/channels","scrollW":1440,"clientW":1440,"height":900,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/reports","view":"1440-dark","status":200,"errors":[],"url":"/reports","scrollW":1440,"clientW":1440,"height":938,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/overview","view":"1440-dark","status":200,"errors":[],"url":"/reports/overview","scrollW":1440,"clientW":1440,"height":901,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/finance","view":"1440-dark","status":200,"errors":[],"url":"/reports/finance","scrollW":1440,"clientW":1440,"height":2044,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/occupancy","view":"1440-dark","status":200,"errors":[],"url":"/reports/occupancy","scrollW":1440,"clientW":1440,"height":901,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/units","view":"1440-dark","status":200,"errors":[],"url":"/reports/units","scrollW":1440,"clientW":1440,"height":4088,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/form-910","view":"1440-dark","status":200,"errors":[],"url":"/reports/form-910","scrollW":1440,"clientW":1440,"height":900,"h1":["Доход для формы 910"],"nav":"Отчёты"}
+{"route":"/reports/print?form=day","view":"1440-dark","status":200,"errors":[],"url":"/reports/print?form=day","scrollW":1440,"clientW":1440,"height":900,"h1":["Сводка дня"],"nav":null}
+{"route":"/market","view":"1440-dark","status":200,"errors":[],"url":"/market","scrollW":1440,"clientW":1440,"height":900,"h1":["Анализ конкурентов"],"nav":"Продажи"}
+{"route":"/marketing","view":"1440-dark","status":200,"errors":[],"url":"/marketing","scrollW":1440,"clientW":1440,"height":900,"h1":["Маркетинг"],"nav":"Маркетинг"}
+{"route":"/marketing/site","view":"1440-dark","status":200,"errors":[],"url":"/marketing/site","scrollW":1440,"clientW":1440,"height":900,"h1":["Публикация сайта"],"nav":"Маркетинг"}
+{"route":"/marketing/site/editor","view":"1440-dark","status":200,"errors":["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."],"url":"/marketing/site/editor","scrollW":1440,"clientW":1440,"height":1098,"h1":["Редактор сайта"],"nav":"Маркетинг"}
+{"route":"/marketing/site/assets","view":"1440-dark","status":200,"errors":[],"url":"/marketing/site/assets","scrollW":1440,"clientW":1440,"height":1167,"h1":["Изображения сайта"],"nav":"Маркетинг"}
+{"route":"/marketing/ads","view":"1440-dark","status":200,"errors":[],"url":"/marketing/ads","scrollW":1440,"clientW":1440,"height":900,"h1":["Реклама"],"nav":"Маркетинг"}
+{"route":"/marketing/content","view":"1440-dark","status":200,"errors":[],"url":"/marketing/content","scrollW":1440,"clientW":1440,"height":1187,"h1":["Контент"],"nav":"Маркетинг"}
+{"route":"/website","view":"1440-dark","status":200,"errors":[],"url":"/website","scrollW":1440,"clientW":1440,"height":900,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/website/settings","view":"1440-dark","status":200,"errors":[],"url":"/website/settings","scrollW":1440,"clientW":1440,"height":1429,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/website/booking","view":"1440-dark","status":200,"errors":[],"url":"/website/booking","scrollW":1440,"clientW":1440,"height":1198,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/website/analytics","view":"1440-dark","status":200,"errors":[],"url":"/website/analytics","scrollW":1440,"clientW":1440,"height":1992,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/platform","view":"1440-dark","status":200,"errors":[],"url":"/platform","scrollW":1440,"clientW":1440,"height":900,"h1":["Организации"],"nav":"Настройки"}
+{"route":"/platform/support","view":"1440-dark","status":200,"errors":[],"url":"/platform/support","scrollW":1440,"clientW":1440,"height":900,"h1":["Техподдержка"],"nav":"Настройки"}
+{"route":"/branches","view":"1440-dark","status":200,"errors":[],"url":"/branches","scrollW":1440,"clientW":1440,"height":983,"h1":["Организация и филиалы"],"nav":"Настройки"}
+{"route":"/team","view":"1440-dark","status":200,"errors":[],"url":"/team","scrollW":1440,"clientW":1440,"height":900,"h1":["Сотрудники и доступ"],"nav":"Настройки"}
+{"route":"/team/roles","view":"1440-dark","status":200,"errors":[],"url":"/team/roles","scrollW":1440,"clientW":1440,"height":900,"h1":["Сотрудники и доступ"],"nav":"Настройки"}
+{"route":"/staff","view":"1440-dark","status":200,"errors":[],"url":"/team","scrollW":1440,"clientW":1440,"height":900,"h1":["Сотрудники и доступ"],"nav":"Настройки"}
+{"route":"/profile","view":"1440-dark","status":200,"errors":[],"url":"/profile","scrollW":1440,"clientW":1440,"height":900,"h1":["Настройки рабочего места"],"nav":"Профиль"}
+{"route":"/profile/access","view":"1440-dark","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/help","view":"1440-dark","status":200,"errors":[],"url":"/help","scrollW":1440,"clientW":1440,"height":900,"h1":["Помощь"],"nav":"Помощь"}
+{"route":"/incidents","view":"1440-dark","status":200,"errors":[],"url":"/incidents","scrollW":1440,"clientW":1440,"height":900,"h1":["Неисправности"],"nav":"Настройки"}
+{"route":"/journal","view":"1440-dark","status":200,"errors":[],"url":"/journal","scrollW":1440,"clientW":1440,"height":900,"h1":["Журнал операций"],"nav":"Настройки"}
+{"route":"/status","view":"1440-dark","status":200,"errors":[],"url":"/status","scrollW":1440,"clientW":1440,"height":900,"h1":["Состояние WETOP"],"nav":null}
+{"route":"/onboarding","view":"1440-dark","status":200,"errors":[],"url":"/finance","scrollW":1440,"clientW":1440,"height":1980,"h1":["Обзор бизнеса"],"nav":"Финансы"}
+{"route":"/create","view":"1440-dark","status":200,"errors":["Failed to load resource: the server responded with a status of 501 (Not Implemented)"],"url":"/create","scrollW":1440,"clientW":1440,"height":900,"h1":["Создайте ИИ-продавца за 3 минуты"],"nav":null}
+{"route":"/design-system","view":"1440-dark","status":200,"errors":[],"url":"/design-system","scrollW":1440,"clientW":1440,"height":43824,"h1":["Дизайн-система"],"nav":"Разделы"}
+{"route":"/login","view":"1440-dark","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/login/check-email","view":"1440-dark","status":200,"errors":[],"url":"/login/check-email","scrollW":1440,"clientW":1440,"height":900,"h1":["Подтвердитевашу почту."],"nav":null}
+{"route":"/login/reset","view":"1440-dark","status":200,"errors":[],"url":"/login/reset","scrollW":1440,"clientW":1440,"height":900,"h1":["Забыли пароль?Это решаемо."],"nav":null}
+{"route":"/login/set-password","view":"1440-dark","status":200,"errors":[],"url":"/login/set-password","scrollW":1440,"clientW":1440,"height":900,"h1":["Придумайтесебе пароль."],"nav":null}
+{"route":"/login/verify","view":"1440-dark","status":200,"errors":[],"url":"/login/verify","scrollW":1440,"clientW":1440,"height":900,"h1":["Почтиготово."],"nav":null}
+{"route":"/register","view":"1440-dark","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/register/setup","view":"1440-dark","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/register/complete","view":"1440-dark","status":200,"errors":[],"url":"/","scrollW":1440,"clientW":1440,"height":900,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/invite/fixture-invite-token","view":"1440-dark","status":200,"errors":[],"url":"/invite/fixture-invite-token","scrollW":1440,"clientW":1440,"height":900,"h1":["Вас приглашают"],"nav":null}
+{"route":"/appointments","view":"1440-dark","status":200,"errors":[],"url":"/appointments","scrollW":1440,"clientW":1440,"height":900,"h1":["Записи"],"nav":"Разделы"}
+{"route":"/customers","view":"1440-dark","status":200,"errors":[],"url":"/customers","scrollW":1440,"clientW":1440,"height":900,"h1":["Клиенты"],"nav":"Разделы"}
+{"route":"/employees","view":"1440-dark","status":200,"errors":[],"url":"/employees","scrollW":1440,"clientW":1440,"height":900,"h1":["Мастера"],"nav":"Разделы"}
+{"route":"/payroll","view":"1440-dark","status":200,"errors":[],"url":"/payroll","scrollW":1440,"clientW":1440,"height":900,"h1":["Зарплата и финансы"],"nav":"Разделы"}
+{"route":"/cashbox","view":"1440-dark","status":200,"errors":[],"url":"/cashbox","scrollW":1440,"clientW":1440,"height":900,"h1":["Касса"],"nav":"Разделы"}
+{"route":"/floor-plan","view":"1440-dark","status":200,"errors":[],"url":"/floor-plan","scrollW":1440,"clientW":1440,"height":900,"h1":["План зала"],"nav":"Разделы"}
+{"route":"/dining-areas","view":"1440-dark","status":200,"errors":[],"url":"/dining-areas","scrollW":1440,"clientW":1440,"height":900,"h1":["Залы и столы"],"nav":"Разделы"}
+{"route":"/table-reservations","view":"1440-dark","status":200,"errors":[],"url":"/table-reservations","scrollW":1440,"clientW":1440,"height":900,"h1":["Бронирования"],"nav":"Разделы"}
+{"route":"/menu","view":"1440-dark","status":200,"errors":[],"url":"/menu","scrollW":1440,"clientW":1440,"height":900,"h1":["Меню"],"nav":"Разделы"}
+{"route":"/kitchen","view":"1440-dark","status":200,"errors":[],"url":"/kitchen","scrollW":1440,"clientW":1440,"height":900,"h1":["Кухня"],"nav":"Разделы"}
+{"route":"/orders","view":"1440-dark","status":200,"errors":[],"url":"/orders","scrollW":1440,"clientW":1440,"height":900,"h1":["Заказы"],"nav":"Разделы"}
+{"route":"/beauty","view":"1440-dark","status":200,"errors":[],"url":"/beauty","scrollW":1440,"clientW":1440,"height":931,"h1":["Календарь"],"nav":"Разделы"}
+{"route":"/beauty/schedule","view":"1440-dark","status":200,"errors":[],"url":"/beauty/schedule","scrollW":1440,"clientW":1440,"height":900,"h1":["График"],"nav":"Разделы"}
+{"route":"/beauty/masters","view":"1440-dark","status":200,"errors":[],"url":"/beauty/masters","scrollW":1440,"clientW":1440,"height":900,"h1":["Мастера"],"nav":"Разделы"}
+{"route":"/beauty/services","view":"1440-dark","status":200,"errors":[],"url":"/beauty/services","scrollW":1440,"clientW":1440,"height":900,"h1":["Услуги"],"nav":"Разделы"}
+{"route":"/finance","view":"390-light","status":200,"errors":[],"url":"/finance","scrollW":390,"clientW":390,"height":5362,"h1":["Обзор бизнеса"],"nav":"Финансы"}
+{"route":"/today","view":"390-light","status":200,"errors":[],"url":"/finance","scrollW":390,"clientW":390,"height":5362,"h1":["Обзор бизнеса"],"nav":"Финансы"}
+{"route":"/calendar","view":"390-light","status":200,"errors":[],"url":"/calendar","scrollW":390,"clientW":390,"height":1593,"h1":["Календарь"],"nav":"Разделы"}
+{"route":"/chessboard","view":"390-light","status":200,"errors":[],"url":"/chessboard","scrollW":390,"clientW":390,"height":1179,"h1":["Календарь"],"nav":"Календарь"}
+{"route":"/guests","view":"390-light","status":200,"errors":[],"url":"/guests","scrollW":390,"clientW":390,"height":1940,"h1":["Гости и бронирования"],"nav":"Гости и бронирования"}
+{"route":"/guests/ui-guest","view":"390-light","status":200,"errors":[],"url":"/guests/ui-guest","scrollW":390,"clientW":390,"height":1198,"h1":["Гость Тестовый"],"nav":"Гости и бронирования"}
+{"route":"/guests/birthdays","view":"390-light","status":200,"errors":[],"url":"/guests/birthdays","scrollW":390,"clientW":390,"height":844,"h1":["Дни рождения"],"nav":"Гости и бронирования"}
+{"route":"/reservations","view":"390-light","status":200,"errors":[],"url":"/reservations","scrollW":390,"clientW":390,"height":2656,"h1":["Брони"],"nav":"Гости и бронирования"}
+{"route":"/reservations/new","view":"390-light","status":200,"errors":[],"url":"/reservations/new","scrollW":390,"clientW":390,"height":1460,"h1":["Новая бронь"],"nav":"Гости и бронирования"}
+{"route":"/reservations/20260913-TESTAA","view":"390-light","status":200,"errors":[],"url":"/reservations/20260913-TESTAA","scrollW":390,"clientW":390,"height":1218,"h1":["Бронь 20260913-TESTAA"],"nav":"Гости и бронирования"}
+{"route":"/reservations/20260913-TESTAA/print","view":"390-light","status":200,"errors":[],"url":"/reservations/20260913-TESTAA/print","scrollW":485,"clientW":390,"height":844,"h1":["Регистрационная карта гостя"],"nav":null}
+{"route":"/reservations/20260913-TESTAA/print/contract","view":"390-light","status":200,"errors":[],"url":"/reservations/20260913-TESTAA/print/contract","scrollW":459,"clientW":390,"height":1139,"h1":["Договор на оказание услуг по временному проживанию"],"nav":null}
+{"route":"/reservations/20260913-TESTAA/print/invoice","view":"390-light","status":200,"errors":[],"url":"/reservations/20260913-TESTAA/print/invoice","scrollW":410,"clientW":390,"height":865,"h1":["Счёт на оплату — Счёт № 20260913-TESTAA"],"nav":null}
+{"route":"/inventory","view":"390-light","status":200,"errors":[],"url":"/inventory","scrollW":390,"clientW":390,"height":6795,"h1":["Номерной фонд"],"nav":"Номерной фонд"}
+{"route":"/units/R01","view":"390-light","status":200,"errors":[],"url":"/units/R01","scrollW":390,"clientW":390,"height":1768,"h1":["Ячейка R01"],"nav":"Номерной фонд"}
+{"route":"/rooms","view":"390-light","status":200,"errors":[],"url":"/inventory","scrollW":390,"clientW":390,"height":6795,"h1":["Номерной фонд"],"nav":"Номерной фонд"}
+{"route":"/rooms/categories","view":"390-light","status":200,"errors":[],"url":"/rooms/categories","scrollW":390,"clientW":390,"height":1127,"h1":["Категории номеров"],"nav":"Номерной фонд"}
+{"route":"/rates","view":"390-light","status":200,"errors":[],"url":"/rooms/categories","scrollW":390,"clientW":390,"height":1127,"h1":["Категории номеров"],"nav":"Номерной фонд"}
+{"route":"/channels","view":"390-light","status":200,"errors":[],"url":"/channels","scrollW":390,"clientW":390,"height":1868,"h1":["Каналы продаж"],"nav":"Продажи"}
+{"route":"/channels/events/ui-rev-new-2","view":"390-light","status":200,"errors":[],"url":"/channels/events/ui-rev-new-2","scrollW":390,"clientW":390,"height":844,"h1":["Страница не найдена"],"nav":"Продажи"}
+{"route":"/channel-manager","view":"390-light","status":200,"errors":[],"url":"/channels","scrollW":390,"clientW":390,"height":1868,"h1":["Каналы продаж"],"nav":"Продажи"}
+{"route":"/connections","view":"390-light","status":200,"errors":[],"url":"/connections","scrollW":390,"clientW":390,"height":1048,"h1":["Подключения"],"nav":"Настройки"}
+{"route":"/connections/channex","view":"390-light","status":200,"errors":[],"url":"/connections/channex","scrollW":390,"clientW":390,"height":1127,"h1":["Подключение каналов"],"nav":"Настройки"}
+{"route":"/tasks","view":"390-light","status":200,"errors":[],"url":"/tasks","scrollW":390,"clientW":390,"height":844,"h1":["Задачи"],"nav":"Календарь"}
+{"route":"/hotel-settings","view":"390-light","status":200,"errors":[],"url":"/hotel-settings","scrollW":390,"clientW":390,"height":4836,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/stay","view":"390-light","status":200,"errors":[],"url":"/hotel-settings/stay","scrollW":390,"clientW":390,"height":2275,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/services","view":"390-light","status":200,"errors":[],"url":"/hotel-settings/services","scrollW":390,"clientW":390,"height":1139,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/sales","view":"390-light","status":200,"errors":[],"url":"/hotel-settings/sales","scrollW":390,"clientW":390,"height":1341,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/hotel-settings/documents","view":"390-light","status":200,"errors":[],"url":"/hotel-settings/documents","scrollW":390,"clientW":390,"height":1254,"h1":["Настройки объекта"],"nav":"Настройки"}
+{"route":"/services","view":"390-light","status":200,"errors":[],"url":"/services","scrollW":390,"clientW":390,"height":844,"h1":["Услуги"],"nav":"Разделы"}
+{"route":"/bar","view":"390-light","status":200,"errors":[],"url":"/bar","scrollW":390,"clientW":390,"height":3796,"h1":["Бар"],"nav":"Финансы"}
+{"route":"/bar/products","view":"390-light","status":200,"errors":[],"url":"/bar/products","scrollW":390,"clientW":390,"height":2159,"h1":["Бар: товары"],"nav":"Финансы"}
+{"route":"/bar/suppliers","view":"390-light","status":200,"errors":[],"url":"/bar/suppliers","scrollW":390,"clientW":390,"height":1183,"h1":["Бар: поставщики"],"nav":"Финансы"}
+{"route":"/bar/receipts","view":"390-light","status":200,"errors":[],"url":"/bar/receipts","scrollW":390,"clientW":390,"height":959,"h1":["Бар: приходы"],"nav":"Финансы"}
+{"route":"/bar/receipts/new","view":"390-light","status":200,"errors":[],"url":"/bar/receipts/new","scrollW":390,"clientW":390,"height":1966,"h1":["Новый приход"],"nav":"Финансы"}
+{"route":"/bar/operations","view":"390-light","status":200,"errors":[],"url":"/bar/operations","scrollW":390,"clientW":390,"height":1419,"h1":["Бар: операции"],"nav":"Финансы"}
+{"route":"/sales","view":"390-light","status":200,"errors":[],"url":"/sales","scrollW":390,"clientW":390,"height":1711,"h1":["Продажи"],"nav":"Продажи"}
+{"route":"/ai-seller","view":"390-light","status":200,"errors":[],"url":"/ai-seller","scrollW":390,"clientW":390,"height":1059,"h1":["ИИ-продавец"],"nav":"Продажи"}
+{"route":"/ai-seller/agents","view":"390-light","status":200,"errors":[],"url":"/ai-seller/agents","scrollW":390,"clientW":390,"height":844,"h1":["Мои ИИ-продавцы"],"nav":"Продажи"}
+{"route":"/ai-seller/agents/new","view":"390-light","status":200,"errors":[],"url":"/ai-seller/agents/new","scrollW":390,"clientW":390,"height":1402,"h1":["Новый ИИ-продавец"],"nav":"Продажи"}
+{"route":"/ai-agents","view":"390-light","status":200,"errors":[],"url":"/ai-agents","scrollW":390,"clientW":390,"height":844,"h1":["ИИ-продавцы"],"nav":"Продажи"}
+{"route":"/ai-agents/new","view":"390-light","status":200,"errors":[],"url":"/ai-agents/new","scrollW":390,"clientW":390,"height":844,"h1":["Новый AI-продавец"],"nav":"Продажи"}
+{"route":"/management","view":"390-light","status":200,"errors":[],"url":"/management/analytics","scrollW":390,"clientW":390,"height":3428,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics","view":"390-light","status":200,"errors":[],"url":"/management/analytics","scrollW":390,"clientW":390,"height":3428,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics/occupancy","view":"390-light","status":200,"errors":[],"url":"/management/analytics/occupancy","scrollW":390,"clientW":390,"height":2385,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics/units","view":"390-light","status":200,"errors":[],"url":"/management/analytics/units","scrollW":390,"clientW":390,"height":4253,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/management/analytics/channels","view":"390-light","status":200,"errors":[],"url":"/management/analytics/channels","scrollW":390,"clientW":390,"height":1361,"h1":["Аналитика"],"nav":"Отчёты"}
+{"route":"/reports","view":"390-light","status":200,"errors":[],"url":"/reports","scrollW":390,"clientW":390,"height":2050,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/overview","view":"390-light","status":200,"errors":[],"url":"/reports/overview","scrollW":390,"clientW":390,"height":3378,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/finance","view":"390-light","status":200,"errors":[],"url":"/reports/finance","scrollW":390,"clientW":390,"height":2596,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/occupancy","view":"390-light","status":200,"errors":[],"url":"/reports/occupancy","scrollW":390,"clientW":390,"height":2387,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/units","view":"390-light","status":200,"errors":[],"url":"/reports/units","scrollW":390,"clientW":390,"height":4255,"h1":["Отчёты"],"nav":"Отчёты"}
+{"route":"/reports/form-910","view":"390-light","status":200,"errors":[],"url":"/reports/form-910","scrollW":390,"clientW":390,"height":886,"h1":["Доход для формы 910"],"nav":"Отчёты"}
+{"route":"/reports/print?form=day","view":"390-light","status":200,"errors":[],"url":"/reports/print?form=day","scrollW":390,"clientW":390,"height":844,"h1":["Сводка дня"],"nav":null}
+{"route":"/market","view":"390-light","status":200,"errors":[],"url":"/market","scrollW":390,"clientW":390,"height":914,"h1":["Анализ конкурентов"],"nav":"Продажи"}
+{"route":"/marketing","view":"390-light","status":200,"errors":[],"url":"/marketing","scrollW":390,"clientW":390,"height":1842,"h1":["Маркетинг"],"nav":"Маркетинг"}
+{"route":"/marketing/site","view":"390-light","status":200,"errors":[],"url":"/marketing/site","scrollW":390,"clientW":390,"height":1463,"h1":["Публикация сайта"],"nav":"Маркетинг"}
+{"route":"/marketing/site/editor","view":"390-light","status":200,"errors":["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."],"url":"/marketing/site/editor","scrollW":390,"clientW":390,"height":1287,"h1":["Редактор сайта"],"nav":"Маркетинг"}
+{"route":"/marketing/site/assets","view":"390-light","status":200,"errors":[],"url":"/marketing/site/assets","scrollW":390,"clientW":390,"height":2270,"h1":["Изображения сайта"],"nav":"Маркетинг"}
+{"route":"/marketing/ads","view":"390-light","status":200,"errors":[],"url":"/marketing/ads","scrollW":390,"clientW":390,"height":1466,"h1":["Реклама"],"nav":"Маркетинг"}
+{"route":"/marketing/content","view":"390-light","status":200,"errors":[],"url":"/marketing/content","scrollW":390,"clientW":390,"height":1838,"h1":["Контент"],"nav":"Маркетинг"}
+{"route":"/website","view":"390-light","status":200,"errors":[],"url":"/website","scrollW":390,"clientW":390,"height":844,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/website/settings","view":"390-light","status":200,"errors":[],"url":"/website/settings","scrollW":390,"clientW":390,"height":1839,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/website/booking","view":"390-light","status":200,"errors":[],"url":"/website/booking","scrollW":390,"clientW":390,"height":1898,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/website/analytics","view":"390-light","status":200,"errors":[],"url":"/website/analytics","scrollW":390,"clientW":390,"height":3349,"h1":["Сайт и онлайн-бронирование"],"nav":"Маркетинг"}
+{"route":"/platform","view":"390-light","status":200,"errors":[],"url":"/platform","scrollW":390,"clientW":390,"height":844,"h1":["Организации"],"nav":"Настройки"}
+{"route":"/platform/support","view":"390-light","status":200,"errors":[],"url":"/platform/support","scrollW":390,"clientW":390,"height":844,"h1":["Техподдержка"],"nav":"Настройки"}
+{"route":"/branches","view":"390-light","status":200,"errors":[],"url":"/branches","scrollW":390,"clientW":390,"height":1275,"h1":["Организация и филиалы"],"nav":"Настройки"}
+{"route":"/team","view":"390-light","status":200,"errors":[],"url":"/team","scrollW":390,"clientW":390,"height":844,"h1":["Сотрудники и доступ"],"nav":"Настройки"}
+{"route":"/team/roles","view":"390-light","status":200,"errors":[],"url":"/team/roles","scrollW":390,"clientW":390,"height":844,"h1":["Сотрудники и доступ"],"nav":"Настройки"}
+{"route":"/staff","view":"390-light","status":200,"errors":[],"url":"/team","scrollW":390,"clientW":390,"height":844,"h1":["Сотрудники и доступ"],"nav":"Настройки"}
+{"route":"/profile","view":"390-light","status":200,"errors":[],"url":"/profile","scrollW":390,"clientW":390,"height":844,"h1":["Настройки рабочего места"],"nav":"Профиль"}
+{"route":"/profile/access","view":"390-light","status":200,"errors":[],"url":"/","scrollW":390,"clientW":390,"height":844,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/help","view":"390-light","status":200,"errors":[],"url":"/help","scrollW":390,"clientW":390,"height":844,"h1":["Помощь"],"nav":"Помощь"}
+{"route":"/incidents","view":"390-light","status":200,"errors":[],"url":"/incidents","scrollW":390,"clientW":390,"height":1219,"h1":["Неисправности"],"nav":"Настройки"}
+{"route":"/journal","view":"390-light","status":200,"errors":[],"url":"/journal","scrollW":390,"clientW":390,"height":1010,"h1":["Журнал операций"],"nav":"Настройки"}
+{"route":"/status","view":"390-light","status":200,"errors":[],"url":"/status","scrollW":390,"clientW":390,"height":844,"h1":["Состояние WETOP"],"nav":null}
+{"route":"/onboarding","view":"390-light","status":200,"errors":[],"url":"/finance","scrollW":390,"clientW":390,"height":5362,"h1":["Обзор бизнеса"],"nav":"Финансы"}
+{"route":"/create","view":"390-light","status":200,"errors":["Failed to load resource: the server responded with a status of 501 (Not Implemented)"],"url":"/create","scrollW":390,"clientW":390,"height":1070,"h1":["Создайте ИИ-продавца за 3 минуты"],"nav":null}
+{"route":"/design-system","view":"390-light","status":200,"errors":[],"url":"/design-system","scrollW":390,"clientW":390,"height":82159,"h1":["Дизайн-система"],"nav":"Разделы"}
+{"route":"/login","view":"390-light","status":200,"errors":[],"url":"/","scrollW":390,"clientW":390,"height":844,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/login/check-email","view":"390-light","status":200,"errors":[],"url":"/login/check-email","scrollW":390,"clientW":390,"height":894,"h1":["Подтвердитевашу почту."],"nav":null}
+{"route":"/login/reset","view":"390-light","status":200,"errors":[],"url":"/login/reset","scrollW":390,"clientW":390,"height":844,"h1":["Забыли пароль?Это решаемо."],"nav":null}
+{"route":"/login/set-password","view":"390-light","status":200,"errors":[],"url":"/login/set-password","scrollW":390,"clientW":390,"height":844,"h1":["Придумайтесебе пароль."],"nav":null}
+{"route":"/login/verify","view":"390-light","status":200,"errors":[],"url":"/login/verify","scrollW":390,"clientW":390,"height":844,"h1":["Почтиготово."],"nav":null}
+{"route":"/register","view":"390-light","status":200,"errors":[],"url":"/","scrollW":390,"clientW":390,"height":844,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/register/setup","view":"390-light","status":200,"errors":[],"url":"/","scrollW":390,"clientW":390,"height":844,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/register/complete","view":"390-light","status":200,"errors":[],"url":"/","scrollW":390,"clientW":390,"height":844,"h1":["Не удается получить доступ к сайту"],"nav":null}
+{"route":"/invite/fixture-invite-token","view":"390-light","status":200,"errors":[],"url":"/invite/fixture-invite-token","scrollW":390,"clientW":390,"height":844,"h1":["Вас приглашают"],"nav":null}
+{"route":"/appointments","view":"390-light","status":200,"errors":[],"url":"/appointments","scrollW":390,"clientW":390,"height":844,"h1":["Записи"],"nav":"Разделы"}
+{"route":"/customers","view":"390-light","status":200,"errors":[],"url":"/customers","scrollW":390,"clientW":390,"height":844,"h1":["Клиенты"],"nav":"Разделы"}
+{"route":"/employees","view":"390-light","status":200,"errors":[],"url":"/employees","scrollW":390,"clientW":390,"height":844,"h1":["Мастера"],"nav":"Разделы"}
+{"route":"/payroll","view":"390-light","status":200,"errors":[],"url":"/payroll","scrollW":390,"clientW":390,"height":844,"h1":["Зарплата и финансы"],"nav":"Разделы"}
+{"route":"/cashbox","view":"390-light","status":200,"errors":[],"url":"/cashbox","scrollW":390,"clientW":390,"height":844,"h1":["Касса"],"nav":"Разделы"}
+{"route":"/floor-plan","view":"390-light","status":200,"errors":[],"url":"/floor-plan","scrollW":390,"clientW":390,"height":844,"h1":["План зала"],"nav":"Разделы"}
+{"route":"/dining-areas","view":"390-light","status":200,"errors":[],"url":"/dining-areas","scrollW":390,"clientW":390,"height":844,"h1":["Залы и столы"],"nav":"Разделы"}
+{"route":"/table-reservations","view":"390-light","status":200,"errors":[],"url":"/table-reservations","scrollW":390,"clientW":390,"height":844,"h1":["Бронирования"],"nav":"Разделы"}
+{"route":"/menu","view":"390-light","status":200,"errors":[],"url":"/menu","scrollW":390,"clientW":390,"height":844,"h1":["Меню"],"nav":"Разделы"}
+{"route":"/kitchen","view":"390-light","status":200,"errors":[],"url":"/kitchen","scrollW":390,"clientW":390,"height":844,"h1":["Кухня"],"nav":"Разделы"}
+{"route":"/orders","view":"390-light","status":200,"errors":[],"url":"/orders","scrollW":390,"clientW":390,"height":844,"h1":["Заказы"],"nav":"Разделы"}
+{"route":"/beauty","view":"390-light","status":200,"errors":[],"url":"/beauty","scrollW":390,"clientW":390,"height":1593,"h1":["Календарь"],"nav":"Разделы"}
+{"route":"/beauty/schedule","view":"390-light","status":200,"errors":[],"url":"/beauty/schedule","scrollW":390,"clientW":390,"height":844,"h1":["График"],"nav":"Разделы"}
+{"route":"/beauty/masters","view":"390-light","status":200,"errors":[],"url":"/beauty/masters","scrollW":390,"clientW":390,"height":844,"h1":["Мастера"],"nav":"Разделы"}
+{"route":"/beauty/services","view":"390-light","status":200,"errors":[],"url":"/beauty/services","scrollW":390,"clientW":390,"height":844,"h1":["Услуги"],"nav":"Разделы"}

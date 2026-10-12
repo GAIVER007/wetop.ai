@@ -9,24 +9,26 @@ test.beforeEach(async ({ page, request }) => {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 });
 
-test('настройки: основные поля и сохранение помещаются на ноутбуке', async ({ page }) => {
+test('настройки: основные поля и сохранение видны на ноутбуке сразу, вбок не прокручивается', async ({
+  page,
+}) => {
   await page.goto('/hotel-settings');
-  await expect(page.getByLabel('Название объекта')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Сохранить изменения' })).toBeVisible();
-  // До 09.10.2026 здесь был бюджет высоты всей страницы (экран + HEADER_GROWTH_PX). Карточка объекта по
-  // верстке владельца (ADR-158) это три колонки карточек на пяти вкладках, страница прокручивается по
-  // замыслу; на первом экране остаётся главное: название объекта видно без прокрутки
-  const name = await page.getByLabel('Название объекта').boundingBox();
-  const viewport = page.viewportSize()!;
-  expect(name!.y + name!.height).toBeLessThanOrEqual(viewport.height);
+  // С 09.10 «Настройки объекта» это три колонки карточек на пяти вкладках (ADR-158): страница
+  // прокручивается вниз намеренно, как «Отчёты»; одним экраном остаются ключевые поля и сохранение
+  await expect(page.getByLabel('Название объекта')).toBeInViewport();
+  await expect(page.getByRole('button', { name: 'Сохранить изменения' })).toBeInViewport();
+  const overflowX = await page.evaluate(
+    () => document.documentElement.scrollWidth - innerWidth,
+  );
+  expect(overflowX).toBeLessThanOrEqual(1);
 });
 
 test('интеграции: незавершённая настройка не называется подключением', async ({ page }) => {
   await page.goto('/connections');
-  await expect(page.getByRole('navigation', { name: 'Интеграции' })).toContainText('Подключения');
+  await expect(page.getByRole('navigation', { name: 'Интеграции' })).toContainText('Подключённые');
   await expect(page.getByTestId('integration-environment')).toBeVisible();
 });
 

@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
  */
 const phase = process.env['DS1C_CAPTURE'];
 const out = `reports/mv8-5-ds1c-2026-10-08/${phase}`;
-const api = 'http://127.0.0.1:55824';
+const api = `http://127.0.0.1:${process.env.FOOD_UI_API_PORT ?? '55824'}`;
 const date = '2026-10-12';
 
 test.skip(!phase, 'только для сравнения DS1c: DS1C_CAPTURE=before|after');

@@ -650,17 +650,17 @@
     background: transparent;
     box-shadow: none;
   }
-  .page:has(.cash-summary) .finance-controls {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-controls {
     display: block;
     margin-bottom: var(--space-2);
   }
-  .page:has(.cash-summary) .finance-toolbar {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-toolbar {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: end;
     gap: var(--space-2) var(--space-4);
   }
-  .page:has(.cash-summary) .finance-toolbar .field {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-toolbar .field {
     min-width: 0;
     margin: 0;
     display: flex;
@@ -668,17 +668,17 @@
     align-items: stretch;
     gap: var(--space-1);
   }
-  .page:has(.cash-summary) .finance-toolbar .inp {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-toolbar .inp {
     width: 100%;
     border-color: var(--border);
     box-shadow: none;
     background-image: none;
   }
-  .page:has(.cash-summary) .finance-toolbar .inp:focus-visible {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-toolbar .inp:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
   }
-  .page:has(.cash-summary) .finance-presets {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-presets {
     order: -1;
     grid-column: 1 / -1;
     display: flex;
@@ -694,7 +694,7 @@
     font-size: var(--text-sm);
     color: var(--text-2);
   }
-  .page:has(.cash-summary) .finance-presets a {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-presets a {
     min-height: 44px;
     padding: var(--space-1) var(--space-2);
     font-size: var(--text-sm);
@@ -707,7 +707,7 @@
     border-radius: 0;
     background: transparent;
   }
-  .page:has(.cash-summary) .finance-presets a + a::before {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-presets a + a::before {
     content: '';
     width: 1px;
     height: 14px;
@@ -715,7 +715,7 @@
     background: var(--border);
     margin-right: var(--space-2);
   }
-  .page:has(.cash-summary) .finance-presets a.is-active {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-presets a.is-active {
     background: transparent;
     color: var(--primary);
     font-weight: var(--weight-semibold);
@@ -740,26 +740,26 @@
   .finance-filter-actions .finance-reset:hover {
     color: var(--primary);
   }
-  .page:has(.cash-summary) .finance-tab-panel {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-tab-panel {
     max-height: none;
     overflow: visible;
   }
-  .page:has(.cash-summary) .finance-ops {
+  .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-ops {
     background: transparent;
     border: 0;
     padding: 0;
     box-shadow: none;
   }
   @media (max-width: 1000px) {
-    .page:has(.cash-summary) .finance-toolbar {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-toolbar {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   @media (max-width: 600px) {
-    .page:has(.cash-summary) {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) {
       padding-top: var(--space-2);
     }
-    .page:has(.cash-summary) .page__head {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .page__head {
       margin-bottom: var(--space-2);
     }
     .cash-summary {
@@ -787,14 +787,14 @@
       min-height: 44px;
       padding-inline: var(--space-2);
     }
-    .page:has(.cash-summary) .finance-toolbar {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-toolbar {
       gap: var(--space-1) var(--space-2);
     }
-    .page:has(.cash-summary) .finance-toolbar .inp {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-toolbar .inp {
       min-height: 44px;
       font-size: 16px;
     }
-    .page:has(.cash-summary) .finance-presets {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-presets {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }
@@ -804,20 +804,20 @@
       margin: 0;
       font-size: var(--text-xs);
     }
-    .page:has(.cash-summary) .finance-presets a {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-presets a {
       flex: 1;
       min-width: 0;
       font-size: var(--text-xs);
       padding-inline: 0;
     }
-    .page:has(.cash-summary) .finance-presets a + a::before {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-presets a + a::before {
       margin-right: var(--space-1);
     }
     .cash-summary__period .cash-summary__label {
       font-weight: var(--weight-semibold);
     }
 
-    .page:has(.cash-summary) .finance-ops__table {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-ops__table {
       min-width: 0;
       width: 100%;
     }
@@ -856,10 +856,10 @@
     }
   }
   @media (max-width: 600px) and (max-height: 780px) {
-    .page:has(.cash-summary) {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) {
       padding-bottom: calc(var(--space-16) + var(--space-2));
     }
-    .page:has(.cash-summary) .page__head,
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .page__head,
     .cash-summary {
       margin-bottom: var(--space-1);
     }
@@ -872,10 +872,10 @@
     .cash-quick {
       margin-bottom: 0;
     }
-    .page:has(.cash-summary) .finance-toolbar {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-toolbar {
       row-gap: 0;
     }
-    .page:has(.cash-summary) .finance-presets {
+    .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-presets {
       padding: 0;
     }
   }

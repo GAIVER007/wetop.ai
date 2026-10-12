@@ -5,7 +5,7 @@ test('филиалы: создание, сохранение после reload �
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/branches');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Организация и филиалы' })).toBeVisible();
@@ -16,7 +16,7 @@ test('филиалы: создание, сохранение после reload �
   await page.reload();
   await expect(main.getByRole('heading', { name: 'Тестовый филиал у парка' })).toBeVisible();
   await expect(
-    main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+    main.getByRole('heading', { name: 'Сводка по гостиницам', exact: true }),
   ).toBeVisible();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -39,7 +39,7 @@ test('организации: филиал создаётся прямо в ра
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
   await page.goto('/platform');
   await expect(page.getByTestId('platform-forbidden')).toBeVisible();
   await expect(page.locator('summary').filter({ hasText: 'Добавить филиал' })).toHaveCount(0);
@@ -106,7 +106,7 @@ test('переключатель филиалов сохраняет разде�
   // объект и филиал стоят в шапке рядом со знаком (ADR-134); список не сдвигает строку разделов
   const sidebar = page.locator('.workspace-header');
   const trigger = sidebar.getByRole('button', { name: 'Выбрать филиал', exact: true });
-  const navigation = sidebar.locator('.topmenu');
+  const navigation = page.getByRole('main');
   const before = await navigation.boundingBox();
   await trigger.click();
   const choices = sidebar.getByRole('region', { name: 'Выбор филиала' });
@@ -147,7 +147,8 @@ test('переключатель филиалов сохраняет разде�
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const mobile = page.locator('.mobile-navigation');
   await mobile.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
-  await expect(mobile.getByRole('button', { name: /Филиал Север Тестовая/ })).toHaveAttribute(
+  // в кнопке между названием и адресом подписано направление (#403): «Филиал Север Гостиничный бизнес Тестовая улица…»
+  await expect(mobile.getByRole('button', { name: /Филиал Север .*Тестовая улица/ })).toHaveAttribute(
     'aria-pressed',
     'true',
   );

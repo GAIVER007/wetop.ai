@@ -1,6 +1,6 @@
 import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-const api = 'http://127.0.0.1:55824';
+const api = `http://127.0.0.1:${process.env.FOOD_UI_API_PORT ?? '55824'}`;
 const date = '2026-10-12';
 async function settled(page: Page) {
   await page.evaluate(async () => {
@@ -108,7 +108,7 @@ async function create(page: Page, walkIn = false) {
   if (walkIn)
     await dialog
       .getByRole('combobox', { name: 'Стол', exact: true })
-      .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+      .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
   await dialog
     .getByRole('button', { name: walkIn ? 'Посадить' : 'Создать бронь', exact: true })
     .click();
@@ -124,7 +124,7 @@ test('empty restaurant catalog and complete persisted desk flow', async ({ page,
   await page.getByRole('button', { name: /19:00, Анна Тестовая/ }).click();
   await dialog
     .getByRole('combobox', { name: 'Назначить стол', exact: true })
-    .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+    .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
   await dialog.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await expect(dialog).toContainText('Основной зал, Стол 7');
   await dialog.getByRole('button', { name: 'Подтвердить', exact: true }).click();
@@ -150,18 +150,23 @@ test('walk-in is seated immediately and persisted after reload', async ({ page, 
   await expect(dialog).toContainText('За столом');
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await page.reload();
+  // щелчок по столу открывает карточку стола (макет, экран 2), бронь из неё
   await page.getByRole('button', { name: 'Стол 7, За столом' }).click();
+  await expect(page.getByTestId('table-panel')).toContainText('Анна Тестовая');
+  await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
   await expect(dialog.getByRole('button', { name: 'Снять стол', exact: true })).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Завершить', exact: true }).click();
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await expect(page.getByRole('button', { name: 'Стол 7, Свободен' })).toBeVisible();
 });
 test('real API screenshots, keyboard and axe', async ({ page, request }) => {
+  // 16 переходов с axe и снимками: под нагрузкой машины (load 7+) каждый 1,5–5 с, общий предел 90 с мал
+  test.setTimeout(240_000);
   await seed(page, request);
   const d = await create(page);
   await d
     .getByRole('combobox', { name: 'Назначить стол', exact: true })
-    .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+    .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await d.getByRole('button', { name: 'Подтвердить', exact: true }).click();
   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
@@ -196,7 +201,8 @@ test('real API screenshots, keyboard and axe', async ({ page, request }) => {
       }
       await page.goto(`/floor-plan?date=${date}&time=19:00`);
       await page.getByRole('button', { name: 'Стол 7, Подтверждено' }).click();
-      await expect(page.getByRole('dialog')).toBeVisible();
+      await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
+      await expect(page.getByRole('dialog', { name: 'Бронирование' })).toBeVisible();
       await settled(page);
       await page.screenshot({
         path: `${shots}/reservation-drawer-${theme}-${width}.png`,
@@ -471,6 +477,9 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await d.getByLabel('Заметка').fill('Обновлено');
   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(d).toContainText('Обновлено');
+  // Правка сохранилась и refresh доехал: доска позади панели показывает новое число гостей.
+  // Без этого следующее действие гонится с обновлением и токен стареет (та же болезнь, что adabb06e3)
+  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 5 гостей');
   await expect(
     d
       .getByRole('combobox', { name: 'Назначить стол', exact: true })
@@ -499,6 +508,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await d.getByRole('button', { name: 'Изменить бронь', exact: true }).click();
   await d.getByLabel('Количество гостей').fill('2');
   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 2 гостя');
   await d.getByRole('combobox', { name: 'Назначить стол', exact: true }).selectOption(table.id);
   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await expect(d.locator('dl')).toContainText('Основной зал, Стол 7');
@@ -584,6 +594,8 @@ test('Food excludes every registered foreign workspace route before API requests
   page,
   request,
 }) => {
+  // каждый чужой маршрут компилируется dev-сервером впервые: под нагрузкой 90 с на весь обход мало
+  test.setTimeout(240_000);
   await seed(page, request);
   const before = (await (await request.get(`${api}/__test/calls`)).json()).length;
   for (const route of [
@@ -592,7 +604,7 @@ test('Food excludes every registered foreign workspace route before API requests
     '/onboarding',
     '/calendar',
     '/appointments',
-    '/employees',
+    // `/employees` больше не чужой: у ресторана это «Сотрудники» (ADR-159), проверяет restaurant.spec.ts
     '/services',
     '/beauty',
     '/chessboard',
@@ -605,7 +617,8 @@ test('Food excludes every registered foreign workspace route before API requests
     '/hotel-settings',
   ]) {
     await page.goto(route);
-    await expect(page).toHaveURL(/\/today$/);
+    // первый заход на маршрут компилируется dev-сервером; под нагрузкой редирект дольше 5 секунд
+    await expect(page).toHaveURL(/\/today$/, { timeout: 15000 });
   }
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
   expect(

@@ -526,6 +526,24 @@ describe('AuthService.register', () => {
     expect(organizations).toHaveLength(before.orgs);
   });
 
+  // Q-REG-1 (решение владельца 10.10.2026): страна организации и язык интерфейса человека сохраняются
+  it('сохраняет страну организации из выбранной страны и язык интерфейса человека', async () => {
+    const { auth, users, organizations } = service();
+    await auth.register({ ...NEW, phoneCountry: 'UZ', phone: '90 123 45 67', locale: 'kk' }, NOW);
+    expect(users.find((u) => u.email === NEW.email)!.locale).toBe('kk');
+    expect(organizations.find((o) => o.name === 'Хостел на Абая')!.countryCode).toBe('UZ');
+  });
+
+  it('без языка в форме человек получает русский; чужой код языка — отказ без записи', async () => {
+    const { auth, users, organizations } = service();
+    const before = { users: users.length, orgs: organizations.length };
+    await expect(auth.register({ ...NEW, locale: 'xx' }, NOW)).rejects.toThrow(/язык/i);
+    expect(users).toHaveLength(before.users);
+    expect(organizations).toHaveLength(before.orgs);
+    await auth.register(NEW, NOW);
+    expect(users.find((u) => u.email === NEW.email)!.locale).toBe('ru');
+  });
+
   it('до подтверждения почты вход закрыт — и говорит, что делать', async () => {
     const { auth } = service();
     await auth.register(NEW, NOW);

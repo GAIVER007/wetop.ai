@@ -1,0 +1,44 @@
+# Сквозные (e2e) · 10.10.2026 23:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит a153d2d (claude/platform-superadmin)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/platform-overview.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/organizations-manage.spec.ts' 'tests/ui/side-nav.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 24 tests using 1 worker
+
+  ✓   1 tests/ui/organizations-manage.spec.ts:21:1 › переименование: название сохраняется и видно в таблице; пустое отклоняется словами API (4.6s)
+  ✓   2 tests/ui/organizations-manage.spec.ts:42:1 › архив вместо удаления: подтверждение, скрытие из списка, показ архивных и возврат с прежним статусом (8.0s)
+  ✓   3 tests/ui/organizations-manage.spec.ts:84:1 › своя организация: помечена «Ваша», в архив не убирается (2.9s)
+  ✓   4 tests/ui/organizations-manage.spec.ts:101:1 › создание организации: письмо владельцу ушло, в таблице «ждёт пароля», повторная ссылка сразу нельзя (4.6s)
+  ✓   5 tests/ui/organizations-manage.spec.ts:136:1 › письмо не ушло: организация создана, ссылку можно отправить ещё раз, когда почта заработала (3.1s)
+  ✓   6 tests/ui/organizations-manage.spec.ts:162:1 › создание: отказы API видны словами; ссылка на самостоятельную регистрацию остаётся (2.0s)
+  ✓   7 tests/ui/platform-access.spec.ts:33:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (3.4s)
+  ✓   8 tests/ui/platform-access.spec.ts:73:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (3.2s)
+  ✓   9 tests/ui/platform-access.spec.ts:95:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (3.6s)
+  ✓  10 tests/ui/platform-access.spec.ts:134:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (5.5s)
+  ✓  11 tests/ui/platform-access.spec.ts:162:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (8.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4031687153'
+[WebServer] }
+  ✓  12 tests/ui/platform-access.spec.ts:182:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (6.4s)
+  ✓  13 tests/ui/platform-access.spec.ts:205:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (11.4s)
+  ✓  14 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, light, 1440px (39.2s)
+  ✓  15 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, dark, 1440px (32.3s)
+  ✓  16 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, light, 390px (19.8s)
+  ✓  17 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, dark, 390px (8.8s)
+  ✓  18 tests/ui/platform-overview.spec.ts:23:1 › обзор: плитки, рост, направления, статусы; про деньги — честные слова, а не числа (2.3s)
+  ✓  19 tests/ui/platform-overview.spec.ts:53:1 › таблица клиентов: направления, филиалы, дата подключения; поиск и отборы работают на месте (2.3s)
+  ✓  20 tests/ui/side-nav.spec.ts:56:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (6.1s)
+  ✓  21 tests/ui/side-nav.spec.ts:106:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (2.4s)
+  ✓  22 tests/ui/side-nav.spec.ts:143:1 › вложенные адреса показывают свой раздел (4.6s)
+  ✓  23 tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: light (3.7s)
+  ✓  24 tests/ui/side-nav.spec.ts:167:3 › меню без прокрутки вбок и доступное: dark (3.1s)
+
+  24 passed (3.3m)
+
+# код выхода 0 · 3 мин 21 с

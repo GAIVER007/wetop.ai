@@ -98,31 +98,35 @@ export function LineChart({
           </li>
         ))}
       </ul>
-      <table className="sr-only">
-        <caption>Значения по точкам графика</caption>
-        <thead>
-          <tr>
-            <th scope="col">Точка графика</th>
-            {series.map((s) => (
-              <th key={s.name} scope="col">
-                {s.name}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {labels.map((label, i) => (
-            <tr key={label}>
-              <th scope="row">{label}</th>
+      {/* Таблица значений для читалки обёрнута в div: у таблицы `height: 1px` из .sr-only не действует, и абсолютная
+          таблица в 800+ px растягивала страницу «Аналитики» ниже экрана (desktop-compact, 09.10.2026) */}
+      <div className="sr-only">
+        <table>
+          <caption>Значения по точкам графика</caption>
+          <thead>
+            <tr>
+              <th scope="col">Точка графика</th>
               {series.map((s) => (
-                <td key={s.name}>
-                  {s.values[i] == null ? 'нет данных' : format(s.values[i] as number)}
-                </td>
+                <th key={s.name} scope="col">
+                  {s.name}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {labels.map((label, i) => (
+              <tr key={label}>
+                <th scope="row">{label}</th>
+                {series.map((s) => (
+                  <td key={s.name}>
+                    {s.values[i] == null ? 'нет данных' : format(s.values[i] as number)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

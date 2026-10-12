@@ -1,7 +1,10 @@
 export type WebVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
-/** Рабочий экран дня один на все направления (MV8): гостиница видит «Главную», салон и ресторан «Сегодня» */
+/**
+ * Стартовый экран направления: салон и ресторан видят «Сегодня» (MV8); гостиница с 09.10.2026 живёт
+ * одним разделом «Финансы» (plans/finance-home-merge-2026-10-09.md), `/today` ведёт туда редиректом.
+ */
 const LANDING: Record<WebVertical, string> = {
-  HOSPITALITY: '/today',
+  HOSPITALITY: '/finance',
   BEAUTY: '/today',
   FOOD_SERVICE: '/today',
 };
@@ -25,8 +28,19 @@ const routes: Record<WebVertical, string[]> = {
     '/management/analytics/units',
     '/management/analytics/channels',
   ],
-  BEAUTY: ['/calendar', '/appointments', '/employees', '/services', '/beauty'],
-  FOOD_SERVICE: ['/floor-plan', '/table-reservations', '/dining-areas'],
+  // `/employees` и `/customers` общие для салона и ресторана: принадлежности нет, страница сама зовёт requireVertical
+  BEAUTY: ['/calendar', '/appointments', '/services', '/beauty'],
+  FOOD_SERVICE: [
+    '/floor-plan',
+    '/table-reservations',
+    '/dining-areas',
+    '/orders',
+    '/kitchen',
+    '/menu',
+    '/stock',
+    '/payroll',
+    '/cashbox',
+  ],
 };
 export function routeVertical(path: string): WebVertical | null {
   for (const vertical of Object.keys(routes) as WebVertical[]) {

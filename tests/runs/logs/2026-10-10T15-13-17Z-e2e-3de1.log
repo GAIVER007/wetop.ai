@@ -1,0 +1,150 @@
+# Сквозные (e2e) · 10.10.2026 20:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4c8d1ac (claude/hotels-landing), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/hotel-landing.spec.ts'
+
+Running 7 tests using 1 worker
+
+  ✘  1 tests/site/hotel-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера (10.3s)
+[WebServer] /bin/sh: line 1: 24503 Killed: 9               node scripts/site/static-server.mjs apps/site/out 4320
+  ✘  2 tests/site/hotel-landing.spec.ts:32:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел (10.3s)
+  ✘  3 tests/site/hotel-landing.spec.ts:49:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta (1.4s)
+  ✘  4 tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: light, 1440 (1.2s)
+  ✘  5 tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: dark, 1440 (1.2s)
+  ✘  6 tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: light, 390 (1.2s)
+  ✓  7 tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: dark, 390 (897ms)
+
+
+  1) tests/site/hotel-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected: "Управляйте гостиницей в одном сервисе"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      11 | test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({ page }) => {
+      12 |   await page.goto(PATH);
+    > 13 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+         |                                                         ^
+      14 |     'Управляйте гостиницей в одном сервисе',
+      15 |   );
+      16 |   const hero = page.locator('.hotel-hero');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/hotel-landing.spec.ts:13:57
+
+    Error Context: test-results/hotel-landing-герой-заголо-51737--и-мокап-с-подписью-примера/error-context.md
+
+  2) tests/site/hotel-landing.spec.ts:32:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.hotel-facts__item')
+    Expected: 4
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.hotel-facts__item') with timeout 10000ms
+      - waiting for locator('.hotel-facts__item')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      32 | test('полоса фактов и возможности: восемь карточек, без выдуманных чисел', async ({ page }) => {
+      33 |   await page.goto(PATH);
+    > 34 |   await expect(page.locator('.hotel-facts__item')).toHaveCount(4);
+         |                                                    ^
+      35 |   const features = page.locator('#hotel-features .card');
+      36 |   await expect(features).toHaveCount(8);
+      37 |   await expect(features.first()).toContainText('Шахматка');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/hotel-landing.spec.ts:34:52
+
+    Error Context: test-results/hotel-landing-полоса-факто-0c11b-рточек-без-выдуманных-чисел/error-context.md
+
+  3) tests/site/hotel-landing.spec.ts:49:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/for/hotels/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/for/hotels/", waiting until "load"
+
+
+      50 |   page,
+      51 | }) => {
+    > 52 |   await page.goto(PATH);
+         |              ^
+      53 |   const growth = page.locator('.hotel-growth');
+      54 |   await expect(growth).toContainText('Больше прямых броней. Меньше рутины.');
+      55 |   await expect(growth.locator('.hotel-growth__points li')).toHaveCount(4);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/hotel-landing.spec.ts:52:14
+
+    Error Context: test-results/hotel-landing-рост-вопросы-afbee--работают-регистрация-в-cta/error-context.md
+
+  4) tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: light, 1440 ────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/for/hotels/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/for/hotels/", waiting until "load"
+
+
+      75 |     await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
+      76 |     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    > 77 |     await page.goto(PATH);
+         |                ^
+      78 |     expect(
+      79 |       Number(
+      80 |         await page.evaluate(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/hotel-landing.spec.ts:77:16
+
+    Error Context: test-results/hotel-landing-доступность-и-вёрстка-light-1440/error-context.md
+
+  5) tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: dark, 1440 ─────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/for/hotels/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/for/hotels/", waiting until "load"
+
+
+      75 |     await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
+      76 |     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    > 77 |     await page.goto(PATH);
+         |                ^
+      78 |     expect(
+      79 |       Number(
+      80 |         await page.evaluate(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/hotel-landing.spec.ts:77:16
+
+    Error Context: test-results/hotel-landing-доступность-и-вёрстка-dark-1440/error-context.md
+
+  6) tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: light, 390 ─────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4320/for/hotels/
+    Call log:
+      - navigating to "http://127.0.0.1:4320/for/hotels/", waiting until "load"
+
+
+      75 |     await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
+      76 |     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    > 77 |     await page.goto(PATH);
+         |                ^
+      78 |     expect(
+      79 |       Number(
+      80 |         await page.evaluate(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/c9b0b111-d1e4-49ef-a1ba-996417cafd9f/scratchpad/wt/tests/site/hotel-landing.spec.ts:77:16
+
+    Error Context: test-results/hotel-landing-доступность-и-вёрстка-light-390/error-context.md
+
+  6 failed
+    tests/site/hotel-landing.spec.ts:11:1 › герой: заголовок, регистрация с направлением и мокап с подписью примера 
+    tests/site/hotel-landing.spec.ts:32:1 › полоса фактов и возможности: восемь карточек, без выдуманных чисел 
+    tests/site/hotel-landing.spec.ts:49:1 › рост, вопросы и призыв: пункты без процентов, details работают, регистрация в cta 
+    tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: light, 1440 ─────────────────────
+    tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: dark, 1440 ──────────────────────
+    tests/site/hotel-landing.spec.ts:74:3 › доступность и вёрстка: light, 390 ──────────────────────
+  1 passed (39.1s)
+
+# код выхода 1 · 40 с

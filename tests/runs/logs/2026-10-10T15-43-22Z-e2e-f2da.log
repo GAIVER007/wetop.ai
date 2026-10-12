@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 10.10.2026 20:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5413b09 (HEAD), незакоммиченных файлов набора: 232
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' '-g' 'снимок hospitality'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (4.9s)
+  ✓  2 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (2.6s)
+  ✓  3 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (2.4s)
+  ✓  4 tests/branches-ui/today.spec.ts:465:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (3.7s)
+
+  4 passed (20.1s)
+
+# код выхода 0 · 21 с

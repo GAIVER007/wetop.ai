@@ -6,7 +6,7 @@ import { Suspense, use, useEffect, useRef, useState, type ReactNode } from 'reac
 import { Icon } from './icon';
 import { Sidebar } from './shell/sidebar';
 import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
-import { TopMenu } from './shell/top-menu';
+import { SideNav } from './shell/side-nav';
 import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
@@ -14,8 +14,9 @@ import { cx } from './ui';
 import {
   CLOSED_ACCESS,
   PENDING_ACCESS,
-  activeMenuRoute,
+  activeSectionOf,
   allowedItem,
+  menuSectionsFor,
   phoneNavigationFor,
   type NavigationAccess,
 } from '../lib/navigation';
@@ -25,9 +26,9 @@ import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
 
 /**
- * Оболочка стойки (ADR-134): шапка из двух липких строк. Первая: знак WETOP, объект с переключателем
- * филиала, поиск ⌘K, «Демо», тема, меню профиля. Вторая: строка разделов (`TopMenu`). До 960 px вместо
- * строки разделов кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
+ * Оболочка стойки: слева контекстное меню (`SideNav`, ADR-161, вместо строки вкладок ADR-134), справа шапка
+ * одной липкой строкой: объект с переключателем филиала, поиск ⌘K, «Демо», тема, меню профиля. До 960 px меню
+ * слева нет: знак в шапке, кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
  */
 export function TopNav({
   children,
@@ -71,6 +72,24 @@ export function TopNav({
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
+  const profileTrigger = useRef<HTMLButtonElement>(null);
+  const profileMenu = useRef<HTMLDivElement>(null);
+  /** ↑↓ по пунктам меню профиля, Home и End к краям (ТЗ мастер-прохода §19) */
+  const moveInProfile = (key: string) => {
+    const items = [...(profileMenu.current?.querySelectorAll<HTMLElement>('a, button') ?? [])];
+    const at = items.indexOf(document.activeElement as HTMLElement);
+    const next =
+      key === 'Home' ? 0 : key === 'End' ? items.length - 1 : key === 'ArrowUp' ? at - 1 : at + 1;
+    items[(next + items.length) % items.length]?.focus();
+  };
+  // Шапку рисует сервер, а обработчик меню профиля навешивает React после загрузки скриптов стойки: на
+  // медленной сети между ними секунды, кнопка в это время выглядит рабочей, а клик по ней пропадает
+  // (release-checks #7, спек profile-menu-readiness). До первого рендера на клиенте кнопка недоступна и
+  // помечена занятой; разметка сервера и первого клиентского рендера одна, расхождения гидрации нет
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(true);
+  }, []);
   // Сочетание поиска словами той ОС, на которой человек сидит: ⌘ бывает только у Apple
   const [searchKey, setSearchKey] = useState('⌘ K');
   const { setTheme } = useTheme();
@@ -103,7 +122,10 @@ export function TopNav({
         else if (beauty) router.push('/appointments');
         else setSearch((s) => !s);
       }
-      if (e.key === 'Escape') setProfile(false);
+      if (e.key === 'Escape' && profileMenu.current) {
+        setProfile(false);
+        profileTrigger.current?.focus();
+      }
     };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
@@ -130,13 +152,14 @@ export function TopNav({
             <Link
               className="workspace-brand"
               href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
-              aria-label="WETOP, Главная"
+              aria-label="WETOP, стартовый экран"
             >
               <span className="workspace-mark">W</span>
               <span className="brand-name">
                 WETOP<span>.AI</span>
               </span>
             </Link>
+            <SideNav path={path} desk={desk} />
             {/* объект и филиал: переехали сюда из бокового меню (ADR-134); до 960 px они вверху меню телефона */}
             <div className="workspace-header__property">
               <Suspense
@@ -194,12 +217,21 @@ export function TopNav({
               </button>
               <div className="profile-menu">
                 <button
+                  ref={profileTrigger}
                   className="profile-trigger"
                   data-tour="profile"
                   aria-label="Меню администратора"
                   aria-expanded={profile}
                   aria-controls="profile-dropdown"
+                  aria-busy={!ready}
+                  disabled={!ready}
                   onClick={() => setProfile(!profile)}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'ArrowDown') return;
+                    event.preventDefault();
+                    setProfile(true);
+                    requestAnimationFrame(() => moveInProfile('Home'));
+                  }}
                 >
                   <Suspense fallback={<HeaderPerson person={null} />}>
                     <GrantedHeaderPerson desk={desk} />
@@ -219,7 +251,16 @@ export function TopNav({
                       aria-label="Закрыть меню профиля"
                       onClick={() => setProfile(false)}
                     />
-                    <div className="profile-dropdown" id="profile-dropdown">
+                    <div
+                      className="profile-dropdown"
+                      id="profile-dropdown"
+                      ref={profileMenu}
+                      onKeyDown={(event) => {
+                        if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+                        event.preventDefault();
+                        moveInProfile(event.key);
+                      }}
+                    >
                       {hospitality && (
                         <button
                           data-testid="tour-restart"
@@ -244,7 +285,6 @@ export function TopNav({
               </div>
             </div>
           </div>
-          <TopMenu path={path} desk={desk} />
         </header>
         <div className="workspace-body">
           <Suspense fallback={null}>
@@ -281,6 +321,7 @@ export function TopNav({
           onClose={() => setMenu(false)}
           title="Навигация"
           className="mobile-navigation"
+          trapFocus
         >
           <Sidebar property={property} path={path} close={() => setMenu(false)} desk={desk} />
         </Overlay>
@@ -312,15 +353,17 @@ function BottomNavLinks({
   path: string;
   vertical?: WebVertical | undefined;
 }) {
+  // вкладка панели горит на любой странице своего раздела: «Финансы» на баре, «Продажи» на конкурентах
+  const sections = menuSectionsFor(access, vertical);
+  const current = activeSectionOf(sections, path);
   return phoneNavigationFor(vertical)
     .filter((item) => allowedItem(item, access))
     .map((n) => (
       <Link
         key={n.href}
         href={n.href}
-        // как в шапке и выдвижном меню: на /reservations активен пункт «Гости и бронирования», своего пункта у «Броней» нет (09.10.2026)
-        className={cx(activeMenuRoute(path) === n.href && 'is-active')}
-        aria-current={activeMenuRoute(path) === n.href ? 'page' : undefined}
+        className={cx(current?.items[0]?.href === n.href && 'is-active')}
+        aria-current={current?.items[0]?.href === n.href ? 'page' : undefined}
       >
         <Icon name={n.icon} />
         <span>{n.shortLabel ?? n.label}</span>

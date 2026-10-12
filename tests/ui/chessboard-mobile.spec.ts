@@ -137,7 +137,7 @@ for (const theme of ['light', 'dark'] as const) {
     const preview = page.getByTestId('stay-preview');
     await expect(preview).toBeVisible();
     expect((await preview.boundingBox())!.width).toBeGreaterThan(360);
-    await expect(preview.getByRole('link', { name: 'Открыть бронь', exact: true })).toBeVisible();
+    await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toBeVisible();
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-390-preview.png` });
     await preview.getByRole('button', { name: 'Закрыть предпросмотр', exact: true }).tap();
     await page.getByLabel('Поиск в календаре').fill('');
@@ -261,7 +261,10 @@ test('календарь возвращает обе позиции после �
       wrap.evaluate((el) => {
         const today = el.querySelector('thead .is-today')!.getBoundingClientRect();
         const units = el.querySelector('thead th')!.getBoundingClientRect();
-        return Math.abs(today.left - units.right);
+        // день стоит у края колонки мест; если до него не дотянуться (сегодня у правого края сетки),
+        // прокрутка упирается в максимум, и этого достаточно
+        const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
+        return atEnd && today.left >= units.right - 2 ? 0 : Math.abs(today.left - units.right);
       }),
     )
     .toBeLessThanOrEqual(2);
@@ -313,11 +316,11 @@ for (const theme of ['light', 'dark'] as const) {
     await page.locator('[data-unit-code="R07"] .board__stay').first().click();
     const preview = page.getByTestId('stay-preview');
     await expect(preview.getByTestId('preview-dates')).toContainText('28 ночей');
-    await expect(preview.getByRole('link', { name: 'Открыть гостя', exact: true })).toBeVisible();
+    await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toBeVisible();
     expect(await preview.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
     const guest = preview.getByTestId('preview-guest');
     expect((await guest.boundingBox())!.width).toBeLessThan(320);
-    const actions = preview.getByRole('link', { name: 'Изменить даты', exact: true });
+    const actions = preview.getByRole('link', { name: 'Редактировать бронь', exact: true });
     await actions.scrollIntoViewIfNeeded();
     await expect(actions).toBeInViewport({ ratio: 0.99 });
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-long-name.png` });

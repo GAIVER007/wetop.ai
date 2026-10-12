@@ -4,8 +4,8 @@
    модули, до 960 px модули встают в столбец */
   .marketing-hub {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
-    gap: var(--space-6);
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+    gap: var(--space-4);
     align-items: start;
   }
   .marketing-hub__modules {
@@ -31,6 +31,7 @@
     --module-ink: var(--warning);
   }
   .marketing-module__body {
+    min-height: 280px;
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     gap: var(--space-4);
@@ -108,15 +109,20 @@
     align-items: center;
     gap: var(--space-4);
     padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--border);
-    font-size: var(--text-sm);
+    background: var(--surface-muted);
+    border-radius: var(--radius-control);
+    padding: var(--space-2);
+    font-size: var(--text-xs);
   }
   .marketing-results__mark {
-    width: 24px;
-    height: 12px;
-    border-radius: var(--radius-sm);
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: var(--radius-control);
     background: var(--primary-soft);
-    border: 1px dashed var(--primary);
+    color: var(--primary);
   }
   .marketing-results__row dd {
     margin: 0;
@@ -1017,7 +1023,7 @@
   .create-site {
     display: grid;
     gap: var(--space-4);
-    max-width: 760px;
+    max-width: 960px;
     margin: var(--space-8) auto;
     text-align: center;
   }

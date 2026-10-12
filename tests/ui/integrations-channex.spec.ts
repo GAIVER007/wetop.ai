@@ -30,7 +30,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/finance');
 }
 
 test('работает: соединение, сопоставление и webhook словами, ключей нет, вкладки модуля на месте', async ({
@@ -50,14 +50,18 @@ test('работает: соединение, сопоставление и webh
   await expect(
     main.getByRole('link', { name: 'Подключения', exact: true }).first(),
   ).toHaveAttribute('href', '/connections');
-  // очередь, сопоставление и события остаются экранами «Каналов продаж»: отсюда к ним ссылки
-  const tabs = main.getByRole('navigation', { name: 'Настройка каналов' });
+  // экран подключения это вкладка «Каналов продаж»: те же вкладки и те же имена, что на других экранах раздела
+  // (мастер-проход UI, этап 2; раньше здесь была своя полоса с другими именами тех же адресов)
+  const tabs = main.getByRole('navigation', { name: 'Каналы продаж' });
   await expect(tabs.getByRole('link')).toHaveText([
-    'Статистика продаж',
-    'Сопоставление категорий и тарифов',
-    'Очередь обмена',
+    'Обзор',
+    'Каналы',
+    'Настройка подключения',
+    'Сопоставление',
+    'Синхронизация',
     'События',
   ]);
+  await expect(tabs.getByRole('link', { name: 'Настройка подключения' })).toHaveAttribute('aria-current', 'page');
   const connection = main.getByTestId('channel-connection');
   await expect(connection).toContainText('Соединение установлено');
   await expect(connection).toContainText('Тестовая');

@@ -23,7 +23,7 @@ export function BranchSwitcher({
   const id = useId();
   const filtered =
     choices?.items?.filter((item) =>
-      `${item.name} ${item.address ?? ''}`
+      `${item.name} ${item.address ?? ''} ${item.vertical === 'FOOD_SERVICE' ? 'Ресторан' : item.vertical === 'BEAUTY' ? 'Салон' : 'Гостиница'}`
         .toLocaleLowerCase('ru')
         .includes(search.trim().toLocaleLowerCase('ru')),
     ) ?? [];
@@ -133,6 +133,13 @@ export function BranchSwitcher({
                     }
                   >
                     <strong>{item.name}</strong>
+                    <small>
+                      {item.vertical === 'FOOD_SERVICE'
+                        ? 'Кафе / ресторан'
+                        : item.vertical === 'BEAUTY'
+                          ? 'Салон / студия'
+                          : 'Гостиничный бизнес'}
+                    </small>
                     {item.id === choices.currentId && <Icon name="check" width={16} />}
                     <span title={item.address || undefined}>
                       {item.address || 'Адрес не указан'}

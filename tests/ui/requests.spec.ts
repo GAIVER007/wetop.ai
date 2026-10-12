@@ -40,7 +40,6 @@ async function hits(request: import('@playwright/test').APIRequestContext): Prom
 }
 
 for (const screen of [
-  '/today',
   '/chessboard',
   '/reservations',
   '/guests',
@@ -48,6 +47,8 @@ for (const screen of [
   '/inventory',
   '/rooms/categories',
   '/rooms/availability',
+  // «Загрузка конкурентов» (ADR-142): одна сводка /market/occupancy; история ночи только при открытой панели
+  '/market',
   '/management/analytics',
   '/management/analytics/occupancy',
   // «По номерам» (REP3): один запрос /desk/dashboard/units
@@ -93,8 +94,12 @@ for (const screen of [
     // он идёт один раз, иначе итог зависел бы от того, успел ли таймер оболочки сработать до `networkidle`
     const total = Object.entries(byRequest).reduce((sum, [key, n]) => sum + (shell(key) ? 1 : n), 0);
     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+    // «Финансы» с 09.10 единый «Обзор бизнеса» (plans/finance-overview-2026-10-09.md): к шести
+    // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+    // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+    // каждый путь по-прежнему спрашивается один раз
     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
-      ['/channels', '/channels/sync', '/inventory'].includes(screen) ? 12 : 10,
+      screen === '/finance' ? 15 : ['/channels', '/channels/sync', '/inventory'].includes(screen) ? 12 : 10,
     );
   });
 }

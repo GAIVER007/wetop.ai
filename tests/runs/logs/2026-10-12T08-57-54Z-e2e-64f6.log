@@ -1,0 +1,18 @@
+# Сквозные (e2e) · 12.10.2026 13:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8f513ec (claude/menu-dish-photos), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/restaurant.spec.ts' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'фото блюда|меню:'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (3.4s)
+  ✓  2 tests/food-ui/restaurant.spec.ts:148:1 › фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление (2.0s)
+
+  2 passed (10.8s)
+
+# код выхода 0 · 11 с

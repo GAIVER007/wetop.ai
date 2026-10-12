@@ -1,0 +1,92 @@
+[
+  {
+    "file": "evergreen-1010.txt",
+    "platform": "ostrovok.ru",
+    "night": "2026-10-10",
+    "name": "Evergreen Apartment Hotel",
+    "expected": {
+      "status": "available",
+      "roomsLeft": 10
+    }
+  },
+  {
+    "file": "park-1020.txt",
+    "platform": "ostrovok.ru",
+    "night": "2026-10-20",
+    "name": "Park Hotel Almaty",
+    "expected": {
+      "status": "available",
+      "roomsLeft": 2
+    }
+  },
+  {
+    "file": "ramada-1010.txt",
+    "platform": "ostrovok.ru",
+    "night": "2026-10-10",
+    "name": "Ramada Almaty",
+    "expected": {
+      "status": "available",
+      "roomsLeft": null
+    }
+  },
+  {
+    "file": "ramada-1020.txt",
+    "platform": "ostrovok.ru",
+    "night": "2026-10-20",
+    "name": "Ramada Almaty",
+    "expected": {
+      "status": "available",
+      "roomsLeft": null
+    }
+  },
+  {
+    "file": "ramada-1231.txt",
+    "platform": "ostrovok.ru",
+    "night": "2026-12-31",
+    "name": "Ramada Almaty",
+    "expected": {
+      "status": "available",
+      "roomsLeft": null
+    }
+  },
+  {
+    "file": "royalmax-1031.txt",
+    "platform": "ostrovok.ru",
+    "night": "2026-10-31",
+    "name": "Royal Max Hotel",
+    "expected": {
+      "status": "available",
+      "roomsLeft": null
+    }
+  },
+  {
+    "file": "hie-1231.txt",
+    "platform": "ostrovok.ru",
+    "night": "2026-12-31",
+    "name": "Holiday Inn Express Almaty",
+    "expected": {
+      "status": "available",
+      "roomsLeft": null
+    }
+  },
+  {
+    "file": "booking-1020.txt",
+    "platform": "www.booking.com",
+    "night": "2026-10-20",
+    "name": "Ramada Almaty",
+    "expected": {
+      "status": "unknown",
+      "roomsLeft": null
+    }
+  },
+  {
+    "file": "yandex-1020.txt",
+    "platform": "travel.yandex.ru",
+    "night": "2026-10-20",
+    "name": "Алматы",
+    "expected": {
+      "status": "blocked",
+      "roomsLeft": null
+    }
+  }
+]

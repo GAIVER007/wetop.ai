@@ -292,7 +292,7 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('MKT3: салон открывает свой «Маркетинг», не гостиничный хаб (решение #437)', async ({ page }) => {
+test('MKT3: салон видит маркетинг, гостиничный конструктор недоступен', async ({ page }) => {
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -313,10 +313,24 @@ test('MKT3: салон открывает свой «Маркетинг», не 
     .click();
   // салон (BEAUTY) и после слияния 09.10 садится на свой `/today`; на `/finance` едет только гостиница
   await page.waitForURL('**/today');
-  // с 12.10 «Маркетинг» есть у всех направлений (all-directions-growth): салон остаётся на `/marketing`
-  // и видит свой хаб, а гостиничный (`marketing-hub`) ему не показывается
+  await expect(page.getByTestId('beauty-today')).toBeVisible();
   await page.goto('/marketing');
   await expect(page).toHaveURL(/\/marketing$/);
-  await expect(page.getByTestId('business-marketing')).toBeVisible();
-  await expect(page.getByTestId('marketing-hub')).toHaveCount(0);
+  const hub = main(page).getByTestId('business-marketing');
+  await expect(hub).toBeVisible();
+  await expect(hub.getByTestId('marketing-module')).toHaveCount(3);
+  await expect(hub.getByTestId('marketing-site-status')).toHaveText('Скоро');
+  await expect(
+    hub.getByTestId('marketing-site').getByRole('button', { name: 'Скоро' }),
+  ).toBeDisabled();
+  await expect(hub.locator('a[href^="/website"], a[href^="/marketing/site"]')).toHaveCount(0);
+  for (const screen of ['ads', 'content'] as const) {
+    await hub
+      .getByRole('link', { name: screen === 'ads' ? 'Открыть: Реклама' : 'Открыть: Контент' })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`/marketing/${screen}$`));
+    await expect(main(page).getByTestId(`marketing-${screen}-screen`)).toBeVisible();
+    await page.goto('/marketing');
+    await expect(hub).toBeVisible();
+  }
 });

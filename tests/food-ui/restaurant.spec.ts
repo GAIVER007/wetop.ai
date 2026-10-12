@@ -535,6 +535,84 @@ test('отчёт за период: выручка, средний чек, оп�
   expect((await rate(a.id, 6)).status()).toBe(400);
 });
 
+test('оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит', async ({
+  page,
+  browser,
+  request,
+}) => {
+  const { headers, table, pasta, waiter } = await seed(page, request);
+  const order = () =>
+    post(request, headers, '/food-service/orders', {
+      tableId: table.id,
+      waiterId: waiter.id,
+      guestCount: 2,
+      items: [{ menuItemId: pasta.id, qty: 1 }],
+    });
+  const link = (id: string) => request.post(`${api}/food-service/orders/${id}/rating-link`, { headers });
+  const open = await order();
+  expect((await link(open.id)).status()).toBe(409);
+  const a = await order();
+  await serveAndPay(request, headers, a);
+  // повторная выдача заменяет ключ: прежняя ссылка мертва
+  const first = await (await link(a.id)).json();
+  const second = await (await link(a.id)).json();
+  expect(second.token).toMatch(/^[A-Za-z0-9_-]{43}$/);
+  const publicGet = (token: string, ip?: string) =>
+    request.get(`${api}/public/order-rating/${token}`, ip ? { headers: { 'cf-connecting-ip': ip } } : {});
+  expect((await publicGet(first.token)).status()).toBe(404);
+  const preview = await (await publicGet(second.token)).json();
+  expect(preview).toMatchObject({ waiterName: 'Иванова Анна', orderNumber: a.number });
+  // мусорный ключ отвечает тем же текстом, что и мёртвый
+  const junk = await publicGet('x'.repeat(43));
+  expect([junk.status(), (await junk.json()).message]).toEqual([404, 'Ссылка недействительна']);
+
+  // гость: чистый браузер без входа и без кук стойки
+  const guest = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const phone = await guest.newPage();
+  await phone.goto(`/rate/${second.token}`);
+  const main = phone.locator('main');
+  await expect(main.getByRole('heading', { name: 'Как вас обслужили?' })).toBeVisible();
+  await expect(main).toContainText(`заказ № ${a.number}`);
+  await expect(main).toContainText('Иванова Анна');
+  await main.getByRole('button', { name: 'Отправить оценку' }).click();
+  await expect(main.getByRole('alert')).toContainText('Выберите от 1 до 5 звёзд');
+  await main.getByRole('radio', { name: '5 из 5' }).click();
+  await main.getByLabel('Комментарий, если хотите').fill('Очень внимательно');
+  const axe = await new AxeBuilder({ page: phone }).analyze();
+  expect(axe.violations).toEqual([]);
+  await main.getByRole('button', { name: 'Отправить оценку' }).click();
+  await expect(main.getByTestId('rate-done')).toContainText('Спасибо');
+  await phone.reload();
+  await expect(main.getByRole('heading', { name: 'Ссылка недействительна' })).toBeVisible();
+  await guest.close();
+
+  // оценка легла на заказ и на официанта; второй раз ни по ссылке, ни новой ссылкой
+  const again = await request.post(`${api}/public/order-rating/${second.token}`, { data: { stars: 1 } });
+  expect(again.status()).toBe(404);
+  expect((await link(a.id)).status()).toBe(409);
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const list = await (await request.get(`${api}/food-service/orders?date=${day}`, { headers })).json();
+  const rated = list.items.find((o: { id: string }) => o.id === a.id);
+  expect(rated.rating).toMatchObject({ stars: 5, comment: 'Очень внимательно' });
+
+  // смена видит QR-код в карточке закрытого заказа
+  const b = await order();
+  await serveAndPay(request, headers, b);
+  await page.goto('/orders');
+  await page.getByRole('button', { name: `№${b.number}`, exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'QR-код для гостя' }).click();
+  const qr = dialog.getByTestId('order-rating-qr');
+  await expect(qr.getByRole('img', { name: 'QR-код: оценка с телефона гостя' })).toBeVisible();
+  await expect(qr.getByRole('link')).toHaveAttribute('href', /\/rate\/[A-Za-z0-9_-]{43}$/);
+
+  // лимит по адресу посетителя: 120 в час, дальше 429 (свой адрес, чтобы не задеть соседние шаги)
+  const statuses: number[] = [];
+  for (let i = 0; i < 121; i++) statuses.push((await publicGet('y'.repeat(43), '203.0.113.9')).status());
+  expect(statuses.slice(0, 120).every((s) => s === 404)).toBe(true);
+  expect(statuses[120]).toBe(429);
+});
+
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({
   page,
   request,

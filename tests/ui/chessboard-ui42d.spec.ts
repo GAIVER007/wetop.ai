@@ -53,3 +53,26 @@ test('UI4.2-D: снимки мобильной светлой и тёмной ш
     }
   }
 });
+
+test('UI4.2-D: на 320 px детали KPI и фильтры открываются без выхода за экран', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto('/chessboard');
+  await page.getByText('Другие показатели', { exact: true }).click();
+  const details = page.locator('.board-kpi-more__panel');
+  await expect(details.getByTestId('day-free')).toBeVisible();
+  await expect(details.getByTestId('day-dirty')).toBeVisible();
+  const box = await details.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(320);
+  await page.keyboard.press('Escape');
+  await expect(details).toBeHidden();
+
+  await page.getByRole('button', { name: 'Фильтры', exact: true }).click();
+  const filters = page.getByRole('dialog', { name: 'Фильтры календаря' });
+  await expect(filters).toBeVisible();
+  await filters.getByRole('button', { name: 'Номера', exact: true }).click();
+  await filters.getByRole('button', { name: 'Применить', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Фильтры 1', exact: true })).toBeVisible();
+});

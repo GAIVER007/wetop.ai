@@ -235,6 +235,10 @@ app.use(
                 await tx.employee.deleteMany({ where: { business: b } });
                 await tx.beautyService.deleteMany({ where: { business: b } });
                 await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+                // лента склада только дописывается: удаление проходит только под audit_purge (DATA_MODEL §34)
+                await tx.kitchenStockMovement.deleteMany({ where: { location: { business: b } } });
+                await tx.kitchenStockLot.deleteMany({ where: { location: { business: b } } });
+                await tx.kitchenProduct.deleteMany({ where: { business: b } });
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
                 await tx.location.deleteMany({ where: { business: b } });
@@ -272,7 +276,7 @@ app.use(
 );
 app.useGlobalGuards(new RoleGuard(new Reflector()));
 app.useGlobalInterceptors(new AuthorInterceptor(prisma));
-await app.listen(55824, '127.0.0.1');
+await app.listen(Number(process.env.FOOD_UI_API_PORT ?? 55824), '127.0.0.1');
 for (const signal of ['SIGTERM', 'SIGINT'] as const)
   process.on(signal, () => {
     void app

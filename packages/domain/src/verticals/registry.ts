@@ -15,7 +15,8 @@ export type VerticalCapability =
   | 'food.tables'
   | 'food.menu'
   | 'food.orders'
-  | 'food.staff';
+  | 'food.staff'
+  | 'food.stock';
 export interface VerticalDefinition {
   readonly id: BusinessVertical;
   readonly label: string;
@@ -56,6 +57,7 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'food.menu',
       'food.orders',
       'food.staff',
+      'food.stock',
     ] as const),
   }),
 });

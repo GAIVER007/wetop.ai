@@ -30,6 +30,11 @@ import type {
   RestaurantReservation,
   ServicePeriod,
   TableInput,
+  StockLotView,
+  StockMovementView,
+  StockProductInput,
+  StockProductView,
+  StockReceiptInput,
 } from './food-types';
 const base = '/food-service';
 const idPath = (collection: string, id: string) =>
@@ -131,3 +136,26 @@ export const restaurantApi = {
   addPayAdjustment: (id: string, body: { period: string; amountMinor: number; reason: string }) =>
     sendJson<unknown>('POST', `${idPath('employees', id)}/pay-adjustments`, body),
 };
+
+/** Склад кухни FS2 (DATA_MODEL §34): справочник целиком, движения последние 200 */
+export const stockApi = {
+  products: () => getJsonPublic<{ items: StockProductView[] }>(`${base}/stock/products`),
+  createProduct: (body: StockProductInput) =>
+    sendJson<StockProductView>('POST', `${base}/stock/products`, body),
+  updateProduct: (id: string, body: Partial<StockProductInput>) =>
+    sendJson<StockProductView>('PATCH', idPath('stock/products', id), body),
+  lots: (productId: string) =>
+    getJsonPublic<{ items: StockLotView[] }>(
+      `${base}/stock/lots?productId=${encodeURIComponent(productId)}`,
+    ),
+  movements: () => getJsonPublic<{ items: StockMovementView[] }>(`${base}/stock/movements`),
+  receipt: (body: StockReceiptInput) =>
+    sendJson<{ items: StockLotView[] }>('POST', `${base}/stock/receipts`, body),
+  reverseLot: (id: string) =>
+    sendJson<StockLotView>('POST', `${idPath('stock/lots', id)}/reverse`, {}),
+  writeOff: (body: { productId: string; qty: string; reason: string }) =>
+    sendJson<StockProductView>('POST', `${base}/stock/write-offs`, body),
+  inventory: (body: { productId: string; actualQty: string; reason?: string | null }) =>
+    sendJson<StockProductView>('POST', `${base}/stock/inventory`, body),
+};
+

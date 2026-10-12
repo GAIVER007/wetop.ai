@@ -19,6 +19,7 @@ import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { FoodService } from './food.service';
 import { RestaurantService } from './restaurant.service';
+import { StockService } from './stock.service';
 @Controller('food-service')
 @Access('desk')
 @RequiresBusinessCapability('food.tables')
@@ -214,6 +215,43 @@ export class FoodStaffController {
     return this.service.addPayAdjustment(id, b);
   }
 }
+/** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS): справочник `property`, приход и списания `desk` */
+@Controller('food-service')
+@Access('desk')
+@RequiresBusinessCapability('food.stock')
+export class FoodStockController {
+  constructor(@Inject(StockService) private readonly service: StockService) {}
+  @Get('stock/products') products() {
+    return this.service.products();
+  }
+  @Post('stock/products') @Access('property') createProduct(@Body() b: unknown) {
+    return this.service.createProduct(b);
+  }
+  @Patch('stock/products/:id') @Access('property') updateProduct(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.updateProduct(id, b);
+  }
+  @Get('stock/lots') lots(@Query() q: Record<string, unknown>) {
+    return this.service.lots(q);
+  }
+  @Get('stock/movements') movements(@Query() q: Record<string, unknown>) {
+    return this.service.movements(q);
+  }
+  @Post('stock/receipts') receipt(@Body() b: unknown) {
+    return this.service.receipt(b);
+  }
+  @Post('stock/lots/:id/reverse') @Access('property') reverse(@Param('id') id: string) {
+    return this.service.reverseLot(id);
+  }
+  @Post('stock/write-offs') writeOff(@Body() b: unknown) {
+    return this.service.writeOff(b);
+  }
+  @Post('stock/inventory') inventory(@Body() b: unknown) {
+    return this.service.inventory(b);
+  }
+}
 @Module({
   controllers: [
     FoodCatalogController,
@@ -221,8 +259,9 @@ export class FoodStaffController {
     FoodMenuController,
     FoodOrdersController,
     FoodStaffController,
+    FoodStockController,
   ],
-  providers: [PrismaService, FoodService, RestaurantService],
+  providers: [PrismaService, FoodService, RestaurantService, StockService],
   exports: [FoodService, RestaurantService],
 })
 export class FoodModule {}

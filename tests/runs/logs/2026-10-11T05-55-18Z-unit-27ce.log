@@ -1,0 +1,152 @@
+# Модульные (unit) · 11.10.2026 10:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 397664d (HEAD)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T05-55-18Z-unit-27ce.json' 'packages/domain/src/food/stock.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2
+
+ ❯ |unit| packages/domain/src/food/stock.test.ts (0 test)
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 2 failed) 49ms
+   ❯ Food workspace isolation (4)
+     × exposes exactly accepted Food menu 34ms
+     ✓ does not expose Food to existing verticals 2ms
+     ✓ uses canonical landings and verified scope 1ms
+     × identifies isolated routes before API access 7ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 258ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 184ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 72ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/food/stock.test.ts [ packages/domain/src/food/stock.test.ts ]
+Error: Cannot find module './stock' imported from /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/packages/domain/src/food/stock.test.ts
+ ❯ packages/domain/src/food/stock.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { ingredientCost } from './restaurant';
+      3| import {
+       | ^
+      4|   allocateStock,
+      5|   inventoryDelta,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(410) } to deeply equal { 'GET /onboarding': 'self', …(419) }
+
+- Expected
++ Received
+
+@@ -104,13 +104,10 @@
+    "GET /food-service/orders": "desk",
+    "GET /food-service/payroll": "staff",
+    "GET /food-service/report": "desk",
+    "GET /food-service/reservations": "desk",
+    "GET /food-service/service-periods": "desk",
+-   "GET /food-service/stock/lots": "desk",
+-   "GET /food-service/stock/movements": "desk",
+-   "GET /food-service/stock/products": "desk",
+    "GET /food-service/tables": "desk",
+    "GET /guard/incidents": "desk",
+    "GET /guard/reconciliation": "desk",
+    "GET /guard/status": "desk",
+    "GET /guests": "desk",
+@@ -211,11 +208,10 @@
+    "PATCH /food-service/menu/categories/:id": "property",
+    "PATCH /food-service/menu/items/:id": "property",
+    "PATCH /food-service/orders/:id": "desk",
+    "PATCH /food-service/reservations/:id": "desk",
+    "PATCH /food-service/service-periods/:id": "property",
+-   "PATCH /food-service/stock/products/:id": "property",
+    "PATCH /food-service/tables/:id": "property",
+    "PATCH /guests/:id": "desk",
+    "PATCH /hotel/services/:code": "settings",
+    "PATCH /hotel/settings": "settings",
+    "PATCH /inventory/categories/:code": "property",
+@@ -322,15 +318,10 @@
+    "POST /food-service/orders": "desk",
+    "POST /food-service/orders/:id/status": "desk",
+    "POST /food-service/reservations": "desk",
+    "POST /food-service/reservations/:id/status": "desk",
+    "POST /food-service/service-periods": "property",
+-   "POST /food-service/stock/inventory": "desk",
+-   "POST /food-service/stock/lots/:id/reverse": "property",
+-   "POST /food-service/stock/products": "property",
+-   "POST /food-service/stock/receipts": "desk",
+-   "POST /food-service/stock/write-offs": "desk",
+    "POST /food-service/tables": "property",
+    "POST /food-service/tables/:id/cleaning": "desk",
+    "POST /guard/alert/test": "settings",
+    "POST /guard/incidents/:id/acknowledge": "desk",
+    "POST /guard/incidents/:id/resolve": "desk",
+
+ ❯ apps/api/src/auth/route-access.test.ts:536:20
+    534|       .map(([key]) => key);
+    535|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    536|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    537|   });
+    538|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > exposes exactly accepted Food menu
+AssertionError: expected [ '/today', '/orders', …(13) ] to deeply equal [ '/today', '/orders', …(14) ]
+
+- Expected
++ Received
+
+@@ -4,11 +4,10 @@
+    "/floor-plan",
+    "/kitchen",
+    "/table-reservations",
+    "/customers",
+    "/menu",
+-   "/stock",
+    "/employees",
+    "/payroll",
+    "/dining-areas",
+    "/staff",
+    "/management/analytics",
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:10:7
+      8|     expect(
+      9|       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.ma…
+     10|     ).toEqual([
+       |       ^
+     11|       // состав и порядок — макет «WETOP для ресторанов» (ADR-159)
+     12|       '/today',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > identifies isolated routes before API access
+AssertionError: expected null to be 'FOOD_SERVICE' // Object.is equality
+
+- Expected:
+"FOOD_SERVICE"
+
++ Received:
+null
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:77:37
+     75|     expect(routeVertical('/orders')).toBe('FOOD_SERVICE');
+     76|     expect(routeVertical('/kitchen')).toBe('FOOD_SERVICE');
+     77|     expect(routeVertical('/stock')).toBe('FOOD_SERVICE');
+       |                                     ^
+     78|     expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
+     79|     expect(routeVertical('/payroll')).toBe('FOOD_SERVICE');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  3 failed | 4 passed (7)
+   Start at  22:55:40
+   Duration  21.12s (transform 66%, import 33%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T05-55-18Z-unit-27ce.json
+
+# код выхода 1 · 43 с

@@ -59,6 +59,7 @@ model Business {
   beautyServices   BeautyService[]
   menuCategories   MenuCategory[]
   menuItems        MenuItem[]
+  kitchenProducts  KitchenProduct[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -90,6 +91,8 @@ model Location {
   servicePeriods         ServicePeriod[]
   restaurantReservations RestaurantReservation[]
   restaurantOrders       RestaurantOrder[]
+  kitchenStockLots       KitchenStockLot[]
+  kitchenMovements       KitchenStockMovement[]
   restaurantPayments     RestaurantPayment[]
   restaurantCashOps      RestaurantCashOperation[]
   restaurantCashChecks   RestaurantCashReconciliation[]
@@ -2189,6 +2192,8 @@ model User {
   restaurantOrdersCreated      RestaurantOrder[]
   paySettingsEdited            EmployeePaySetting[]
   payAdjustmentsCreated        EmployeePayAdjustment[]
+  kitchenLotsCreated           KitchenStockLot[]
+  kitchenMovementsCreated      KitchenStockMovement[]
   restaurantPaymentsCreated    RestaurantPayment[]            @relation("RestaurantPaymentCreatedBy")
   restaurantPaymentsVoided     RestaurantPayment[]            @relation("RestaurantPaymentVoidedBy")
   restaurantCashOpsCreated     RestaurantCashOperation[]      @relation("RestaurantCashOpCreatedBy")
@@ -3168,6 +3173,85 @@ model EmployeePayAdjustment {
 
   @@index([employeeId, period])
   @@map("employee_pay_adjustments")
+}
+
+// ───────────────────────── Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS) ─────────────────────────
+// Справочник на Business, партии и лента на Location. Единицы и цена как у техкарт §33.1 (г|мл|шт, за кг/л/шт).
+
+enum KitchenMovementKind {
+  RECEIPT
+  WRITE_OFF
+  INVENTORY
+  REVERSAL
+}
+
+/// Ингредиент сети; единица неизменна после первого прихода (проверка API)
+model KitchenProduct {
+  id         String   @id @default(uuid()) @db.Uuid
+  businessId String   @map("business_id") @db.Uuid
+  name       String   @db.VarChar(200)
+  unit       String   @db.VarChar(8)
+  minQty     Decimal  @default(0) @map("min_qty") @db.Decimal(14, 3)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  business  Business               @relation(fields: [businessId], references: [id])
+  lots      KitchenStockLot[]
+  movements KitchenStockMovement[]
+
+  @@unique([businessId, name])
+  @@map("kitchen_products")
+}
+
+/// Партия = строка прихода; остаток склада это сумма remaining_qty непросторнированных партий
+model KitchenStockLot {
+  id           String    @id @default(uuid()) @db.Uuid
+  locationId   String    @map("location_id") @db.Uuid
+  productId    String    @map("product_id") @db.Uuid
+  supplier     String?   @db.VarChar(200)
+  document     String?   @db.VarChar(100)
+  receivedOn   DateTime  @map("received_on") @db.Date
+  receivedQty  Decimal   @map("received_qty") @db.Decimal(14, 3)
+  remainingQty Decimal   @map("remaining_qty") @db.Decimal(14, 3)
+  unitCost     BigInt    @map("unit_cost")
+  expiresOn    DateTime? @map("expires_on") @db.Date
+  reversedAt   DateTime? @map("reversed_at") @db.Timestamptz(6)
+  createdById  String?   @map("created_by_id") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location  Location               @relation(fields: [locationId], references: [id])
+  product   KitchenProduct         @relation(fields: [productId], references: [id])
+  createdBy User?                  @relation(fields: [createdById], references: [id])
+  movements KitchenStockMovement[]
+
+  @@index([locationId, productId])
+  @@map("kitchen_stock_lots")
+}
+
+/// Лента движений склада: только дописывается (REVOKE и триггер kitchen_movements_immutable)
+model KitchenStockMovement {
+  id          String              @id @default(uuid()) @db.Uuid
+  locationId  String              @map("location_id") @db.Uuid
+  productId   String              @map("product_id") @db.Uuid
+  lotId       String?             @map("lot_id") @db.Uuid
+  kind        KitchenMovementKind
+  qty         Decimal             @db.Decimal(14, 3)
+  cost        BigInt
+  reason      String?             @db.VarChar(500)
+  createdById String?             @map("created_by_id") @db.Uuid
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  location  Location         @relation(fields: [locationId], references: [id])
+  product   KitchenProduct   @relation(fields: [productId], references: [id])
+  lot       KitchenStockLot? @relation(fields: [lotId], references: [id])
+  createdBy User?            @relation(fields: [createdById], references: [id])
+
+  @@index([locationId, createdAt])
+  @@index([productId])
+  @@index([lotId])
+  @@map("kitchen_stock_movements")
 }
 
 /// DATA_MODEL §35.1 (v2.18, ADR-165): платёж по заказу ресторана; частями и разными способами, сумма действующих

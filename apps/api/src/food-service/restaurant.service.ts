@@ -156,8 +156,11 @@ function monthParam(v: unknown): { from: string; to: string; month: string } {
   });
 }
 function previousDay(date: string): string {
+  return shiftDay(date, -1);
+}
+function shiftDay(date: string, days: number): string {
   const d = new Date(`${date}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() - 1);
+  d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
 const clockText = (d: Date) => d.toISOString().slice(11, 16);
@@ -1272,7 +1275,7 @@ export class RestaurantService {
       status: 'CLOSED' as const,
       closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
     };
-    const [orders, payments, items, waiters] = await Promise.all([
+    const [orders, payments, items, waiters, closedDays] = await Promise.all([
       db.restaurantOrder.aggregate({ where: closedWhere, _count: { _all: true }, _sum: { total: true } }),
       db.restaurantPayment.groupBy({
         by: ['method'],
@@ -1282,7 +1285,12 @@ export class RestaurantService {
       }),
       db.restaurantOrderItem.findMany({
         where: { order: closedWhere },
-        select: { name: true, price: true, qty: true },
+        select: {
+          name: true,
+          price: true,
+          qty: true,
+          menuItem: { select: { category: { select: { name: true } } } },
+        },
       }),
       db.restaurantOrder.groupBy({
         by: ['waiterId'],
@@ -1290,8 +1298,24 @@ export class RestaurantService {
         _sum: { total: true },
         _count: { _all: true },
       }),
+      db.restaurantOrder.findMany({ where: closedWhere, select: { closedAt: true, total: true } }),
     ]);
     const count = orders._count._all;
+    // выручка по дням периода (по поясу филиала): каждый день периода есть в ответе, пустой с нулём
+    const byDay = new Map<string, { revenue: bigint; orders: number }>();
+    for (let d = from; d <= to; d = shiftDay(d, 1)) byDay.set(d, { revenue: 0n, orders: 0 });
+    for (const o of closedDays) {
+      const day = byDay.get(foodLocal(o.closedAt!, s.timezone).date);
+      if (!day) continue;
+      day.revenue += o.total;
+      day.orders += 1;
+    }
+    // продажи по категориям меню из строк закрытых заказов; блюдо без карточки уходит в «Без категории»
+    const categories = new Map<string, bigint>();
+    for (const i of items) {
+      const name = i.menuItem?.category.name ?? 'Без категории';
+      categories.set(name, (categories.get(name) ?? 0n) + i.price * BigInt(i.qty));
+    }
     const revenue = orders._sum.total ?? 0n;
     const dishes = new Map<string, { qty: number; revenue: bigint }>();
     for (const i of items) {
@@ -1351,6 +1375,14 @@ export class RestaurantService {
         .map(([name, d]) => ({ name, qty: d.qty, revenueMinor: d.revenue.toString() }))
         .sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name, 'ru'))
         .slice(0, 10),
+      revenueByDay: [...byDay.entries()].map(([date, d]) => ({
+        date,
+        revenueMinor: d.revenue.toString(),
+        orders: d.orders,
+      })),
+      categories: [...categories.entries()]
+        .map(([name, v]) => ({ name, revenueMinor: v.toString() }))
+        .sort((a, b) => Number(BigInt(b.revenueMinor) - BigInt(a.revenueMinor)) || a.name.localeCompare(b.name, 'ru')),
       waiters: waiters
         .map((x) => ({
           name: names.get(x.waiterId!) ?? '—',

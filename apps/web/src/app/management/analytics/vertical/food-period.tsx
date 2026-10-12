@@ -1,4 +1,6 @@
 import { Panel, Stat, Stats, Table } from '../../../../components/ui';
+import { DayBars } from '../../../../components/day-bars';
+import { DonutShare } from '../../../../components/donut-share';
 import { METHOD_RU, wholeTenge } from '../../../../lib/dashboard-format';
 import type { FoodPeriodReport } from '../../../../lib/food-types';
 
@@ -52,6 +54,45 @@ export function FoodPeriodPanel({ report }: { report: FoodPeriodReport }) {
           testId="food-period-foodcost"
         />
       </Stats>
+      {(report.revenueByDay || report.categories) && (
+        <div className="vertical-food__charts">
+          {report.revenueByDay && (
+            <Panel title="Выручка по дням">
+              {report.revenueByDay.some((d) => d.revenueMinor !== '0') ? (
+                <DayBars
+                  testId="food-period-days"
+                  today={report.to}
+                  days={(() => {
+                    const max = Math.max(...report.revenueByDay.map((d) => Number(d.revenueMinor)));
+                    return report.revenueByDay.map((d) => ({
+                      date: d.date,
+                      height: max > 0 ? Math.round((Number(d.revenueMinor) / max) * 100) : 0,
+                      facts: `${money(d.revenueMinor)}, заказов ${d.orders}`,
+                    }));
+                  })()}
+                />
+              ) : (
+                <p className="muted">Закрытых заказов за период нет</p>
+              )}
+            </Panel>
+          )}
+          {report.categories && (
+            <Panel title="Продажи по категориям">
+              {report.categories.length ? (
+                <DonutShare
+                  testId="food-period-categories"
+                  items={report.categories.map((c) => ({ label: c.name, valueMinor: c.revenueMinor }))}
+                  centerLabel="выручка"
+                  centerValue={money(report.revenueMinor)}
+                  amount={money}
+                />
+              ) : (
+                <p className="muted">Закрытых заказов за период нет</p>
+              )}
+            </Panel>
+          )}
+        </div>
+      )}
       <Panel title="Оплаты по способам">
         {table(
           ['Способ', 'Платежей', 'Сумма'],

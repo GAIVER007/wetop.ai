@@ -1,0 +1,37 @@
+# Модульные (unit) · 12.10.2026 19:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e8d6b5 (codex/all-directions-growth), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-48-10Z-unit-7eb8.json' 'apps/web/src/lib/navigation-growth.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ❯ |unit| apps/web/src/lib/navigation-growth.test.ts (4 tests | 2 failed) 5ms
+   ❯ Продажи и маркетинг всех направлений (4)
+     ✓ HOSPITALITY: видит оба раздела 1ms
+     × BEAUTY: видит оба раздела 2ms
+     × FOOD_SERVICE: видит оба раздела 0ms
+     ✓ не добавляет гостиничные каналы салону и ресторану 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-growth.test.ts > Продажи и маркетинг всех направлений > BEAUTY: видит оба раздела
+ FAIL  |unit| apps/web/src/lib/navigation-growth.test.ts > Продажи и маркетинг всех направлений > FOOD_SERVICE: видит оба раздела
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ apps/web/src/lib/navigation-growth.test.ts:8:80
+      6|     it(`${vertical}: видит оба раздела`, () => {
+      7|       const sections = menuSectionsFor(owner, vertical);
+      8|       expect(sections.find((s) => s.id === 'sales')?.items.map((i) => …
+       |                                                                                ^
+      9|       expect(sections.find((s) => s.id === 'marketing')?.items.map((i)…
+     10|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  07:48:13
+   Duration  589ms (transform 81%, import 17%, tests 1%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-48-10Z-unit-7eb8.json
+
+# код выхода 1 · 4 с

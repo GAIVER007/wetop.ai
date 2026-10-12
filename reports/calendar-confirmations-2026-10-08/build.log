@@ -1,0 +1,134 @@
+
+> @pms/web@0.0.0 build
+> next build
+
+▲ Next.js 16.3.6 (Turbopack)
+✓ Running next.config.ts took 5.3s
+- Experiments (use with caution):
+  · serverActions
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 16.5s
+  Running TypeScript ...
+  Finished TypeScript in 59s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/75) ...
+  Generating static pages using 7 workers (18/75) 
+  Generating static pages using 7 workers (37/75) 
+  Generating static pages using 7 workers (56/75) 
+✓ Generating static pages using 7 workers (75/75) in 1708ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /(.)guests/[id]/preview
+├ ƒ /(.)reservations/[number]
+├ ƒ /(.)reservations/new
+├ ƒ /[...catchAll]
+├ ƒ /ai-agents
+├ ƒ /ai-agents/[id]
+├ ƒ /ai-agents/new
+├ ƒ /ai-seller/[[...section]]
+├ ƒ /ai-seller/agents
+├ ƒ /ai-seller/agents/[id]
+├ ƒ /ai-seller/agents/new
+├ ƒ /api/freshness
+├ ƒ /api/site-auth/[action]
+├ ƒ /api/wizard
+├ ƒ /appointments
+├ ƒ /auth/fallback
+├ ƒ /bar
+├ ƒ /beauty
+├ ƒ /beauty/masters
+├ ƒ /beauty/schedule
+├ ƒ /beauty/services
+├ ƒ /branches
+├ ƒ /calendar
+├ ƒ /channel-manager
+├ ƒ /channels/[[...section]]
+├ ƒ /channels/events/[revisionId]
+├ ƒ /chessboard
+├ ƒ /connections
+├ ƒ /connections/channex
+├ ƒ /create
+├ ƒ /customers
+├ ○ /design-system
+├ ƒ /dining-areas
+├ ƒ /employees
+├ ƒ /finance
+├ ƒ /finance/export
+├ ƒ /finance/export-debts
+├ ƒ /finance/export-services
+├ ƒ /floor-plan
+├ ƒ /guests
+├ ƒ /guests/[id]
+├ ƒ /guests/[id]/preview
+├ ƒ /guests/birthdays
+├ ƒ /help
+├ ƒ /hotel-settings/[[...section]]
+├ ○ /icon.svg
+├ ƒ /incidents
+├ ƒ /inventory
+├ ƒ /inventory/(..)units/[code]
+├ ƒ /invite/[token]
+├ ƒ /journal
+├ ƒ /login
+├ ƒ /login/check-email
+├ ƒ /login/reset
+├ ƒ /login/set-password
+├ ƒ /login/verify
+├ ƒ /management/[[...section]]
+├ ƒ /management/analytics
+├ ƒ /management/analytics/channels
+├ ƒ /management/analytics/channels/export
+├ ƒ /management/analytics/occupancy
+├ ƒ /management/analytics/units
+├ ƒ /market
+├ ƒ /marketing
+├ ƒ /onboarding
+├ ƒ /platform
+├ ƒ /platform/support/[[...section]]
+├ ƒ /profile
+├ ƒ /profile/access
+├ ƒ /rates/[[...rest]]
+├ ƒ /register
+├ ƒ /register/complete
+├ ƒ /register/setup
+├ ƒ /reports
+├ ƒ /reports/form-910
+├ ƒ /reports/print
+├ ƒ /reservations
+├ ƒ /reservations/[number]
+├ ƒ /reservations/[number]/print
+├ ƒ /reservations/[number]/print/contract
+├ ƒ /reservations/[number]/print/invoice
+├ ƒ /reservations/export
+├ ƒ /reservations/new
+├ ƒ /rooms/[[...section]]
+├ ƒ /scope/resolve
+├ ƒ /services
+├ ƒ /staff
+├ ƒ /status
+├ ƒ /table-reservations
+├ ƒ /tasks
+├ ƒ /team
+├ ƒ /today
+├ ƒ /units/[code]
+├ ƒ /website
+├ ƒ /website/analytics
+├ ƒ /website/booking
+└ ƒ /website/settings
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

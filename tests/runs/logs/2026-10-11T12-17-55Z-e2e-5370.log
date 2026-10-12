@@ -1,0 +1,46 @@
+# Сквозные (e2e) · 11.10.2026 17:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит b811e67 (codex/compact-navigation-20261011)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:55671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55710) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55756) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55758) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+(node:55760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/beauty-ui/beauty.spec.ts:84:1 › empty setup through real UI, persisted appointment, move, confirm, complete (10.1s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:171:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (5.7s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:211:1 › existing customer can be selected for another appointment without duplication (1.9s)
+  ✓   4 tests/beauty-ui/beauty.spec.ts:239:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (5.8s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:239:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (5.0s)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:239:5 › calendar and drawer 390 light, keyboard, axe, no overflow (4.6s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:239:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (4.9s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:320:1 › archived service and employee preserve historical calendar appointments (1.7s)
+  ✓   9 tests/beauty-ui/beauty.spec.ts:354:1 › TimeOff from employee drawer, server denial and timezone persisted (3.6s)
+  ✓  10 tests/beauty-ui/beauty.spec.ts:406:1 › DS1c: day navigation keeps the previous addresses (956ms)
+  ✓  11 tests/beauty-ui/beauty.spec.ts:421:1 › Beauty onboarding completion opens Today and resumes there (3.6s)
+  -  12 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -  13 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -  14 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -  15 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+
+  4 skipped
+  11 passed (53.3s)
+
+# код выхода 0 · 54 с

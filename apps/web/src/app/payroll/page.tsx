@@ -8,7 +8,7 @@ import { restaurantShell } from '../food/restaurant-load';
 import '../food/food.css';
 import '../food/restaurant.css';
 
-/** «Зарплата и финансы» ресторана (ADR-159, §33.4). Выплат и кассы нет: Q-REST-6 */
+/** «Зарплата и финансы» ресторана (ADR-159, §33.4); выплаты из кассы филиала (§35.3, ADR-165) */
 export default async function PayrollPage({
   searchParams,
 }: {
@@ -23,7 +23,7 @@ export default async function PayrollPage({
     return (
       <Page
         title="Зарплата и финансы"
-        subtitle="Оклады, процент от заказов, премии и штрафы. Расчёт показательный, выплаты не фиксируются"
+        subtitle="Оклады, процент от заказов, премии и штрафы. Выплата уходит расходом из кассы"
       >
         <div key={shell.scopeKey}>
           <PayrollBoard

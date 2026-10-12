@@ -71,6 +71,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       // Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS)
       { href: '/stock', label: 'Склад', icon: 'stock', requires: 'desk', description: 'Склад кухни: ингредиенты и остатки' },
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
+      { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса ресторана' },
 
       {
         href: '/calendar',
@@ -228,7 +229,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             // Фишка №1 (ADR-142): загрузка ближайших отелей рядом со своей; смотрят, кто видит отчёты
             href: '/market',
             requires: 'reports',
-            label: 'Загрузка конкурентов',
+            label: 'Анализ конкурентов',
             icon: 'analytics',
             description:
               'Ваша загрузка рядом с загрузкой ближайших отелей на каждую ночь и подсказки к цене.',
@@ -535,20 +536,37 @@ export const beautyMenuSections: MenuSection[] = [
   direct('profile', '/profile', 'guests'),
 ];
 
-/** Состав и порядок — макет «WETOP для ресторанов» (ADR-159): Главная, Заказы, Зал, Кухня, Клиенты, Меню… */
+/**
+ * Меню ресторана (ADR-159): группы по выбору владельца 11.10.2026, чтобы в левой колонке под кнопкой раздела
+ * были видны подразделы, как у гостиницы. Адреса и права прежние.
+ */
 export const foodMenuSections: MenuSection[] = [
   direct('today', '/today', 'today', 'Главная'),
-  direct('orders', '/orders', 'receipt'),
-  direct('floor-plan', '/floor-plan', 'board'),
-  direct('kitchen', '/kitchen', 'kitchen'),
-  direct('table-reservations', '/table-reservations', 'booking'),
+  {
+    id: 'hall',
+    label: 'Зал',
+    icon: 'board',
+    items: [menuItem('/floor-plan'), menuItem('/table-reservations'), menuItem('/dining-areas')],
+  },
+  {
+    id: 'orders',
+    label: 'Заказы',
+    icon: 'receipt',
+    items: [
+      menuItem('/orders'),
+      menuItem('/kitchen'),
+      menuItem('/menu'),
+      menuItem('/stock'),
+      menuItem('/cashbox'),
+    ],
+  },
   direct('customers', '/customers', 'guests', 'Клиенты'),
-  direct('menu', '/menu', 'kettle'),
-  direct('stock', '/stock', 'stock'),
-  direct('employees', '/employees', 'guests', 'Сотрудники'),
-  direct('payroll', '/payroll', 'money'),
-  direct('dining-areas', '/dining-areas', 'settings'),
-  direct('staff', '/staff', 'guests'),
+  {
+    id: 'team',
+    label: 'Команда',
+    icon: 'guests',
+    items: [menuItem('/employees', 'Сотрудники'), menuItem('/payroll'), menuItem('/staff')],
+  },
   direct('analytics', '/management/analytics', 'analytics'),
   direct('journal', '/journal', 'journal'),
   direct('help', '/help', 'help'),
@@ -574,7 +592,14 @@ export function phoneNavigationFor(
   vertical: WebVertical = 'HOSPITALITY',
 ): NavigationItem[] {
   if (vertical === 'HOSPITALITY') return phoneNavigation;
-  return (vertical === 'FOOD_SERVICE' ? foodMenuSections : beautyMenuSections)
+  // у ресторана группы: вкладка группы ведёт на её первый пункт под именем группы, как у гостиницы
+  if (vertical === 'FOOD_SERVICE')
+    return foodMenuSections
+      .slice(0, 4)
+      .map((section) =>
+        section.direct ? section.items[0]! : { ...section.items[0]!, label: section.label },
+      );
+  return beautyMenuSections
     .filter((section) => section.direct)
     .slice(0, 4)
     .map((section) => section.items[0]!);

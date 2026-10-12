@@ -43,6 +43,7 @@ export default async function OrdersPage({
       scopeKey: shell.scopeKey,
       timezone: shell.timezone,
       write: shell.canDesk && !shell.readOnly,
+      refunds: shell.canRefunds && !shell.readOnly,
       areas,
       tables,
       employees,

@@ -16,6 +16,8 @@ import { BoardMenu } from './board-menu';
 import { BoardZoom } from './board-zoom';
 import { displayDate } from '../../lib/display-date';
 import { hotelClock, validDate } from '../../lib/hotel-api';
+import { CalendarWorkspace, CalendarExpandButton } from './calendar-workspace';
+import { BoardClock } from './board-clock';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
@@ -86,7 +88,9 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const yesterday = new Date(Date.parse(`${today}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
+  const yesterday = new Date(Date.parse(`${today}T12:00:00Z`) - 86400000)
+    .toISOString()
+    .slice(0, 10);
   const [board, incidents, events, shell, day, todayBoard, yesterdayBoard] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
@@ -161,7 +165,11 @@ export default async function ChessboardPage({
     ? todaySummary.occupied + todaySummary.free + todaySummary.blocked
     : null;
   const occupancy =
-    todaySummary && units ? Math.round((todaySummary.occupied / units) * 100) : units === 0 ? 0 : null;
+    todaySummary && units
+      ? Math.round((todaySummary.occupied / units) * 100)
+      : units === 0
+        ? 0
+        : null;
   const dirtyUnits = board.rows.filter((r) => r.unit.housekeepingStatus === 'DIRTY').length;
   const debtStays = new Set(
     board.rows.flatMap((r) =>
@@ -216,7 +224,9 @@ export default async function ChessboardPage({
         <Link
           href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
           className="icon-button"
-          aria-label={isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'}
+          aria-label={
+            isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
+          }
         >
           <Icon name="chevron" />
         </Link>
@@ -308,10 +318,13 @@ export default async function ChessboardPage({
     </div>
   );
   const actions = (
-    <Link className="btn board-new" href="/reservations/new">
-      <Icon name="plus" />
-      <span className="board-new__label">Новая бронь</span>
-    </Link>
+    <>
+      <CalendarExpandButton compact />
+      <Link className="btn board-new" href="/reservations/new">
+        <Icon name="plus" />
+        <span className="board-new__label">Новая бронь</span>
+      </Link>
+    </>
   );
   const kpis = day ? (
     <DayStats
@@ -329,112 +342,123 @@ export default async function ChessboardPage({
   ) : null;
 
   return (
-    <Page width="full" title="Календарь" className="page--board">
-      {overbooked.length > 0 && (
-        <Alert boxed data-testid="overbooked-callout">
-          Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
-          <a href="#unassigned-stays">Разрешить</a>
-        </Alert>
-      )}
-      {failedEvents > 0 && (
-        <Alert boxed tone="warning" data-testid="review-callout">
-          Входящая бронь требует разбора:{' '}
-          {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} из каналов не разобрана
-          автоматически. <Link href="/channels/events?status=FAILED">Разобрать</Link>
-        </Alert>
-      )}
-      <UnassignedStays
-        stays={board.unassigned ?? []}
-        critical={overbooked.length > 0}
-        categories={categoriesOf(board.rows)}
-        readOnly={shell?.readOnly ?? false}
-      />
-      <ChessboardGrid
-        board={board}
-        today={today}
-        fitMonth={isMonth}
-        readOnly={shell?.readOnly ?? false}
-        lead={lead}
-        actions={actions}
-        kpis={kpis}
-        help={help}
-      />
-      <div className="board-footer">
-        {/* Нижняя строка по образцу владельца (09.10.2026): цвета плашек словами, «Показать легенду»,
-            масштаб «− 100% +». Смысл не держится на цвете: у статуса свой значок на плашке. */}
-        <ul className="board-legend-inline" aria-label="Цвета плашек">
-          {[
-            ['living', statusText(hospitalityStatus, 'CHECKED_IN')],
-            ['booked', statusText(hospitalityStatus, 'CONFIRMED')],
-            ['tentative', statusText(hospitalityStatus, 'TENTATIVE')],
-            ['left', statusText(hospitalityStatus, 'CHECKED_OUT')],
-            ['repair', 'ремонт, неисправна'],
-            ['block', 'блок'],
-          ].map(([plate, label]) => (
-            <li key={label}>
-              <span className="board-legend-dot" data-plate={plate} aria-hidden="true" />
-              {label!.charAt(0).toUpperCase() + label!.slice(1)}
-            </li>
-          ))}
-        </ul>
-        <BoardMenu
-          className="board-legend-details"
-          testId="board-legend-button"
+    <CalendarWorkspace summary={null} nativeLayout>
+      <Page width="full" title="Календарь" className="page--board calendar-page">
+        {overbooked.length > 0 && (
+          <Alert boxed data-testid="overbooked-callout">
+            Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
+            <a href="#unassigned-stays">Разрешить</a>
+          </Alert>
+        )}
+        {failedEvents > 0 && (
+          <Alert boxed tone="warning" data-testid="review-callout">
+            Входящая бронь требует разбора:{' '}
+            {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} из каналов не разобрана
+            автоматически. <Link href="/channels/events?status=FAILED">Разобрать</Link>
+          </Alert>
+        )}
+        <UnassignedStays
+          stays={board.unassigned ?? []}
+          critical={overbooked.length > 0}
+          categories={categoriesOf(board.rows)}
+          readOnly={shell?.readOnly ?? false}
+        />
+        <ChessboardGrid
+          board={board}
+          today={today}
+          fitMonth={isMonth}
+          readOnly={shell?.readOnly ?? false}
+          lead={lead}
+          actions={actions}
+          kpis={kpis}
+          help={help}
           summary={
-            <>
-              <Icon name="help" />
-              Показать легенду
-            </>
+            day ? (
+              <SideDayStats day={day} today={today} timeZone={clock.timezone} board={current} />
+            ) : null
           }
-        >
-          <div className="board-legend-pop">
-            <Legend
-              data-testid="board-legend"
-              items={[
-                {
-                  color: 'var(--plate-booked)',
-                  label: statusText(hospitalityStatus, 'CONFIRMED'),
-                  icon: 'booking',
-                },
-                {
-                  color: 'var(--plate-living)',
-                  label: statusText(hospitalityStatus, 'CHECKED_IN'),
-                  icon: 'guests',
-                },
-                {
-                  color: 'var(--plate-left)',
-                  label: statusText(hospitalityStatus, 'CHECKED_OUT'),
-                  icon: 'departure',
-                },
-                {
-                  color: 'var(--plate-tentative)',
-                  label: statusText(hospitalityStatus, 'TENTATIVE'),
-                  icon: 'help',
-                },
-                { color: 'var(--plate-repair)', label: 'ремонт, неисправна', icon: 'settings' },
-                { color: 'var(--plate-block)', label: 'блокировка', icon: 'shield' },
-                // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная без значка
-                {
-                  color: 'var(--warning-bg)',
-                  label: statusText(housekeepingStatus, 'DIRTY'),
-                  icon: 'dirty',
-                },
-                {
-                  color: 'var(--primary-soft)',
-                  label: `${statusText(housekeepingStatus, 'CLEAN')}, ждёт проверки`,
-                  icon: 'clean',
-                },
-                { color: 'var(--success)', label: 'зелёная точка у места: проверено, доступно' },
-              ]}
-            />
-            <p className="board-gesture-hint">
-              Плашка: переселить. Правый край: продлить. Пустые клетки: протянуть и создать бронь.
-            </p>
-          </div>
-        </BoardMenu>
-        <BoardZoom />
-      </div>
-    </Page>
+        />
+        <div className="board-footer">
+          {/* Нижняя строка по образцу владельца (09.10.2026): цвета плашек словами, «Показать легенду»,
+            масштаб «− 100% +». Смысл не держится на цвете: у статуса свой значок на плашке. */}
+          <ul
+            className="board-legend-inline"
+            aria-label="Цвета плашек"
+            data-testid="board-status-legend"
+          >
+            {[
+              ['living', statusText(hospitalityStatus, 'CHECKED_IN')],
+              ['booked', statusText(hospitalityStatus, 'CONFIRMED')],
+              ['tentative', statusText(hospitalityStatus, 'TENTATIVE')],
+              ['left', statusText(hospitalityStatus, 'CHECKED_OUT')],
+              ['repair', 'ремонт, неисправна'],
+              ['block', 'блок'],
+            ].map(([plate, label]) => (
+              <li key={label}>
+                <span className="board-legend-dot" data-plate={plate} aria-hidden="true" />
+                {label!.charAt(0).toUpperCase() + label!.slice(1)}
+              </li>
+            ))}
+          </ul>
+          <BoardMenu
+            className="board-legend-details"
+            testId="board-legend-button"
+            summary={
+              <>
+                <Icon name="help" />
+                Показать легенду
+              </>
+            }
+          >
+            <div className="board-legend-pop">
+              <Legend
+                data-testid="board-legend"
+                items={[
+                  {
+                    color: 'var(--plate-booked)',
+                    label: statusText(hospitalityStatus, 'CONFIRMED'),
+                    icon: 'booking',
+                  },
+                  {
+                    color: 'var(--plate-living)',
+                    label: statusText(hospitalityStatus, 'CHECKED_IN'),
+                    icon: 'guests',
+                  },
+                  {
+                    color: 'var(--plate-left)',
+                    label: statusText(hospitalityStatus, 'CHECKED_OUT'),
+                    icon: 'departure',
+                  },
+                  {
+                    color: 'var(--plate-tentative)',
+                    label: statusText(hospitalityStatus, 'TENTATIVE'),
+                    icon: 'help',
+                  },
+                  { color: 'var(--plate-repair)', label: 'ремонт, неисправна', icon: 'settings' },
+                  { color: 'var(--plate-block)', label: 'блокировка', icon: 'shield' },
+                  // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная без значка
+                  {
+                    color: 'var(--warning-bg)',
+                    label: statusText(housekeepingStatus, 'DIRTY'),
+                    icon: 'dirty',
+                  },
+                  {
+                    color: 'var(--primary-soft)',
+                    label: `${statusText(housekeepingStatus, 'CLEAN')}, ждёт проверки`,
+                    icon: 'clean',
+                  },
+                  { color: 'var(--success)', label: 'зелёная точка у места: проверено, доступно' },
+                ]}
+              />
+              <p className="board-gesture-hint">
+                Плашка: переселить. Правый край: продлить. Пустые клетки: протянуть и создать бронь.
+              </p>
+            </div>
+          </BoardMenu>
+          <BoardZoom />
+        </div>
+      </Page>
+    </CalendarWorkspace>
   );
 }
 
@@ -541,7 +565,7 @@ function DayStats({
       <Link
         className="board-kpi board-kpi--free"
         href={availabilityHref}
-        aria-label="Поиск свободных номеров"
+        aria-label="Поиск свободных мест"
       >
         <span className="board-kpi__icon" aria-hidden="true">
           <Icon name="inventory" />
@@ -553,7 +577,7 @@ function DayStats({
           <span className="board-kpi__label">
             Свободно
             <br />
-            номеров
+            мест
           </span>
         </span>
       </Link>
@@ -565,14 +589,14 @@ function DayStats({
           <b className="board-kpi__value" data-testid="day-dirty">
             {dirty}
           </b>
-          <span className="board-kpi__label">
-            Уборка
-            <br />
-            мест
-          </span>
+          <span className="board-kpi__label">Нужна уборка</span>
         </span>
       </div>
-      <Link className="board-kpi board-kpi--attention" href="/chessboard?stays=debt" aria-label="Неоплаченные">
+      <Link
+        className="board-kpi board-kpi--attention"
+        href="/chessboard?stays=debt"
+        aria-label="Неоплаченные"
+      >
         <span className="board-kpi__icon" aria-hidden="true">
           <Icon name="incidents" />
         </span>
@@ -587,6 +611,69 @@ function DayStats({
           </span>
         </span>
       </Link>
+    </section>
+  );
+}
+
+function SideDayStats({
+  day,
+  board,
+  today,
+  timeZone,
+}: {
+  day: import('../../lib/api').DeskDay;
+  board: import('../../lib/api').Chessboard | null;
+  today: string;
+  timeZone: string;
+}) {
+  const s = board?.summary[today];
+  const units = s ? s.occupied + s.free + s.blocked : null;
+  const occupancy = s && units ? Math.round((s.occupied / units) * 100) : units === 0 ? 0 : null;
+  const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
+  const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
+  const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
+  const title = new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    timeZone,
+  }).format(new Date(`${today}T12:00:00Z`));
+  const initialTime = new Intl.DateTimeFormat('ru-RU', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(new Date());
+  const c = day.counts;
+  const row = (id: string, label: string, value: React.ReactNode, href?: string) => (
+    <div className={`board-day-panel__row board-day-panel__row--${id}`}>
+      {href ? <Link href={href}>{label}</Link> : <span>{label}</span>}
+      <b data-testid={`summary-${id}`}>{value}</b>
+    </div>
+  );
+  return (
+    <section className="board-day-panel" role="group" aria-label="Сводка дня">
+      <h2 className="board-day-panel__title">
+        Сегодня, {title}, <BoardClock timeZone={timeZone} initial={initialTime} />
+      </h2>
+      <div className="board-day-panel__columns">
+        <div className="board-day-panel__col">
+          {row('arrivals', 'Заезды', c.arrivals, dayHref('arrival'))}
+          {row('departures', 'Выезды', c.departures, dayHref('departure'))}
+          {row('inhouse', 'Проживания', c.inHouse, '/reservations?view=inhouse')}
+        </div>
+        <div className="board-day-panel__col">
+          {/* Без разбивки на номера и койки, без дней рождения, задач, блокировок и «Всего номеров»:
+              владелец 06.10 «лишнее убери, в скобках убери», «всего номеров незачем видеть постоянно» */}
+          {row(
+            'free',
+            'Свободно мест',
+            n(s?.free),
+            `/rooms/availability?arrival=${today}&departure=${tomorrow}`,
+          )}
+          {row('occupied', 'Занято мест', n(s?.occupied))}
+          {row('occupancy', 'Загрузка', occupancy === null ? 'н/д' : `${occupancy}%`)}
+        </div>
+      </div>
     </section>
   );
 }

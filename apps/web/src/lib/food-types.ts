@@ -40,6 +40,11 @@ export interface FoodCustomer {
   name?: string;
   /** Посещения (посажен или завершён) в этом филиале; «Постоянный гость» от двух (ADR-159) */
   visits?: number;
+  /** Ручная метка VIP и дата рождения (§36, ADR-166) */
+  isVip?: boolean;
+  birthDate?: string | null;
+  /** Через сколько дней день рождения по дате филиала: 0 сегодня */
+  birthdayInDays?: number | null;
 }
 export interface RestaurantReservation {
   id: string;
@@ -177,6 +182,8 @@ export interface OrderView {
   guestCount: number;
   notes: string | null;
   totalMinor: string;
+  /** Сумма действующих платежей (§35.1) */
+  paidMinor: string;
   currency: string;
   openedAt: string;
   cookingAt: string | null;
@@ -187,6 +194,70 @@ export interface OrderView {
   delayed: boolean;
   nextStatuses: OrderStatus[];
   items: OrderItemView[];
+  payments: OrderPaymentView[];
+}
+export type FoodPaymentMethod =
+  | 'CASH'
+  | 'CARD_TERMINAL'
+  | 'KASPI'
+  | 'HALYK'
+  | 'BANK_TRANSFER_PERSON'
+  | 'BANK_TRANSFER_LEGAL';
+export const FOOD_PAYMENT_METHODS: FoodPaymentMethod[] = [
+  'CASH',
+  'CARD_TERMINAL',
+  'KASPI',
+  'HALYK',
+  'BANK_TRANSFER_PERSON',
+  'BANK_TRANSFER_LEGAL',
+];
+export interface OrderPaymentView {
+  id: string;
+  method: FoodPaymentMethod;
+  amountMinor: string;
+  status: 'COMPLETED' | 'VOIDED';
+  paidAt: string;
+  voidReason: string | null;
+}
+/** Касса филиала (§35.2) */
+export interface FoodCashView {
+  currency: string;
+  balances: Array<{ method: FoodPaymentMethod; balanceMinor: string }>;
+  operations: Array<{
+    id: string;
+    kind: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+    method: FoodPaymentMethod;
+    methodTo: FoodPaymentMethod | null;
+    amountMinor: string;
+    note: string | null;
+    employee: string | null;
+    period: string | null;
+    status: 'COMPLETED' | 'VOIDED';
+    occurredAt: string;
+  }>;
+  payments: Array<{
+    id: string;
+    orderNumber: number;
+    method: FoodPaymentMethod;
+    amountMinor: string;
+    status: 'COMPLETED' | 'VOIDED';
+    paidAt: string;
+  }>;
+  reconciliations: Array<{
+    id: string;
+    method: FoodPaymentMethod;
+    expectedMinor: string;
+    countedMinor: string;
+    note: string | null;
+    createdAt: string;
+  }>;
+}
+export interface FoodCashOperationInput {
+  kind: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  method: FoodPaymentMethod;
+  methodTo?: FoodPaymentMethod;
+  amount: number;
+  note?: string | null;
 }
 export interface OrderToken {
   expectedStatus: OrderStatus;
@@ -249,11 +320,20 @@ export interface PayrollRow {
   bonusMinor: string;
   penaltyMinor: string;
   totalMinor: string;
+  /** Выплачено из кассы за месяц и остаток (§35.3) */
+  paidMinor: string;
+  remainingMinor: string;
 }
 export interface PayrollView {
   month: string;
   currency: string;
-  totals: { fundMinor: string; bonusMinor: string; penaltyMinor: string; payoutMinor: string };
+  totals: {
+    fundMinor: string;
+    bonusMinor: string;
+    penaltyMinor: string;
+    payoutMinor: string;
+    paidMinor: string;
+  };
   rows: PayrollRow[];
   adjustments: Array<{
     id: string;
@@ -314,4 +394,16 @@ export interface StockReceiptInput {
   document?: string | null;
   receivedOn?: string | null;
   lines: Array<{ productId: string; qty: string; unitCost: number; expiresOn?: string | null }>;
+}
+/** Отчёт ресторана за период (Аналитика): закрытые заказы, оплаты по способам, блюда, официанты */
+export interface FoodPeriodReport {
+  from: string;
+  to: string;
+  currency: string;
+  ordersCount: number;
+  revenueMinor: string;
+  averageCheckMinor: string | null;
+  payments: Array<{ method: string; amountMinor: string; count: number }>;
+  topDishes: Array<{ name: string; qty: number; revenueMinor: string }>;
+  waiters: Array<{ name: string; orders: number; revenueMinor: string }>;
 }

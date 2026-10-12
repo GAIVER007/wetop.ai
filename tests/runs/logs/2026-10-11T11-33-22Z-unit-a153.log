@@ -1,0 +1,16 @@
+# Модульные (unit) · 11.10.2026 16:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8b4046c (codex/beauty-empty-workspaces), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-33-22Z-unit-a153.json' 'apps/web/src/app/beauty/empty-workspaces.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (4 tests) 20ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  04:33:24
+   Duration  1.93s (transform 71%, import 27%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-33-22Z-unit-a153.json
+
+# код выхода 0 · 4 с

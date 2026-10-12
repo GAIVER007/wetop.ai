@@ -225,38 +225,120 @@
   .rest-floor-dot--cleaning {
     background: var(--warning);
   }
-  /* Карточка стола теперь контейнер: главная кнопка внутри, рядом переключатель уборки */
-  .food-table-card .food-table-main {
+  /* План зала рисунком (макет ADR-159): пол зала плиткой, стол фигурой по вместимости, стулья вокруг,
+     заливка стола по статусу. Текст внутри всегда --text: контраст не зависит от заливки */
+  .food-table-grid.rest-hall {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    align-items: center;
+    justify-items: center;
+    gap: var(--space-6) var(--space-4);
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .food-table-card.rest-tbl-wrap {
     display: flex;
     flex-direction: column;
-    align-items: start;
-    gap: var(--space-2);
-    flex: 1;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 0;
     padding: 0;
     border: 0;
     background: none;
-    color: inherit;
-    text-align: left;
+    cursor: default;
+  }
+  .food-table-card.rest-tbl-wrap:hover {
+    border-color: transparent;
+  }
+  .rest-chairs {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 10px;
+  }
+  .rest-chairs i {
+    display: block;
+    width: 26px;
+    height: 10px;
+    border-radius: var(--radius-xs, 4px);
+    background: var(--muted);
+    opacity: 0.45;
+  }
+  .food-table-card .food-table-main.rest-tbl {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    width: 148px;
+    min-height: 132px;
+    padding: var(--space-4) var(--space-2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-solid);
+    color: var(--text);
+    text-align: center;
     cursor: pointer;
-    font: inherit;
-    min-height: 0;
-    width: 100%;
+    box-shadow: var(--shadow-floating);
+    transition:
+      transform var(--duration-fast, 0.12s) var(--ease, ease),
+      box-shadow var(--duration-fast, 0.12s) var(--ease, ease);
   }
-  .food-table-card .food-table-main .badge {
-    margin-top: auto;
+  .food-table-card .food-table-main.rest-tbl:hover {
+    transform: translateY(-2px);
   }
-  .food-table-card[data-kind='FREE'] {
-    border-left: 3px solid var(--success);
+  .food-table-card .food-table-main.rest-tbl:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
   }
-  /* Только кромка и бейдж: заливка карточки роняла контраст подписей (axe, прогон …11-29-59Z) */
-  .food-table-card[data-kind='OCCUPIED'] {
-    border-left: 3px solid var(--danger);
+  .rest-tbl-wrap[data-shape='round'] .food-table-main.rest-tbl {
+    width: 148px;
+    height: 148px;
+    border-radius: 50%;
   }
-  .food-table-card[data-kind='RESERVED'] {
-    border-left: 3px solid var(--info);
+  .rest-tbl-wrap[data-shape='long'] .food-table-main.rest-tbl {
+    width: 200px;
+    min-height: 120px;
   }
-  .food-table-card[data-kind='CLEANING'] {
-    border-left: 3px solid var(--warning);
+  .rest-tbl strong {
+    font-size: var(--text-xl, 19px);
+    line-height: 1;
+  }
+  .rest-tbl small,
+  .rest-tbl span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-xs);
+    color: var(--text);
+  }
+  .rest-tbl .badge {
+    margin-top: 0;
+  }
+  .rest-tbl-wrap[data-kind='FREE'] .rest-tbl {
+    border-color: var(--success);
+    background: var(--success-soft);
+  }
+  .rest-tbl-wrap[data-kind='OCCUPIED'] .rest-tbl {
+    border-color: var(--danger);
+    background: var(--danger-soft);
+  }
+  .rest-tbl-wrap[data-kind='RESERVED'] .rest-tbl {
+    border-color: var(--info);
+    background: var(--st-confirmed);
+  }
+  .rest-tbl-wrap[data-kind='CLEANING'] .rest-tbl {
+    border-color: var(--warning);
+    background: var(--warning-soft);
+  }
+  .rest-tbl-wrap .btn {
+    margin-top: var(--space-1);
   }
 
   /* ── Заказы: состав в ячейке и форма нового заказа ── */
@@ -299,6 +381,54 @@
     display: block;
   }
 
+  /* Оплата заказа и касса филиала (DATA_MODEL §35, ADR-165) */
+  .rest-pay {
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border);
+  }
+  .rest-pay-sum {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+  }
+  .rest-pay-sum dd {
+    margin: 0;
+    text-align: right;
+    font-weight: 600;
+  }
+  .rest-pay-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rest-pay-list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rest-pay-list li strong {
+    margin-left: auto;
+  }
+  .rest-pay-list li[data-status='VOIDED'] {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+  .rest-pay-void {
+    display: flex;
+    gap: var(--space-2);
+    width: 100%;
+  }
+  .rest-cash-forms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-4);
+  }
   @media (max-width: 960px) {
     .rest-dash-grid {
       grid-template-columns: 1fr;
@@ -320,6 +450,24 @@
     .rest-menu-row .rest-menu-actions {
       width: 100%;
       justify-content: space-between;
+    }
+    /* телефон: зал в два столбца, столы меньше, длинный стол той же ширины */
+    .food-table-grid.rest-hall {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4) var(--space-2);
+      padding: var(--space-2);
+    }
+    .food-table-card .food-table-main.rest-tbl,
+    .rest-tbl-wrap[data-shape='long'] .food-table-main.rest-tbl {
+      width: 132px;
+      min-height: 116px;
+    }
+    .rest-tbl-wrap[data-shape='round'] .food-table-main.rest-tbl {
+      width: 132px;
+      height: 132px;
+    }
+    .rest-chairs i {
+      width: 20px;
     }
   }
 }

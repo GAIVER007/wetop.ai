@@ -3,8 +3,10 @@ import { revalidatePath } from 'next/cache';
 import { unstable_rethrow } from 'next/navigation';
 import { ApiError } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
-import { restaurantApi } from '../../lib/food-api';
+import { foodApi, restaurantApi } from '../../lib/food-api';
 import type {
+  FoodCashOperationInput,
+  FoodPaymentMethod,
   IngredientInput,
   MenuCategoryInput,
   MenuItemInput,
@@ -24,7 +26,17 @@ type MenuCommand =
 type OrderCommand =
   | { kind: 'create'; body: OrderCreateInput }
   | { kind: 'edit'; id: string; body: OrderPatch }
-  | { kind: 'status'; id: string; body: OrderToken & { status: OrderStatus } };
+  | { kind: 'status'; id: string; body: OrderToken & { status: OrderStatus } }
+  | {
+      kind: 'pay';
+      id: string;
+      body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string };
+    }
+  | { kind: 'void-payment'; id: string; reason: string };
+type CashCommand =
+  | { kind: 'operation'; body: FoodCashOperationInput }
+  | { kind: 'void'; id: string }
+  | { kind: 'reconcile'; body: { method: FoodPaymentMethod; counted: number; note?: string | null } };
 type StaffCommand =
   | { kind: 'create'; body: { name: string; phone?: string | null; email?: string | null } }
   | {
@@ -33,7 +45,8 @@ type StaffCommand =
       body: { name?: string; phone?: string | null; email?: string | null; status?: string };
     }
   | { kind: 'pay-settings'; id: string; body: { model: PayModel; fixedMinor: number; percent: number } }
-  | { kind: 'adjustment'; id: string; body: { period: string; amountMinor: number; reason: string } };
+  | { kind: 'adjustment'; id: string; body: { period: string; amountMinor: number; reason: string } }
+  | { kind: 'payout'; id: string; body: { period: string; method: FoodPaymentMethod; amount: number } };
 
 async function scope(key: string) {
   const { context } = await currentMe();
@@ -93,8 +106,15 @@ export async function mutateOrder(
       case 'status':
         order = await restaurantApi.orderStatus(command.id, command.body);
         break;
+      case 'pay':
+        order = await restaurantApi.payOrder(command.id, command.body);
+        break;
+      case 'void-payment':
+        order = await restaurantApi.voidPayment(command.id, command.reason);
+        break;
     }
-    for (const path of ['/orders', '/kitchen', '/floor-plan', '/today']) revalidatePath(path);
+    for (const path of ['/orders', '/kitchen', '/floor-plan', '/today', '/cashbox'])
+      revalidatePath(path);
     return { error: null, order };
   } catch (error) {
     return failure(error);
@@ -126,8 +146,42 @@ export async function mutateStaff(
     else if (command.kind === 'edit') await restaurantApi.updateEmployee(command.id, command.body);
     else if (command.kind === 'pay-settings')
       await restaurantApi.setPaySettings(command.id, command.body);
+    else if (command.kind === 'payout') await restaurantApi.payout(command.id, command.body);
     else await restaurantApi.addPayAdjustment(command.id, command.body);
-    for (const path of ['/employees', '/payroll']) revalidatePath(path);
+    for (const path of ['/employees', '/payroll', '/cashbox']) revalidatePath(path);
+    return { error: null };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** Касса филиала (§35.2): операция, аннулирование, сверка */
+export async function mutateCash(
+  scopeKey: string,
+  command: CashCommand,
+): Promise<{ error: string | null }> {
+  try {
+    await scope(scopeKey);
+    if (command.kind === 'operation') await restaurantApi.cashOperation(command.body);
+    else if (command.kind === 'void') await restaurantApi.voidCashOperation(command.id);
+    else await restaurantApi.cashReconciliation(command.body);
+    revalidatePath('/cashbox');
+    return { error: null };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** VIP-метка и дата рождения клиента (§36, ADR-166) */
+export async function markCustomer(
+  scopeKey: string,
+  id: string,
+  body: { isVip: boolean; birthDate: string | null },
+): Promise<{ error: string | null }> {
+  try {
+    await scope(scopeKey);
+    await foodApi.updateCustomer(id, body);
+    revalidatePath('/customers');
     return { error: null };
   } catch (error) {
     return failure(error);

@@ -1,0 +1,111 @@
+[WebServer] (node:500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:538) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:611) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+(node:775) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:971) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1005) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/booking-cancellation-reasons.spec.ts:7:1 › единая отмена предлагает незаезд как причину и сохраняет статус (2.0m)
+(node:5311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5329) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/booking-cancellation-reasons.spec.ts:21:1 › закрытие окна отмены сохраняет бронь, подтверждение отменяет (16.9s)
+(node:5473) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/preview-money-confirmation.spec.ts:9:1 › календарь: оплата без перехода и отказ от незавершённого ввода (2.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '739557167'
+[WebServer] }
+  ✓  4 tests/ui/preview-money-confirmation.spec.ts:31:1 › телефон: возврат в календаре проверяет платёж и подтверждает сумму (2.6s)
+  ✓  5 tests/ui/preview-money-confirmation.spec.ts:55:1 › закрытие незавершённого ввода ничего не проводит (1.5s)
+
+
+  1) tests/ui/booking-cancellation-reasons.spec.ts:7:1 › единая отмена предлагает незаезд как причину и сохраняет статус 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByTestId('reservation-actions').getByTestId('cancel-stay-ui-item')
+
+
+       9 |   const actions = page.getByTestId('reservation-actions');
+      10 |   await expect(actions.getByRole('button', { name: 'Незаезд', exact: true })).toHaveCount(0);
+    > 11 |   await actions.getByTestId('cancel-stay-ui-item').click();
+         |                                                    ^
+      12 |   const dialog = page.getByRole('dialog', { name: `Отменить бронь ${number}?` });
+      13 |   await dialog.getByLabel('Причина отмены').selectOption('no_show');
+      14 |   await expect(dialog.getByTestId('no-show-penalty')).toContainText('Штраф');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/booking-cancellation-reasons.spec.ts:11:52
+
+    Error Context: test-results/booking-cancellation-reaso-89155--причину-и-сохраняет-статус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-cancellation-reaso-89155--причину-и-сохраняет-статус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-cancellation-reaso-89155--причину-и-сохраняет-статус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/booking-cancellation-reasons.spec.ts:21:1 › закрытие окна отмены сохраняет бронь, подтверждение отменяет 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Отменить бронь 20260913-TESTAA?' }).getByLabel('Причина отмены')
+    Expected: "cancel"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog', { name: 'Отменить бронь 20260913-TESTAA?' }).getByLabel('Причина отмены') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Отменить бронь 20260913-TESTAA?' }).getByLabel('Причина отмены')
+
+
+      24 |   await cancel.click();
+      25 |   const dialog = page.getByRole('dialog', { name: `Отменить бронь ${number}?` });
+    > 26 |   await expect(dialog.getByLabel('Причина отмены')).toHaveValue('cancel');
+         |                                                     ^
+      27 |   await dialog.getByRole('button', { name: 'Оставить', exact: true }).click();
+      28 |   const before = await (await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })).json();
+      29 |   expect(before.status).toBe('CONFIRMED');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/booking-cancellation-reasons.spec.ts:26:53
+
+    Error Context: test-results/booking-cancellation-reaso-ea665-ронь-подтверждение-отменяет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-cancellation-reaso-ea665-ронь-подтверждение-отменяет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-cancellation-reaso-ea665-ронь-подтверждение-отменяет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/booking-cancellation-reasons.spec.ts:7:1 › единая отмена предлагает незаезд как причину и сохраняет статус 
+    tests/ui/booking-cancellation-reasons.spec.ts:21:1 › закрытие окна отмены сохраняет бронь, подтверждение отменяет 
+  3 passed (2.6m)

@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 12.10.2026 10:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 758a0e4 (claude/analytics-spec-any-direction), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/analytics-v2.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/analytics-v2.spec.ts:64:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (17.4s)
+  ✓  2 tests/ui/analytics-v2.spec.ts:83:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (4.1s)
+  ✓  3 tests/ui/analytics-v2.spec.ts:121:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (5.7s)
+  ✓  4 tests/ui/analytics-v2.spec.ts:146:1 › рост отмен — красный, падение — зелёный; сравнение выключается (4.1s)
+  ✓  5 tests/ui/analytics-v2.spec.ts:159:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (9.2s)
+  ✓  6 tests/ui/analytics-v2.spec.ts:182:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (4.8s)
+  ✓  7 tests/ui/analytics-v2.spec.ts:199:1 › телефон: без прокрутки вбок, плитки в две колонки (3.2s)
+  ✓  8 tests/ui/analytics-v2.spec.ts:210:1 › снимки для визуального гейта AN1 (1.1m)
+
+  8 passed (2.4m)
+
+# код выхода 0 · 2 мин 31 с

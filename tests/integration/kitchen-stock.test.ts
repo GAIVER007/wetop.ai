@@ -165,7 +165,7 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
 
   it('охраняемый откат: с данными отказывает, на пустых таблицах убирает их', async () =>
     rollback(async () => {
-      const down = readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261010000084_kitchen_stock/down.sql'), 'utf8');
+      const down = readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261012000089_kitchen_stock/down.sql'), 'utf8');
       await seed();
       await savepoint(async () => {
         await expect(db.query(down)).rejects.toThrow(/Kitchen stock data present/);

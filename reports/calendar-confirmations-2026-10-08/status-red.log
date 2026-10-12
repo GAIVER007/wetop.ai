@@ -1,0 +1,102 @@
+[WebServer] (node:10795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10827) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10863) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:10867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/booking-status-confirmation.spec.ts:8:3 › calendar: заселение требует подтверждения, отказ сохраняет статус (17.2s)
+(node:11092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/booking-status-confirmation.spec.ts:8:3 › card: заселение требует подтверждения, отказ сохраняет статус (17.1s)
+
+
+  1) tests/ui/booking-status-confirmation.spec.ts:8:3 › calendar: заселение требует подтверждения, отказ сохраняет статус 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('dialog[open]')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('dialog[open]') with timeout 15000ms
+      - waiting for locator('dialog[open]')
+
+
+      29 |     }
+      30 |     const dialog = page.locator('dialog[open]');
+    > 31 |     await expect(dialog).toBeVisible();
+         |                          ^
+      32 |     const untouched = await (
+      33 |       await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+      34 |     ).json();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/booking-status-confirmation.spec.ts:31:26
+
+    Error Context: test-results/booking-status-confirmatio-00bce-ения-отказ-сохраняет-статус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-status-confirmatio-00bce-ения-отказ-сохраняет-статус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-status-confirmatio-00bce-ения-отказ-сохраняет-статус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/booking-status-confirmation.spec.ts:8:3 › card: заселение требует подтверждения, отказ сохраняет статус 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('dialog[open]')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('dialog[open]') with timeout 15000ms
+      - waiting for locator('dialog[open]')
+
+
+      29 |     }
+      30 |     const dialog = page.locator('dialog[open]');
+    > 31 |     await expect(dialog).toBeVisible();
+         |                          ^
+      32 |     const untouched = await (
+      33 |       await request.get(`${FIXTURE_API}/reservations/${number}`, { headers })
+      34 |     ).json();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/booking-status-confirmation.spec.ts:31:26
+
+    Error Context: test-results/booking-status-confirmatio-9a4c7-ения-отказ-сохраняет-статус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-status-confirmatio-9a4c7-ения-отказ-сохраняет-статус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-status-confirmatio-9a4c7-ения-отказ-сохраняет-статус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/booking-status-confirmation.spec.ts:8:3 › calendar: заселение требует подтверждения, отказ сохраняет статус 
+    tests/ui/booking-status-confirmation.spec.ts:8:3 › card: заселение требует подтверждения, отказ сохраняет статус 

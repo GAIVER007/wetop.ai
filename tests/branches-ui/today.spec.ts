@@ -199,6 +199,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     // боковое меню (ADR-161) держит разделы в панели: открыть её и найти «Бронирования»
     const nav = page.getByRole('navigation', { name: 'Разделы' });
     await nav.locator('.sidenav__current').click();
+    await nav.getByRole('link', { name: 'Зал', exact: true }).focus();
     await expect(nav.getByRole('link', { name: 'Бронирования', exact: true }).first()).toBeVisible();
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);

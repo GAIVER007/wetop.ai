@@ -65,20 +65,27 @@ test('slow inventory keeps daily events usable and shows a stable loading card',
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  const ready = await page
-    .getByRole('region', { name: 'Загрузка и операционные показатели' })
-    .boundingBox();
+  const readyCard = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
+  await expect(readyCard).toBeVisible();
+  const ready = await readyCard.boundingBox();
   await request.post(`${FIXTURE_API}/__test/control`, {
     data: { delayPath: '/chessboard', delayMs: 6000 },
   });
   await page.goto('/finance', { waitUntil: 'commit' });
+  await expect(page.getByTestId('owner-dashboard')).toBeVisible();
   const loading = page.getByRole('status', { name: 'Загружаем загрузку…', exact: true });
   await expect(loading).toBeVisible({ timeout: 2000 });
   // слот карточки измеряем сам по себе: заглушку может успеть сменить настоящая карточка
-  const slot = page.locator('.owner-load').first();
-  await expect.poll(async () => (await slot.boundingBox())?.height ?? null).not.toBeNull();
-  const box = await slot.boundingBox();
-  expect(Math.abs(box!.height - ready!.height)).toBeLessThan(24);
+  // Измеряем видимый слот один раз, чтобы смена streamed-узла не дала null между вызовами.
+  const slot = page.locator('.owner-load:visible').first();
+  let loadingHeight: number | null = null;
+  await expect
+    .poll(async () => {
+      loadingHeight = (await slot.boundingBox())?.height ?? null;
+      return loadingHeight;
+    })
+    .not.toBeNull();
+  expect(Math.abs(loadingHeight! - ready!.height)).toBeLessThan(24);
   await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible({
     timeout: 2000,
   });

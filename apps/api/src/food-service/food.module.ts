@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import {
   Body,
+  HttpCode,
   Controller,
   Delete,
   Get,
@@ -65,6 +66,9 @@ export class FoodReservationsController {
   constructor(@Inject(FoodService) private readonly service: FoodService) {}
   @Get('customers') customers(@Query() q: Record<string, unknown>) {
     return this.service.customers(q);
+  }
+  @Patch('customers/:id') updateCustomer(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.updateCustomer(id, b);
   }
   @Get('reservations') list(@Query() q: Record<string, unknown>) {
     return this.service.reservations(q);
@@ -141,11 +145,38 @@ export class FoodOrdersController {
   @Post('orders/:id/status') status(@Param('id') id: string, @Body() b: unknown) {
     return this.service.orderStatus(id, b);
   }
+  // Оплата и касса филиала (DATA_MODEL §35, ADR-165): смотрит и проводит смена, аннулирует `refunds`
+  @Post('orders/:id/payments') pay(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.payOrder(id, b);
+  }
+  @Post('payments/:id/void') @Access('refunds') @HttpCode(200) voidPayment(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.voidPayment(id, b);
+  }
+  @Get('cash') cash() {
+    return this.service.cash();
+  }
+  @Post('cash/operations') cashOperation(@Body() b: unknown) {
+    return this.service.cashOperation(b);
+  }
+  @Post('cash/operations/:id/void') @Access('refunds') @HttpCode(200) voidCashOperation(
+    @Param('id') id: string,
+  ) {
+    return this.service.voidCashOperation(id);
+  }
+  @Post('cash/reconciliations') cashReconciliation(@Body() b: unknown) {
+    return this.service.cashReconciliation(b);
+  }
   @Post('tables/:id/cleaning') cleaning(@Param('id') id: string, @Body() b: unknown) {
     return this.service.tableCleaning(id, b);
   }
   @Get('report') report(@Query() q: Record<string, unknown>) {
     return this.service.report(q);
+  }
+  @Get('period-report') @Access('reports') periodReport(@Query() q: Record<string, unknown>) {
+    return this.service.periodReport(q);
   }
 }
 @Controller('food-service')
@@ -173,6 +204,9 @@ export class FoodStaffController {
     @Body() b: unknown,
   ) {
     return this.service.setPaySettings(id, b);
+  }
+  @Post('employees/:id/payouts') @Access('staff') payout(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.payout(id, b);
   }
   @Post('employees/:id/pay-adjustments') @Access('staff') payAdjustment(
     @Param('id') id: string,

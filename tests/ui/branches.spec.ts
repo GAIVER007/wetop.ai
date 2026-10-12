@@ -16,7 +16,7 @@ test('филиалы: создание, сохранение после reload �
   await page.reload();
   await expect(main.getByRole('heading', { name: 'Тестовый филиал у парка' })).toBeVisible();
   await expect(
-    main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+    main.getByRole('heading', { name: 'Сводка по гостиницам', exact: true }),
   ).toBeVisible();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });

@@ -37,6 +37,7 @@ const routes: Record<WebVertical, string[]> = {
     '/orders',
     '/kitchen',
     '/menu',
+    '/stock',
     '/payroll',
     '/cashbox',
   ],

@@ -1,0 +1,32 @@
+# Модульные (unit) · 12.10.2026 15:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит a036d65 (claude/ui-master-final-20261011)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T10-01-37Z-unit-79af.json' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 6839ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 1349ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 1221ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 1051ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 1063ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 919ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 1223ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 6995ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1441ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 1529ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1267ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 850ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 1232ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 660ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  03:01:39
+   Duration  7.12s (tests 99%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T10-01-37Z-unit-79af.json
+
+# код выхода 0 · 9 с

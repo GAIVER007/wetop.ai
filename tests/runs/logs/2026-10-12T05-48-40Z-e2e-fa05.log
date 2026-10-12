@@ -1,0 +1,251 @@
+# Сквозные (e2e) · 12.10.2026 10:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e559f8 (claude/ui-master-final-20261011), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/side-nav.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/global-search-navigation.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1667ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✘   1 tests/ui/global-search-navigation.spec.ts:8:1 › поиск гостиницы предлагает гостиничные разделы и открывает календарь (46.2s)
+  ✓   2 tests/ui/global-search-navigation.spec.ts:24:1 › поиск не предлагает закрытый роли журнал (35.4s)
+  ✘   3 tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (59.2s)
+  ✘   4 tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (46.6s)
+  ✘   5 tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы (40.5s)
+  ✓   6 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (43.5s)
+  ✓   7 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (24.6s)
+  ✘   8 tests/ui/navigation.spec.ts:221:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой (47.0s)
+  ✘   9 tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (49.5s)
+  ✓  10 tests/ui/side-nav.spec.ts:100:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (27.2s)
+  ✘  11 tests/ui/side-nav.spec.ts:140:1 › вложенные адреса показывают свой раздел (1.8m)
+  ✓  12 tests/ui/side-nav.spec.ts:171:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (15.9s)
+  ✓  13 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: light (1.4m)
+  ✓  14 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: dark (55.7s)
+  ✓  15 tests/ui/side-nav.spec.ts:238:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (31.3s)
+
+
+  1) tests/ui/global-search-navigation.spec.ts:8:1 › поиск гостиницы предлагает гостиничные разделы и открывает календарь 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/chessboard$/
+    Received string:  "http://127.0.0.1:3151/finance"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        5 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3151/finance"
+      - Test timeout of 45000ms exceeded.
+
+
+      18 |   await page.screenshot({ path: 'reports/navigation-qa-2026-10-11/search-fixed.png' });
+      19 |   await calendar.click();
+    > 20 |   await expect(page).toHaveURL(/\/chessboard$/);
+         |                      ^
+      21 |   await expect(dialog).toBeHidden();
+      22 | });
+      23 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/global-search-navigation.spec.ts:20:22
+
+    Error Context: test-results/global-search-navigation-п-541b4-зделы-и-открывает-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/global-search-navigation-п-541b4-зделы-и-открывает-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/global-search-navigation-п-541b4-зделы-и-открывает-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/market$/
+    Received string:  "http://127.0.0.1:3151/chessboard"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        16 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3151/chessboard"
+
+
+      84 |   await expect(menu.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeFocused();
+      85 |   await page.keyboard.press('Enter');
+    > 86 |   await expect(page).toHaveURL(/\/market$/);
+         |                      ^
+      87 |   await expect(menu).not.toBeVisible();
+      88 |   // открыли снова: раздел текущей страницы раскрыт сам, пункт помечен
+      89 |   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/navigation.spec.ts:86:22
+
+    Error Context: test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы ───────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/bar$/
+    Received string:  "http://127.0.0.1:3151/finance"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        22 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3151/finance"
+
+
+      136 |       const href = await link.getAttribute('href');
+      137 |       await link.click();
+    > 138 |       await expect(page).toHaveURL(new RegExp(`${href}$`));
+          |                          ^
+      139 |       await expect(
+      140 |         page
+      141 |           .getByRole('main')
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/navigation.spec.ts:138:26
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/navigation.spec.ts:221:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/guests$/
+    Received string:  ""
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      233 |   // обратно: кнопка на списке броней ведёт на экран гостей
+      234 |   await main.getByRole('link', { name: 'Гости', exact: true }).click();
+    > 235 |   await expect(page).toHaveURL(/\/guests$/);
+          |                      ^
+      236 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
+      237 | });
+      238 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/navigation.spec.ts:235:22
+
+    Error Context: test-results/navigation-«Гости-и-бронир-0c8f2--броней-под-той-же-вкладкой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-«Гости-и-бронир-0c8f2--броней-под-той-же-вкладкой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-«Гости-и-бронир-0c8f2--броней-под-той-же-вкладкой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.evaluateAll: Test timeout of 45000ms exceeded.
+
+       at fixtures.ts:229
+
+      227 |   page
+      228 |     .locator('.sidenav__items a')
+    > 229 |     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+          |      ^
+      230 |
+      231 | /** Открывает панель разделов наведением на кнопку текущего раздела и показывает подразделы `section` */
+      232 | export async function openSection(page: Page, section: string) {
+        at menuLinks (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:229:6)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/side-nav.spec.ts:64:23
+
+    Error Context: test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/side-nav.spec.ts:140:1 › вложенные адреса показывают свой раздел ─────────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3151/ai-seller/dialogs", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/side-nav.spec.ts:156:14
+
+    Error Context: test-results/side-nav-вложенные-адреса-показывают-свой-раздел/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-вложенные-адреса-показывают-свой-раздел/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-вложенные-адреса-показывают-свой-раздел/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/global-search-navigation.spec.ts:8:1 › поиск гостиницы предлагает гостиничные разделы и открывает календарь 
+    tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+    tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» 
+    tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы ────────────
+    tests/ui/navigation.spec.ts:221:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой 
+    tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню 
+    tests/ui/side-nav.spec.ts:140:1 › вложенные адреса показывают свой раздел ──────────────────────
+  8 passed (15.5m)
+
+# код выхода 1 · 15 мин 44 с

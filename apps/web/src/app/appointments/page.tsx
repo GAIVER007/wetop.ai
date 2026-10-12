@@ -18,11 +18,16 @@ export default async function AppointmentsPage({
   const { date } = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
   try {
-    const [day, employees] = await Promise.all([beautyApi.day(date), beautyApi.employees()]);
+    const [day, employees, customers] = await Promise.all([
+      beautyApi.day(date),
+      beautyApi.employees(),
+      beautyApi.customers(),
+    ]);
     return (
       <Page className="beauty-page" title="Записи" subtitle={day.location.name ?? 'Записи филиала'}>
         <AppointmentsList
           day={{ ...day, columns: calendarColumns(day, employees.items) }}
+          customers={customers.items}
           readOnly={shell.readOnly}
         />
       </Page>

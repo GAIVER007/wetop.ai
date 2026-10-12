@@ -1,0 +1,196 @@
+# Сквозные (e2e) · 12.10.2026 12:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит cfcb170 (claude/ui-master-final-20261011), незакоммиченных файлов набора: 24
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--last-failed' 'tests/ui/branches.spec.ts' 'tests/ui/journal-action-labels.spec.ts' 'tests/ui/owner-journal.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/platform-overview.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/system-screens.spec.ts' 'tests/ui/team.spec.ts'
+
+Running 21 tests using 1 worker
+
+  ✓   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (13.5s)
+  ✓   2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (9.9s)
+  ✓   3 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (25.0s)
+  ✘   4 tests/ui/owner-journal.spec.ts:14:1 › владелец: вкладка, суммы, было/стало, фильтры и вся история (47.6s)
+  ✓   5 tests/ui/platform-access.spec.ts:73:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (28.0s)
+  ✘   6 tests/ui/platform-access.spec.ts:134:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (52.2s)
+  ✓   7 tests/ui/platform-access.spec.ts:162:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (37.6s)
+  ✓   8 tests/ui/platform-access.spec.ts:182:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (35.8s)
+  ✓   9 tests/ui/platform-access.spec.ts:205:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (27.3s)
+  ✓  10 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, dark, 1440px (52.4s)
+  ✓  11 tests/ui/platform-overview.spec.ts:71:1 › таблица клиентов: направления, филиалы, дата подключения; поиск и отборы работают на месте (19.9s)
+  ✓  12 tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (21.3s)
+  ✘  13 tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (51.9s)
+  ✓  14 tests/ui/roles.spec.ts:97:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (8.7s)
+  ✓  15 tests/ui/roles.spec.ts:114:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (8.4s)
+  ✓  16 tests/ui/roles.spec.ts:152:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (9.3s)
+  ✓  17 tests/ui/roles.spec.ts:214:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (27.1s)
+  ✘  18 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (54.6s)
+  ✘  19 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (23.2s)
+  ✓  20 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (20.3s)
+  ✓  21 tests/ui/team.spec.ts:200:1 › «Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов (22.6s)
+
+
+  1) tests/ui/owner-journal.spec.ts:14:1 › владелец: вкладка, суммы, было/стало, фильтры и вся история 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('journal-row')
+    Expected: 15
+    Received: 50
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('journal-row') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('journal-row')
+        6 × locator resolved to 50 elements
+          - unexpected value "50"
+      - Test timeout of 45000ms exceeded.
+
+
+      28 |   await expect(first).toContainText('Наличные');
+      29 |   await main.getByRole('link', { name: 'Более ранние операции' }).click();
+    > 30 |   await expect(main.getByTestId('journal-row')).toHaveCount(15);
+         |                                                 ^
+      31 |   await main.getByRole('link', { name: 'К новым операциям' }).click();
+      32 |   await main.getByText('Фильтры журнала', { exact: true }).click();
+      33 |   await main.getByLabel('Действие', { exact: true }).selectOption('finance.cash.operation.void');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/owner-journal.spec.ts:30:49
+
+    Error Context: test-results/owner-journal-владелец-вкл-42ee3-стало-фильтры-и-вся-история/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-journal-владелец-вкл-42ee3-стало-фильтры-и-вся-история/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-journal-владелец-вкл-42ee3-стало-фильтры-и-вся-история/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/platform-access.spec.ts:134:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('seller-dialog-card').getByTestId('seller-dialog-read-only')
+    Expected: 0
+    Received: undefined
+
+
+      148 |   await expect(
+      149 |     main.getByTestId('seller-dialog-card').getByTestId('seller-dialog-read-only'),
+    > 150 |   ).toHaveCount(0);
+          |     ^
+      151 |   await expect(main.getByTestId('seller-dialog-card').getByTestId('dialog-reply')).toBeVisible();
+      152 |   await expect(main.getByTestId('seller-dialog-card').getByTestId('dialog-takeover')).toBeVisible();
+      153 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/platform-access.spec.ts:150:5
+
+    Error Context: test-results/platform-access-администра-2311e-елец-и-управляющий-ADR-107-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-администра-2311e-елец-и-управляющий-ADR-107-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-администра-2311e-елец-и-управляющий-ADR-107-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3151/channels", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/roles.spec.ts:81:16
+
+    Error Context: test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3151/management/statistics?date=2026-09-25", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/system-screens.spec.ts:198:14
+
+    Error Context: test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:3151/profile/access
+    Call log:
+      - navigating to "http://127.0.0.1:3151/profile/access", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/system-screens.spec.ts:315:14
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/owner-journal.spec.ts:14:1 › владелец: вкладка, суммы, было/стало, фильтры и вся история 
+    tests/ui/platform-access.spec.ts:134:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) 
+    tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+    tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+  16 passed (11.3m)
+
+# код выхода 1 · 11 мин 29 с

@@ -5,6 +5,7 @@ import { flushSync } from 'react-dom';
 import {
   CLOSED_ACCESS,
   activeMenuRoute,
+  currentPlace,
   menuSectionsFor,
   type MenuSection,
 } from '../../lib/navigation';
@@ -64,7 +65,8 @@ function Menu({
   trial: string | null;
 }) {
   const active = activeMenuRoute(path);
-  const current = sections.find((s) => s.items.some((item) => item.href === active));
+  const place = currentPlace(sections, path);
+  const current = place.section;
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<string>();
@@ -166,7 +168,7 @@ function Menu({
         type="button"
         className="sidenav__current"
         aria-label="Открыть меню"
-        title={current?.label ?? 'Разделы'}
+        title={place.label}
         aria-expanded={open}
         aria-controls={id}
         disabled={!ready}
@@ -180,7 +182,7 @@ function Menu({
         }}
       >
         <Icon name="menu" />
-        <span className="sr-only">{current?.label ?? 'Разделы'}</span>
+        <span className="sr-only">{place.label}</span>
       </button>
       <div id={id} className="sidenav__panel" hidden={!open} data-open={open || undefined}>
         <div className="sidenav__sections" data-column="sections">
@@ -228,7 +230,13 @@ function Menu({
             );
           })}
         </div>
-        <div className="sidenav__items" data-column="items" hidden={!!shown?.direct}>
+        <div className="sidenav__items" data-column="items" role="group" aria-label="Подразделы">
+          {shown?.direct && (
+            <div>
+              <p className="sidenav__title">{shown.label}</p>
+              <p className="sidenav__hint">{shown.items[0]?.description}</p>
+            </div>
+          )}
           {sections.map((section) => (
             <div
               key={section.id}

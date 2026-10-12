@@ -60,6 +60,15 @@ export function TopNav({
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
+  const profileTrigger = useRef<HTMLButtonElement>(null);
+  const profileMenu = useRef<HTMLDivElement>(null);
+  const moveInProfile = (key: string) => {
+    const items = [...(profileMenu.current?.querySelectorAll<HTMLElement>('a, button') ?? [])];
+    const at = items.indexOf(document.activeElement as HTMLElement);
+    const next =
+      key === 'Home' ? 0 : key === 'End' ? items.length - 1 : key === 'ArrowUp' ? at - 1 : at + 1;
+    items[(next + items.length) % items.length]?.focus();
+  };
   // Шапку рисует сервер, а обработчик меню профиля навешивает React после загрузки скриптов стойки: на
   // медленной сети между ними секунды, кнопка в это время выглядит рабочей, а клик по ней пропадает
   // (release-checks #7, спек profile-menu-readiness). До первого рендера на клиенте кнопка недоступна и
@@ -100,7 +109,10 @@ export function TopNav({
         else if (beauty) router.push('/appointments');
         else setSearch((s) => !s);
       }
-      if (e.key === 'Escape') setProfile(false);
+      if (e.key === 'Escape' && profileMenu.current) {
+        setProfile(false);
+        profileTrigger.current?.focus();
+      }
     };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
@@ -246,6 +258,7 @@ export function TopNav({
               </button>
               <div className="profile-menu">
                 <button
+                  ref={profileTrigger}
                   className="profile-trigger"
                   data-tour="profile"
                   aria-label="Меню администратора"
@@ -254,6 +267,12 @@ export function TopNav({
                   aria-busy={!ready}
                   disabled={!ready}
                   onClick={() => setProfile(!profile)}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'ArrowDown') return;
+                    event.preventDefault();
+                    setProfile(true);
+                    requestAnimationFrame(() => moveInProfile('Home'));
+                  }}
                 >
                   <Suspense fallback={<HeaderPerson person={null} />}>
                     <GrantedHeaderPerson desk={desk} />
@@ -273,7 +292,16 @@ export function TopNav({
                       aria-label="Закрыть меню профиля"
                       onClick={() => setProfile(false)}
                     />
-                    <div className="profile-dropdown" id="profile-dropdown">
+                    <div
+                      className="profile-dropdown"
+                      id="profile-dropdown"
+                      ref={profileMenu}
+                      onKeyDown={(event) => {
+                        if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+                        event.preventDefault();
+                        moveInProfile(event.key);
+                      }}
+                    >
                       {hospitality && (
                         <button
                           data-testid="tour-restart"

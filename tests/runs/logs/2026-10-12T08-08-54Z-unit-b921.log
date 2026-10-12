@@ -1,0 +1,16 @@
+# Модульные (unit) · 12.10.2026 13:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 22facc1 (claude/fix-analytics-load-mock), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-08-54Z-unit-b921.json' 'apps/web/src/app/management/analytics/vertical/load.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests) 40ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  01:08:55
+   Duration  311ms (transform 67%, tests 20%, import 11%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-08-54Z-unit-b921.json
+
+# код выхода 0 · 2 с

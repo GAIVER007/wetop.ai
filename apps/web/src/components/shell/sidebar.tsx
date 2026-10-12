@@ -4,6 +4,7 @@ import { Suspense, use, useEffect, useId, useState } from 'react';
 import {
   CLOSED_ACCESS,
   activeMenuRoute,
+  activeSectionOf,
   menuSectionsFor,
   type MenuSection,
 } from '../../lib/navigation';
@@ -31,18 +32,12 @@ export function Sidebar({
   /** Что открыто вошедшему и кто он (ADR-083); пока API не ответил — меню без закрытых пунктов */
   desk?: Promise<DeskShell> | undefined;
 }) {
-  const shell = desk ? use(desk) : null;
-  const sections = menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical);
   const active = activeMenuRoute(path);
-  const activeSection = sections.find((section) =>
-    section.items.some((item) => item.href === active),
-  )?.id;
-  const [expanded, setExpanded] = useState<string | null>(activeSection ?? null);
+  // `null` раскрывает раздел текущей страницы (его знает список: разделы зависят от направления филиала)
+  const [expanded, setExpanded] = useState<string | null | undefined>(undefined);
   const id = useId();
-  useEffect(() => {
-    if (activeSection) setExpanded(activeSection);
-  }, [activeSection, path]);
-  const links: LinksProps = { id, active, activeSection, expanded, setExpanded, close };
+  useEffect(() => setExpanded(undefined), [path]);
+  const links: LinksProps = { id, path, active, expanded, setExpanded, close };
   return (
     <div className="sidebar-shell">
       <Suspense fallback={<PropertyBlock property={property} settings={false} close={close} />}>
@@ -75,9 +70,9 @@ export function Sidebar({
 
 interface LinksProps {
   id: string;
+  path: string;
   active: string | undefined;
-  activeSection: string | undefined;
-  expanded: string | null;
+  expanded: string | null | undefined;
   setExpanded: (value: string | null) => void;
   close: (() => void) | undefined;
 }
@@ -98,16 +93,18 @@ function GrantedSectionLinks({
 function SectionLinks({
   sections,
   id,
+  path,
   active,
-  activeSection,
   expanded,
   setExpanded,
   close,
 }: LinksProps & { sections: MenuSection[] }) {
+  const activeSection = activeSectionOf(sections, path)?.id;
+  const opened = expanded === undefined ? activeSection : expanded;
   return (
     <>
       {sections.map((section) => {
-        const open = expanded === section.id;
+        const open = opened === section.id;
         const selected = activeSection === section.id;
         const panelId = `${id}-${section.id}`;
         // Раздел из одного пункта (ADR-108): прямая ссылка вместо раскрывашки с единственной строкой

@@ -158,9 +158,11 @@ export interface IngredientInput {
   unit: IngredientUnit;
   unitCost: bigint;
   sortOrder?: number;
+  /** §38: ингредиент склада той же единицы; null — строка не списывается */
+  productId?: string | null;
 }
 export function parseIngredientInput(raw: unknown): IngredientInput {
-  const b = foodObject(raw, ['name', 'normQty', 'unit', 'unitCost', 'sortOrder']);
+  const b = foodObject(raw, ['name', 'normQty', 'unit', 'unitCost', 'sortOrder', 'productId']);
   if (!INGREDIENT_UNITS.includes(b.unit as IngredientUnit))
     throw new Error('Единица: г, мл или шт');
   const normQty = typeof b.normQty === 'number' ? String(b.normQty) : foodText(b.normQty, 13);
@@ -172,6 +174,7 @@ export function parseIngredientInput(raw: unknown): IngredientInput {
     unitCost: money(b.unitCost),
   };
   if (b.sortOrder !== undefined) out.sortOrder = foodInt(b.sortOrder, -2147483648);
+  if (b.productId !== undefined) out.productId = b.productId === null ? null : foodId(b.productId);
   return out;
 }
 

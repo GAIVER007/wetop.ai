@@ -16,7 +16,7 @@ import { Chip, ChipGroup } from '../../components/chip';
 import { Icon } from '../../components/icon';
 import { wholeTenge } from '../../lib/dashboard-format';
 import type { IngredientInput, MenuCategory, MenuItemView } from '../../lib/food-types';
-import { mutateMenu } from './restaurant-actions';
+import { dishPhoto, mutateMenu } from './restaurant-actions';
 
 interface Ctx {
   scopeKey: string;
@@ -25,7 +25,15 @@ interface Ctx {
 }
 
 const UNITS = ['г', 'мл', 'шт'] as const;
-type Row = { name: string; normQty: string; unit: (typeof UNITS)[number]; unitCost: string };
+type Row = {
+  name: string;
+  normQty: string;
+  unit: (typeof UNITS)[number];
+  unitCost: string;
+  /** §38: ингредиент склада той же единицы; «Готово» по заказу списывает его */
+  productId: string | null;
+};
+type StockOption = { id: string; name: string; unit: string };
 
 /** Предварительный счёт в тенге для живой строки; точный целочисленный счёт делает API (§33.1) */
 function rowCost(row: Row): number {
@@ -33,6 +41,43 @@ function rowCost(row: Row): number {
   const cost = Number(row.unitCost);
   if (!Number.isFinite(qty) || !Number.isFinite(cost) || qty <= 0 || cost < 0) return 0;
   return row.unit === 'шт' ? qty * cost : (qty * cost) / 1000;
+}
+
+/** Фото блюда (§37): превью, загрузка заменяет прежнее, «Убрать фото» */
+function DishPhoto({ ctx, item }: { ctx: Ctx; item: MenuItemView }) {
+  const router = useRouter();
+  const [error, setError] = useState('');
+  const [pending, start] = useTransition();
+  const run = (form: FormData | null) =>
+    start(async () => {
+      const result = await dishPhoto(ctx.scopeKey, item.id, form);
+      if (result.error) setError(result.error);
+      else {
+        setError('');
+        router.refresh();
+      }
+    });
+  return (
+    <section className="rest-dish-photo" aria-label="Фото блюда" data-testid="dish-photo">
+      {error && <Alert>{error}</Alert>}
+      {item.photoUrl ? (
+        <img src={item.photoUrl} alt={item.name} width={160} height={120} />
+      ) : (
+        <p className="muted">Фото пока нет. JPEG, PNG или WebP до 10 МБ.</p>
+      )}
+      <form action={(form) => run(form)} className="food-actions">
+        <Input type="file" name="file" accept="image/jpeg,image/png,image/webp" aria-label="Файл фото блюда" />
+        <Button type="submit" disabled={pending}>
+          {item.photoUrl ? 'Заменить фото' : 'Загрузить фото'}
+        </Button>
+        {item.photoUrl && (
+          <Button tone="secondary" disabled={pending} onClick={() => run(null)}>
+            Убрать фото
+          </Button>
+        )}
+      </form>
+    </section>
+  );
 }
 
 function DishDrawer({
@@ -107,6 +152,7 @@ function DishDrawer({
         <Field label="Выход, г">
           <Input type="number" min={1} value={weight} onChange={(e) => setWeight(e.target.value)} />
         </Field>
+        {item && ctx.write && <DishPhoto ctx={ctx} item={item} />}
         <div className="food-actions">
           <Button disabled={pending} onClick={submit}>
             Сохранить
@@ -123,10 +169,12 @@ function DishDrawer({
 function TechCardDrawer({
   ctx,
   item,
+  stock,
   close,
 }: {
   ctx: Ctx;
   item: MenuItemView;
+  stock: StockOption[];
   close: () => void;
 }) {
   const router = useRouter();
@@ -138,6 +186,7 @@ function TechCardDrawer({
       normQty: i.normQty,
       unit: (UNITS as readonly string[]).includes(i.unit) ? (i.unit as Row['unit']) : 'г',
       unitCost: String(BigInt(i.unitCostMinor) / 100n),
+      productId: i.productId ?? null,
     })),
   );
   const [tech, setTech] = useState(item.techNotes ?? '');
@@ -158,7 +207,13 @@ function TechCardDrawer({
         setError('У каждой строки нужны название, норма и цена');
         return;
       }
-      ingredients.push({ name: r.name.trim(), normQty: qty, unit: r.unit, unitCost: cost });
+      ingredients.push({
+        name: r.name.trim(),
+        normQty: qty,
+        unit: r.unit,
+        unitCost: cost,
+        productId: r.productId,
+      });
     }
     start(async () => {
       const replaced = await mutateMenu(ctx.scopeKey, {
@@ -220,7 +275,7 @@ function TechCardDrawer({
             <Select
               aria-label="Единица"
               value={r.unit}
-              onChange={(e) => set(index, { unit: e.target.value as Row['unit'] })}
+              onChange={(e) => set(index, { unit: e.target.value as Row['unit'], productId: null })}
             >
               {UNITS.map((u) => (
                 <option key={u} value={u}>
@@ -243,11 +298,33 @@ function TechCardDrawer({
             >
               ×
             </Button>
+            {stock.length > 0 && (
+              <Select
+                className="rest-tech-link"
+                aria-label={`Склад для строки ${index + 1}`}
+                value={r.productId ?? ''}
+                onChange={(e) => {
+                  const p = stock.find((x) => x.id === e.target.value);
+                  set(index, { productId: p?.id ?? null, ...(p && !r.name.trim() ? { name: p.name } : {}) });
+                }}
+              >
+                <option value="">Не списывать со склада</option>
+                {stock
+                  .filter((p) => p.unit === r.unit)
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      Списывать со склада: {p.name}
+                    </option>
+                  ))}
+              </Select>
+            )}
           </div>
         ))}
         <Button
           tone="secondary"
-          onClick={() => setRows([...rows, { name: '', normQty: '', unit: 'г', unitCost: '' }])}
+          onClick={() =>
+            setRows([...rows, { name: '', normQty: '', unit: 'г', unitCost: '', productId: null }])
+          }
         >
           + Ингредиент
         </Button>
@@ -295,10 +372,13 @@ export function MenuBoard({
   ctx,
   categories,
   items,
+  stock = [],
 }: {
   ctx: Ctx;
   categories: MenuCategory[];
   items: MenuItemView[];
+  /** Ингредиенты склада для связи строк техкарты (§38); пусто, если склада нет */
+  stock?: StockOption[];
 }) {
   const router = useRouter();
   const [error, setError] = useState('');
@@ -409,7 +489,11 @@ export function MenuBoard({
           {list.map((m) => (
             <div className="rest-menu-row" key={m.id}>
               <span className="rest-menu-thumb" aria-hidden="true">
-                <Icon name="kettle" />
+                {m.photoUrl ? (
+                  <img src={m.photoUrl} alt="" width={44} height={44} loading="lazy" />
+                ) : (
+                  <Icon name="kettle" />
+                )}
               </span>
               <div className="rest-menu-main">
                 <strong>{m.name}</strong>
@@ -455,11 +539,13 @@ export function MenuBoard({
         <DishDrawer
           ctx={ctx}
           categories={categories.filter((c) => c.active)}
-          item={dish === 'new' ? null : dish}
+          // свежее блюдо из списка: после загрузки фото список обновился, а снимок в состоянии нет
+          item={dish === 'new' ? null : (items.find((i) => i.id === dish.id) ?? dish)}
           close={() => setDish(null)}
         />
       )}
-      {tech && <TechCardDrawer ctx={ctx} item={tech} close={() => setTech(null)} />}
+      {tech && <TechCardDrawer
+          stock={stock} ctx={ctx} item={tech} close={() => setTech(null)} />}
     </div>
   );
 }

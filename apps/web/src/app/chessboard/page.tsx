@@ -492,7 +492,7 @@ function DayStats({
   availabilityHref: string;
 }) {
   const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
-  const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
+  const n = (value: number | null | undefined) => (value == null ? '–' : String(value));
   const c = day.counts;
   return (
     <section className="board-kpis" role="group" aria-label="Сегодня на объекте">
@@ -503,7 +503,7 @@ function DayStats({
         <div className="board-kpi__body">
           <span className="board-kpi__row">
             <b className="board-kpi__value" data-testid="day-occupancy">
-              {occupancy === null ? 'н/д' : `${occupancy}%`}
+              {occupancy === null ? '–' : `${occupancy}%`}
             </b>
             {trend !== null && trend !== 0 && (
               <span

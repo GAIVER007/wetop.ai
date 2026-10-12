@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
 import { Badge } from '../../components/ui';
+import './marketing.css';
 
 /** Возврат к хабу на экранах модулей, как «Назад к модулям» в макете Marketing 2.0 */
 export function BackToModules() {

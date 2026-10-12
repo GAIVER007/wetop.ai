@@ -32,7 +32,7 @@ export function BranchForm({ id }: { id: string }) {
           name="name"
           required
           maxLength={200}
-          placeholder="Например, Luxx Aparts Центр"
+          placeholder="Например, Центр"
         />
       </label>
       <label>
@@ -62,9 +62,8 @@ export function BranchForm({ id }: { id: string }) {
         />
       </label>
       <p className="muted">
-        Создаётся пустой филиал. Номера, брони и подключения других объектов не копируются.
-        Добавление не подтверждает оплату подписки. У салона номеров и броней нет вовсе: записи,
-        мастера и услуги в нём ещё настраиваются.
+        Создаётся пустой филиал: данные, сотрудники и подключения других филиалов не копируются.
+        Добавление не подтверждает оплату подписки.
       </p>
       {state?.error && <p role="alert">{state.error}</p>}
       {state?.message && <p role="status">{state.message}</p>}

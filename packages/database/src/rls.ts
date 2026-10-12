@@ -97,14 +97,20 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'menu_categories',
   'menu_items',
   'menu_item_ingredients',
+  'menu_item_photos',
   'restaurant_orders',
   'restaurant_order_items',
   'employee_pay_settings',
   'employee_pay_adjustments',
+  // Склад кухни FS2 (DATA_MODEL §34, миграция 20261012000089_kitchen_stock)
+  'kitchen_products',
+  'kitchen_stock_lots',
+  'kitchen_stock_movements',
   // Касса ресторана (DATA_MODEL §35, ADR-165, миграция 20261011000086_restaurant_cash)
   'restaurant_payments',
   'restaurant_cash_operations',
   'restaurant_cash_reconciliations',
+  'restaurant_order_ratings',
   // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
   'marketing_sites',
   'marketing_site_versions',

@@ -150,4 +150,28 @@ describe.skipIf(!url)('restaurant cash: database guards, grants and RLS', () => 
       ]);
       expect(ops.rowCount).toBe(0);
     }));
+
+  it('guest rating: only a closed order, waiter snapshot must match, the app cannot edit or delete (§39)', () =>
+    rollback(async () => {
+      const a = await seed();
+      const insert = (stars: number, waiter: string | null) =>
+        db.query(`INSERT INTO restaurant_order_ratings(order_id,waiter_id,stars) VALUES($1,$2,$3)`, [a.order, waiter, stars]);
+      await savepoint(async () => {
+        await expect(insert(5, null)).rejects.toThrow('Rating requires a closed order');
+      });
+      await db.query(`UPDATE restaurant_orders SET status='CLOSED', closed_at=now(), waiter_id=$2 WHERE id=$1`, [a.order, a.employee]);
+      await savepoint(async () => {
+        await expect(insert(5, null)).rejects.toThrow('Rating waiter must be the order waiter');
+      });
+      await savepoint(async () => {
+        await expect(insert(6, a.employee)).rejects.toThrow('restaurant_order_ratings_values');
+      });
+      await insert(4, a.employee);
+      await db.query('SET LOCAL ROLE wetop_app');
+      await db.query(`SELECT set_config('app.org_id',$1,true)`, [a.org]);
+      for (const sql of ['UPDATE restaurant_order_ratings SET stars=5', 'DELETE FROM restaurant_order_ratings'])
+        await savepoint(async () => {
+          await expect(db.query(sql)).rejects.toThrow(/permission denied/);
+        });
+    }));
 });

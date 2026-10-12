@@ -2,15 +2,19 @@ import { summarizeBranches } from '../../lib/branch-summary';
 import { branchesApi } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { Panel, Table } from '../../components/ui';
+import { displayDate } from '../../lib/display-date';
+import { pluralRu } from '../../lib/plural';
 export async function BranchOverview({ from, to }: { from: string; to: string }) {
   const { rows } = await branchesApi.overview(from, to);
   const { guests, percent, currencies } = summarizeBranches(rows);
+  // сводка считает гостиничные показатели: у организации из салонов и ресторанов её нет
+  if (!rows.length) return null;
   return (
     <Panel>
-      <h2>Сводка по гостиничным филиалам</h2>
+      <h2>Сводка по гостиницам</h2>
       <p>
-        {rows.length} гостиничных филиалов, {guests} гостей в заездах, загрузка{' '}
-        {percent}%
+        {pluralRu(rows.length, ['гостиничный филиал', 'гостиничных филиала', 'гостиничных филиалов'])},
+        гостей в заездах: {guests}, загрузка {percent} %
       </p>
       {[...currencies].map(([currency, total]) => (
         <p key={currency}>
@@ -20,7 +24,7 @@ export async function BranchOverview({ from, to }: { from: string; to: string })
       ))}
       <Table dense aria-label="Статистика по филиалам">
         <caption>
-          Статистика за {from} → {to}
+          Статистика с {displayDate(from)} по {displayDate(to)}
         </caption>
         <thead>
           <tr>

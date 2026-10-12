@@ -134,8 +134,8 @@ export function PlatformOverviewSection({ view, today }: { view: PlatformOvervie
       </Grid>
       <Notice tone="muted" data-testid="platform-no-billing">
         Подписки и выручка платформы здесь не считаются: платежи принимаются счётом, оплату
-        подтверждает главный администратор в карточке организации (ADR-102). MRR, пакеты и просрочки
-        появятся после решения о биллинге (Q-PA-1, Q-PA-2 в QUESTIONS.md).
+        подтверждает главный администратор в карточке организации. MRR, пакеты и просрочки
+        появятся вместе с биллингом.
       </Notice>
     </section>
   );

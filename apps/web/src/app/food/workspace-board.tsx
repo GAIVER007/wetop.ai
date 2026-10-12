@@ -3,6 +3,7 @@ import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
+  Alert,
   Badge,
   Button,
   EmptyState,
@@ -11,8 +12,10 @@ import {
   Notice,
   Panel,
   Select,
+  StatusBadge,
   Table,
 } from '../../components/ui';
+import { pluralRu } from '../../lib/plural';
 import { Chip, ChipGroup } from '../../components/chip';
 import { occupiedAt } from '../../lib/food-data';
 import { wholeTenge } from '../../lib/dashboard-format';
@@ -52,6 +55,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
   const [table, setTable] = useState('');
   const [floorArea, setFloorArea] = useState('');
   const [cleaningPending, startCleaning] = useTransition();
+  const [cleaningError, setCleaningError] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
   useEffect(() => {
     const begin = () => {
@@ -96,6 +100,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const customer = (r: RestaurantReservation) =>
     [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ');
+  const guests = (n: number) => pluralRu(n, ['гость', 'гостя', 'гостей']);
   const clock = (iso: string) => localInput(iso, data.timezone).slice(11);
   const open = (r: RestaurantReservation) => setDraft({ kind: 'view', id: r.id });
   const orderByTable = new Map(
@@ -110,11 +115,13 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
   };
   const toggleCleaning = (t: DiningTable) =>
     startCleaning(async () => {
-      await setTableCleaning(data.scopeKey, t.id, !t.needsCleaning);
-      router.refresh();
+      const result = await setTableCleaning(data.scopeKey, t.id, !t.needsCleaning);
+      setCleaningError(result.error);
+      if (!result.error) router.refresh();
     });
   return (
     <div className="food-workspace">
+      {cleaningError && <Alert>{cleaningError}</Alert>}
       <div className="food-section-heading">
         <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
         {write && (
@@ -141,13 +148,16 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
               Свободно <strong>{activeTables.filter((t) => tableKind(t) === 'FREE').length}</strong>
             </span>
             <span>
-              Занято <strong>{activeTables.filter((t) => tableKind(t) === 'OCCUPIED').length}</strong>
+              Занято{' '}
+              <strong>{activeTables.filter((t) => tableKind(t) === 'OCCUPIED').length}</strong>
             </span>
             <span>
-              Бронь <strong>{activeTables.filter((t) => tableKind(t) === 'RESERVED').length}</strong>
+              Бронь{' '}
+              <strong>{activeTables.filter((t) => tableKind(t) === 'RESERVED').length}</strong>
             </span>
             <span>
-              Уборка <strong>{activeTables.filter((t) => tableKind(t) === 'CLEANING').length}</strong>
+              Уборка{' '}
+              <strong>{activeTables.filter((t) => tableKind(t) === 'CLEANING').length}</strong>
             </span>
             <span>
               Без стола <strong>{unassigned.length}</strong>
@@ -246,7 +256,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                                   }}
                                 >
                                   <strong>{t.name}</strong>
-                                  <small>{t.capacity} места</small>
+                                  <small>{pluralRu(t.capacity, ['место', 'места', 'мест'])}</small>
                                   {r ? (
                                     <>
                                       <span>
@@ -254,13 +264,14 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                                         {clock(r.endsAt)}
                                       </span>
                                       <span>
-                                        {customer(r)}, {r.partySize} гостя
+                                        {customer(r)}, {guests(r.partySize)}
                                       </span>
                                     </>
                                   ) : order ? (
                                     <>
                                       <span>
-                                        Заказ №{order.number}, {wholeTenge(order.totalMinor, order.currency)}
+                                        Заказ №{order.number},{' '}
+                                        {wholeTenge(order.totalMinor, order.currency)}
                                       </span>
                                       <small>с {clock(order.openedAt)}</small>
                                     </>
@@ -297,7 +308,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
             <div className="food-unassigned">
               {unassigned.map((r) => (
                 <button className="food-reservation-card" key={r.id} onClick={() => open(r)}>
-                  {clock(r.startsAt)}, {customer(r)}, {r.partySize} гостя
+                  {clock(r.startsAt)}, {customer(r)}, {guests(r.partySize)}
                 </button>
               ))}
               {!unassigned.length && <p className="muted">Все бронирования назначены</p>}
@@ -368,16 +379,24 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                 <Table>
                   <thead>
                     <tr>
-                      {['Время', 'Клиент', 'Гостей', 'Период', 'Стол', 'Статус', 'Источник'].map(
-                        (h) => (
-                          <th key={h}>{h}</th>
-                        ),
-                      )}
+                      {[
+                        'Время',
+                        'Клиент',
+                        'Телефон',
+                        'Гостей',
+                        'Стол',
+                        'Статус',
+                        'Комментарий',
+                        'Период',
+                        'Источник',
+                      ].map((h) => (
+                        <th key={h}>{h}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((r) => (
-                      <tr key={r.id} onClick={() => open(r)}>
+                      <tr key={r.id}>
                         <td>
                           {clock(r.startsAt)}–{clock(r.endsAt)}
                         </td>
@@ -387,12 +406,14 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                           </Button>
                           <GuestMarks customer={r.customer} day={data.date} />
                         </td>
+                        <td>{r.customer.phone ?? '—'}</td>
                         <td>{r.partySize}</td>
-                        <td>{r.servicePeriod.name}</td>
                         <td>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</td>
                         <td>
-                          <Badge>{foodStatus[r.status].label}</Badge>
+                          <StatusBadge kind="food" value={r.status} />
                         </td>
+                        <td>{r.notes || '—'}</td>
+                        <td>{r.servicePeriod.name}</td>
                         <td>{r.source === 'WALK_IN' ? 'Без брони' : 'Сотрудник'}</td>
                       </tr>
                     ))}
@@ -406,11 +427,13 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                       <strong>
                         {clock(r.startsAt)}–{clock(r.endsAt)}
                       </strong>
-                      <Badge>{foodStatus[r.status].label}</Badge>
+                      <StatusBadge kind="food" value={r.status} />
                     </div>
                     <strong>{customer(r)}</strong>
                     <GuestMarks customer={r.customer} day={data.date} />
-                    <span>{r.partySize} гостя</span>
+                    <span>{guests(r.partySize)}</span>
+                    {r.customer.phone && <span>{r.customer.phone}</span>}
+                    {r.notes && <small>{r.notes}</small>}
                     <span>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</span>
                     <small>{r.servicePeriod.name}</small>
                   </button>

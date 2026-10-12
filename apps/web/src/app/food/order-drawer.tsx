@@ -41,6 +41,79 @@ const STATUS_ACTION: Record<OrderStatus, string> = {
   CANCELLED: 'Отменить заказ',
 };
 
+/** Оценка гостя после оплаты (§39): гость сам ставит 1–5 звёзд на устройстве смены, оценка не правится */
+function RatingPanel({
+  ctx,
+  order,
+  onSaved,
+}: {
+  ctx: OrderContext;
+  order: OrderView;
+  onSaved: (order: OrderView) => void;
+}) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [stars, setStars] = useState(0);
+  const [comment, setComment] = useState('');
+  const [error, setError] = useState('');
+  if (order.status !== 'CLOSED') return null;
+  if (order.rating)
+    return (
+      <section className="rest-rating" aria-label="Оценка гостя" data-testid="order-rating">
+        <span className="rest-stars" aria-label={`Оценка ${order.rating.stars} из 5`}>
+          {'★'.repeat(order.rating.stars)}
+          {'☆'.repeat(5 - order.rating.stars)}
+        </span>
+        {order.rating.comment && <p>{order.rating.comment}</p>}
+      </section>
+    );
+  if (!ctx.write) return null;
+  function send() {
+    if (!stars) return setError('Выберите от 1 до 5 звёзд');
+    start(async () => {
+      const result = await mutateOrder(ctx.scopeKey, {
+        kind: 'rate',
+        id: order.id,
+        body: { stars, comment: comment.trim() || null },
+      });
+      if (result.error) setError(result.error);
+      else if (result.order) {
+        setError('');
+        onSaved(result.order);
+        router.refresh();
+      }
+    });
+  }
+  return (
+    <section className="rest-rating" aria-label="Оцените обслуживание" data-testid="order-rating">
+      {error && <Alert>{error}</Alert>}
+      <strong>Оцените обслуживание{order.waiter ? `: ${order.waiter.name}` : ''}</strong>
+      <div className="rest-stars" role="radiogroup" aria-label="Звёзды">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            role="radio"
+            aria-checked={stars === n}
+            aria-label={`${n} из 5`}
+            className="rest-star"
+            data-on={n <= stars}
+            onClick={() => setStars(n)}
+          >
+            {n <= stars ? '★' : '☆'}
+          </button>
+        ))}
+      </div>
+      <Field label="Комментарий гостя">
+        <Input value={comment} maxLength={500} onChange={(e) => setComment(e.target.value)} />
+      </Field>
+      <Button disabled={pending} onClick={send}>
+        Отправить оценку
+      </Button>
+    </section>
+  );
+}
+
 /** Оплата заказа частями и разными способами (§35.1): остаток, платежи, аннулирование */
 function PaymentPanel({
   ctx,
@@ -401,6 +474,7 @@ export function OrderDrawer({
               </div>
             </div>
             <PaymentPanel ctx={ctx} order={order} onSaved={setSaved} />
+            <RatingPanel ctx={ctx} order={order} onSaved={setSaved} />
             {ctx.write && (
               <div className="food-actions">
                 {order.nextStatuses

@@ -86,7 +86,7 @@ export function OrdersBoard({ ctx, orders }: { ctx: OrderContext; orders: OrderV
           </thead>
           <tbody>
             {filtered.map((o) => (
-              <tr key={o.id} onClick={() => setDraft({ kind: 'view', order: o })}>
+              <tr key={o.id}>
                 <td>
                   <Button tone="ghost" onClick={() => setDraft({ kind: 'view', order: o })}>
                     №{o.number}

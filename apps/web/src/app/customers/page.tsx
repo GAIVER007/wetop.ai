@@ -37,7 +37,7 @@ export default async function CustomersPage() {
             {items.map((c) => (
               <tr key={c.id}>
                 <td>{[c.firstName, c.lastName].filter(Boolean).join(' ')}</td>
-                <td>{c.phone ?? 'Не указан'}</td>
+                <td>{c.phone ?? '—'}</td>
                 <td>{c.status === 'ACTIVE' ? 'Активен' : 'В архиве'}</td>
               </tr>
             ))}

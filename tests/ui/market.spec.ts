@@ -322,3 +322,32 @@ test('«История ночи»: дата в шапке открывает п�
   await page.goto(`/market?night=${plus(today, 20)}`);
   await expect(page.getByTestId('market-night-empty')).toBeVisible();
 });
+
+// Сборщик видит на странице только «мест нет» или «осталось 2»: снимок без процента, одним уровнем (DATA_MODEL §23.1).
+// До мастер-прохода UI 11.10.2026 такая ночь рисовалась прочерком «нет данных».
+test('снимок сборщика только уровнем: ячейка словом, строка рынка считает почти полных', async ({
+  page,
+  request,
+}) => {
+  const reset = await request.post(`${API}/__test/market`, { data: {} });
+  const { today } = (await reset.json()) as { today: string };
+  const A = '00000000-0000-4000-8000-0000000000c1';
+  const B = '00000000-0000-4000-8000-0000000000c2';
+  await request.post(`${API}/__test/market`, {
+    data: {
+      competitors: [
+        { id: A, name: 'Отель Полный', distanceM: 300 },
+        { id: B, name: 'Хостел Свободный', distanceM: 500 },
+      ],
+      readings: [
+        { competitorId: A, stayDate: today, observedOn: today, occupancyBp: null, level: 'SOLD_OUT', source: 'AI_AGENT' },
+        { competitorId: B, stayDate: today, observedOn: today, occupancyBp: null, level: 'AVAILABLE', source: 'AI_AGENT' },
+      ],
+    },
+  });
+  await page.goto('/market');
+  const grid = page.getByTestId('market-table');
+  await expect(grid.getByRole('row', { name: /Отель Полный/ })).toContainText('Нет мест');
+  await expect(grid.getByRole('row', { name: /Хостел Свободный/ })).toContainText('Есть места');
+  await expect(grid.getByTestId('market-row-market')).toContainText('почти полны 1 из 2');
+});

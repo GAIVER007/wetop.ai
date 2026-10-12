@@ -59,6 +59,13 @@ const dayHead = (d: string) => ({
   day: displayDate(d),
 });
 
+/** Уровень наличия без точного процента (сборщик видит «мест нет» или «осталось 2»): словом, тон как у спроса */
+const AVAILABILITY: Record<'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE', { word: string; tone: DemandLevel }> = {
+  SOLD_OUT: { word: 'Нет мест', tone: 'high' },
+  FEW_LEFT: { word: 'Мало мест', tone: 'mid' },
+  AVAILABLE: { word: 'Есть места', tone: 'low' },
+};
+
 const LEVEL_WORD: Record<DemandLevel, string> = {
   high: 'высокий спрос',
   mid: 'средний спрос',
@@ -393,14 +400,27 @@ function Insights({ view }: { view: MarketView }) {
   );
 }
 
-function Cell({ bp, delta }: { bp: number | null; delta?: number | null | undefined }) {
-  const level = demandLevel(bp);
+function Cell({
+  bp,
+  delta,
+  availability,
+  hint,
+}: {
+  bp: number | null;
+  delta?: number | null | undefined;
+  availability?: 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE' | null | undefined;
+  hint?: string | undefined;
+}) {
+  // снимок сборщика бывает только уровнем: показываем его словом, а не прочерком «нет данных»
+  const byLevel = bp === null && availability ? AVAILABILITY[availability] : null;
+  const level = byLevel ? byLevel.tone : demandLevel(bp);
   return (
     <td
       className={cx('market-cell', level && `market-cell--${level}`)}
-      title={level ? LEVEL_WORD[level] : 'нет данных'}
+      title={byLevel ? byLevel.word : level ? LEVEL_WORD[level] : 'нет данных'}
     >
-      <span className="market-cell__value">{pct(bp)}</span>
+      <span className="market-cell__value">{byLevel ? byLevel.word : pct(bp)}</span>
+      {hint && <span className="market-cell__delta">{hint}</span>}
       {delta !== null && delta !== undefined && round(delta, 100) !== 0 && (
         <span className={cx('market-cell__delta', delta > 0 ? 'is-up' : 'is-down')}>
           {points(delta)}
@@ -481,7 +501,7 @@ function Grid({
                   </span>
                 </th>
                 {c.cells.map((cell) => (
-                  <Cell key={cell.date} bp={cell.bp} delta={cell.deltaBp} />
+                  <Cell key={cell.date} bp={cell.bp} delta={cell.deltaBp} availability={cell.level} />
                 ))}
               </tr>
             );
@@ -493,7 +513,11 @@ function Grid({
               Средняя по рынку
             </th>
             {board.market.map((m) => (
-              <Cell key={m.date} bp={m.bp} />
+              <Cell
+                key={m.date}
+                bp={m.bp}
+                hint={m.withLevel ? `почти полны ${m.tight ?? 0} из ${m.withLevel}` : undefined}
+              />
             ))}
           </tr>
           <tr className="market-row--gap" data-testid="market-row-gap">

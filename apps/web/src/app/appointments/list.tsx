@@ -2,14 +2,24 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Button, EmptyState, Field, Input, Select, Table } from '../../components/ui';
-import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
+import { Button, EmptyState, Field, Input, Select, StatusBadge, Table } from '../../components/ui';
+import type { BeautyAppointmentRow, BeautyCustomerRow, BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { DateBar } from '../beauty/date-bar';
 import { AppointmentCard } from '../beauty/appointment-card';
 import { clock } from '../beauty/time';
 import { beautyStatus } from '../../lib/status/beauty';
-export function AppointmentsList({ day, readOnly }: { day: BeautyDay; readOnly: boolean }) {
+import { AppointmentForm } from '../beauty/appointment-form';
+export function AppointmentsList({
+  day,
+  customers,
+  readOnly,
+}: {
+  day: BeautyDay;
+  customers: BeautyCustomerRow[];
+  readOnly: boolean;
+}) {
+  const [creating, setCreating] = useState(false);
   const [status, setStatus] = useState('');
   const [employee, setEmployee] = useState('');
   const [service, setService] = useState('');
@@ -27,7 +37,15 @@ export function AppointmentsList({ day, readOnly }: { day: BeautyDay; readOnly: 
   );
   return (
     <>
-      <DateBar date={day.date} path="/appointments" />
+      <div className="beauty-bar">
+        <DateBar date={day.date} path="/appointments" />
+        <Button
+          disabled={readOnly || !day.columns.length || !day.services.length}
+          onClick={() => setCreating(true)}
+        >
+          + Новая запись
+        </Button>
+      </div>
       <div className="beauty-filters">
         <Field label="Статус">
           <Select value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -85,6 +103,7 @@ export function AppointmentsList({ day, readOnly }: { day: BeautyDay; readOnly: 
             <tr>
               <th>Время</th>
               <th>Клиент</th>
+              <th>Телефон</th>
               <th>Услуга</th>
               <th>Мастер</th>
               <th>Статус</th>
@@ -102,17 +121,34 @@ export function AppointmentsList({ day, readOnly }: { day: BeautyDay; readOnly: 
                     {r.customer.name}
                   </Button>
                 </td>
+                <td data-label="Телефон">{r.customer.phone ?? '—'}</td>
                 <td data-label="Услуга">{r.serviceName}</td>
                 <td data-label="Мастер">
                   {day.columns.find((e) => e.id === r.employeeId)?.name ?? 'Мастер в архиве'}
                 </td>
-                <td data-label="Статус">{beautyStatus[r.status].label}</td>
+                <td data-label="Статус">
+                  <StatusBadge kind="beauty" value={r.status} />
+                </td>
                 <td data-label="Стоимость">{formatMoney(r.priceMinor, r.currency)}</td>
               </tr>
             ))}
           </tbody>
         </Table>
       )}
+      <Overlay open={creating} onClose={() => setCreating(false)} title="Новая запись" drawer>
+        {creating && day.columns[0] && (
+          <AppointmentForm
+            day={day}
+            customers={customers}
+            employeeId={day.columns[0].id}
+            time={clock(day.bounds.fromMinutes)}
+            onDone={() => {
+              setCreating(false);
+              router.refresh();
+            }}
+          />
+        )}
+      </Overlay>
       <Overlay open={selected !== null} onClose={() => setSelected(null)} title="Запись" drawer>
         {selected && (
           <AppointmentCard

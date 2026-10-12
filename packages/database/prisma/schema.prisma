@@ -59,6 +59,7 @@ model Business {
   beautyServices   BeautyService[]
   menuCategories   MenuCategory[]
   menuItems        MenuItem[]
+  kitchenProducts  KitchenProduct[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -90,6 +91,8 @@ model Location {
   servicePeriods         ServicePeriod[]
   restaurantReservations RestaurantReservation[]
   restaurantOrders       RestaurantOrder[]
+  kitchenStockLots       KitchenStockLot[]
+  kitchenMovements       KitchenStockMovement[]
   restaurantPayments     RestaurantPayment[]
   restaurantCashOps      RestaurantCashOperation[]
   restaurantCashChecks   RestaurantCashReconciliation[]
@@ -2189,6 +2192,10 @@ model User {
   restaurantOrdersCreated      RestaurantOrder[]
   paySettingsEdited            EmployeePaySetting[]
   payAdjustmentsCreated        EmployeePayAdjustment[]
+  menuPhotosCreated            MenuItemPhoto[]
+  orderRatingsTaken            RestaurantOrderRating[]
+  kitchenLotsCreated           KitchenStockLot[]
+  kitchenMovementsCreated      KitchenStockMovement[]
   restaurantPaymentsCreated    RestaurantPayment[]            @relation("RestaurantPaymentCreatedBy")
   restaurantPaymentsVoided     RestaurantPayment[]            @relation("RestaurantPaymentVoidedBy")
   restaurantCashOpsCreated     RestaurantCashOperation[]      @relation("RestaurantCashOpCreatedBy")
@@ -2748,6 +2755,7 @@ model Employee {
   paySetting       EmployeePaySetting?
   payAdjustments   EmployeePayAdjustment[]
   cashPayouts      RestaurantCashOperation[]
+  guestRatings     RestaurantOrderRating[]
 
   @@index([businessId])
   @@map("employees")
@@ -3060,6 +3068,7 @@ model MenuItem {
   business    Business              @relation(fields: [businessId], references: [id])
   category    MenuCategory          @relation(fields: [categoryId], references: [id])
   ingredients MenuItemIngredient[]
+  photo       MenuItemPhoto?
   orderItems  RestaurantOrderItem[]
 
   @@index([businessId])
@@ -3069,16 +3078,19 @@ model MenuItem {
 
 /// Строка техкарты: норма в г/мл/шт, `unitCost` — minor units за кг, л или штуку; стоимость вычисляется (§33.1)
 model MenuItemIngredient {
-  id         String   @id @default(uuid()) @db.Uuid
-  menuItemId String   @map("menu_item_id") @db.Uuid
-  name       String   @db.VarChar(200)
-  normQty    Decimal  @map("norm_qty") @db.Decimal(12, 3)
-  unit       String   @db.VarChar(8)
-  unitCost   BigInt   @map("unit_cost")
-  sortOrder  Int      @default(0) @map("sort_order")
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  id         String          @id @default(uuid()) @db.Uuid
+  menuItemId String          @map("menu_item_id") @db.Uuid
+  name       String          @db.VarChar(200)
+  normQty    Decimal         @map("norm_qty") @db.Decimal(12, 3)
+  unit       String          @db.VarChar(8)
+  unitCost   BigInt          @map("unit_cost")
+  sortOrder  Int             @default(0) @map("sort_order")
+  /// §38: ингредиент склада той же единицы; без ссылки строка ничего не списывает
+  productId  String?         @map("product_id") @db.Uuid
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  menuItem   MenuItem        @relation(fields: [menuItemId], references: [id])
+  product    KitchenProduct? @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@index([menuItemId])
   @@map("menu_item_ingredients")
@@ -3086,30 +3098,32 @@ model MenuItemIngredient {
 
 /// Заказ: номер по филиалу, статусная машина §33.2, `total` — снимок суммы строк
 model RestaurantOrder {
-  id          String                @id @default(uuid()) @db.Uuid
-  locationId  String                @map("location_id") @db.Uuid
-  number      Int
-  tableId     String?               @map("table_id") @db.Uuid
-  waiterId    String?               @map("waiter_id") @db.Uuid
-  guestCount  Int                   @default(1) @map("guest_count")
-  status      RestaurantOrderStatus @default(NEW)
-  notes       String?
-  total       BigInt                @default(0)
-  currency    String                @db.Char(3)
-  openedAt    DateTime              @default(now()) @map("opened_at") @db.Timestamptz(6)
-  cookingAt   DateTime?             @map("cooking_at") @db.Timestamptz(6)
-  readyAt     DateTime?             @map("ready_at") @db.Timestamptz(6)
-  servedAt    DateTime?             @map("served_at") @db.Timestamptz(6)
-  closedAt    DateTime?             @map("closed_at") @db.Timestamptz(6)
-  createdById String?               @map("created_by_id") @db.Uuid
-  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
-  location    Location              @relation(fields: [locationId], references: [id])
-  table       DiningTable?          @relation(fields: [tableId], references: [id], onDelete: Restrict)
-  waiter      Employee?             @relation(fields: [waiterId], references: [id], onDelete: Restrict)
-  createdBy   User?                 @relation(fields: [createdById], references: [id])
-  items       RestaurantOrderItem[]
-  payments    RestaurantPayment[]
+  id             String                 @id @default(uuid()) @db.Uuid
+  locationId     String                 @map("location_id") @db.Uuid
+  number         Int
+  tableId        String?                @map("table_id") @db.Uuid
+  waiterId       String?                @map("waiter_id") @db.Uuid
+  guestCount     Int                    @default(1) @map("guest_count")
+  status         RestaurantOrderStatus  @default(NEW)
+  notes          String?
+  total          BigInt                 @default(0)
+  currency       String                 @db.Char(3)
+  openedAt       DateTime               @default(now()) @map("opened_at") @db.Timestamptz(6)
+  cookingAt      DateTime?              @map("cooking_at") @db.Timestamptz(6)
+  readyAt        DateTime?              @map("ready_at") @db.Timestamptz(6)
+  servedAt       DateTime?              @map("served_at") @db.Timestamptz(6)
+  closedAt       DateTime?              @map("closed_at") @db.Timestamptz(6)
+  createdById    String?                @map("created_by_id") @db.Uuid
+  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location       Location               @relation(fields: [locationId], references: [id])
+  table          DiningTable?           @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  waiter         Employee?              @relation(fields: [waiterId], references: [id], onDelete: Restrict)
+  createdBy      User?                  @relation(fields: [createdById], references: [id])
+  items          RestaurantOrderItem[]
+  payments       RestaurantPayment[]
+  stockMovements KitchenStockMovement[]
+  rating         RestaurantOrderRating?
 
   @@unique([locationId, number])
   @@index([locationId, openedAt])
@@ -3168,6 +3182,94 @@ model EmployeePayAdjustment {
 
   @@index([employeeId, period])
   @@map("employee_pay_adjustments")
+}
+
+// ───────────────────────── Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS) ─────────────────────────
+// Справочник на Business, партии и лента на Location. Единицы и цена как у техкарт §33.1 (г|мл|шт, за кг/л/шт).
+
+enum KitchenMovementKind {
+  RECEIPT
+  WRITE_OFF
+  INVENTORY
+  REVERSAL
+  /// §38: расход по заказу при «Готово», недостача, возврат при отмене после «Готово»
+  CONSUMPTION
+  SHORTAGE
+  CONSUMPTION_RETURN
+}
+
+/// Ингредиент сети; единица неизменна после первого прихода (проверка API)
+model KitchenProduct {
+  id         String   @id @default(uuid()) @db.Uuid
+  businessId String   @map("business_id") @db.Uuid
+  name       String   @db.VarChar(200)
+  unit       String   @db.VarChar(8)
+  minQty     Decimal  @default(0) @map("min_qty") @db.Decimal(14, 3)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  business     Business               @relation(fields: [businessId], references: [id])
+  lots         KitchenStockLot[]
+  movements    KitchenStockMovement[]
+  techCardRows MenuItemIngredient[]
+
+  @@unique([businessId, name])
+  @@map("kitchen_products")
+}
+
+/// Партия = строка прихода; остаток склада это сумма remaining_qty непросторнированных партий
+model KitchenStockLot {
+  id           String    @id @default(uuid()) @db.Uuid
+  locationId   String    @map("location_id") @db.Uuid
+  productId    String    @map("product_id") @db.Uuid
+  supplier     String?   @db.VarChar(200)
+  document     String?   @db.VarChar(100)
+  receivedOn   DateTime  @map("received_on") @db.Date
+  receivedQty  Decimal   @map("received_qty") @db.Decimal(14, 3)
+  remainingQty Decimal   @map("remaining_qty") @db.Decimal(14, 3)
+  unitCost     BigInt    @map("unit_cost")
+  expiresOn    DateTime? @map("expires_on") @db.Date
+  reversedAt   DateTime? @map("reversed_at") @db.Timestamptz(6)
+  createdById  String?   @map("created_by_id") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location  Location               @relation(fields: [locationId], references: [id])
+  product   KitchenProduct         @relation(fields: [productId], references: [id])
+  createdBy User?                  @relation(fields: [createdById], references: [id])
+  movements KitchenStockMovement[]
+
+  @@index([locationId, productId])
+  @@map("kitchen_stock_lots")
+}
+
+/// Лента движений склада: только дописывается (REVOKE и триггер kitchen_movements_immutable)
+model KitchenStockMovement {
+  id          String              @id @default(uuid()) @db.Uuid
+  locationId  String              @map("location_id") @db.Uuid
+  productId   String              @map("product_id") @db.Uuid
+  lotId       String?             @map("lot_id") @db.Uuid
+  kind        KitchenMovementKind
+  qty         Decimal             @db.Decimal(14, 3)
+  cost        BigInt
+  reason      String?             @db.VarChar(500)
+  /// §38: заказ, по которому списано или возвращено
+  orderId     String?             @map("order_id") @db.Uuid
+  createdById String?             @map("created_by_id") @db.Uuid
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  location  Location         @relation(fields: [locationId], references: [id])
+  product   KitchenProduct   @relation(fields: [productId], references: [id])
+  lot       KitchenStockLot? @relation(fields: [lotId], references: [id])
+  order     RestaurantOrder? @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  createdBy User?            @relation(fields: [createdById], references: [id])
+
+  @@index([locationId, createdAt])
+  @@index([orderId])
+  @@index([productId])
+  @@index([lotId])
+  @@map("kitchen_stock_movements")
 }
 
 /// DATA_MODEL §35.1 (v2.18, ADR-165): платёж по заказу ресторана; частями и разными способами, сумма действующих
@@ -3250,4 +3352,41 @@ model RestaurantCashReconciliation {
 
   @@index([locationId, method, createdAt])
   @@map("restaurant_cash_reconciliations")
+}
+
+/// DATA_MODEL §37 (ADR-167): фото блюда, одно на блюдо; объект в закрытом хранилище, в базе только ключ
+model MenuItemPhoto {
+  menuItemId  String   @id @map("menu_item_id") @db.Uuid
+  storageRef  String   @unique @map("storage_ref") @db.VarChar(500)
+  mimeType    String   @map("mime_type") @db.VarChar(40)
+  byteSize    Int      @map("byte_size")
+  width       Int
+  height      Int
+  sha256      String   @db.Char(64)
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  menuItem  MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@map("menu_item_photos")
+}
+
+/// DATA_MODEL §39 (ADR-169): оценка официанта гостем после оплаты; одна на заказ, без правки и удаления
+model RestaurantOrderRating {
+  orderId     String   @id @map("order_id") @db.Uuid
+  /// снимок официанта заказа на момент оценки
+  waiterId    String?  @map("waiter_id") @db.Uuid
+  stars       Int      @db.SmallInt
+  comment     String?  @db.VarChar(500)
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  order     RestaurantOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  waiter    Employee?       @relation(fields: [waiterId], references: [id], onDelete: Restrict)
+  createdBy User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([waiterId])
+  @@map("restaurant_order_ratings")
 }

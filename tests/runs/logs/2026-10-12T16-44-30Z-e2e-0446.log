@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 12.10.2026 21:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит c2c2347 (claude/ui-goto-aborted), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--repeat-each=2' 'tests/ui/streamed-redirect.spec.ts' 'tests/ui/system-screens.spec.ts:305' 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/roles.spec.ts:60' 'tests/ui/platform-access.spec.ts:134' 'tests/ui/team.spec.ts:30'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/ui/platform-access.spec.ts:134:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (17.2s)
+  ✓   2 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (7.7s)
+  ✓   3 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (6.7s)
+  ✓   4 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (8.5s)
+  ✓   5 tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (43.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3687557136'
+[WebServer] }
+  ✓   6 tests/ui/streamed-redirect.spec.ts:10:1 › goto на адрес с потоковым редиректом отдаёт конечную страницу, следующий goto не обрывается (9.7s)
+  ✓   7 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (13.9s)
+  ✓   8 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (14.7s)
+  ✓   9 tests/ui/platform-access.spec.ts:134:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (9.2s)
+  ✓  10 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (3.2s)
+  ✓  11 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (3.1s)
+  ✓  12 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (3.4s)
+  ✓  13 tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (6.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3687557136'
+[WebServer] }
+  ✓  14 tests/ui/streamed-redirect.spec.ts:10:1 › goto на адрес с потоковым редиректом отдаёт конечную страницу, следующий goto не обрывается (13.8s)
+  ✓  15 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (13.3s)
+  ✓  16 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (5.1s)
+
+  16 passed (3.4m)
+
+# код выхода 0 · 3 мин 24 с

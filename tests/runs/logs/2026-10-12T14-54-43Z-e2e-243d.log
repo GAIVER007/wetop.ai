@@ -1,0 +1,29 @@
+# Сквозные (e2e) · 12.10.2026 19:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bb9cb8 (claude/restaurant-design-mockup), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' 'tests/food-ui/food.spec.ts' 'tests/food-ui/stock.spec.ts' '--grep' 'walk-in is seated|real API screenshots|бронирования: шкала|план зала: заказ|клиенты: вкладки|списание по FIFO|сторно:'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+[WebServer] (node:54029) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (7.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✓  2 tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe (36.3s)
+  ✓  3 tests/food-ui/restaurant.spec.ts:290:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол (1.3s)
+  ✓  4 tests/food-ui/restaurant.spec.ts:350:1 › план зала: заказ занимает стол, уборка включается и видна легенда (1.6s)
+  ✓  5 tests/food-ui/restaurant.spec.ts:597:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (3.1s)
+  ✓  6 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (1.6s)
+  ✓  7 tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет (1.5s)
+
+  7 passed (1.2m)
+
+# код выхода 0 · 1 мин 20 с

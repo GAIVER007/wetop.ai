@@ -1,0 +1,61 @@
+# Модульные (unit) · 12.10.2026 21:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит f79677a (codex/growth-reference-design), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T16-44-06Z-unit-d9ec.json' 'apps/web/src/design-rules.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ❯ |unit| apps/web/src/design-rules.test.ts (17 tests | 1 failed) 173ms
+   ❯ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 21ms
+     ✓ шрифта мельче 12 px нет 15ms
+     ✓ начертания только из шкалы 400 / 500 / 600 / 700 13ms
+     ✓ литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт) 5ms
+     ✓ стрелок в конце текста ссылок нет — ссылка названа словом (§14) 16ms
+     × «шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола 16ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 28ms
+     ✓ отступов вне шкалы не прибавляется (потолок 444 значений на 20.09; было 475 на 18.09) 8ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 14ms
+   ✓ DESIGN.md §15: системных окон подтверждения на экранах нет (1)
+     ✓ ни один экран не зовёт window.confirm — вопрос задаёт ConfirmDialog 20ms
+   ✓ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     ✓ «перейти к содержимому» на --primary пишется цветом --on-primary 0ms
+     ✓ в календаре инлайн-фон клетки — backgroundColor, не сокращение background 1ms
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 14ms
+   ✓ DESIGN.md §8: состояния полей ввода (hover, disabled, aria-invalid) (4)
+     ✓ наведение меняет фон, а не текст или границу 0ms
+     ✓ отключённое поле приглушено прозрачностью, а серый фон остаётся признаком readOnly 0ms
+     ✓ поле ввода имеет стили disabled и aria-invalid 0ms
+     ✓ Field связывает hint и error с контролом 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > «шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "app/food/restaurant.css: .rest-fp__canvas",
++ ]
+
+ ❯ apps/web/src/design-rules.test.ts:102:89
+    100|     // Свет за стеклом (`glass.css`, `body::before/after`) снят 01.10 …
+    101|     // исключений больше нет: «шар» на любом блоке красный.
+    102|     expect(offenders((r) => /radial-gradient|box-shadow:\s*0 0 \d{2,}p…
+       |                                                                                         ^
+    103|   });
+    104|   /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 passed (17)
+   Start at  09:44:07
+   Duration  269ms (tests 86%, transform 10%, import 3%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T16-44-06Z-unit-d9ec.json
+
+# код выхода 1 · 1 с

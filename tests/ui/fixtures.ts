@@ -39,6 +39,32 @@ export async function settleStreaming(page: Page): Promise<void> {
 }
 
 /**
+ * Потоковый редирект Next. Корневой `app/loading.tsx` начинает отдачу раньше, чем страница зовёт `redirect()`, и тогда
+ * Next кладёт в документ `<meta id="__next-page-redirect" http-equiv="refresh">`: браузер уходит на цель уже ПОСЛЕ
+ * `load`. Пока этот переход висит, следующий `goto` им обрывается (`net::ERR_ABORTED`; гостиничное `/today` → `/finance`,
+ * профиль, роли, техподдержка, 12.10.2026). Обёртка ждёт его до своего перехода (до фиксации) и после (как просил
+ * сам `goto`): страница отдаётся конечной.
+ */
+const REDIRECT_GRACE_MS = 20_000;
+
+async function settleRedirect(
+  page: Page,
+  waitUntil: 'load' | 'domcontentloaded' | 'commit',
+): Promise<void> {
+  for (let hop = 0; hop < 3; hop++) {
+    const from = page.url();
+    // контекст разрушен посреди проверки: переход уже идёт, его и ждём
+    const pending = await page
+      .evaluate("document.getElementById('__next-page-redirect') !== null")
+      .catch(() => true);
+    if (!pending) return;
+    await page
+      .waitForURL((url) => url.href !== from, { waitUntil, timeout: REDIRECT_GRACE_MS })
+      .catch(() => undefined);
+  }
+}
+
+/**
  * Смена темы меняет цвета не мгновенно: `premium.css` даёт всем `button`, `a`, `input`, `select` и
  * `textarea` переход `--ease` (180 мс) по фону, кромке и цвету текста, а сам `data-theme` ставит
  * слушатель React, то есть мгновением позже, чем вернётся `emulateMedia`. Спеки с axe в двух темах
@@ -160,13 +186,20 @@ export const test = base.extend<{ tour: boolean }>({
     if (!tour) await page.addInitScript(TOUR_DONE_SCRIPT);
     const goto = page.goto.bind(page);
     page.goto = async (url, options) => {
+      // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      await settleRedirect(page, 'commit');
       const response = await goto(url, options);
+      const until = options?.waitUntil ?? 'load';
+      await settleRedirect(page, until === 'networkidle' ? 'load' : until);
       await settleStreaming(page);
       return response;
     };
     const reload = page.reload.bind(page);
     page.reload = async (options) => {
+      await settleRedirect(page, 'commit');
       const response = await reload(options);
+      const until = options?.waitUntil ?? 'load';
+      await settleRedirect(page, until === 'networkidle' ? 'load' : until);
       await settleStreaming(page);
       return response;
     };

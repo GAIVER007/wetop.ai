@@ -17,7 +17,7 @@ export default async function KitchenPage() {
     const open = await completeFoodList<OrderView>((cursor) => restaurantApi.openOrders(cursor));
     const kitchen = open.filter((o) => o.status !== 'SERVED');
     return (
-      <Page title="Кухня" subtitle="Экран кухни: новые, в работе, готово и задержки">
+      <Page title="Кухня">
         <div key={shell.scopeKey}>
           <KitchenBoard
             scopeKey={shell.scopeKey}

@@ -24,7 +24,7 @@ export default async function MenuPage() {
       ),
     ]);
     return (
-      <Page title="Меню" subtitle="Блюда, цены и техкарты">
+      <Page title="Меню">
         <div key={shell.scopeKey}>
           <MenuBoard
             ctx={{

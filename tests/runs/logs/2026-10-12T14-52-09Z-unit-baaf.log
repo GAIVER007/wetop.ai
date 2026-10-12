@@ -1,0 +1,20 @@
+# Модульные (unit) · 12.10.2026 19:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e8d6b5 (codex/all-directions-growth), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-52-09Z-unit-baaf.json' 'apps/web/src/app/growth/business-screen.test.ts' 'apps/web/src/lib/navigation-growth.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-roles.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ✓ |unit| apps/web/src/lib/navigation-growth.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 6ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (20 tests) 7ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/app/growth/business-screen.test.ts (5 tests) 28ms
+
+ Test Files  5 passed (5)
+      Tests  41 passed (41)
+   Start at  07:52:18
+   Duration  1.30s (transform 77%, import 21%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-52-09Z-unit-baaf.json
+
+# код выхода 0 · 10 с

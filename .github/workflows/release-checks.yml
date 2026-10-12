@@ -388,7 +388,7 @@ jobs:
         id: addressed
         continue-on-error: true
         run: |
-          npm run test:record -- unit tests/unit/food-customer-update.test.ts apps/web/src/app/team/scope-model.test.ts apps/web/src/app/help/help.test.ts apps/web/src/app/platform/support/kb-forms.test.ts apps/web/src/app/login/actions.test.ts
+          npm run test:record -- unit tests/unit/food-customer-update.test.ts apps/web/src/app/team/scope-model.test.ts apps/web/src/app/help/help.test.ts apps/web/src/app/platform/support/kb-forms.test.ts apps/web/src/app/login/actions.test.ts tests/unit/chessboard-active-readonly.test.ts
           npm run test:record -- integration tests/integration/member-scopes.test.ts
       - name: Real web API DB and KB storage
         id: runtime
@@ -403,7 +403,7 @@ jobs:
         env:
           UI_FIXTURE_PORT: '4371'
           UI_WEB_PORT: '3171'
-        run: npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-access.spec.ts tests/ui/ui-fix-01-kb.spec.ts tests/ui/hospitality-read-only.spec.ts tests/ui/team.spec.ts tests/ui/support-kb.spec.ts tests/ui/trial-read-only.spec.ts
+        run: npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-access.spec.ts tests/ui/ui-fix-01-kb.spec.ts tests/ui/hospitality-read-only.spec.ts tests/ui/team.spec.ts tests/ui/support-kb.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/chessboard-extend.spec.ts
       - uses: actions/checkout@v4
         with:
           ref: 47b86b08fc0d7d1093fa835679b2d1f7134d2e3f

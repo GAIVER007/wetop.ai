@@ -1666,7 +1666,7 @@ function Cell({
               style={{ left: `calc(${label.span * 100}% - 54px)` }}
             />
           )}
-          {withResize && draggable && cell.isLastNight && (
+          {draggable && cell.isLastNight && (
             <StayResize
               number={cell.confirmationNumber!}
               itemId={cell.itemId!}

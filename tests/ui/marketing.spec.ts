@@ -313,6 +313,7 @@ test('MKT3: салон видит маркетинг, гостиничный к�
     .click();
   // салон (BEAUTY) и после слияния 09.10 садится на свой `/today`; на `/finance` едет только гостиница
   await page.waitForURL('**/today');
+  await expect(page.getByTestId('beauty-today')).toBeVisible();
   await page.goto('/marketing');
   await expect(page).toHaveURL(/\/marketing$/);
   const hub = main(page).getByTestId('business-marketing');

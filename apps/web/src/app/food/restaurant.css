@@ -99,12 +99,12 @@
   .rest-upcoming td:last-child {
     text-align: right;
   }
-  @media (max-width: 1023px) {
+  @media (max-width: 960px) {
     .rest-dash-main {
       grid-template-columns: minmax(0, 1fr);
     }
   }
-  @media (max-width: 639px) {
+  @media (max-width: 600px) {
     .rest-upcoming td:nth-child(4) {
       display: none;
     }
@@ -633,5 +633,135 @@
   .food-workspace .tabs__panel {
     min-width: 0;
     max-width: 100%;
+  }
+}
+
+@layer sections {
+  /* ── Календарь бронирований (макет, экран 3): столы строками, часы столбцами, бронь полосой ── */
+  .rest-tl {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .rest-tl__grid {
+    display: grid;
+    grid-template-columns: 160px minmax(calc(var(--tl-hours) * 72px), 1fr);
+    min-width: 0;
+  }
+  .rest-tl__corner,
+  .rest-tl__hours {
+    position: sticky;
+    top: 0;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    background: var(--surface-solid);
+  }
+  .rest-tl__corner {
+    padding-left: var(--space-4);
+  }
+  .rest-tl__hours {
+    display: grid;
+    grid-template-columns: repeat(var(--tl-hours), minmax(0, 1fr));
+  }
+  .rest-tl__hours span {
+    padding-left: var(--space-1);
+    border-left: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-tl__row {
+    display: contents;
+  }
+  .rest-tl__table {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0 var(--space-4);
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-sm);
+  }
+  .rest-tl__table small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .rest-tl__track {
+    position: relative;
+    min-height: var(--space-10);
+    border-bottom: 1px solid var(--border);
+    background-image: linear-gradient(to right, var(--border) 1px, transparent 1px);
+    background-size: calc(100% / var(--tl-hours)) 100%;
+  }
+  .rest-tl__slot {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: transparent;
+    cursor: copy;
+  }
+  .rest-tl__slot:hover {
+    background: var(--primary-soft);
+  }
+  .rest-tl__slot:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+  }
+  .rest-tl__bar {
+    position: absolute;
+    top: var(--space-1);
+    bottom: var(--space-1);
+    min-width: var(--space-6);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--border);
+    border-left-width: 3px;
+    border-radius: var(--radius-control);
+    background: var(--st-checked-out);
+    color: var(--text);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    text-align: left;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .rest-tl__bar span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rest-tl__bar[data-status='BOOKED'] {
+    background: var(--st-tentative);
+    border-left-color: var(--warning);
+  }
+  .rest-tl__bar[data-status='CONFIRMED'] {
+    background: var(--st-confirmed);
+    border-left-color: var(--primary);
+  }
+  .rest-tl__bar[data-status='SEATED'] {
+    background: var(--st-checked-in);
+    border-left-color: var(--success);
+  }
+  .rest-tl__bar:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  .rest-tl__now {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--danger);
+    pointer-events: none;
+  }
+  @media (max-width: 600px) {
+    .rest-tl__grid {
+      grid-template-columns: 96px minmax(calc(var(--tl-hours) * 56px), 1fr);
+    }
+    .rest-tl__table {
+      padding: var(--space-2);
+    }
   }
 }

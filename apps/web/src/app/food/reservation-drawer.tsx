@@ -12,7 +12,7 @@ import { GuestMarks } from './guest-marks';
 import { mutateFoodReservation } from './actions';
 import { ReservationForm } from './reservation-form';
 export type ReservationDraft =
-  { kind: 'create'; walkIn: boolean; tableId?: string } | { kind: 'view'; id: string };
+  { kind: 'create'; walkIn: boolean; tableId?: string; time?: string } | { kind: 'view'; id: string };
 export function ReservationDrawer({
   data,
   draft,
@@ -202,6 +202,7 @@ export function ReservationDrawer({
             data={data}
             walkIn={draft.walkIn}
             tableId={draft.tableId ?? ''}
+            time={draft.time ?? data.time}
             created={(next) => {
               setSaved(next);
               onCreated(next.id);

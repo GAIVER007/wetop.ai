@@ -284,6 +284,59 @@ test('главная: плитки, последние заказы и выру�
   expect(axe.violations).toEqual([]);
 });
 
+test('бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол', async ({
+  page,
+  request,
+}) => {
+  const { headers, table } = await seed(page, request);
+  const localDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const period = await post(request, headers, '/food-service/service-periods', {
+    name: 'Вечер',
+    weekday: new Date(`${localDay}T12:00:00Z`).getUTCDay(),
+    timeFrom: '12:00',
+    timeTo: '23:00',
+    endsNextDay: false,
+    defaultDurationMinutes: 120,
+    active: true,
+  });
+  const res = await request.post(`${api}/food-service/reservations`, {
+    headers: { ...headers, 'idempotency-key': 'rest-timeline-1' },
+    data: {
+      servicePeriodId: period.id,
+      startsAt: `${localDay}T19:00:00+05:00`,
+      partySize: 3,
+      customer: { firstName: 'Ольга', lastName: 'Волкова', phone: '+7 700 222-33-44' },
+      tableId: table.id,
+    },
+  });
+  expect(res.ok()).toBe(true);
+  await page.goto(`/table-reservations?date=${localDay}`);
+  const timeline = page.getByTestId('reservations-timeline');
+  await expect(timeline.getByText('Стол 7')).toBeVisible();
+  await expect(timeline.getByText('12:00')).toBeVisible();
+  const bar = timeline.getByRole('button', { name: /^Ольга Волкова, 19:00–21:00, 3 гостя/ });
+  await expect(bar).toBeVisible();
+  // полоса брони стоит на своём часе: левый край у метки 19:00
+  const at19 = await timeline.getByText('19:00', { exact: true }).boundingBox();
+  const barBox = await bar.boundingBox();
+  expect(Math.abs(barBox!.x - at19!.x)).toBeLessThan(6);
+  const axe = await new AxeBuilder({ page }).include('main').analyze();
+  expect(axe.violations).toEqual([]);
+  await bar.click();
+  await expect(page.getByRole('dialog')).toContainText('Ольга Волкова');
+  await page.keyboard.press('Escape');
+  // с клавиатуры клетка стола открывает новую бронь на этот стол во время экрана
+  await timeline.getByRole('button', { name: 'Новая бронь на стол 7' }).focus();
+  await page.keyboard.press('Enter');
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading', { name: 'Новая бронь' })).toBeVisible();
+  await expect(dialog.locator('select[name="tableId"]')).toHaveValue(table.id);
+  // список остаётся вторым видом
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Список', exact: true }).click();
+  await expect(page.getByRole('main').locator('tbody')).toContainText('Ольга Волкова');
+});
+
 test('план зала: заказ занимает стол, уборка включается и видна легенда', async ({
   page,
   request,
@@ -583,7 +636,7 @@ test('клиенты: вкладки, «Постоянный гость» от �
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
   // метки видит смена: в бронях дня и строкой на «Главной» (вторая бронь клиента сегодня активна)
-  await page.goto(`/table-reservations?date=${localDay}`);
+  await page.goto(`/table-reservations?date=${localDay}&view=list`);
   await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');
   await expect(page.getByTestId('guest-marks').first()).toContainText('День рождения');
   await page.goto('/today');

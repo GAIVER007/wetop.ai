@@ -12,12 +12,14 @@ export async function FoodScreen({
   date,
   time,
   startNew = false,
+  listView = false,
 }: {
   kind: 'floor' | 'list' | 'catalog';
   date?: string | undefined;
   time?: string | undefined;
   /** `?new=1`: форма новой брони открыта сразу (быстрое действие «Главной») */
   startNew?: boolean;
+  listView?: boolean;
 }) {
   const title = kind === 'floor' ? 'План зала' : kind === 'list' ? 'Бронирования' : 'Залы и столы';
   try {
@@ -28,7 +30,7 @@ export async function FoodScreen({
           {kind === 'catalog' ? (
             <CatalogBoard data={data} />
           ) : (
-            <WorkspaceBoard data={data} floor={kind === 'floor'} startNew={startNew} />
+            <WorkspaceBoard data={data} floor={kind === 'floor'} startNew={startNew} listView={listView} />
           )}
         </div>
       </Page>

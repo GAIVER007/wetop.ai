@@ -26,6 +26,7 @@ import { DayToolbar } from './day-toolbar';
 import { foodStatus } from '../../lib/status/food';
 import { setTableCleaning } from './restaurant-actions';
 import { GuestMarks } from './guest-marks';
+import { TimelineBoard } from './timeline-board';
 
 /** Фигура стола на рисунке зала по вместимости: модель хранит только места, не форму (§33.3) */
 const tableShape = (capacity: number) =>
@@ -49,10 +50,13 @@ export function WorkspaceBoard({
   data,
   floor,
   startNew = false,
+  listView = false,
 }: {
   data: FoodWorkspace;
   floor: boolean;
   startNew?: boolean;
+  /** `?view=list`: таблица броней вместо шкалы по столам */
+  listView?: boolean;
 }) {
   const router = useRouter();
   const [draft, setDraft] = useState<ReservationDraft | null>(
@@ -64,6 +68,7 @@ export function WorkspaceBoard({
   const [area, setArea] = useState('');
   const [table, setTable] = useState('');
   const [floorArea, setFloorArea] = useState('');
+  const [view, setView] = useState<'timeline' | 'list'>(listView ? 'list' : 'timeline');
   const [cleaningPending, startCleaning] = useTransition();
   const [cleaningError, setCleaningError] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
@@ -375,7 +380,27 @@ export function WorkspaceBoard({
               </Select>
             </Field>
           </div>
-          {!filtered.length ? (
+          <ChipGroup label="Вид">
+            <Chip selected={view === 'timeline'} onClick={() => setView('timeline')}>
+              Шкала
+            </Chip>
+            <Chip selected={view === 'list'} onClick={() => setView('list')}>
+              Список
+            </Chip>
+          </ChipGroup>
+          {view === 'timeline' ? (
+            <TimelineBoard
+              data={data}
+              reservations={filtered}
+              areaId={area}
+              onOpen={open}
+              onCreate={
+                write
+                  ? (tableId, time) => setDraft({ kind: 'create', walkIn: false, tableId, time })
+                  : null
+              }
+            />
+          ) : !filtered.length ? (
             <EmptyState
               title={
                 data.reservations.length

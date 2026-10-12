@@ -111,7 +111,7 @@ export async function FoodToday() {
   return (
     <Page
       title={greeting}
-      subtitle={`Сегодня, ${displayDate(date, 'full')} · ${branch.name}`}
+      subtitle={`${branch.name}, сегодня ${displayDate(date, 'full')}`}
       actions={
         <span className="rest-now" data-testid="today-now">
           <Icon name="clock" />

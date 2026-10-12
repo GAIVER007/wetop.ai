@@ -157,6 +157,8 @@ test('walk-in is seated immediately and persisted after reload', async ({ page, 
   await expect(page.getByRole('button', { name: 'Стол 7, Свободен' })).toBeVisible();
 });
 test('real API screenshots, keyboard and axe', async ({ page, request }) => {
+  // 16 переходов с axe и снимками: под нагрузкой машины (load 7+) каждый 1,5–5 с, общий предел 90 с мал
+  test.setTimeout(240_000);
   await seed(page, request);
   const d = await create(page);
   await d
@@ -588,6 +590,8 @@ test('Food excludes every registered foreign workspace route before API requests
   page,
   request,
 }) => {
+  // каждый чужой маршрут компилируется dev-сервером впервые: под нагрузкой 90 с на весь обход мало
+  test.setTimeout(240_000);
   await seed(page, request);
   const before = (await (await request.get(`${api}/__test/calls`)).json()).length;
   for (const route of [

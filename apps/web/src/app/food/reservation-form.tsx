@@ -13,6 +13,7 @@ export function ReservationForm({
   data,
   walkIn = false,
   tableId = '',
+  time,
   reservation,
   created,
   onStale,
@@ -20,6 +21,8 @@ export function ReservationForm({
   data: FoodWorkspace;
   walkIn?: boolean;
   tableId?: string;
+  /** время начала новой брони (щелчок по шкале); по умолчанию время экрана */
+  time?: string;
   reservation?: RestaurantReservation;
   created: (r: RestaurantReservation) => void;
   onStale: () => void;
@@ -32,7 +35,7 @@ export function ReservationForm({
   const [party, setParty] = useState(reservation?.partySize ?? 2);
   const local = reservation
     ? localInput(reservation.startsAt, data.timezone)
-    : `${data.date}T${data.time}`;
+    : `${data.date}T${time ?? data.time}`;
   const periods = data.periods.filter((p) => p.active || p.id === reservation?.servicePeriodId);
   const tables = data.tables.filter(
     (t) => t.active && data.areas.some((a) => a.id === t.areaId && a.active),

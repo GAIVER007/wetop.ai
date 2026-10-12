@@ -91,19 +91,21 @@ export function FinancePanel({
   finance,
   services,
   today,
+  canMutate,
 }: {
   number: string;
   finance: ReservationFinance;
   services: ServiceOption[];
   today: string;
+  canMutate: boolean;
 }) {
   return (
     <Stack>
-      <GroupPayment
+      {canMutate && <GroupPayment
         number={number}
         folios={finance.folios}
         methods={METHODS.filter(([code]) => code !== 'EXTERNAL')}
-      />
+      />}
       {finance.folios.length > 1 && (
         <div data-testid="finance-total">
           Итого по брони: начислено {formatMoney(finance.chargedMinor, finance.currency)}, оплачено{' '}
@@ -113,7 +115,7 @@ export function FinancePanel({
         </div>
       )}
       {finance.folios.map((f) => (
-        <FolioPanel key={f.id} number={number} folio={f} services={services} today={today} />
+        <FolioPanel key={f.id} number={number} folio={f} services={services} today={today} canMutate={canMutate} />
       ))}
     </Stack>
   );
@@ -135,18 +137,20 @@ function FolioPanel({
   folio,
   services,
   today,
+  canMutate,
 }: {
   number: string;
   folio: FinanceFolio;
   services: ServiceOption[];
   today: string;
+  canMutate: boolean;
 }) {
   // Дата оплаты и возврата — день по часам объекта, а не срез UTC-строки (волна 3, С-13)
   const clock = usePropertyClock();
   // возврат, сторно, скидка, аннулирование и правка платежа — владелец и управляющий (ADR-107, Q-024); API откажет и так
-  const reverse = useMay('refunds');
+  const reverse = useMay('refunds') && canMutate;
   // чек по запросу гостя отмечает смена (DATA_MODEL §26); касса пробивает чек сама, WETOP хранит номер
-  const desk = useMay('desk');
+  const desk = useMay('desk') && canMutate;
   const [chargeState, chargeAction, chargePending] = useActionState<FinanceActionResult, FormData>(
     addChargeAction.bind(null, number, folio.id),
     INIT,
@@ -168,6 +172,7 @@ function FolioPanel({
   const [refunding, setRefunding] = useState<string | null>(null);
   const [pricing, setPricing] = useState(false);
   const open = folio.status === 'OPEN';
+  const mutable = canMutate && open;
   const balance = BigInt(folio.balanceMinor);
   const error = chargeState.error ?? payState.error ?? other.error;
   // Подтверждение последнего успеха: без него после оплаты экран просто очищал форму (§7.3)
@@ -199,7 +204,7 @@ function FolioPanel({
         </span>
       </Row>
 
-      {open && (
+      {mutable && (
         // Оплата первой (поручение владельца 07.10.2026): один шаг, без запроса и без прокрутки
         <PaymentForm
           key={`p${payState.ok}-${payState.attempt ?? 0}`}
@@ -250,7 +255,7 @@ function FolioPanel({
               </td>
               <td className="num">{formatMoney(c.amountMinor, folio.currency)}</td>
               <td>
-                {open && reverse && !c.voidedAt && c.kind !== 'ACCOMMODATION' && (
+                {mutable && reverse && !c.voidedAt && c.kind !== 'ACCOMMODATION' && (
                   <Button
                     type="button"
                     tone="secondary"
@@ -263,7 +268,7 @@ function FolioPanel({
                     сторно
                   </Button>
                 )}
-                {open && !c.voidedAt && c.kind === 'ACCOMMODATION' && !pricing && (
+                {mutable && !c.voidedAt && c.kind === 'ACCOMMODATION' && !pricing && (
                   <Button
                     type="button"
                     tone="secondary"
@@ -281,7 +286,7 @@ function FolioPanel({
           ))}
         </tbody>
       </Table>
-      {open && pricing && stayCharge && (
+      {mutable && pricing && stayCharge && (
         <StayPriceForm
           number={number}
           itemId={folio.reservationItemId}
@@ -295,7 +300,7 @@ function FolioPanel({
         />
       )}
 
-      {open && (
+      {mutable && (
         <form
           key={`c${chargeState.ok}-${chargeState.attempt ?? 0}`}
           action={chargeAction}
@@ -484,7 +489,7 @@ function FolioPanel({
                   </td>
                   {reverse && (
                     <td>
-                      {open && p.status === 'COMPLETED' && (
+                      {mutable && p.status === 'COMPLETED' && (
                         <Row className="row--xs">
                           {refundable(p) > 0n && refunding !== p.paymentId && (
                             <Button
@@ -537,7 +542,7 @@ function FolioPanel({
                           )}
                         </Row>
                       )}
-                      {open && p.status === 'COMPLETED' && refunding === p.paymentId && (
+                      {mutable && p.status === 'COMPLETED' && refunding === p.paymentId && (
                         <RefundForm
                           number={number}
                           paymentId={p.paymentId}
@@ -571,7 +576,7 @@ function FolioPanel({
         </div>
       )}
 
-      {open && (
+      {mutable && (
         <Stack gap="sm">
           {/* ADR-021: ранний заезд и поздний выезд — услуга одной кнопкой, половина ночи по умолчанию */}
           <Row>

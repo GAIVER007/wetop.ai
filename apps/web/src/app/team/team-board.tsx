@@ -23,7 +23,7 @@ import { useConfirm } from '../../components/use-confirm';
 import type { AuthAccessStructure, AuthInvite, AuthMember } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { ScopeEditor } from './scope-editor';
-import { fromScopes, hasChoice, scopeSummary, toScopes, type ScopeModel } from './scope-model';
+import { fromScopes, hasChoice, scopeSelectionValid, scopeSummary, toScopes, type ScopeModel } from './scope-model';
 import {
   inviteAction,
   removeMemberAction,
@@ -41,7 +41,7 @@ import {
  * профиля. Логика прежняя (ADR-107): зовут и отключают владелец и управляющий, роль меняет владелец;
  * что можно с каждой строкой, решает API — компонент несёт его ответ. Приглашение — панелью из шапки.
  */
-const TeamContext = createContext<{ openInvite: () => void } | null>(null);
+const TeamContext = createContext<{ openInvite: () => void; ready: boolean } | null>(null);
 
 export function TeamProvider({
   role,
@@ -54,7 +54,7 @@ export function TeamProvider({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <TeamContext.Provider value={{ openInvite: () => setOpen(true) }}>
+    <TeamContext.Provider value={{ openInvite: () => { if (structure) setOpen(true); }, ready: structure !== null }}>
       {children}
       {role && (
         <Overlay drawer open={open} onClose={() => setOpen(false)} title="Пригласить сотрудника">
@@ -68,7 +68,7 @@ export function TeamProvider({
 export function InviteButton() {
   const ctx = useContext(TeamContext);
   return (
-    <Button type="button" data-testid="team-invite" onClick={() => ctx?.openInvite()}>
+    <Button type="button" data-testid="team-invite" disabled={!ctx?.ready} onClick={() => ctx?.openInvite()}>
       <Icon name="plus" />
       Пригласить сотрудника
     </Button>
@@ -99,8 +99,16 @@ function InviteForm({
       className="team-invite-form"
       onSubmit={(event) => {
         event.preventDefault();
+        if (!structure || pending) {
+          setError('Сначала загрузите структуру доступа.');
+          return;
+        }
         start(async () => {
           setError('');
+          if (restricted && !scopeSelectionValid(structure, model)) {
+            setError('Структура доступа изменилась. Проверьте выбранные филиалы.');
+            return;
+          }
           // область: выбранные места с одной должностью; «вся организация» — без назначений (DATA_MODEL §31.1)
           const scopes =
             structure && restricted
@@ -195,7 +203,7 @@ function InviteForm({
           onChange={(event) => setPhone(event.target.value)}
         />
       </Field>
-      {structure && hasChoice(structure) && (
+      {structure && (
         <ScopeEditor
           structure={structure}
           roles={roles}
@@ -206,9 +214,10 @@ function InviteForm({
           fixedRole={inviteRole}
         />
       )}
+      {!structure && <Alert>Сначала загрузите структуру доступа.</Alert>}
       {error && <Alert>{error}</Alert>}
       <div className="team-invite-form__actions">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || !structure}>
           {pending ? 'Отправляю…' : 'Отправить приглашение'}
         </Button>
         <Button type="button" tone="secondary" onClick={onDone}>
@@ -455,6 +464,10 @@ function ScopeForm({
       className="team-invite-form"
       onSubmit={(event) => {
         event.preventDefault();
+        if (restricted && !scopeSelectionValid(structure, model)) {
+          setError('Структура доступа изменилась. Проверьте выбранные филиалы.');
+          return;
+        }
         const scopes = restricted ? toScopes(structure, model) : [];
         if (restricted && scopes.length === 0) {
           setError('Выберите хотя бы одно место или «Вся организация».');

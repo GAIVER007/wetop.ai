@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { api, guestsApi, reservationsApi } from '../../../lib/api';
 import { bookingPrefill } from '../../../lib/booking-link';
@@ -5,6 +6,8 @@ import { hotelToday } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
 import { Alert } from '../../../components/ui';
 import { NewReservationForm } from './form';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 import type { BookingGuest } from '../actions';
 import '../../directory.css';
 import './booking-compact.css';
@@ -29,6 +32,24 @@ export default async function NewReservationPage({
   const raw = await searchParams;
   const q = normalizeSearchParams(raw);
   const today = await hotelToday();
+  const shell = await deskShell();
+  const canMutate =
+    shell.access.unknown !== true && mayAccess(shell.access, 'desk') && !shell.readOnly;
+  if (!canMutate)
+    return (
+      <Page width="medium" className="booking-create" title="Новая бронь">
+        <Alert boxed tone="warning">
+          {shell.access.unknown
+            ? 'Не удалось проверить права. Повторите загрузку страницы.'
+            : shell.readOnly
+              ? 'Организация работает в режиме только чтения. Бронирования доступны для просмотра.'
+              : 'Нет права создавать бронирования. Бронирования доступны для просмотра.'}
+        </Alert>
+        <Link className="btn btn--secondary" href="/reservations">
+          Вернуться к броням
+        </Link>
+      </Page>
+    );
   const arrival = q.arrival ?? today;
   const departure = q.departure ?? (isDate(arrival) ? plusDays(arrival, 1) : '');
   const validDates = isDate(arrival) && isDate(departure) && departure > arrival;
@@ -98,6 +119,7 @@ export default async function NewReservationPage({
           ratePlans={ratePlans}
           piiStorage={piiStorage}
           guest={guest}
+          canMutate={canMutate}
         />
       )}
     </Page>

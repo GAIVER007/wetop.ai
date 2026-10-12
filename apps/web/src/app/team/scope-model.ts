@@ -49,3 +49,41 @@ export const scopeSummary = (
     ? names.join(', ')
     : `${names.slice(0, 2).join(', ')} и ещё ${names.length - 2}`;
 };
+
+/** Проверяем ответ API до разрешения команды: пустая успешная структура допустима, ошибка нет. */
+export function validAccessStructure(value: unknown): value is AuthAccessStructure {
+  if (
+    !value ||
+    typeof value !== 'object' ||
+    !('businesses' in value) ||
+    !Array.isArray(value.businesses)
+  )
+    return false;
+  return value.businesses.every((b: unknown) => {
+    if (!b || typeof b !== 'object') return false;
+    const item = b as Record<string, unknown>;
+    return (
+      typeof item.id === 'string' &&
+      !!item.id &&
+      typeof item.name === 'string' &&
+      typeof item.vertical === 'string' &&
+      ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'].includes(item.vertical) &&
+      Array.isArray(item.locations) &&
+      item.locations.every((l: unknown) => {
+        if (!l || typeof l !== 'object') return false;
+        const location = l as Record<string, unknown>;
+        return (
+          typeof location.id === 'string' && !!location.id && typeof location.name === 'string'
+        );
+      })
+    );
+  });
+}
+
+/** Потерянное назначение не отбрасываем молча: пользователь должен проверить выбор. */
+export function scopeSelectionValid(structure: AuthAccessStructure, model: ScopeModel): boolean {
+  const keys = new Set(
+    structure.businesses.flatMap((b) => [`b:${b.id}`, ...b.locations.map((l) => `l:${l.id}`)]),
+  );
+  return Object.entries(model).every(([key, role]) => !role || keys.has(key));
+}

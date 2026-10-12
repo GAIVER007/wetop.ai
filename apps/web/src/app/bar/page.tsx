@@ -13,6 +13,8 @@ import { SaleForm } from './sale-form';
 import { FolioSaleForm } from './folio-sale-form';
 import { StockBoard } from './stock-board';
 import { sharePercent, stockStatusOf } from './stock-status';
+import { deskShell } from '../../lib/desk-shell';
+import { mayAccess } from '../../lib/navigation';
 import './bar.css';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
@@ -71,10 +73,12 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
   await requireVertical(['HOSPITALITY']);
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
-  const [categories, stock, suppliers, folios, receipts, sales, movements, report, today] = await Promise.all([
+  const [categories, stock, suppliers, folios, receipts, sales, movements, report, today, shell] = await Promise.all([
     settle(barApi.categories()), settle(barApi.stock()), settle(barApi.suppliers()), settle(barApi.folios()),
-    settle(barApi.receipts()), settle(barApi.sales()), settle(barApi.movements()), settle(barApi.report()), hotelToday(),
+    settle(barApi.receipts()), settle(barApi.sales()), settle(barApi.movements()), settle(barApi.report()), hotelToday(), deskShell(),
   ]);
+  const canDeskMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;
+  const canCatalogMutate = mayAccess(shell.access, 'settings') && !shell.readOnly;
   const failed = [categories, stock, suppliers, folios, receipts, sales, movements, report].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!categories.ok || !stock.ok || !suppliers.ok || !folios.ok || !receipts.ok || !sales.ok || !movements.ok || !report.ok) return null;
@@ -124,10 +128,10 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
     </section>
   </div>;
   return <Page width="full" className="bar-page" title="Бар" subtitle="Учёт товаров, закупки, продажи, остатки, себестоимость, наценка и долги поставщикам." actions={<>
-    <Link className="btn" href="/bar?product=new" prefetch={false}><Icon name="plus" width={16} height={16} /> Добавить товар</Link>
-    <Link className="btn btn--secondary" href="/bar/receipts/new" prefetch={false}><Icon name="plus" width={16} height={16} /> Приход</Link>
-    <a className="btn btn--secondary" href="#bar-quick-sale"><Icon name="plus" width={16} height={16} /> Продажа</a>
-    <Link className="btn btn--secondary" href="/bar/operations" prefetch={false}><Icon name="plus" width={16} height={16} /> Инвентаризация</Link>
+    {canCatalogMutate && <Link className="btn" href="/bar?product=new" prefetch={false}><Icon name="plus" width={16} height={16} /> Добавить товар</Link>}
+    {canDeskMutate && <Link className="btn btn--secondary" href="/bar/receipts/new" prefetch={false}><Icon name="plus" width={16} height={16} /> Приход</Link>}
+    {canDeskMutate && <a className="btn btn--secondary" href="#bar-quick-sale"><Icon name="plus" width={16} height={16} /> Продажа</a>}
+    {canDeskMutate && <Link className="btn btn--secondary" href="/bar/operations" prefetch={false}><Icon name="plus" width={16} height={16} /> Инвентаризация</Link>}
     <ActionMenu label="Ещё разделы бара" items={[
       { label: 'Все товары и категории', href: '/bar/products' },
       { label: 'Все приходы', href: '/bar/receipts' },
@@ -146,7 +150,7 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
       <Kpi icon="truck" tone="danger" label="Долг поставщикам" value={formatMoney(r.supplierDebtMinor)} hint={debtors > 0 ? pluralRu(debtors, ['поставщик', 'поставщика', 'поставщиков']) : 'долгов нет'} />
       <Kpi icon="incidents" tone="danger" label="Заканчиваются" value={String(lowCount)} hint={pluralRu(lowCount, ['товар', 'товара', 'товаров'], false)} alarm={lowCount > 0} />
     </section>
-    <div className="bar-quick">
+    {canDeskMutate && <div className="bar-quick">
       <section id="bar-quick-sale" className="panel bar-quick-panel" aria-labelledby="bar-quick-title">
         <header className="bar-quick-head">
           <span className="bar-quick-icon"><Icon name="cart" width={20} height={20} /></span>
@@ -163,13 +167,14 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
           ? <p className="bar-muted">Открытых счетов нет: продайте товар слева, без брони.</p>
           : <FolioSaleForm stock={stock.value} folios={folios.value} />}
       </section>
-    </div>
+    </div>}
     {stock.value.length === 0
       ? <>
           <EmptyState icon={<Icon name="product" />} title="Товаров пока нет">Добавьте первый товар кнопкой «Добавить товар» или загрузите фото накладной: «Приход».</EmptyState>
           {bottom}
         </>
       : <StockBoard key={productParam ?? 'first'} stock={stock.value} categories={categories.value} suppliers={suppliers.value} movements={movements.value}
-          today={today} initialProduct={productParam ?? active[0]?.id ?? null} bottom={bottom} />}
+          today={today} initialProduct={canCatalogMutate ? productParam ?? active[0]?.id ?? null : active[0]?.id ?? null} bottom={bottom}
+          canCatalogMutate={canCatalogMutate} canStockMutate={canDeskMutate} />}
   </Page>;
 }

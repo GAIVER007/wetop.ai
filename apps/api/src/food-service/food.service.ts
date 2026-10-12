@@ -393,7 +393,11 @@ export class FoodService {
         { isVip: row.isVip, birthDateChanged: b.birthDate !== undefined },
         { isVip: found.isVip },
       );
-      return { id, isVip: row.isVip, birthDate: b.birthDate ?? found.birthDate?.toISOString().slice(0, 10) ?? null };
+      return {
+        id,
+        isVip: row.isVip,
+        birthDate: row.birthDate ? row.birthDate.toISOString().slice(0, 10) : null,
+      };
     });
   }
   async reservations(query: unknown) {

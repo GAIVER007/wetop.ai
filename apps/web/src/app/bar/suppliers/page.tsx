@@ -10,13 +10,16 @@ import { toggleBarCatalogAction } from '../actions';
 import { SupplierForm } from './supplier-form';
 import { BarTabs } from '../tabs';
 import '../bar.css';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
 /** Поставщики бара (ADR-157): контакты, закуплено и оплачено по каждому, долг; оплата живёт в «Приходах». */
 export default async function BarSuppliersPage() {
   await requireVertical(['HOSPITALITY']);
-  const [suppliers, receipts] = await Promise.all([settle(barApi.suppliers()), settle(barApi.receipts())]);
+  const [suppliers, receipts, shell] = await Promise.all([settle(barApi.suppliers()), settle(barApi.receipts()), deskShell()]);
+  const canMutate = mayAccess(shell.access, 'settings') && !shell.readOnly;
   const failed = [suppliers, receipts].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!suppliers.ok || !receipts.ok) return null;
@@ -34,10 +37,10 @@ export default async function BarSuppliersPage() {
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
   return <Page width="wide" title="Бар: поставщики" subtitle="Контакты и расчёты: закуплено, оплачено и долг по каждому поставщику.">
     <BarTabs current="suppliers" />
-    <section className="panel bar-supplier-panel">
+    {canMutate && <section className="panel bar-supplier-panel">
       <h3>Новый поставщик</h3>
       <SupplierForm />
-    </section>
+    </section>}
     <section className="bar-suppliers-table">
       <SectionTitle>Поставщики и расчёты</SectionTitle>
       {rows.length === 0
@@ -57,12 +60,12 @@ export default async function BarSuppliersPage() {
                   : formatMoney('0')}</td>
                 <td className="bar-supplier-actions">
                   {total && total.due > 0n && <Link className="btn btn--secondary btn--xs" href="/bar/receipts" prefetch={false}>К оплате</Link>}
-                  <form action={toggleBarCatalogAction}>
+                  {canMutate && <form action={toggleBarCatalogAction}>
                     <input type="hidden" name="kind" value="supplier" />
                     <input type="hidden" name="id" value={supplier.id} />
                     <input type="hidden" name="active" value={String(!supplier.active)} />
                     <Button type="submit" tone="ghost" size="xs">{supplier.active ? 'В архив' : 'Восстановить'}</Button>
-                  </form>
+                  </form>}
                 </td>
               </tr>;
             })}</tbody>

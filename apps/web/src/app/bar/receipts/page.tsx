@@ -10,17 +10,20 @@ import { postBarReceiptAction } from '../actions';
 import { SupplierPaymentForm } from '../supplier-payment-form';
 import { BarTabs } from '../tabs';
 import '../bar.css';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
 /** Приходы бара (ADR-157): журнал документов поставщиков, проведение черновиков, оплата и долги. */
 export default async function BarReceiptsPage() {
   await requireVertical(['HOSPITALITY']);
-  const receipts = await settle(barApi.receipts());
+  const [receipts, shell] = await Promise.all([settle(barApi.receipts()), deskShell()]);
+  const canMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;
   if (!receipts.ok) throw receipts.error;
-  return <Page width="wide" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={
+  return <Page width="wide" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={canMutate ?
     <Link className="btn" href="/bar/receipts/new" prefetch={false}>Новый приход</Link>
-  }>
+  : undefined}>
     <BarTabs current="receipts" />
     <p className="bar-accounting-note"><b>Как учитываются деньги:</b> проведение прихода увеличивает склад и фиксирует закупку. Расход в кассе появляется только после оплаты поставщику, включая частичную оплату.</p>
     {receipts.value.length === 0
@@ -35,7 +38,7 @@ export default async function BarReceiptsPage() {
             <td>{formatMoney(receipt.paidAmount)}</td>
             <td>{formatMoney(receipt.dueAmount)}</td>
             <td><Badge tone={receipt.status === 'POSTED' ? 'ok' : 'neutral'}>{receipt.status === 'POSTED' ? 'Проведён' : 'Черновик'}</Badge></td>
-            <td>{receipt.status === 'DRAFT'
+            <td>{!canMutate ? null : receipt.status === 'DRAFT'
               ? <form action={postBarReceiptAction}><input type="hidden" name="id" value={receipt.id} /><Button size="xs" type="submit">Провести</Button></form>
               : BigInt(receipt.dueAmount) > 0n
                 ? <SupplierPaymentForm receiptId={receipt.id} dueAmount={receipt.dueAmount} />

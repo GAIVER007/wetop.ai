@@ -10,6 +10,8 @@ import { WriteOffForm } from '../write-off-form';
 import { InventoryCountForm } from '../inventory-count-form';
 import { BarTabs } from '../tabs';
 import '../bar.css';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
@@ -24,15 +26,16 @@ const MOVEMENT_LABEL: Record<string, string> = {
 /** Операции бара (ADR-157): списание, инвентаризация, журнал продаж с возвратами и лента движений. */
 export default async function BarOperationsPage() {
   await requireVertical(['HOSPITALITY']);
-  const [stock, sales, movements] = await Promise.all([
-    settle(barApi.stock()), settle(barApi.sales()), settle(barApi.movements()),
+  const [stock, sales, movements, shell] = await Promise.all([
+    settle(barApi.stock()), settle(barApi.sales()), settle(barApi.movements()), deskShell(),
   ]);
+  const canMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;
   const failed = [stock, sales, movements].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!stock.ok || !sales.ok || !movements.ok) return null;
   return <Page width="wide" title="Бар: операции" subtitle="Списание и инвентаризация, журнал продаж с возвратами, лента движений остатка.">
     <BarTabs current="operations" />
-    <div className="bar-quick">
+    {canMutate && <div className="bar-quick">
       <section className="panel bar-quick-panel">
         <h3>Списание</h3>
         <p className="bar-muted">Порча, бой, срок или угощение: остаток уменьшится с причиной в ленте.</p>
@@ -43,7 +46,7 @@ export default async function BarOperationsPage() {
         <p className="bar-muted">Пересчёт по факту: недостача запишется движением с причиной.</p>
         <InventoryCountForm stock={stock.value} />
       </section>
-    </div>
+    </div>}
     <SectionTitle>Продажи</SectionTitle>
     {sales.value.length === 0
       ? <EmptyState icon={<Icon name="receipt" />} title="Продаж пока нет">Первую продажу можно записать на «Обзоре».</EmptyState>
@@ -56,7 +59,7 @@ export default async function BarOperationsPage() {
             <td>{formatMoney(sale.totalCost)}</td>
             <td>{formatMoney(BigInt(sale.totalRevenue) - BigInt(sale.totalCost))}</td>
             <td><Badge tone={sale.status === 'POSTED' ? 'ok' : 'neutral'}>{sale.status === 'POSTED' ? 'Продано' : 'Возврат'}</Badge></td>
-            <td>{sale.status === 'POSTED' && <div className="bar-return">
+            <td>{canMutate && sale.status === 'POSTED' && <div className="bar-return">
               <form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="true" /><input type="hidden" name="reason" value="Возврат гостя, товар пригоден" /><Button type="submit" tone="ghost" size="xs">Вернуть на склад</Button></form>
               <form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="false" /><input type="hidden" name="reason" value="Возврат гостя, товар непригоден" /><Button type="submit" tone="ghost" size="xs">Без возврата на склад</Button></form>
             </div>}</td>

@@ -298,3 +298,107 @@ jobs:
         env:
           UI_RESULT: ${{ needs.ui-shard.result }}
         run: test "$UI_RESULT" = success
+
+
+  ui-fix-01-proof:
+    name: UI-FIX-01 isolated proof
+    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/codex/ui-fix-01-')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pms
+          POSTGRES_PASSWORD: pms
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pms"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+      DATABASE_APP_URL: postgresql://wetop_app@127.0.0.1:5432/pms_dev?schema=pms_test
+      DATABASE_SCHEMA: pms_test
+      DATABASE_POOL_MAX: '2'
+      DATABASE_APP_POOL_MAX: '2'
+      UI_BROWSER_CHANNEL: chromium
+      UV_VERSION: 0.12.21
+      UV_SHA256: 23f02075b652bb1df64178cfae41b5caf160822e720e2663568f3f5d63bc52c0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      - name: Local database and runtime role
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+          psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+          npm run test:schema
+          npx tsx tests/tools/local-app-login.ts
+      - name: Python without ML packages
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/uv.tar.gz" "https://github.com/astral-sh/uv/releases/download/$UV_VERSION/uv-x86_64-unknown-linux-gnu.tar.gz"
+          echo "$UV_SHA256  $RUNNER_TEMP/uv.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/uv.tar.gz" -C "$RUNNER_TEMP" --strip-components=1
+          grep -v -E '^[[:space:]]*(torch|sentence-transformers|--extra-index-url)' apps/ai-seller/requirements.txt > "$RUNNER_TEMP/bot-requirements.txt"
+          "$RUNNER_TEMP/uv" venv --python 3.13 --python-preference only-managed "$RUNNER_TEMP/ui-fix-01-python"
+          "$RUNNER_TEMP/uv" pip install --python "$RUNNER_TEMP/ui-fix-01-python/bin/python" -r "$RUNNER_TEMP/bot-requirements.txt"
+          echo "UI_FIX_01_PYTHON=$RUNNER_TEMP/ui-fix-01-python/bin/python" >> "$GITHUB_ENV"
+      - name: Addressed units and scope integration
+        run: |
+          npm run test:record -- unit tests/unit/food-customer-update.test.ts apps/web/src/app/team/scope-model.test.ts apps/web/src/app/help/help.test.ts apps/web/src/app/platform/support/kb-forms.test.ts
+          npm run test:record -- integration tests/integration/member-scopes.test.ts
+      - name: Real web API DB and KB storage
+        run: |
+          npm run test:record -- e2e --config tests/ui-fix-01-runtime/playwright.config.ts --workers=1
+          cd apps/ai-seller
+          "$UI_FIX_01_PYTHON" -m pytest ../../tests/ui-fix-01-runtime/test_support_kb_panel.py -q -p no:cacheprovider
+      - name: UI controlled failures and adjacent regressions
+        env:
+          UI_FIXTURE_PORT: '4371'
+          UI_WEB_PORT: '3171'
+        run: npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-access.spec.ts tests/ui/ui-fix-01-kb.spec.ts tests/ui/hospitality-read-only.spec.ts tests/ui/team.spec.ts tests/ui/support-kb.spec.ts tests/ui/trial-read-only.spec.ts
+      - uses: actions/checkout@v4
+        with:
+          ref: 47b86b08fc0d7d1093fa835679b2d1f7134d2e3f
+          path: ui-fix-01-baseline
+      - name: Matching Linux before screenshots
+        env:
+          UI_FIX_01_VISUAL: before
+          UI_FIXTURE_PORT: '4371'
+          UI_WEB_PORT: '3171'
+        run: |
+          cp tests/ui/ui-fix-01-visual.spec.ts ui-fix-01-baseline/tests/ui/
+          cd ui-fix-01-baseline
+          npm ci --no-audit --no-fund
+          npm run generate -w @pms/database
+          npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-visual.spec.ts
+      - name: Matching Linux after screenshots
+        env:
+          UI_FIX_01_VISUAL: after
+          UI_FIXTURE_PORT: '4371'
+          UI_WEB_PORT: '3171'
+        run: npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-visual.spec.ts
+      - name: Collect safe verification records
+        if: always()
+        run: node tests/ui-fix-01-runtime/collect-checks.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-fix-01-proof-${{ github.sha }}
+          path: |
+            reports/ui-fix-01-2026-10-12/**/*.png
+            ui-fix-01-baseline/reports/ui-fix-01-2026-10-12/**/*.png
+            /tmp/ui-fix-01-runtime-screenshots/**/*.png
+            reports/ui-fix-01-2026-10-12/remote-checks.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -18,6 +18,7 @@ import { CHANNELS, SOURCES } from '../sources';
 import { isStayDate } from '../../../lib/stay-date';
 
 export function NewReservationForm(props: {
+  canMutate: boolean;
   /** Размещения из адресной строки: «Свободные места» (AV3, ADR-110) или ячейка из календаря */
   prefill: PlacementPrefill[];
   today: string;
@@ -166,6 +167,10 @@ export function NewReservationForm(props: {
       ref={formRef}
       action={action}
       onSubmit={(event) => {
+        if (!props.canMutate) {
+          event.preventDefault();
+          return;
+        }
         const fields = new FormData(event.currentTarget);
         if (
           pending ||
@@ -473,6 +478,7 @@ export function NewReservationForm(props: {
           <Button
             type="submit"
             disabled={
+              !props.canMutate ||
               pending ||
               !quote.ready ||
               unavailableSelection ||

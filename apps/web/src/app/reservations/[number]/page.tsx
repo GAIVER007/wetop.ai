@@ -73,6 +73,7 @@ export default async function ReservationPage({
       financeApi.paymentRequests(r.confirmationNumber).catch(() => null),
     ]);
   const desk = await access;
+  const canMutate = mayAccess(desk.access, 'desk') && !desk.readOnly;
   const availabilityByPeriod = new Map(
     [...periods.keys()].map((key, i) => [key, periodResults[i]]),
   );
@@ -359,12 +360,14 @@ export default async function ReservationPage({
                       finance={finance}
                       services={services}
                       today={today}
+                      canMutate={canMutate}
                     />
                     <PaymentRequestsPanel
                       number={r.confirmationNumber}
                       propertyName={paymentRequests?.propertyName ?? ''}
                       requests={paymentRequests?.requests ?? null}
                       folios={finance.folios}
+                      canMutate={canMutate}
                     />
                   </>
                 ) : (
@@ -409,7 +412,7 @@ export default async function ReservationPage({
                     Сводка фонда не загрузилась: категории в переселении показаны кодами.
                   </Alert>
                 )}
-                <ReservationActions
+                {canMutate && <ReservationActions
                   number={r.confirmationNumber}
                   status={r.status}
                   source={r.source}
@@ -462,7 +465,7 @@ export default async function ReservationPage({
                       availableGroups: groups,
                     };
                   })}
-                />
+                />}
               </>
             ),
           },

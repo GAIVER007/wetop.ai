@@ -39,6 +39,10 @@ const KIND_LABEL: Record<StockMovementView['kind'], string> = {
   WRITE_OFF: 'Списание',
   INVENTORY: 'Инвентаризация',
   REVERSAL: 'Сторно прихода',
+  // §38: движения по заказам
+  CONSUMPTION: 'Расход по заказу',
+  SHORTAGE: 'Недостача по заказу',
+  CONSUMPTION_RETURN: 'Возврат по отмене',
 };
 
 /** Сумма в тенге с тиынами → целые тиыны без float (как в баре) */

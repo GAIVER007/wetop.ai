@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import {
   allocateStock,
+  orderConsumption,
+  splitShortage,
   foodId,
   foodInt,
   foodLocal,
@@ -330,6 +332,115 @@ export class StockService {
     }
     return cost;
   }
+  /**
+   * Списание по заказу при «Готово» (§38, Q-KITCHEN-5): одна транзакция с переходом статуса под замком заказа.
+   * Не хватает остатка: списать весь остаток, разницу записать недостачей (Q-KITCHEN-6 А), кухню не останавливать.
+   */
+  async consumeForOrder(
+    tx: DbTx,
+    s: FoodScope,
+    order: { id: string; number: number; items: Array<{ menuItemId: string | null; qty: number }> },
+  ) {
+    const menuIds = [...new Set(order.items.map((i) => i.menuItemId).filter((x): x is string => !!x))];
+    if (!menuIds.length) return;
+    const rows = await tx.menuItemIngredient.findMany({
+      where: { menuItemId: { in: menuIds }, productId: { not: null } },
+      select: { menuItemId: true, productId: true, normQty: true },
+    });
+    const need = orderConsumption(
+      order.items.map((i) => ({
+        qty: i.qty,
+        ingredients: rows
+          .filter((r) => r.menuItemId === i.menuItemId)
+          .map((r) => ({ productId: r.productId, normQty: r.normQty.toString() })),
+      })),
+    );
+    if (!need.size) return;
+    const products = await tx.kitchenProduct.findMany({ where: { id: { in: [...need.keys()] } } });
+    const reason = `Заказ №${order.number}`;
+    for (const p of products) {
+      const lots = await this.liveLots(tx, s, p.id);
+      const available = lots.reduce((sum, l) => sum + milliOf(l.remainingQty), 0n);
+      const { take, shortage } = splitShortage(available, need.get(p.id)!);
+      if (take > 0n) {
+        const { allocations } = allocateStock(
+          lots.map((l) => ({
+            id: l.id,
+            receivedOn: day(l.receivedOn),
+            createdAt: l.createdAt,
+            remaining: milliOf(l.remainingQty),
+            unitCost: l.unitCost,
+          })),
+          take,
+          p.unit,
+        );
+        for (const a of allocations) {
+          const lot = lots.find((l) => l.id === a.lotId)!;
+          await tx.kitchenStockLot.update({
+            where: { id: a.lotId },
+            data: { remainingQty: milliText(milliOf(lot.remainingQty) - a.milli) },
+          });
+          await tx.kitchenStockMovement.create({
+            data: {
+              locationId: s.locationId,
+              productId: p.id,
+              lotId: a.lotId,
+              orderId: order.id,
+              kind: 'CONSUMPTION',
+              qty: milliText(-a.milli),
+              cost: -a.cost,
+              reason,
+              createdById: currentUserId() ?? null,
+            },
+          });
+        }
+      }
+      if (shortage > 0n)
+        await tx.kitchenStockMovement.create({
+          data: {
+            locationId: s.locationId,
+            productId: p.id,
+            orderId: order.id,
+            kind: 'SHORTAGE',
+            qty: milliText(-shortage),
+            cost: 0n,
+            reason: `${reason}: не хватило на складе`,
+            createdById: currentUserId() ?? null,
+          },
+        });
+    }
+  }
+
+  /** Отмена после «Готово» (§38): каждая партия получает списанное назад, недостача гасится возвратом без партии */
+  async returnForOrder(tx: DbTx, s: FoodScope, order: { id: string; number: number }) {
+    const spent = await tx.kitchenStockMovement.findMany({
+      where: { orderId: order.id, locationId: s.locationId, kind: { in: ['CONSUMPTION', 'SHORTAGE'] } },
+    });
+    for (const m of spent) {
+      const milli = -milliOf(m.qty);
+      if (m.lotId) {
+        const lot = await tx.kitchenStockLot.findUniqueOrThrow({ where: { id: m.lotId } });
+        await tx.kitchenStockLot.update({
+          where: { id: m.lotId },
+          data: { remainingQty: milliText(milliOf(lot.remainingQty) + milli) },
+        });
+      }
+      await tx.kitchenStockMovement.create({
+        data: {
+          locationId: s.locationId,
+          productId: m.productId,
+          lotId: m.lotId,
+          orderId: order.id,
+          kind: 'CONSUMPTION_RETURN',
+          qty: milliText(milli),
+          cost: -m.cost,
+          reason: `Заказ №${order.number} отменён`,
+          createdById: currentUserId() ?? null,
+        },
+      });
+    }
+  }
+
   async writeOff(raw: unknown) {
     return this.write('desk', async (tx, s) => {
       const b = parsed(() => parseWriteOff(raw));

@@ -519,17 +519,6 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
         </State>
       </Component>
 
-      <div data-testid={`kit-range-popover-${theme}`}>
-        <h3>Единый выбор периода</h3>
-        <DateRangePopover
-          from="2026-10-10"
-          to="2026-10-24"
-          today="2026-10-11"
-          maxDays={60}
-          action="/chessboard"
-        />
-      </div>
-
       <Component
         id="date-bar"
         title="День"
@@ -1388,6 +1377,16 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
           />
         </State>
       </Component>
+      <div data-testid={`kit-range-popover-${theme}`}>
+        <h3>Единый выбор периода</h3>
+        <DateRangePopover
+          from="2026-10-10"
+          to="2026-10-24"
+          today="2026-10-11"
+          maxDays={60}
+          action="/chessboard"
+        />
+      </div>
     </>
   );
 }

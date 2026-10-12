@@ -1,0 +1,337 @@
+# Сквозные (e2e) · 12.10.2026 19:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bb9cb8 (claude/restaurant-design-mockup), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' 'tests/food-ui/food.spec.ts' 'tests/food-ui/ds1c-date-bar.spec.ts' 'tests/food-ui/stock.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 34 tests using 1 worker
+
+  ✓   1 tests/food-ui/ds1c-date-bar.spec.ts:10:1 › ресторан: день по прежним адресам, форма брони с обязательными датой и временем (24.3s)
+[WebServer] (node:45157) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (30.5s)
+  ✘   3 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (35.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✘   4 tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe (4.2m)
+  ✓   5 tests/food-ui/food.spec.ts:227:1 › overlap and archived catalog preserve creation draft and idempotency key (25.1s)
+  ✓   6 tests/food-ui/food.spec.ts:283:1 › stale token refreshes drawer without automatic mutation retry (10.4s)
+  ✓   7 tests/food-ui/food.spec.ts:307:1 › READ_ONLY and STAFF permissions on real API (8.3s)
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✓   8 tests/food-ui/food.spec.ts:334:1 › server branch switch isolates Food businesses and locations and other verticals (59.8s)
+  ✓   9 tests/food-ui/food.spec.ts:385:1 › pagination beyond 100 and previous local day keep table occupied after reload (12.0s)
+  ✓  10 tests/food-ui/food.spec.ts:453:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (27.7s)
+  ✓  11 tests/food-ui/food.spec.ts:555:1 › API unavailable renders LoadError instead of free tables (1.5s)
+  ✓  12 tests/food-ui/food.spec.ts:563:1 › creation 503 keeps the draft and retry key; invalid period stays inline (1.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✓  13 tests/food-ui/food.spec.ts:593:1 › Food excludes every registered foreign workspace route before API requests (2.2m)
+  ✓  14 tests/food-ui/food.spec.ts:634:1 › marker guarded cleanup (820ms)
+  ✓  15 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (13.6s)
+  ✓  16 tests/food-ui/restaurant.spec.ts:149:1 › фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление (4.0s)
+  ✓  17 tests/food-ui/restaurant.spec.ts:188:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (20.0s)
+  ✓  18 tests/food-ui/restaurant.spec.ts:245:1 › кухня: колонки KDS и переходы кнопками (4.1s)
+  ✓  19 tests/food-ui/restaurant.spec.ts:269:1 › главная: плитки, последние заказы и выручка после закрытия (2.4s)
+  ✘  20 tests/food-ui/restaurant.spec.ts:290:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол (19.0s)
+  ✘  21 tests/food-ui/restaurant.spec.ts:343:1 › план зала: заказ занимает стол, уборка включается и видна легенда (14.7s)
+  ✓  22 tests/food-ui/restaurant.spec.ts:382:1 › сотрудники: список с продажами, добавление и правка (17.2s)
+  ✓  23 tests/food-ui/restaurant.spec.ts:404:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (37.0s)
+  ✓  24 tests/food-ui/restaurant.spec.ts:469:1 › отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты (7.9s)
+  ✓  25 tests/food-ui/restaurant.spec.ts:531:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (13.8s)
+  ✘  26 tests/food-ui/restaurant.spec.ts:590:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (14.5s)
+  ✓  27 tests/food-ui/restaurant.spec.ts:675:1 › навигация ресторана: пункты макета на месте и ведут на экраны (1.6s)
+  ✓  28 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (15.6s)
+  ✘  29 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (18.3s)
+  ✓  30 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9 (12.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✘  31 tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет (36.6s)
+  ✓  32 tests/food-ui/stock.spec.ts:136:1 › роли: администратор работает со складом, но не правит справочник; только чтение (7.2s)
+  ✓  33 tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 (50.9s)
+  ✓  34 tests/food-ui/stock.spec.ts:185:1 › списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает (10.3s)
+
+
+  1) tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload ───
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByRole('heading', { name: 'Анна Тестовая', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByRole('heading', { name: 'Анна Тестовая', exact: true }) with timeout 5000ms
+      - waiting for getByRole('dialog').getByRole('heading', { name: 'Анна Тестовая', exact: true })
+
+
+      113 |     .getByRole('button', { name: walkIn ? 'Посадить' : 'Создать бронь', exact: true })
+      114 |     .click();
+    > 115 |   await expect(dialog.getByRole('heading', { name: 'Анна Тестовая', exact: true })).toBeVisible();
+          |                                                                                     ^
+      116 |   return dialog;
+      117 | }
+      118 | test('empty restaurant catalog and complete persisted desk flow', async ({ page, request }) => {
+        at create (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/food.spec.ts:115:85)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/food.spec.ts:149:18
+
+    Error Context: test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe ─────────────────────
+
+    Test timeout of 240000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:55823/dining-areas", waiting until "load"
+
+
+      181 |         ['customers', '/customers'],
+      182 |       ]) {
+    > 183 |         await page.goto(path!);
+          |                    ^
+      184 |         const themeButton = page.getByRole('button', { name: 'Переключить тему', exact: true });
+      185 |         const initial = await page.locator('html').getAttribute('data-theme');
+      186 |         await themeButton.click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/food.spec.ts:183:20
+
+    Error Context: test-results/food-real-API-screenshots-keyboard-and-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/restaurant.spec.ts:290:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол 
+
+    TimeoutError: locator.focus: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByTestId('reservations-timeline').getByRole('button', { name: 'Новая бронь на стол 7' })
+
+
+      330 |   await page.keyboard.press('Escape');
+      331 |   // с клавиатуры клетка стола открывает новую бронь на этот стол во время экрана
+    > 332 |   await timeline.getByRole('button', { name: 'Новая бронь: Стол 7' }).focus();
+          |                                                                         ^
+      333 |   await page.keyboard.press('Enter');
+      334 |   const dialog = page.getByRole('dialog');
+      335 |   await expect(dialog.getByRole('heading', { name: 'Новая бронь' })).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/restaurant.spec.ts:332:73
+
+    Error Context: test-results/restaurant-бронирования-шк-b3010-крывает-новую-бронь-на-стол/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-бронирования-шк-b3010-крывает-новую-бронь-на-стол/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-бронирования-шк-b3010-крывает-новую-бронь-на-стол/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/food-ui/restaurant.spec.ts:343:1 › план зала: заказ занимает стол, уборка включается и видна легенда 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('table-panel')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('table-panel') with timeout 5000ms
+      - waiting for getByTestId('table-panel')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      374 |   await page.reload();
+      375 |   await page.locator('.rest-fp-table[data-kind="FREE"]').getByRole('button').click();
+    > 376 |   const panel = page.getByTestId('table-panel');
+          |                       ^
+      377 |   await panel.getByRole('button', { name: 'Отметить уборку' }).click();
+      378 |   await expect(page.locator('.rest-fp-table[data-kind="CLEANING"]')).toBeVisible();
+      379 |   await expect(page.getByLabel('Состояние столов')).toContainText('Уборка 1');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/restaurant.spec.ts:376:23
+
+    Error Context: test-results/restaurant-план-зала-заказ-ccd42--включается-и-видна-легенда/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-план-зала-заказ-ccd42--включается-и-видна-легенда/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-план-зала-заказ-ccd42--включается-и-видна-легенда/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/food-ui/restaurant.spec.ts:590:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('today-attention-vip')
+    Expected substring: "1"
+    Error: strict mode violation: getByTestId('today-attention-vip') resolved to 2 elements:
+        1) <li data-testid="today-attention-vip">…</li> aka getByRole('region', { name: 'Требуют внимания' }).getByTestId('today-attention-vip')
+        2) <li data-testid="today-attention-vip">…</li> aka getByTestId('today-attention-vip').nth(1)
+
+    Call log:
+      - Expect "toContainText" getByTestId('today-attention-vip') with timeout 5000ms
+      - waiting for getByTestId('today-attention-vip')
+
+
+      670 |   await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
+      671 |   const axe = await new AxeBuilder({ page }).include('main').analyze();
+    > 672 |   expect(axe.violations).toEqual([]);
+          |                                      ^
+      673 |   // метки видит смена: в бронях дня и строкой на «Главной» (вторая бронь клиента сегодня активна)
+      674 |   await page.goto(`/table-reservations?date=${localDay}&view=list`);
+      675 |   await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/restaurant.spec.ts:672:57
+
+    Error Context: test-results/restaurant-клиенты-вкладки-9232d-визитов-VIP-и-день-рождения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-клиенты-вкладки-9232d-визитов-VIP-и-день-рождения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-клиенты-вкладки-9232d-визитов-VIP-и-день-рождения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя ──
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('row', { name: /Говядина Рибай/ })
+    Expected substring: "500 г"
+    Received string:    "Говядина Рибай3000 г1000 г19 000 ₸НетВ нормеПартииСписатьИнвентаризацияИзменить"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('row', { name: /Говядина Рибай/ }) with timeout 5000ms
+      - waiting for getByRole('row', { name: /Говядина Рибай/ })
+        13 × locator resolved to <tr>…</tr>
+           - unexpected value "Говядина Рибай3000 г1000 г19 000 ₸НетВ нормеПартииСписатьИнвентаризацияИзменить"
+
+
+      91 |   await expect(dialog).not.toBeVisible();
+      92 |   // осталось 500 г второй партии по 7 000 ₸/кг = 3 500 ₸; ниже минимума 1 кг
+    > 93 |   await expect(row(page, 'Говядина Рибай')).toContainText('500 г');
+         |                                             ^
+      94 |   await expect(row(page, 'Говядина Рибай')).toContainText('3 500 ₸');
+      95 |   await expect(row(page, 'Говядина Рибай')).toContainText('Мало');
+      96 |   await expect(page.getByTestId('stock-low')).toHaveText('1');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/stock.spec.ts:93:45
+
+    Error Context: test-results/stock-списание-по-FIFO-сна-dcb36-няя-партия-ниже-нуля-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-списание-по-FIFO-сна-dcb36-няя-партия-ниже-нуля-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-списание-по-FIFO-сна-dcb36-няя-партия-ниже-нуля-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет ───────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByText('Сторнирован')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByText('Сторнирован') with timeout 5000ms
+      - waiting for getByRole('dialog').getByText('Сторнирован')
+
+
+      129 |   await expect(dialog.getByRole('button', { name: 'Сторнировать приход от 01.10.2026' })).toHaveCount(0);
+      130 |   await dialog.getByRole('button', { name: 'Сторнировать приход от 05.10.2026' }).click();
+    > 131 |   await expect(dialog.getByText('Сторнирован')).toBeVisible();
+          |                                                 ^
+      132 |   await dialog.getByRole('button', { name: /Закрыть/ }).click();
+      133 |   await expect(row(page, 'Говядина Рибай')).toContainText('1900 г');
+      134 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/stock.spec.ts:131:49
+
+    Error Context: test-results/stock-сторно-нетронутая-партия-сторнируется-начатая-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-сторно-нетронутая-партия-сторнируется-начатая-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-сторно-нетронутая-партия-сторнируется-начатая-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload ────
+    tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe ──────────────────────
+    tests/food-ui/restaurant.spec.ts:290:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол 
+    tests/food-ui/restaurant.spec.ts:343:1 › план зала: заказ занимает стол, уборка включается и видна легенда 
+    tests/food-ui/restaurant.spec.ts:590:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения 
+    tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя ───
+    tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет ────────
+  27 passed (16.6m)
+
+# код выхода 1 · 16 мин 43 с

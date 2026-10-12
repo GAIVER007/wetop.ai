@@ -150,13 +150,18 @@ test('walk-in is seated immediately and persisted after reload', async ({ page, 
   await expect(dialog).toContainText('За столом');
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await page.reload();
+  // щелчок по столу открывает карточку стола (макет, экран 2), бронь из неё
   await page.getByRole('button', { name: 'Стол 7, За столом' }).click();
+  await expect(page.getByTestId('table-panel')).toContainText('Анна Тестовая');
+  await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
   await expect(dialog.getByRole('button', { name: 'Снять стол', exact: true })).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Завершить', exact: true }).click();
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await expect(page.getByRole('button', { name: 'Стол 7, Свободен' })).toBeVisible();
 });
 test('real API screenshots, keyboard and axe', async ({ page, request }) => {
+  // 16 переходов с axe и снимками: под нагрузкой машины (load 7+) каждый 1,5–5 с, общий предел 90 с мал
+  test.setTimeout(240_000);
   await seed(page, request);
   const d = await create(page);
   await d
@@ -196,7 +201,8 @@ test('real API screenshots, keyboard and axe', async ({ page, request }) => {
       }
       await page.goto(`/floor-plan?date=${date}&time=19:00`);
       await page.getByRole('button', { name: 'Стол 7, Подтверждено' }).click();
-      await expect(page.getByRole('dialog')).toBeVisible();
+      await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
+      await expect(page.getByRole('dialog', { name: 'Бронирование' })).toBeVisible();
       await settled(page);
       await page.screenshot({
         path: `${shots}/reservation-drawer-${theme}-${width}.png`,
@@ -588,6 +594,8 @@ test('Food excludes every registered foreign workspace route before API requests
   page,
   request,
 }) => {
+  // каждый чужой маршрут компилируется dev-сервером впервые: под нагрузкой 90 с на весь обход мало
+  test.setTimeout(240_000);
   await seed(page, request);
   const before = (await (await request.get(`${api}/__test/calls`)).json()).length;
   for (const route of [

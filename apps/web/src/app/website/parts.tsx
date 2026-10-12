@@ -1,11 +1,15 @@
 import Link from 'next/link';
+import { BackToModules } from '../marketing/parts';
 import type { TrackedSiteCard } from '../../lib/api';
 import { EmptyState, Notice, Stack } from '../../components/ui';
 import { WEBSITE_TABS, WEBSITE_TITLE, type WebsiteView } from '../../lib/website';
 
-/** Сайт объекта, продукт «Маркетинга» (MKT2): над заголовком ссылка в хаб, тем же приёмом, что у «Каналов продаж» */
+/**
+ * Сайт объекта, продукт «Маркетинга» (MKT2): над заголовком возврат в хаб. Один вид на весь модуль: тот же
+ * «Назад к модулям», что у «Рекламы» и «Контента» по макету Marketing 2.0 (мастер-проход UI 11.10.2026)
+ */
 export function MarketingCrumb() {
-  return <Link href="/marketing">Маркетинг</Link>;
+  return <BackToModules />;
 }
 
 /** Вкладки модуля — ссылки со своим адресом, как у «ИИ-продавца» и «Настроек гостиницы» (`.settings-tabs`) */

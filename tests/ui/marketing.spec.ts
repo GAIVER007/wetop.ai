@@ -292,7 +292,7 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня»', async ({ page }) => {
+test('MKT3: салон открывает свой «Маркетинг», не гостиничный хаб (решение #437)', async ({ page }) => {
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -313,7 +313,10 @@ test('MKT3: хаб «Маркетинг» только для гостиницы
     .click();
   // салон (BEAUTY) и после слияния 09.10 садится на свой `/today`; на `/finance` едет только гостиница
   await page.waitForURL('**/today');
+  // с 12.10 «Маркетинг» есть у всех направлений (all-directions-growth): салон остаётся на `/marketing`
+  // и видит свой хаб, а гостиничный (`marketing-hub`) ему не показывается
   await page.goto('/marketing');
-  await expect(page).toHaveURL(/\/today$/);
-  await expect(page.getByTestId('beauty-today')).toBeVisible();
+  await expect(page).toHaveURL(/\/marketing$/);
+  await expect(page.getByTestId('business-marketing')).toBeVisible();
+  await expect(page.getByTestId('marketing-hub')).toHaveCount(0);
 });

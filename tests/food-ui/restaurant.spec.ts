@@ -491,6 +491,22 @@ test('отчёт за период: выручка, средний чек, оп�
   expect(r.waiters).toEqual([{ name: 'Иванова Анна', orders: 2, revenueMinor: '266000' }]);
   // техкарты не связаны со складом: себестоимость ноль, прибыль равна выручке (§38)
   expect([r.costMinor, r.grossProfitMinor, r.foodCostPct, r.shortages]).toEqual(['0', '266000', 0, []]);
+  // выручка по дням и по категориям меню (макет «Аналитика», экран 10)
+  expect(r.revenueByDay).toEqual([{ date: day, revenueMinor: '266000', orders: 2 }]);
+  expect(r.categories).toEqual([{ name: 'Паста', revenueMinor: '266000' }]);
+  const prev = new Date(`${day}T12:00:00Z`);
+  prev.setUTCDate(prev.getUTCDate() - 1);
+  const yesterday = prev.toISOString().slice(0, 10);
+  const two = await (
+    await request.get(`${api}/food-service/period-report?from=${yesterday}&to=${day}`, { headers })
+  ).json();
+  expect(two.revenueByDay).toEqual([
+    { date: yesterday, revenueMinor: '0', orders: 0 },
+    { date: day, revenueMinor: '266000', orders: 2 },
+  ]);
+  await page.goto('/management/analytics');
+  await expect(page.getByTestId('food-period-days')).toBeVisible();
+  await expect(page.getByTestId('food-period-categories')).toContainText('Паста');
   const bad = await request.get(`${api}/food-service/period-report?from=${day}&to=2000-01-01`, { headers });
   expect(bad.status()).toBe(400);
   // оценка гостя (§39): только после оплаты и только одна

@@ -90,7 +90,8 @@ test('поздняя загрузка гостиницы сохраняет вв
   });
   try {
     await page.goto('/reservations/new', { waitUntil: 'commit' });
-    await page.getByLabel('Имя *', { exact: true }).fill('Тестовый ввод');
+    const firstName = page.getByRole('main').getByRole('textbox', { name: 'Имя *', exact: true });
+    await firstName.fill('Тестовый ввод');
     // страница ещё стримится (гостиница задержана): меню открывается, когда React оживил кнопку. Клик до
     // оживления терялся на медленном раннере CI (20.09, 184/185)
     const menu = await openProfileMenu(page);
@@ -101,7 +102,7 @@ test('поздняя загрузка гостиницы сохраняет вв
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Поздний ответ гостиницы',
     );
-    await expect(page.getByLabel('Имя *', { exact: true })).toHaveValue('Тестовый ввод');
+    await expect(firstName).toHaveValue('Тестовый ввод');
     await expect(menu).toHaveAttribute('aria-expanded', 'true');
   } finally {
     await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });

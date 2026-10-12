@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 11.10.2026 11:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 397664d (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/stock.spec.ts'
+Error: Timed out waiting 60000ms from config.webServer.
+
+
+# код выхода 1 · 1 мин 2 с

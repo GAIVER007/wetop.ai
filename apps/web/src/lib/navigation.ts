@@ -68,6 +68,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/orders', label: 'Заказы', icon: 'receipt', requires: 'desk', description: 'Заказы ресторана' },
       { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Экран кухни (KDS)' },
       { href: '/menu', label: 'Меню', icon: 'kettle', requires: 'desk', description: 'Меню и техкарты' },
+      // Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS)
+      { href: '/stock', label: 'Склад', icon: 'stock', requires: 'desk', description: 'Склад кухни: ингредиенты и остатки' },
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
       { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса ресторана' },
 
@@ -569,7 +571,13 @@ export const foodMenuSections: MenuSection[] = [
     id: 'orders',
     label: 'Заказы',
     icon: 'receipt',
-    items: [menuItem('/orders'), menuItem('/kitchen'), menuItem('/menu'), menuItem('/cashbox')],
+    items: [
+      menuItem('/orders'),
+      menuItem('/kitchen'),
+      menuItem('/menu'),
+      menuItem('/stock'),
+      menuItem('/cashbox'),
+    ],
   },
   direct('customers', '/customers', 'guests', 'Клиенты'),
   {

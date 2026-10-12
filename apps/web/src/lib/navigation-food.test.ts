@@ -16,6 +16,7 @@ describe('Food workspace isolation', () => {
       '/orders',
       '/kitchen',
       '/menu',
+      '/stock',
       '/cashbox',
       '/customers',
       '/employees',
@@ -38,7 +39,7 @@ describe('Food workspace isolation', () => {
       'Помощь',
       'Профиль',
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 4, 3]);
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 3]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],
@@ -49,6 +50,7 @@ describe('Food workspace isolation', () => {
     expect(labels.find((i) => i.href === '/orders')?.label).toBe('Заказы');
     expect(labels.find((i) => i.href === '/kitchen')?.label).toBe('Кухня');
     expect(labels.find((i) => i.href === '/menu')?.label).toBe('Меню');
+    expect(labels.find((i) => i.href === '/stock')?.label).toBe('Склад');
     expect(labels.find((i) => i.href === '/employees')?.label).toBe('Сотрудники');
     expect(labels.find((i) => i.href === '/payroll')?.label).toBe('Зарплата');
     expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Касса');
@@ -86,6 +88,7 @@ describe('Food workspace isolation', () => {
     expect(routeVertical('/dining-areas')).toBe('FOOD_SERVICE');
     expect(routeVertical('/orders')).toBe('FOOD_SERVICE');
     expect(routeVertical('/kitchen')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/stock')).toBe('FOOD_SERVICE');
     expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
     expect(routeVertical('/payroll')).toBe('FOOD_SERVICE');
     expect(routeVertical('/cashbox')).toBe('FOOD_SERVICE');

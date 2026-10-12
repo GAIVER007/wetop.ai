@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { unstable_rethrow } from 'next/navigation';
-import { ApiError } from '../../lib/api';
+import { ApiError, dishPhotoApi } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
 import { foodApi, restaurantApi } from '../../lib/food-api';
 import type {
@@ -182,6 +182,27 @@ export async function markCustomer(
     await scope(scopeKey);
     await foodApi.updateCustomer(id, body);
     revalidatePath('/customers');
+    return { error: null };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** Фото блюда (§37): файл приходит формой, на API уходит тем же multipart */
+export async function dishPhoto(
+  scopeKey: string,
+  id: string,
+  form: FormData | null,
+): Promise<{ error: string | null }> {
+  try {
+    await scope(scopeKey);
+    if (form === null) await dishPhotoApi.remove(id);
+    else {
+      const file = form.get('file');
+      if (!(file instanceof File) || file.size === 0) return { error: 'Выберите файл: JPEG, PNG или WebP' };
+      await dishPhotoApi.upload(id, file);
+    }
+    revalidatePath('/menu');
     return { error: null };
   } catch (error) {
     return failure(error);

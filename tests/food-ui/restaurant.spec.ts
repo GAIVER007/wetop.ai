@@ -5,7 +5,7 @@ import AxeBuilder from '@axe-core/playwright';
  * Ресторанный модуль по ТЗ владельца (ADR-159, DATA_MODEL §33): меню и техкарты, заказы, кухня (KDS),
  * главная, план зала с заказами и уборкой, сотрудники и зарплата. Настоящие контроллеры и база (pms_test).
  */
-const api = 'http://127.0.0.1:55824';
+const api = `http://127.0.0.1:${process.env.FOOD_UI_API_PORT ?? '55824'}`;
 type Fixture = {
   business: string;
   otherBusiness: string;
@@ -142,6 +142,45 @@ test('меню: категория и блюдо с экрана, переклю
   await expect(dialog).not.toBeVisible();
   await expect(pastaRow).toContainText('food cost 28 %');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
+  expect(axe.violations).toEqual([]);
+});
+
+test('фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление', async ({
+  page,
+  request,
+}) => {
+  await seed(page, request);
+  // картинка 64×48 PNG собирается в браузере: свой файл, без стоков (§19.9)
+  await page.goto('/menu');
+  const png = await page.evaluate(async () => {
+    const c = document.createElement('canvas');
+    c.width = 64;
+    c.height = 48;
+    const g = c.getContext('2d')!;
+    g.fillStyle = '#c0392b';
+    g.fillRect(0, 0, 64, 48);
+    const blob: Blob = await new Promise((r) => c.toBlob((b) => r(b!), 'image/png'));
+    return Array.from(new Uint8Array(await blob.arrayBuffer()));
+  });
+  const file = { name: 'pasta.png', mimeType: 'image/png', buffer: Buffer.from(png) };
+  const row = page.getByTestId('menu-list').locator('.rest-menu-row', { hasText: 'Паста Карбонара' });
+  await expect(row.locator('.rest-menu-thumb img')).toHaveCount(0);
+  await row.getByRole('button', { name: 'Изменить', exact: true }).click();
+  const photo = page.getByTestId('dish-photo');
+  await photo.getByLabel('Файл фото блюда').setInputFiles(file);
+  await photo.getByRole('button', { name: 'Загрузить фото' }).click();
+  await expect(photo.locator('img')).toHaveAttribute('src', /menu-photos\/.+\.webp\?X-Expires=/);
+  await page.keyboard.press('Escape');
+  await expect(row.locator('.rest-menu-thumb img')).toHaveAttribute('src', /menu-photos\//);
+  // не картинка отклоняется словами, фото остаётся
+  await row.getByRole('button', { name: 'Изменить', exact: true }).click();
+  await photo.getByLabel('Файл фото блюда').setInputFiles({ name: 'x.png', mimeType: 'image/png', buffer: Buffer.from('not an image') });
+  await photo.getByRole('button', { name: 'Заменить фото' }).click();
+  await expect(photo.getByRole('alert')).toBeVisible();
+  await expect(photo.locator('img')).toHaveCount(1);
+  await photo.getByRole('button', { name: 'Убрать фото' }).click();
+  await expect(photo.locator('img')).toHaveCount(0);
+  const axe = await new AxeBuilder({ page }).include('[data-testid="dish-drawer"]').analyze();
   expect(axe.violations).toEqual([]);
 });
 
@@ -347,6 +386,42 @@ test('зарплата: оклад + процент, премия и штраф,
   expect(axe.violations).toEqual([]);
 });
 
+test('отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты', async ({
+  page,
+  request,
+}) => {
+  const { headers, table, pasta, steak, waiter } = await seed(page, request);
+  const order = (items: Array<{ menuItemId: string; qty: number }>) =>
+    post(request, headers, '/food-service/orders', { tableId: table.id, waiterId: waiter.id, guestCount: 2, items });
+  // 2 × паста = 780 ₸ наличными; паста + стейк = 1 880 ₸ частями: 880 Kaspi и 1 000 наличными
+  const a = await order([{ menuItemId: pasta.id, qty: 2 }]);
+  expect((await serveAndPay(request, headers, a)).status).toBe('CLOSED');
+  let b = await order([{ menuItemId: pasta.id, qty: 1 }, { menuItemId: steak.id, qty: 1 }]);
+  for (const status of ['COOKING', 'READY', 'SERVED'])
+    b = await post(request, headers, `/food-service/orders/${b.id}/status`, {
+      expectedStatus: b.status,
+      expectedUpdatedAt: b.updatedAt,
+      status,
+    });
+  await post(request, headers, `/food-service/orders/${b.id}/payments`, { method: 'KASPI', amount: 88_000, idempotencyKey: 'r1' });
+  await post(request, headers, `/food-service/orders/${b.id}/payments`, { method: 'CASH', amount: 100_000, idempotencyKey: 'r2' });
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const res = await request.get(`${api}/food-service/period-report?from=${day}&to=${day}`, { headers });
+  expect(res.ok()).toBe(true);
+  const r = await res.json();
+  expect(r.ordersCount).toBe(2);
+  expect(r.revenueMinor).toBe('266000');
+  expect(r.averageCheckMinor).toBe('133000');
+  expect(r.payments).toEqual([
+    { method: 'CASH', amountMinor: '178000', count: 2 },
+    { method: 'KASPI', amountMinor: '88000', count: 1 },
+  ]);
+  expect(r.topDishes[0]).toEqual({ name: 'Паста Карбонара', qty: 3, revenueMinor: '117000' });
+  expect(r.waiters).toEqual([{ name: 'Иванова Анна', orders: 2, revenueMinor: '266000' }]);
+  const bad = await request.get(`${api}/food-service/period-report?from=${day}&to=2000-01-01`, { headers });
+  expect(bad.status()).toBe(400);
+});
+
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({
   page,
   request,
@@ -482,6 +557,13 @@ test('клиенты: вкладки, «Постоянный гость» от �
   await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
+  // метки видит смена: в бронях дня и строкой на «Главной» (вторая бронь клиента сегодня активна)
+  await page.goto(`/table-reservations?date=${localDay}`);
+  await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');
+  await expect(page.getByTestId('guest-marks').first()).toContainText('День рождения');
+  await page.goto('/today');
+  await expect(page.getByTestId('today-attention-birthdays')).toContainText('1');
+  await expect(page.getByTestId('today-attention-vip')).toContainText('1');
 });
 
 test('навигация ресторана: пункты макета на месте и ведут на экраны', async ({

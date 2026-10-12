@@ -35,7 +35,17 @@ const localToday = (timezone: string) =>
   new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date());
 const active: FoodStatus[] = ['BOOKED', 'CONFIRMED', 'SEATED'];
 const include = {
-  customer: { select: { id: true, firstName: true, lastName: true, phone: true, status: true } },
+  customer: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
+      status: true,
+      isVip: true,
+      birthDate: true,
+    },
+  },
   servicePeriod: true,
   tableAssignment: { include: { table: { include: { area: true } } } },
 } as const;
@@ -78,6 +88,8 @@ const view = (r: Row) => ({
   createdById: r.createdById,
   customer: {
     ...r.customer,
+    // §36: дата рождения строкой; метка «день рождения в день брони» считается на экране по дню филиала
+    birthDate: r.customer.birthDate ? r.customer.birthDate.toISOString().slice(0, 10) : null,
     name: [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' '),
   },
   servicePeriod: catalogView(r.servicePeriod),

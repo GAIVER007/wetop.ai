@@ -8,6 +8,7 @@ import { pluralRu } from '../../lib/plural';
 import { foodStatusActions } from '../../lib/food-data';
 import type { FoodStatus, FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { GuestMarks } from './guest-marks';
 import { mutateFoodReservation } from './actions';
 import { ReservationForm } from './reservation-form';
 export type ReservationDraft =
@@ -93,7 +94,11 @@ export function ReservationDrawer({
           <div className="food-detail" aria-busy={pending}>
             <div className="food-section-heading">
               <h3>{[r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ')}</h3>
-              <StatusBadge kind="food" value={r.status} />
+              <GuestMarks
+                  customer={r.customer}
+                  day={localInput(r.startsAt, data.timezone).slice(0, 10)}
+                />
+                <StatusBadge kind="food" value={r.status} />
             </div>
             <dl>
               <dt>Телефон</dt>

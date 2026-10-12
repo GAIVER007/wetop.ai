@@ -266,6 +266,21 @@ export const propertyMediaApi = {
   removeContract: () => sendJson<unknown>('DELETE', '/hotel/media/contract', {}),
 };
 
+/** Фото блюда ресторана (DATA_MODEL §37): одно на блюдо, загрузка заменяет прежнее */
+export const dishPhotoApi = {
+  upload: async (id: string, file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/food-service/menu/items/${encodeURIComponent(id)}/photo`, {
+      method: 'POST',
+      body: form,
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  remove: (id: string) =>
+    sendJson<unknown>('DELETE', `/food-service/menu/items/${encodeURIComponent(id)}/photo`, {}),
+};
+
 /** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
 export const hotelSettingsApi = {
   update: (patch: Record<string, unknown>) =>
@@ -3821,6 +3836,12 @@ export const barApi = {
 };
 
 /** MV9: fixed read-only report queries for a branch returned by GET /branches. No mutations or arbitrary paths. */
+/** Отчёт ресторана за период по филиалу (контекст филиала заголовком, как у `branchReportDay`) */
+export async function branchFoodPeriod(branch: Pick<BranchItem, 'locationId' | 'location'>, from: string, to: string): Promise<import('./food-types').FoodPeriodReport> {
+  const response = await backendFetch(`/food-service/period-report?${new URLSearchParams({ from, to })}`, {}, `business=${branch.location.businessId};location=${branch.locationId}`);
+  if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
+  return response.json();
+}
 export async function branchReportDay(branch: Pick<BranchItem, 'vertical' | 'locationId' | 'location'>, date: string, cursor?: string): Promise<BeautyDay | import('./food-types').FoodPage<import('./food-types').RestaurantReservation>> {
   const q = new URLSearchParams({ date });
   if (branch.vertical === 'FOOD_SERVICE') {

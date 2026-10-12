@@ -13,12 +13,19 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { SITE_ASSET_LIMITS } from '@pms/domain';
+import { SITE_ASSET_STORAGE, siteAssetStorageFromEnv } from '../marketing-site/asset-storage';
+import { MenuPhotoService } from './menu-photos';
 import { Access } from '../auth/access.decorator';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { FoodService } from './food.service';
 import { RestaurantService } from './restaurant.service';
+import { StockService } from './stock.service';
 @Controller('food-service')
 @Access('desk')
 @RequiresBusinessCapability('food.tables')
@@ -92,7 +99,25 @@ export class FoodReservationsController {
 @Access('desk')
 @RequiresBusinessCapability('food.menu')
 export class FoodMenuController {
-  constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
+  constructor(
+    @Inject(RestaurantService) private readonly service: RestaurantService,
+    @Inject(MenuPhotoService) private readonly photos: MenuPhotoService,
+  ) {}
+  // Фото блюда (DATA_MODEL §37): одно на блюдо, правка меню под `property`
+  @Post('menu/items/:id/photo')
+  @Access('property')
+  @HttpCode(201)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: SITE_ASSET_LIMITS.maxUploadBytes, files: 1, fields: 2, parts: 4 },
+    }),
+  )
+  uploadPhoto(@Param('id') id: string, @UploadedFile() file: { buffer?: Buffer } | undefined) {
+    return this.photos.upload(id, file);
+  }
+  @Delete('menu/items/:id/photo') @Access('property') removePhoto(@Param('id') id: string) {
+    return this.photos.remove(id);
+  }
   @Get('menu/categories') categories(@Query() q: Record<string, unknown>) {
     return this.service.categories(q);
   }
@@ -174,6 +199,9 @@ export class FoodOrdersController {
   @Get('report') report(@Query() q: Record<string, unknown>) {
     return this.service.report(q);
   }
+  @Get('period-report') @Access('reports') periodReport(@Query() q: Record<string, unknown>) {
+    return this.service.periodReport(q);
+  }
 }
 @Controller('food-service')
 @Access('desk')
@@ -211,6 +239,43 @@ export class FoodStaffController {
     return this.service.addPayAdjustment(id, b);
   }
 }
+/** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS): справочник `property`, приход и списания `desk` */
+@Controller('food-service')
+@Access('desk')
+@RequiresBusinessCapability('food.stock')
+export class FoodStockController {
+  constructor(@Inject(StockService) private readonly service: StockService) {}
+  @Get('stock/products') products() {
+    return this.service.products();
+  }
+  @Post('stock/products') @Access('property') createProduct(@Body() b: unknown) {
+    return this.service.createProduct(b);
+  }
+  @Patch('stock/products/:id') @Access('property') updateProduct(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.updateProduct(id, b);
+  }
+  @Get('stock/lots') lots(@Query() q: Record<string, unknown>) {
+    return this.service.lots(q);
+  }
+  @Get('stock/movements') movements(@Query() q: Record<string, unknown>) {
+    return this.service.movements(q);
+  }
+  @Post('stock/receipts') receipt(@Body() b: unknown) {
+    return this.service.receipt(b);
+  }
+  @Post('stock/lots/:id/reverse') @Access('property') reverse(@Param('id') id: string) {
+    return this.service.reverseLot(id);
+  }
+  @Post('stock/write-offs') writeOff(@Body() b: unknown) {
+    return this.service.writeOff(b);
+  }
+  @Post('stock/inventory') inventory(@Body() b: unknown) {
+    return this.service.inventory(b);
+  }
+}
 @Module({
   controllers: [
     FoodCatalogController,
@@ -218,8 +283,16 @@ export class FoodStaffController {
     FoodMenuController,
     FoodOrdersController,
     FoodStaffController,
+    FoodStockController,
   ],
-  providers: [PrismaService, FoodService, RestaurantService],
+  providers: [
+    PrismaService,
+    FoodService,
+    RestaurantService,
+    StockService,
+    MenuPhotoService,
+    { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
+  ],
   exports: [FoodService, RestaurantService],
 })
 export class FoodModule {}

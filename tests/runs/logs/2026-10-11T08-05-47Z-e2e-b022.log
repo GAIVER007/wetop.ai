@@ -1,0 +1,318 @@
+# Сквозные (e2e) · 11.10.2026 13:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9d71a58 (claude/kitchen-fs2-stock)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/food.spec.ts' 'tests/food-ui/restaurant.spec.ts' 'tests/food-ui/stock.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+[WebServer] (node:63563) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (8.6s)
+  ✓   2 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (3.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1721178502'
+[WebServer] }
+  ✘   3 tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe (1.5m)
+  ✓   4 tests/food-ui/food.spec.ts:221:1 › overlap and archived catalog preserve creation draft and idempotency key (4.5s)
+  ✓   5 tests/food-ui/food.spec.ts:277:1 › stale token refreshes drawer without automatic mutation retry (3.1s)
+  ✓   6 tests/food-ui/food.spec.ts:301:1 › READ_ONLY and STAFF permissions on real API (1.6s)
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✘   7 tests/food-ui/food.spec.ts:328:1 › server branch switch isolates Food businesses and locations and other verticals (1.6m)
+  ✓   8 tests/food-ui/food.spec.ts:379:1 › pagination beyond 100 and previous local day keep table occupied after reload (20.3s)
+  ✘   9 tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (34.8s)
+  ✓  10 tests/food-ui/food.spec.ts:549:1 › API unavailable renders LoadError instead of free tables (11.2s)
+  ✓  11 tests/food-ui/food.spec.ts:557:1 › creation 503 keeps the draft and retry key; invalid period stays inline (10.4s)
+  ✘  12 tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests (1.5m)
+  ✓  13 tests/food-ui/food.spec.ts:626:1 › marker guarded cleanup (738ms)
+  ✘  14 tests/food-ui/restaurant.spec.ts:81:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (29.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1721178502'
+[WebServer] }
+  ✘  15 tests/food-ui/restaurant.spec.ts:129:1 › заказы: создание с экрана, статусы до «Оплачен», вкладки считают (48.7s)
+  ✓  16 tests/food-ui/restaurant.spec.ts:160:1 › кухня: колонки KDS и переходы кнопками (33.3s)
+  ✓  17 tests/food-ui/restaurant.spec.ts:182:1 › главная: плитки, последние заказы и выручка после закрытия (11.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1721178502'
+[WebServer] }
+  ✘  18 tests/food-ui/restaurant.spec.ts:208:1 › план зала: заказ занимает стол, уборка включается и видна легенда (32.3s)
+  ✓  19 tests/food-ui/restaurant.spec.ts:238:1 › сотрудники: список с продажами, добавление и правка (29.0s)
+  ✓  20 tests/food-ui/restaurant.spec.ts:260:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (27.3s)
+  ✓  21 tests/food-ui/restaurant.spec.ts:311:1 › клиенты: вкладки и «Постоянный гость» от двух визитов (3.2s)
+  ✓  22 tests/food-ui/restaurant.spec.ts:364:1 › навигация ресторана: пункты макета на месте и ведут на экраны (1.8s)
+  ✓  23 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (8.3s)
+  ✓  24 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (3.3s)
+  ✓  25 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9 (2.6s)
+  ✓  26 tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет (2.0s)
+  ✓  27 tests/food-ui/stock.spec.ts:136:1 › роли: администратор работает со складом, но не правит справочник; только чтение (1.1s)
+  ✓  28 tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 (8.9s)
+
+
+  1) tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe ─────────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:55923/floor-plan?date=2026-10-12&time=19:00", waiting until "load"
+
+
+      195 |         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      196 |       }
+    > 197 |       await page.goto(`/floor-plan?date=${date}&time=19:00`);
+          |                  ^
+      198 |       await page.getByRole('button', { name: 'Стол 7, Подтверждено' }).click();
+      199 |       await expect(page.getByRole('dialog')).toBeVisible();
+      200 |       await settled(page);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/food.spec.ts:197:18
+
+    Error Context: test-results/food-real-API-screenshots-keyboard-and-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/food.spec.ts:328:1 › server branch switch isolates Food businesses and locations and other verticals 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 90000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+      navigated to "http://127.0.0.1:55923/chessboard"
+      navigated to "http://127.0.0.1:55923/today"
+    ============================================================
+
+      357 |   for (const route of ['/calendar', '/appointments', '/chessboard', '/reservations']) {
+      358 |     await page.goto(route);
+    > 359 |     await page.waitForURL('**/today');
+          |                ^
+      360 |   }
+      361 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      362 |   expect(calls.filter((c) => c.startsWith('/bar') || c.startsWith('/channels'))).toEqual([]);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/food.spec.ts:359:16
+
+    Error Context: test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('alert')
+    Expected substring: "Нельзя уменьшить вместимость"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('dialog').getByRole('alert')
+
+
+      512 |   await d.getByLabel('Вместимость').fill('1');
+      513 |   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
+    > 514 |   await expect(d.getByRole('alert')).toContainText('Нельзя уменьшить вместимость');
+          |                                      ^
+      515 |   await expect(d.getByLabel('Вместимость')).toHaveValue('1');
+      516 |   await d.getByRole('button', { name: 'Закрыть: Изменить: Стол', exact: true }).click();
+      517 |   for (const kind of ['table', 'area', 'period']) {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/food.spec.ts:514:38
+
+    Error Context: test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  "http://127.0.0.1:55923/services"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:55923/services"
+      - Test timeout of 90000ms exceeded.
+
+
+      611 |     await page.goto(route);
+      612 |     // первый заход на маршрут компилируется dev-сервером; под нагрузкой редирект дольше 5 секунд
+    > 613 |     await expect(page).toHaveURL(/\/today$/, { timeout: 15000 });
+          |                        ^
+      614 |   }
+      615 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      616 |   expect(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/food.spec.ts:613:24
+
+    Error Context: test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/food-ui/restaurant.spec.ts:81:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Десерты' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Десерты' }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Десерты' })
+
+
+      90 |   await page.getByLabel('Название категории').fill('Десерты');
+      91 |   await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+    > 92 |   await expect(page.getByRole('button', { name: 'Десерты' })).toBeVisible();
+         |                                                               ^
+      93 |   await page.getByRole('button', { name: '+ Добавить блюдо' }).click();
+      94 |   const dialog = page.getByRole('dialog');
+      95 |   await dialog.getByLabel('Название').fill('Тирамису');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/restaurant.spec.ts:92:63
+
+    Error Context: test-results/restaurant-меню-категория--cf0ae-ню»-техкарта-считает-деньги/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-меню-категория--cf0ae-ню»-техкарта-считает-деньги/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-меню-категория--cf0ae-ню»-техкарта-считает-деньги/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/food-ui/restaurant.spec.ts:129:1 › заказы: создание с экрана, статусы до «Оплачен», вкладки считают 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByTestId('order-total')
+    Expected substring: "780 ₸"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByTestId('order-total') with timeout 5000ms
+      - waiting for getByRole('dialog').getByTestId('order-total')
+
+
+      143 |   await dialog.getByRole('button', { name: 'Создать заказ' }).click();
+      144 |   // заказ в панели: статусная цепочка
+    > 145 |   await expect(dialog.getByTestId('order-total')).toContainText('780 ₸');
+          |                                                   ^
+      146 |   for (const action of ['Принять в работу', 'Готово', 'Подать', 'Оплачен, закрыть']) {
+      147 |     await dialog.getByRole('button', { name: action, exact: false }).click();
+      148 |   }
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/restaurant.spec.ts:145:51
+
+    Error Context: test-results/restaurant-заказы-создание-89838-о-«Оплачен»-вкладки-считают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-заказы-создание-89838-о-«Оплачен»-вкладки-считают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-заказы-создание-89838-о-«Оплачен»-вкладки-считают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/food-ui/restaurant.spec.ts:208:1 › план зала: заказ занимает стол, уборка включается и видна легенда 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.food-table-card[data-kind="CLEANING"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.food-table-card[data-kind="CLEANING"]') with timeout 5000ms
+      - waiting for locator('.food-table-card[data-kind="CLEANING"]')
+
+
+      232 |   const free = page.locator('.food-table-card[data-kind="FREE"]');
+      233 |   await free.getByRole('button', { name: 'Уборка' }).click();
+    > 234 |   await expect(page.locator('.food-table-card[data-kind="CLEANING"]')).toBeVisible();
+          |                                                                        ^
+      235 |   await expect(page.locator('.food-summary')).toContainText('Уборка');
+      236 | });
+      237 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/restaurant.spec.ts:234:72
+
+    Error Context: test-results/restaurant-план-зала-заказ-ccd42--включается-и-видна-легенда/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-план-зала-заказ-ccd42--включается-и-видна-легенда/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-план-зала-заказ-ccd42--включается-и-видна-легенда/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe ──────────────────────
+    tests/food-ui/food.spec.ts:328:1 › server branch switch isolates Food businesses and locations and other verticals 
+    tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+    tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests 
+    tests/food-ui/restaurant.spec.ts:81:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги 
+    tests/food-ui/restaurant.spec.ts:129:1 › заказы: создание с экрана, статусы до «Оплачен», вкладки считают 
+    tests/food-ui/restaurant.spec.ts:208:1 › план зала: заказ занимает стол, уборка включается и видна легенда 
+  21 passed (11.1m)
+
+# код выхода 1 · 11 мин 8 с

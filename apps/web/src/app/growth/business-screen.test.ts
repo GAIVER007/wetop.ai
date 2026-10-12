@@ -14,6 +14,26 @@ import SalesPage from '../sales/page';
 import MarketingPage from '../marketing/page';
 
 describe('Разделы роста по направлению бизнеса', () => {
+  it('маркетинг салона сохраняет композицию трёх модулей и результатов', () => {
+    const html = renderToStaticMarkup(
+      createElement(BusinessGrowthScreen, { vertical: 'BEAUTY', mode: 'marketing' }),
+    );
+    expect(html).toContain('marketing-hub__modules');
+    expect(html).toContain('Сайт и SEO');
+    expect(html).toContain('Результаты за 30 дней');
+    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(3);
+    expect(html).not.toContain('>Подключен<');
+  });
+  it('продажи ресторана показывают хаб с показателями и честной доступностью модулей', () => {
+    const html = renderToStaticMarkup(
+      createElement(BusinessGrowthScreen, { vertical: 'FOOD_SERVICE', mode: 'sales' }),
+    );
+    expect(html).toContain('sales-kpis');
+    expect(html).toContain('Анализ конкурентов');
+    expect(html).toContain('ИИ-продавец');
+    expect(html).not.toContain('href="/market"');
+  });
+
   for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const) {
     it(`${vertical}: продажи не запрашивают гостиничные данные`, async () => {
       requireVertical.mockResolvedValue({ context: { vertical } });
@@ -55,7 +75,10 @@ afterAll(() => {
       .map((name) => readFileSync(`apps/web/src/app/${name}.css`, 'utf8'))
       .join('\n') +
     readFileSync('apps/web/src/app/food/food.css', 'utf8') +
-    readFileSync('apps/web/src/app/food/restaurant.css', 'utf8');
+    readFileSync('apps/web/src/app/food/restaurant.css', 'utf8') +
+    readFileSync('apps/web/src/app/marketing/marketing.css', 'utf8') +
+    readFileSync('apps/web/src/app/sales/sales.css', 'utf8') +
+    readFileSync('apps/web/src/app/growth/growth.css', 'utf8');
   for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const) {
     for (const mode of ['sales', 'marketing'] as const) {
       const main = renderToStaticMarkup(createElement(BusinessGrowthScreen, { vertical, mode }));

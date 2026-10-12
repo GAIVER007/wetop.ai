@@ -2981,6 +2981,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .date-range__label-compact {
+    display: none;
+  }
   .date-range__panel {
     position: absolute;
     z-index: calc(var(--layer-header) - 1);
@@ -3142,6 +3145,12 @@
     }
   }
   @media (max-width: 600px) {
+    .date-range--compact-mobile .date-range__label-full {
+      display: none;
+    }
+    .date-range--compact-mobile .date-range__label-compact {
+      display: inline;
+    }
     .date-range {
       max-width: calc(100vw - var(--space-8));
     }

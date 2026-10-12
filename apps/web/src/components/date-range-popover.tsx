@@ -59,6 +59,25 @@ function formatDate(value: string): string {
     : value;
 }
 
+function formatCompactRange(from: string, to: string): string {
+  const start = parseDate(from);
+  const end = parseDate(to);
+  if (!start || !end) return `${from} – ${to}`;
+  const firstDay = start.getUTCDate();
+  const lastDay = end.getUTCDate();
+  const firstYear = start.getUTCFullYear();
+  const lastYear = end.getUTCFullYear();
+  const firstMonth = start.getUTCMonth();
+  const lastMonth = end.getUTCMonth();
+  if (from === to) return `${firstDay} ${months[firstMonth]} ${firstYear}`;
+  if (firstYear === lastYear && firstMonth === lastMonth)
+    return `${firstDay}–${lastDay} ${months[firstMonth]} ${firstYear}`;
+  const monthShort = (month: number) => months[month]?.slice(0, 3) ?? '';
+  if (firstYear === lastYear)
+    return `${firstDay} ${monthShort(firstMonth)} – ${lastDay} ${monthShort(lastMonth)} ${firstYear}`;
+  return `${firstDay} ${monthShort(firstMonth)} ${String(firstYear).slice(-2)} – ${lastDay} ${monthShort(lastMonth)} ${String(lastYear).slice(-2)}`;
+}
+
 export type DateRangePreset = 'today' | '7' | '14' | '30' | 'month' | 'custom';
 
 export function presetRange(
@@ -101,6 +120,7 @@ export function DateRangePopover({
   maxDays,
   action,
   triggerTestId,
+  compactOnMobile = false,
 }: {
   from: string;
   to: string;
@@ -108,6 +128,7 @@ export function DateRangePopover({
   maxDays?: number;
   action?: string;
   triggerTestId?: string;
+  compactOnMobile?: boolean;
 }) {
   const ref = useRef<HTMLDetailsElement>(null);
   const trigger = useRef<HTMLElement>(null);
@@ -179,7 +200,10 @@ export function DateRangePopover({
     setView(new Date(Date.UTC(view.getUTCFullYear(), view.getUTCMonth() + amount, 1)));
 
   return (
-    <details className="date-range" ref={ref}>
+    <details
+      className={`date-range${compactOnMobile ? ' date-range--compact-mobile' : ''}`}
+      ref={ref}
+    >
       <summary
         ref={trigger}
         data-testid={triggerTestId}
@@ -187,9 +211,12 @@ export function DateRangePopover({
         aria-controls={`${id}-panel`}
       >
         <Icon name="board" />
-        <span>
+        <span className="date-range__label-full">
           {formatDate(from)} – {formatDate(to)}
         </span>
+        {compactOnMobile && (
+          <span className="date-range__label-compact">{formatCompactRange(from, to)}</span>
+        )}
         <Icon name="down" />
       </summary>
       <div className="date-range__panel" id={`${id}-panel`}>

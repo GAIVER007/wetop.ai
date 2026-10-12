@@ -199,6 +199,7 @@ export default async function ChessboardPage({
         maxDays={MAX_CHESSBOARD_DAYS}
         action="/chessboard"
         triggerTestId="board-period-button"
+        compactOnMobile
       />
     </div>
   );

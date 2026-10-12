@@ -43,6 +43,10 @@ test('UI4.2-D: снимки мобильной светлой и тёмной ш
       await page.setViewportSize({ width, height });
       await page.goto('/chessboard');
       await expect(page.getByTestId('board-period-button')).toBeVisible();
+      const periodLabel = page.getByTestId('board-period-button').locator('span:visible').first();
+      expect(
+        await periodLabel.evaluate((element) => element.scrollWidth <= element.clientWidth + 1),
+      ).toBe(true);
       await expect(page.locator('.board-kpi')).toHaveCount(4);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         width + 1,
@@ -75,4 +79,18 @@ test('UI4.2-D: на 320 px детали KPI и фильтры открывают
   await filters.getByRole('button', { name: 'Номера', exact: true }).click();
   await filters.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Фильтры 1', exact: true })).toBeVisible();
+});
+
+test('UI4.2-D: период через Новый год целиком читается на 320 px', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto('/chessboard?from=2026-12-28&to=2027-01-05');
+  const label = page.getByTestId('board-period-button').locator('span:visible').first();
+  await expect(label).toHaveText('28 дек 26 – 5 янв 27');
+  expect(await label.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(
+    true,
+  );
+  await page.getByTestId('board-period-button').click();
+  await expect(page.locator('.date-range__footer > span')).toContainText(
+    '28 декабря 2026 – 5 января 2027 (9 дн.)',
+  );
 });

@@ -69,11 +69,12 @@ async function expectHelp(
 ) {
   await page.goto('/help');
   await expect(page).toHaveURL(/\/help$/);
-  await expect(page.getByRole('heading', { name: 'Помощь', exact: true })).toBeVisible();
-  await expect(page.getByText(subtitle, { exact: true })).toBeVisible();
+  const help = page.getByRole('main');
+  await expect(help.getByRole('heading', { name: 'Помощь', exact: true })).toBeVisible();
+  await expect(help.getByText(subtitle, { exact: true })).toBeVisible();
   for (const [name, href] of ownLinks)
-    await expect(page.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
-  for (const href of otherHrefs) await expect(page.locator(`a[href="${href}"]`)).toHaveCount(0);
+    await expect(help.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
+  for (const href of otherHrefs) await expect(help.locator(`a[href="${href}"]`)).toHaveCount(0);
 }
 
 async function screenshotMatrix(page: Page, state: RuntimeState, feature: string, stage: string) {
@@ -585,7 +586,7 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
     await confirm.getByRole('button', { name: 'Опубликовать' }).click();
     await expect(savedEditor.getByTestId('kb-result')).toContainText('Опубликовано');
     await page.reload();
-    await expect(page.getByTestId('kb-entry').getByText('Версия 2')).toBeVisible();
+    await expect(page.getByTestId('kb-entry').getByText('Версия 2', { exact: true })).toBeVisible();
     await expect(page.getByTestId('kb-entry').getByText('Отвечает')).toBeVisible();
     await expect(page.getByTestId('kb-entry').getByLabel('Текст знания')).toHaveValue(
       'B, сохранённый новый текст.',

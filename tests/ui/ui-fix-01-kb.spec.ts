@@ -134,7 +134,12 @@ test('C-P1-2 save and publish failures preserve text without false success', asy
   const text = editor.getByLabel('Текст знания');
   await text.fill('Synthetic version B');
   await request.post(`${FIXTURE_API}/__test/control`, {
-    data: { platformAdmin: true, failPath: `/platform/support/kb/${id}`, failStatus: 503 },
+    data: {
+      platformAdmin: true,
+      failPath: `/platform/support/kb/${id}`,
+      failMethod: 'PUT',
+      failStatus: 503,
+    },
   });
   await editor.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(page.getByTestId('kb-error')).toBeVisible();
@@ -147,7 +152,12 @@ test('C-P1-2 save and publish failures preserve text without false success', asy
   await editor.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(page.getByTestId('kb-result')).toContainText('Сохранено');
   await request.post(`${FIXTURE_API}/__test/control`, {
-    data: { platformAdmin: true, failPath: `/platform/support/kb/${id}/publish`, failStatus: 503 },
+    data: {
+      platformAdmin: true,
+      failPath: `/platform/support/kb/${id}/publish`,
+      failMethod: 'POST',
+      failStatus: 503,
+    },
   });
   await editor.getByRole('button', { name: 'Опубликовать', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Опубликовать', exact: true }).click();

@@ -968,7 +968,10 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background-color: var(--surface-muted);
-    background-image: radial-gradient(var(--border) 1px, transparent 1px);
+    /* сетка холста линиями: radial-gradient запрещён сторожем «шаров» (DESIGN.md §13) */
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
     background-size: var(--space-6) var(--space-6);
   }
   .rest-fp__area h2 {

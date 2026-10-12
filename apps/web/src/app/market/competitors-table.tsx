@@ -109,8 +109,16 @@ export function CompetitorsTable({
             rows.map((c) => {
               const full = byId.get(c.id) as MarketCompetitor;
               const price = priceById.get(c.id);
-              const now = c.cells.find((x) => x.date === today)?.bp ?? null;
-              const level = demandLevel(now);
+              const cell = c.cells.find((x) => x.date === today);
+              const now = cell?.bp ?? null;
+              // снимок сборщика только уровнем: словом вместо прочерка (DATA_MODEL §23.1)
+              const word =
+                now === null && cell?.level
+                  ? { SOLD_OUT: 'Нет мест', FEW_LEFT: 'Мало мест', AVAILABLE: 'Есть места' }[cell.level]
+                  : null;
+              const level = word
+                ? ({ SOLD_OUT: 'high', FEW_LEFT: 'mid', AVAILABLE: 'low' } as const)[cell!.level!]
+                : demandLevel(now);
               const status = competitorStatus(today, c.lastObservedOn, price?.lastObservedOn ?? null);
               return (
                 <tr key={c.id} data-testid={`market-list-row-${c.id}`}>
@@ -123,7 +131,7 @@ export function CompetitorsTable({
                   <td>{full.district ?? '–'}</td>
                   <td>{full.category ?? '–'}</td>
                   <td className={cx(level && `market-cell market-cell--${level}`)} data-testid="market-list-now">
-                    {now === null ? '–' : formatOccupancy(Math.round(now / 100) * 100)}
+                    {word ?? (now === null ? '–' : formatOccupancy(Math.round(now / 100) * 100))}
                   </td>
                   <td data-testid="market-list-price">
                     {price?.avgMinor ? formatMoney(price.avgMinor, currency) : '–'}

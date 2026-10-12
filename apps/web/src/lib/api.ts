@@ -3622,6 +3622,8 @@ export interface MarketCell {
   bp: number | null;
   deltaBp: number | null;
   source: MarketSource | null;
+  /** Уровень наличия со страницы сборщика или из процента (DATA_MODEL §23.1); у старых ответов поля нет */
+  level?: 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE' | null;
 }
 export type MarketInsightKind = 'high-behind' | 'high' | 'low-ahead' | 'low' | 'missing';
 export interface MarketInsight {
@@ -3652,7 +3654,8 @@ export interface MarketView {
       sources: MarketSource[];
       lastObservedOn: string | null;
     }>;
-    market: Array<{ date: string; bp: number | null; count: number }>;
+    /** `tight` из `withLevel` соседей почти полны («нет мест» или «мало мест») */
+    market: Array<{ date: string; bp: number | null; count: number; tight?: number; withLevel?: number }>;
     gap: Array<{ date: string; bp: number | null }>;
     summary: {
       marketBp: number | null;

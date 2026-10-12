@@ -47,11 +47,15 @@ async function expectOccupancyDirection(page: Page, fund: string) {
       ? Math.round((rows.reduce((n, c) => n + c.occupiedNights, 0) * 1000) / sellable) / 10
       : 0;
   };
-  const direction =
-    pct(current) > pct(previous) ? 'up' : pct(current) < pct(previous) ? 'down' : 'flat';
-  await expect(
-    page.getByRole('main').locator(`.kpi--occupancy .kpi-delta--${direction}`),
-  ).toBeVisible();
+  const difference = Math.round((pct(current) - pct(previous)) * 10) / 10;
+  const direction = difference > 0 ? 'up' : difference < 0 ? 'down' : 'flat';
+  const arrow = direction === 'up' ? '▲' : direction === 'down' ? '▼' : '•';
+  const points = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
+    Math.abs(difference),
+  );
+  const delta = page.getByRole('main').locator(`.kpi--occupancy .kpi-delta--${direction}`);
+  await expect(delta).toBeVisible();
+  await expect(delta).toHaveText(`${arrow} ${points} п.п.`);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -98,8 +102,9 @@ test('обзор за месяц: четыре основных показате
     await expect(kpis).toContainText(label);
   // «Загрузка номеров» и «Загрузка коек» вместо одной общей плитки (ADR-155, Q-287)
   await expect(kpis.locator('.kpi')).toHaveCount(5);
-  // стенд: весь фонд в этом месяце загружен слабее прошлого — падение в п.п.
-  await expect(kpis.locator('.kpi--occupancy .kpi-delta--down')).toContainText('п.п.');
+  // При двух типах фонда первая плитка сравнивает номера, а не суммарную загрузку.
+  // Направление и точные процентные пункты сверяются с API для текущего месяца.
+  await expectOccupancyDirection(page, 'all');
   await expect(main.getByTestId('pa-kpis-detail')).not.toBeVisible();
   await main.locator('.pa-details > summary').click();
   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi')).toHaveCount(2);

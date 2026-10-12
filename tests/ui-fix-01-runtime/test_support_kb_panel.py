@@ -63,4 +63,3 @@ def test_saved_b_is_the_version_published_and_read_from_local_storage(
                 (1, "A, сохранённый исходный текст."),
                 (2, "B, сохранённый новый текст."),
             ]
-

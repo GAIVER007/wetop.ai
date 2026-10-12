@@ -25,4 +25,3 @@ for name in (
     "fake_embedder",
 ):
     globals()[name] = getattr(module, name)
-

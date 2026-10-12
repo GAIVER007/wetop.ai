@@ -10,6 +10,10 @@ import type { MembershipRole } from '@pms/domain';
 import { FoodModule } from '../../apps/api/src/food-service/food.module';
 import { BeautyModule } from '../../apps/api/src/beauty/beauty.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import {
+  MemorySiteAssetStorage,
+  SITE_ASSET_STORAGE,
+} from '../../apps/api/src/marketing-site/asset-storage';
 import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
 import { RoleGuard } from '../../apps/api/src/auth/role.guard';
 import { Access } from '../../apps/api/src/auth/access.decorator';
@@ -98,6 +102,9 @@ const module = await Test.createTestingModule({
 })
   .overrideProvider(PrismaService)
   .useValue(prisma)
+  // фото блюд (§37): хранилище в памяти; адреса подписаны, но картинка в браузере не грузится (проверяется адрес)
+  .overrideProvider(SITE_ASSET_STORAGE)
+  .useValue(new MemorySiteAssetStorage('https://assets.storage.test'))
   .compile();
 const app = module.createNestApplication();
 app.use(

@@ -143,6 +143,8 @@ export interface MenuItemView {
   updatedAt: string;
   ingredients?: MenuIngredient[];
   totals?: MenuTotals | null;
+  /** Подписанный адрес фото блюда на время (§37); null, если фото нет или хранилище выключено */
+  photoUrl?: string | null;
 }
 export interface MenuCategoryInput {
   name: string;

@@ -13,7 +13,13 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { SITE_ASSET_LIMITS } from '@pms/domain';
+import { SITE_ASSET_STORAGE, siteAssetStorageFromEnv } from '../marketing-site/asset-storage';
+import { MenuPhotoService } from './menu-photos';
 import { Access } from '../auth/access.decorator';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { PrismaService } from '../database/prisma.provider';
@@ -93,7 +99,25 @@ export class FoodReservationsController {
 @Access('desk')
 @RequiresBusinessCapability('food.menu')
 export class FoodMenuController {
-  constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
+  constructor(
+    @Inject(RestaurantService) private readonly service: RestaurantService,
+    @Inject(MenuPhotoService) private readonly photos: MenuPhotoService,
+  ) {}
+  // Фото блюда (DATA_MODEL §37): одно на блюдо, правка меню под `property`
+  @Post('menu/items/:id/photo')
+  @Access('property')
+  @HttpCode(201)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: SITE_ASSET_LIMITS.maxUploadBytes, files: 1, fields: 2, parts: 4 },
+    }),
+  )
+  uploadPhoto(@Param('id') id: string, @UploadedFile() file: { buffer?: Buffer } | undefined) {
+    return this.photos.upload(id, file);
+  }
+  @Delete('menu/items/:id/photo') @Access('property') removePhoto(@Param('id') id: string) {
+    return this.photos.remove(id);
+  }
   @Get('menu/categories') categories(@Query() q: Record<string, unknown>) {
     return this.service.categories(q);
   }
@@ -261,7 +285,14 @@ export class FoodStockController {
     FoodStaffController,
     FoodStockController,
   ],
-  providers: [PrismaService, FoodService, RestaurantService, StockService],
+  providers: [
+    PrismaService,
+    FoodService,
+    RestaurantService,
+    StockService,
+    MenuPhotoService,
+    { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
+  ],
   exports: [FoodService, RestaurantService],
 })
 export class FoodModule {}

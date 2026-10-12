@@ -10,6 +10,7 @@ import { Switch } from '../../components/switch';
 import { Toolbar } from '../../components/toolbar';
 import { FormGrid } from '../../components/form-grid';
 import { PeriodPicker } from '../../components/period-picker';
+import { DateRangePopover } from '../../components/date-range-popover';
 import { ShareBar } from '../../components/share-bar';
 import {
   Alert,
@@ -464,7 +465,10 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
             </Field>
           </FormGrid>
         </State>
-        <State name="disabled" note="required не задан: прежний вид, пока форма не переведена; плотность compact">
+        <State
+          name="disabled"
+          note="required не задан: прежний вид, пока форма не переведена; плотность compact"
+        >
           <FormGrid columns={3} density="compact">
             <Field label="Телефон">
               <Input />
@@ -499,7 +503,10 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
             />
           </form>
         </State>
-        <State name="error" note="ошибку называет экран: у поля (errors.to) или у отрезка (errors.period)">
+        <State
+          name="error"
+          note="ошибку называет экран: у поля (errors.to) или у отрезка (errors.period)"
+        >
           <form className="kit-form-inline" action="#">
             <PeriodPicker
               from="2026-09-24"
@@ -511,6 +518,17 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
           </form>
         </State>
       </Component>
+
+      <div data-testid={`kit-range-popover-${theme}`}>
+        <h3>Единый выбор периода</h3>
+        <DateRangePopover
+          from="2026-10-10"
+          to="2026-10-24"
+          today="2026-10-11"
+          maxDays={60}
+          action="/chessboard"
+        />
+      </div>
 
       <Component
         id="date-bar"
@@ -623,7 +641,10 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
             </tbody>
           </Table>
         </State>
-        <State name="default" note="новый вход: плотная, липкие шапка и колонка, скрытая подпись (DS1c)">
+        <State
+          name="default"
+          note="новый вход: плотная, липкие шапка и колонка, скрытая подпись (DS1c)"
+        >
           <Table
             size="sm"
             density="compact"
@@ -862,7 +883,11 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
         <State name="default" note="выключатель, чип-флажок, поле со значком">
           <div className="kit-row">
             <Switch name="kit-switch-off" label="Можно с питомцами" />
-            <CheckChip name="kit-chip" value="wifi" icon={<Icon name="wifi" width={16} height={16} />}>
+            <CheckChip
+              name="kit-chip"
+              value="wifi"
+              icon={<Icon name="wifi" width={16} height={16} />}
+            >
               Wi-Fi
             </CheckChip>
             <IconField icon="phone">

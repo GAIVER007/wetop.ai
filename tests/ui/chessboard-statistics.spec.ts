@@ -15,7 +15,8 @@ for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-    // шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание
+    // Четыре основных карточки, свободные места и уборка доступны в деталях.
+    await expect(panel.locator('.board-kpi')).toHaveCount(4);
     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
     // exact: подпись «Требует внимания: долги и задачи» (макет владельца 09.10) содержит это слово в нижнем регистре
     await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
@@ -30,6 +31,7 @@ for (const width of [360, 390, 430]) {
     const free = board.rows.filter(
       (r: { cells: { state: string }[] }) => r.cells[0]?.state === 'FREE',
     ).length;
+    await panel.getByText('Другие показатели', { exact: true }).click();
     await expect(panel.getByTestId('day-free')).toHaveText(String(free));
     await page.evaluate(() => document.fonts.ready);
     const brokenWords = await panel.locator('.board-kpi__label').evaluateAll((labels) => {
@@ -49,8 +51,8 @@ for (const width of [360, 390, 430]) {
       return broken;
     });
     expect(brokenWords).toEqual([]);
-    await expect(panel.locator('.board-kpi--free')).toContainText('мест');
-    await expect(panel.locator('.board-kpi--dirty')).toContainText('Нужна уборка');
+    await expect(panel.locator('.board-kpi-more__panel')).toContainText('Свободно мест');
+    await expect(panel.locator('.board-kpi-more__panel')).toContainText('Нужна уборка');
     const label = page.locator('.board-group-name-text').first();
     await label.scrollIntoViewIfNeeded();
     await page.evaluate(() => document.fonts.ready);
@@ -59,9 +61,13 @@ for (const width of [360, 390, 430]) {
       const range = document.createRange();
       range.setStart(text, 0);
       range.setEnd(text, (text.textContent!.match(/^\S+/) ?? [''])[0].length);
-      return { lines: range.getClientRects().length, wrap: getComputedStyle(el).overflowWrap };
+      return {
+        height: range.getBoundingClientRect().height,
+        lineHeight: Number.parseFloat(getComputedStyle(el).lineHeight),
+        wrap: getComputedStyle(el).overflowWrap,
+      };
     });
-    expect(word.lines).toBe(1);
+    expect(word.height).toBeLessThanOrEqual(word.lineHeight + 1);
     expect(word.wrap).not.toBe('anywhere');
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
@@ -80,9 +86,11 @@ test('today statistics stay available when the calendar shows another month', as
   const gridBox = await page.locator('.board-wrap').boundingBox();
   expect(gridBox!.y).toBeLessThanOrEqual(700);
   const occupancy = await panel.getByTestId('day-occupancy').innerText();
+  await panel.getByText('Другие показатели', { exact: true }).click();
   const free = await panel.getByTestId('day-free').innerText();
   await page.goto('/chessboard?from=2025-01-01&to=2025-01-30');
   await expect(panel.getByTestId('day-occupancy')).toHaveText(occupancy);
+  await panel.getByText('Другие показатели', { exact: true }).click();
   await expect(panel.getByTestId('day-free')).toHaveText(free);
   await page.screenshot({ path: 'reports/calendar-mobile-statistics-2026-10-05/top-390.png' });
 });

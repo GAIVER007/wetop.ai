@@ -26,7 +26,7 @@ test('форма брони: детализация цены по дням, су
 });
 
 for (const width of [1280, 1366, 1440]) {
-  test(`календарь ${width}px: одна полоса управления и шесть карточек под ней, сетка начинается выше`, async ({
+  test(`календарь ${width}px: одна полоса управления и четыре карточки под ней, сетка начинается выше`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -36,8 +36,7 @@ for (const width of [1280, 1366, 1440]) {
     const p = (await panel.boundingBox())!;
     const bar = (await page.locator('.board-toolbar').boundingBox())!;
     const grid = (await page.locator('.board-wrap').boundingBox())!;
-    // образец владельца (09.10): полоса «Сегодня ‹ › период масштаб длина поиск Фильтры Новая бронь» одной
-    // строкой, под ней шесть карточек в один ряд, затем сетка
+    // Полоса управления, четыре карточки в один ряд, затем сетка.
     expect(bar.height).toBeLessThanOrEqual(56);
     expect(bar.y + bar.height).toBeLessThanOrEqual(p.y + 1);
     expect(p.height).toBeLessThanOrEqual(96);
@@ -46,9 +45,9 @@ for (const width of [1280, 1366, 1440]) {
     const tops = await panel
       .locator('.board-kpi')
       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
-    expect(tops).toHaveLength(6);
+    expect(tops).toHaveLength(4);
     expect(new Set(tops).size).toBe(1);
-    // все шесть элементов полосы на одной линии
+    // Элементы полосы на одной линии.
     const barTops = await page
       .locator('.board-toolbar')
       .locator(
@@ -56,6 +55,7 @@ for (const width of [1280, 1366, 1440]) {
       )
       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 8)));
     expect(new Set(barTops).size).toBe(1);
+    await panel.getByText('Другие показатели', { exact: true }).click();
     await expect(panel.getByTestId('day-free')).toBeVisible();
     await expect(panel.getByTestId('day-units')).toHaveCount(0);
     await page.screenshot({

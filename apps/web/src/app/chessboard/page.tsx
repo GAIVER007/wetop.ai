@@ -444,55 +444,41 @@ function DayStats({
           </Link>
         </div>
       </div>
-      <Link
-        className="board-kpi board-kpi--free"
-        href={availabilityHref}
-        aria-label="Поиск свободных мест"
-      >
-        <span className="board-kpi__icon" aria-hidden="true">
-          <Icon name="inventory" />
-        </span>
-        <span className="board-kpi__row">
-          <b className="board-kpi__value" data-testid="day-free">
-            {n(free)}
-          </b>
-          <span className="board-kpi__label">
-            Свободно
-            <br />
-            мест
-          </span>
-        </span>
-      </Link>
-      <div className="board-kpi board-kpi--dirty">
-        <span className="board-kpi__icon" aria-hidden="true">
-          <Icon name="dirty" />
-        </span>
-        <span className="board-kpi__row">
-          <b className="board-kpi__value" data-testid="day-dirty">
-            {dirty}
-          </b>
-          <span className="board-kpi__label">Нужна уборка</span>
-        </span>
-      </div>
-      <Link
-        className="board-kpi board-kpi--attention"
-        href="/chessboard?stays=debt"
-        aria-label="Неоплаченные"
-      >
+      <div className="board-kpi board-kpi--attention">
         <span className="board-kpi__icon" aria-hidden="true">
           <Icon name="incidents" />
         </span>
-        <span className="board-kpi__row">
-          <b className="board-kpi__value" data-testid="day-attention">
-            {attention}
-          </b>
-          <span className="board-kpi__label">
-            Требует внимания
-            <br />
-            <span className="board-kpi__note">долги и задачи</span>
-          </span>
-        </span>
-      </Link>
+        <div className="board-kpi__body">
+          <Link className="board-kpi__row board-kpi__attention-link" href="/chessboard?stays=debt">
+            <b className="board-kpi__value" data-testid="day-attention">
+              {attention}
+            </b>
+            <span className="board-kpi__label">Требует внимания</span>
+          </Link>
+          <BoardMenu
+            className="board-kpi-more"
+            summary={
+              <>
+                Другие показатели <Icon name="chevron" />
+              </>
+            }
+            resetKey={today}
+          >
+            <div className="board-kpi-more__panel">
+              <Link href={availabilityHref} aria-label="Поиск свободных мест">
+                <Icon name="inventory" />
+                <span>Свободно мест</span>
+                <b data-testid="day-free">{n(free)}</b>
+              </Link>
+              <div>
+                <Icon name="dirty" />
+                <span>Нужна уборка</span>
+                <b data-testid="day-dirty">{dirty}</b>
+              </div>
+            </div>
+          </BoardMenu>
+        </div>
+      </div>
     </section>
   );
 }

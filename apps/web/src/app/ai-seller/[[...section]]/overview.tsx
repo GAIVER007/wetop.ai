@@ -12,7 +12,6 @@ import { conversionText as percentText } from '../../../lib/sales';
 import { conversionText, countDelta, moneyDelta, salesPeriod } from '../../../lib/sales';
 import { salesApi, sellerApi, type SellerStatus } from '../../../lib/api';
 
-import '../../sales/sales.css';
 
 const DASH = '–';
 const settle = <T,>(promise: Promise<T>) =>

@@ -19,7 +19,7 @@ export default async function MenuPage() {
       completeFoodList<MenuItemView>(restaurantApi.menuItems),
     ]);
     return (
-      <Page title="Меню" subtitle="Блюда, цены и техкарты. Правка меню — право «объект»">
+      <Page title="Меню" subtitle="Блюда, цены и техкарты">
         <div key={shell.scopeKey}>
           <MenuBoard
             ctx={{

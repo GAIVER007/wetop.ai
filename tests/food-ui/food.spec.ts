@@ -473,7 +473,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await expect(d).toContainText('Обновлено');
   // Правка сохранилась и refresh доехал: доска позади панели показывает новое число гостей.
   // Без этого следующее действие гонится с обновлением и токен стареет (та же болезнь, что adabb06e3)
-  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 5 гостя');
+  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 5 гостей');
   await expect(
     d
       .getByRole('combobox', { name: 'Назначить стол', exact: true })

@@ -1,5 +1,5 @@
 'use client';
-import type { MouseEvent } from 'react';
+import { useEffect, useRef, type MouseEvent } from 'react';
 import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { foodStatus } from '../../lib/status/food';
 import { pluralRu } from '../../lib/plural';
@@ -101,9 +101,19 @@ export function TimelineBoard({
         : `${String(Math.floor(minute / 60) % 24).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
     onCreate(tableId, time);
   };
+  // узкий экран: шкала сразу показывает текущее время (или первую бронь дня) за час до него
+  const scroller = useRef<HTMLDivElement>(null);
+  const focusMinute = nowMinutes ?? (placed.length ? Math.min(...placed.map((p) => p.start)) : null);
+  useEffect(() => {
+    const box = scroller.current;
+    const track = box?.querySelector<HTMLElement>('.rest-tl__track');
+    if (!box || !track || focusMinute === null || box.scrollWidth <= box.clientWidth) return;
+    const offset = ((focusMinute - 60 - fromHour * 60) / span) * track.offsetWidth;
+    box.scrollLeft = Math.max(0, offset);
+  }, [focusMinute, fromHour, span]);
   if (!tables.length) return <p className="muted">В выбранном зале нет столов</p>;
   return (
-    <div className="rest-tl" data-testid="reservations-timeline">
+    <div className="rest-tl" data-testid="reservations-timeline" ref={scroller}>
       <div
         className="rest-tl__grid"
         style={{ ['--tl-hours' as string]: String(hours.length) }} /* slop-allow: inline-style число часов шкалы из периодов */

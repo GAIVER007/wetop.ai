@@ -170,6 +170,56 @@
     align-items: center;
     gap: var(--space-2);
   }
+  /* шапки колонок тоном статуса, как на макете; цвет поддержан словом заголовка */
+  .rest-kds-col {
+    padding: 0 0 var(--space-4);
+    overflow: hidden;
+  }
+  .rest-kds-col > :not(h2) {
+    margin: 0 var(--space-4);
+  }
+  .rest-kds-col > h2 {
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--border);
+    background: var(--st-checked-out);
+  }
+  .rest-kds-col[data-col='NEW'] > h2 {
+    background: var(--st-confirmed);
+  }
+  .rest-kds-col[data-col='COOKING'] > h2 {
+    background: var(--st-tentative);
+  }
+  .rest-kds-col[data-col='READY'] > h2 {
+    background: var(--st-checked-in);
+  }
+  .rest-kds-col[data-col='DELAYED'] > h2 {
+    background: var(--st-blocked);
+  }
+  .rest-kds-table {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .rest-kds-items li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .rest-kds-items li small {
+    display: block;
+    color: var(--text-2);
+  }
+  .rest-kds-head time {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-kds-head time[data-late] {
+    color: var(--danger);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-kds-card .btn {
+    width: 100%;
+  }
   .rest-kds-card {
     display: grid;
     gap: var(--space-2);
@@ -662,6 +712,15 @@
   .rest-tl__corner {
     padding-left: var(--space-4);
   }
+  /* список столов закреплён слева (ТЗ §7.1): часы прокручиваются под ним */
+  .rest-tl__corner,
+  .rest-tl__table {
+    position: sticky;
+    left: 0;
+    z-index: var(--layer-sticky);
+    background: var(--surface-solid);
+    box-shadow: inset -1px 0 0 var(--border);
+  }
   .rest-tl__hours {
     display: grid;
     grid-template-columns: repeat(var(--tl-hours), minmax(0, 1fr));
@@ -762,6 +821,96 @@
     }
     .rest-tl__table {
       padding: var(--space-2);
+    }
+  }
+}
+
+@layer sections {
+  /* ── Заказ по макету POS (экран 5): плитки блюд слева, текущий заказ справа ── */
+  /* POS шире обычного окна: две колонки макета, на узком экране окно во всю ширину */
+  .rest-pos {
+    --overlay-w-lg: 1180px;
+  }
+  .rest-pos-side .food-form-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.6fr);
+    gap: var(--space-2);
+  }
+  .rest-pos-side .food-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .rest-pos-side .food-actions .btn:first-child {
+    order: 2;
+  }
+  .rest-pos-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .rest-pos-menu,
+  .rest-pos-side {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .rest-pos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--space-2);
+  }
+  .rest-pos-dish {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .rest-pos-dish:hover {
+    border-color: var(--primary);
+  }
+  .rest-pos-dish:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  .rest-pos-dish img,
+  .rest-pos-dish__ph {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-control);
+    object-fit: cover;
+  }
+  .rest-pos-dish__ph {
+    display: grid;
+    place-items: center;
+    background: var(--surface-muted);
+    color: var(--text-2);
+  }
+  .rest-pos-dish__name {
+    font-size: var(--text-xs);
+    line-height: 1.25;
+  }
+  .rest-pos-dish strong {
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-pos-side h3 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .rest-pos-side .rest-order-total strong {
+    font-size: var(--text-xl);
+  }
+  @media (max-width: 960px) {
+    .rest-pos-layout {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 }

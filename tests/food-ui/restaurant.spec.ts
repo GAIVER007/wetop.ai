@@ -194,11 +194,11 @@ test('заказы: создание с экрана, оплата частям�
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Стол').selectOption({ index: 1 });
   await dialog.getByLabel('Официант').selectOption({ label: waiter.name });
-  await dialog.getByLabel('Блюдо').selectOption({ label: 'Паста Карбонара, 390 ₸' });
-  await dialog.getByRole('button', { name: 'Добавить в заказ' }).click();
+  // POS по макету (экран 5): плитка блюда добавляет порцию, вторая порция кнопкой «Больше»
+  await dialog.getByRole('button', { name: 'Добавить: Паста Карбонара, 390 ₸' }).click();
   await dialog.getByRole('button', { name: 'Больше' }).click();
   await expect(dialog.getByTestId('order-draft-total')).toContainText('780 ₸');
-  await dialog.getByRole('button', { name: 'Создать заказ' }).click();
+  await dialog.getByRole('button', { name: 'Отправить на кухню' }).click();
   // заказ в панели: статусная цепочка
   await expect(dialog.getByTestId('order-total')).toContainText('780 ₸');
   for (const action of ['Принять в работу', 'Готово', 'Подать']) {
@@ -250,10 +250,12 @@ test('кухня: колонки KDS и переходы кнопками', asyn
   });
   await page.goto('/kitchen');
   const newCol = page.getByRole('region', { name: 'Новые' });
-  await expect(newCol.getByText('Паста Карбонара ×1')).toBeVisible();
+  // карточка по макету (экран 6): номер и время в шапке, стол, позиция и количество справа
+  await expect(newCol.getByRole('listitem')).toHaveText('Паста Карбонара×1');
+  await expect(newCol).toContainText('Стол 7');
   await newCol.getByRole('button', { name: 'Принять' }).click();
-  const cooking = page.getByRole('region', { name: 'В работе' });
-  await expect(cooking.getByText('Паста Карбонара ×1')).toBeVisible();
+  const cooking = page.getByRole('region', { name: 'Готовятся' });
+  await expect(cooking.getByRole('listitem')).toHaveText('Паста Карбонара×1');
   await cooking.getByRole('button', { name: 'Готово' }).click();
   const ready = page.getByRole('region', { name: 'Готово' });
   await ready.getByRole('button', { name: 'Подать' }).click();

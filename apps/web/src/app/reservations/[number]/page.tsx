@@ -10,7 +10,7 @@ import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { nightsBetween, pluralRu } from '../../../lib/plural';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
@@ -97,7 +97,7 @@ export default async function ReservationPage({
   return (
     <Page
       width="medium"
-      crumbs={<Link href="/chessboard">← календарь</Link>}
+      crumbs={<BackCrumb href="/reservations">Брони</BackCrumb>}
       title={`Бронь ${r.confirmationNumber}`}
       actions={
         preview ? (

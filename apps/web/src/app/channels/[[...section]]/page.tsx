@@ -12,7 +12,7 @@ import {
   ratesApi,
 } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { RefreshButton } from '../../../components/refresh-button';
 import {
   Alert,
@@ -41,6 +41,7 @@ import '../../directory.css';
 import '../channels.css';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
+import { CHANNEL_TABS, ChannelTabs } from '../tabs';
 
 /**
  * Модуль «Каналы продаж» (ADR-112, поручение владельца 27.09.2026): один вход вместо пунктов
@@ -48,19 +49,9 @@ import { mayAccess } from '../../../lib/navigation';
  * сколько броней принесли каналы?»), технический слой — очередь, payload, попытки, внутренние ID —
  * раскрывается «Техническими деталями» и живёт на вкладках «Синхронизация» и «События»; опасные
  * ручные команды — в «Настройке подключения» на вкладке «Подключения», только владельцу.
- * Вкладки — как у «Настроек гостиницы» (`.settings-tabs`); команды, их `data-testid` и порядок
+ * Вкладки: общий `Tabs` (`channels/tabs.tsx`); команды, их `data-testid` и порядок
  * не менялись — на них стоит запись показа для сертификации Channex.
  */
-const tabs = [
-  { view: '', href: '/channels', label: 'Обзор' },
-  // Раздел «Каналы» (ADR-140): подключённые и все доступные каналы Channex — как в прежней системе
-  { view: 'list', href: '/channels/list', label: 'Каналы' },
-  { view: 'connections', href: '/connections/channex', label: 'Настройка подключения' },
-  { view: 'mapping', href: '/channels/mapping', label: 'Сопоставление' },
-  { view: 'sync', href: '/channels/sync', label: 'Синхронизация' },
-  { view: 'events', href: '/channels/events', label: 'События' },
-] as const;
-
 const subtitles: Record<string, string> = {
   '': 'Состояние обмена с каналами и брони по источникам.',
   list: 'Подключённые каналы, брони за 30 дней и все каналы, которые можно подключить.',
@@ -107,7 +98,7 @@ export default async function ChannelSalesPage({
     for (const key of ['status', 'type', 'q', 'page'] as const) if (sp[key]) u.set(key, sp[key]);
     redirect(`/channels/events?${u.toString()}`);
   }
-  const tab = tabs.find((item) => item.view === view);
+  const tab = CHANNEL_TABS.find((item) => item.view === view);
   if (!tab) notFound();
   const shell = await deskShell();
   const canMutate = mayAccess(shell.access, 'channels') && !shell.readOnly;
@@ -115,21 +106,10 @@ export default async function ChannelSalesPage({
     <Page
       title={view ? tab.label : 'Каналы продаж'}
       subtitle={view ? subtitles[view] : undefined}
-      crumbs={view ? <Link href="/channels">Каналы продаж</Link> : undefined}
+      crumbs={view ? <BackCrumb href="/channels">Каналы продаж</BackCrumb> : undefined}
       actions={view === 'connections' ? <RefreshButton label="Проверить соединение" /> : undefined}
     >
-      <nav className="settings-tabs channels-tabs" aria-label="Каналы продаж">
-        {tabs.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={false}
-            aria-current={item.view === view ? 'page' : undefined}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <ChannelTabs current={view} />
       {view === '' && <Overview sp={sp} canMutate={canMutate} />}
       {view === 'list' && <ChannelList sp={sp} />}
       {view === 'connections' && <ChannelConnectionSetup canMutate={canMutate} />}
@@ -145,7 +125,13 @@ const queueFilter = (raw: string | undefined): OutboxRowStatus | '' =>
 
 /* ── Обзор: работает ли обмен и что каналы принесли ── */
 
-async function Overview({ sp, canMutate }: { sp: Record<string, string | undefined>; canMutate: boolean }) {
+async function Overview({
+  sp,
+  canMutate,
+}: {
+  sp: Record<string, string | undefined>;
+  canMutate: boolean;
+}) {
   const clock = await hotelClock();
   const [
     connection,
@@ -394,7 +380,9 @@ async function Overview({ sp, canMutate }: { sp: Record<string, string | undefin
               </p>
             ))}
         </section>
-        {canMutate && <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} canMutate />}
+        {canMutate && (
+          <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} canMutate />
+        )}
       </details>
       <details className="context-help" data-testid="channels-tech">
         <summary>Технические детали</summary>
@@ -846,7 +834,9 @@ async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMuta
           </tr>
         </tbody>
       </Table>
-      {canMutate && <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} canMutate />}
+      {canMutate && (
+        <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} canMutate />
+      )}
       <details className="context-help" open={queue ? true : undefined} data-testid="sync-tech">
         <summary>Технические детали</summary>
         <section className="stack stack--sm" aria-labelledby="outbox-title">
@@ -865,7 +855,13 @@ async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMuta
 
 /* ── События: журнал входящих ревизий с фильтрами ── */
 
-async function Events({ sp, canMutate }: { sp: Record<string, string | undefined>; canMutate: boolean }) {
+async function Events({
+  sp,
+  canMutate,
+}: {
+  sp: Record<string, string | undefined>;
+  canMutate: boolean;
+}) {
   const filter: EventsFilter = {
     status: sp.status ?? '',
     type: sp.type ?? '',

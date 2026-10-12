@@ -1,0 +1,68 @@
+# Модульные (unit) · 12.10.2026 19:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4925fc3 (claude/ui-master-pass2)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-17-17Z-unit-fa9a.json' 'tests/unit/db-backup-offsite.test.ts' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/guard-run.test.ts' 'tests/unit/test-journal-merge.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ❯ |unit| tests/unit/test-journal-merge.test.ts (3 tests | 1 failed) 7107ms
+   ✓ журнал прогонов: две ветки сливаются без конфликта (1)
+     ✓ у каждой ветки свой прогон от одного предка, merge-tree чистый 740ms
+   ❯ журнал из записей: test:status видит то же, что видел по общему файлу (2)
+     × нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты 6343ms
+     ✓ архив и записи вместе: старое из архива, новое из записи, порядок по времени 23ms
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 1 skipped) 12431ms
+   ✓ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     ✓ последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 2736ms
+     ✓ шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 1514ms
+     ✓ закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере 541ms
+   ✓ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     ✓ ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 1273ms
+     ✓ настройки читаются из .env клона, как у db-backup.sh 846ms
+     ✓ Telegram: токен в адресе через stdin, а не аргументом 542ms
+   ✓ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     ✓ ночная копия старше 26 часов: наружу не несём, сообщаем 857ms
+     ✓ R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 2185ms
+     ✓ размер в R2 не совпал: сбой, статус не тронут 1253ms
+     ✓ rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 609ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 13513ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 3267ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 2717ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 3632ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1166ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 1754ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 928ms
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 17822ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 4481ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 3238ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 2739ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 2406ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 2714ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 2205ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/test-journal-merge.test.ts > журнал из записей: test:status видит то же, что видел по общему файлу > нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/test-journal-merge.test.ts:94:3
+     92|
+     93| describe('журнал из записей: test:status видит то же, что видел по общ…
+     94|   it('нынешний journal.jsonl, разложенный по записям, даёт те же прого…
+       |   ^
+     95|     const archive = readFileSync(resolve(ROOT, JOURNAL_FILE), 'utf8');
+     96|     const before = parseJournal(archive);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 28 passed | 1 skipped (30)
+   Start at  07:17:22
+   Duration  18.52s (tests 97%, transform 2%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-17-17Z-unit-fa9a.json
+
+# код выхода 1 · 24 с

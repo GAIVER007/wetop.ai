@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { api, channelsApi, type RevisionPage } from '../../../../lib/api';
 import { ApiError } from '../../../../lib/api-error';
 import { decodeRouteParam } from '../../../../lib/route-param';
-import { Page } from '../../../../components/page';
+import { Page, BackCrumb } from '../../../../components/page';
 import { Icon } from '../../../../components/icon';
 import { Badge, StatusBadge } from '../../../../components/ui';
 import { AmountChip } from '../../../../components/amount-chip';
@@ -87,7 +87,7 @@ export default async function RevisionPageView({
       width="wide"
       title="Приём брони из канала"
       subtitle="Входящая ревизия → бронь → назначенная койка, время объекта (Алматы)"
-      crumbs={<Link href="/channels/events">← события каналов</Link>}
+      crumbs={<BackCrumb href="/channels/events">События каналов</BackCrumb>}
     >
       <div className="chain" data-testid="revision-chain">
         <section className="chain__card" aria-labelledby="chain-revision">

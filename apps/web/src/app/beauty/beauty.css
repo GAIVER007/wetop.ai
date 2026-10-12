@@ -107,7 +107,7 @@
   .beauty-hours {
     position: sticky;
     left: 0;
-    z-index: 1;
+    z-index: var(--layer-sticky);
     background: var(--surface);
     color: var(--muted);
     font-size: var(--text-sm);

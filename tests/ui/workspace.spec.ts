@@ -127,26 +127,26 @@ test('все разделы, карточки и печать открывают
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/finance');
-  // левое меню (ADR-161): панель разделов, «Продажи» → «Анализ конкурентов»
-  const sidebar = page.locator('.sidenav__items');
+  // Скрытое меню: прямой раздел находится в первом столбце, подраздел во втором.
+  const menuPanel = page.locator('.sidenav__panel');
   await goViaMenu(page, 'Продажи', 'Анализ конкурентов');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
   // переход закрывает панель; кнопка показывает раздел текущего экрана
   await expect(page.locator('.sidenav__panel')).toBeHidden();
   await expect(page.locator('.sidenav__current')).toHaveText('Продажи');
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
   // вкладка модуля сайта подсвечивает один пункт «Сайт и SEO» группы «Маркетинг» (MKT2)
   await page.goto('/website/settings');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
   await page.goto('/connections');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Подключения');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Подключения');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });

@@ -10,7 +10,6 @@ import {
   Field,
   Input,
   Notice,
-  Panel,
   Select,
   StatusBadge,
   Table,
@@ -120,9 +119,9 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
       if (!result.error) router.refresh();
     });
   return (
-    <div className="food-workspace">
+    <div className={floor ? 'food-workspace restaurant-floor' : 'food-workspace'}>
       {cleaningError && <Alert>{cleaningError}</Alert>}
-      <div className="food-section-heading">
+      <div className={floor ? 'rest-floor-controls' : 'food-section-heading'}>
         <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
         {write && (
           <div className="food-inline-actions">
@@ -137,7 +136,11 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
           </div>
         )}
       </div>
-      {!data.periods.some((p) => p.active) && <Notice>Настройте период обслуживания</Notice>}
+      {!data.periods.some((p) => p.active) && (
+        <Notice>
+          Периоды обслуживания не настроены. <Link href="/dining-areas">Настроить</Link>
+        </Notice>
+      )}
       {floor ? (
         <>
           <div className="food-summary" aria-label="Состояние столов">
@@ -163,157 +166,180 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
               Без стола <strong>{unassigned.length}</strong>
             </span>
           </div>
-          <div className="rest-floor-legend" aria-hidden="true">
-            <span>
-              <i className="rest-floor-dot--free" />
-              Свободен
-            </span>
-            <span>
-              <i className="rest-floor-dot--occupied" />
-              Занят
-            </span>
-            <span>
-              <i className="rest-floor-dot--reserved" />
-              Бронь
-            </span>
-            <span>
-              <i className="rest-floor-dot--cleaning" />
-              Уборка
-            </span>
-          </div>
-          {data.areas.filter((a) => a.active).length === 0 ? (
-            <EmptyState
-              title="Сначала добавьте зал и столы"
-              actions={
-                data.canProperty && !data.readOnly ? (
-                  <Link className="btn" href="/dining-areas">
-                    Добавить зал
-                  </Link>
-                ) : null
-              }
-            />
-          ) : (
-            <>
-              {data.areas.filter((a) => a.active).length > 1 && (
-                <ChipGroup label="Зал">
-                  <Chip selected={!floorArea} onClick={() => setFloorArea('')}>
-                    Все залы
-                  </Chip>
+          <div className="rest-floor-layout" data-has-unassigned={unassigned.length > 0}>
+            <section
+              className="rest-floor-canvas"
+              data-testid="restaurant-floor-canvas"
+              aria-label="План столов ресторана"
+            >
+              <div className="rest-floor-canvas-head">
+                <h2>Залы и столы</h2>
+                <div className="rest-floor-legend" aria-hidden="true">
+                  <span>
+                    <i className="rest-floor-dot--free" />
+                    Свободен
+                  </span>
+                  <span>
+                    <i className="rest-floor-dot--occupied" />
+                    Занят
+                  </span>
+                  <span>
+                    <i className="rest-floor-dot--reserved" />
+                    Бронь
+                  </span>
+                  <span>
+                    <i className="rest-floor-dot--cleaning" />
+                    Уборка
+                  </span>
+                </div>
+              </div>
+              {data.areas.filter((a) => a.active).length === 0 ? (
+                <div className="rest-floor-empty">
+                  <span className="rest-floor-empty-mark" aria-hidden="true">
+                    +
+                  </span>
+                  <h3>Зал ещё не настроен</h3>
+                  <p>Добавьте зал и столы. Здесь появятся бронирования и текущая занятость.</p>
+                  {data.canProperty && !data.readOnly && (
+                    <Link className="btn" href="/dining-areas">
+                      Добавить зал
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {data.areas.filter((a) => a.active).length > 1 && (
+                    <ChipGroup label="Зал">
+                      <Chip selected={!floorArea} onClick={() => setFloorArea('')}>
+                        Все залы
+                      </Chip>
+                      {data.areas
+                        .filter((a) => a.active)
+                        .sort((a, b) => a.sortOrder - b.sortOrder)
+                        .map((a) => (
+                          <Chip
+                            key={a.id}
+                            selected={floorArea === a.id}
+                            onClick={() => setFloorArea(a.id)}
+                          >
+                            {a.name}
+                          </Chip>
+                        ))}
+                    </ChipGroup>
+                  )}
                   {data.areas
-                    .filter((a) => a.active)
+                    .filter((a) => a.active && (!floorArea || a.id === floorArea))
                     .sort((a, b) => a.sortOrder - b.sortOrder)
                     .map((a) => (
-                      <Chip
-                        key={a.id}
-                        selected={floorArea === a.id}
-                        onClick={() => setFloorArea(a.id)}
-                      >
-                        {a.name}
-                      </Chip>
-                    ))}
-                </ChipGroup>
-              )}
-              {data.areas
-                .filter((a) => a.active && (!floorArea || a.id === floorArea))
-                .sort((a, b) => a.sortOrder - b.sortOrder)
-                .map((a) => (
-                  <section key={a.id} aria-label={a.name}>
-                    <h2>{a.name}</h2>
-                    {activeTables.filter((t) => t.areaId === a.id).length === 0 ? (
-                      <p className="muted">В этом зале пока нет столов</p>
-                    ) : (
-                      <div className="food-table-grid rest-hall">
-                        {activeTables
-                          .filter((t) => t.areaId === a.id)
-                          .sort((x, y) => x.sortOrder - y.sortOrder)
-                          .map((t) => {
-                            const r = occupying.find((r) => r.table?.id === t.id);
-                            const order = orderByTable.get(t.id);
-                            const kind = tableKind(t);
-                            const shape = tableShape(t.capacity);
-                            const chairs = Math.min(t.capacity, 8);
-                            return (
-                              <div
-                                className="food-table-card rest-tbl-wrap"
-                                data-kind={kind}
-                                data-shape={shape}
-                                key={t.id}
-                              >
-                                <span className="rest-chairs" aria-hidden="true">
-                                  {Array.from({ length: Math.ceil(chairs / 2) }, (_, i) => (
-                                    <i key={i} />
-                                  ))}
-                                </span>
-                                <button
-                                  type="button"
-                                  className="food-table-main rest-tbl"
-                                  aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
-                                  onClick={() => {
-                                    if (r) open(r);
-                                    else if (order) router.push('/orders');
-                                    else if (write && kind === 'FREE')
-                                      setDraft({ kind: 'create', walkIn: false, tableId: t.id });
-                                  }}
-                                >
-                                  <strong>{t.name}</strong>
-                                  <small>{pluralRu(t.capacity, ['место', 'места', 'мест'])}</small>
-                                  {r ? (
-                                    <>
-                                      <span>
-                                        {r.status === 'SEATED' ? 'За столом' : clock(r.startsAt)} до{' '}
-                                        {clock(r.endsAt)}
-                                      </span>
-                                      <span>
-                                        {customer(r)}, {guests(r.partySize)}
-                                      </span>
-                                    </>
-                                  ) : order ? (
-                                    <>
-                                      <span>
-                                        Заказ №{order.number},{' '}
-                                        {wholeTenge(order.totalMinor, order.currency)}
-                                      </span>
-                                      <small>с {clock(order.openedAt)}</small>
-                                    </>
-                                  ) : null}
-                                  <Badge tone={KIND_TONE[kind]}>
-                                    {r ? foodStatus[r.status].label : KIND_LABEL[kind]}
-                                  </Badge>
-                                </button>
-                                <span className="rest-chairs" aria-hidden="true">
-                                  {Array.from({ length: Math.floor(chairs / 2) }, (_, i) => (
-                                    <i key={i} />
-                                  ))}
-                                </span>
-                                {write && !r && !order && (
-                                  <Button
-                                    tone="ghost"
-                                    disabled={cleaningPending}
-                                    onClick={() => toggleCleaning(t)}
+                      <section key={a.id} aria-label={a.name}>
+                        <h2>{a.name}</h2>
+                        {activeTables.filter((t) => t.areaId === a.id).length === 0 ? (
+                          <p className="muted">В этом зале пока нет столов</p>
+                        ) : (
+                          <div className="food-table-grid rest-hall">
+                            {activeTables
+                              .filter((t) => t.areaId === a.id)
+                              .sort((x, y) => x.sortOrder - y.sortOrder)
+                              .map((t) => {
+                                const r = occupying.find((r) => r.table?.id === t.id);
+                                const order = orderByTable.get(t.id);
+                                const kind = tableKind(t);
+                                const shape = tableShape(t.capacity);
+                                const chairs = Math.min(t.capacity, 8);
+                                return (
+                                  <div
+                                    className="food-table-card rest-tbl-wrap"
+                                    data-kind={kind}
+                                    data-shape={shape}
+                                    key={t.id}
                                   >
-                                    {t.needsCleaning ? 'Убрано' : 'Уборка'}
-                                  </Button>
-                                )}
-                              </div>
-                            );
-                          })}
-                      </div>
-                    )}
-                  </section>
+                                    <span className="rest-chairs" aria-hidden="true">
+                                      {Array.from({ length: Math.ceil(chairs / 2) }, (_, i) => (
+                                        <i key={i} />
+                                      ))}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      className="food-table-main rest-tbl"
+                                      aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
+                                      onClick={() => {
+                                        if (r) open(r);
+                                        else if (order) router.push('/orders');
+                                        else if (write && kind === 'FREE')
+                                          setDraft({
+                                            kind: 'create',
+                                            walkIn: false,
+                                            tableId: t.id,
+                                          });
+                                      }}
+                                    >
+                                      <strong>{t.name}</strong>
+                                      <small>
+                                        {pluralRu(t.capacity, ['место', 'места', 'мест'])}
+                                      </small>
+                                      {r ? (
+                                        <>
+                                          <span>
+                                            {r.status === 'SEATED'
+                                              ? 'За столом'
+                                              : clock(r.startsAt)}{' '}
+                                            до {clock(r.endsAt)}
+                                          </span>
+                                          <span>
+                                            {customer(r)}, {guests(r.partySize)}
+                                          </span>
+                                        </>
+                                      ) : order ? (
+                                        <>
+                                          <span>
+                                            Заказ №{order.number},{' '}
+                                            {wholeTenge(order.totalMinor, order.currency)}
+                                          </span>
+                                          <small>с {clock(order.openedAt)}</small>
+                                        </>
+                                      ) : null}
+                                      <Badge tone={KIND_TONE[kind]}>
+                                        {r ? foodStatus[r.status].label : KIND_LABEL[kind]}
+                                      </Badge>
+                                    </button>
+                                    <span className="rest-chairs" aria-hidden="true">
+                                      {Array.from({ length: Math.floor(chairs / 2) }, (_, i) => (
+                                        <i key={i} />
+                                      ))}
+                                    </span>
+                                    {write && !r && !order && (
+                                      <Button
+                                        tone="ghost"
+                                        disabled={cleaningPending}
+                                        onClick={() => toggleCleaning(t)}
+                                      >
+                                        {t.needsCleaning ? 'Убрано' : 'Уборка'}
+                                      </Button>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        )}
+                      </section>
+                    ))}
+                </>
+              )}
+            </section>
+            <aside className="rest-floor-unassigned" aria-label="Бронирования без стола">
+              <h2>
+                Без стола <span>{unassigned.length}</span>
+              </h2>
+              <div className="food-unassigned">
+                {unassigned.map((r) => (
+                  <button className="food-reservation-card" key={r.id} onClick={() => open(r)}>
+                    {clock(r.startsAt)}, {customer(r)}, {guests(r.partySize)}
+                  </button>
                 ))}
-            </>
-          )}
-          <Panel>
-            <h2>Без стола, {unassigned.length}</h2>
-            <div className="food-unassigned">
-              {unassigned.map((r) => (
-                <button className="food-reservation-card" key={r.id} onClick={() => open(r)}>
-                  {clock(r.startsAt)}, {customer(r)}, {guests(r.partySize)}
-                </button>
-              ))}
-              {!unassigned.length && <p className="muted">Все бронирования назначены</p>}
-            </div>
-          </Panel>
+                {!unassigned.length && <p className="muted">Бронирований без стола нет</p>}
+              </div>
+            </aside>
+          </div>
         </>
       ) : (
         <>

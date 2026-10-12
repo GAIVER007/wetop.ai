@@ -1,0 +1,56 @@
+# Модульные (unit) · 12.10.2026 20:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит 75b9695 (codex/restaurant-floor-design), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-11-42Z-unit-cac0.json' 'apps/web/src/app/food/floor-design.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ❯ |unit| apps/web/src/app/food/floor-design.test.ts (4 tests | 2 failed) 106ms
+   ❯ План зала ресторана (4)
+     × сохраняет рабочую область без залов, с доступным действием настройки 91ms
+     ✓ не предлагает правку залов без права объекта 5ms
+     ✓ сохраняет дату, время, переходы дня и действия брони 2ms
+     × настроенный зал показывает реальные столы и их вместимость 5ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  08:11:57
+   Duration  1.08s (import 63%, transform 24%, tests 12%, worker 1%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/food/floor-design.test.ts > План зала ресторана > сохраняет рабочую область без залов, с доступным действием настройки
+AssertionError: expected '<div class="food-workspace"><div clas…' to contain 'data-testid="restaurant-floor-canvas"'
+
+Expected: "data-testid="restaurant-floor-canvas""
+Received: "<div class="food-workspace"><div class="food-section-heading"><div class="food-toolbar"><div class="date-bar"><button class="btn btn--ghost" type="button" aria-label="Предыдущий день"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button><label class="field">Дата<input class="inp" type="date" value="2026-10-12"/></label><button class="btn btn--ghost" type="button" aria-label="Следующий день"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button></div><label class="field">Период<select class="inp"><option value="" selected="">Все</option></select></label><label class="field">Время плана<input class="inp" type="time" value="12:00"/></label></div><div class="food-inline-actions"><button class="btn">+ Новая бронь</button><button class="btn btn--secondary">Посадить без брони</button></div></div><div class="notice">Настройте период обслуживания</div><div class="food-summary" aria-label="Состояние столов"><span>Столов <strong>0</strong></span><span>Свободно <strong>0</strong></span><span>Занято <strong>0</strong></span><span>Бронь <strong>0</strong></span><span>Уборка <strong>0</strong></span><span>Без стола <strong>0</strong></span></div><div class="rest-floor-legend" aria-hidden="true"><span><i class="rest-floor-dot--free"></i>Свободен</span><span><i class="rest-floor-dot--occupied"></i>Занят</span><span><i class="rest-floor-dot--reserved"></i>Бронь</span><span><i class="rest-floor-dot--cleaning"></i>Уборка</span></div><section class="empty-state"><h3 class="empty-state__title">Сначала добавьте зал и столы</h3><div class="empty-state__actions"><a class="btn" href="/dining-areas">Добавить зал</a></div></section><section class="panel"><h2>Без стола, 0</h2><div class="food-unassigned"><p class="muted">Все бронирования назначены</p></div></section></div>"
+
+ ❯ apps/web/src/app/food/floor-design.test.ts:29:18
+     27|   it('сохраняет рабочую область без залов, с доступным действием настр…
+     28|     const html = render(data);
+     29|     expect(html).toContain('data-testid="restaurant-floor-canvas"');
+       |                  ^
+     30|     expect(html).toContain('Зал ещё не настроен');
+     31|     expect(html).toContain('href="/dining-areas"');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/food/floor-design.test.ts > План зала ресторана > настроенный зал показывает реальные столы и их вместимость
+AssertionError: expected '<div class="food-workspace"><div clas…' to contain 'data-testid="restaurant-floor-canvas"'
+
+Expected: "data-testid="restaurant-floor-canvas""
+Received: "<div class="food-workspace"><div class="food-section-heading"><div class="food-toolbar"><div class="date-bar"><button class="btn btn--ghost" type="button" aria-label="Предыдущий день"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button><label class="field">Дата<input class="inp" type="date" value="2026-10-12"/></label><button class="btn btn--ghost" type="button" aria-label="Следующий день"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button></div><label class="field">Период<select class="inp"><option value="" selected="">Все</option></select></label><label class="field">Время плана<input class="inp" type="time" value="12:00"/></label></div><div class="food-inline-actions"><button class="btn">+ Новая бронь</button><button class="btn btn--secondary">Посадить без брони</button></div></div><div class="notice">Настройте период обслуживания</div><div class="food-summary" aria-label="Состояние столов"><span>Столов <strong>1</strong></span><span>Свободно <strong>1</strong></span><span>Занято <strong>0</strong></span><span>Бронь <strong>0</strong></span><span>Уборка <strong>0</strong></span><span>Без стола <strong>0</strong></span></div><div class="rest-floor-legend" aria-hidden="true"><span><i class="rest-floor-dot--free"></i>Свободен</span><span><i class="rest-floor-dot--occupied"></i>Занят</span><span><i class="rest-floor-dot--reserved"></i>Бронь</span><span><i class="rest-floor-dot--cleaning"></i>Уборка</span></div><section aria-label="Тестовый зал"><h2>Тестовый зал</h2><div class="food-table-grid rest-hall"><div class="food-table-card rest-tbl-wrap" data-kind="FREE" data-shape="square"><span class="rest-chairs" aria-hidden="true"><i></i><i></i></span><button type="button" class="food-table-main rest-tbl" aria-label="7, Свободен"><strong>7</strong><small>4 места</small><span class="badge">Свободен</span></button><span class="rest-chairs" aria-hidden="true"><i></i><i></i></span><button class="btn btn--ghost">Уборка</button></div></div></section><section class="panel"><h2>Без стола, 0</h2><div class="food-unassigned"><p class="muted">Все бронирования назначены</p></div></section></div>"
+
+ ❯ apps/web/src/app/food/floor-design.test.ts:70:18
+     68|     });
+     69|     expect(html).toContain('Тестовый зал');
+     70|     expect(html).toContain('data-testid="restaurant-floor-canvas"');
+       |                  ^
+     71|     expect(html).toContain('Свободен');
+     72|     expect(html).not.toContain('Зал ещё не настроен');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-11-42Z-unit-cac0.json
+
+# код выхода 1 · 16 с

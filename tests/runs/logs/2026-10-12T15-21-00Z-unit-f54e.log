@@ -1,0 +1,17 @@
+# Модульные (unit) · 12.10.2026 20:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 75b9695 (codex/restaurant-floor-design), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-21-00Z-unit-f54e.json' 'apps/web/src/app/food/floor-design.test.ts' 'tests/unit/design-primitive-owner.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 156ms
+ ✓ |unit| apps/web/src/app/food/floor-design.test.ts (4 tests) 115ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  08:21:06
+   Duration  1.52s (import 42%, transform 41%, tests 16%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-21-00Z-unit-f54e.json
+
+# код выхода 0 · 8 с

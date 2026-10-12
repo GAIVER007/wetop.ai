@@ -88,6 +88,7 @@ export function ReservationDrawer({
               : 'Новая бронь'
         }
         onClose={close}
+        size={r ? 'md' : 'lg'}
         className="food-drawer"
       >
         {r ? (

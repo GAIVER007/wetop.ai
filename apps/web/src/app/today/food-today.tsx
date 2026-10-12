@@ -124,19 +124,17 @@ export async function FoodToday() {
           <Stat
             label="Бронирования"
             value={m.planned}
-            hint={`впереди сегодня, всего ${reservations.reservations.length}`}
+            hint="впереди сегодня"
             testId="today-planned"
           />
           <Stat
             label="Ожидаемые гости"
             value={expectedGuests}
-            hint="по броням дня"
             testId="today-expected-guests"
           />
           <Stat
             label="Гости в зале"
             value={seatedGuests}
-            hint="посажены по броням"
             testId="today-seated-guests"
           />
           <Stat
@@ -145,7 +143,7 @@ export async function FoodToday() {
             hint={
               occupancyPct === null
                 ? 'столы не настроены'
-                : `из ${t.tablesTotal}, занято ${t.tablesOccupied} / ${t.tablesTotal}`
+                : `из ${t.tablesTotal}`
             }
             testId="today-tables"
           />
@@ -153,7 +151,6 @@ export async function FoodToday() {
             label="Выручка сегодня"
             value={wholeTenge(t.revenueMinor, report.currency)}
             delta={deltaOf(t.revenueDeltaPct)}
-            hint="оплаченные заказы"
             testId="today-revenue"
           />
         </Stats>
@@ -205,15 +202,15 @@ export async function FoodToday() {
                   <Icon name="plus" />
                   Новая бронь
                 </Link>
-                <Link className="btn btn--secondary" href="/floor-plan" aria-label="Открыть план зала">
+                <Link className="btn btn--info" href="/floor-plan" aria-label="Открыть план зала">
                   <Icon name="today" />
                   План зала
                 </Link>
-                <Link className="btn btn--secondary" href="/customers">
+                <Link className="btn btn--info" href="/customers">
                   <Icon name="search" />
                   Найти гостя
                 </Link>
-                <Link className="btn btn--secondary" href={reservationsHref}>
+                <Link className="btn btn--info" href={reservationsHref}>
                   <Icon name="board" />
                   Расписание броней
                 </Link>

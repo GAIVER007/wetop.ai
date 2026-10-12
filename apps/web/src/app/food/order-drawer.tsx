@@ -338,8 +338,7 @@ function CurrentOrder({
       {items.map((item, index) => {
         const m = byId.get(item.menuItemId);
         return (
-          <div className="rest-order-item" key={item.menuItemId}>
-            <strong>{m?.name ?? 'Блюдо'}</strong>
+          <div className="rest-order-item rest-order-item--pos" key={item.menuItemId}>
             <span className="rest-order-qty">
               <Button tone="ghost" aria-label="Меньше" onClick={() => change(index, item.qty - 1)}>
                 −
@@ -349,6 +348,7 @@ function CurrentOrder({
                 +
               </Button>
             </span>
+            <strong>{m?.name ?? 'Блюдо'}</strong>
             <span className="rest-tech-cost">
               {m ? wholeTenge(String(BigInt(m.priceMinor) * BigInt(item.qty)), m.currency) : '—'}
             </span>

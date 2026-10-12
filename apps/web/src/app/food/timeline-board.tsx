@@ -8,6 +8,9 @@ import { localInput } from '../beauty/time';
 /** Брони, которые держат стол на шкале: отменённые и неявки строку не занимают */
 const ON_TIMELINE = new Set(['BOOKED', 'CONFIRMED', 'SEATED', 'COMPLETED']);
 
+/** Подпись стола: номер «7» читается как «Стол 7», имя «Терраса 2» или «Стол 7» остаётся как есть */
+export const tableTitle = (name: string) => (/^\d/.test(name) ? `Стол ${name}` : name);
+
 /** Минуты от полуночи дня экрана по поясу филиала; бронь через полночь даёт больше 1440 */
 export function minutesOfDay(iso: string, day: string, timezone: string): number {
   const local = localInput(iso, timezone);
@@ -129,7 +132,7 @@ export function TimelineBoard({
         {tables.map((t) => (
           <div className="rest-tl__row" key={t.id}>
             <div className="rest-tl__table">
-              <strong>Стол {t.name}</strong> <small>({t.capacity})</small>
+              <strong>{tableTitle(t.name)}</strong> <small>({t.capacity})</small>
               {!areaId && <span className="sr-only">, {areaName.get(t.areaId)}</span>}
             </div>
             <div className="rest-tl__track">
@@ -137,7 +140,7 @@ export function TimelineBoard({
                 <button
                   type="button"
                   className="rest-tl__slot"
-                  aria-label={`Новая бронь на стол ${t.name}`}
+                  aria-label={`Новая бронь: ${tableTitle(t.name)}`}
                   onClick={(e) => pick(e, t.id)}
                 />
               )}

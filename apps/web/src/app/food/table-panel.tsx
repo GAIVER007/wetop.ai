@@ -1,5 +1,6 @@
 'use client';
-import { Overlay } from '../../components/overlay';
+import { useEffect, useRef } from 'react';
+import { Icon } from '../../components/icon';
 import { Badge, Button } from '../../components/ui';
 import { wholeTenge } from '../../lib/dashboard-format';
 import { pluralRu } from '../../lib/plural';
@@ -21,7 +22,8 @@ export const KIND_TONE: Record<TableKind, 'neutral' | 'danger' | 'info' | 'warn'
 };
 
 /**
- * Карточка стола по макету (экран 2) и ТЗ §5.4: открывается щелчком по столу и не держит место закрытой.
+ * Карточка стола по макету (экран 2) и ТЗ §5.4: колонка справа от плана, открывается щелчком по столу и
+ * не держит место закрытой; на телефоне лист снизу (ТЗ §21). Escape и крестик закрывают, фокус на стол.
  * Номер, зал, места, статус на время плана, текущий визит или заказ, брони стола за день и действия по
  * правам. Сами изменения идут через панель брони и заказы: карточка не дублирует их логику.
  */
@@ -62,9 +64,36 @@ export function TablePanel({
   const name = (r: RestaurantReservation) =>
     [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ');
   const upcoming = day.filter((r) => r.id !== current?.id);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => closeButton.current?.focus(), [table.id]);
+  // Escape закрывает карточку, где бы ни стоял фокус (на столе схемы или в карточке),
+  // если поверх нет открытого окна брони или заказа: у него свой Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || document.querySelector('dialog[open]')) return;
+      close();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [close]);
   return (
-    <Overlay open onClose={close} title={`Стол ${table.name}`} drawer size="sm" trapFocus>
-      <div className="rest-table-panel" data-testid="table-panel">
+    <aside
+      className="rest-table-panel"
+      data-testid="table-panel"
+      aria-label={`Стол ${table.name}`}
+    >
+      <div className="rest-table-panel__head">
+        <h2>Стол {table.name}</h2>
+        <button
+          ref={closeButton}
+          type="button"
+          className="rest-icon-btn"
+          aria-label={`Закрыть: Стол ${table.name}`}
+          onClick={close}
+        >
+          <Icon name="close" />
+        </button>
+      </div>
         <div className="food-section-heading">
           <Badge tone={KIND_TONE[kind]}>
             {current ? foodStatus[current.status].label : KIND_LABEL[kind]}
@@ -135,7 +164,6 @@ export function TablePanel({
             </ul>
           )}
         </section>
-      </div>
-    </Overlay>
+    </aside>
   );
 }

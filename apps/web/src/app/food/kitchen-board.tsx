@@ -85,7 +85,12 @@ export function KitchenBoard({
       <small className="muted">{minutesAgo(o.openedAt, now)} мин в работе</small>
       {o.delayed && <Badge tone="danger">Задерживается</Badge>}
       {write && action && (
-        <Button disabled={pending} onClick={() => transition(o, action.status)}>
+        <Button
+          size="sm"
+          tone={o.status === 'READY' ? 'primary' : 'secondary'}
+          disabled={pending}
+          onClick={() => transition(o, action.status)}
+        >
           {action.button}
         </Button>
       )}
@@ -100,7 +105,7 @@ export function KitchenBoard({
           return (
             <section className="rest-kds-col" data-col={col.id} key={col.id} aria-label={col.title}>
               <h2>
-                {col.title} <Badge>{list.length}</Badge>
+                {col.title} ({list.length})
               </h2>
               {list.map((o) => card(o, { status: col.action, button: col.button }))}
               {list.length === 0 && <p className="muted">Пусто</p>}
@@ -108,10 +113,7 @@ export function KitchenBoard({
           );
         })}
         <section className="rest-kds-col" data-col="DELAYED" aria-label="Задерживаются">
-          <h2>
-            Задерживаются{' '}
-            <Badge tone={delayed.length ? 'danger' : 'neutral'}>{delayed.length}</Badge>
-          </h2>
+          <h2>Задерживаются ({delayed.length})</h2>
           {delayed.map((o) =>
             card(
               o,

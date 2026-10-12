@@ -329,11 +329,18 @@ test('бронирования: шкала по столам, бронь пол�
   await expect(page.getByRole('dialog')).toContainText('Ольга Волкова');
   await page.keyboard.press('Escape');
   // с клавиатуры клетка стола открывает новую бронь на этот стол во время экрана
-  await timeline.getByRole('button', { name: 'Новая бронь на стол 7' }).focus();
+  await timeline.getByRole('button', { name: 'Новая бронь: Стол 7' }).focus();
   await page.keyboard.press('Enter');
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новая бронь' })).toBeVisible();
   await expect(dialog.locator('select[name="tableId"]')).toHaveValue(table.id);
+  // подбор столов по макету (экран 4): на 19:00 стол 7 занят бронью Ольги, свободных нет
+  await dialog.getByLabel('Время', { exact: true }).fill('19:00');
+  await expect(dialog.getByRole('heading', { name: 'Доступные столы (0)' })).toBeVisible();
+  // на 12:00 стол свободен и выбирается карточкой
+  await dialog.getByLabel('Время', { exact: true }).fill('12:00');
+  await expect(dialog.getByRole('heading', { name: 'Доступные столы (1)' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Выбрать: Стол 7' })).toHaveAttribute('aria-pressed', 'true');
   // список остаётся вторым видом
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Список', exact: true }).click();
@@ -351,10 +358,11 @@ test('план зала: заказ занимает стол, уборка вк
     items: [{ menuItemId: pasta.id, qty: 1 }],
   });
   await page.goto('/floor-plan');
-  const card = page.locator('.food-table-card');
+  // план по макету (экран 2): стол залит цветом статуса, номер на столе, заказ подписью под ним
+  const card = page.locator('.rest-fp-table');
   await expect(card).toHaveAttribute('data-kind', 'OCCUPIED');
   await expect(card).toContainText('Заказ №');
-  // второй стол: уборка
+  // второй стол: уборка из карточки стола
   await post(request, headers, '/food-service/tables', {
     areaId: (await (await request.get(`${api}/food-service/areas?limit=100`, { headers })).json())
       .items[0].id,
@@ -364,10 +372,18 @@ test('план зала: заказ занимает стол, уборка вк
     active: true,
   });
   await page.reload();
-  const free = page.locator('.food-table-card[data-kind="FREE"]');
-  await free.getByRole('button', { name: 'Уборка' }).click();
-  await expect(page.locator('.food-table-card[data-kind="CLEANING"]')).toBeVisible();
-  await expect(page.locator('.food-summary')).toContainText('Уборка');
+  await page.locator('.rest-fp-table[data-kind="FREE"]').getByRole('button').click();
+  const panel = page.getByTestId('table-panel');
+  await panel.getByRole('button', { name: 'Отметить уборку' }).click();
+  await expect(page.locator('.rest-fp-table[data-kind="CLEANING"]')).toBeVisible();
+  await expect(page.getByLabel('Состояние столов')).toContainText('Уборка 1');
+  // Escape закрывает карточку и возвращает фокус на стол
+  await page.locator('.rest-fp-table[data-kind="CLEANING"]').getByRole('button').click();
+  await page.keyboard.press('Escape');
+  await expect(panel).toHaveCount(0);
+  await expect(page.locator('.rest-fp-table[data-kind="CLEANING"]').getByRole('button')).toBeFocused();
+  const axe = await new AxeBuilder({ page }).include('main').analyze();
+  expect(axe.violations).toEqual([]);
 });
 
 test('сотрудники: список с продажами, добавление и правка', async ({ page, request }) => {

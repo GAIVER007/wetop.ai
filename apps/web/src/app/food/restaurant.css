@@ -946,7 +946,9 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background-color: var(--surface-muted);
-    background-image: radial-gradient(var(--border) 1px, transparent 1px);
+    background-image:
+      linear-gradient(to right, var(--border-soft) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border-soft) 1px, transparent 1px);
     background-size: var(--space-6) var(--space-6);
   }
   .rest-fp__area h2 {
@@ -993,7 +995,9 @@
     outline-offset: 2px;
   }
   .rest-fp-table[data-selected] .rest-fp-table__body {
-    box-shadow: 0 0 0 3px var(--primary-soft), 0 0 0 5px var(--primary);
+    box-shadow:
+      0 0 0 3px var(--primary-soft),
+      0 0 0 5px var(--primary);
   }
   .rest-fp-table[data-kind='FREE'] .rest-fp-table__body {
     background: var(--st-checked-in);

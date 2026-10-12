@@ -58,11 +58,11 @@ const MODULES: Module[] = [
 ];
 
 const RESULTS = [
-  'Переходы на сайт',
-  'Заявки на бронирование',
-  'Потрачено на рекламу',
-  'Доход с рекламы',
-];
+  { label: 'Переходы на сайт', icon: 'system' },
+  { label: 'Заявки на бронирование', icon: 'guests' },
+  { label: 'Потрачено на рекламу', icon: 'money' },
+  { label: 'Доход с рекламы', icon: 'analytics' },
+] satisfies { label: string; icon: IconName }[];
 
 const SITE_MENU = [
   { label: 'Публикация', href: '/marketing/site' },
@@ -151,13 +151,15 @@ export function MarketingHub({
           >
             <h2 id="marketing-results-title">Результаты за 30 дней</h2>
             <dl className="marketing-results__list">
-              {RESULTS.map((originalLabel) => (
+              {RESULTS.map(({ label: originalLabel, icon }) => (
                 <div
                   key={originalLabel}
                   className="marketing-results__row"
                   data-testid="marketing-result"
                 >
-                  <span className="marketing-results__mark" aria-hidden="true" />
+                  <span className="marketing-results__mark" aria-hidden="true">
+                    <Icon name={icon} width={18} />
+                  </span>
                   <dt>
                     {!hospitality && originalLabel === 'Заявки на бронирование'
                       ? 'Заявки клиентов'

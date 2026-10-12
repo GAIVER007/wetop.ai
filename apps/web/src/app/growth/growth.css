@@ -59,7 +59,7 @@
   .growth-hub .sales-card__head h2 {
     font-size: var(--text-lg);
   }
-  @media (max-width: 1100px) {
+  @media (max-width: 1279px) {
     .growth-kpis {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }

@@ -115,11 +115,14 @@
     font-size: var(--text-xs);
   }
   .marketing-results__mark {
-    width: 24px;
-    height: 12px;
-    border-radius: var(--radius-sm);
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: var(--radius-control);
     background: var(--primary-soft);
-    border: 1px dashed var(--primary);
+    color: var(--primary);
   }
   .marketing-results__row dd {
     margin: 0;
@@ -157,12 +160,12 @@
     justify-content: center;
     width: 100%;
   }
-  @media (max-width: 1100px) {
+  @media (max-width: 1279px) {
     .marketing-hub {
       grid-template-columns: minmax(0, 1fr);
     }
   }
-  @media (max-width: 760px) {
+  @media (max-width: 960px) {
     .marketing-hub__modules {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -960,7 +963,7 @@
   .create-site {
     display: grid;
     gap: var(--space-4);
-    max-width: 760px;
+    max-width: 960px;
     margin: var(--space-8) auto;
     text-align: center;
   }

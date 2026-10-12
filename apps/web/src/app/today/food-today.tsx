@@ -14,6 +14,7 @@ import { pluralRu } from '../../lib/plural';
 import { statusLabel, statusTone } from '../../lib/status/types';
 import { foodOrderStatus, foodStatus } from '../../lib/status/food';
 import { loadFoodToday } from './vertical-load';
+import { birthdayOn } from '../food/guest-marks';
 import './vertical-today.css';
 import '../food/restaurant.css';
 
@@ -53,7 +54,24 @@ export async function FoodToday() {
   const t = report.tiles;
   const m = reservations.metrics;
   const reservationsHref = `/table-reservations?date=${date}`;
+  const coming = reservations.reservations.filter((r) =>
+    ['BOOKED', 'CONFIRMED', 'SEATED'].includes(r.status),
+  );
+  const birthdays = coming.filter((r) => birthdayOn(r.customer.birthDate, date)).length;
+  const vips = coming.filter((r) => r.customer.isVip).length;
   const attention = [
+    birthdays > 0 && {
+      text: `День рождения у гостей с бронью сегодня: ${birthdays}`,
+      href: reservationsHref,
+      action: 'Открыть бронирования',
+      testId: 'today-attention-birthdays',
+    },
+    vips > 0 && {
+      text: `VIP-гости сегодня: ${vips}`,
+      href: reservationsHref,
+      action: 'Открыть бронирования',
+      testId: 'today-attention-vip',
+    },
     m.withoutTable > 0 && {
       text: `Без стола: ${m.withoutTable}`,
       href: reservationsHref,

@@ -12,7 +12,7 @@ import {
   ratesApi,
 } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { RefreshButton } from '../../../components/refresh-button';
 import {
   Alert,
@@ -111,7 +111,7 @@ export default async function ChannelSalesPage({
     <Page
       title={view ? tab.label : 'Каналы продаж'}
       subtitle={view ? subtitles[view] : undefined}
-      crumbs={view ? <Link href="/channels">Каналы продаж</Link> : undefined}
+      crumbs={view ? <BackCrumb href="/channels">Каналы продаж</BackCrumb> : undefined}
       actions={view === 'connections' ? <RefreshButton label="Проверить соединение" /> : undefined}
     >
       <nav className="settings-tabs channels-tabs" aria-label="Каналы продаж">

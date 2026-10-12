@@ -1,17 +1,15 @@
-import Link from 'next/link';
 import '../../agents/agents.css';
 import '../../../create/wizard.css';
+import { Page, BackCrumb } from '../../../../components/page';
 import { AgentEditor } from '../editor';
 export default function NewAgentPage() {
   return (
-    <main className="seller-agents">
-      <header>
-        <div>
-          <Link href="/ai-seller/agents">Мои ИИ-продавцы</Link>
-          <h1>Новый ИИ-продавец</h1>
-          <p>Задайте имя, компанию и задачу. Сначала сохраним черновик.</p>
-        </div>
-      </header>
+    <Page
+      className="seller-agents"
+      crumbs={<BackCrumb href="/ai-seller/agents">Мои ИИ-продавцы</BackCrumb>}
+      title="Новый ИИ-продавец"
+      subtitle="Задайте имя, компанию и задачу. Сначала сохраним черновик."
+    >
       <AgentEditor
         creating
         agent={{
@@ -23,6 +21,6 @@ export default function NewAgentPage() {
           updatedAt: '',
         }}
       />
-    </main>
+    </Page>
   );
 }

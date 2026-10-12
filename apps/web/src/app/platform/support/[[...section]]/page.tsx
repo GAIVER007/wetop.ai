@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound, unstable_rethrow } from 'next/navigation';
 import { MEMBERSHIP_ROLES, PLATFORM_TIMEZONE, parseMembershipRole } from '@pms/domain';
-import { Page } from '../../../../components/page';
+import { Page, BackCrumb } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { RefreshButton } from '../../../../components/refresh-button';
 import {
@@ -131,7 +131,7 @@ export default async function SupportPage({
       title={view ? tab.label : 'Техподдержка'}
       subtitle="ИИ-помощник отвечает тем, кто пишет из стойки и с wetop.ai: диалоги, его знания и сводка за сутки."
       actions={<RefreshButton />}
-      crumbs={view ? <Link href="/platform/support">Техподдержка</Link> : undefined}
+      crumbs={view ? <BackCrumb href="/platform/support">Техподдержка</BackCrumb> : undefined}
     >
       {access.platform && (
         <nav className="settings-tabs" aria-label="Агент">

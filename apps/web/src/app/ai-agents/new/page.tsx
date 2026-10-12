@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import Link from 'next/link';
 import '../ai-agents.css';
 import { LoadError } from '../../../components/load-error';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { Notice, Panel, Stack } from '../../../components/ui';
 import { READ_ONLY_MESSAGE } from '@pms/domain';
 import { deskShell } from '../../../lib/desk-shell';
@@ -26,9 +26,9 @@ export default async function NewAgentPage() {
   return (
     <Page
       title="Новый AI-продавец"
-      subtitle="Шаг 1 из 5. Выберите объект и дайте продавцу имя."
+      subtitle="Выберите объект и дайте продавцу имя."
       width="narrow"
-      crumbs={<Link href="/ai-agents">ИИ-продавцы</Link>}
+      crumbs={<BackCrumb href="/ai-agents">ИИ-продавцы</BackCrumb>}
     >
       {failure !== null && (
         <LoadError testId="agents-error" title="Не удалось загрузить варианты" {...loadErrorProps(failure)} />

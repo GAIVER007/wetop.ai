@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { ChannelConnectionSetup } from '../../channels/connection-setup';
 export default function ChannexSettingsPage() {
   return (
     <Page
       title="Подключение каналов"
       subtitle="Соединение, webhook и настройка обмена."
-      crumbs={<Link href="/connections">Подключения</Link>}
+      crumbs={<BackCrumb href="/connections">Подключения</BackCrumb>}
     >
       <nav className="settings-tabs" aria-label="Настройка каналов">
         <Link href="/channels">Статистика продаж</Link>

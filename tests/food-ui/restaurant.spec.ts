@@ -347,6 +347,42 @@ test('зарплата: оклад + процент, премия и штраф,
   expect(axe.violations).toEqual([]);
 });
 
+test('отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты', async ({
+  page,
+  request,
+}) => {
+  const { headers, table, pasta, steak, waiter } = await seed(page, request);
+  const order = (items: Array<{ menuItemId: string; qty: number }>) =>
+    post(request, headers, '/food-service/orders', { tableId: table.id, waiterId: waiter.id, guestCount: 2, items });
+  // 2 × паста = 780 ₸ наличными; паста + стейк = 1 880 ₸ частями: 880 Kaspi и 1 000 наличными
+  const a = await order([{ menuItemId: pasta.id, qty: 2 }]);
+  expect((await serveAndPay(request, headers, a)).status).toBe('CLOSED');
+  let b = await order([{ menuItemId: pasta.id, qty: 1 }, { menuItemId: steak.id, qty: 1 }]);
+  for (const status of ['COOKING', 'READY', 'SERVED'])
+    b = await post(request, headers, `/food-service/orders/${b.id}/status`, {
+      expectedStatus: b.status,
+      expectedUpdatedAt: b.updatedAt,
+      status,
+    });
+  await post(request, headers, `/food-service/orders/${b.id}/payments`, { method: 'KASPI', amount: 88_000, idempotencyKey: 'r1' });
+  await post(request, headers, `/food-service/orders/${b.id}/payments`, { method: 'CASH', amount: 100_000, idempotencyKey: 'r2' });
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const res = await request.get(`${api}/food-service/period-report?from=${day}&to=${day}`, { headers });
+  expect(res.ok()).toBe(true);
+  const r = await res.json();
+  expect(r.ordersCount).toBe(2);
+  expect(r.revenueMinor).toBe('266000');
+  expect(r.averageCheckMinor).toBe('133000');
+  expect(r.payments).toEqual([
+    { method: 'CASH', amountMinor: '178000', count: 2 },
+    { method: 'KASPI', amountMinor: '88000', count: 1 },
+  ]);
+  expect(r.topDishes[0]).toEqual({ name: 'Паста Карбонара', qty: 3, revenueMinor: '117000' });
+  expect(r.waiters).toEqual([{ name: 'Иванова Анна', orders: 2, revenueMinor: '266000' }]);
+  const bad = await request.get(`${api}/food-service/period-report?from=${day}&to=2000-01-01`, { headers });
+  expect(bad.status()).toBe(400);
+});
+
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({
   page,
   request,

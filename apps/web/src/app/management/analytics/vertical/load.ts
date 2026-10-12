@@ -1,4 +1,4 @@
-import { branchReportDay, type BranchItem, type BeautyDay } from '../../../../lib/api';
+import { branchFoodPeriod, branchReportDay, type BranchItem, type BeautyDay } from '../../../../lib/api';
 import type { FoodPage, RestaurantReservation } from '../../../../lib/food-types';
 import { completeFoodList, validFoodReservation } from '../../../../lib/food-data';
 import { localInput } from '../../../beauty/time';
@@ -39,6 +39,10 @@ export async function loadBranchPeriod(
       );
     } else throw new Error('Нет адаптера отчёта');
   }
-  if (branch.vertical === 'BEAUTY') return beautyPeriod(beautyRows);
-  return { counts: foodPeriod(foodRows), revenue: null };
+  if (branch.vertical === 'BEAUTY') return { ...beautyPeriod(beautyRows), food: null };
+  return {
+    counts: foodPeriod(foodRows),
+    revenue: null,
+    food: await branchFoodPeriod(branch, dates[0]!, dates[dates.length - 1]!),
+  };
 }

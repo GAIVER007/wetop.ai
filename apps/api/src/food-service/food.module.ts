@@ -174,6 +174,9 @@ export class FoodOrdersController {
   @Get('report') report(@Query() q: Record<string, unknown>) {
     return this.service.report(q);
   }
+  @Get('period-report') @Access('reports') periodReport(@Query() q: Record<string, unknown>) {
+    return this.service.periodReport(q);
+  }
 }
 @Controller('food-service')
 @Access('desk')

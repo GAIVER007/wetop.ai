@@ -3818,6 +3818,12 @@ export const barApi = {
 };
 
 /** MV9: fixed read-only report queries for a branch returned by GET /branches. No mutations or arbitrary paths. */
+/** Отчёт ресторана за период по филиалу (контекст филиала заголовком, как у `branchReportDay`) */
+export async function branchFoodPeriod(branch: Pick<BranchItem, 'locationId' | 'location'>, from: string, to: string): Promise<import('./food-types').FoodPeriodReport> {
+  const response = await backendFetch(`/food-service/period-report?${new URLSearchParams({ from, to })}`, {}, `business=${branch.location.businessId};location=${branch.locationId}`);
+  if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
+  return response.json();
+}
 export async function branchReportDay(branch: Pick<BranchItem, 'vertical' | 'locationId' | 'location'>, date: string, cursor?: string): Promise<BeautyDay | import('./food-types').FoodPage<import('./food-types').RestaurantReservation>> {
   const q = new URLSearchParams({ date });
   if (branch.vertical === 'FOOD_SERVICE') {

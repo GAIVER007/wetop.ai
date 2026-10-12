@@ -8,6 +8,7 @@ import { currentMe, deskShell } from '../../../../lib/desk-shell';
 import { localInput } from '../../../beauty/time';
 import { BEAUTY_LABELS, FOOD_LABELS, moneyText, periodDates } from './metrics';
 import { loadBranchPeriod } from './load';
+import { FoodPeriodPanel } from './food-period';
 import './vertical.css';
 const path = '/management/analytics';
 export async function VerticalAnalytics({ sp }: { sp: Record<string, string | undefined> }) {
@@ -139,9 +140,7 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
                                 </p>
                               </Panel>
                             ) : (
-                              <p className="muted" data-testid="food-finance-unavailable">
-                                Финансовый учёт ресторана не подключён.
-                              </p>
+                              report.food && <FoodPeriodPanel report={report.food} />
                             )}
                           </>
                         )

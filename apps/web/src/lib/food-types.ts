@@ -343,3 +343,16 @@ export interface PayrollView {
     createdAt: string;
   }>;
 }
+
+/** Отчёт ресторана за период (Аналитика): закрытые заказы, оплаты по способам, блюда, официанты */
+export interface FoodPeriodReport {
+  from: string;
+  to: string;
+  currency: string;
+  ordersCount: number;
+  revenueMinor: string;
+  averageCheckMinor: string | null;
+  payments: Array<{ method: string; amountMinor: string; count: number }>;
+  topDishes: Array<{ name: string; qty: number; revenueMinor: string }>;
+  waiters: Array<{ name: string; orders: number; revenueMinor: string }>;
+}

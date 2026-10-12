@@ -110,7 +110,11 @@ test('MV9 Food pagination, overlap boundaries, mixed Organization groups and una
   }
   await expect(page.getByRole('main').getByTestId('period-BOOKED')).toHaveText('53');
   await expect(page.getByRole('main').getByTestId('period-CONFIRMED')).toHaveText('52');
-  await expect(page.getByRole('main').getByTestId('food-finance-unavailable')).toBeVisible();
+  // деньги ресторана теперь из кассы и закрытых заказов (§35): заказов в сиде нет, нули
+  const food = page.getByRole('main').getByTestId('food-period');
+  await expect(food.getByTestId('food-period-orders')).toContainText('0');
+  await expect(food.getByTestId('food-period-revenue')).toContainText('0 ₸');
+  await expect(food.getByTestId('food-period-check')).toContainText('—');
   await expect(page.locator('[data-testid^="revenue-"]')).toHaveCount(0);
   await page.getByRole('link', { name: 'Все филиалы', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Салоны', exact: true })).toBeVisible();
@@ -145,7 +149,7 @@ test('MV9 scope switching, read-only and invalid Hospitality tab never show fore
       .click();
   };
   await choose('Тестовый филиал Центр');
-  await expect(page.getByRole('main').getByTestId('food-finance-unavailable')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('food-period')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('revenue-KZT')).toHaveCount(0);
   await choose('Тестовый салон');
   await expect(page.getByRole('main').getByTestId('revenue-KZT')).toBeVisible();

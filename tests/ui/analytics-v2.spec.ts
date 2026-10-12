@@ -98,8 +98,9 @@ test('обзор за месяц: четыре основных показате
     await expect(kpis).toContainText(label);
   // «Загрузка номеров» и «Загрузка коек» вместо одной общей плитки (ADR-155, Q-287)
   await expect(kpis.locator('.kpi')).toHaveCount(5);
-  // стенд: весь фонд в этом месяце загружен слабее прошлого — падение в п.п.
-  await expect(kpis.locator('.kpi--occupancy .kpi-delta--down')).toContainText('п.п.');
+  // сравнение загрузки в процентных пунктах. Направление не проверяем: подставной стенд строит брони от
+  // настоящего «сегодня» по Алматы, и с 12.10.2026 этот месяц стал загружен сильнее прошлого (гейт краснел)
+  await expect(kpis.locator('.kpi--occupancy .kpi-delta:not(.kpi-delta--none)')).toContainText('п.п.');
   await expect(main.getByTestId('pa-kpis-detail')).not.toBeVisible();
   await main.locator('.pa-details > summary').click();
   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi')).toHaveCount(2);

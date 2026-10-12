@@ -2,7 +2,7 @@
 import { useActionState, useRef, useState, useTransition } from 'react';
 import { parseEmployeeInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
-import { Alert, Badge, Button, Field, Input, Table } from '../../../components/ui';
+import { Alert, Badge, Button, EmptyState, Field, Input, Table } from '../../../components/ui';
 import type {
   BeautyEmployeeRow,
   BeautyServiceRow,
@@ -77,55 +77,63 @@ export function MastersBoard({
           </Button>
         )}
       </div>
-      <Table className="beauty-operational-table">
-        <thead>
-          <tr>
-            <th>Мастер</th>
-            <th className="beauty-col-wide">Контакты</th>
-            <th className="beauty-col-wide">Филиалы</th>
-            <th className="beauty-col-wide">Сегодня</th>
-            <th>Что умеет</th>
-            <th className="sr-only">Действия</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((row) => (
-            <tr key={row.id}>
-              <td data-label="Мастер">
-                {row.name}
-                {!row.active && <Badge>В архиве</Badge>}
-              </td>
-              <td data-label="Контакты" className="beauty-col-wide">
-                {[row.phone, row.email].filter(Boolean).join(', ') || 'Не указаны'}
-              </td>
-              <td data-label="Филиалы" className="beauty-col-wide">
-                {locations
-                  .filter((l) => row.locationIds.includes(l.id))
-                  .map((l) => l.name)
-                  .join(', ') || 'Не назначены'}
-              </td>
-              <td data-label="Сегодня" className="beauty-col-wide">
-                {today.columns.some((e) => e.id === row.id && !e.timeOff && e.intervals.length > 0)
-                  ? 'Работает'
-                  : 'Не работает'}
-              </td>
-              <td data-label="Что умеет">
-                {row.serviceIds.length === 0
-                  ? 'Услуги не выбраны'
-                  : row.serviceIds
-                      .map((id) => names.get(id))
-                      .filter(Boolean)
-                      .join(', ')}
-              </td>
-              <td data-label="Действия">
-                <Button type="button" size="sm" tone="secondary" onClick={() => open(row)}>
-                  Открыть
-                </Button>
-              </td>
+      {items.length === 0 ? (
+        <EmptyState title="Мастеров пока нет">
+          Добавьте мастера: он появится в календаре и графике.
+        </EmptyState>
+      ) : (
+        <Table className="beauty-operational-table">
+          <thead>
+            <tr>
+              <th>Мастер</th>
+              <th className="beauty-col-wide">Контакты</th>
+              <th className="beauty-col-wide">Филиалы</th>
+              <th className="beauty-col-wide">Сегодня</th>
+              <th>Что умеет</th>
+              <th className="sr-only">Действия</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {items.map((row) => (
+              <tr key={row.id}>
+                <td data-label="Мастер">
+                  {row.name}
+                  {!row.active && <Badge>В архиве</Badge>}
+                </td>
+                <td data-label="Контакты" className="beauty-col-wide">
+                  {[row.phone, row.email].filter(Boolean).join(', ') || 'Не указаны'}
+                </td>
+                <td data-label="Филиалы" className="beauty-col-wide">
+                  {locations
+                    .filter((l) => row.locationIds.includes(l.id))
+                    .map((l) => l.name)
+                    .join(', ') || 'Не назначены'}
+                </td>
+                <td data-label="Сегодня" className="beauty-col-wide">
+                  {today.columns.some(
+                    (e) => e.id === row.id && !e.timeOff && e.intervals.length > 0,
+                  )
+                    ? 'Работает'
+                    : 'Не работает'}
+                </td>
+                <td data-label="Что умеет">
+                  {row.serviceIds.length === 0
+                    ? 'Услуги не выбраны'
+                    : row.serviceIds
+                        .map((id) => names.get(id))
+                        .filter(Boolean)
+                        .join(', ')}
+                </td>
+                <td data-label="Действия">
+                  <Button type="button" size="sm" tone="secondary" onClick={() => open(row)}>
+                    Открыть
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
       <Overlay
         open={editing !== null}
         onClose={() => {

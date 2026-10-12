@@ -103,8 +103,12 @@
     overflow-x: auto;
     padding-bottom: 8px;
   }
+  /* Часы закреплены слева: при многих мастерах колонки уезжают вбок, ось времени остаётся */
   .beauty-hours {
-    position: relative;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--surface);
     color: var(--muted);
     font-size: var(--text-sm);
   }
@@ -173,6 +177,13 @@
   .beauty-tile-service {
     color: var(--muted);
     font-size: var(--text-sm);
+  }
+  /* Статус полосой слева тоном реестра (lib/status/beauty.ts); слово статуса в плитке остаётся */
+  .beauty-tile--booked {
+    border-left: 3px solid var(--warning);
+  }
+  .beauty-tile--confirmed {
+    border-left: 3px solid var(--info);
   }
   .beauty-tile--done {
     border-style: dashed;

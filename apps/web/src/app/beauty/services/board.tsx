@@ -2,7 +2,16 @@
 import { useActionState, useState } from 'react';
 import { parseBeautyServiceInput, parseLocationServiceInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
-import { Alert, Badge, Button, Field, Input, Select, Table } from '../../../components/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  Table,
+} from '../../../components/ui';
 import { formatMoney } from '../../../lib/money';
 import type { BeautyServiceRow } from '../../../lib/api';
 import { saveBeautyService, saveLocationService } from '../actions';
@@ -44,54 +53,60 @@ export function ServicesBoard({
           </Button>
         )}
       </div>
-      <Table className="beauty-operational-table">
-        <thead>
-          <tr>
-            <th>Услуга</th>
-            <th className="beauty-col-wide">Группа</th>
-            <th className="beauty-col-wide">Длительность</th>
-            <th>Цена каталога</th>
-            <th>В этом филиале</th>
-            {canEdit && <th className="sr-only">Действия</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((row) => (
-            <tr key={row.id}>
-              <td data-label="Услуга">
-                {row.name}
-                {!row.active && <Badge>В архиве</Badge>}
-              </td>
-              <td data-label="Группа" className="beauty-col-wide">
-                {row.category ?? 'Без группы'}
-              </td>
-              <td data-label="Длительность" className="beauty-col-wide">
-                {row.durationMinutes} мин
-              </td>
-              <td data-label="Цена каталога">{formatMoney(row.priceMinor, row.currency)}</td>
-              <td data-label="В этом филиале">
-                {row.effective === null
-                  ? 'Выберите филиал'
-                  : row.effective.sellable
-                    ? `${formatMoney(row.effective.priceMinor, row.effective.currency)}, ${row.effective.durationMinutes} мин${row.effective.overridden ? ' (своя цена филиала)' : ''}`
-                    : (NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся')}
-              </td>
-              {canEdit && (
-                <td data-label="Действия">
-                  <Button
-                    type="button"
-                    size="sm"
-                    tone="secondary"
-                    onClick={() => setEditing({ mode: 'edit', row })}
-                  >
-                    Изменить
-                  </Button>
-                </td>
-              )}
+      {items.length === 0 ? (
+        <EmptyState title="Услуг пока нет">
+          Добавьте услугу: её можно будет выбрать при записи.
+        </EmptyState>
+      ) : (
+        <Table className="beauty-operational-table">
+          <thead>
+            <tr>
+              <th>Услуга</th>
+              <th className="beauty-col-wide">Группа</th>
+              <th className="beauty-col-wide">Длительность</th>
+              <th>Цена каталога</th>
+              <th>В этом филиале</th>
+              {canEdit && <th className="sr-only">Действия</th>}
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {items.map((row) => (
+              <tr key={row.id}>
+                <td data-label="Услуга">
+                  {row.name}
+                  {!row.active && <Badge>В архиве</Badge>}
+                </td>
+                <td data-label="Группа" className="beauty-col-wide">
+                  {row.category ?? 'Без группы'}
+                </td>
+                <td data-label="Длительность" className="beauty-col-wide">
+                  {row.durationMinutes} мин
+                </td>
+                <td data-label="Цена каталога">{formatMoney(row.priceMinor, row.currency)}</td>
+                <td data-label="В этом филиале">
+                  {row.effective === null
+                    ? 'Выберите филиал'
+                    : row.effective.sellable
+                      ? `${formatMoney(row.effective.priceMinor, row.effective.currency)}, ${row.effective.durationMinutes} мин${row.effective.overridden ? ' (своя цена филиала)' : ''}`
+                      : (NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся')}
+                </td>
+                {canEdit && (
+                  <td data-label="Действия">
+                    <Button
+                      type="button"
+                      size="sm"
+                      tone="secondary"
+                      onClick={() => setEditing({ mode: 'edit', row })}
+                    >
+                      Изменить
+                    </Button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
       <Overlay
         open={editing !== null}
         onClose={() => setEditing(null)}

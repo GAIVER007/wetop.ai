@@ -1,3 +1,4 @@
+import { BusinessGrowthScreen } from '../growth/business-screen';
 import Link from 'next/link';
 import { requireVertical } from '../../lib/vertical-guard';
 import './marketing.css';
@@ -103,7 +104,9 @@ function ModuleCard({ module }: { module: Module }) {
 }
 
 export default async function MarketingPage() {
-  await requireVertical(['HOSPITALITY']);
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  if (me.context?.vertical === 'BEAUTY' || me.context?.vertical === 'FOOD_SERVICE')
+    return <BusinessGrowthScreen vertical={me.context.vertical} mode="marketing" />;
   return (
     <Page
       title="Маркетинг"

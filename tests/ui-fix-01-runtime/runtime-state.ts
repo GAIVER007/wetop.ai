@@ -253,6 +253,8 @@ export async function cleanupRuntime(state = readRuntimeState(), openDb?: Db): P
     await db.floor.deleteMany({ where: { building: { propertyId: state.propertyId } } });
     await db.building.deleteMany({ where: { propertyId: state.propertyId } });
     await db.accommodationType.deleteMany({ where: { propertyId: state.propertyId } });
+    // Finance reads seed categories for this isolated property; remove them before its parent.
+    await db.cashCategory.deleteMany({ where: { propertyId: state.propertyId } });
     await db.property.deleteMany({ where: { id: state.propertyId } });
     await db.location.deleteMany({
       where: {

@@ -19,7 +19,7 @@ export function FAQ() {
         register: { href: registerLink().href, label: t.hero.primary },
         secondary: email ? { href: email.href, label: t.final.contact } : undefined,
         photo: { src: '/photos/building.jpg', alt: '' },
-        contacts: email ? `${t.final.contactsLabel} ${email.label}  ${host}` : undefined,
+        contacts: email ? `${t.final.contactsLabel} ${email.label}, ${host}` : undefined,
       }}
     />
   );

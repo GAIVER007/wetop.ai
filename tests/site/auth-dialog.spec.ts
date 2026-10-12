@@ -332,5 +332,5 @@ test('registration: country sets the phone code, language is Russian only', asyn
   const language = dialog.getByLabel('Язык системы');
   await expect(language).toHaveValue('ru');
   await expect(language.locator('option[value="kk"]')).toBeDisabled();
-  await expect(dialog).toContainText('Пока интерфейс только на русском.');
+  await expect(dialog).toContainText('Интерфейс на русском, казахский и английский на подходе.');
 });

@@ -1,5 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import { createPrismaClient, type Db } from '@pms/database';
+import { READ_ONLY_MESSAGE } from '@pms/domain';
 import {
   expect,
   test,
@@ -126,7 +127,7 @@ async function signIn(
   return session.token;
 }
 
-test.describe.serial('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
+test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
   let state: RuntimeState;
   let token = '';
   test.beforeAll(() => {
@@ -312,6 +313,7 @@ test.describe.serial('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
   });
 
   test('Hospitality creates ROOM and BED through guarded API and readonly attempts leave the DB unchanged', async ({
+    page,
     request,
   }) => {
     const db = createPrismaClient(process.env.DATABASE_URL, process.env.DATABASE_SCHEMA);
@@ -355,16 +357,59 @@ test.describe.serial('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
         ].sort((a, b) => a.code.localeCompare(b.code)),
       );
 
+      await page.context().addCookies([
+        {
+          name: 'wetop_scope',
+          value: encodeURIComponent(hospitalityScope(state)),
+          domain: '127.0.0.1',
+          path: '/',
+          httpOnly: true,
+          sameSite: 'Lax',
+        },
+      ]);
+      await page.goto('/inventory');
+      await page.getByRole('button', { name: 'Добавить номер', exact: true }).click();
+      await page.getByRole('menuitem', { name: 'Номер', exact: true }).click();
+      const lateForm = page.locator('form.fund-form');
+      await expect(lateForm).toBeVisible();
+      await lateForm.getByLabel('Категория').selectOption(state.privateCategoryCode);
+      await lateForm.getByLabel('Корпус').fill(`Поздний корпус ${state.run}`);
+      await lateForm.getByLabel('Этаж').fill('9');
+      await lateForm.getByLabel('Обозначение комнаты').fill(`LATE-R-${state.run}`);
+      await lateForm.getByLabel('Обозначение номера в календаре').fill(`LATE-ROOM-${state.run}`);
+
       await db.organization.update({
         where: { id: state.organizationId },
         data: { status: 'READ_ONLY' },
       });
-      const before = {
+      const snapshot = async () => ({
         rooms: await db.physicalRoom.count({
           where: { floor: { building: { propertyId: state.propertyId } } },
         }),
         units: await db.inventoryUnit.count({ where: { propertyId: state.propertyId } }),
-      };
+        categories: await db.accommodationType.count({ where: { propertyId: state.propertyId } }),
+        reservations: await db.reservation.count({ where: { propertyId: state.propertyId } }),
+        blocks: await db.inventoryBlock.count({
+          where: { inventoryUnit: { propertyId: state.propertyId } },
+        }),
+        housekeeping: await db.housekeepingEvent.count({
+          where: { inventoryUnit: { propertyId: state.propertyId } },
+        }),
+        barProducts: await db.barProduct.count({ where: { propertyId: state.propertyId } }),
+        barReceipts: await db.barReceipt.count({ where: { propertyId: state.propertyId } }),
+        barMovements: await db.barStockMovement.count({ where: { propertyId: state.propertyId } }),
+        barSales: await db.barSale.count({ where: { propertyId: state.propertyId } }),
+        cashOperations: await db.cashOperation.count({ where: { propertyId: state.propertyId } }),
+        channelEvents: await db.externalEvent.count({ where: { propertyId: state.propertyId } }),
+        channelOutbox: await db.channelOutbox.count({ where: { propertyId: state.propertyId } }),
+      });
+      const before = await snapshot();
+
+      await lateForm.getByRole('button', { name: 'Создать', exact: true }).click();
+      await expect(lateForm.getByRole('alert')).toHaveText(READ_ONLY_MESSAGE);
+      await expect(lateForm).toBeVisible();
+      expect(await snapshot()).toEqual(before);
+
       for (const denied of [
         {
           categoryCode: state.privateCategoryCode,
@@ -384,12 +429,37 @@ test.describe.serial('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
         const response = await createRoom(denied);
         expect(response.status()).toBe(403);
       }
-      expect({
-        rooms: await db.physicalRoom.count({
-          where: { floor: { building: { propertyId: state.propertyId } } },
-        }),
-        units: await db.inventoryUnit.count({ where: { propertyId: state.propertyId } }),
-      }).toEqual(before);
+
+      const guardedHeaders = {
+        authorization: `Bearer ${token}`,
+        'x-wetop-scope': hospitalityScope(state),
+      };
+      const guardedWrites: ReadonlyArray<readonly [string, Record<string, unknown>]> = [
+        ['/reservations', { source: 'SYNTHETIC_INVALID_READONLY' }],
+        [`/units/${encodeURIComponent(roomCode)}/housekeeping`, { status: 'CLEAN' }],
+        [
+          `/units/${encodeURIComponent(roomCode)}/blocks`,
+          { dateFrom: '2026-10-20', dateTo: '2026-10-21', type: 'OTHER', reason: 'synthetic' },
+        ],
+        ['/inventory/categories', { name: '', kind: 'SYNTHETIC_INVALID_READONLY' }],
+        ['/bar/products', { code: `READONLY-${state.run}`, salePrice: 'invalid' }],
+        ['/bar/receipts', { documentNumber: `READONLY-${state.run}`, lines: [] }],
+        ['/bar/write-offs', { productId: 'synthetic-invalid', quantityUnits: '0' }],
+        ['/bar/inventory-counts', { productId: 'synthetic-invalid', actualUnits: '-1' }],
+        ['/channels/channex/outbox/flush', { probe: 'synthetic-readonly' }],
+        ['/channels/channex/pull', { probe: 'synthetic-readonly' }],
+        [
+          '/channels/channex/events/synthetic-readonly-revision/retry',
+          { probe: 'synthetic-readonly' },
+        ],
+        ['/channels/channex/setup', { ratePlanCode: 'SYNTHETIC_INVALID_READONLY' }],
+      ];
+      for (const [path, data] of guardedWrites) {
+        const response = await request.post(`${API}${path}`, { headers: guardedHeaders, data });
+        expect(response.status(), `${path} must be denied before controller validation`).toBe(403);
+        expect((await response.json()).message).toBe(READ_ONLY_MESSAGE);
+      }
+      expect(await snapshot()).toEqual(before);
     } finally {
       await db.organization
         .update({ where: { id: state.organizationId }, data: { status: 'ACTIVE' } })

@@ -326,6 +326,8 @@ jobs:
       DATABASE_POOL_MAX: '2'
       DATABASE_APP_POOL_MAX: '2'
       UI_BROWSER_CHANNEL: chromium
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       UV_VERSION: 0.12.21
       UV_SHA256: 23f02075b652bb1df64178cfae41b5caf160822e720e2663568f3f5d63bc52c0
     steps:
@@ -354,15 +356,21 @@ jobs:
           "$RUNNER_TEMP/uv" pip install --python "$RUNNER_TEMP/ui-fix-01-python/bin/python" -r "$RUNNER_TEMP/bot-requirements.txt"
           echo "UI_FIX_01_PYTHON=$RUNNER_TEMP/ui-fix-01-python/bin/python" >> "$GITHUB_ENV"
       - name: Addressed units and scope integration
+        id: addressed
+        continue-on-error: true
         run: |
           npm run test:record -- unit tests/unit/food-customer-update.test.ts apps/web/src/app/team/scope-model.test.ts apps/web/src/app/help/help.test.ts apps/web/src/app/platform/support/kb-forms.test.ts
           npm run test:record -- integration tests/integration/member-scopes.test.ts
       - name: Real web API DB and KB storage
+        id: runtime
+        continue-on-error: true
         run: |
           npm run test:record -- e2e --config tests/ui-fix-01-runtime/playwright.config.ts --workers=1
           cd apps/ai-seller
           "$UI_FIX_01_PYTHON" -m pytest ../../tests/ui-fix-01-runtime/test_support_kb_panel.py -q -p no:cacheprovider
       - name: UI controlled failures and adjacent regressions
+        id: regression
+        continue-on-error: true
         env:
           UI_FIXTURE_PORT: '4371'
           UI_WEB_PORT: '3171'
@@ -372,6 +380,8 @@ jobs:
           ref: 47b86b08fc0d7d1093fa835679b2d1f7134d2e3f
           path: ui-fix-01-baseline
       - name: Matching Linux before screenshots
+        id: before
+        continue-on-error: true
         env:
           UI_FIX_01_VISUAL: before
           UI_FIXTURE_PORT: '4371'
@@ -383,11 +393,22 @@ jobs:
           npm run generate -w @pms/database
           npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-visual.spec.ts
       - name: Matching Linux after screenshots
+        id: after
+        continue-on-error: true
         env:
           UI_FIX_01_VISUAL: after
           UI_FIXTURE_PORT: '4371'
           UI_WEB_PORT: '3171'
         run: npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-visual.spec.ts
+      - name: Verify all proof outcomes
+        if: always()
+        env:
+          ADDRESSED: ${{ steps.addressed.outcome }}
+          RUNTIME: ${{ steps.runtime.outcome }}
+          REGRESSION: ${{ steps.regression.outcome }}
+          BEFORE: ${{ steps.before.outcome }}
+          AFTER: ${{ steps.after.outcome }}
+        run: test "$ADDRESSED" = success && test "$RUNTIME" = success && test "$REGRESSION" = success && test "$BEFORE" = success && test "$AFTER" = success
       - name: Collect safe verification records
         if: always()
         run: node tests/ui-fix-01-runtime/collect-checks.mjs

@@ -6,7 +6,7 @@ const customerId = '11111111-1111-4111-8111-111111111111';
 const originalBirthDate = new Date('1990-05-01T00:00:00.000Z');
 
 function setup() {
-  let stored = {
+  let stored: { id: string; isVip: boolean; birthDate: Date | null } = {
     id: customerId,
     isVip: true,
     birthDate: originalBirthDate,

@@ -37,7 +37,7 @@ Covered claims:
 - Food customer PATCH distinguishes omitted, explicit `null`, a valid new date and an invalid date, with API response and PostgreSQL readback of VIP, first name, last name, phone, email and status invariants;
 - Food customer PATCH returns 404 for a synthetic customer in another organization and 403 in `READ_ONLY`; both attempts leave the complete observed customer row unchanged, and teardown restores `ACTIVE`;
 - the ordinary customer web form clears the date and reloads the persisted `null`;
-- Hospitality creates one `ROOM` and two `BED` units through the real guarded API, then two late-readonly POST attempts return 403 while room and unit counts remain unchanged;
+- Hospitality creates one `ROOM` and two `BED` units through the real guarded API, then an already open inventory form and guarded writes for reservations, units, inventory, Bar and Channels return readonly denial while DB snapshots remain unchanged;
 - `/today` switches through the real branch chooser from Food (`Главная`) to Beauty (`Сегодня`), then Hospitality redirects to `/finance` (`Обзор бизнеса`); `/help` shows each vertical's exact current guide links and omits links from the other verticals, while explicit bearer `/auth/me` requests independently confirm all three location contexts;
 - the KB screen creates A, saves B as version 2, publishes B and reloads B through the real Nest to local FastAPI path.
 
@@ -47,7 +47,7 @@ Automatic Playwright trace, video and failure screenshots are off. The suite wri
 /tmp/ui-fix-01-runtime-screenshots/<run>/
 ```
 
-For Team, D01 and KB it writes `before` and `after` at 1440x900 and 390x844 in both light and dark themes. Override the parent with `UI_FIX_01_SCREENSHOTS`. A failing serial test makes Playwright exit nonzero; tests skipped after that failure are not evidence of success.
+For Team, D01 and KB it writes `before` and `after` at 1440x900 and 390x844 in both light and dark themes. Override the parent with `UI_FIX_01_SCREENSHOTS`. The suite uses one worker and independent cases; a failure exits nonzero without treating unrelated cases as passed.
 
 ## Local KB panel storage
 

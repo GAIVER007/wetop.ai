@@ -863,5 +863,27 @@
       "pr": null,
       "deployment": "NOT_PUBLISHED_BY_THIS_TASK"
     }
+  ],
+  "auditContractQuestions": [
+    {
+      "id": "Q-AUDIT-20261011-01",
+      "status": "OPEN",
+      "source": "source/audit-contract-questions.md"
+    },
+    {
+      "id": "Q-AUDIT-20261011-02",
+      "status": "OPEN",
+      "source": "source/audit-contract-questions.md"
+    },
+    {
+      "id": "Q-AUDIT-20261011-03",
+      "status": "OPEN",
+      "source": "source/audit-contract-questions.md"
+    },
+    {
+      "id": "Q-AUDIT-20261011-04",
+      "status": "OPEN",
+      "source": "source/audit-contract-questions.md"
+    }
   ]
 }

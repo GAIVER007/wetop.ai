@@ -53,7 +53,7 @@ export default defineConfig({
       },
     },
     {
-      command: 'npx tsx tests/ui-fix-01-runtime/api-server.ts',
+      command: 'npx tsx --tsconfig apps/api/tsconfig.json tests/ui-fix-01-runtime/api-server.ts',
       cwd: '../..',
       url: `${apiUrl}/health`,
       reuseExistingServer: false,

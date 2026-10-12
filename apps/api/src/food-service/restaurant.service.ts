@@ -14,6 +14,8 @@ import {
   orderDelayed,
   orderNext,
   orderPayment,
+  foodCostSummary,
+  milliText,
   foodCashBalances,
   payoutCheck,
   parseFoodPayment,
@@ -1238,6 +1240,27 @@ export class RestaurantService {
       d.revenue += i.price * BigInt(i.qty);
       dishes.set(i.name, d);
     }
+    // §38: себестоимость проданного и недостачи из ленты склада за тот же период
+    const moves = await db.kitchenStockMovement.findMany({
+      where: {
+        locationId: s.locationId,
+        createdAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
+        kind: { in: ['CONSUMPTION', 'SHORTAGE', 'CONSUMPTION_RETURN'] },
+      },
+      select: { kind: true, lotId: true, productId: true, qty: true, cost: true },
+    });
+    const food = foodCostSummary(
+      revenue,
+      moves.map((m) => ({ ...m, qty: m.qty.toString() })),
+    );
+    const shortProducts = new Map(
+      (
+        await db.kitchenProduct.findMany({
+          where: { id: { in: food.shortages.map((x) => x.productId) } },
+          select: { id: true, name: true, unit: true },
+        })
+      ).map((p) => [p.id, p]),
+    );
     const names = new Map(
       (
         await db.employee.findMany({
@@ -1250,6 +1273,14 @@ export class RestaurantService {
       from,
       to,
       currency: s.currency,
+      costMinor: food.costMinor.toString(),
+      grossProfitMinor: food.grossProfitMinor.toString(),
+      foodCostPct: food.foodCostPct,
+      shortages: food.shortages.map((x) => ({
+        name: shortProducts.get(x.productId)?.name ?? '—',
+        unit: shortProducts.get(x.productId)?.unit ?? '',
+        qty: milliText(x.milli),
+      })),
       ordersCount: count,
       revenueMinor: revenue.toString(),
       averageCheckMinor: count ? ((revenue + BigInt(count) / 2n) / BigInt(count)).toString() : null,

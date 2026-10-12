@@ -39,6 +39,18 @@ export function FoodPeriodPanel({ report }: { report: FoodPeriodReport }) {
           value={report.averageCheckMinor === null ? '—' : money(report.averageCheckMinor)}
           testId="food-period-check"
         />
+        <Stat
+          label="Себестоимость"
+          value={money(report.costMinor)}
+          hint="списано со склада по заказам"
+          testId="food-period-cost"
+        />
+        <Stat label="Валовая прибыль" value={money(report.grossProfitMinor)} testId="food-period-profit" />
+        <Stat
+          label="Фудкост"
+          value={report.foodCostPct === null ? '—' : `${report.foodCostPct} %`}
+          testId="food-period-foodcost"
+        />
       </Stats>
       <Panel title="Оплаты по способам">
         {table(
@@ -52,6 +64,13 @@ export function FoodPeriodPanel({ report }: { report: FoodPeriodReport }) {
           ['Блюдо', 'Порций', 'Выручка'],
           report.topDishes.map((d) => [d.name, d.qty, money(d.revenueMinor)]),
           'Закрытых заказов за период нет',
+        )}
+      </Panel>
+      <Panel title="Недостачи по заказам">
+        {table(
+          ['Ингредиент', 'Не хватило'],
+          report.shortages.map((x) => [x.name, `${x.qty} ${x.unit}`]),
+          'Недостач за период нет',
         )}
       </Panel>
       <Panel title="Официанты">

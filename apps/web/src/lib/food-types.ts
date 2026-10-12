@@ -418,4 +418,9 @@ export interface FoodPeriodReport {
   payments: Array<{ method: string; amountMinor: string; count: number }>;
   topDishes: Array<{ name: string; qty: number; revenueMinor: string }>;
   waiters: Array<{ name: string; orders: number; revenueMinor: string }>;
+  /** §38: себестоимость проданного по ленте склада, валовая прибыль, фудкост и недостачи */
+  costMinor: string;
+  grossProfitMinor: string;
+  foodCostPct: number | null;
+  shortages: Array<{ name: string; unit: string; qty: string }>;
 }

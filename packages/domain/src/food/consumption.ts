@@ -24,3 +24,39 @@ export function splitShortage(available: bigint, need: bigint): { take: bigint; 
   const take = available < need ? (available > 0n ? available : 0n) : need;
   return { take, shortage: need - take };
 }
+
+/**
+ * Фудкост за период по ленте склада (§38): себестоимость проданного = расход по заказам минус возвраты при
+ * отмене (по партиям); недостача нетто по продукту (недостача минус её возврат). Деньги и тысячные доли bigint.
+ */
+export function foodCostSummary(
+  revenueMinor: bigint,
+  movements: ReadonlyArray<{
+    kind: string;
+    lotId: string | null;
+    productId: string;
+    qty: string;
+    cost: bigint;
+  }>,
+): {
+  costMinor: bigint;
+  grossProfitMinor: bigint;
+  foodCostPct: number | null;
+  shortages: Array<{ productId: string; milli: bigint }>;
+} {
+  let cost = 0n;
+  const short = new Map<string, bigint>();
+  for (const m of movements) {
+    if (m.lotId && (m.kind === 'CONSUMPTION' || m.kind === 'CONSUMPTION_RETURN')) cost -= m.cost;
+    if (!m.lotId && (m.kind === 'SHORTAGE' || m.kind === 'CONSUMPTION_RETURN'))
+      short.set(m.productId, (short.get(m.productId) ?? 0n) - milliOf(m.qty));
+  }
+  return {
+    costMinor: cost,
+    grossProfitMinor: revenueMinor - cost,
+    foodCostPct: revenueMinor > 0n ? Number((cost * 100n + revenueMinor / 2n) / revenueMinor) : null,
+    shortages: [...short.entries()]
+      .filter(([, milli]) => milli > 0n)
+      .map(([productId, milli]) => ({ productId, milli })),
+  };
+}

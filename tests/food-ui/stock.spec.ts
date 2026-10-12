@@ -239,6 +239,12 @@ test('списание по заказу: «Готово» списывает п
   const kinds = moves.items.map((m: { kind: string }) => m.kind);
   expect(kinds).toContain('CONSUMPTION');
   expect(moves.items.find((m: { kind: string }) => m.kind === 'SHORTAGE').qty).toBe('-300');
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const report = async () =>
+    (await request.get(`${api}/food-service/period-report?from=${day}&to=${day}`, { headers })).json();
+  // в отчёте за день: себестоимость по партиям FIFO (600 г по 6 000 + 1 400 г по 6 000 + 1 000 г по 7 000) и недостача
+  expect((await report()).shortages).toEqual([{ name: 'Говядина Рибай', unit: 'г', qty: '300' }]);
+  expect((await report()).costMinor).toBe('1900000');
   // отмена после «Готово» возвращает 2 400 г на партии и гасит недостачу
   await post(request, headers, `/food-service/orders/${big.id}/status`, {
     expectedStatus: big.status,
@@ -246,6 +252,9 @@ test('списание по заказу: «Готово» списывает п
     status: 'CANCELLED',
   });
   expect(await onHand()).toBe('2400');
+  // после отмены в себестоимости только первый заказ: 600 г по 6 000 ₸/кг = 3 600 ₸, недостачи нет
+  expect((await report()).costMinor).toBe('360000');
+  expect((await report()).shortages).toEqual([]);
   // экран: в техкарте видна связь со складом, в ленте склада расход и недостача по заказу
   await page.goto('/menu');
   await page.getByRole('button', { name: /Техкарта/ }).first().click();

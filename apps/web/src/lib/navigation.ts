@@ -322,7 +322,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         // WETOP Support — по `/platform/support`, карточку видит только главный администратор
         href: '/ai-agents',
         requires: 'dialogs',
-        label: 'ИИ-агенты',
+        label: 'ИИ-продавцы',
         icon: 'chat',
         description:
           'ИИ-продавец на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
@@ -392,7 +392,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/connections',
         requires: 'settings',
-        label: 'Интеграции',
+        label: 'Подключения',
         icon: 'channels',
         description: 'Внешние сервисы объекта: состояние подключения и где его настроить.',
       },
@@ -406,7 +406,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/journal',
         requires: 'journal',
-        label: 'Журнал',
+        label: 'Журнал операций',
         icon: 'journal',
         description: 'История операций в системе.',
       },
@@ -496,7 +496,7 @@ export const menuSections: MenuSection[] = [
       menuItem('/sales'),
       menuItem('/market'),
       menuItem('/channels'),
-      menuItem('/ai-agents', 'ИИ-продавцы'),
+      menuItem('/ai-agents'),
     ],
     match: ['/ai-seller', '/channel-manager'],
   },
@@ -524,8 +524,8 @@ export const menuSections: MenuSection[] = [
     items: [
       menuItem('/hotel-settings', 'Объект'),
       menuItem('/team', 'Сотрудники и доступ'),
-      menuItem('/connections', 'Подключения'),
-      menuItem('/journal', 'Журнал операций'),
+      menuItem('/connections'),
+      menuItem('/journal'),
       // право `desk`: администратор видит неисправности (ADR-107) — для него группа сводится к этому пункту
       menuItem('/incidents'),
       // Вкладка «Платформа» снята по поручению владельца 09.10.2026: «Организации» главного администратора живут

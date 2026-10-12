@@ -14,6 +14,8 @@ import {
   orderDelayed,
   orderNext,
   orderPayment,
+  parseOrderRating,
+  ratingSummary,
   foodCostSummary,
   milliText,
   foodCashBalances,
@@ -50,6 +52,7 @@ const orderInclude = {
   waiter: { select: { id: true, name: true } },
   items: { orderBy: { sortOrder: 'asc' as const } },
   payments: { orderBy: { paidAt: 'asc' as const } },
+  rating: true,
 } as const;
 type OrderRow = Prisma.RestaurantOrderGetPayload<{ include: typeof orderInclude }>;
 
@@ -95,6 +98,10 @@ function orderView(r: OrderRow, now = new Date()) {
       qty: i.qty,
       notes: i.notes,
     })),
+    // §39: оценка гостя после оплаты
+    rating: r.rating
+      ? { stars: r.rating.stars, comment: r.rating.comment, createdAt: r.rating.createdAt }
+      : null,
     payments: r.payments.map((p) => ({
       id: p.id,
       method: p.method,
@@ -838,6 +845,7 @@ export class RestaurantService {
           },
           select: { total: true },
         },
+        guestRatings: { select: { stars: true } },
       },
       orderBy: { id: 'asc' },
       take: p.limit + 1,
@@ -859,6 +867,8 @@ export class RestaurantService {
             ? nowMinutes >= minutes(shift.timeFrom) && nowMinutes < minutes(shift.timeTo)
             : false,
           salesTodayMinor: r.restaurantOrders.reduce((acc, o) => acc + o.total, 0n).toString(),
+          // §39: рейтинг по оценкам гостей за всё время
+          rating: ratingSummary(r.guestRatings.map((g) => g.stars)),
         };
       }),
       p.limit,
@@ -913,6 +923,29 @@ export class RestaurantService {
         { name: old.name, status: old.status },
       );
       return row;
+    });
+  }
+
+  /** Оценка гостя после оплаты (§39): одна на закрытый заказ, официант из заказа, без правки */
+  async rateOrder(idRaw: string, raw: unknown) {
+    return this.write('desk', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      const b = parsed(() => parseOrderRating(raw));
+      await tx.$queryRaw`SELECT id FROM restaurant_orders WHERE id=${id}::uuid AND location_id=${s.locationId}::uuid FOR UPDATE`;
+      const r = await tx.restaurantOrder.findFirst({ where: { id, locationId: s.locationId }, include: orderInclude });
+      if (!r) throw new NotFoundException('Заказ не найден');
+      if (r.status !== 'CLOSED') throw new ConflictException('Оценку гость ставит после оплаты заказа');
+      if (r.rating) throw new ConflictException('Заказ уже оценён');
+      await tx.restaurantOrderRating.create({
+        data: { orderId: r.id, waiterId: r.waiterId, stars: b.stars, comment: b.comment, createdById: currentUserId() },
+      });
+      await this.audit(tx, s, 'restaurant_order', r.id, 'food.order.rated', {
+        stars: b.stars,
+        waiterId: r.waiterId,
+        withComment: b.comment !== null,
+      });
+      const row = await tx.restaurantOrder.findUniqueOrThrow({ where: { id: r.id }, include: orderInclude });
+      return orderView(row);
     });
   }
 

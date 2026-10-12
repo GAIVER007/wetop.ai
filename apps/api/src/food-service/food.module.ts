@@ -170,6 +170,9 @@ export class FoodOrdersController {
     return this.service.orderStatus(id, b);
   }
   // Оплата и касса филиала (DATA_MODEL §35, ADR-165): смотрит и проводит смена, аннулирует `refunds`
+  @Post('orders/:id/rating') rate(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.rateOrder(id, b);
+  }
   @Post('orders/:id/payments') pay(@Param('id') id: string, @Body() b: unknown) {
     return this.service.payOrder(id, b);
   }

@@ -2193,6 +2193,7 @@ model User {
   paySettingsEdited            EmployeePaySetting[]
   payAdjustmentsCreated        EmployeePayAdjustment[]
   menuPhotosCreated            MenuItemPhoto[]
+  orderRatingsTaken            RestaurantOrderRating[]
   kitchenLotsCreated           KitchenStockLot[]
   kitchenMovementsCreated      KitchenStockMovement[]
   restaurantPaymentsCreated    RestaurantPayment[]            @relation("RestaurantPaymentCreatedBy")
@@ -2754,6 +2755,7 @@ model Employee {
   paySetting       EmployeePaySetting?
   payAdjustments   EmployeePayAdjustment[]
   cashPayouts      RestaurantCashOperation[]
+  guestRatings     RestaurantOrderRating[]
 
   @@index([businessId])
   @@map("employees")
@@ -3121,6 +3123,7 @@ model RestaurantOrder {
   items          RestaurantOrderItem[]
   payments       RestaurantPayment[]
   stockMovements KitchenStockMovement[]
+  rating         RestaurantOrderRating?
 
   @@unique([locationId, number])
   @@index([locationId, openedAt])
@@ -3368,4 +3371,22 @@ model MenuItemPhoto {
   createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   @@map("menu_item_photos")
+}
+
+/// DATA_MODEL §39 (ADR-169): оценка официанта гостем после оплаты; одна на заказ, без правки и удаления
+model RestaurantOrderRating {
+  orderId     String   @id @map("order_id") @db.Uuid
+  /// снимок официанта заказа на момент оценки
+  waiterId    String?  @map("waiter_id") @db.Uuid
+  stars       Int      @db.SmallInt
+  comment     String?  @db.VarChar(500)
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  order     RestaurantOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  waiter    Employee?       @relation(fields: [waiterId], references: [id], onDelete: Restrict)
+  createdBy User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([waiterId])
+  @@map("restaurant_order_ratings")
 }

@@ -110,6 +110,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'restaurant_payments',
   'restaurant_cash_operations',
   'restaurant_cash_reconciliations',
+  'restaurant_order_ratings',
   // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
   'marketing_sites',
   'marketing_site_versions',

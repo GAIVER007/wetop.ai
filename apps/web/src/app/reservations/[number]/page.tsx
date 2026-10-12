@@ -95,7 +95,6 @@ export default async function ReservationPage({
   ];
   return (
     <Page
-      embedded={preview}
       width="medium"
       crumbs={<BackCrumb href="/reservations">Брони</BackCrumb>}
       title={`Бронь ${r.confirmationNumber}`}

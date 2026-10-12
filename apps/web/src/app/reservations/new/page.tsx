@@ -23,11 +23,8 @@ const isDate = (value: string) => {
 /** Slice 3, шаг 3.5: форма ручной брони. Доступность и ячейки — по датам из адресной строки. */
 export default async function NewReservationPage({
   searchParams,
-  embedded = false,
 }: {
   searchParams: Promise<SearchParams>;
-  /** Форма внутри панели «Новая бронь»: без второго `main` (`Page.embedded`) */
-  embedded?: boolean;
 }) {
   const raw = await searchParams;
   const q = normalizeSearchParams(raw);
@@ -67,7 +64,7 @@ export default async function NewReservationPage({
     return (Array.isArray(value) ? value : value ? [value] : []).map((v) => [name, v] as const);
   });
   return (
-    <Page width="medium" className="booking-create" title="Новая бронь" embedded={embedded}>
+    <Page width="medium" className="booking-create" title="Новая бронь">
       {ratePlans === null && (
         <Alert boxed tone="warning">
           Справочник тарифов не загрузился: без тарифа бронь не создать. Обновите страницу.

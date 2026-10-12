@@ -274,10 +274,7 @@ test('шахматка: плашки «сверх мест» и «требует
   await card.getByRole('link', { name: 'Открыть бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-SHOWUN$/);
   await cardTab(page, 'Действия');
-  // карточка открыта в панели поверх календаря: своего `main` у неё нет (Page.embedded), ищем в окне
-  await expect(
-    page.getByRole('main').or(page.getByRole('dialog')).getByTestId('assign-form').filter({ visible: true }),
-  ).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('assign-form')).toBeVisible();
 });
 
 /**

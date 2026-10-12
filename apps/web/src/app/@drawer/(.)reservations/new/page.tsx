@@ -8,7 +8,7 @@ export default function NewBookingDrawer({
 }) {
   return (
     <RouteDrawer title="Новая бронь" size="lg">
-      <NewReservationPage searchParams={searchParams} embedded />
+      <NewReservationPage searchParams={searchParams} />
     </RouteDrawer>
   );
 }

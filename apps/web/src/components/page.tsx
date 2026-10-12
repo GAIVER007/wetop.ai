@@ -14,7 +14,6 @@ export function Page({
   crumbs,
   width,
   className,
-  embedded,
   children,
 }: {
   className?: string;
@@ -23,17 +22,12 @@ export function Page({
   actions?: ReactNode;
   crumbs?: ReactNode;
   width?: 'narrow' | 'medium' | 'wide' | 'full' | undefined;
-  /**
-   * Страница внутри выезжающей панели (`RouteDrawer`): без `main` и без `id="main-content"`. Ориентир `main` и цель
-   * ссылки «К содержимому» у страницы одни; второй `main` внутри окна их дублировал (мастер-проход UI, этап 2)
-   */
-  embedded?: boolean | undefined;
   children: ReactNode;
 }) {
-  const Root = embedded ? 'div' : 'main';
   return (
-    <Root
-      {...(embedded ? {} : { id: 'main-content', tabIndex: -1 })}
+    <main
+      id="main-content"
+      tabIndex={-1}
       className={cx('page', width && `page--${width}`, className)}
     >
       {crumbs && <div className="page__crumbs">{crumbs}</div>}
@@ -49,7 +43,7 @@ export function Page({
         )}
       </header>
       {children}
-    </Root>
+    </main>
   );
 }
 

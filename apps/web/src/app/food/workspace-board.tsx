@@ -22,6 +22,7 @@ import { ReservationDrawer, type ReservationDraft } from './reservation-drawer';
 import { DayToolbar } from './day-toolbar';
 import { foodStatus } from '../../lib/status/food';
 import { setTableCleaning } from './restaurant-actions';
+import { GuestMarks } from './guest-marks';
 
 /** Фигура стола на рисунке зала по вместимости: модель хранит только места, не форму (§33.3) */
 const tableShape = (capacity: number) =>
@@ -384,6 +385,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                           <Button tone="ghost" onClick={() => open(r)}>
                             {customer(r)}
                           </Button>
+                          <GuestMarks customer={r.customer} day={data.date} />
                         </td>
                         <td>{r.partySize}</td>
                         <td>{r.servicePeriod.name}</td>
@@ -407,6 +409,7 @@ export function WorkspaceBoard({ data, floor }: { data: FoodWorkspace; floor: bo
                       <Badge>{foodStatus[r.status].label}</Badge>
                     </div>
                     <strong>{customer(r)}</strong>
+                    <GuestMarks customer={r.customer} day={data.date} />
                     <span>{r.partySize} гостя</span>
                     <span>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</span>
                     <small>{r.servicePeriod.name}</small>

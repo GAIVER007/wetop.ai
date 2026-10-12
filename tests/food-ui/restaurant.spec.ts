@@ -482,6 +482,13 @@ test('клиенты: вкладки, «Постоянный гость» от �
   await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
+  // метки видит смена: в бронях дня и строкой на «Главной» (вторая бронь клиента сегодня активна)
+  await page.goto(`/table-reservations?date=${localDay}`);
+  await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');
+  await expect(page.getByTestId('guest-marks').first()).toContainText('День рождения');
+  await page.goto('/today');
+  await expect(page.getByTestId('today-attention-birthdays')).toContainText('1');
+  await expect(page.getByTestId('today-attention-vip')).toContainText('1');
 });
 
 test('навигация ресторана: пункты макета на месте и ведут на экраны', async ({

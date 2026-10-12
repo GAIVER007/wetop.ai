@@ -6,6 +6,7 @@ import { Alert, Badge, Button, Field, Select } from '../../components/ui';
 import { foodStatusActions } from '../../lib/food-data';
 import type { FoodStatus, FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { GuestMarks } from './guest-marks';
 import { mutateFoodReservation } from './actions';
 import { ReservationForm } from './reservation-form';
 import { foodStatus } from '../../lib/status/food';
@@ -80,6 +81,7 @@ export function ReservationDrawer({
         <div className="food-detail" aria-busy={pending}>
           <div className="food-section-heading">
             <h3>{[r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ')}</h3>
+            <GuestMarks customer={r.customer} day={localInput(r.startsAt, data.timezone).slice(0, 10)} />
             <Badge tone={r.status === 'SEATED' ? 'ok' : 'neutral'}>
               {foodStatus[r.status].label}
             </Badge>

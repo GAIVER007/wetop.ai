@@ -172,9 +172,17 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
       });
       await db.query(`SELECT set_config('wetop.audit_purge','on',true)`);
       await db.query('DELETE FROM kitchen_stock_movements');
+      // §38: строки техкарт ссылаются на ингредиенты (в общей схеме могут лежать с других прогонов)
+      await db.query('UPDATE menu_item_ingredients SET product_id = NULL WHERE product_id IS NOT NULL');
       await db.query('DELETE FROM kitchen_stock_lots');
       await db.query('DELETE FROM kitchen_products');
+      // откат идёт в обратном порядке: сначала §38 (093 ссылается на ингредиенты склада), потом сам склад
+      const downConsumption = readFileSync(
+        resolve(process.cwd(), 'packages/database/prisma/migrations/20261012000093_kitchen_consumption/down.sql'),
+        'utf8',
+      );
       await savepoint(async () => {
+        await db.query(downConsumption);
         await db.query(down);
         for (const table of tables)
           expect((await db.query(`SELECT 1 FROM pg_tables WHERE schemaname=$1 AND tablename=$2`, [schema(), table])).rowCount).toBe(0);

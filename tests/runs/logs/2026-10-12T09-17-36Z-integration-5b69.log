@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 12.10.2026 14:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 351e87c (claude/kitchen-consumption), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-17-36Z-integration-5b69.json' 'tests/integration/kitchen-stock.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+[pms_test] миграций применено 1; данные на месте
+ ❯ |integration| tests/integration/kitchen-stock.test.ts (5 tests | 1 failed) 141ms
+   ❯ Kitchen stock: RLS, ownership, append-only ledger (5)
+     ✓ три таблицы: свои строки видны, чужой и пустой арендатор не видят, сервис видит всех 49ms
+     ✓ лента только дописывается: у ролей нет UPDATE и DELETE, а владельцу мешает триггер 13ms
+     ✓ принадлежность: чужой продукт, чужая партия, не ресторан и смена родителя отклоняются 21ms
+     ✓ CHECK: остаток не больше прихода и не ниже нуля, единица только г, мл, шт, нулевое движение нельзя 4ms
+     × охраняемый откат: с данными отказывает, на пустых таблицах убирает их 43ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/kitchen-stock.test.ts > Kitchen stock: RLS, ownership, append-only ledger > охраняемый откат: с данными отказывает, на пустых таблицах убирает их
+error: cannot drop table kitchen_products because other objects depend on it
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/kitchen-stock.test.ts:178:9
+    176|       await db.query('DELETE FROM kitchen_products');
+    177|       await savepoint(async () => {
+    178|         await db.query(down);
+       |         ^
+    179|         for (const table of tables)
+    180|           expect((await db.query(`SELECT 1 FROM pg_tables WHERE schema…
+ ❯ savepoint tests/integration/kitchen-stock.test.ts:34:7
+ ❯ tests/integration/kitchen-stock.test.ts:177:7
+ ❯ rollback tests/integration/kitchen-stock.test.ts:26:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  02:17:38
+   Duration  1.76s (transform 67%, tests 17%, import 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-17-36Z-integration-5b69.json
+
+# код выхода 1 · 3 с

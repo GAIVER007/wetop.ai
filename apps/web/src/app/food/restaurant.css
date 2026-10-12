@@ -135,6 +135,10 @@
     border: 1px solid var(--border);
     color: var(--text-2);
   }
+  /* Связь строки техкарты со складом (§38): на всю ширину строки под ингредиентом */
+  .rest-tech-grid .rest-tech-link {
+    grid-column: 1 / -1;
+  }
   .rest-menu-thumb img {
     width: 100%;
     height: 100%;

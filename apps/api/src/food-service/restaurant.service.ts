@@ -40,6 +40,7 @@ import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
+import { StockService } from './stock.service';
 
 const OPEN_STATUSES: OrderStatus[] = ['NEW', 'COOKING', 'READY', 'SERVED'];
 const orderInclude = {
@@ -153,6 +154,7 @@ export class RestaurantService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(SITE_ASSET_STORAGE) private readonly storage: SiteAssetStorage | null,
+    @Inject(StockService) private readonly stock: StockService,
   ) {}
 
   /** Вид блюда с подписанным адресом фото (§37); без хранилища фото нет */
@@ -284,6 +286,7 @@ export class RestaurantService {
         ? {
             ingredients: ingredients.map((i) => ({
               id: i.id,
+              productId: i.productId,
               name: i.name,
               normQty: i.normQty.toString(),
               unit: i.unit,
@@ -416,6 +419,23 @@ export class RestaurantService {
         include: { ingredients: true, photo: true },
       });
       if (!old) throw new NotFoundException('Блюдо не найдено');
+      // §38: ингредиент склада своего бизнеса и той же единицы, иначе слова, а не ошибка триггера
+      const productIds = [...new Set(rows.map((r) => r.productId).filter((p): p is string => !!p))];
+      const products = new Map(
+        (
+          await tx.kitchenProduct.findMany({
+            where: { id: { in: productIds }, businessId: s.businessId },
+            select: { id: true, unit: true },
+          })
+        ).map((p) => [p.id, p.unit]),
+      );
+      for (const r of rows)
+        if (r.productId && products.get(r.productId) !== r.unit)
+          throw new BadRequestException(
+            products.has(r.productId)
+              ? `Строка «${r.name}»: единица ингредиента склада другая`
+              : `Строка «${r.name}»: ингредиент склада не найден`,
+          );
       await tx.menuItemIngredient.deleteMany({ where: { menuItemId: id } });
       for (const [index, r] of rows.entries())
         await tx.menuItemIngredient.create({
@@ -426,6 +446,7 @@ export class RestaurantService {
             unit: r.unit,
             unitCost: r.unitCost,
             sortOrder: r.sortOrder ?? index,
+            productId: r.productId ?? null,
           },
         });
       await this.audit(
@@ -647,6 +668,9 @@ export class RestaurantService {
         throw new ConflictException('Заказ не оплачен полностью');
       if (status === 'CANCELLED' && orderPaid(r) > 0n)
         throw new ConflictException('Сначала аннулируйте оплаты заказа');
+      // §38: «Готово» списывает склад по техкартам ровно один раз, отмена после «Готово» возвращает
+      if (status === 'READY') await this.stock.consumeForOrder(tx, s, r);
+      if (status === 'CANCELLED' && r.status === 'READY') await this.stock.returnForOrder(tx, s, r);
       const stampField = (
         { COOKING: 'cookingAt', READY: 'readyAt', SERVED: 'servedAt', CLOSED: 'closedAt' } as const
       )[status as 'COOKING' | 'READY' | 'SERVED' | 'CLOSED'];

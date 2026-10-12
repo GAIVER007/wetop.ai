@@ -96,11 +96,13 @@ export function FreeMenuPopover({
     document.addEventListener('keydown', onKey);
     document.addEventListener('pointerdown', onPointer, true);
     wrap?.addEventListener('scroll', onMove, { passive: true });
+    window.addEventListener('scroll', onMove, { passive: true });
     window.addEventListener('resize', onMove);
     return () => {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onPointer, true);
       wrap?.removeEventListener('scroll', onMove);
+      window.removeEventListener('scroll', onMove);
       window.removeEventListener('resize', onMove);
     };
   }, [anchor, onClose, closeWithFocus]);

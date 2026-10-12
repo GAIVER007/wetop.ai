@@ -1159,6 +1159,85 @@ export class RestaurantService {
     });
   }
 
+  // ─── Отчёт ресторана за период (Аналитика) ───
+
+  /** Деньги и продажи за период по поясу филиала: закрытые заказы, оплаты по способам, блюда, официанты */
+  async periodReport(query: unknown) {
+    foodMay('reports');
+    const s = await foodScope(this.prisma.db);
+    const q = parsed(() => foodObject(query, ['from', 'to']));
+    const from = dayParam(q.from),
+      to = dayParam(q.to);
+    if (from > to) throw new BadRequestException('Начало периода позже конца');
+    if ((Date.parse(to) - Date.parse(from)) / 86_400_000 > 92)
+      throw new BadRequestException('Период не длиннее 93 дней');
+    const w = timeOffWindow({ dateFrom: from, dateTo: to, timezone: s.timezone });
+    const db = this.prisma.db;
+    const closedWhere = {
+      locationId: s.locationId,
+      status: 'CLOSED' as const,
+      closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
+    };
+    const [orders, payments, items, waiters] = await Promise.all([
+      db.restaurantOrder.aggregate({ where: closedWhere, _count: { _all: true }, _sum: { total: true } }),
+      db.restaurantPayment.groupBy({
+        by: ['method'],
+        where: { locationId: s.locationId, status: 'COMPLETED', paidAt: { gte: w.fromUtc, lt: w.toUtcExclusive } },
+        _sum: { amount: true },
+        _count: { _all: true },
+      }),
+      db.restaurantOrderItem.findMany({
+        where: { order: closedWhere },
+        select: { name: true, price: true, qty: true },
+      }),
+      db.restaurantOrder.groupBy({
+        by: ['waiterId'],
+        where: { ...closedWhere, waiterId: { not: null } },
+        _sum: { total: true },
+        _count: { _all: true },
+      }),
+    ]);
+    const count = orders._count._all;
+    const revenue = orders._sum.total ?? 0n;
+    const dishes = new Map<string, { qty: number; revenue: bigint }>();
+    for (const i of items) {
+      const d = dishes.get(i.name) ?? { qty: 0, revenue: 0n };
+      d.qty += i.qty;
+      d.revenue += i.price * BigInt(i.qty);
+      dishes.set(i.name, d);
+    }
+    const names = new Map(
+      (
+        await db.employee.findMany({
+          where: { id: { in: waiters.map((x) => x.waiterId!) } },
+          select: { id: true, name: true },
+        })
+      ).map((e) => [e.id, e.name]),
+    );
+    return {
+      from,
+      to,
+      currency: s.currency,
+      ordersCount: count,
+      revenueMinor: revenue.toString(),
+      averageCheckMinor: count ? ((revenue + BigInt(count) / 2n) / BigInt(count)).toString() : null,
+      payments: payments
+        .map((p) => ({ method: p.method, amountMinor: (p._sum.amount ?? 0n).toString(), count: p._count._all }))
+        .sort((a, b) => Number(BigInt(b.amountMinor) - BigInt(a.amountMinor))),
+      topDishes: [...dishes.entries()]
+        .map(([name, d]) => ({ name, qty: d.qty, revenueMinor: d.revenue.toString() }))
+        .sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name, 'ru'))
+        .slice(0, 10),
+      waiters: waiters
+        .map((x) => ({
+          name: names.get(x.waiterId!) ?? '—',
+          orders: x._count._all,
+          revenueMinor: (x._sum.total ?? 0n).toString(),
+        }))
+        .sort((a, b) => Number(BigInt(b.revenueMinor) - BigInt(a.revenueMinor))),
+    };
+  }
+
   // ─── Зарплата (§33.4) ───
 
   /** К выплате за месяц по сотрудникам бизнеса (§33.4) и выплачено из кассы филиала (§35.3) */

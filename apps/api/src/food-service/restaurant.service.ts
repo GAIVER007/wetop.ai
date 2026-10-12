@@ -39,6 +39,7 @@ import type { DbTx, Prisma } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
+import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 
 const OPEN_STATUSES: OrderStatus[] = ['NEW', 'COOKING', 'READY', 'SERVED'];
 const orderInclude = {
@@ -149,7 +150,18 @@ const clockText = (d: Date) => d.toISOString().slice(11, 16);
 
 @Injectable()
 export class RestaurantService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(SITE_ASSET_STORAGE) private readonly storage: SiteAssetStorage | null,
+  ) {}
+
+  /** Вид блюда с подписанным адресом фото (§37); без хранилища фото нет */
+  private async menuItemOut(row: Parameters<RestaurantService['menuItemView']>[0] & { photo?: { storageRef: string } | null }) {
+    return {
+      ...this.menuItemView(row),
+      photoUrl: row.photo && this.storage ? await this.storage.signedGet(row.photo.storageRef, 3600) : null,
+    };
+  }
 
   private async write<T>(
     permission: Permission,
@@ -245,11 +257,11 @@ export class RestaurantService {
   }
 
   private menuItemView(
-    row: Prisma.MenuItemGetPayload<{ include: { ingredients: true } }> | Prisma.MenuItemGetPayload<object>,
+    row: Prisma.MenuItemGetPayload<{ include: { ingredients: true, photo: true } }> | Prisma.MenuItemGetPayload<object>,
   ) {
     const ingredients =
       'ingredients' in row
-        ? (row as Prisma.MenuItemGetPayload<{ include: { ingredients: true } }>).ingredients
+        ? (row as Prisma.MenuItemGetPayload<{ include: { ingredients: true, photo: true } }>).ingredients
         : null;
     const totals = ingredients
       ? techCardTotals(
@@ -299,17 +311,13 @@ export class RestaurantService {
     foodMay('desk');
     const s = await foodScope(this.prisma.db),
       p = page(query);
-    return paged(
-      (
-        await this.prisma.db.menuItem.findMany({
-          where: { ...(p.cursor ? { id: { gt: p.cursor } } : {}), businessId: s.businessId },
-          include: { ingredients: true },
-          orderBy: { id: 'asc' },
-          take: p.limit + 1,
-        })
-      ).map((r) => this.menuItemView(r)),
-      p.limit,
-    );
+    const rows = await this.prisma.db.menuItem.findMany({
+      where: { ...(p.cursor ? { id: { gt: p.cursor } } : {}), businessId: s.businessId },
+      include: { ingredients: true, photo: true },
+      orderBy: { id: 'asc' },
+      take: p.limit + 1,
+    });
+    return paged(await Promise.all(rows.map((r) => this.menuItemOut(r))), p.limit);
   }
 
   async menuItem(idRaw: string) {
@@ -318,10 +326,10 @@ export class RestaurantService {
       id = parsed(() => foodId(idRaw));
     const row = await this.prisma.db.menuItem.findFirst({
       where: { id, businessId: s.businessId },
-      include: { ingredients: true },
+      include: { ingredients: true, photo: true },
     });
     if (!row) throw new NotFoundException('Блюдо не найдено');
-    return this.menuItemView(row);
+    return this.menuItemOut(row);
   }
 
   async createMenuItem(raw: unknown) {
@@ -345,14 +353,14 @@ export class RestaurantService {
           techNotes: b.techNotes ?? null,
           sortOrder: b.sortOrder ?? 0,
         },
-        include: { ingredients: true },
+        include: { ingredients: true, photo: true },
       });
       await this.audit(tx, s, 'menu_item', row.id, 'food.menu_item.created', {
         name: row.name,
         priceMinor: row.price.toString(),
         categoryId: row.categoryId,
       });
-      return this.menuItemView(row);
+      return this.menuItemOut(row);
     });
   }
 
@@ -380,7 +388,7 @@ export class RestaurantService {
           ...(b.techNotes !== undefined ? { techNotes: b.techNotes } : {}),
           ...(b.sortOrder !== undefined ? { sortOrder: b.sortOrder } : {}),
         },
-        include: { ingredients: true },
+        include: { ingredients: true, photo: true },
       });
       await this.audit(
         tx,
@@ -391,7 +399,7 @@ export class RestaurantService {
         { name: row.name, priceMinor: row.price.toString(), active: row.active },
         { name: old.name, priceMinor: old.price.toString(), active: old.active },
       );
-      return this.menuItemView(row);
+      return this.menuItemOut(row);
     });
   }
 
@@ -405,7 +413,7 @@ export class RestaurantService {
       const rows = body.ingredients.map((r) => parsed(() => parseIngredientInput(r)));
       const old = await tx.menuItem.findFirst({
         where: { id, businessId: s.businessId },
-        include: { ingredients: true },
+        include: { ingredients: true, photo: true },
       });
       if (!old) throw new NotFoundException('Блюдо не найдено');
       await tx.menuItemIngredient.deleteMany({ where: { menuItemId: id } });
@@ -431,9 +439,9 @@ export class RestaurantService {
       );
       const fresh = await tx.menuItem.findUniqueOrThrow({
         where: { id },
-        include: { ingredients: true },
+        include: { ingredients: true, photo: true },
       });
-      return this.menuItemView(fresh);
+      return this.menuItemOut(fresh);
     });
   }
 

@@ -145,6 +145,45 @@ test('меню: категория и блюдо с экрана, переклю
   expect(axe.violations).toEqual([]);
 });
 
+test('фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление', async ({
+  page,
+  request,
+}) => {
+  await seed(page, request);
+  // картинка 64×48 PNG собирается в браузере: свой файл, без стоков (§19.9)
+  await page.goto('/menu');
+  const png = await page.evaluate(async () => {
+    const c = document.createElement('canvas');
+    c.width = 64;
+    c.height = 48;
+    const g = c.getContext('2d')!;
+    g.fillStyle = '#c0392b';
+    g.fillRect(0, 0, 64, 48);
+    const blob: Blob = await new Promise((r) => c.toBlob((b) => r(b!), 'image/png'));
+    return Array.from(new Uint8Array(await blob.arrayBuffer()));
+  });
+  const file = { name: 'pasta.png', mimeType: 'image/png', buffer: Buffer.from(png) };
+  const row = page.getByTestId('menu-list').locator('.rest-menu-row', { hasText: 'Паста Карбонара' });
+  await expect(row.locator('.rest-menu-thumb img')).toHaveCount(0);
+  await row.getByRole('button', { name: 'Изменить', exact: true }).click();
+  const photo = page.getByTestId('dish-photo');
+  await photo.getByLabel('Файл фото блюда').setInputFiles(file);
+  await photo.getByRole('button', { name: 'Загрузить фото' }).click();
+  await expect(photo.locator('img')).toHaveAttribute('src', /menu-photos\/.+\.webp\?X-Expires=/);
+  await page.keyboard.press('Escape');
+  await expect(row.locator('.rest-menu-thumb img')).toHaveAttribute('src', /menu-photos\//);
+  // не картинка отклоняется словами, фото остаётся
+  await row.getByRole('button', { name: 'Изменить', exact: true }).click();
+  await photo.getByLabel('Файл фото блюда').setInputFiles({ name: 'x.png', mimeType: 'image/png', buffer: Buffer.from('not an image') });
+  await photo.getByRole('button', { name: 'Заменить фото' }).click();
+  await expect(photo.getByRole('alert')).toBeVisible();
+  await expect(photo.locator('img')).toHaveCount(1);
+  await photo.getByRole('button', { name: 'Убрать фото' }).click();
+  await expect(photo.locator('img')).toHaveCount(0);
+  const axe = await new AxeBuilder({ page }).include('[data-testid="dish-drawer"]').analyze();
+  expect(axe.violations).toEqual([]);
+});
+
 test('заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают', async ({
   page,
   request,

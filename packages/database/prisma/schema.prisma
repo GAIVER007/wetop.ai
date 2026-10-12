@@ -2192,6 +2192,7 @@ model User {
   restaurantOrdersCreated      RestaurantOrder[]
   paySettingsEdited            EmployeePaySetting[]
   payAdjustmentsCreated        EmployeePayAdjustment[]
+  menuPhotosCreated            MenuItemPhoto[]
   kitchenLotsCreated           KitchenStockLot[]
   kitchenMovementsCreated      KitchenStockMovement[]
   restaurantPaymentsCreated    RestaurantPayment[]            @relation("RestaurantPaymentCreatedBy")
@@ -3065,6 +3066,7 @@ model MenuItem {
   business    Business              @relation(fields: [businessId], references: [id])
   category    MenuCategory          @relation(fields: [categoryId], references: [id])
   ingredients MenuItemIngredient[]
+  photo       MenuItemPhoto?
   orderItems  RestaurantOrderItem[]
 
   @@index([businessId])
@@ -3334,4 +3336,23 @@ model RestaurantCashReconciliation {
 
   @@index([locationId, method, createdAt])
   @@map("restaurant_cash_reconciliations")
+}
+
+/// DATA_MODEL §37 (ADR-167): фото блюда, одно на блюдо; объект в закрытом хранилище, в базе только ключ
+model MenuItemPhoto {
+  menuItemId  String   @id @map("menu_item_id") @db.Uuid
+  storageRef  String   @unique @map("storage_ref") @db.VarChar(500)
+  mimeType    String   @map("mime_type") @db.VarChar(40)
+  byteSize    Int      @map("byte_size")
+  width       Int
+  height      Int
+  sha256      String   @db.Char(64)
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  menuItem  MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@map("menu_item_photos")
 }

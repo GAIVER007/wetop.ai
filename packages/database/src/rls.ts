@@ -97,6 +97,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'menu_categories',
   'menu_items',
   'menu_item_ingredients',
+  'menu_item_photos',
   'restaurant_orders',
   'restaurant_order_items',
   'employee_pay_settings',

@@ -46,7 +46,7 @@ export async function FoodToday() {
   );
   if (!loaded.ok)
     return (
-      <Page title="Главная">
+      <Page className="restaurant-page" title="Главная">
         <LoadError testId="today-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -94,12 +94,11 @@ export async function FoodToday() {
   const occupancyPct =
     t.tablesTotal > 0 ? Math.round((t.tablesOccupied / t.tablesTotal) * 100) : null;
   const hourly = report.hourlyRevenueMinor.map((v) => Number(BigInt(v) / 100n));
-  const hourLabels = report.hourlyRevenueMinor.map(
-    (_, h) => `${String(h).padStart(2, '0')}:00`,
-  );
+  const hourLabels = report.hourlyRevenueMinor.map((_, h) => `${String(h).padStart(2, '0')}:00`);
   const clock = (iso: string) => localInput(iso, branch.timezone).slice(11, 16);
   return (
     <Page
+      className="restaurant-page"
       title="Главная"
       subtitle={`${branch.name}, ${displayDate(date, 'full')}`}
       actions={
@@ -133,7 +132,9 @@ export async function FoodToday() {
             label="В очереди на кухне"
             value={t.kitchenQueue}
             hint={
-              t.kitchenAvgWaitMinutes === null ? 'очередь пуста' : `среднее ${t.kitchenAvgWaitMinutes} мин`
+              t.kitchenAvgWaitMinutes === null
+                ? 'очередь пуста'
+                : `среднее ${t.kitchenAvgWaitMinutes} мин`
             }
             tone={t.kitchenQueue > 0 ? 'info' : 'neutral'}
             testId="today-kitchen"

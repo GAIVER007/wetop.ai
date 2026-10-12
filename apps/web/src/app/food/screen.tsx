@@ -20,7 +20,7 @@ export async function FoodScreen({
   try {
     const data = await loadFood(date, time, kind !== 'floor', kind === 'floor');
     return (
-      <Page title={title} subtitle="Рабочее место ресторана">
+      <Page className="restaurant-page" title={title} subtitle="Рабочее место ресторана">
         <div key={data.scopeKey}>
           {kind === 'catalog' ? (
             <CatalogBoard data={data} />
@@ -33,7 +33,7 @@ export async function FoodScreen({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title={title}>
+      <Page className="restaurant-page" title={title}>
         <LoadError testId="food-load-error" {...loadErrorProps(error)} />
       </Page>
     );

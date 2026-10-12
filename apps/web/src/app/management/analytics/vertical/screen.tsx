@@ -11,6 +11,7 @@ import { BEAUTY_LABELS, FOOD_LABELS, moneyText, periodDates } from './metrics';
 import { loadBranchPeriod } from './load';
 import { FoodPeriodPanel } from './food-period';
 import './vertical.css';
+import '../../../food/restaurant.css';
 const path = '/management/analytics';
 export async function VerticalAnalytics({ sp }: { sp: Record<string, string | undefined> }) {
   const shell = await deskShell();
@@ -63,12 +64,9 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
     const q = new URLSearchParams({ from, to });
     return (
       <Page
+        className={selected.vertical === 'FOOD_SERVICE' && !organization ? 'restaurant-page' : ''}
         title="Аналитика"
-        subtitle={
-          organization
-            ? 'Отчёты по филиалам, отдельно по направлениям.'
-            : selected.name
-        }
+        subtitle={organization ? 'Отчёты по филиалам, отдельно по направлениям.' : selected.name}
       >
         <div className="vertical-report" data-testid="vertical-analytics">
           <nav className="settings-tabs" aria-label="Область отчёта">
@@ -97,8 +95,8 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
             </button>
           </form>
           <p className="muted">
-            С {displayDate(from)} по {displayDate(to)} включительно, по местному времени каждого филиала.
-            Период до 31 дня.
+            С {displayDate(from)} по {displayDate(to)} включительно, по местному времени каждого
+            филиала. Период до 31 дня.
           </p>
           {(['BEAUTY', 'FOOD_SERVICE'] as const).map((vertical) => {
             const group = results.filter((r) => r.branch.vertical === vertical);

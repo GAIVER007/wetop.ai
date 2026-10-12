@@ -17,11 +17,11 @@ export default async function PayrollPage({
   const { month } = await searchParams;
   try {
     const shell = await restaurantShell();
-    const chosen =
-      month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month) ? month : shell.date.slice(0, 7);
+    const chosen = month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month) ? month : shell.date.slice(0, 7);
     const payroll = await restaurantApi.payroll(chosen);
     return (
       <Page
+        className="restaurant-page"
         title="Зарплата и финансы"
         subtitle="Оклады, процент от заказов, премии и штрафы. Выплата уходит расходом из кассы"
       >
@@ -37,7 +37,7 @@ export default async function PayrollPage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Зарплата и финансы">
+      <Page className="restaurant-page" title="Зарплата и финансы">
         <LoadError testId="payroll-load-error" {...loadErrorProps(error)} />
       </Page>
     );

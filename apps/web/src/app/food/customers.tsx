@@ -20,7 +20,11 @@ const name = (c: { firstName: string; lastName: string | null }) =>
 
 /** Дата рождения `ГГГГ-ММ-ДД` как «12 октября» */
 const dayMonth = (iso: string) =>
-  new Date(`${iso}T12:00:00Z`).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'UTC',
+  });
 const birthdayText = (c: FoodCustomer) =>
   !c.birthDate
     ? '—'
@@ -61,9 +65,11 @@ export async function FoodCustomers() {
         <Table>
           <thead>
             <tr>
-              {['Клиент', 'Телефон', 'Визиты', 'Метка', 'День рождения', 'Бронь на сегодня'].map((h) => (
-                <th key={h}>{h}</th>
-              ))}
+              {['Клиент', 'Телефон', 'Визиты', 'Метка', 'День рождения', 'Бронь на сегодня'].map(
+                (h) => (
+                  <th key={h}>{h}</th>
+                ),
+              )}
               {write && (
                 <th>
                   <span className="sr-only">Действия</span>
@@ -152,6 +158,7 @@ export async function FoodCustomers() {
       .sort((a, b) => a.birthdayInDays! - b.birthdayInDays!);
     return (
       <Page
+        className="restaurant-page"
         title="Клиенты"
         subtitle="Клиенты и бронирования. Новый клиент добавляется при создании брони"
       >
@@ -159,7 +166,12 @@ export async function FoodCustomers() {
           <Tabs
             label="Клиенты и бронирования"
             panels={[
-              { id: 'all', label: 'Все', count: customers.length, content: customersTable(customers) },
+              {
+                id: 'all',
+                label: 'Все',
+                count: customers.length,
+                content: customersTable(customers),
+              },
               {
                 id: 'bookings',
                 label: 'Бронирования',
@@ -172,7 +184,15 @@ export async function FoodCustomers() {
                 count: regulars.length,
                 content: customersTable(regulars),
               },
-              { id: 'vip', label: 'VIP', count: vips.length, content: customersTable(vips, 'VIP-гостей пока нет: метка ставится кнопкой «Изменить»') },
+              {
+                id: 'vip',
+                label: 'VIP',
+                count: vips.length,
+                content: customersTable(
+                  vips,
+                  'VIP-гостей пока нет: метка ставится кнопкой «Изменить»',
+                ),
+              },
               {
                 id: 'birthdays',
                 label: 'Дни рождения',
@@ -187,7 +207,7 @@ export async function FoodCustomers() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Клиенты">
+      <Page className="restaurant-page" title="Клиенты">
         <LoadError testId="food-customers-error" {...loadErrorProps(error)} />
       </Page>
     );

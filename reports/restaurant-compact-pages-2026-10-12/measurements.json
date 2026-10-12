@@ -1,0 +1,93 @@
+[
+  {
+    "name": "today",
+    "viewport": "1366x768",
+    "bottom": 626.484375,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "floor-plan",
+    "viewport": "1366x768",
+    "bottom": 711.09375,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "table-reservations",
+    "viewport": "1366x768",
+    "bottom": 522,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "dining-areas",
+    "viewport": "1366x768",
+    "bottom": 315,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "orders",
+    "viewport": "1366x768",
+    "bottom": 407,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "kitchen",
+    "viewport": "1366x768",
+    "bottom": 261,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "menu",
+    "viewport": "1366x768",
+    "bottom": 386,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "stock",
+    "viewport": "1366x768",
+    "bottom": 422.296875,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "cashbox",
+    "viewport": "1366x768",
+    "bottom": 608.796875,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "employees",
+    "viewport": "1366x768",
+    "bottom": 413.5,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "payroll",
+    "viewport": "1366x768",
+    "bottom": 464.796875,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "customers",
+    "viewport": "1366x768",
+    "bottom": 273.5,
+    "scrollWidth": 1366,
+    "width": 1366
+  },
+  {
+    "name": "analytics",
+    "viewport": "1366x768",
+    "bottom": 725.09375,
+    "scrollWidth": 1366,
+    "width": 1366
+  }
+]

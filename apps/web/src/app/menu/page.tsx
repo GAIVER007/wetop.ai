@@ -19,12 +19,13 @@ export default async function MenuPage() {
       completeFoodList<MenuItemView>(restaurantApi.menuItems),
       // склад нужен только для связи техкарты (§38); нет доступа к складу — техкарта без связи
       stockApi.products().then(
-        (r) => r.items.filter((p) => p.active).map((p) => ({ id: p.id, name: p.name, unit: p.unit })),
+        (r) =>
+          r.items.filter((p) => p.active).map((p) => ({ id: p.id, name: p.name, unit: p.unit })),
         () => [],
       ),
     ]);
     return (
-      <Page title="Меню" subtitle="Блюда, цены и техкарты">
+      <Page className="restaurant-page" title="Меню" subtitle="Блюда, цены и техкарты">
         <div key={shell.scopeKey}>
           <MenuBoard
             ctx={{
@@ -42,7 +43,7 @@ export default async function MenuPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Меню">
+      <Page className="restaurant-page" title="Меню">
         <LoadError testId="menu-load-error" {...loadErrorProps(error)} />
       </Page>
     );

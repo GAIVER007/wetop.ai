@@ -530,3 +530,202 @@
     max-width: 100%;
   }
 }
+
+@layer sections {
+  /* Компактный первый экран ресторана. Списки прокручиваются, данные не обрезаются. */
+  .workspace .restaurant-page {
+    padding: calc(var(--space-4) * 0.75) var(--space-4) var(--space-4);
+  }
+  .restaurant-page .page__head {
+    margin-bottom: calc(var(--space-4) * 0.75);
+    gap: calc(var(--space-4) * 0.75);
+  }
+  .restaurant-page .page__subtitle {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+  }
+  .restaurant-page .food-workspace,
+  .restaurant-page .rest-dash,
+  .restaurant-page .vertical-report,
+  .restaurant-page .vertical-report section {
+    gap: calc(var(--space-4) * 0.75);
+  }
+  .restaurant-page
+    :is(
+      .food-toolbar,
+      .food-tabs,
+      .food-inline-actions,
+      .food-section-heading,
+      .vertical-report-period
+    ) {
+    gap: var(--space-2);
+  }
+  .restaurant-page .food-toolbar {
+    align-items: end;
+  }
+  .restaurant-page .food-toolbar .field {
+    flex: 0 1 180px;
+  }
+  .restaurant-page :is(.food-workspace, .rest-dash) > p {
+    margin: 0;
+  }
+  .restaurant-page .food-summary {
+    gap: calc(var(--space-4) * 0.75);
+    padding: var(--space-2) 0;
+  }
+  .restaurant-page .food-table-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+  .restaurant-page .food-table-card {
+    min-height: 120px;
+    padding: calc(var(--space-4) * 0.75);
+  }
+  .restaurant-page :is(.food-reservation-card, .rest-kds-col, .rest-kds-card) {
+    padding: calc(var(--space-4) * 0.75);
+  }
+  .restaurant-page .rest-kds-col {
+    min-height: 112px;
+  }
+  .restaurant-page :is(.rest-kds, .rest-dash-grid, .food-catalog-grid) {
+    gap: calc(var(--space-4) * 0.75);
+  }
+  .restaurant-page .rest-menu-row {
+    gap: calc(var(--space-4) * 0.75);
+  }
+  .restaurant-page .panel {
+    padding: calc(var(--space-4) * 0.75);
+  }
+  .restaurant-page .empty-state {
+    min-height: 0;
+    padding: var(--space-4);
+  }
+  .restaurant-page .empty-state__title {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .restaurant-page .empty-state__text,
+  .restaurant-page .empty-state__actions {
+    margin-top: var(--space-2);
+  }
+  .restaurant-page .table :is(th, td) {
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
+  }
+  @media (min-width: 961px) {
+    .restaurant-page :is(.table-scroll, .rest-menu-list, .food-table-grid, .rest-kds-col) {
+      max-height: max(240px, calc(100dvh - 330px));
+      overflow: auto;
+      scrollbar-gutter: stable;
+    }
+  }
+  @media (max-width: 600px) {
+    .workspace .restaurant-page {
+      padding: calc(var(--space-4) * 0.75) calc(var(--space-4) * 0.75) 88px;
+    }
+    .restaurant-page .page__head {
+      align-items: start;
+    }
+    .restaurant-page .food-toolbar .field {
+      flex: 1 1 140px;
+    }
+    .restaurant-page :is(.btn, .food-toolbar .inp, .food-tabs button) {
+      min-height: 44px;
+    }
+    .restaurant-page .food-table-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .restaurant-page .food-table-card {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .restaurant-page .rest-kds {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .restaurant-page .rest-kds-card {
+      padding: var(--space-2);
+      overflow-wrap: anywhere;
+    }
+    .restaurant-page .rest-kds-head {
+      flex-wrap: wrap;
+    }
+  }
+}
+
+@layer sections {
+  .restaurant-page .stats {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+    gap: var(--space-2);
+    margin-bottom: 0;
+  }
+  .restaurant-page .stat {
+    padding: calc(var(--space-4) * 0.75);
+  }
+  .restaurant-page .stat__label {
+    margin-bottom: var(--space-1);
+  }
+  .restaurant-page .stat__value {
+    font-size: var(--text-xl);
+  }
+  .restaurant-page .stat__hint {
+    margin-top: var(--space-1);
+  }
+  .restaurant-page .rest-cash-forms,
+  .restaurant-page .rest-cash-forms .food-form {
+    gap: var(--space-2);
+  }
+  @media (max-width: 600px) {
+    .restaurant-page .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+@layer sections {
+  .restaurant-page .vertical-food {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--space-4) * 0.75);
+    margin-top: calc(var(--space-4) * 0.75);
+  }
+  .restaurant-page .vertical-food > .stats {
+    grid-column: 1 / -1;
+  }
+  .restaurant-page .vertical-food .panel p {
+    margin: var(--space-2) 0 0;
+  }
+  .restaurant-page .vertical-report > p {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  @media (max-width: 600px) {
+    .restaurant-page .vertical-food {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@layer sections {
+  .restaurant-page .stats .stat {
+    min-height: 0;
+  }
+  .restaurant-page .panel__title {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-md);
+  }
+  .restaurant-page .vertical-report .settings-tabs {
+    margin-bottom: 0;
+  }
+}
+
+@layer sections {
+  @media (min-width: 1200px) {
+    .restaurant-page .vertical-food {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .restaurant-page .vertical-food .table-scroll {
+      max-height: max(160px, calc(100dvh - 520px));
+    }
+  }
+}

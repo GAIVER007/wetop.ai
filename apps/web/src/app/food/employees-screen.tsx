@@ -16,7 +16,11 @@ export async function FoodEmployeesScreen() {
     const shell = await restaurantShell();
     const employees = await completeFoodList<FoodEmployee>(restaurantApi.employees);
     return (
-      <Page title="Сотрудники" subtitle="Команда ресторана: смены по графику и продажи за сегодня">
+      <Page
+        className="restaurant-page"
+        title="Сотрудники"
+        subtitle="Команда ресторана: смены по графику и продажи за сегодня"
+      >
         <div key={shell.scopeKey}>
           <EmployeesBoard
             scopeKey={shell.scopeKey}
@@ -29,7 +33,7 @@ export async function FoodEmployeesScreen() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Сотрудники">
+      <Page className="restaurant-page" title="Сотрудники">
         <LoadError testId="employees-load-error" {...loadErrorProps(error)} />
       </Page>
     );

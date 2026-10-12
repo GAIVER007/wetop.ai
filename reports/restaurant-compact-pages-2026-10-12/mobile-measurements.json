@@ -1,0 +1,65 @@
+[
+  {
+    "name": "kitchen",
+    "viewport": "390x844",
+    "bottom": 482.7890625,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "name": "orders",
+    "viewport": "390x844",
+    "bottom": 591.1953125,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "name": "menu",
+    "viewport": "390x844",
+    "bottom": 543.1953125,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "name": "stock",
+    "viewport": "390x844",
+    "bottom": 692.7890625,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "name": "cashbox",
+    "viewport": "390x844",
+    "bottom": 1119.3828125,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "name": "employees",
+    "viewport": "390x844",
+    "bottom": 508.1953125,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "name": "payroll",
+    "viewport": "390x844",
+    "bottom": 767.5859375,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "name": "analytics",
+    "viewport": "390x844",
+    "bottom": 1631.9765625,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "name": "floor-plan",
+    "viewport": "390x844",
+    "bottom": 851.7890625,
+    "scrollWidth": 390,
+    "width": 390
+  }
+]

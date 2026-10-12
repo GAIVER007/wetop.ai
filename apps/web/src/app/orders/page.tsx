@@ -36,8 +36,8 @@ export default async function OrdersPage({
       completeFoodList<MenuCategory>(restaurantApi.categories),
       completeFoodList<MenuItemView>(restaurantApi.menuItems),
     ]);
-    const merged = [...new Map([...open, ...orders].map((o) => [o.id, o])).values()].sort(
-      (a, b) => b.openedAt.localeCompare(a.openedAt),
+    const merged = [...new Map([...open, ...orders].map((o) => [o.id, o])).values()].sort((a, b) =>
+      b.openedAt.localeCompare(a.openedAt),
     );
     const ctx: OrderContext = {
       scopeKey: shell.scopeKey,
@@ -51,7 +51,11 @@ export default async function OrdersPage({
       menuItems,
     };
     return (
-      <Page title="Заказы" subtitle="Заказы ресторана за день и всё, что сейчас открыто">
+      <Page
+        className="restaurant-page"
+        title="Заказы"
+        subtitle="Заказы ресторана за день и всё, что сейчас открыто"
+      >
         <div key={shell.scopeKey}>
           <OrdersBoard ctx={ctx} orders={merged} />
         </div>
@@ -60,7 +64,7 @@ export default async function OrdersPage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Заказы">
+      <Page className="restaurant-page" title="Заказы">
         <LoadError testId="orders-load-error" {...loadErrorProps(error)} />
       </Page>
     );

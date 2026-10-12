@@ -19,7 +19,11 @@ export default async function StockPage() {
       selectedWorkspaceBranch(),
     ]);
     return (
-      <Page title="Склад" subtitle="Ингредиенты кухни, приходы, списания и инвентаризация">
+      <Page
+        className="restaurant-page"
+        title="Склад"
+        subtitle="Ингредиенты кухни, приходы, списания и инвентаризация"
+      >
         <div key={shell.scopeKey}>
           <StockBoard
             ctx={{
@@ -37,7 +41,7 @@ export default async function StockPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Склад">
+      <Page className="restaurant-page" title="Склад">
         <LoadError testId="stock-load-error" {...loadErrorProps(error)} />
       </Page>
     );

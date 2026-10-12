@@ -14,7 +14,11 @@ export default async function CashboxPage() {
     const shell = await restaurantShell();
     const cash = await restaurantApi.cash();
     return (
-      <Page title="Касса" subtitle="Деньги филиала по способам оплаты: заказы, приходы, расходы и выплаты">
+      <Page
+        className="restaurant-page"
+        title="Касса"
+        subtitle="Деньги филиала по способам оплаты: заказы, приходы, расходы и выплаты"
+      >
         <div key={shell.scopeKey}>
           <CashBoard
             scopeKey={shell.scopeKey}
@@ -29,7 +33,7 @@ export default async function CashboxPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Касса">
+      <Page className="restaurant-page" title="Касса">
         <LoadError testId="cashbox-load-error" {...loadErrorProps(error)} />
       </Page>
     );

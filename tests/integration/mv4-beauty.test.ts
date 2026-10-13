@@ -353,9 +353,18 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
   it('READ_ONLY blocks every mutation and leaves audit and rows unchanged', async () => {
     const day = await run(() => appointments.create(input()));
     const id = day.appointments[0]!.id;
-    const off = await run(() =>
+    await run(() =>
       schedule.addTimeOff(employee, { dateFrom: '2026-10-13', dateTo: '2026-10-13' }),
     );
+    // Visible time-off lists omit past dates; mutation permission checks need the persisted fixture id.
+    const off = await db.timeOff.findFirstOrThrow({
+      where: {
+        employeeId: employee,
+        dateFrom: new Date('2026-10-13T00:00:00Z'),
+        dateTo: new Date('2026-10-13T00:00:00Z'),
+      },
+      select: { id: true },
+    });
     const count = await db.auditLog.count({ where: { organizationId: org } });
     await db.organization.update({ where: { id: org }, data: { status: 'READ_ONLY' } });
     try {
@@ -368,7 +377,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
         () => catalog.setEmployeeServices(employee, { serviceIds: [] }),
         () => schedule.setWorkingHours(employee, { intervals: [] }),
         () => schedule.addTimeOff(employee, { dateFrom: '2026-10-13', dateTo: '2026-10-13' }),
-        () => schedule.removeTimeOff(employee, off.timeOffs[0]!.id),
+        () => schedule.removeTimeOff(employee, off.id),
         () => schedule.setLocations(employee, { locationIds: [] }),
         () => appointments.create(input('12:00')),
         () => appointments.move(id, { startsAt: input('12:00').startsAt }),
@@ -376,6 +385,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
       ];
       for (const fn of calls) await expect(run<unknown>(fn)).rejects.toThrow(/чтения/);
       expect(await db.auditLog.count({ where: { organizationId: org } })).toBe(count);
+      expect(await db.timeOff.count({ where: { id: off.id } })).toBe(1);
       expect((await run(() => appointments.day('2026-10-12'))).appointments).toHaveLength(1);
     } finally {
       await db.organization.update({ where: { id: org }, data: { status: 'ACTIVE' } });

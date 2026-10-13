@@ -87,3 +87,12 @@ PR492 merged into main as dae7250c95e05a1483612f50b99c579b556c49c0. Its exact-SH
 ### Final full local result
 
 2026-10-13T20-22-01Z-unit-6c09: 4742 passed, 4 existing skips, 0 failures, 492 passed files plus one skipped file. Full unit verification ran without concurrent UI load with two workers; no product source changes or timeout adjustments were needed for the two earlier transient failures. Production application DB role checked read-only: administrative=false. No database privileges were changed.
+
+## Integration fixture date blocker on a8181384
+
+PR493 merged as a8181384d36d763ecaa415f34874db087c6fdddc. Release-checks 38462872531 passed main/unit/site, bot and separate UI suites, but integration had 1030 passed, 1 failed, 16 skipped. Migration up/down checks passed; GitHub jobs metadata initially showed a stale in-progress step. The real failure was mv4-beauty READ_ONLY assertions: fixed absence date 2026-10-13 was already past in Asia/Almaty, the visible date-filtered list was empty, and the test read undefined.id before invoking the guarded mutation.
+
+- Local red: 2026-10-13T20-58-07Z-integration-6d8e, same exception.
+- Changed only the test: obtain the persisted fixture id by employee and exact fixed DATE fields; keep all mutation rejection checks; additionally prove the time-off row remains. No product behavior, dates, schema, access rules or CI/CD configuration changed.
+- Full local MV4 integration green: 2026-10-13T20-59-32Z-integration-75f6, 23/23, isolated PostgreSQL55613/pms_test. Root typecheck and targeted ESLint green.
+- Production unchanged until the full exact-SHA gate is green.

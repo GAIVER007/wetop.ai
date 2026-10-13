@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 13.10.2026 11:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит d96217c (claude/site-qr-rating)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/auth-dialog.spec.ts:241'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/site/auth-dialog.spec.ts:241:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (1.0m)
+
+
+  1) tests/site/auth-dialog.spec.ts:241:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 ──
+
+    Test timeout of 60000ms exceeded.
+
+    Error Context: test-results/auth-dialog-снимки-окна-ре-b53eb-светлая-и-тёмная-1440-и-390/error-context.md
+
+  1 failed
+    tests/site/auth-dialog.spec.ts:241:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 ───
+
+# код выхода 1 · 2 мин 18 с

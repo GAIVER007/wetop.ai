@@ -1,4 +1,5 @@
 'use client';
+import design from './calendar-design.module.css';
 import Link from 'next/link';
 import {
   Fragment,
@@ -351,7 +352,14 @@ export function ChessboardGrid({
         : null;
     // второй щелчок двойного, пришедший не на ту же плашку
     const isMissedSecond = (event: MouseEvent) => {
-      if (!last || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)
+      if (
+        !last ||
+        event.button !== 0 ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.altKey
+      )
         return false;
       const hit = plateOf(event);
       if (hit && `${hit.dataset['number']}|${hit.dataset['itemId']}` === last.key) return false;
@@ -1109,10 +1117,7 @@ export function ChessboardGrid({
           Попробуйте изменить фильтры
         </EmptyState>
       )}
-      <div
-        className="board-stage"
-        data-docked={docked && preview ? 'true' : undefined}
-      >
+      <div className="board-stage" data-docked={docked && preview ? 'true' : undefined}>
         <div
           ref={wrapRef}
           className="tbl-wrap board-wrap"
@@ -1227,6 +1232,7 @@ export function ChessboardGrid({
                           }
                         >
                           <span className="board-group-bar" aria-hidden="true">
+                            {/* prettier-ignore */}
                             <span style={{ width: loadPct(g.code) }} /* slop-allow: inline-style доля занятых мест категории из данных */ />
                           </span>
                           <span className="board-group-ratio">
@@ -1612,7 +1618,7 @@ function Cell({
                * суммой) → «Имя Ф.» и точка долга → инициалы. Полное всегда в подсказке плашки.
                */
               <span
-                className="board-stay-caption"
+                className={`board-stay-caption ${design.caption}`}
                 data-span={label.span}
                 data-continues={label.continues ? '' : undefined}
                 style={{
@@ -1654,7 +1660,7 @@ function Cell({
                   {/* Источник — маленьким бейджем: цвет плашки уже занят статусом брони (DESIGN.md §9) */}
                   {badge && !isGuestPseudonym(cell.guestLabel ?? '') && (
                     <span className="board-stay-source" data-testid="cell-channel">
-                      {badge.code}
+                      {badge.name}
                     </span>
                   )}
                   {(arrivalToday || departureToday) && (

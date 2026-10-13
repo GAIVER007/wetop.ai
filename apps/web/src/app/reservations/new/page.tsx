@@ -1,3 +1,4 @@
+import design from './new-reservation.module.css';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { api, guestsApi, reservationsApi } from '../../../lib/api';
 import { bookingPrefill } from '../../../lib/booking-link';
@@ -67,7 +68,12 @@ export default async function NewReservationPage({
     return (Array.isArray(value) ? value : value ? [value] : []).map((v) => [name, v] as const);
   });
   return (
-    <Page width="medium" className="booking-create" title="Новая бронь" embedded={embedded}>
+    <Page
+      width="medium"
+      className={`booking-create ${design.screen}`}
+      title="Новая бронь"
+      embedded={embedded}
+    >
       {ratePlans === null && (
         <Alert boxed tone="warning">
           Справочник тарифов не загрузился: без тарифа бронь не создать. Обновите страницу.

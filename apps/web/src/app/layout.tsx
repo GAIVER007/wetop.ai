@@ -27,6 +27,7 @@ import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
 import { isPublicEntryPath } from '../lib/public-entry';
+import { DevAgentation } from '../components/dev-agentation';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
@@ -83,6 +84,7 @@ export default async function RootLayout({
           <ThemeProvider>
             <ToastProvider>{children}</ToastProvider>
           </ThemeProvider>
+          <DevAgentation />
         </body>
       </html>
     );
@@ -141,6 +143,7 @@ export default async function RootLayout({
         <Suspense fallback={null}>
           <WorkspaceAssistant desk={desk} />
         </Suspense>
+        <DevAgentation />
       </body>
     </html>
   );

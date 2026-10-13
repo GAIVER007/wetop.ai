@@ -27,10 +27,9 @@ import { setTableCleaning } from './restaurant-actions';
 import { GuestMarks } from './guest-marks';
 import { TimelineBoard } from './timeline-board';
 import { TablePanel, KIND_LABEL, type TableKind } from './table-panel';
+import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
+import { layoutSpots, tableShapeOf } from '@pms/domain';
 
-/** Фигура стола на схеме по вместимости: модель хранит только места, не форму (§33.3, Q-REST-8) */
-const tableShape = (capacity: number) =>
-  capacity <= 2 ? 'round' : capacity <= 4 ? 'square' : 'long';
 
 const ACTIVE = ['BOOKED', 'CONFIRMED', 'SEATED'];
 
@@ -132,6 +131,50 @@ export function WorkspaceBoard({
     );
   const panel = panelTable ? data.tables.find((t) => t.id === panelTable) : undefined;
   const shown = areas.filter((a) => !area || a.id === area);
+  const [editingArea, setEditingArea] = useState<string | null>(null);
+  const spots = (tables: DiningTable[]) =>
+    layoutSpots(tables.map((t) => ({ id: t.id, posX: t.posX ?? null, posY: t.posY ?? null })));
+  /** Стол на плане: одна разметка для сетки и для схемы зала (§42) */
+  const tableCard = (t: DiningTable) => {                  const r = occupying.find((x) => x.table?.id === t.id);
+                  const order = orderByTable.get(t.id);
+                  const kind = tableKind(t);
+                  const chairs = Math.min(t.capacity, 8);
+                  const caption = r
+                    ? `${clock(r.startsAt)} ${customer(r)}`
+                    : order
+                      ? `Заказ №${order.number}`
+                      : pluralRu(t.capacity, ['место', 'места', 'мест']);
+                  return (
+                    <div
+                      className="rest-fp-table"
+                      data-kind={kind}
+                      data-shape={SHAPE_CSS[tableShapeOf({ capacity: t.capacity, shape: t.shape ?? null })]}
+                      data-selected={panelTable === t.id || undefined}
+                      key={t.id}
+                    >
+                      <span className="rest-chairs" aria-hidden="true">
+                        {Array.from({ length: Math.ceil(chairs / 2) }, (_, i) => (
+                          <i key={i} />
+                        ))}
+                      </span>
+                      <button
+                        type="button"
+                        className="rest-fp-table__body"
+                        aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
+                        data-table-id={t.id}
+                        onClick={() => setPanelTable(t.id)}
+                      >
+                        <strong>{t.name.replace(/^Стол\s+/, '')}</strong>
+                      </button>
+                      <span className="rest-chairs" aria-hidden="true">
+                        {Array.from({ length: Math.floor(chairs / 2) }, (_, i) => (
+                          <i key={i} />
+                        ))}
+                      </span>
+                      <small className="rest-fp-table__caption">{caption}</small>
+                    </div>
+                  );
+  };
   return (
     <div className="food-workspace rest-ws">
       <div className="rest-bar">
@@ -239,52 +282,37 @@ export function WorkspaceBoard({
                 return (
                   <section key={a.id} aria-label={a.name} className="rest-fp__area">
                     {!area && <h2>{a.name}</h2>}
-                    {tables.length === 0 ? (
+                    {editingArea === a.id ? (
+                      <FloorLayoutEditor
+                        scopeKey={data.scopeKey}
+                        area={a}
+                        tables={tables}
+                        onClose={() => setEditingArea(null)}
+                      />
+                    ) : tables.length === 0 ? (
                       <p className="muted">В этой зоне пока нет столов</p>
-                    ) : (
-                      <div className="rest-fp__tables">
+                    ) : tables.some((t) => t.posX != null) ? (
+                      <div className="rest-fp__layout">
                         {tables.map((t) => {
-                          const r = occupying.find((x) => x.table?.id === t.id);
-                          const order = orderByTable.get(t.id);
-                          const kind = tableKind(t);
-                          const chairs = Math.min(t.capacity, 8);
-                          const caption = r
-                            ? `${clock(r.startsAt)} ${customer(r)}`
-                            : order
-                              ? `Заказ №${order.number}`
-                              : pluralRu(t.capacity, ['место', 'места', 'мест']);
+                          const p = spots(tables).get(t.id)!;
                           return (
                             <div
-                              className="rest-fp-table"
-                              data-kind={kind}
-                              data-shape={tableShape(t.capacity)}
-                              data-selected={panelTable === t.id || undefined}
                               key={t.id}
+                              className="rest-fp__spot"
+                              style={spotStyle(p.x, p.y, t.scale ?? 100, t.rotation ?? 0)} /* slop-allow: inline-style место стола из схемы зала */
                             >
-                              <span className="rest-chairs" aria-hidden="true">
-                                {Array.from({ length: Math.ceil(chairs / 2) }, (_, i) => (
-                                  <i key={i} />
-                                ))}
-                              </span>
-                              <button
-                                type="button"
-                                className="rest-fp-table__body"
-                                aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
-                                data-table-id={t.id}
-                                onClick={() => setPanelTable(t.id)}
-                              >
-                                <strong>{t.name.replace(/^Стол\s+/, '')}</strong>
-                              </button>
-                              <span className="rest-chairs" aria-hidden="true">
-                                {Array.from({ length: Math.floor(chairs / 2) }, (_, i) => (
-                                  <i key={i} />
-                                ))}
-                              </span>
-                              <small className="rest-fp-table__caption">{caption}</small>
+                              {tableCard(t)}
                             </div>
                           );
                         })}
                       </div>
+                    ) : (
+                      <div className="rest-fp__tables">{tables.map((t) => tableCard(t))}</div>
+                    )}
+                    {data.canProperty && !data.readOnly && editingArea !== a.id && tables.length > 0 && (
+                      <Button size="sm" tone="secondary" onClick={() => setEditingArea(a.id)}>
+                        {`Расставить столы: ${a.name}`}
+                      </Button>
                     )}
                   </section>
                 );

@@ -1,0 +1,64 @@
+# Модульные (unit) · 13.10.2026 13:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5f9671f (claude/floor-layout), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-47-29Z-unit-9ba8.json' 'apps/web/src/design-rules.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ✓ |unit| scripts/design/dead-css.test.ts (2 tests) 9ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 1 failed) 37ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 2ms
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 0ms
+     ✓ design/contrast.md совпадает с расчётом 1ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 30ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 1ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 0ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 0ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 0ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 1ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 197ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--spot-scale', '--spot-turn', …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--spot-scale",
++   "--spot-turn",
++   "--spot-x",
++   "--spot-y",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:113:21
+    111|     ]);
+    112|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+    113|     expect(missing).toEqual([]);
+       |                     ^
+    114|   });
+    115| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 51 passed (52)
+   Start at  01:47:30
+   Duration  292ms (tests 42%, import 35%, transform 22%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-47-29Z-unit-9ba8.json
+
+# код выхода 1 · 1 с

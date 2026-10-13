@@ -38,6 +38,10 @@ export class FoodCatalogController {
   @Post('areas') @Access('property') createArea(@Body() b: unknown) {
     return this.service.createCatalog('area', b);
   }
+  // Схема зала (§42, ADR-174): расстановка зоны целиком
+  @Put('areas/:id/layout') @Access('property') layout(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.setLayout(id, b);
+  }
   @Patch('areas/:id') @Access('property') updateArea(@Param('id') id: string, @Body() b: unknown) {
     return this.service.updateCatalog('area', id, b);
   }

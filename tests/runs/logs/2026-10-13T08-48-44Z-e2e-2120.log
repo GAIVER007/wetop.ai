@@ -1,0 +1,53 @@
+# Сквозные (e2e) · 13.10.2026 13:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5f9671f (claude/floor-layout), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'схема зала'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/food-ui/restaurant.spec.ts:620:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API (2.5s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:620:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "posX": 350,
+    +   "posX": 100,
+        "posY": 500,
+        "scale": 130,
+        "shape": "ROUND",
+      }
+
+      675 |   const t7 = tables.find((t) => t.id === table.id)!;
+      676 |   const t8 = tables.find((t) => t.id === second.id)!;
+    > 677 |   expect(t7).toMatchObject({ posX: 350, posY: 500, shape: 'ROUND', scale: 130 });
+          |              ^
+      678 |   expect(Math.abs(t8.posX - 750)).toBeLessThanOrEqual(10);
+      679 |   expect(Math.abs(t8.posY - 250)).toBeLessThanOrEqual(10);
+      680 |   // перезагрузка: схема стоит, стол чужой зоны своей зоне не мешает
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/restaurant.spec.ts:677:14
+
+    Error Context: test-results/restaurant-схема-зала-Q-RE-09402-ю-форма-и-размер-отказы-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-схема-зала-Q-RE-09402-ю-форма-и-размер-отказы-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-схема-зала-Q-RE-09402-ю-форма-и-размер-отказы-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:620:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API 
+
+# код выхода 1 · 8 с

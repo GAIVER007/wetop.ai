@@ -466,9 +466,6 @@ body:has(.org-reference) .workspace-content {
   font: inherit;
 }
 @media (min-width: 1280px) {
-  body:has(.org-reference) .workspace-search {
-    visibility: hidden;
-  }
   .org-search {
     position: fixed;
     top: 9px;
@@ -893,7 +890,7 @@ body:has(.org-reference) .topmenu {
   }
 }
 @media (min-width: 1280px) {
-  .org-heading > div {
+  .org-heading > div:first-child {
     display: grid;
     grid-template-columns: max-content auto;
     column-gap: var(--space-2);

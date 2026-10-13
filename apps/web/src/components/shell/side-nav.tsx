@@ -185,6 +185,19 @@ function Menu({
         <span className="sr-only">{place.label}</span>
       </button>
       <div id={id} className="sidenav__panel" hidden={!open} data-open={open || undefined}>
+        <div className="sidenav__heading">
+          <strong>Навигация</strong>
+          <button
+            type="button"
+            aria-label="Закрыть меню"
+            onClick={() => {
+              setOpen(false);
+              trigger.current?.focus();
+            }}
+          >
+            <Icon name="close" />
+          </button>
+        </div>
         <div className="sidenav__sections" data-column="sections">
           {sections.map((section) => {
             const single = section.direct ? section.items[0] : undefined;

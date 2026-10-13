@@ -36,10 +36,22 @@ const render = (items: BranchItem[], businesses: BusinessCardView[]) =>
       money: [],
       metrics: {},
       create: null,
+      archive: createElement('button', { type: 'button' }, 'Test archive'),
       preview: false,
     }),
   );
 describe('organization workspace states', () => {
+  it('shows all businesses without filter tools and keeps archive in heading', () => {
+    const html = render(
+      [item, { ...item, id: 'second-object', location: { businessId: 'second-project' } }],
+      [card, { ...card, id: 'second-project', name: 'Second project' }],
+    );
+    expect(html).not.toContain('org-tools');
+    expect(html).not.toContain('Поиск бизнесов и филиалов');
+    expect(html).toContain('Test project');
+    expect(html).toContain('Second project');
+    expect(html.indexOf('Test archive')).toBeLessThan(html.indexOf('org-kpis'));
+  });
   it('separates address and capacity without inventing an operating status', () => {
     const hotel = {
       ...item,

@@ -171,7 +171,9 @@ test('вложенные адреса показывают свой раздел
   await expect(trigger).toHaveText('Профиль');
 });
 
-test('касание раздела на планшете раскрывает подразделы, а не уводит со страницы', async ({ page }) => {
+test('касание раздела на планшете раскрывает подразделы, а не уводит со страницы', async ({
+  page,
+}) => {
   await page.goto('/finance');
   const nav = sideNav(page);
   await nav.locator('.sidenav__current').click();
@@ -179,7 +181,9 @@ test('касание раздела на планшете раскрывает �
   await sales.dispatchEvent('pointerdown', { pointerType: 'touch' });
   await sales.click();
   await expect(page).toHaveURL(/\/finance$/);
-  await expect(nav.locator('.sidenav__items > :not([hidden]) .sidenav__title')).toHaveText('Продажи');
+  await expect(nav.locator('.sidenav__items > :not([hidden]) .sidenav__title')).toHaveText(
+    'Продажи',
+  );
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -247,4 +251,16 @@ test('кнопка текущего раздела находится в шап�
   await expect(button).toHaveText('Финансы');
   await button.click();
   await expect(sideNav(page).locator('.sidenav__panel')).toBeVisible();
+});
+
+test('menu panel offers an explicit close action and restores trigger focus', async ({ page }) => {
+  await page.goto('/finance');
+  const nav = sideNav(page);
+  const trigger = nav.locator('.sidenav__current');
+  await trigger.click();
+  const close = nav.getByRole('button', { name: 'Закрыть меню', exact: true });
+  await expect(close).toBeVisible();
+  await close.click();
+  await expect(nav.locator('.sidenav__panel')).toBeHidden();
+  await expect(trigger).toBeFocused();
 });

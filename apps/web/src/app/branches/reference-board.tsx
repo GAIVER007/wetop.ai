@@ -1,6 +1,6 @@
 'use client';
 import { FinancialWidgets, BusinessFinancialWidgets } from './financial-widgets';
-import { useState, useRef, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Icon, type IconName } from '../../components/icon';
 import type { BranchItem } from '../../lib/api';
 import { selectBranch } from './actions';
@@ -27,7 +27,6 @@ const directions = [
   ['BEAUTY', 'Салоны красоты'],
   ['FOOD_SERVICE', 'Рестораны'],
 ] as const;
-const categories = [['ALL', 'Все'], ...directions] as const;
 const businessLabels: Record<BranchItem['vertical'], string> = {
   HOSPITALITY: 'Гостиничный бизнес',
   BEAUTY: 'Салон красоты',
@@ -48,12 +47,7 @@ export function ReferenceBoard({
   financial,
   archive,
 }: Props) {
-  const [filter, setFilter] = useState('ALL');
-  const [search, setSearch] = useState('');
-  const [view, setView] = useState('cards');
-  const [sort, setSort] = useState('direction');
   const [editing, setEditing] = useState<BusinessCardView | null>(null);
-  const searchInput = useRef<HTMLInputElement>(null);
   const groups = groupBusinessBranches(items, businesses).map((group) => ({
     ...group,
     card: businesses.find((b) => b.id === group.id) ?? {
@@ -68,22 +62,11 @@ export function ReferenceBoard({
       hasCover: false,
     },
   }));
-  const visible = groups
-    .filter(
-      (group) =>
-        (filter === 'ALL' || group.vertical === filter) &&
-        `${organization} ${group.card.name} ${group.branches.map((b) => `${b.name} ${b.address ?? ''}`).join(' ')}`
-          .toLocaleLowerCase('ru')
-          .includes(search.toLocaleLowerCase('ru')),
-    )
-    .sort((a, b) =>
-      sort === 'name'
-        ? a.card.name.localeCompare(b.card.name, 'ru')
-        : sort === 'direction'
-          ? ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'].indexOf(a.vertical) -
-            ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'].indexOf(b.vertical)
-          : b.branches.length - a.branches.length,
-    );
+  const visible = [...groups].sort(
+    (a, b) =>
+      directions.findIndex(([vertical]) => vertical === a.vertical) -
+      directions.findIndex(([vertical]) => vertical === b.vertical),
+  );
   const singleProject = groups.length === 1 && items.length <= 1;
   const hasHospitality = groups.some((g) => g.vertical === 'HOSPITALITY');
   const openCreate = (vertical?: BranchItem['vertical'], businessId?: string) => {
@@ -114,72 +97,13 @@ export function ReferenceBoard({
         </div>
         <div className="org-heading-controls">
           {period}
+          {archive}
           {create}
         </div>
       </div>
       <FinancialWidgets summary={financial} />
-      <div className="org-tools">
-        {archive}
-        {groups.length > 1 && (
-          <div className="org-tabs" role="group" aria-label="Направление бизнеса">
-            {categories
-              .filter(([id]) => id === 'ALL' || groups.some((g) => g.vertical === id))
-              .map(([id, label]) => (
-                <button key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>
-                  {label} (
-                  {id === 'ALL' ? groups.length : groups.filter((g) => g.vertical === id).length})
-                </button>
-              ))}
-          </div>
-        )}
-        <div className="org-view">
-          <label>
-            Сортировка:{' '}
-            <select value={sort} onChange={(e) => setSort(e.target.value)}>
-              <option value="direction">По направлению</option>
-              <option value="name">По названию</option>
-              <option value="branches">По числу филиалов</option>
-            </select>
-          </label>
-          <button
-            aria-label="Карточки"
-            aria-pressed={view === 'cards'}
-            onClick={() => setView('cards')}
-          >
-            <Icon name="today" />
-          </button>
-          <button
-            aria-label="Список"
-            aria-pressed={view === 'list'}
-            onClick={() => setView('list')}
-          >
-            <Icon name="list" />
-          </button>
-        </div>
-      </div>
-      <label className="org-search">
-        <Icon name="search" />
-        <input
-          ref={searchInput}
-          aria-label="Поиск бизнесов и филиалов"
-          placeholder="Поиск по бизнесам, филиалам, адресам..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        {search && (
-          <button
-            aria-label="Очистить поиск"
-            onClick={() => {
-              setSearch('');
-              searchInput.current?.focus();
-            }}
-          >
-            <Icon name="close" />
-          </button>
-        )}
-      </label>
       {visible.length ? (
-        <div className={`org-cards ${view === 'list' ? 'org-list' : ''}`}>
+        <div className="org-cards">
           {visible.map((group) => {
             const coverStyle = group.card.coverUrl
               ? { backgroundImage: `url(${JSON.stringify(group.card.coverUrl)})` }
@@ -315,26 +239,13 @@ export function ReferenceBoard({
         </div>
       ) : (
         <div className="org-empty" role="status">
-          <strong>{groups.length ? 'Ничего не найдено' : 'Пока нет доступных проектов'}</strong>
+          <strong>Пока нет доступных проектов</strong>
           <p>
-            {groups.length
-              ? 'Измените поиск или направление бизнеса.'
-              : create
-                ? 'Добавьте первый объект. Направление бизнеса будет создано вместе с ним.'
-                : 'Попросите владельца предоставить доступ к проекту.'}
+            {create
+              ? 'Добавьте первый объект. Направление бизнеса будет создано вместе с ним.'
+              : 'Попросите владельца предоставить доступ к проекту.'}
           </p>
-          {groups.length > 0 ? (
-            <button
-              onClick={() => {
-                setSearch('');
-                setFilter('ALL');
-              }}
-            >
-              Сбросить фильтры
-            </button>
-          ) : create ? (
-            <button onClick={() => openCreate()}>Добавить первый объект</button>
-          ) : null}
+          {create ? <button onClick={() => openCreate()}>Добавить первый объект</button> : null}
         </div>
       )}
       {editing && (

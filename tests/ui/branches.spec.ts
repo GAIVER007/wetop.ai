@@ -10,6 +10,11 @@ test('филиалы: создание, сохранение после reload �
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
   await page.setViewportSize({ width: 1440, height: 900 });
+  expect(
+    await page
+      .locator('.org-heading-controls')
+      .evaluate((element) => getComputedStyle(element).display),
+  ).toBe('flex');
   expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
   await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(1);
   const monthControls = await page

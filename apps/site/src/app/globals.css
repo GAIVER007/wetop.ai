@@ -2310,7 +2310,9 @@ button {
   border: 1px solid var(--public-border);
   border-radius: var(--public-radius);
   background: var(--public-surface);
-  padding: 28px;
+  --verticals-pad: 28px;
+  padding: var(--verticals-pad);
+  overflow: hidden;
 }
 .verticals__top {
   display: flex;
@@ -2393,20 +2395,6 @@ button {
   color: var(--public-text);
   font-size: 0.875rem;
   text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.verticals__segments {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  margin-top: 8px;
-}
-.verticals__segments a {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  color: var(--public-muted);
-  font-size: 0.8125rem;
   text-underline-offset: 4px;
 }
 @media (max-width: 74rem) {
@@ -2552,8 +2540,7 @@ button {
   justify-content: flex-start;
 }
 @media (max-width: 39.99rem) {
-  .verticals__top,
-  .verticals__segments {
+  .verticals__top {
     justify-content: center;
   }
   .verticals__capabilities {
@@ -2569,12 +2556,21 @@ button {
 
 /* ===== LAND2 v2 (09.10.2026, по снимку владельца): hero с дашбордом, направления, продажи и ИИ, команда + запуск, FAQ + призыв, подвал ===== */
 
-/* Первый экран: текст слева, дашборд-мокап справа; на узком экране колонкой, мокап после кнопок. */
-@media (min-width: 64rem) {
+/*
+ * Первый экран: текст слева, дашборд-мокап справа с 1200 px; уже текст сверху по центру, мокап под ним
+ * (на ноутбуке 1024–1200 px обе колонки были слишком узкими: заголовок в 4 строки, плитки 2×2).
+ */
+@media (max-width: 74.99rem) {
+  .public-intro__figure {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+}
+@media (min-width: 75rem) {
   .public-intro__container {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr);
-    gap: 40px;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    gap: 56px;
     align-items: center;
   }
   .public-intro__copy {
@@ -2592,8 +2588,163 @@ button {
     margin-top: 0;
   }
 }
+/*
+ * Первый экран «вау» (пометка владельца 13.10.2026): фон из стеклянных лент (сгенерирован ИИ под сайт,
+ * своя картинка для светлой и тёмной темы), крупный заголовок, у мокапа два всплывающих уведомления.
+ */
+.public-intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-block: clamp(40px, 6vw, 88px) clamp(32px, 5vw, 72px);
+}
+.public-intro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Ленты остаются справа, под текстом фон плавно уходит в цвет страницы: абзац читается на любой ширине. */
+  --hero-art: url('/hero/light.jpg');
+  background:
+    linear-gradient(90deg, var(--public-bg) 0%, var(--public-bg) 30%, transparent 62%),
+    var(--hero-art) right center / cover no-repeat;
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .public-intro::before {
+    --hero-art: url('/hero/dark.jpg');
+  }
+}
+:root[data-theme='dark'] .public-intro::before {
+  --hero-art: url('/hero/dark.jpg');
+}
+/* Текст над мокапом (уже 1200 px): ленты уходят под текст, поэтому фон приглушён и сдвинут вниз. */
+@media (max-width: 74.99rem) {
+  .public-intro::before {
+    opacity: 0.35;
+    background:
+      linear-gradient(180deg, var(--public-bg) 0%, transparent 45%),
+      var(--hero-art) 70% bottom / cover no-repeat;
+  }
+}
 .public-intro h1 {
-  font-size: clamp(2.25rem, 3.4vw, 3.25rem);
+  font-size: clamp(2.5rem, 3.15vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.04;
+}
+.public-intro__figure {
+  position: relative;
+}
+/* Переключатель направлений над мокапом: гостиница, салон, ресторан. */
+.dash-switch {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  width: fit-content;
+  margin: 0 auto 12px;
+  padding: 4px;
+  border: 1px solid var(--public-border);
+  border-radius: 999px;
+  background: var(--public-surface);
+  box-shadow: var(--public-shadow);
+}
+.dash-switch__button {
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--public-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dash-switch__button:hover {
+  color: var(--public-text);
+}
+.dash-switch__button[aria-pressed='true'] {
+  background: var(--public-accent);
+  color: var(--public-on-accent);
+}
+/* Подпись примера на подложке: на фоне лент голый мелкий текст не читается. */
+.public-intro__figure figcaption {
+  justify-self: center;
+  width: fit-content;
+  margin-inline: auto;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--public-surface);
+}
+.dash-toast {
+  display: none;
+}
+@media (min-width: 64rem) {
+  .dash-toast {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--public-border);
+    border-radius: var(--radius-lg);
+    background: var(--public-surface);
+    box-shadow: var(--shadow-floating);
+    font-size: 0.8125rem;
+    line-height: 1.35;
+  }
+  .dash-toast > span:last-child {
+    display: grid;
+  }
+  .dash-toast > span:last-child span {
+    color: var(--public-muted);
+  }
+  .dash-toast--1 {
+    bottom: 96px;
+    left: -40px;
+  }
+  .dash-toast--2 {
+    bottom: 36px;
+    right: -24px;
+  }
+}
+/* Две колонки: переключатель слева, первое уведомление справа в той же строке, над мокапом пусто. */
+@media (min-width: 75rem) {
+  .dash-switch {
+    margin-left: 0;
+  }
+  .dash-toast--1 {
+    top: 2px;
+    right: -12px;
+    bottom: auto;
+    left: auto;
+  }
+  /* Второе уведомление на нижней кромке карточки справа, подпись примера слева: ни график, ни подпись не закрыты. */
+  .dash-toast--2 {
+    bottom: 18px;
+    right: -16px;
+  }
+  .public-intro__figure figcaption {
+    margin-left: 0;
+  }
+}
+@media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+  .dash-toast {
+    animation: dash-toast-float 6s ease-in-out infinite;
+  }
+  .dash-toast--2 {
+    animation-delay: -3s;
+  }
+}
+@keyframes dash-toast-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 .public-intro__accent {
   color: var(--public-accent);
@@ -2886,6 +3037,50 @@ button {
   gap: 8px;
 }
 
+/*
+ * Узкий мокап (окно 60–80rem, телефон): четыре плитки не помещались и резали подписи,
+ * а в заездах имя гостя сжималось до одной буквы. Плитки 2×2, тип номера прячется.
+ */
+/* Контейнер-запрос обнуляет собственную ширину блока, поэтому мокап тянется на всю колонку явно. */
+.public-intro__figure,
+.dash {
+  width: 100%;
+}
+.dash__main {
+  container-type: inline-size;
+}
+@container (max-width: 520px) {
+  .dash__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dash__metric strong {
+    white-space: nowrap;
+  }
+  .dash__arrival {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+  }
+  .dash__detail {
+    display: none;
+  }
+}
+@container (max-width: 380px) {
+  .dash__columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.public-intro__figure {
+  container-type: inline-size;
+}
+/* Узкий мокап (телефон и колонка рядом с текстом): боковое меню забирало место у плиток, остаётся экран «Сегодня». */
+@container (max-width: 700px) {
+  .dash {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dash__sidebar {
+    display: none;
+  }
+}
+
 /* Рукописная пометка у мокапа, как на снимке. Деталь: на узком экране не показывается. */
 .public-intro__annotation {
   display: none;
@@ -2937,35 +3132,78 @@ button {
   min-height: 0;
   margin: 14px 0 0;
 }
-.verticals__body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  margin: 16px 0;
+.verticals__photo {
+  display: block;
+  width: calc(100% + 2 * var(--verticals-pad));
+  max-width: none;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  margin: calc(-1 * var(--verticals-pad)) calc(-1 * var(--verticals-pad)) 20px;
+  background: var(--public-selected);
 }
 .verticals__capabilities {
-  margin: 0;
+  margin: 16px 0 20px;
   gap: 10px;
   font-size: 0.875rem;
-}
-.verticals__art {
-  color: var(--public-accent);
-  background: var(--public-selected);
-  border-radius: var(--radius-lg);
-  padding: 8px;
-}
-.verticals__art svg {
-  display: block;
-  width: 104px;
-  height: auto;
 }
 .verticals__action {
   margin-top: auto;
   justify-content: center;
 }
-.verticals__segments {
-  margin-top: 12px;
+
+/* «Возможности» вкладками: ряд вкладок-пилюль с числом карточек, пометка «Скоро» у того, чего ещё нет. */
+.feature-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.feature-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 1px solid var(--public-border);
+  border-radius: 999px;
+  background: var(--public-surface);
+  color: var(--public-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.feature-tabs__tab:hover {
+  border-color: var(--public-accent);
+}
+.feature-tabs__tab[aria-selected='true'] {
+  background: var(--public-accent);
+  border-color: var(--public-accent);
+  color: var(--public-on-accent);
+}
+.feature-tabs__count {
+  min-width: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--public-selected);
+  color: var(--public-accent);
+  font-size: 0.75rem;
+  line-height: 20px;
+  text-align: center;
+}
+.feature-tabs__tab[aria-selected='true'] .feature-tabs__count {
+  background: var(--public-on-accent);
+}
+.features__soon {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--public-selected);
+  color: var(--public-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  vertical-align: 2px;
 }
 
 /* «Возможности»: на телефоне две колонки компактных карточек, на 320 px одна. */
@@ -2980,25 +3218,104 @@ button {
   }
 }
 
-/* «Продажи и ИИ»: две большие карточки, в каждой текст слева и пример справа. */
+/*
+ * «Продажи, маркетинг и ИИ»: три витрины во всю ширину, текст и пример экрана чередуются по сторонам.
+ * У каждой свой тон метки: продажи синий, маркетинг зелёный, ИИ фиолетовый.
+ */
 .growth__big {
   display: grid;
-  gap: 20px;
-}
-@media (min-width: 64rem) {
-  .growth__big {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  gap: 24px;
 }
 .growth__module {
+  --growth-tone: var(--primary);
+  --growth-tone-soft: var(--primary-soft);
   display: grid;
-  gap: 20px;
+  gap: 24px;
+  padding: clamp(24px, 3.2vw, 40px);
 }
-@media (min-width: 40rem) {
+.growth__module--marketing {
+  --growth-tone: var(--success);
+  --growth-tone-soft: var(--success-soft);
+}
+.growth__module--ai {
+  --growth-tone: var(--purple);
+  --growth-tone-soft: var(--purple-soft);
+}
+@media (min-width: 56rem) {
   .growth__module {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
+    gap: clamp(32px, 4vw, 56px);
+    align-items: center;
   }
+  .growth__module:nth-child(even) .growth__module-copy {
+    order: 2;
+  }
+}
+.growth__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--growth-tone-soft);
+  color: var(--public-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.growth__title {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.growth__kicker svg,
+.growth__module .growth__points svg {
+  color: var(--growth-tone);
+}
+/* Лента броней из всех каналов. */
+.growth__count {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+.growth__feed {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.growth__feed li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface-solid);
+}
+.growth__feed-main {
+  display: grid;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+.growth__feed-main span {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.growth__feed-value {
+  font-size: 0.875rem;
+  white-space: nowrap;
 }
 .growth__module-copy {
   display: flex;
@@ -3153,66 +3470,15 @@ button {
   font-size: 0.8125rem;
 }
 
-/* Полоса «Откуда приходят брони». */
-.growth__sources {
-  display: grid;
-  gap: 20px;
-  margin-top: 20px;
-  padding: clamp(20px, 2.4vw, 28px);
-  border-radius: var(--radius-lg);
-}
-@media (min-width: 64rem) {
-  .growth__sources {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr);
-    align-items: center;
-  }
-}
-.growth__sources-grid {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 16px;
-}
-@media (min-width: 40rem) {
-  .growth__sources-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (min-width: 72rem) {
-  .growth__sources-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-.growth__sources-grid li {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-.growth__sources-grid strong {
-  display: block;
-  font-size: 0.9375rem;
-  line-height: 1.35;
-}
-.growth__sources-grid span + div span,
-.growth__sources-grid div span {
-  display: block;
-  color: var(--text-2);
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  margin-top: 2px;
-}
-
-/* «Команда и контроль доступа» слева и «Запуск за четыре шага» справа. */
+/*
+ * «Команда и контроль доступа», под ней «Запуск за четыре шага» (пометка владельца 13.10.2026:
+ * в две колонки карточки сжимались до 120 px и слова рвались). Каждый блок на всю ширину,
+ * его карточки одной строкой: три и четыре.
+ */
 .team-start__layout {
   display: grid;
-  gap: clamp(32px, 4vw, 48px);
+  gap: clamp(40px, 5vw, 64px);
   align-items: start;
-}
-@media (min-width: 64rem) {
-  .team-start__layout {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  }
 }
 .team-start__cards {
   margin-top: 24px;
@@ -3225,7 +3491,12 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-/* Шаги остаются 2×2: четыре узкие колонки ломали текст по слову в строке (10.10.2026) */
+/* Шаги на всю ширину блока: четыре колонки по ~280 px читаются (раньше 2×2 из-за колонки рядом с командой) */
+@media (min-width: 60rem) {
+  .steps--row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
 
 /* FAQ слева, карточка призыва справа. */
 .faq__layout {
@@ -3357,13 +3628,10 @@ button {
 /* Для кого на телефоне: компактные карточки, возможности в одну колонку рядом с рисунком. */
 @media (max-width: 40rem) {
   .verticals__card {
-    padding: 20px;
+    --verticals-pad: 20px;
   }
   .verticals__capabilities {
     font-size: 0.8125rem;
-  }
-  .verticals__art svg {
-    width: 84px;
   }
 }
 
@@ -3410,6 +3678,12 @@ button {
 }
 .chip__button svg {
   color: var(--public-accent);
+}
+/* Рамку и фон рисует кнопка; общий стиль пунктов списка давал вторую рамку вокруг неё. */
+.public-intro__availability li.chip {
+  padding: 0;
+  border: 0;
+  background: none;
 }
 .chip__button:hover,
 .chip__button[aria-expanded='true'] {

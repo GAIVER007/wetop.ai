@@ -4,10 +4,9 @@ import { subtypesOf } from '../../lib/landings';
 import { Icon } from '../icon';
 
 /*
- * «Три направления. Одна платформа» (по снимку владельца): карточка с иконкой, списком возможностей
- * слева и иллюстрацией справа, внизу кнопка «Для гостиниц →» (регистрация с предвыбранным
- * направлением, `?vertical=`). Фото со снимка заменены рисунками на SVG: §19.9 запрещает стоки,
- * а кредитов на генерацию своих фото нет; при появлении фото меняется один блок `VerticalArt`.
+ * «Три направления. Одна платформа»: фото направления сверху карточки во всю ширину (пометка владельца
+ * 13.10.2026: мелкие картинки сбоку выглядели бедно), иконка и название, список возможностей, кнопка
+ * на страницу направления и под ней типы бизнеса направления из общего списка лендингов.
  */
 const DIRECTION = {
   HOSPITALITY: 'hotels',
@@ -40,6 +39,15 @@ export function Audience() {
             const direction = DIRECTION[card.id];
             return (
               <article className="verticals__card" key={card.id}>
+                <img
+                  className="verticals__photo"
+                  src={PHOTO[card.id]}
+                  alt=""
+                  width={1184}
+                  height={864}
+                  loading="lazy"
+                  decoding="async"
+                />
                 <div className="verticals__head">
                   <span className="icon-tile">
                     <Icon name={card.icon} size={22} />
@@ -50,19 +58,14 @@ export function Audience() {
                   </div>
                 </div>
                 <p className="verticals__text">{card.text}</p>
-                <div className="verticals__body">
-                  <ul className="verticals__capabilities">
-                    {card.capabilities.map((item) => (
-                      <li key={item}>
-                        <Icon name="check" size={15} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <span className="verticals__art verticals__art--photo">
-                    <img src={PHOTO[card.id]} alt="" loading="lazy" width={592} height={432} />
-                  </span>
-                </div>
+                <ul className="verticals__capabilities">
+                  {card.capabilities.map((item) => (
+                    <li key={item}>
+                      <Icon name="check" size={15} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
                 <a className="btn btn--secondary verticals__action" href={`/for/${direction}/`}>
                   {card.action}
                   <Icon name="arrowRight" size={16} />

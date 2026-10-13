@@ -1,5 +1,5 @@
 import { parseBusinessVertical } from '@pms/domain';
-import { registrationBusiness, assertRegistrationVertical } from './registration-contract';
+import { registrationBusiness } from './registration-contract';
 import 'reflect-metadata';
 import {
   BadRequestException,
@@ -355,7 +355,6 @@ export class AuthService {
     const business = registrationBusiness(input);
     const email = validEmail(input.email);
     if (!email) throw new BadRequestException(REGISTRATION_EMAIL_MESSAGE);
-    assertRegistrationVertical(business.vertical, email);
     if (!isPersonNameShaped(input.name)) {
       throw new BadRequestException(REGISTRATION_PERSON_NAME_MESSAGE);
     }

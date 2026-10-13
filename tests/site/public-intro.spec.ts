@@ -95,9 +95,8 @@ test('direction pages preselect the correct vertical in existing AuthDialog', as
     // Со страницы направления выбора нет: плашка с направлением страницы, без общего списка
     await expect(dialog.getByRole('radio')).toHaveCount(0);
     await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText(name);
-    await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText(
-      path === '/for/hotels/' ? 'Доступно' : 'По приглашению',
-    );
+    // регистрация открыта всем направлениям (ADR-172)
+    await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText('Доступно');
     await page.keyboard.press('Escape');
   }
 });

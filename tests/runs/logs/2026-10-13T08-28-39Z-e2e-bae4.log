@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 13.10.2026 13:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd3064f (claude/open-registration-verticals), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/auth-dialog.spec.ts' 'tests/site/public-intro.spec.ts'
+
+Running 24 tests using 2 workers
+
+  ✓   2 tests/site/auth-dialog.spec.ts:58:1 › несохранённая сессия не запускает круг переходов (2.0s)
+  ✓   1 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 320 (2.1s)
+  ✓   4 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 390 (1.1s)
+  ✓   3 tests/site/auth-dialog.spec.ts:73:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (1.2s)
+  ✓   6 tests/site/auth-dialog.spec.ts:103:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (612ms)
+  ✓   5 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 768 (1.0s)
+  ✓   7 tests/site/auth-dialog.spec.ts:118:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (740ms)
+  ✓   8 tests/site/public-intro.spec.ts:6:5 › public intro: dark, 1440 (1.4s)
+  ✓   9 tests/site/auth-dialog.spec.ts:136:1 › «Регистрация» при открытой регистрации открывает форму, после отправки , «Проверьте почту» и повтор письма (1.9s)
+  ✓  10 tests/site/public-intro.spec.ts:6:5 › public intro: light, 320 (1.1s)
+  ✓  11 tests/site/auth-dialog.spec.ts:199:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (409ms)
+  ✓  13 tests/site/auth-dialog.spec.ts:212:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (450ms)
+  ✓  12 tests/site/public-intro.spec.ts:6:5 › public intro: light, 390 (1.1s)
+  ✓  14 tests/site/auth-dialog.spec.ts:224:1 › на телефоне окно открывается из меню и не шире экрана (775ms)
+  ✓  15 tests/site/public-intro.spec.ts:6:5 › public intro: light, 768 (878ms)
+  ✓  17 tests/site/public-intro.spec.ts:6:5 › public intro: light, 1440 (897ms)
+  ✓  18 tests/site/public-intro.spec.ts:60:1 › new header registration: keyboard activation and focus return on mobile (798ms)
+  ✓  19 tests/site/public-intro.spec.ts:80:1 › direction pages preselect the correct vertical in existing AuthDialog (1.3s)
+  ✓  20 tests/site/public-intro.spec.ts:104:1 › hero chips open a description popover with a link to the direction page (553ms)
+  ✓  21 tests/site/public-intro.spec.ts:126:1 › business positioning: three verticals, no maturity labels, five capabilities each (352ms)
+  ✓  16 tests/site/auth-dialog.spec.ts:241:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (7.3s)
+  ✓  22 tests/site/auth-dialog.spec.ts:297:3 › BEAUTY registers like a hotel: no invitation, «Проверьте почту» (ADR-172) (738ms)
+  ✓  23 tests/site/auth-dialog.spec.ts:297:3 › FOOD_SERVICE registers like a hotel: no invitation, «Проверьте почту» (ADR-172) (644ms)
+  ✓  24 tests/site/auth-dialog.spec.ts:325:1 › registration: country sets the phone code, language is Russian only (364ms)
+
+  24 passed (39.4s)
+
+# код выхода 0 · 42 с

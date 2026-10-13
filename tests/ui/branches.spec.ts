@@ -43,10 +43,16 @@ test('филиалы: создание, сохранение после reload �
   ).toBeVisible();
   await expect(main.locator('.org-bottom, .org-object-results')).toHaveCount(0);
   for (const width of [1440, 1024, 390]) {
-    await page.setViewportSize({ width, height: 1000 });
+    await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
+    if (width >= 1024) {
+      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
+      const footer = await main.locator('.org-card-footer').first().boundingBox();
+      expect(footer).not.toBeNull();
+      expect(footer!.y + footer!.height).toBeLessThanOrEqual(900);
+    }
     await page.screenshot({
       path: `reports/branches-2026-10-01/branches-${width}.png`,
       fullPage: true,

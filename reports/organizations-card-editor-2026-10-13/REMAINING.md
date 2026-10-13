@@ -60,3 +60,14 @@ CI 38447686483: integration остановился на жёстком личн�
 - Редактор бизнеса получил кнопку «Настройки объекта» для каждого гостиничного филиала. Переход в существующие /hotel-settings разрешён и для пустого филиала, без принудительного онбординга; выбор по актуальному списку и проверка чужого id сохранены.
 - Red: 2026-10-13T19-23-59Z-unit-2cc8. Green: 2026-10-13T19-24-24Z-unit-ba90, 21/21 (switch, FinancialWidgets, ReferenceBoard). Web typecheck и targeted ESLint прошли.
 - Единственная карточка бизнеса использует ширину до 640px и при нескольких филиалах.
+
+## Final design verification and main authorization
+
+The owner explicitly authorized agent commit, push, merge into main and standard publication of the verified current design delta on 2026-10-13. No schema, money computation, dependency or CI/CD configuration changes are added.
+
+- Responsive regression red: 2026-10-13T19-32-05Z-e2e-148b, page height 1025 instead of 900.
+- Green: 2026-10-13T19-33-01Z-e2e-fbd1, 5/5: creation/reload, metadata/archive/restore, menu transitions, keyboard, close with focus restoration.
+- Final CSS verification: e2e 2026-10-13T19-34-01Z-e2e-c1a7, 1/1; unit 2026-10-13T19-34-13Z-unit-c301, 25/25. Web typecheck and targeted ESLint passed.
+- CUA: 1440x900 and 1024x900, scrollHeight=900 and footer visible. At 390px, scrollWidth=390. Screenshots design-final-1440.png, design-final-1024.png, design-final-390.png, design-menu-final.png. Private preview figures are synthetic, not production evidence.
+- Cover v2 keeps Luxx Aparts readable inside a shallow central crop. Production upload is still unavailable.
+- Review: scoped UI delta, validated branch selection and safe destination, partial totals, menu close/focus reviewed. No blocking issue identified in this delta. Full release gate and live domain remain separate checks.

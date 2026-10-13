@@ -1858,3 +1858,50 @@ body:has(.org-reference) .topmenu {
 .org-reference .org-branch-rows button > svg { flex: none; width: 16px; height: 16px; color: var(--muted); }
 .org-reference .org-branch-rows button:hover { border-color: var(--primary); }
 .org-reference .org-branch-rows button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+@media (min-width: 600px) {
+  .org-cards:has(> .org-card:only-child) {
+    align-items: start;
+    align-content: start;
+  }
+  .org-cards > .org-card:only-child .org-card-body {
+    flex: none;
+  }
+  .org-cards > .org-card:only-child .org-branch-rows {
+    flex: none;
+    max-height: 256px;
+  }
+}
+@media (min-width: 600px) and (max-width: 1279px) {
+  .branches-reference-page:has(.org-card:only-child) {
+    padding-bottom: var(--space-4);
+  }
+  .org-reference:has(.org-card:only-child) .org-heading,
+  .org-reference:has(.org-card:only-child) .org-kpis {
+    margin-bottom: var(--space-2);
+  }
+  .org-reference:has(.org-card:only-child) .org-cover {
+    height: 112px;
+    min-height: 112px;
+  }
+  .org-reference:has(.org-card:only-child) .org-kpis > div {
+    padding: var(--space-2);
+    min-height: 0;
+    gap: var(--space-2);
+  }
+  .org-reference:has(.org-card:only-child) .org-kpis .org-symbol {
+    width: 40px;
+    height: 40px;
+  }
+  .org-reference:has(.org-card:only-child) .org-kpis p,
+  .org-reference:has(.org-card:only-child) .org-kpis small {
+    line-height: 1.3;
+  }
+  .org-reference:has(.org-card:only-child) .org-card-body {
+    padding: var(--space-2);
+  }
+  .org-reference:has(.org-card:only-child) .org-description {
+    min-height: 0;
+    margin-bottom: var(--space-2);
+  }
+}

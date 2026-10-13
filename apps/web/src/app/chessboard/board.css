@@ -2462,6 +2462,42 @@
     }
   }
 
+  /*
+   * Ноутбук и планшет (601–1279 px по лестнице DESIGN.md §4.1): колонка мест сужена до 120–176 px (premium.css), а в строке категории рядом с
+   * названием стояла полоска загрузки «3/16», и названию оставалось ~30 px: «Двухместный номер» шёл по слогам
+   * в столбик (обход app.wetop.ai 13.10.2026). Как на телефоне: стрелка и название сеткой, до трёх строк, полоска
+   * скрыта (свободные места по дням и так в строке категории). «Свернуть категории» переносится внутри колонки.
+   */
+  @media (min-width: 601px) and (max-width: 1279px) {
+    .board--week .board-group-toggle {
+      display: grid;
+      grid-template-columns: 10px minmax(0, 1fr);
+      column-gap: var(--space-1);
+      align-items: start;
+    }
+    .board--week .board-group-toggle > .board-group-load {
+      display: none;
+    }
+    .board--week .board-group-name-text {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: auto;
+      font-size: var(--text-xs);
+      line-height: 1.25;
+    }
+    .board--week th.board__unit-head {
+      white-space: normal;
+    }
+    .board--week th.board__unit-head .board-overview-controls .btn {
+      display: block;
+      max-width: 100%;
+    }
+  }
+
   /* Правая панель брони (образец владельца 09.10.2026): рядом с сеткой, не окном */
   .stay-panel {
     display: flex;

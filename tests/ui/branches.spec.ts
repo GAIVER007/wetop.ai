@@ -36,7 +36,7 @@ test('филиалы: создание, сохранение после reload �
   await expect(
     main.getByRole('button').filter({ hasText: 'Тестовый филиал у парка' }),
   ).toBeVisible();
-  await expect(main.getByRole('heading', { name: 'Оплаты по месяцам', exact: true })).toBeVisible();
+  await expect(main.locator('.org-bottom, .org-object-results')).toHaveCount(0);
   for (const width of [1440, 1024, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(

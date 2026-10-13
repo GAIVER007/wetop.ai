@@ -215,16 +215,17 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
 });
 
-test('restaurant-only organization shows monthly payment chart', async ({ page, request }) => {
+test('restaurant-only organization keeps financial widgets without lower panels', async ({
+  page,
+  request,
+}) => {
   await reset(request);
   try {
     await request.post(`${api}/__test/control`, { data: { org: 'B' } });
     await page.goto('/branches');
     await expect(page.locator('.org-reference--service')).toBeVisible();
-    await expect(
-      page.getByRole('heading', { name: 'Оплаты по месяцам', exact: true }),
-    ).toBeVisible();
-    await expect(page.getByRole('list', { name: 'Полученные оплаты по месяцам' })).toBeVisible();
+    await expect(page.locator('.org-bottom, .org-object-results')).toHaveCount(0);
+    await expect(page.getByText('Выручка (оплаты)', { exact: true })).toBeVisible();
   } finally {
     await request.post(`${api}/__test/control`, { data: { org: 'A' } });
     await request.post(`${api}/__test/cleanup`);

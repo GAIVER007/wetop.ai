@@ -1,8 +1,5 @@
 import { MonthPicker } from './month-picker';
 import { ArchivedBranches } from './archived-branches';
-import { BusinessRecent } from './business-recent';
-import { Suspense } from 'react';
-import { BusinessTrend } from './business-trend';
 import './branches.css';
 import { randomUUID } from 'node:crypto';
 import { todayAt, isIsoDate } from '@pms/domain';
@@ -57,38 +54,6 @@ export async function BranchWorkspace({
         businesses={businesses}
         preview={process.env.NODE_ENV === 'development' && process.env.APP_ALLOW_TEST_DATA === '1'}
         metrics={{}}
-        recent={
-          canCreate ? (
-            <Suspense
-              key="recent"
-              fallback={
-                <p className="org-chart-empty" role="status">
-                  Загружаем журнал…
-                </p>
-              }
-            >
-              <BusinessRecent businesses={businesses} />
-            </Suspense>
-          ) : (
-            <p className="org-chart-empty">Журнал доступен владельцу организации.</p>
-          )
-        }
-        trend={
-          <Suspense
-            key="trend"
-            fallback={
-              <p className="org-chart-empty" role="status">
-                Загружаем динамику…
-              </p>
-            }
-          >
-            {financial && financial.covered > 0 ? (
-              <BusinessTrend date={to} current={financial} />
-            ) : (
-              <p className="org-chart-empty">Для динамики нужны данные о полученных оплатах.</p>
-            )}
-          </Suspense>
-        }
         money={[]}
         create={
           canCreate ? (

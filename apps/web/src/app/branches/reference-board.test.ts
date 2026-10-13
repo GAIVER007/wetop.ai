@@ -36,12 +36,16 @@ const render = (items: BranchItem[], businesses: BusinessCardView[]) =>
       money: [],
       metrics: {},
       create: null,
-      trend: null,
-      recent: null,
       preview: false,
     }),
   );
 describe('organization workspace states', () => {
+  it('keeps the page focused on business cards without lower panels', () => {
+    const html = render([item], [card]);
+    expect(html).not.toContain('Результаты по объектам');
+    expect(html).not.toContain('org-bottom');
+    expect(html).toContain('Test object');
+  });
   it('keeps a configured existing hotel when the older API omits card metadata', () => {
     const existing = {
       ...item,

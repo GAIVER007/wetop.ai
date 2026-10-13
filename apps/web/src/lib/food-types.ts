@@ -19,6 +19,12 @@ export interface DiningTable {
   active: boolean;
   /** Статус «Уборка» на плане зала (§33.3) */
   needsCleaning?: boolean;
+  /** Схема зала (§42): центр на полотне зоны 0–1000; null значит «не расставлен» */
+  posX?: number | null;
+  posY?: number | null;
+  shape?: 'ROUND' | 'SQUARE' | 'RECT' | null;
+  scale?: number;
+  rotation?: number;
 }
 export interface ServicePeriod {
   id: string;

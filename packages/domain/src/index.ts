@@ -30,4 +30,5 @@ export * from "./food/consumption";
 export * from "./food/ratings";
 export * from "./food/cash";
 export * from "./food/customer-marks";
+export * from "./food/layout";
 export * from './marketing/index';

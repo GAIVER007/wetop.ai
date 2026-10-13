@@ -961,6 +961,15 @@
     font-size: var(--text-xs);
     font-variant-numeric: tabular-nums;
   }
+  /* «Сегодня», стрелки и дата на 390 px в строку не входят (DateBar на телефоне без переноса): кнопка своей строкой */
+  @media (max-width: 600px) {
+    .date-bar.rest-day-bar {
+      flex-wrap: wrap;
+    }
+    .date-bar.rest-day-bar > .btn:first-child:not([aria-label]) {
+      flex-basis: 100%;
+    }
+  }
   .rest-fp__canvas {
     display: grid;
     gap: var(--space-4);
@@ -985,6 +994,44 @@
     flex-wrap: wrap;
     gap: var(--space-4) var(--space-6);
     align-items: flex-start;
+  }
+  /* Схема зала (§42): полотно зоны 16:10, стол стоит центром в своей точке */
+  .rest-fp__layout {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    min-height: 280px;
+  }
+  .rest-fp__layout[data-editing] {
+    border: 2px dashed var(--border-input);
+    border-radius: var(--radius-control);
+    touch-action: none;
+  }
+  .rest-fp__spot {
+    position: absolute;
+    left: var(--spot-x);
+    top: var(--spot-y);
+    transform: translate(-50%, -50%) scale(var(--spot-scale)) rotate(var(--spot-turn));
+  }
+  .rest-fp__layout[data-editing] .rest-fp-table__body {
+    cursor: grab;
+  }
+  .rest-fp__layout[data-editing] .rest-fp-table__body[data-dragging] {
+    cursor: grabbing;
+  }
+  .rest-fp-editor {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .rest-fp-editor__fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-4);
+  }
+  .rest-fp-editor__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
   }
   .rest-fp-table {
     display: grid;

@@ -146,6 +146,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /food-service/areas': 'desk',
   'POST /food-service/areas': 'property',
   'PATCH /food-service/areas/:id': 'property',
+  'PUT /food-service/areas/:id/layout': 'property',
   'GET /food-service/tables': 'desk',
   'POST /food-service/tables': 'property',
   'PATCH /food-service/tables/:id': 'property',

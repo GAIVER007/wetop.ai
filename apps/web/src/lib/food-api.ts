@@ -1,3 +1,4 @@
+import type { TableLayout } from '@pms/domain';
 import { getJsonPublic, sendJson } from './api';
 import type {
   FoodShiftRow,
@@ -52,6 +53,9 @@ export const foodApi = {
   createArea: (body: AreaInput) => sendJson<DiningArea>('POST', `${base}/areas`, body),
   updateArea: (id: string, body: Partial<AreaInput>) =>
     sendJson<DiningArea>('PATCH', idPath('areas', id), body),
+  /** Схема зала (§42): расстановка зоны целиком */
+  setLayout: (areaId: string, tables: TableLayout[]) =>
+    sendJson<{ tables: TableLayout[] }>('PUT', `${idPath('areas', areaId)}/layout`, { tables }),
   tables: (cursor?: string) =>
     getJsonPublic<FoodPage<DiningTable>>(`${base}/tables${query(cursor)}`),
   createTable: (body: TableInput) => sendJson<DiningTable>('POST', `${base}/tables`, body),

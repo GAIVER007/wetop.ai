@@ -1248,7 +1248,8 @@ body:has(.org-reference) .topmenu {
 .org-bottom--simple {
   grid-template-columns: 2fr 1fr;
 }
-.org-reference--single .org-cards {
+.org-reference--single .org-cards,
+.org-cards:has(> .org-card:only-child) {
   grid-template-columns: minmax(0, 640px);
 }
 .org-reference--single .org-sort,

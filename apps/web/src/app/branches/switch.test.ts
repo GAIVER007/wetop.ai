@@ -93,3 +93,10 @@ it.each(['BEAUTY', 'FOOD_SERVICE'])(
     await expect(selectBranch(form)).rejects.toThrow('redirect:/management/analytics');
   },
 );
+
+it('opens settings of an empty hotel branch without forcing inventory onboarding', async () => {
+  state.list.mockResolvedValue({ items: [{ id: 'own', vertical: 'HOSPITALITY', locationId: 'location', location: { businessId: 'business' }, _count: { inventoryUnits: 0 } }] });
+  const form = new FormData(); form.set('id', 'own'); form.set('returnTo', '/hotel-settings');
+  await expect(selectBranch(form)).rejects.toThrow('redirect:/hotel-settings');
+  expect(state.set).toHaveBeenCalledOnce();
+});

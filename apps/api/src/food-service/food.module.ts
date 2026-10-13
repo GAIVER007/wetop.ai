@@ -20,6 +20,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { SITE_ASSET_LIMITS } from '@pms/domain';
 import { SITE_ASSET_STORAGE, siteAssetStorageFromEnv } from '../marketing-site/asset-storage';
 import { MenuPhotoService } from './menu-photos';
+import { OrderRatingLinkController, OrderRatingLinkService } from './order-rating-link';
 import { Access } from '../auth/access.decorator';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { PrismaService } from '../database/prisma.provider';
@@ -173,6 +174,9 @@ export class FoodOrdersController {
   @Post('orders/:id/rating') rate(@Param('id') id: string, @Body() b: unknown) {
     return this.service.rateOrder(id, b);
   }
+  @Post('orders/:id/rating-link') @HttpCode(200) ratingLink(@Param('id') id: string) {
+    return this.service.ratingLink(id);
+  }
   @Post('orders/:id/payments') pay(@Param('id') id: string, @Body() b: unknown) {
     return this.service.payOrder(id, b);
   }
@@ -287,6 +291,7 @@ export class FoodStockController {
     FoodOrdersController,
     FoodStaffController,
     FoodStockController,
+    OrderRatingLinkController,
   ],
   providers: [
     PrismaService,
@@ -294,6 +299,7 @@ export class FoodStockController {
     RestaurantService,
     StockService,
     MenuPhotoService,
+    OrderRatingLinkService,
     { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
   ],
   exports: [FoodService, RestaurantService],

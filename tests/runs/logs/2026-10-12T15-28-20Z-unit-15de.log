@@ -1,0 +1,23 @@
+# Модульные (unit) · 12.10.2026 20:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e8d6b5 (claude/order-rating-qr), незакоммиченных файлов набора: 22
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-28-20Z-unit-15de.json' 'tests/unit/db-restore-prod.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 6460ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 1408ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 730ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 1596ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 837ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 1096ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 783ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  08:28:21
+   Duration  6.55s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-28-20Z-unit-15de.json
+
+# код выхода 0 · 7 с

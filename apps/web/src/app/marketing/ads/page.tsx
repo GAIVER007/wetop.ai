@@ -89,7 +89,7 @@ function Campaigns() {
 const empty = (text: string) => <EmptyState title="Пока пусто">{text}</EmptyState>;
 
 export default async function MarketingAdsPage() {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   return (
     <Page
       crumbs={<BackToModules />}

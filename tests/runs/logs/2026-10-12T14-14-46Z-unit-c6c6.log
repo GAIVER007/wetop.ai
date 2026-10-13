@@ -1,0 +1,49 @@
+# Модульные (unit) · 12.10.2026 19:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит ec99ea7 (claude/profile-menu-spec), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-14-46Z-unit-c6c6.json' 'apps/web/src/lib/scope-resolve.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |unit| apps/web/src/lib/scope-resolve.test.ts (8 tests | 1 failed) 9ms
+   ✓ нет доступных филиалов: прежний путь настройки, указатель не ставится 1ms
+   ✓ один филиал: выбирается сам, указатель только из ответа сервера 1ms
+   ✓ несколько филиалов: никогда не выбирается первый, человек выбирает на /branches 0ms
+   ✓ next чужого направления заменяется стартовой страницей направления 0ms
+   ✓ /today общий для всех направлений: сохраняется у салона и ресторана (MV8) 0ms
+   ✓ next своего направления и общие разделы сохраняются 0ms
+   × next только безопасный локальный путь 5ms
+   ✓ устаревший указатель: кука есть, а /auth/me не подтвердил ни Business, ни филиал 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/scope-resolve.test.ts > next только безопасный локальный путь
+AssertionError: expected { kind: 'select', …(2) } to match object { target: '/finance' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "target": "/finance",
++   "target": "/today",
+  }
+
+ ❯ apps/web/src/lib/scope-resolve.test.ts:64:56
+     62|   // второго перехода /today → /finance: он обрывал следующую навигаци…
+     63|   for (const next of ['//evil.invalid', 'https://evil.invalid/today', …
+     64|     expect(decideScope([branch('HOSPITALITY')], next)).toMatchObject({…
+       |                                                        ^
+     65|   expect(decideScope([branch('HOSPITALITY')], null)).toMatchObject({ t…
+     66| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  07:14:47
+   Duration  291ms (transform 73%, import 13%, tests 8%, worker 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-14-46Z-unit-c6c6.json
+
+# код выхода 1 · 2 с

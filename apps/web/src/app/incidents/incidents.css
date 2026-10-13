@@ -150,3 +150,16 @@
     }
   }
 }
+
+/* Сырой текст ошибки сторожа: свёрнут под заголовком, переносится, а не растягивает карточку */
+.incident__details {
+  margin-top: var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.incident__details pre {
+  margin: var(--space-2) 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+}

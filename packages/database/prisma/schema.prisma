@@ -1288,44 +1288,50 @@ model BarStockMovement {
 }
 
 model BarSupplierPayment {
-  id              String   @id @default(uuid()) @db.Uuid
-  receiptId       String   @map("receipt_id") @db.Uuid
-  cashOperationId String   @unique @map("cash_operation_id") @db.Uuid
-  amount          BigInt
-  paidAt          DateTime @map("paid_at") @db.Timestamptz(6)
-  createdById     String?  @map("created_by_id") @db.Uuid
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id                        String   @id @default(uuid()) @db.Uuid
+  receiptId                 String   @map("receipt_id") @db.Uuid
+  /// касса ресторана (§45): ровно одна касса у оплаты
+  restaurantCashOperationId String?  @unique @map("restaurant_cash_operation_id") @db.Uuid
+  cashOperationId           String?  @unique @map("cash_operation_id") @db.Uuid
+  amount                    BigInt
+  paidAt                    DateTime @map("paid_at") @db.Timestamptz(6)
+  createdById               String?  @map("created_by_id") @db.Uuid
+  createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  receipt       BarReceipt    @relation(fields: [receiptId], references: [id], onDelete: Restrict)
-  cashOperation CashOperation @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
+  receipt                 BarReceipt               @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  cashOperation           CashOperation?           @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
+  restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
 
   @@index([receiptId, paidAt])
   @@map("bar_supplier_payments")
 }
 
 model BarSale {
-  id              String        @id @default(uuid()) @db.Uuid
+  id                        String        @id @default(uuid()) @db.Uuid
   /// бар на филиале (§44): объект только у бара гостиницы
-  locationId      String        @map("location_id") @db.Uuid
-  propertyId      String?       @map("property_id") @db.Uuid
-  folioId         String?       @map("folio_id") @db.Uuid
-  cashOperationId String?       @unique @map("cash_operation_id") @db.Uuid
-  chargeId        String?       @unique @map("charge_id") @db.Uuid
-  idempotencyKey  String        @map("idempotency_key")
-  status          BarSaleStatus @default(POSTED)
-  currency        String        @db.Char(3)
-  totalRevenue    BigInt        @map("total_revenue")
-  totalCost       BigInt        @map("total_cost")
-  createdById     String?       @map("created_by_id") @db.Uuid
-  reversedAt      DateTime?     @map("reversed_at") @db.Timestamptz(6)
-  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  locationId                String        @map("location_id") @db.Uuid
+  propertyId                String?       @map("property_id") @db.Uuid
+  folioId                   String?       @map("folio_id") @db.Uuid
+  /// касса ресторана (§45); у одной продажи не больше одной кассы
+  restaurantCashOperationId String?       @unique @map("restaurant_cash_operation_id") @db.Uuid
+  cashOperationId           String?       @unique @map("cash_operation_id") @db.Uuid
+  chargeId                  String?       @unique @map("charge_id") @db.Uuid
+  idempotencyKey            String        @map("idempotency_key")
+  status                    BarSaleStatus @default(POSTED)
+  currency                  String        @db.Char(3)
+  totalRevenue              BigInt        @map("total_revenue")
+  totalCost                 BigInt        @map("total_cost")
+  createdById               String?       @map("created_by_id") @db.Uuid
+  reversedAt                DateTime?     @map("reversed_at") @db.Timestamptz(6)
+  createdAt                 DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  property      Property?      @relation(fields: [propertyId], references: [id], onDelete: Restrict)
-  location      Location       @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  folio         Folio?         @relation(fields: [folioId], references: [id], onDelete: Restrict)
-  cashOperation CashOperation? @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
-  charge        Charge?        @relation(fields: [chargeId], references: [id], onDelete: Restrict)
-  lines         BarSaleLine[]
+  property                Property?                @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location                Location                 @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  folio                   Folio?                   @relation(fields: [folioId], references: [id], onDelete: Restrict)
+  cashOperation           CashOperation?           @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
+  restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
+  charge                  Charge?                  @relation(fields: [chargeId], references: [id], onDelete: Restrict)
+  lines                   BarSaleLine[]
 
   @@unique([locationId, idempotencyKey])
   @@index([locationId, createdAt])
@@ -3453,10 +3459,12 @@ model RestaurantCashOperation {
   voidedById  String?           @map("voided_by_id") @db.Uuid
   createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  location  Location  @relation(fields: [locationId], references: [id])
-  employee  Employee? @relation(fields: [employeeId], references: [id], onDelete: Restrict)
-  createdBy User?     @relation("RestaurantCashOpCreatedBy", fields: [createdById], references: [id])
-  voidedBy  User?     @relation("RestaurantCashOpVoidedBy", fields: [voidedById], references: [id])
+  location           Location            @relation(fields: [locationId], references: [id])
+  employee           Employee?           @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  createdBy          User?               @relation("RestaurantCashOpCreatedBy", fields: [createdById], references: [id])
+  barSale            BarSale?
+  barSupplierPayment BarSupplierPayment?
+  voidedBy           User?               @relation("RestaurantCashOpVoidedBy", fields: [voidedById], references: [id])
 
   @@index([locationId, occurredAt])
   @@index([employeeId, period])

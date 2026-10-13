@@ -2,6 +2,9 @@ import 'reflect-metadata';
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BAR_REPOSITORY, type BarCategoryInput, type BarProductInput, type BarReceiptInput, type BarRepository, type BarSupplierInput } from './bar.repository';
 
+/** Бар салона (§45): продажи и оплаты откроются вместе с кассой салона, склад работает */
+const NO_SALON_CASH = 'Продажи и оплаты бара салона откроются вместе с кассой салона';
+
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const date = /^\d{4}-\d{2}-\d{2}$/;
 const integer = (value: unknown, field: string): bigint => {
@@ -120,6 +123,7 @@ export class BarService {
     if (!['CASH', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'KASPI', 'HALYK'].includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
     if (!idempotencyKey || idempotencyKey.length > 120) throw new BadRequestException('Нужен ключ повтора продажи');
     const result = await this.repo.sellRetail({ productId, quantityUnits: integer(body.quantityUnits, 'Количество'), method, idempotencyKey });
+    if (result.kind === 'no_cash') throw new ConflictException(NO_SALON_CASH);
     if (result.kind === 'not_found') throw new NotFoundException('Товар не найден');
     if (result.kind === 'insufficient_stock') throw new ConflictException(`Недостаточно товара: доступно ${result.availableUnits}`);
     return result;
@@ -135,6 +139,7 @@ export class BarService {
     const quantityUnits = integer(body.quantityUnits, 'Количество');
     if (quantityUnits > 2_147_483_647n) throw new BadRequestException('Количество слишком большое');
     const result = await this.repo.sellToFolio({ folioId, productId, quantityUnits, idempotencyKey });
+    if (result.kind === 'no_folio') throw new ConflictException('Продажа в счёт гостя есть только у гостиницы');
     if (result.kind === 'folio_not_found') throw new NotFoundException('Открытый счет гостя не найден');
     if (result.kind === 'product_not_found') throw new NotFoundException('Товар не найден');
     if (result.kind === 'insufficient_stock') throw new ConflictException(`Недостаточно товара: доступно ${result.availableUnits}`);
@@ -203,6 +208,8 @@ export class BarService {
     const method = typeof body.method === 'string' ? body.method : '';
     if (!['CASH', 'CARD_TERMINAL', 'BANK_TRANSFER_LEGAL', 'BANK_TRANSFER_PERSON', 'KASPI', 'HALYK'].includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
     const result = await this.repo.payReceipt(id, { amountMinor: integer(body.amountMinor, 'Сумма'), method, note: optionalText(body.note) });
+    if (result.kind === 'no_cash') throw new ConflictException(NO_SALON_CASH);
+    if (result.kind === 'insufficient_cash') throw new ConflictException('В кассе по этому способу меньше этой суммы');
     if (result.kind === 'not_found') throw new NotFoundException('Приход не найден');
     if (result.kind === 'not_posted') throw new ConflictException('Оплатить можно только проведенный приход');
     if (result.kind === 'overpayment') throw new ConflictException(`Сумма больше долга: осталось ${result.dueAmount}`);

@@ -69,7 +69,6 @@ test('business metadata and branch archive survive reload; second brand keeps it
     page.getByRole('heading', { name: 'Second Hotel Brand', exact: true }),
   ).toBeVisible();
   await expect(card).toContainText('Persisted business description');
-  await expect(
-    page.getByRole('table', { name: 'Бизнесы и объекты по направлениям' }),
-  ).toBeVisible();
+  await expect(page.locator('.org-bottom, .org-object-results')).toHaveCount(0);
+  await expect(page.getByText('Выручка (оплаты)', { exact: true })).toBeVisible();
 });

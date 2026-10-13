@@ -1,3 +1,4 @@
+import type { Prisma } from '@pms/database';
 import { BusinessCardsService } from './business-cards';
 import { DashboardService } from '../dashboard/dashboard.service';
 import 'reflect-metadata';
@@ -166,15 +167,37 @@ export class BranchesService {
       throw new BadRequestException('Укажите часовой пояс IANA');
     }
     if (!timezone) throw new BadRequestException('Укажите часовой пояс');
+    const businessId = typeof body.businessId === 'string' ? body.businessId : undefined;
+    const newBusinessId = typeof body.newBusinessId === 'string' ? body.newBusinessId : undefined;
+    const businessName =
+      typeof body.businessName === 'string' ? body.businessName.trim() : undefined;
+    if (
+      (businessId && (!UUID.test(businessId) || newBusinessId || businessName)) ||
+      (newBusinessId && (!UUID.test(newBusinessId) || !businessName)) ||
+      (businessName && (!newBusinessId || businessName.length > 200))
+    )
+      throw new BadRequestException(
+        'Выберите бизнес или укажите название нового бизнеса до 200 символов',
+      );
+    const ownership = {
+      ...(businessId ? { businessId } : {}),
+      ...(newBusinessId ? { newBusinessId, businessName: businessName! } : {}),
+    };
     const vertical = parseBranchVertical(body.vertical);
     if (vertical !== 'HOSPITALITY')
-      return this.createServiceBranch({ id, name, address, currency, timezone }, vertical);
+      return this.createServiceBranch(
+        { id, name, address, currency, timezone },
+        vertical,
+        ownership,
+      );
     return this.prisma.db.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT 1 FROM organizations WHERE id = ${organizationId}::uuid FOR UPDATE`;
       const existing = await tx.property.findFirst({ where: { id, organizationId }, select });
       const hospitality = <T>(row: T) => ({ ...row, vertical: 'HOSPITALITY' as const });
       if (existing) {
         if (
+          ((businessId || newBusinessId) &&
+            existing.location.businessId !== (businessId || newBusinessId)) ||
           existing.name !== name ||
           (existing.address ?? '') !== address ||
           existing.currency !== currency ||
@@ -185,14 +208,20 @@ export class BranchesService {
           );
         return hospitality(existing);
       }
-      const property = await createPropertyInChain(tx, organizationId, {
-        ...NEW_PROPERTY_DEFAULTS,
-        id,
-        name,
-        address: address || null,
-        currency,
-        timezone,
-      });
+      const chosenBusiness = await this.creationBusiness(tx, vertical, ownership);
+      const property = await createPropertyInChain(
+        tx,
+        organizationId,
+        {
+          ...NEW_PROPERTY_DEFAULTS,
+          id,
+          name,
+          address: address || null,
+          currency,
+          timezone,
+        },
+        chosenBusiness,
+      );
       await tx.auditLog.create({
         data: {
           organizationId,
@@ -209,6 +238,46 @@ export class BranchesService {
     });
   }
 
+  private async creationBusiness(
+    tx: Prisma.TransactionClient,
+    vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE',
+    ownership: { businessId?: string; newBusinessId?: string; businessName?: string },
+  ) {
+    const organizationId = this.organization();
+    if (ownership.businessId) {
+      const business = await tx.business.findFirst({
+        where: { id: ownership.businessId, organizationId, vertical, status: 'ACTIVE' },
+        select: { id: true },
+      });
+      if (!business)
+        throw new BadRequestException('Выбранный бизнес недоступен или имеет другое направление');
+      return business.id;
+    }
+    if (ownership.newBusinessId && ownership.businessName) {
+      const business = await tx.business.create({
+        data: {
+          id: ownership.newBusinessId,
+          organizationId,
+          name: ownership.businessName,
+          vertical,
+        },
+        select: { id: true },
+      });
+      await tx.auditLog.create({
+        data: {
+          organizationId,
+          userId: currentUserId(),
+          entityType: 'business',
+          entityId: business.id,
+          action: 'business.created',
+          after: { name: ownership.businessName, vertical },
+        },
+      });
+      return business.id;
+    }
+    return undefined;
+  }
+
   /**
    * Филиал салона (срез B2, Q-256): цепочка Organization → Business (BEAUTY) → Location, объекта нет.
    * Повтор того же запроса возвращает тот же филиал, как у гостиницы: повторное нажатие не плодит салоны.
@@ -222,6 +291,7 @@ export class BranchesService {
       timezone: string;
     },
     vertical: 'BEAUTY' | 'FOOD_SERVICE' = 'BEAUTY',
+    ownership: { businessId?: string; newBusinessId?: string; businessName?: string } = {},
   ) {
     const organizationId = this.organization();
     return this.prisma.db.$transaction(async (tx) => {
@@ -238,6 +308,8 @@ export class BranchesService {
         if (!business)
           throw new ConflictException('Этот филиал другого направления. Обновите форму.');
         if (
+          ((ownership.businessId || ownership.newBusinessId) &&
+            existing.businessId !== (ownership.businessId || ownership.newBusinessId)) ||
           existing.name !== data.name ||
           (existing.address ?? '') !== data.address ||
           existing.currency !== data.currency ||
@@ -248,6 +320,7 @@ export class BranchesService {
           );
         return locationBranch(existing, vertical);
       }
+      const chosenBusiness = await this.creationBusiness(tx, vertical, ownership);
       const location = await createBeautyLocationInChain(
         tx,
         organizationId,
@@ -259,6 +332,7 @@ export class BranchesService {
           currency: data.currency,
         },
         vertical,
+        chosenBusiness,
       );
       await tx.auditLog.create({
         data: {

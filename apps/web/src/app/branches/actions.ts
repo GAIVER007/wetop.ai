@@ -36,13 +36,18 @@ export async function createBranch(
         : form.get('vertical') === 'BEAUTY'
           ? 'BEAUTY'
           : 'HOSPITALITY';
+    const businessId = String(form.get('businessId') ?? '');
+    const isNew = form.get('mode') === 'BUSINESS';
+    const businessName = String(form.get('businessName') ?? '').trim();
     await branchesApi.create({
       id: String(form.get('id')),
-      name: String(form.get('name') ?? ''),
+      name: String(form.get('name') ?? '').trim() || (isNew ? businessName : ''),
       address: String(form.get('address') ?? ''),
       currency: String(form.get('currency') ?? ''),
       timezone: String(form.get('timezone') ?? ''),
       vertical,
+      ...(businessId ? { businessId } : {}),
+      ...(isNew ? { businessName, newBusinessId: String(form.get('newBusinessId') ?? '') } : {}),
     });
     revalidatePath('/branches');
     revalidatePath('/platform');
@@ -99,5 +104,30 @@ export async function saveBusinessCard(form: FormData) {
           ? error.message
           : 'Не удалось сохранить карточку. Повторите попытку.',
     };
+  }
+}
+
+export async function archiveBranch(form: FormData) {
+  try {
+    const { branchLifecycleApi } = await import('../../lib/api');
+    await branchLifecycleApi.archive(String(form.get('locationId')));
+    const { clearScopeCookie } = await import('../../lib/session');
+    await clearScopeCookie();
+    revalidatePath('/', 'layout');
+    revalidatePath('/branches');
+    return {};
+  } catch (error) {
+    return { error: error instanceof ApiError ? error.message : 'Не удалось архивировать объект.' };
+  }
+}
+export async function restoreBranch(form: FormData) {
+  try {
+    const { branchLifecycleApi } = await import('../../lib/api');
+    await branchLifecycleApi.restore(String(form.get('locationId')));
+    revalidatePath('/', 'layout');
+    revalidatePath('/branches');
+    return {};
+  } catch (error) {
+    return { error: error instanceof ApiError ? error.message : 'Не удалось восстановить объект.' };
   }
 }

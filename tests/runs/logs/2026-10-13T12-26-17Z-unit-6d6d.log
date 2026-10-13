@@ -1,0 +1,18 @@
+# Модульные (unit) · 13.10.2026 17:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит b25addf (codex/organizations-card-editor), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-26-17Z-unit-6d6d.json' 'apps/api/src/hotel/organization-summary.test.ts' 'apps/api/src/hotel/branch-lifecycle.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |unit| apps/api/src/hotel/branch-lifecycle.test.ts (3 tests) 14ms
+ ✓ |unit| apps/api/src/hotel/organization-summary.test.ts (2 tests) 90ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 92ms
+
+ Test Files  3 passed (3)
+      Tests  8 passed (8)
+   Start at  05:26:35
+   Duration  9.99s (transform 54%, import 44%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-26-17Z-unit-6d6d.json
+
+# код выхода 0 · 29 с

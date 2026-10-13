@@ -106,7 +106,11 @@ export interface UnitOccupancy {
 const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/', '/seller-agents'];
 
 /** Explicit test/demo sources are isolated from normal and production API access. */
-async function backendFetch(path: string, options: RequestInit = {}, reportScope?: string): Promise<Response> {
+async function backendFetch(
+  path: string,
+  options: RequestInit = {},
+  reportScope?: string,
+): Promise<Response> {
   const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
   const demo =
     process.env.NODE_ENV === 'development' &&
@@ -283,8 +287,7 @@ export const dishPhotoApi = {
 
 /** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
 export const hotelSettingsApi = {
-  update: (patch: Record<string, unknown>) =>
-    sendJson<unknown>('PATCH', '/hotel/settings', patch),
+  update: (patch: Record<string, unknown>) => sendJson<unknown>('PATCH', '/hotel/settings', patch),
 };
 
 /** Услуга каталога «Настроек объекта» (SET3): весь каталог, с архивными; код — ссылка для правки, в стойке не виден */
@@ -591,9 +594,11 @@ export interface RegistrationContext {
 }
 
 export const authApi = {
-  registrationContext: (token?: string) => getJson<RegistrationContext | null>(
-    '/auth/registration-context', token ? { authorization: `Bearer ${token}` } : {},
-  ),
+  registrationContext: (token?: string) =>
+    getJson<RegistrationContext | null>(
+      '/auth/registration-context',
+      token ? { authorization: `Bearer ${token}` } : {},
+    ),
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
   // адрес посетителя уезжает заголовком: лимиты входа по адресу (С-5, ТЗ аудита 25.09.2026) считает API
   login: (body: { email: string; password: string }, info?: AuthClientInfo) =>
@@ -1484,12 +1489,7 @@ export interface GuestDirectoryRow {
 }
 /** Быстрые виды над таблицей «Гостей и бронирований» */
 export type GuestDirectoryView =
-  | 'all'
-  | 'today'
-  | 'inhouse'
-  | 'expected'
-  | 'departures'
-  | 'attention';
+  'all' | 'today' | 'inhouse' | 'expected' | 'departures' | 'attention';
 /** Плитки: вся база гостей организации без отборов; заезды и выезды ещё и за вчера */
 export interface GuestDirectoryKpi {
   /** всего гостей в базе организации */
@@ -2162,7 +2162,8 @@ export interface MarketingSiteCurrent {
 
 export const marketingSiteApi = {
   current: () => getJson<MarketingSiteCurrent>('/marketing/site'),
-  publications: () => getJson<{ publications: SitePublicationRow[] }>('/marketing/site/publications'),
+  publications: () =>
+    getJson<{ publications: SitePublicationRow[] }>('/marketing/site/publications'),
   bookingSource: () => getJson<BookingSourceView>('/marketing/site/booking-source'),
   preview: (versionId: string) =>
     sendJson<{ url: string; expiresAt: string }>('POST', '/marketing/site/preview', { versionId }),
@@ -2175,7 +2176,8 @@ export const marketingSiteApi = {
   resume: () => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/resume', {}),
   rollback: (versionId: string) =>
     sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/rollback', { versionId }),
-  archive: () => sendJson<{ site: { id: string; state: 'ARCHIVED' } }>('POST', '/marketing/site/archive', {}),
+  archive: () =>
+    sendJson<{ site: { id: string; state: 'ARCHIVED' } }>('POST', '/marketing/site/archive', {}),
   setBookingSource: (trackedSiteId: string | null) =>
     sendJson<BookingSourceView>('PUT', '/marketing/site/booking-source', { trackedSiteId }),
 };
@@ -2221,16 +2223,24 @@ export const siteAssetsApi = {
     return (await res.json()) as { asset: SiteAssetView; created: boolean };
   },
   updateAlt: (id: string, defaultAlt: Record<string, string> | null) =>
-    sendJson<{ asset: SiteAssetView }>('PATCH', `/marketing/site/assets/${encodeURIComponent(id)}`, { defaultAlt }),
-  remove: (id: string) =>
-    sendJson<{ deleted: true; retainedForPublishedHistory: boolean }>('DELETE', `/marketing/site/assets/${encodeURIComponent(id)}`, {}),
-  channexPhotos: () => getJson<{ state: string; photos: ChannexPhotoChoice[] }>('/marketing/site/assets/channex'),
-  importChannex: (photoIds: string[]) =>
-    sendJson<{ imported: Array<{ photoId: string; created: boolean; asset: SiteAssetView }>; failed: Array<{ photoId: string; code: string }> }>(
-      'POST',
-      '/marketing/site/assets/channex/import',
-      { photoIds },
+    sendJson<{ asset: SiteAssetView }>(
+      'PATCH',
+      `/marketing/site/assets/${encodeURIComponent(id)}`,
+      { defaultAlt },
     ),
+  remove: (id: string) =>
+    sendJson<{ deleted: true; retainedForPublishedHistory: boolean }>(
+      'DELETE',
+      `/marketing/site/assets/${encodeURIComponent(id)}`,
+      {},
+    ),
+  channexPhotos: () =>
+    getJson<{ state: string; photos: ChannexPhotoChoice[] }>('/marketing/site/assets/channex'),
+  importChannex: (photoIds: string[]) =>
+    sendJson<{
+      imported: Array<{ photoId: string; created: boolean; asset: SiteAssetView }>;
+      failed: Array<{ photoId: string; code: string }>;
+    }>('POST', '/marketing/site/assets/channex/import', { photoIds }),
 };
 
 /** MKT9: метаданные версии сайта в истории; документ отдельно */
@@ -2274,14 +2284,32 @@ export interface DesignDirectionView {
   id: string;
   name: string;
   shortDescription: string;
-  theme: { preset: string; accent: string; typography: string; radius: string; density: string; colorScheme: string };
+  theme: {
+    preset: string;
+    accent: string;
+    typography: string;
+    radius: string;
+    density: string;
+    colorScheme: string;
+  };
   heroVariant: string;
   sectionOrder: string[];
 }
 export type AssistantPayloadView =
   | { kind: 'CHAT'; suggestBuild: boolean; suggestPublish: boolean }
-  | { kind: 'QUESTIONS'; questions: Array<{ id: string; question: string; options: string[]; allowCustom: boolean }> }
-  | { kind: 'PLAN'; summary: string; affectedPages: string[]; affectedSections: string[]; steps: string[]; tradeoffs: string[]; buildInstruction: string }
+  | {
+      kind: 'QUESTIONS';
+      questions: Array<{ id: string; question: string; options: string[]; allowCustom: boolean }>;
+    }
+  | {
+      kind: 'PLAN';
+      summary: string;
+      affectedPages: string[];
+      affectedSections: string[];
+      steps: string[];
+      tradeoffs: string[];
+      buildInstruction: string;
+    }
   | { kind: 'DESIGN'; directions: DesignDirectionView[] };
 
 export interface AssistantRunView {
@@ -2325,7 +2353,13 @@ export interface GenerationRunView {
 
 export interface SiteDraftView {
   site: MarketingSiteSummary;
-  version: { revision: number; specHash: string; source: string; createdAt: string; spec: Record<string, unknown> } | null;
+  version: {
+    revision: number;
+    specHash: string;
+    source: string;
+    createdAt: string;
+    spec: Record<string, unknown>;
+  } | null;
 }
 
 /**
@@ -2334,12 +2368,25 @@ export interface SiteDraftView {
  */
 export type EditorReply<T> =
   | { ok: true; data: T }
-  | { ok: false; status: number; code: string | null; message: string; errors: SiteSpecErrorView[]; paths: Array<{ path: string; code: string }> };
+  | {
+      ok: false;
+      status: number;
+      code: string | null;
+      message: string;
+      errors: SiteSpecErrorView[];
+      paths: Array<{ path: string; code: string }>;
+    };
 
-async function editorCall<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, body?: unknown): Promise<EditorReply<T>> {
+async function editorCall<T>(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  path: string,
+  body?: unknown,
+): Promise<EditorReply<T>> {
   const res = await backendFetch(path, {
     method,
-    ...(body !== undefined ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {}),
+    ...(body !== undefined
+      ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }
+      : {}),
   });
   let json: Record<string, unknown> = {};
   try {
@@ -2348,59 +2395,112 @@ async function editorCall<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
     /* тело не JSON */
   }
   if (res.ok) return { ok: true, data: json as T };
-  const message = Array.isArray(json['message']) ? (json['message'] as string[]).join('; ') : typeof json['message'] === 'string' ? json['message'] : `HTTP ${res.status}`;
+  const message = Array.isArray(json['message'])
+    ? (json['message'] as string[]).join('; ')
+    : typeof json['message'] === 'string'
+      ? json['message']
+      : `HTTP ${res.status}`;
   return {
     ok: false,
     status: res.status,
     code: typeof json['code'] === 'string' ? json['code'] : null,
-    message: res.status >= 500 && res.status !== 503 ? `Сервер ответил ошибкой ${res.status}: проверьте результат перед повтором` : message,
+    message:
+      res.status >= 500 && res.status !== 503
+        ? `Сервер ответил ошибкой ${res.status}: проверьте результат перед повтором`
+        : message,
     errors: Array.isArray(json['errors']) ? (json['errors'] as SiteSpecErrorView[]) : [],
-    paths: Array.isArray(json['paths']) ? (json['paths'] as Array<{ path: string; code: string }>) : [],
+    paths: Array.isArray(json['paths'])
+      ? (json['paths'] as Array<{ path: string; code: string }>)
+      : [],
   };
 }
 
 /** «Маркетинг → Редактор сайта» (MKT9): черновик, история, разница, восстановление и ИИ-правки в строгом scope */
 export const siteEditorApi = {
   draft: () => getJson<SiteDraftView>('/marketing/site/draft'),
-  versions: () => getJson<{ versions: SiteVersionMeta[]; bookmarks?: SiteVersionMeta[] }>('/marketing/site/versions'),
+  versions: () =>
+    getJson<{ versions: SiteVersionMeta[]; bookmarks?: SiteVersionMeta[] }>(
+      '/marketing/site/versions',
+    ),
   brief: () =>
     getJson<{
       briefHash: string;
       input: {
-        identity: { displayNameCandidate: string; address?: string | null; phone?: string | null; email?: string | null };
+        identity: {
+          displayNameCandidate: string;
+          address?: string | null;
+          phone?: string | null;
+          email?: string | null;
+        };
         stay?: { checkInTime: string | null; checkOutTime: string | null };
         accommodations: Array<{ categoryCode: string; name: string }>;
       };
     }>('/marketing/site/brief'),
   version: (id: string) =>
-    editorCall<{ version: SiteVersionMeta & { spec: Record<string, unknown> } }>('GET', `/marketing/site/versions/${encodeURIComponent(id)}`),
+    editorCall<{ version: SiteVersionMeta & { spec: Record<string, unknown> } }>(
+      'GET',
+      `/marketing/site/versions/${encodeURIComponent(id)}`,
+    ),
   diff: (id: string, against: string) =>
     editorCall<{ from: SiteVersionMeta; to: SiteVersionMeta; changes: SiteChangeView[] }>(
       'GET',
       `/marketing/site/versions/${encodeURIComponent(id)}/diff?against=${encodeURIComponent(against)}`,
     ),
   save: (baseRevision: number, spec: unknown) =>
-    editorCall<{ version: { id: string; revision: number } }>('POST', '/marketing/site/versions', { baseRevision, spec }),
+    editorCall<{ version: { id: string; revision: number } }>('POST', '/marketing/site/versions', {
+      baseRevision,
+      spec,
+    }),
   restore: (id: string, baseRevision: number) =>
-    editorCall<{ version: { id: string; revision: number }; restoredFrom: { id: string; revision: number } }>(
-      'POST',
-      `/marketing/site/versions/${encodeURIComponent(id)}/restore`,
-      { baseRevision },
+    editorCall<{
+      version: { id: string; revision: number };
+      restoredFrom: { id: string; revision: number };
+    }>('POST', `/marketing/site/versions/${encodeURIComponent(id)}/restore`, { baseRevision }),
+  generate: (body: Record<string, unknown>) =>
+    editorCall<{ run: GenerationRunView }>('POST', '/marketing/site/generations', body),
+  run: (id: string) =>
+    editorCall<{ run: GenerationRunView }>(
+      'GET',
+      `/marketing/site/generations/${encodeURIComponent(id)}`,
     ),
-  generate: (body: Record<string, unknown>) => editorCall<{ run: GenerationRunView }>('POST', '/marketing/site/generations', body),
-  run: (id: string) => editorCall<{ run: GenerationRunView }>('GET', `/marketing/site/generations/${encodeURIComponent(id)}`),
   // ── MKT9.2: лицензированный конструктор ──
-  bootstrap: () => editorCall<{ created: boolean; site: MarketingSiteSummary }>('POST', '/marketing/site/bootstrap', {}),
-  conversation: () => editorCall<{ items: SiteConversationItem[] }>('GET', '/marketing/site/conversation?limit=100'),
-  assistant: (body: Record<string, unknown>) => editorCall<{ run: AssistantRunView }>('POST', '/marketing/site/assistant', body),
-  assistantRun: (id: string) => editorCall<{ run: AssistantRunView }>('GET', `/marketing/site/assistant/${encodeURIComponent(id)}`),
+  bootstrap: () =>
+    editorCall<{ created: boolean; site: MarketingSiteSummary }>(
+      'POST',
+      '/marketing/site/bootstrap',
+      {},
+    ),
+  conversation: () =>
+    editorCall<{ items: SiteConversationItem[] }>('GET', '/marketing/site/conversation?limit=100'),
+  assistant: (body: Record<string, unknown>) =>
+    editorCall<{ run: AssistantRunView }>('POST', '/marketing/site/assistant', body),
+  assistantRun: (id: string) =>
+    editorCall<{ run: AssistantRunView }>(
+      'GET',
+      `/marketing/site/assistant/${encodeURIComponent(id)}`,
+    ),
   approve: (id: string, instruction?: string) =>
-    editorCall<{ run: GenerationRunView }>('POST', `/marketing/site/assistant/${encodeURIComponent(id)}/approve`, instruction ? { instruction } : {}),
+    editorCall<{ run: GenerationRunView }>(
+      'POST',
+      `/marketing/site/assistant/${encodeURIComponent(id)}/approve`,
+      instruction ? { instruction } : {},
+    ),
   context: () => editorCall<{ instructions: string | null }>('GET', '/marketing/site/context'),
-  saveContext: (instructions: string) => editorCall<{ instructions: string | null }>('PATCH', '/marketing/site/context', { instructions }),
+  saveContext: (instructions: string) =>
+    editorCall<{ instructions: string | null }>('PATCH', '/marketing/site/context', {
+      instructions,
+    }),
   bookmark: (id: string, label: string) =>
-    editorCall<{ bookmark: { versionId: string; revision: number; label: string } }>('PUT', `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`, { label }),
-  removeBookmark: (id: string) => editorCall<{ removed: boolean }>('DELETE', `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`),
+    editorCall<{ bookmark: { versionId: string; revision: number; label: string } }>(
+      'PUT',
+      `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`,
+      { label },
+    ),
+  removeBookmark: (id: string) =>
+    editorCall<{ removed: boolean }>(
+      'DELETE',
+      `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`,
+    ),
 };
 
 export const analyticsApi = {
@@ -2804,7 +2904,11 @@ export const sellerApi = {
   savePrompt: (text: string) => sendJson<SellerPromptView>('PUT', '/ai-seller/prompt', { text }),
   promptVersions: () => getJson<{ items: SellerPromptVersion[] }>('/ai-seller/prompt/versions'),
   restorePromptVersion: (id: string) =>
-    sendJson<SellerPromptView>('POST', `/ai-seller/prompt/versions/${encodeURIComponent(id)}/restore`, {}),
+    sendJson<SellerPromptView>(
+      'POST',
+      `/ai-seller/prompt/versions/${encodeURIComponent(id)}/restore`,
+      {},
+    ),
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
   extract: (story: string) =>
     sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),
@@ -2849,9 +2953,17 @@ export const sellerApi = {
       text,
     }),
   setHandling: (id: string, body: { nextStep?: string; assignee?: 'me' | null }) =>
-    sendJson<SellerHandling>('PATCH', `/ai-seller/conversations/${encodeURIComponent(id)}/handling`, body),
+    sendJson<SellerHandling>(
+      'PATCH',
+      `/ai-seller/conversations/${encodeURIComponent(id)}/handling`,
+      body,
+    ),
   addNote: (id: string, text: string) =>
-    sendJson<SellerConversationNote>('POST', `/ai-seller/conversations/${encodeURIComponent(id)}/notes`, { text }),
+    sendJson<SellerConversationNote>(
+      'POST',
+      `/ai-seller/conversations/${encodeURIComponent(id)}/notes`,
+      { text },
+    ),
   knowledge: () =>
     getJson<{ items: Array<{ source: string; chunks: number; createdAt: string | null }> }>(
       '/ai-seller/knowledge',
@@ -2931,7 +3043,13 @@ export interface PlatformSiteBuilderLocation {
   status: string;
   businessName: string;
   site: { state: string; slug: string } | null;
-  license: { access: 'active' | 'expired' | 'off'; status: 'TRIAL' | 'ACTIVE' | 'OFF' | null; activeUntil: string | null; note: string | null; updatedAt: string | null };
+  license: {
+    access: 'active' | 'expired' | 'off';
+    status: 'TRIAL' | 'ACTIVE' | 'OFF' | null;
+    activeUntil: string | null;
+    note: string | null;
+    updatedAt: string | null;
+  };
 }
 
 export const platformApi = {
@@ -2939,7 +3057,9 @@ export const platformApi = {
   /** Обзор платформы: только главному администратору, остальным API отвечает 403 */
   overview: () => getJson<PlatformOverview>('/platform/overview'),
   siteBuilder: (organizationId: string) =>
-    getJson<{ items: PlatformSiteBuilderLocation[] }>(`/platform/organizations/${encodeURIComponent(organizationId)}/site-builder`),
+    getJson<{ items: PlatformSiteBuilderLocation[] }>(
+      `/platform/organizations/${encodeURIComponent(organizationId)}/site-builder`,
+    ),
   changeSiteBuilder: (organizationId: string, locationId: string, body: ExtensionChangeBody) =>
     sendJson<PlatformSiteBuilderLocation>(
       'PUT',
@@ -2954,7 +3074,11 @@ export const platformApi = {
     ),
   /** Создание организации главным администратором (ORG2, ADR-ORG2, Q-283): владельцу уходит ссылка «задайте пароль» */
   create: (body: { name: string; ownerEmail: string; vertical: 'HOSPITALITY' | 'BEAUTY' }) =>
-    sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>('POST', '/platform/organizations', body),
+    sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>(
+      'POST',
+      '/platform/organizations',
+      body,
+    ),
   /** Ссылка владельцу ещё раз: только тому, кто пароль ещё не задал */
   ownerLink: (organizationId: string) =>
     sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>(
@@ -2964,13 +3088,25 @@ export const platformApi = {
     ),
   /** Название организации (ORG1, ADR-ORG1) */
   rename: (organizationId: string, name: string) =>
-    sendJson<PlatformOrganization>('PATCH', `/platform/organizations/${encodeURIComponent(organizationId)}`, { name }),
+    sendJson<PlatformOrganization>(
+      'PATCH',
+      `/platform/organizations/${encodeURIComponent(organizationId)}`,
+      { name },
+    ),
   /** Архив вместо удаления (ORG1, ADR-ORG1, Q-282): люди не входят, данные целы */
   archive: (organizationId: string) =>
-    sendJson<PlatformOrganization>('POST', `/platform/organizations/${encodeURIComponent(organizationId)}/archive`, {}),
+    sendJson<PlatformOrganization>(
+      'POST',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/archive`,
+      {},
+    ),
   /** Возврат из архива: прежний статус, а при его потере «только чтение» */
   restore: (organizationId: string) =>
-    sendJson<PlatformOrganization>('POST', `/platform/organizations/${encodeURIComponent(organizationId)}/restore`, {}),
+    sendJson<PlatformOrganization>(
+      'POST',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/restore`,
+      {},
+    ),
   /** Оплата счётом (Q-141 — А, ADR-102): «оплата получена» — ACTIVE, обратно — READ_ONLY */
   changeStatus: (organizationId: string, body: { status: 'ACTIVE' | 'READ_ONLY'; note: string }) =>
     sendJson<PlatformOrganization>(
@@ -3327,15 +3463,18 @@ const ipHeader = (ip?: string | null): Record<string, string> =>
 export const wizardApi = {
   message: (token: string, body: unknown, ip?: string | null) =>
     sendJson<{ requestId: string; state: string }>('POST', '/wizard/message', body, {
-      'x-wizard-token': token, ...ipHeader(ip),
+      'x-wizard-token': token,
+      ...ipHeader(ip),
     }),
   generate: (token: string, body: unknown, ip?: string | null) =>
     sendJson<{ id: string; state: string }>('POST', '/wizard/generate', body, {
-      'x-wizard-token': token, ...ipHeader(ip),
+      'x-wizard-token': token,
+      ...ipHeader(ip),
     }),
   scan: (token: string, body: unknown, ip?: string | null) =>
     sendJson<{ id: string; state: string }>('POST', '/wizard/scan', body, {
-      'x-wizard-token': token, ...ipHeader(ip),
+      'x-wizard-token': token,
+      ...ipHeader(ip),
     }),
   scanStatus: (token: string) =>
     getJson<import('./wizard-types').WizardState>('/wizard/scan', { 'x-wizard-token': token }),
@@ -3420,6 +3559,9 @@ export const branchesApi = {
     currency: string;
     timezone: string;
     vertical?: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+    businessId?: string;
+    newBusinessId?: string;
+    businessName?: string;
   }) => sendJson<BranchItem>('POST', '/branches', body),
 };
 
@@ -3440,7 +3582,13 @@ export interface BeautyServiceRow {
   } | null;
   /** Действующая цена в филиале, посчитанная домéном; null, когда филиал не выбран */
   effective:
-    | { sellable: true; priceMinor: string; currency: string; durationMinutes: number; overridden: boolean }
+    | {
+        sellable: true;
+        priceMinor: string;
+        currency: string;
+        durationMinutes: number;
+        overridden: boolean;
+      }
     | { sellable: false; reason: 'SERVICE_INACTIVE' | 'NOT_ENABLED' | 'CURRENCY_MISMATCH' }
     | null;
 }
@@ -3547,9 +3695,11 @@ export interface BeautyCustomerRow {
 export const beautyApi = {
   customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
   services: () =>
-    getJson<{ locationId: string | null; locationCurrency: string | null; items: BeautyServiceRow[] }>(
-      '/beauty/services',
-    ),
+    getJson<{
+      locationId: string | null;
+      locationCurrency: string | null;
+      items: BeautyServiceRow[];
+    }>('/beauty/services'),
   createService: (body: unknown) => sendJson<BeautyServiceRow>('POST', '/beauty/services', body),
   updateService: (id: string, body: unknown) =>
     sendJson<BeautyServiceRow>('PATCH', `/beauty/services/${encodeURIComponent(id)}`, body),
@@ -3565,11 +3715,9 @@ export const beautyApi = {
   updateEmployee: (id: string, body: unknown) =>
     sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}`, body),
   setEmployeeServices: (id: string, serviceIds: string[]) =>
-    sendJson<BeautyEmployeeRow>(
-      'PUT',
-      `/beauty/employees/${encodeURIComponent(id)}/services`,
-      { serviceIds },
-    ),
+    sendJson<BeautyEmployeeRow>('PUT', `/beauty/employees/${encodeURIComponent(id)}/services`, {
+      serviceIds,
+    }),
   schedule: (employee?: string) =>
     getJson<BeautySchedule>(
       employee ? `/beauty/schedule?employee=${encodeURIComponent(employee)}` : '/beauty/schedule',
@@ -3593,18 +3741,20 @@ export const beautyApi = {
       undefined,
     ),
   setEmployeeLocations: (id: string, locationIds: string[]) =>
-    sendJson<BeautySchedule>(
-      'PUT',
-      `/beauty/employees/${encodeURIComponent(id)}/locations`,
-      { locationIds },
-    ),
+    sendJson<BeautySchedule>('PUT', `/beauty/employees/${encodeURIComponent(id)}/locations`, {
+      locationIds,
+    }),
   day: (date?: string) =>
-    getJson<BeautyDay>(date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments'),
+    getJson<BeautyDay>(
+      date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments',
+    ),
   createAppointment: (body: unknown) => sendJson<BeautyDay>('POST', '/beauty/appointments', body),
   moveAppointment: (id: string, body: unknown) =>
     sendJson<BeautyDay>('PATCH', `/beauty/appointments/${encodeURIComponent(id)}`, body),
   setAppointmentStatus: (id: string, status: string) =>
-    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, { status }),
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, {
+      status,
+    }),
 };
 
 // ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────
@@ -3642,8 +3792,19 @@ export interface MarketRates {
       changePermille: number | null;
       lastObservedOn: string | null;
     }>;
-    market: Array<{ date: string; avgMinor: string | null; minMinor: string | null; maxMinor: string | null; count: number }>;
-    summary: { marketAvgMinor: string | null; minMinor: string | null; maxMinor: string | null; competitorsWithData: number };
+    market: Array<{
+      date: string;
+      avgMinor: string | null;
+      minMinor: string | null;
+      maxMinor: string | null;
+      count: number;
+    }>;
+    summary: {
+      marketAvgMinor: string | null;
+      minMinor: string | null;
+      maxMinor: string | null;
+      competitorsWithData: number;
+    };
   };
 }
 export interface MarketCell {
@@ -3685,7 +3846,13 @@ export interface MarketView {
       lastObservedOn: string | null;
     }>;
     /** `tight` из `withLevel` соседей почти полны («нет мест» или «мало мест») */
-    market: Array<{ date: string; bp: number | null; count: number; tight?: number; withLevel?: number }>;
+    market: Array<{
+      date: string;
+      bp: number | null;
+      count: number;
+      tight?: number;
+      withLevel?: number;
+    }>;
     gap: Array<{ date: string; bp: number | null }>;
     summary: {
       marketBp: number | null;
@@ -3750,8 +3917,13 @@ export const marketApi = {
     return getJson<MarketRates>(`/market/rates${tail ? `?${tail}` : ''}`);
   },
   writeRates: (id: string, entries: Array<{ date: string; price: string | null }>) =>
-    sendJson<{ saved: number; cleared: number }>('PUT', `/market/competitors/${encodeURIComponent(id)}/rates`, { entries }),
-  createCompetitor: (body: unknown) => sendJson<MarketCompetitor>('POST', '/market/competitors', body),
+    sendJson<{ saved: number; cleared: number }>(
+      'PUT',
+      `/market/competitors/${encodeURIComponent(id)}/rates`,
+      { entries },
+    ),
+  createCompetitor: (body: unknown) =>
+    sendJson<MarketCompetitor>('POST', '/market/competitors', body),
   updateCompetitor: (id: string, body: unknown) =>
     sendJson<MarketCompetitor>('PATCH', `/market/competitors/${encodeURIComponent(id)}`, body),
   writeOccupancy: (id: string, entries: Array<{ date: string; percent: string | null }>) =>
@@ -3796,7 +3968,8 @@ export const marketingBudgetApi = {
     ),
   setPlan: (body: unknown) =>
     sendJson<{ month: string; amount: string }>('PUT', '/marketing/budget', body),
-  createExpense: (body: unknown) => sendJson<MarketingExpenseRow>('POST', '/marketing/expenses', body),
+  createExpense: (body: unknown) =>
+    sendJson<MarketingExpenseRow>('POST', '/marketing/expenses', body),
   updateExpense: (id: string, body: unknown) =>
     sendJson<MarketingExpenseRow>('PATCH', `/marketing/expenses/${encodeURIComponent(id)}`, body),
   deleteExpense: (id: string) =>
@@ -3816,96 +3989,247 @@ export interface SharedOnboardingState {
 }
 export const sharedOnboardingApi = {
   status: () => getJson<SharedOnboardingState>('/onboarding'),
-  save: (body: { action: 'save' | 'next' | 'back' | 'complete'; draft: Record<string, unknown>; updatedAt: string | null }) =>
-    sendJson<SharedOnboardingState>('POST', '/onboarding', body),
+  save: (body: {
+    action: 'save' | 'next' | 'back' | 'complete';
+    draft: Record<string, unknown>;
+    updatedAt: string | null;
+  }) => sendJson<SharedOnboardingState>('POST', '/onboarding', body),
 };
 
-export interface BarCategoryRow { id: string; name: string; defaultMarkupBasis: number; active: boolean }
+export interface BarCategoryRow {
+  id: string;
+  name: string;
+  defaultMarkupBasis: number;
+  active: boolean;
+}
 export interface BarProductRow {
-  id: string; code: string; name: string; categoryId: string | null; barcode: string | null; unitsPerPackage: number;
-  markupBasis: number | null; salePrice: string; minimumStockUnits: string; active: boolean;
+  id: string;
+  code: string;
+  name: string;
+  categoryId: string | null;
+  barcode: string | null;
+  unitsPerPackage: number;
+  markupBasis: number | null;
+  salePrice: string;
+  minimumStockUnits: string;
+  active: boolean;
   category?: BarCategoryRow | null;
 }
-export interface BarSupplierRow { id: string; name: string; phone: string | null; email: string | null; active: boolean }
+export interface BarSupplierRow {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  active: boolean;
+}
 export interface BarReceiptRow {
-  id: string; documentNumber: string; documentDate: string; receivedDate: string; status: 'DRAFT' | 'POSTED' | 'REVERSED';
-  totalAmount: string; paidAmount: string; dueAmount: string; supplier: BarSupplierRow; _count: { lines: number };
+  id: string;
+  documentNumber: string;
+  documentDate: string;
+  receivedDate: string;
+  status: 'DRAFT' | 'POSTED' | 'REVERSED';
+  totalAmount: string;
+  paidAmount: string;
+  dueAmount: string;
+  supplier: BarSupplierRow;
+  _count: { lines: number };
 }
 export interface BarStockRow extends BarProductRow {
-  availableUnits: string; stockCostMinor: string;
+  availableUnits: string;
+  stockCostMinor: string;
   /** Последний проведённый приход (ADR-157): цена закупки, дата приёмки и поставщик; приходов нет, тогда null */
-  lastUnitCostMinor: string | null; lastReceivedDate: string | null; lastSupplier: { id: string; name: string } | null;
+  lastUnitCostMinor: string | null;
+  lastReceivedDate: string | null;
+  lastSupplier: { id: string; name: string } | null;
   /** Ближайший срок годности среди партий с остатком */
   nearestExpiry: string | null;
 }
 export interface BarSaleRow {
-  id: string; status: 'POSTED' | 'REVERSED'; totalRevenue: string; totalCost: string; createdAt: string;
-  lines: Array<{ id: string; productId: string; quantityUnits: string; salePrice: string; revenue: string; cost: string; product: { name: string } }>;
+  id: string;
+  status: 'POSTED' | 'REVERSED';
+  totalRevenue: string;
+  totalCost: string;
+  createdAt: string;
+  lines: Array<{
+    id: string;
+    productId: string;
+    quantityUnits: string;
+    salePrice: string;
+    revenue: string;
+    cost: string;
+    product: { name: string };
+  }>;
 }
-export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
-export interface BarMovementRow { id: string; productId: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
+export interface BarFolioRow {
+  id: string;
+  confirmationNumber: string;
+  guestName: string;
+  unitCode: string | null;
+}
+export interface BarMovementRow {
+  id: string;
+  productId: string;
+  kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT';
+  units: string;
+  unitCost: string;
+  amountMinor: string;
+  note: string | null;
+  createdAt: string;
+  product: { name: string };
+}
 export interface BarReport {
-  purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string;
-  writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string;
+  purchasesMinor: string;
+  supplierPaidMinor: string;
+  revenueMinor: string;
+  costMinor: string;
+  grossProfitMinor: string;
+  writeOffMinor: string;
+  stockCostMinor: string;
+  supplierDebtMinor: string;
   /** Текущий месяц объекта к прошлому (ADR-157); прирост null, если в прошлом месяце не было сумм */
   month?: {
-    monthStart: string; purchasesMinor: string; purchasesPrevMinor: string; revenueMinor: string; revenuePrevMinor: string;
-    grossProfitMinor: string; purchasesGrowth: number | null; revenueGrowth: number | null;
+    monthStart: string;
+    purchasesMinor: string;
+    purchasesPrevMinor: string;
+    revenueMinor: string;
+    revenuePrevMinor: string;
+    grossProfitMinor: string;
+    purchasesGrowth: number | null;
+    revenueGrowth: number | null;
   };
   /** Популярные товары за последние 30 дней, штуки строкой */
   popular?: Array<{ productId: string; name: string; units: string }>;
 }
 /** Строка накладной из ИИ-скана (ADR-157): товар найден по штрихкоду или названию, иначе `productId: null` */
-export interface BarScanLine { productId: string | null; name: string; barcode: string | null; quantityUnits: string; unitCostMinor: string }
+export interface BarScanLine {
+  productId: string | null;
+  name: string;
+  barcode: string | null;
+  quantityUnits: string;
+  unitCostMinor: string;
+}
 export interface BarScanResult {
-  supplierId: string | null; supplierName: string | null;
-  documentNumber: string | null; documentDate: string | null;
-  lines: BarScanLine[]; warnings: string[];
+  supplierId: string | null;
+  supplierName: string | null;
+  documentNumber: string | null;
+  documentDate: string | null;
+  lines: BarScanLine[];
+  warnings: string[];
 }
 export const barApi = {
   categories: () => getJson<BarCategoryRow[]>('/bar/categories'),
   createCategory: (body: unknown) => sendJson<BarCategoryRow>('POST', '/bar/categories', body),
-  setCategoryActive: (id: string, active: boolean) => sendJson<BarCategoryRow>('PATCH', `/bar/categories/${encodeURIComponent(id)}/active`, { active }),
+  setCategoryActive: (id: string, active: boolean) =>
+    sendJson<BarCategoryRow>('PATCH', `/bar/categories/${encodeURIComponent(id)}/active`, {
+      active,
+    }),
   products: () => getJson<BarProductRow[]>('/bar/products'),
   createProduct: (body: unknown) => sendJson<BarProductRow>('POST', '/bar/products', body),
-  setProductActive: (id: string, active: boolean) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/active`, { active }),
-  setProductPrice: (id: string, salePriceMinor: string) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/price`, { salePriceMinor }),
-  updateProduct: (id: string, body: unknown) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}`, body),
+  setProductActive: (id: string, active: boolean) =>
+    sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/active`, { active }),
+  setProductPrice: (id: string, salePriceMinor: string) =>
+    sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/price`, {
+      salePriceMinor,
+    }),
+  updateProduct: (id: string, body: unknown) =>
+    sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}`, body),
   suppliers: () => getJson<BarSupplierRow[]>('/bar/suppliers'),
   createSupplier: (body: unknown) => sendJson<BarSupplierRow>('POST', '/bar/suppliers', body),
-  setSupplierActive: (id: string, active: boolean) => sendJson<BarSupplierRow>('PATCH', `/bar/suppliers/${encodeURIComponent(id)}/active`, { active }),
+  setSupplierActive: (id: string, active: boolean) =>
+    sendJson<BarSupplierRow>('PATCH', `/bar/suppliers/${encodeURIComponent(id)}/active`, {
+      active,
+    }),
   receipts: () => getJson<BarReceiptRow[]>('/bar/receipts'),
   stock: () => getJson<BarStockRow[]>('/bar/stock'),
   sales: () => getJson<BarSaleRow[]>('/bar/sales'),
   folios: () => getJson<BarFolioRow[]>('/bar/folios'),
   movements: () => getJson<BarMovementRow[]>('/bar/movements'),
   report: () => getJson<BarReport>('/bar/report'),
-  createReceipt: (body: unknown) => sendJson<{ id: string; status: 'DRAFT' }>('POST', '/bar/receipts', body),
-  postReceipt: (id: string) => sendJson<{ id: string; status: 'POSTED' }>('POST', `/bar/receipts/${encodeURIComponent(id)}/post`, {}),
-  sellRetail: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/retail', body),
-  sellToFolio: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/folio', body),
-  reverseSale: (id: string, body: unknown) => sendJson<{ id: string; status: 'REVERSED'; restocked: boolean }>('POST', `/bar/sales/${encodeURIComponent(id)}/reverse`, body),
-  writeOff: (body: unknown) => sendJson<{ id: string; movementsCreated: number; costMinor: string }>('POST', '/bar/write-offs', body),
-  payReceipt: (id: string, body: unknown) => sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>('POST', `/bar/receipts/${encodeURIComponent(id)}/payments`, body),
-  inventoryCount: (body: unknown) => sendJson<{ id: string; systemUnits: string; actualUnits: string; differenceUnits: string; costMinor: string }>('POST', '/bar/inventory-counts', body),
-  scanReceipt: (body: { fileName: string; mediaType: string; dataBase64: string }) => sendJson<BarScanResult>('POST', '/bar/receipts/scan', body),
+  createReceipt: (body: unknown) =>
+    sendJson<{ id: string; status: 'DRAFT' }>('POST', '/bar/receipts', body),
+  postReceipt: (id: string) =>
+    sendJson<{ id: string; status: 'POSTED' }>(
+      'POST',
+      `/bar/receipts/${encodeURIComponent(id)}/post`,
+      {},
+    ),
+  sellRetail: (body: unknown) =>
+    sendJson<{ id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>(
+      'POST',
+      '/bar/sales/retail',
+      body,
+    ),
+  sellToFolio: (body: unknown) =>
+    sendJson<{
+      id: string;
+      status: 'POSTED';
+      chargeId: string;
+      revenueMinor: string;
+      costMinor: string;
+    }>('POST', '/bar/sales/folio', body),
+  reverseSale: (id: string, body: unknown) =>
+    sendJson<{ id: string; status: 'REVERSED'; restocked: boolean }>(
+      'POST',
+      `/bar/sales/${encodeURIComponent(id)}/reverse`,
+      body,
+    ),
+  writeOff: (body: unknown) =>
+    sendJson<{ id: string; movementsCreated: number; costMinor: string }>(
+      'POST',
+      '/bar/write-offs',
+      body,
+    ),
+  payReceipt: (id: string, body: unknown) =>
+    sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>(
+      'POST',
+      `/bar/receipts/${encodeURIComponent(id)}/payments`,
+      body,
+    ),
+  inventoryCount: (body: unknown) =>
+    sendJson<{
+      id: string;
+      systemUnits: string;
+      actualUnits: string;
+      differenceUnits: string;
+      costMinor: string;
+    }>('POST', '/bar/inventory-counts', body),
+  scanReceipt: (body: { fileName: string; mediaType: string; dataBase64: string }) =>
+    sendJson<BarScanResult>('POST', '/bar/receipts/scan', body),
 };
 
 /** MV9: fixed read-only report queries for a branch returned by GET /branches. No mutations or arbitrary paths. */
 /** Отчёт ресторана за период по филиалу (контекст филиала заголовком, как у `branchReportDay`) */
-export async function branchFoodPeriod(branch: Pick<BranchItem, 'locationId' | 'location'>, from: string, to: string): Promise<import('./food-types').FoodPeriodReport> {
-  const response = await backendFetch(`/food-service/period-report?${new URLSearchParams({ from, to })}`, {}, `business=${branch.location.businessId};location=${branch.locationId}`);
+export async function branchFoodPeriod(
+  branch: Pick<BranchItem, 'locationId' | 'location'>,
+  from: string,
+  to: string,
+): Promise<import('./food-types').FoodPeriodReport> {
+  const response = await backendFetch(
+    `/food-service/period-report?${new URLSearchParams({ from, to })}`,
+    {},
+    `business=${branch.location.businessId};location=${branch.locationId}`,
+  );
   if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
   return response.json();
 }
-export async function branchReportDay(branch: Pick<BranchItem, 'vertical' | 'locationId' | 'location'>, date: string, cursor?: string): Promise<BeautyDay | import('./food-types').FoodPage<import('./food-types').RestaurantReservation>> {
+export async function branchReportDay(
+  branch: Pick<BranchItem, 'vertical' | 'locationId' | 'location'>,
+  date: string,
+  cursor?: string,
+): Promise<
+  BeautyDay | import('./food-types').FoodPage<import('./food-types').RestaurantReservation>
+> {
   const q = new URLSearchParams({ date });
   if (branch.vertical === 'FOOD_SERVICE') {
     q.set('limit', '100');
     if (cursor) q.set('cursor', cursor);
   } else if (branch.vertical !== 'BEAUTY') throw new Error('Нет адаптера отчёта');
   const path = `${branch.vertical === 'BEAUTY' ? '/beauty/appointments' : '/food-service/reservations'}?${q}`;
-  const response = await backendFetch(path, {}, `business=${branch.location.businessId};location=${branch.locationId}`);
+  const response = await backendFetch(
+    path,
+    {},
+    `business=${branch.location.businessId};location=${branch.locationId}`,
+  );
   if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
   return response.json();
 }
@@ -3924,7 +4248,11 @@ export const orderRatingApi = {
     });
     if (res.status === 404) return null;
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-    return (await res.json()) as { placeName: string; waiterName: string | null; orderNumber: number };
+    return (await res.json()) as {
+      placeName: string;
+      waiterName: string | null;
+      orderNumber: number;
+    };
   },
   rate: async (
     token: string,
@@ -3954,8 +4282,54 @@ export interface BusinessCardView {
 }
 export const businessCardsApi = {
   save: async (id: string, form: FormData): Promise<BusinessCardView> => {
-    const res = await backendFetch(`/branches/businesses/${encodeURIComponent(id)}/card`, { method: 'POST', body: form });
+    const res = await backendFetch(`/branches/businesses/${encodeURIComponent(id)}/card`, {
+      method: 'POST',
+      body: form,
+    });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-    return await res.json() as BusinessCardView;
+    return (await res.json()) as BusinessCardView;
   },
+};
+
+export interface OrganizationMoney {
+  currency: string;
+  receiptsMinor: string;
+  expensesMinor: string;
+  orders: number;
+  averageMinor: string | null;
+}
+export interface OrganizationSummary {
+  from: string;
+  to: string;
+  complete: boolean;
+  covered: number;
+  total: number;
+  orders: number;
+  currencies: OrganizationMoney[];
+  rows: Array<{
+    id: string;
+    businessId: string;
+    name: string;
+    state: 'READY' | 'UNAVAILABLE' | 'ERROR';
+    currencies: OrganizationMoney[];
+    orders: number;
+  }>;
+}
+export interface ArchivedBranch {
+  id: string;
+  name: string;
+  address: string | null;
+  businessName: string;
+  vertical: WebVertical;
+}
+export const organizationSummaryApi = {
+  load: (from: string, to: string) =>
+    getJson<OrganizationSummary>(`/branches/summary?${new URLSearchParams({ from, to })}`),
+};
+export const branchLifecycleApi = {
+  archived: () => getJson<ArchivedBranch[]>('/branches/locations/archived'),
+  archive: (id: string) =>
+    sendJson('POST', `/branches/locations/${encodeURIComponent(id)}/archive`, {}),
+  restore: (id: string) =>
+    sendJson('POST', `/branches/locations/${encodeURIComponent(id)}/restore`, {}),
 };

@@ -1,4 +1,8 @@
 'use client';
+import { Tabs } from '../../components/tabs';
+import { BranchArchiveButton } from './branch-archive-button';
+import { selectBranch } from './actions';
+import type { BranchItem } from '../../lib/api';
 import { useEffect, useRef, useState, useTransition, type FormEvent } from 'react';
 import { Icon } from '../../components/icon';
 import { saveBusinessCard } from './actions';
@@ -6,9 +10,11 @@ import type { BusinessCardView } from './reference-board';
 export function BusinessCardEditor({
   business,
   onClose,
+  branches = [],
 }: {
   business: BusinessCardView;
   onClose: () => void;
+  branches?: BranchItem[];
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [error, setError] = useState('');
@@ -47,109 +53,159 @@ export function BusinessCardEditor({
         else onClose();
       }}
     >
-      <form onSubmit={submit}>
-        <header>
-          <div>
-            <h2 id="org-editor-title">Редактировать карточку</h2>
-            <p>{business.name}</p>
-          </div>
-          <button type="button" aria-label="Закрыть редактор" disabled={pending} onClick={onClose}>
-            <Icon name="close" />
-          </button>
-        </header>
-        <label>
-          Название бизнеса
-          <input
-            name="name"
-            required
-            maxLength={200}
-            defaultValue={business.name}
-            disabled={pending}
-          />
-        </label>
-        <label>
-          Описание
-          <textarea
-            name="description"
-            maxLength={1000}
-            rows={4}
-            defaultValue={business.description ?? ''}
-            disabled={pending}
-          />
-          <small>До 1000 символов</small>
-        </label>
-        <div className="org-editor-photo">
-          {preview ? (
-            <img src={preview} alt="Предпросмотр обложки" />
-          ) : (
-            <div>
-              <Icon name="image" />
-              <span>Обложка не выбрана</span>
-            </div>
-          )}
+      <header>
+        <div>
+          <h2 id="org-editor-title">Редактировать карточку</h2>
+          <p>{business.name}</p>
         </div>
-        <label>
-          Изменить фото
-          <input
-            type="file"
-            name="file"
-            accept="image/jpeg,image/png,image/webp"
-            disabled={pending || !business.canUpload}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              if (file.size > 5 * 1024 * 1024) {
-                setError('Фото должно быть не больше 5 МБ.');
-                e.target.value = '';
-                return;
-              }
-              if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-                setError('Выберите JPEG, PNG или WebP.');
-                e.target.value = '';
-                return;
-              }
-              if (localUrl.current) URL.revokeObjectURL(localUrl.current);
-              localUrl.current = URL.createObjectURL(file);
-              setPreview(localUrl.current);
-              setRemoveCover(false);
-              setError('');
-            }}
-          />
-          <small>
-            {business.canUpload
-              ? 'JPEG, PNG или WebP, до 5 МБ'
-              : 'Хранилище фото не подключено. Название и описание можно изменить.'}
-          </small>
-        </label>
-        {(preview || business.hasCover) && !removeCover && (
-          <button
-            type="button"
-            className="org-remove-photo"
-            disabled={pending}
-            onClick={() => {
-              setRemoveCover(true);
-              setPreview(null);
-              const input = dialog.current?.querySelector<HTMLInputElement>('input[type=file]');
-              if (input) input.value = '';
-            }}
-          >
-            Убрать обложку
-          </button>
-        )}
-        {error && (
-          <p role="alert" className="org-editor-error">
-            {error}
-          </p>
-        )}
-        <footer>
-          <button type="button" onClick={onClose} disabled={pending}>
-            Отмена
-          </button>
-          <button type="submit" disabled={pending}>
-            {pending ? 'Сохраняем…' : 'Сохранить изменения'}
-          </button>
-        </footer>
-      </form>
+        <button type="button" aria-label="Закрыть редактор" disabled={pending} onClick={onClose}>
+          <Icon name="close" />
+        </button>
+      </header>
+      <Tabs
+        label="Редактирование бизнеса"
+        panels={[
+          {
+            id: 'business-card',
+            label: 'Карточка бизнеса',
+            content: (
+              <form onSubmit={submit}>
+                <label>
+                  Название бизнеса
+                  <input
+                    name="name"
+                    required
+                    maxLength={200}
+                    defaultValue={business.name}
+                    disabled={pending}
+                  />
+                </label>
+                <label>
+                  Описание
+                  <textarea
+                    name="description"
+                    maxLength={1000}
+                    rows={4}
+                    defaultValue={business.description ?? ''}
+                    disabled={pending}
+                  />
+                  <small>До 1000 символов</small>
+                </label>
+                <div className="org-editor-photo">
+                  {preview ? (
+                    <img src={preview} alt="Предпросмотр обложки" />
+                  ) : (
+                    <div>
+                      <Icon name="image" />
+                      <span>Обложка не выбрана</span>
+                    </div>
+                  )}
+                </div>
+                <label>
+                  Изменить фото
+                  <input
+                    type="file"
+                    name="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={pending || !business.canUpload}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 5 * 1024 * 1024) {
+                        setError('Фото должно быть не больше 5 МБ.');
+                        e.target.value = '';
+                        return;
+                      }
+                      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                        setError('Выберите JPEG, PNG или WebP.');
+                        e.target.value = '';
+                        return;
+                      }
+                      if (localUrl.current) URL.revokeObjectURL(localUrl.current);
+                      localUrl.current = URL.createObjectURL(file);
+                      setPreview(localUrl.current);
+                      setRemoveCover(false);
+                      setError('');
+                    }}
+                  />
+                  <small>
+                    {business.canUpload
+                      ? 'JPEG, PNG или WebP, до 5 МБ'
+                      : 'Хранилище фото не подключено. Название и описание можно изменить.'}
+                  </small>
+                </label>
+                {(preview || business.hasCover) && !removeCover && (
+                  <button
+                    type="button"
+                    className="org-remove-photo"
+                    disabled={pending}
+                    onClick={() => {
+                      setRemoveCover(true);
+                      setPreview(null);
+                      const input =
+                        dialog.current?.querySelector<HTMLInputElement>('input[type=file]');
+                      if (input) input.value = '';
+                    }}
+                  >
+                    Убрать обложку
+                  </button>
+                )}
+                {error && (
+                  <p role="alert" className="org-editor-error">
+                    {error}
+                  </p>
+                )}
+                <footer>
+                  <button type="button" onClick={onClose} disabled={pending}>
+                    Отмена
+                  </button>
+                  <button type="submit" disabled={pending}>
+                    {pending ? 'Сохраняем…' : 'Сохранить изменения'}
+                  </button>
+                </footer>
+              </form>
+            ),
+          },
+          {
+            id: 'business-branches',
+            label: 'Объекты и филиалы',
+            count: branches.length,
+            content: (
+              <section className="org-editor-branches">
+                <h3>Объекты и филиалы</h3>
+                <p>
+                  Название, фото и описание выше относятся к бизнесу. Данные каждого объекта
+                  остаются отдельными.
+                </p>
+                {branches.length ? (
+                  <ul>
+                    {branches.map((branch) => (
+                      <li key={branch.locationId}>
+                        <div>
+                          <strong>{branch.name}</strong>
+                          <small>{branch.address || 'Адрес не указан'}</small>
+                        </div>
+                        <div className="org-editor-branch-actions">
+                          <form action={selectBranch}>
+                            <input type="hidden" name="id" value={branch.id} />
+                            <button type="submit">Открыть объект</button>
+                          </form>
+                          <BranchArchiveButton id={branch.locationId} name={branch.name} />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>
+                    Активных объектов пока нет. Архивные можно восстановить в разделе «Архив
+                    объектов».
+                  </p>
+                )}
+              </section>
+            ),
+          },
+        ]}
+      />
     </dialog>
   );
 }

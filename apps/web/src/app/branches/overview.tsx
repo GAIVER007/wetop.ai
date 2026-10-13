@@ -13,8 +13,12 @@ export async function BranchOverview({ from, to }: { from: string; to: string })
     <Panel>
       <h2>Сводка по гостиницам</h2>
       <p>
-        {pluralRu(rows.length, ['гостиничный филиал', 'гостиничных филиала', 'гостиничных филиалов'])},
-        гостей в заездах: {guests}, загрузка {percent} %
+        {pluralRu(rows.length, [
+          'гостиничный филиал',
+          'гостиничных филиала',
+          'гостиничных филиалов',
+        ])}
+        , гостей в заездах: {guests}, загрузка {percent} %
       </p>
       {[...currencies].map(([currency, total]) => (
         <p key={currency}>

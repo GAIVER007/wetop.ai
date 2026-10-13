@@ -1,21 +1,20 @@
+import { MonthPicker } from './month-picker';
+import { ArchivedBranches } from './archived-branches';
 import { BusinessRecent } from './business-recent';
 import { Suspense } from 'react';
 import { BusinessTrend } from './business-trend';
 import './branches.css';
 import { randomUUID } from 'node:crypto';
 import { todayAt, isIsoDate } from '@pms/domain';
-import { branchesApi } from '../../lib/api';
-import { summarizeBranches } from '../../lib/branch-summary';
-import { formatMoney } from '../../lib/money';
+import { branchesApi, organizationSummaryApi, branchLifecycleApi } from '../../lib/api';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { unstable_rethrow } from 'next/navigation';
-import { BranchForm } from './form';
-import { groupBusinessBranches } from './business-groups';
+import { BranchCreateDialog } from './branch-create-dialog';
 import { ReferenceBoard } from './reference-board';
 export async function BranchWorkspace({
   query,
-  createLabel = 'Добавить объект или направление',
+  createLabel = 'Добавить',
 }: {
   query: Record<string, string | string[] | undefined>;
   createLabel?: string;
@@ -25,46 +24,43 @@ export async function BranchWorkspace({
     const { organization, items, canCreate } = loaded;
     const businesses = loaded.businesses ?? [];
     const date = todayAt(items[0]?.timezone ?? 'UTC');
-    const from = typeof query.from === 'string' && isIsoDate(query.from) ? query.from : date;
-    const to = typeof query.to === 'string' && isIsoDate(query.to) ? query.to : from;
-    const overview = await branchesApi.overview(from, to).catch((error) => {
-      unstable_rethrow(error);
-      return null;
-    });
-    const summary = overview
-      ? summarizeBranches(overview.rows.filter((r) => r.branch.vertical === 'HOSPITALITY'))
-      : null;
+    const month =
+      typeof query.month === 'string' &&
+      /^\d{4}-\d{2}$/.test(query.month) &&
+      isIsoDate(`${query.month}-01`)
+        ? query.month
+        : date.slice(0, 7);
+    const monthFrom = `${month}-01`;
+    const monthTo = `${month}-${String(new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0)).getUTCDate()).padStart(2, '0')}`;
+    const from = typeof query.from === 'string' && isIsoDate(query.from) ? query.from : monthFrom;
+    const to = typeof query.to === 'string' && isIsoDate(query.to) ? query.to : monthTo;
+    const [financial, archived] = await Promise.all([
+      organizationSummaryApi.load(from, to).catch((error) => {
+        unstable_rethrow(error);
+        return null;
+      }),
+      canCreate
+        ? branchLifecycleApi.archived().catch((error) => {
+            unstable_rethrow(error);
+            return null;
+          })
+        : Promise.resolve(null),
+    ]);
     return (
       <ReferenceBoard
         organization={organization.name}
+        period={<MonthPicker key="month" month={month} />}
+        financial={financial}
+        archive={canCreate ? <ArchivedBranches key="archive" items={archived} /> : null}
         periodLabel={from === date && to === date ? 'за сегодня' : `за ${from} - ${to}`}
         items={items}
         businesses={businesses}
         preview={process.env.NODE_ENV === 'development' && process.env.APP_ALLOW_TEST_DATA === '1'}
-        metrics={Object.fromEntries(
-          groupBusinessBranches(items)
-            .filter((g) => g.vertical === 'HOSPITALITY')
-            .map((g) => {
-              const rows = overview?.rows.filter(
-                (r) => r.branch.vertical === 'HOSPITALITY' && r.branch.location.businessId === g.id,
-              );
-              const aggregate = rows ? summarizeBranches(rows) : null;
-              return [
-                g.id,
-                {
-                  money: aggregate
-                    ? [...aggregate.currencies].map(([currency, total]) =>
-                        formatMoney(total.revenue, currency),
-                      )
-                    : [],
-                  occupancy: aggregate ? `${aggregate.percent}%` : 'Нет данных',
-                },
-              ];
-            }),
-        )}
+        metrics={{}}
         recent={
           canCreate ? (
             <Suspense
+              key="recent"
               fallback={
                 <p className="org-chart-empty" role="status">
                   Загружаем журнал…
@@ -79,34 +75,30 @@ export async function BranchWorkspace({
         }
         trend={
           <Suspense
+            key="trend"
             fallback={
               <p className="org-chart-empty" role="status">
                 Загружаем динамику…
               </p>
             }
           >
-            {items.some((item) => item.vertical === 'HOSPITALITY') ? (
-              <BusinessTrend date={to} />
+            {financial && financial.covered > 0 ? (
+              <BusinessTrend date={to} current={financial} />
             ) : (
-              <p className="org-chart-empty">Добавьте гостиничный объект, чтобы видеть динамику.</p>
+              <p className="org-chart-empty">Для динамики нужны данные о полученных оплатах.</p>
             )}
           </Suspense>
         }
-        money={
-          summary
-            ? [...summary.currencies].map(([currency, total]) =>
-                formatMoney(total.revenue, currency),
-              )
-            : []
-        }
+        money={[]}
         create={
           canCreate ? (
-            <details className="org-create" id="create-branch">
-              <summary>+ {createLabel}</summary>
-              <div>
-                <BranchForm id={randomUUID()} />
-              </div>
-            </details>
+            <BranchCreateDialog
+              key="create"
+              id={randomUUID()}
+              newBusinessId={randomUUID()}
+              businesses={businesses}
+              label={createLabel}
+            />
           ) : null
         }
       />

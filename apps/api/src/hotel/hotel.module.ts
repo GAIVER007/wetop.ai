@@ -1,3 +1,5 @@
+import { OrganizationSummaryService, OrganizationSummaryController } from './organization-summary';
+import { BranchLifecycleService, BranchLifecycleController } from './branch-lifecycle';
 import { BusinessCardsModule } from './business-cards';
 import { DashboardModule } from '../dashboard/dashboard.module';
 import { BranchesController, BranchesService } from './branches';
@@ -523,12 +525,16 @@ export class HotelController {
   imports: [DashboardModule, BusinessCardsModule],
   controllers: [
     BranchesController,
+    OrganizationSummaryController,
+    BranchLifecycleController,
     HotelController,
     ReservationDirectoryController,
     OnboardingController,
   ],
   providers: [
     BranchesService,
+    OrganizationSummaryService,
+    BranchLifecycleService,
     PrismaService,
     HotelService,
     ReservationDirectory,

@@ -1,4 +1,5 @@
 'use client';
+import { FinancialWidgets, BusinessFinancialWidgets } from './financial-widgets';
 import { useState, useRef, type ReactNode } from 'react';
 import { Icon, type IconName } from '../../components/icon';
 import type { BranchItem } from '../../lib/api';
@@ -19,6 +20,9 @@ type Props = {
   trend: ReactNode;
   recent: ReactNode;
   preview: boolean;
+  period?: ReactNode;
+  financial?: import('../../lib/api').OrganizationSummary | null;
+  archive?: ReactNode;
 };
 const directions = [
   ['HOSPITALITY', 'Отели'],
@@ -38,15 +42,15 @@ const businessIcons: Record<BranchItem['vertical'], IconName> = {
 };
 export function ReferenceBoard({
   organization,
-  periodLabel,
   items,
   businesses,
-  money,
-  metrics,
   create,
   trend,
   recent,
   preview,
+  period,
+  financial,
+  archive,
 }: Props) {
   const [filter, setFilter] = useState('ALL');
   const [search, setSearch] = useState('');
@@ -92,17 +96,12 @@ export function ReferenceBoard({
     count: groups.filter((group) => group.vertical === id).length,
   }));
   let pieOffset = 0;
-  const openCreate = (vertical?: BranchItem['vertical']) => {
-    const details = document.getElementById('create-branch') as HTMLDetailsElement | null;
-    if (details) {
-      details.open = true;
-      if (vertical) {
-        const radio = details.querySelector<HTMLInputElement>(
-          `input[name=vertical][value=${vertical}]`,
-        );
-        if (radio) radio.checked = true;
-      }
-      details.querySelector<HTMLInputElement>('input:not([type=hidden])')?.focus();
+  const openCreate = (vertical?: BranchItem['vertical'], businessId?: string) => {
+    const trigger = document.getElementById('create-branch') as HTMLButtonElement | null;
+    if (trigger) {
+      trigger.dataset.businessId = businessId ?? '';
+      trigger.dataset.vertical = vertical ?? '';
+      trigger.click();
     }
   };
   return (
@@ -123,57 +122,14 @@ export function ReferenceBoard({
             <small className="org-preview-note">Локальный просмотр, вымышленные данные</small>
           )}
         </div>
-        {create}
-      </div>
-      <div className={`org-kpis ${!hasHospitality ? 'org-kpis--service' : ''}`}>
-        <div>
-          <span className="org-symbol">
-            <Icon name="inventory" />
-          </span>
-          <section>
-            <p>Всего бизнесов</p>
-            <strong>{groups.length}</strong>
-            <small>{organization}</small>
-          </section>
-        </div>
-        <div>
-          <span className="org-symbol purple">
-            <Icon name="pin" />
-          </span>
-          <section>
-            <p>Объектов</p>
-            <strong>{items.length}</strong>
-            <small>
-              {groups.length === 1 ? 'В вашем бизнесе' : `В бизнесах: ${groups.length}`}
-            </small>
-          </section>
-        </div>
-        <div>
-          <span className="org-symbol coral">
-            <Icon name="layers" />
-          </span>
-          <section>
-            <p>Номеров и коек</p>
-            <strong>
-              {items
-                .filter((b) => b.vertical === 'HOSPITALITY')
-                .reduce((n, b) => n + b._count.inventoryUnits, 0)}
-            </strong>
-            <small>В гостиничных филиалах</small>
-          </section>
-        </div>
-        <div>
-          <span className="org-symbol teal">
-            <Icon name="money" />
-          </span>
-          <section>
-            <p>Начислено {periodLabel}</p>
-            <strong className="org-money">{money.join(' / ') || 'Нет данных'}</strong>
-            <small>По гостиничным филиалам</small>
-          </section>
+        <div className="org-heading-controls">
+          {period}
+          {create}
         </div>
       </div>
+      <FinancialWidgets summary={financial} />
       <div className="org-tools">
+        {archive}
         {groups.length > 1 && (
           <div className="org-tabs" role="group" aria-label="Направление бизнеса">
             {categories
@@ -235,7 +191,6 @@ export function ReferenceBoard({
       {visible.length ? (
         <div className={`org-cards ${view === 'list' ? 'org-list' : ''}`}>
           {visible.map((group) => {
-            const metric = metrics[group.id];
             return (
               <article key={group.id} className={`org-card org-card--${group.vertical}`}>
                 <div
@@ -266,31 +221,18 @@ export function ReferenceBoard({
                   <p className="org-description" title={group.card.description ?? ''}>
                     {group.card.description || 'Добавьте описание бизнеса в настройках карточки.'}
                   </p>
-                  <div className="org-card-metrics">
-                    <div>
-                      <strong>{metric?.money.join(' / ') || 'Нет данных'}</strong>
-                      <small>Начислено {periodLabel}</small>
-                    </div>
-                    <div>
-                      <strong>{metric?.occupancy || 'Нет данных'}</strong>
-                      <small>
-                        {group.vertical === 'HOSPITALITY'
-                          ? 'Загрузка гостиниц'
-                          : 'Показатели не подключены'}
-                      </small>
-                    </div>
-                  </div>
+                  <BusinessFinancialWidgets summary={financial} businessId={group.id} />
                   <div className="org-branches-heading">
                     <strong>
                       {group.branches.length === 1
                         ? 'Ваш объект'
                         : `Объекты (${group.branches.length})`}
                     </strong>
-                    {create && groups.filter((g) => g.vertical === group.vertical).length === 1 && (
+                    {create && (
                       <button
                         type="button"
                         className="org-add-link"
-                        onClick={() => openCreate(group.vertical)}
+                        onClick={() => openCreate(group.vertical, group.id)}
                       >
                         + Добавить
                       </button>
@@ -313,7 +255,12 @@ export function ReferenceBoard({
                           <span className="org-dot" />
                           <span>
                             <strong>{branch.name}</strong>
-                            <small>{branch.address || 'Адрес не указан'}</small>
+                            <small>
+                              {branch.address || 'Адрес не указан'}
+                              {branch.vertical === 'HOSPITALITY'
+                                ? ` · ${branch._count.inventoryUnits} номеров и коек, ${branch._count.accommodationTypes} категорий`
+                                : ''}
+                            </small>
                           </span>
                           <Icon name="chevron" />
                         </button>
@@ -352,7 +299,7 @@ export function ReferenceBoard({
                   ? 'Один объект уже готов к работе. Филиалы и другие направления добавляются по необходимости.'
                   : 'Бизнес создан. Добавьте первый объект, чтобы начать работу.'}
               </p>
-              <button type="button" onClick={() => openCreate(groups[0]?.vertical)}>
+              <button type="button" onClick={() => openCreate(groups[0]?.vertical, groups[0]?.id)}>
                 <Icon name="pin" />
                 {items.length ? 'Добавить филиал' : 'Добавить первый объект'}
               </button>
@@ -445,7 +392,13 @@ export function ReferenceBoard({
           {recent}
         </section>
       </div>
-      {editing && <BusinessCardEditor business={editing} onClose={() => setEditing(null)} />}
+      {editing && (
+        <BusinessCardEditor
+          business={editing}
+          branches={items.filter((branch) => branch.location.businessId === editing.id)}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </section>
   );
 }

@@ -26,8 +26,12 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /onboarding': 'settings',
   'GET /branches': 'desk',
   'POST /branches': 'owner',
+  'GET /branches/locations/archived': 'owner',
+  'POST /branches/locations/:id/archive': 'owner',
+  'POST /branches/locations/:id/restore': 'owner',
   'POST /branches/businesses/:id/card': 'owner',
   'GET /branches/overview': 'reports',
+  'GET /branches/summary': 'reports',
   // ── учётная запись, вход, сотрудники ─────────────────────────────────────────────────────
   'GET /auth/options': 'public',
   'POST /auth/login': 'public',

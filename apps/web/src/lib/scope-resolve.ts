@@ -44,11 +44,14 @@ function compatible(path: string, vertical: WebVertical): boolean {
  * страница: у гостиницы единые «Финансы» (гейт онбординга в layout работает и там), у салона и ресторана
  * `/register/setup`: он сам ведёт на стартовую страницу направления, когда настройка завершена, и продолжает
  * настройку пилота, если нет.
+ *
+ * Переход «/today» гостиницы на «Финансы» не сокращать (13.10.2026): подтверждение почты зовёт серверное действие,
+ * его `redirect` ведёт на `/scope/resolve?next=%2Ftoday`, и если цепочка кончается обработчиком маршрута, клиентский
+ * роутер Next оставляет в адресной строке адрес действия (показывает «Финансы» под адресом `/scope/resolve…`). Через
+ * страницу `/today` адрес обновляется верно (`login-access`, `unified-auth`).
  */
 function targetFor(vertical: WebVertical, rawNext: string | null): string {
   const next = rawNext ? safeReturnPath(rawNext) : null;
-  // у гостиницы `/today` сам уводит в «Финансы»: ведём туда сразу, второй переход обрывал следующую навигацию
-  if (next && vertical === 'HOSPITALITY' && next.split('?')[0] === '/today') return landingForVertical(vertical);
   if (next && compatible(next, vertical)) return next;
   return vertical === 'HOSPITALITY' ? landingForVertical(vertical) : '/register/setup';
 }

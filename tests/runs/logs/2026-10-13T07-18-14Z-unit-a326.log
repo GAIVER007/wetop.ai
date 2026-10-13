@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.10.2026 12:18 Алматы · vm
+# коммит 009ad92 (claude/stoic-darwin-hjb5x3), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-13T07-18-14Z-unit-a326.json' 'tests/unit/claude-md-status.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/claude-md-status.test.ts (2 tests) 9ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  07:18:15
+   Duration  221ms (transform 66%, import 17%, tests 11%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-10-13T07-18-14Z-unit-a326.json
+
+# код выхода 0 · 1 с

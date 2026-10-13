@@ -957,6 +957,12 @@
     border: 0;
     background: var(--surface);
   }
+  .ed-preview__stage.is-tablet .ed-preview__frame {
+    width: 768px;
+    max-width: 100%;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
   .ed-preview__stage.is-phone .ed-preview__frame {
     width: 390px;
     max-width: 100%;

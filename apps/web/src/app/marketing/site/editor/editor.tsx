@@ -73,6 +73,8 @@ type AiTarget = { pageId: string; sectionId: string };
 
 const ASSET_PROBLEM = 'Изображения нет в библиотеке филиала или оно другого назначения: выберите другое';
 const DESKTOP = '(min-width: 961px)';
+/** Сколько шагов отмены держит браузер: черновик целиком в каждом шаге, поэтому предел небольшой */
+const HISTORY_LIMIT = 50;
 
 const pagesOf = (spec: Spec) => (spec['pages'] as Rec[] | undefined) ?? [];
 const sectionsOf = (page: Rec | undefined) => (page?.['sections'] as Rec[] | undefined) ?? [];
@@ -150,6 +152,61 @@ export function SiteEditor({
 }) {
   const [base, setBase] = useState<Base>(initialBase);
   const [spec, setSpec] = useState<Spec>(initialBase.spec);
+  /*
+   * Отмена и повтор несохранённых правок (MKT10.3): история живёт только в браузере, серверная версия
+   * появляется по-прежнему лишь по «Сохранить черновик» (решение 6 аудита MKT10). Ввод в одно поле подряд
+   * это один шаг; загрузка новой версии с сервера историю обнуляет.
+   */
+  const specRef = useRef(spec);
+  specRef.current = spec;
+  const lastEditKey = useRef<string | null>(null);
+  const [past, setPast] = useState<Spec[]>([]);
+  const [future, setFuture] = useState<Spec[]>([]);
+  const edit = useCallback((update: (prev: Spec) => Spec, key: string | null) => {
+    const prev = specRef.current;
+    const next = update(prev);
+    // поле, которое после отмены записало то же значение, не шаг: иначе оно стёрло бы повтор
+    if (next === prev || canonicalJson(next) === canonicalJson(prev)) return;
+    if (key === null || key !== lastEditKey.current) setPast((p) => [...p.slice(-(HISTORY_LIMIT - 1)), prev]);
+    lastEditKey.current = key;
+    setFuture([]);
+    specRef.current = next;
+    setSpec(next);
+  }, []);
+  const undoEdit = useCallback(() => {
+    const prev = past[past.length - 1];
+    if (!prev) return;
+    const current = specRef.current;
+    setPast((p) => p.slice(0, -1));
+    setFuture((f) => [current, ...f]);
+    lastEditKey.current = null;
+    specRef.current = prev;
+    setSpec(prev);
+  }, [past]);
+  const redoEdit = useCallback(() => {
+    const next = future[0];
+    if (!next) return;
+    const current = specRef.current;
+    setFuture((f) => f.slice(1));
+    setPast((p) => [...p, current]);
+    lastEditKey.current = null;
+    specRef.current = next;
+    setSpec(next);
+  }, [future]);
+  // Ctrl+Z и Ctrl+Shift+Z (Cmd на Mac) вне полей ввода: в поле у браузера своя отмена набранного текста
+  useEffect(() => {
+    if (readOnly) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.altKey || e.key.toLowerCase() !== 'z') return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      e.preventDefault();
+      if (e.shiftKey) redoEdit();
+      else undoEdit();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [readOnly, undoEdit, redoEdit]);
   const baseCanon = useMemo(() => canonicalJson(base.spec), [base]);
   const dirty = useMemo(() => canonicalJson(spec) !== baseCanon, [spec, baseCanon]);
   const dirtyRef = useRef(dirty);
@@ -223,8 +280,9 @@ export function SiteEditor({
   }, []);
 
   const set = useCallback((path: Path, value: unknown) => {
-    setSpec((prev) => (path.length === 0 ? (value as Spec) : setAt(prev, path, value)));
-  }, []);
+    // целый документ (порядок и состав блоков) это всегда отдельный шаг, поле копит ввод в один
+    edit((prev) => (path.length === 0 ? (value as Spec) : setAt(prev, path, value)), path.length === 0 ? null : pathString(path));
+  }, [edit]);
   const errorAt = useCallback(
     (path: Path) => {
       const p = pathString(path);
@@ -277,7 +335,11 @@ export function SiteEditor({
     const next = { id: r.data.version.id, revision: r.data.version.revision, spec: r.data.version.spec };
     setBase(next);
     if (replaceSpec) {
+      specRef.current = next.spec;
       setSpec(next.spec);
+      setPast([]);
+      setFuture([]);
+      lastEditKey.current = null;
       setSelection((s) => valid(next.spec, s));
     }
     return next;
@@ -392,14 +454,14 @@ export function SiteEditor({
   };
   /** Оформление без ИИ: тема, первый экран и порядок блоков главной в документ на экране; сохраняет человек */
   const applyDesign = (direction: DesignDirectionView) => {
-    setSpec((prev) => applyDesignDirection(prev, direction) as Spec);
+    edit((prev) => applyDesignDirection(prev, direction) as Spec, null);
     setMessage({ tone: 'ok', text: `Оформление «${direction.name}» применено к черновику: сохраните, чтобы оставить его` });
   };
   /** Правка текста прямо на сайте: только разрешённые поля, предел поля; ИИ не зовётся */
   const inlineEdit = (path: string, locale: string, text: string) => {
     const r = setInlineText(spec, path, locale, text);
     if (!r.ok) return setMessage({ tone: 'error', text: r.message });
-    setSpec(r.spec as Spec);
+    edit(() => r.spec as Spec, `inline:${path}:${locale}`);
   };
   const toggleBookmark = async (v: SiteVersionMeta, label: string | null) => {
     setHistoryError(null);
@@ -604,6 +666,12 @@ export function SiteEditor({
             <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="editor-assets-link">
               Изображения
             </Link>
+            <Button type="button" tone="secondary" disabled={readOnly || past.length === 0} onClick={undoEdit} data-testid="ed-undo" title="Ctrl+Z">
+              Отменить
+            </Button>
+            <Button type="button" tone="secondary" disabled={readOnly || future.length === 0} onClick={redoEdit} data-testid="ed-redo" title="Ctrl+Shift+Z">
+              Повторить
+            </Button>
             <Button type="button" tone="secondary" disabled={readOnly || !dirty || saving} onClick={() => void save()} data-testid="ed-save">
               {saving ? 'Сохраняем…' : 'Сохранить черновик'}
             </Button>

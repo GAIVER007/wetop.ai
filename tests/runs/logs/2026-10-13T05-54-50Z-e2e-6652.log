@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 13.10.2026 10:54 Алматы · vm
+# коммит df04399 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '-g' 'MKT10.3' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/site-editor.spec.ts:472:1 › MKT10.3: отмена и повтор несохранённой правки, кнопками и с клавиатуры, сервер не трогают (18.8s)
+  ✓  2 tests/ui/site-editor.spec.ts:503:1 › MKT10.3: просмотр на ширине планшета (2.0s)
+
+
+  1) tests/ui/site-editor.spec.ts:472:1 › MKT10.3: отмена и повтор несохранённой правки, кнопками и с клавиатуры, сервер не трогают 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('main').visible().getByLabel('Заголовок секции', { exact: true })
+    Expected: "Первая правка, дописанная"
+    Received: "Версия 2"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').visible().getByLabel('Заголовок секции', { exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByLabel('Заголовок секции', { exact: true })
+        34 × locator resolved to <input class="inp" maxlength="80" value="Версия 2" id="ed-pages-0-sections-0-heading-ru"/>
+           - unexpected value "Версия 2"
+
+
+      489 |   await expect(undo).toBeDisabled();
+      490 |   await redo.click();
+    > 491 |   await expect(heroHeading(page)).toHaveValue('Первая правка, дописанная');
+          |                                   ^
+      492 |   await expect(redo).toBeDisabled();
+      493 |   // с клавиатуры, когда фокус не в поле ввода (в поле работает родная отмена браузера)
+      494 |   await m.getByTestId('ed-dirty').click();
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:491:35
+
+    Error Context: test-results/site-editor-MKT10-3-отмена-caac8-лавиатуры-сервер-не-трогают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-MKT10-3-отмена-caac8-лавиатуры-сервер-не-трогают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-MKT10-3-отмена-caac8-лавиатуры-сервер-не-трогают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/site-editor.spec.ts:472:1 › MKT10.3: отмена и повтор несохранённой правки, кнопками и с клавиатуры, сервер не трогают 
+  1 passed (34.0s)
+
+# код выхода 1 · 35 с

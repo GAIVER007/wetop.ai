@@ -55,7 +55,7 @@ export function SitePreview({
   const [html, setHtml] = useState<string | null>(null);
   const [shownPage, setShownPage] = useState<string | null>(null);
   const [broken, setBroken] = useState(false);
-  const [device, setDevice] = useState<'desktop' | 'phone'>('desktop');
+  const [device, setDevice] = useState<'desktop' | 'tablet' | 'phone'>('desktop');
   const [locale, setLocale] = useState(defaultLocale);
   const scroll = useRef(0);
   const handlers = useRef({ onPage, onPickSection, onInlineEdit });
@@ -247,6 +247,7 @@ export function SitePreview({
           {(
             [
               ['desktop', 'Компьютер'],
+              ['tablet', 'Планшет'],
               ['phone', 'Телефон'],
             ] as const
           ).map(([key, label]) => (
@@ -269,7 +270,7 @@ export function SitePreview({
           Сайт с этими правками пока не нарисовать: исправьте отмеченные поля. Показан последний удачный вид.
         </p>
       )}
-      <div className={cx('ed-preview__stage', device === 'phone' && 'is-phone')}>
+      <div className={cx('ed-preview__stage', device === 'phone' && 'is-phone', device === 'tablet' && 'is-tablet')}>
         {html !== null && (
           <iframe ref={frame} className="ed-preview__frame" title="Сайт гостиницы, живой просмотр" sandbox="allow-same-origin" srcDoc={html} onLoad={onLoad} data-testid="ed-frame" />
         )}

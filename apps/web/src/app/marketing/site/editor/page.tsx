@@ -7,7 +7,7 @@ import { Alert } from '../../../../components/ui';
 import { loadErrorProps } from '../../../../lib/load-error';
 import { marketingSiteApi, siteAssetsApi, siteEditorApi, type SiteAssetView, type SiteConversationItem } from '../../../../lib/api';
 import { deskShell } from '../../../../lib/desk-shell';
-import { MarketingCrumb } from '../../../website/parts';
+import { BackToModules } from '../../parts';
 import { SiteEditor } from './editor';
 import { CreateSite } from './create-site';
 import '../../marketing.css';
@@ -53,7 +53,7 @@ export default async function SiteEditorPage() {
     });
   if (!loaded.ok)
     return (
-      <Page crumbs={<MarketingCrumb />} title={title}>
+      <Page crumbs={<BackToModules />} title={title}>
         <LoadError testId="site-editor-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -65,7 +65,7 @@ export default async function SiteEditorPage() {
 
   if (current.archived && !site)
     return (
-      <Page crumbs={<MarketingCrumb />} title={title}>
+      <Page crumbs={<BackToModules />} title={title}>
         <Alert boxed data-testid="site-archived">
           Сайт этого филиала в архиве. У филиала один сайт навсегда, нового не будет. История публикаций на странице{' '}
           <Link href="/marketing/site">«Публикация»</Link>.
@@ -85,7 +85,7 @@ export default async function SiteEditorPage() {
         ].filter((f): f is string => !!f)
       : [];
     return (
-      <Page crumbs={<MarketingCrumb />} title={title}>
+      <Page crumbs={<BackToModules />} title={title}>
         {!licensed && (
           <Alert boxed data-testid="ed-license-off">
             <b>Конструктор сайта не активен для этого филиала.</b> Создать сайт и просить ИИ нельзя. Подключить конструктор может главный
@@ -97,7 +97,11 @@ export default async function SiteEditorPage() {
     );
   }
   return (
-    <Page crumbs={<MarketingCrumb />} title={title} subtitle="Попросите ИИ или поправьте сайт сами: он меняется сразу. Сохранение создаёт новую версию черновика, на сайт она попадает после публикации.">
+    <Page
+      crumbs={<BackToModules />}
+      title={title}
+      subtitle="Попросите ИИ или поправьте сайт сами. Сохранение создаёт новую версию черновика, на сайт она попадает после публикации."
+    >
       <SiteEditor
         siteId={site.id}
         base={{ id: site.latest.id, revision: site.latest.revision, spec: loaded.draft.version.spec }}

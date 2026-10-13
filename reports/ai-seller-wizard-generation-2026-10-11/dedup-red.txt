@@ -1,0 +1,17 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________________ test_paid_dedup_outlives_longest_live_session _________________
+
+env = (<fakeredis._clients._async.FakeRedis(<redis.asyncio.connection.ConnectionPool(<fakeredis._clients._async.FakeAsyncRed...socket_timeout=5,orig_socket_connect_timeout=5)>)>)>, namespace(wizard_daily_tokens=1000), <AsyncMock id='4468273376'>)
+
+    async def test_paid_dedup_outlives_longest_live_session(env):
+        redis, settings, model = env
+        await generator.generate(settings, redis, body())
+        # A crashed worker can be recovered after two days in a 30-day session.
+>       assert await redis.ttl('wizard:generate:session1:job1') >= 2591999
+E       assert 172800 >= 2591999
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:135: AssertionError
+=========================== short test summary info ============================
+FAILED apps/ai-seller/tests/test_wizard_generate.py::test_paid_dedup_outlives_longest_live_session
+1 failed, 19 deselected in 4.45s

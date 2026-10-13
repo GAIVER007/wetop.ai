@@ -1,0 +1,79 @@
+EEEEEF                                                                   [100%]
+==================================== ERRORS ====================================
+__________ ERROR at setup of test_replay_sources_and_no_hotel_default __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10cf7f100>
+
+    @pytest.fixture
+    async def chat_env(monkeypatch):
+>       from src import wizard_chat_router as chat
+E       ImportError: cannot import name 'wizard_chat_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_chat.py:8: ImportError
+__ ERROR at setup of test_chat_has_own_session_rate_after_scan_and_generation __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10cfbb530>
+
+    @pytest.fixture
+    async def chat_env(monkeypatch):
+>       from src import wizard_chat_router as chat
+E       ImportError: cannot import name 'wizard_chat_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_chat.py:8: ImportError
+__ ERROR at setup of test_untrusted_input_masked_and_system_history_rejected ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d03d590>
+
+    @pytest.fixture
+    async def chat_env(monkeypatch):
+>       from src import wizard_chat_router as chat
+E       ImportError: cannot import name 'wizard_chat_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_chat.py:8: ImportError
+_____________ ERROR at setup of test_injection_never_reaches_model _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10cfc3e50>
+
+    @pytest.fixture
+    async def chat_env(monkeypatch):
+>       from src import wizard_chat_router as chat
+E       ImportError: cannot import name 'wizard_chat_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_chat.py:8: ImportError
+_ ERROR at setup of test_forged_sources_rejected_and_unknown_usage_closes_budget _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d0476b0>
+
+    @pytest.fixture
+    async def chat_env(monkeypatch):
+>       from src import wizard_chat_router as chat
+E       ImportError: cannot import name 'wizard_chat_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_chat.py:8: ImportError
+=================================== FAILURES ===================================
+____________________________ test_auth_before_parse ____________________________
+
+client = <starlette.testclient.TestClient object at 0x10e3afb60>
+
+    async def test_auth_before_parse(client):
+>       assert client.post('/internal/wizard/message', content=b'invalid').status_code == 403
+E       AssertionError: assert 404 == 403
+E        +  where 404 = <Response [404 Not Found]>.status_code
+E        +    where <Response [404 Not Found]> = post('/internal/wizard/message', content=b'invalid')
+E        +      where post = <starlette.testclient.TestClient object at 0x10e3afb60>.post
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_chat.py:61: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+2026-10-11 15:22:01,373 | WARNING | - | src.main | Виджет: домены сайта не заданы, проверка Origin выключена
+------------------------------ Captured log setup ------------------------------
+ERROR    src.main:main.py:222 Панель не подключена: путь панели не задан: заполните DASHBOARD_PATH_PREFIX
+ERROR    src.main:main.py:222 Панель не подключена: путь панели не задан: заполните DASHBOARD_PATH_PREFIX
+WARNING  src.main:main.py:88 Виджет: домены сайта не заданы, проверка Origin выключена
+=========================== short test summary info ============================
+FAILED tests/test_wizard_chat.py::test_auth_before_parse - AssertionError: as...
+ERROR tests/test_wizard_chat.py::test_replay_sources_and_no_hotel_default - I...
+ERROR tests/test_wizard_chat.py::test_chat_has_own_session_rate_after_scan_and_generation
+ERROR tests/test_wizard_chat.py::test_untrusted_input_masked_and_system_history_rejected
+ERROR tests/test_wizard_chat.py::test_injection_never_reaches_model - ImportE...
+ERROR tests/test_wizard_chat.py::test_forged_sources_rejected_and_unknown_usage_closes_budget
+1 failed, 5 errors in 1.91s

@@ -103,9 +103,9 @@ test('шахматка: «Уборка» в фильтрах считает вс
   await expect(r01.getByTestId('unit-housekeeping')).toHaveAttribute('data-status', 'CLEAN');
   // убранная, но не проверенная ячейка всё ещё в списке уборки: счётчик читаем из окошка заново
   const again = await openBoardFilters(page);
-  await expect(again.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
-    'Уборка и проверка 2',
-  );
+  await expect(
+    again.getByLabel('Места в календаре').locator('option[value="cleaning"]'),
+  ).toHaveText('Уборка и проверка 2');
   await again.getByLabel('Места в календаре').selectOption('cleaning');
   await again.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(main.getByTestId('unit-row')).toHaveCount(2);

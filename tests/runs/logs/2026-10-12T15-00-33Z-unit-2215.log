@@ -1,0 +1,76 @@
+# Модульные (unit) · 12.10.2026 20:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e8d6b5 (claude/order-rating-qr), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-00-33Z-unit-2215.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 40ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 28ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 11ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(435) } to deeply equal { 'GET /onboarding': 'self', …(432) }
+
+- Expected
++ Received
+
+@@ -167,10 +167,11 @@
+    "GET /platform/support/prompt": "platform",
+    "GET /platform/support/queue": "platform",
+    "GET /platform/support/settings": "platform",
+    "GET /platform/support/status": "platform",
+    "GET /platform/support/summary": "platform",
++   "GET /public/order-rating/:token": "<скрыто>",
+    "GET /rate-plans": "desk",
+    "GET /rates": "rates",
+    "GET /rates/options": "rates",
+    "GET /rates/plans": "rates",
+    "GET /rates/promo-codes": "rates",
+@@ -330,10 +331,11 @@
+    "POST /food-service/menu/items": "property",
+    "POST /food-service/menu/items/:id/photo": "property",
+    "POST /food-service/orders": "desk",
+    "POST /food-service/orders/:id/payments": "desk",
+    "POST /food-service/orders/:id/rating": "desk",
++   "POST /food-service/orders/:id/rating-link": "desk",
+    "POST /food-service/orders/:id/status": "desk",
+    "POST /food-service/payments/:id/void": "refunds",
+    "POST /food-service/reservations": "desk",
+    "POST /food-service/reservations/:id/status": "desk",
+    "POST /food-service/service-periods": "property",
+@@ -384,10 +386,11 @@
+    "POST /platform/support/kb": "platform",
+    "POST /platform/support/kb/:id/publish": "platform",
+    "POST /platform/support/kb/:id/status": "platform",
+    "POST /platform/support/knowledge": "platform",
+    "POST /platform/support/sandbox": "platform",
++   "POST /public/order-rating/:token": "<скрыто>",
+    "POST /rates/bulk": "rates",
+    "POST /rates/plans/derived": "rates",
+    "POST /rates/promo-codes": "rates",
+    "POST /reservations": "desk",
+    "POST /reservations/:number/cancel": "desk",
+
+ ❯ apps/api/src/auth/route-access.test.ts:549:20
+    547|       .map(([key]) => key);
+    548|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    549|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    550|   });
+    551|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  08:00:34
+   Duration  2.09s (transform 60%, import 38%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-00-33Z-unit-2215.json
+
+# код выхода 1 · 3 с

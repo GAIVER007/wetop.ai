@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 11.10.2026 15:39 Алматы · MacBook-Air-Urij.local
+# коммит b67fdb7 (codex/ai-seller-wizard-generate-20261011), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-39-06Z-integration-a11a.json' '--command' 'npx vitest run --config tests/wizard-scan.config.ts tests/integration/wizard-generate.test.ts'
+file:///Users/urijzapojnov/wetop-ai-seller-20261011/node_modules/vitest/dist/chunks/cac.D805sv8h.js:405
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--command`
+    at Command.checkUnknownOptions (file:///Users/urijzapojnov/wetop-ai-seller-20261011/node_modules/vitest/dist/chunks/cac.D805sv8h.js:405:17)
+    at CAC.runMatchedCommand (file:///Users/urijzapojnov/wetop-ai-seller-20261011/node_modules/vitest/dist/chunks/cac.D805sv8h.js:605:13)
+    at CAC.parse (file:///Users/urijzapojnov/wetop-ai-seller-20261011/node_modules/vitest/dist/chunks/cac.D805sv8h.js:546:12)
+    at file:///Users/urijzapojnov/wetop-ai-seller-20261011/node_modules/vitest/dist/cli.js:10:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.15.0
+
+# код выхода 1 · 4 с

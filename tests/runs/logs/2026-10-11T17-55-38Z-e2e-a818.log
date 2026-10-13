@@ -1,0 +1,231 @@
+# Сквозные (e2e) · 11.10.2026 22:55 Алматы · MacBook-Air-Urij.local
+# коммит 3879c64 (codex/ai-seller-wizard-chat-20261011)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/branches.spec.ts:84' 'tests/ui/chessboard-calendar.spec.ts:12' 'tests/ui/chessboard-extend.spec.ts:43' 'tests/ui/chessboard-range.spec.ts:51' 'tests/ui/date-field.spec.ts:89' 'tests/ui/housekeeping.spec.ts:21' 'tests/ui/housekeeping.spec.ts:82'
+[WebServer] (node:63857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63885) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:63999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64094) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (49.6s)
+(node:64255) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (33.6s)
+(node:64965) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (23.9s)
+(node:65248) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/chessboard-range.spec.ts:51:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (25.2s)
+[WebServer] (node:65356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65361) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/date-field.spec.ts:89:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (22.1s)
+  ✘  6 tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (38.6s)
+(node:65469) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  7 tests/ui/housekeeping.spec.ts:82:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (34.0s)
+
+
+  1) tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.mobile-navigation').getByRole('button', { name: /Филиал Север Тестовая/ })
+    Expected: "true"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.mobile-navigation').getByRole('button', { name: /Филиал Север Тестовая/ }) with timeout 15000ms
+      - waiting for locator('.mobile-navigation').getByRole('button', { name: /Филиал Север Тестовая/ })
+
+
+      148 |   const mobile = page.locator('.mobile-navigation');
+      149 |   await mobile.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+    > 150 |   await expect(mobile.getByRole('button', { name: /Филиал Север Тестовая/ })).toHaveAttribute(
+          |                                                                               ^
+      151 |     'aria-pressed',
+      152 |     'true',
+      153 |   );
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/branches.spec.ts:150:79
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('link', { name: 'Поиск свободных номеров' })
+    Expected: "/rooms/availability?arrival=2026-10-05&departure=2026-10-12"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('link', { name: 'Поиск свободных номеров' }) with timeout 15000ms
+      - waiting for getByRole('link', { name: 'Поиск свободных номеров' })
+
+
+      34 |   const last = (await dateColumns.last().getAttribute('data-date'))!;
+      35 |   const departure = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
+    > 36 |   await expect(page.getByRole('link', { name: 'Поиск свободных номеров' })).toHaveAttribute(
+         |                                                                             ^
+      37 |     'href',
+      38 |     `/rooms/availability?arrival=${arrival}&departure=${departure}`,
+      39 |   );
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/chessboard-calendar.spec.ts:36:77
+
+    Error Context: test-results/chessboard-calendar-календ-a0c5b-одка-дня-и-быстрые-действия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-calendar-календ-a0c5b-одка-дня-и-быстрые-действия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-calendar-календ-a0c5b-одка-дня-и-быстрые-действия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: '+2 ночи' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: '+2 ночи' }) with timeout 15000ms
+      - waiting for getByRole('status').filter({ hasText: '+2 ночи' })
+
+
+      58 |   await page.mouse.down();
+      59 |   await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 8 });
+    > 60 |   await expect(page.getByRole('status').filter({ hasText: '+2 ночи' })).toBeVisible();
+         |                                                                         ^
+      61 |   await page.mouse.up();
+      62 |   const dialog = page.getByRole('dialog');
+      63 |   await expect(dialog).toContainText('2 ноч');
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/chessboard-extend.spec.ts:60:73
+
+    Error Context: test-results/chessboard-extend-мышь-пра-2f594-результат-переживает-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-extend-мышь-пра-2f594-результат-переживает-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-extend-мышь-пра-2f594-результат-переживает-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Места в календаре').locator('option[value="cleaning"]')
+    Expected: "Уборка 1"
+    Received: "Уборка и проверка 1"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Места в календаре').locator('option[value="cleaning"]') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Места в календаре').locator('option[value="cleaning"]')
+        28 × locator resolved to <option value="cleaning">Уборка и проверка 1</option>
+           - unexpected value "Уборка и проверка 1"
+
+
+      74 |   // счётчик уборки, в пункте поля «Места» окошка «Фильтры» (PR 7 «Шахматки v2», с 09.10 в окошке)
+      75 |   const pop = await openBoardFilters(page);
+    > 76 |   await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
+         |                                                                                         ^
+      77 |     'Уборка 1',
+      78 |   );
+      79 |   await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/housekeeping.spec.ts:76:89
+
+    Error Context: test-results/housekeeping-шахматка-цикл-9e677-оверки-→-проверено-доступна/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/housekeeping-шахматка-цикл-9e677-оверки-→-проверено-доступна/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/housekeeping-шахматка-цикл-9e677-оверки-→-проверено-доступна/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/housekeeping.spec.ts:82:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Места в календаре').locator('option[value="cleaning"]')
+    Expected: "Уборка 2"
+    Received: "Уборка и проверка 2"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Места в календаре').locator('option[value="cleaning"]') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Фильтры календаря' }).getByLabel('Места в календаре').locator('option[value="cleaning"]')
+        29 × locator resolved to <option value="cleaning">Уборка и проверка 2</option>
+           - unexpected value "Уборка и проверка 2"
+
+
+      86 |   const pop = await openBoardFilters(page);
+      87 |   const cleaning = pop.getByLabel('Места в календаре').locator('option[value="cleaning"]');
+    > 88 |   await expect(cleaning).toHaveText('Уборка 2');
+         |                          ^
+      89 |   await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
+      90 |   const r01 = main.getByTestId('unit-row').filter({ hasText: /\bR01\b/ });
+      91 |   await r01.getByTestId('unit-housekeeping').getByRole('button').click();
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/housekeeping.spec.ts:88:26
+
+    Error Context: test-results/housekeeping-шахматка-«Убо-36afa-ет-всё-что-ещё-не-проверено/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/housekeeping-шахматка-«Убо-36afa-ет-всё-что-ещё-не-проверено/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/housekeeping-шахматка-«Убо-36afa-ет-всё-что-ещё-не-проверено/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+    tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия 
+    tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload 
+    tests/ui/housekeeping.spec.ts:21:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна 
+    tests/ui/housekeeping.spec.ts:82:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено 
+  2 passed (5.0m)
+
+# код выхода 1 · 5 мин 8 с

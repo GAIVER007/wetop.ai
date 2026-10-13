@@ -1,0 +1,19 @@
+# Модульные (unit) · 12.10.2026 22:34 Алматы · vm
+# коммит 9b0f383 (claude/sharp-dirac-6s46fw)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-12T17-34-25Z-unit-237c.json' 'tests/unit/server-bootstrap.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/server-bootstrap.test.ts (3 tests) 86771ms
+   ✓ deploy/server-bootstrap.sh (root, Linux) (3)
+     ✓ репозиторий недоступен: печатает публичный ключ, просит добавить его в GitHub и выходит с кодом 3 612ms
+     ✓ репозиторий доступен: клонирует нужную ветку, заводит папку туннеля и говорит, что дальше 33435ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  17:34:26
+   Duration  87.05s (tests 100%)
+
+JSON report written to /tmp/pms-test-2026-10-12T17-34-25Z-unit-237c.json
+
+# код выхода 0 · 1 мин 28 с

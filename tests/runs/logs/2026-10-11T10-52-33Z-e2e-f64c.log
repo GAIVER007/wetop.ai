@@ -1,0 +1,295 @@
+# Сквозные (e2e) · 11.10.2026 15:52 Алматы · MacBook-Air-Urij.local
+# коммит b67fdb7 (codex/ai-seller-wizard-generate-20261011), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/wizard-generate.config.ts'
+[WebServer] (node:65460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 68 tests using 2 workers
+
+(node:65469) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:65468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [light-390] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload (5.9s)
+  ✓   1 [light-390] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation succeeded, reload and edit (6.0s)
+  ✓   3 [light-390] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan failed allows manual entry without losing input (1.9s)
+  ✓   5 [light-390] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input (1.6s)
+  ✓   4 [light-390] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation failed, reload and edit (4.0s)
+  ✓   6 [light-390] › tests/ui/guest-wizard.spec.ts:57:1 › первый экран один: сценарий (поддержка «скоро»), адрес, «Продолжить»; шага «Начать создание» нет (1.8s)
+(node:65549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [light-390] › tests/ui/guest-wizard.spec.ts:85:1 › неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте (1.3s)
+  ✓   9 [light-390] › tests/ui/guest-wizard.spec.ts:96:1 › без сайта: ссылка ведёт на проверку, ниша выбором и «Другое», «Далее» ждёт название и нишу (2.8s)
+  ✓  10 [light-390] › tests/ui/guest-wizard.spec.ts:125:1 › найденное по сайту помечено, правка человека снимает пометку (2.1s)
+  ✓   8 [light-1440] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation succeeded, reload and edit (6.3s)
+  ✓  11 [light-390] › tests/ui/guest-wizard.spec.ts:141:1 › опрос: ответы уходят, «Пропустить» закрывает одним нажатием, тест бота пока «Скоро» (2.9s)
+  ✓  13 [light-390] › tests/ui/guest-wizard.spec.ts:172:1 › возврат: баннер с шагом, «В начало» ведёт на первый экран без потери данных (2.7s)
+  ✓  12 [light-1440] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation failed, reload and edit (5.0s)
+  ✓  14 [light-390] › tests/ui/guest-wizard.spec.ts:188:1 › отказ сохранения не теряет ввод и не показывает успешный результат (2.8s)
+  ✓  16 [light-390] › tests/ui/guest-wizard.spec.ts:213:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (2.2s)
+  ✓  15 [light-1440] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload (13.7s)
+  ✓  18 [light-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan failed allows manual entry without losing input (3.6s)
+  ✘  17 [light-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 1440px (31.4s)
+(node:65933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  19 [light-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input (30.9s)
+(node:65956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 [light-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 390px (15.5s)
+  ✓  21 [light-1440] › tests/ui/guest-wizard.spec.ts:57:1 › первый экран один: сценарий (поддержка «скоро»), адрес, «Продолжить»; шага «Начать создание» нет (3.5s)
+  ✓  23 [light-1440] › tests/ui/guest-wizard.spec.ts:85:1 › неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте (2.3s)
+  ✓  24 [light-1440] › tests/ui/guest-wizard.spec.ts:96:1 › без сайта: ссылка ведёт на проверку, ниша выбором и «Другое», «Далее» ждёт название и нишу (1.6s)
+  ✓  25 [light-1440] › tests/ui/guest-wizard.spec.ts:125:1 › найденное по сайту помечено, правка человека снимает пометку (914ms)
+  ✓  26 [light-1440] › tests/ui/guest-wizard.spec.ts:141:1 › опрос: ответы уходят, «Пропустить» закрывает одним нажатием, тест бота пока «Скоро» (2.2s)
+  ✓  27 [light-1440] › tests/ui/guest-wizard.spec.ts:172:1 › возврат: баннер с шагом, «В начало» ведёт на первый экран без потери данных (1.4s)
+  ✓  28 [light-1440] › tests/ui/guest-wizard.spec.ts:188:1 › отказ сохранения не теряет ввод и не показывает успешный результат (2.3s)
+  ✓  22 [light-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 1440px (13.6s)
+  ✓  29 [light-1440] › tests/ui/guest-wizard.spec.ts:213:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (1.7s)
+  ✓  30 [light-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px (15.1s)
+  ✓  31 [light-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 1440px (15.1s)
+(node:66063) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  33 [dark-390] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation succeeded, reload and edit (5.0s)
+  ✓  32 [light-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 390px (11.4s)
+  ✓  34 [dark-390] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation failed, reload and edit (2.6s)
+  ✘  35 [light-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 1440px (36.5s)
+  ✘  36 [dark-390] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload (36.2s)
+(node:66219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:66218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  37 [dark-390] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan failed allows manual entry without losing input (10.6s)
+  ✓  39 [dark-390] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input (4.7s)
+  ✓  40 [dark-390] › tests/ui/guest-wizard.spec.ts:57:1 › первый экран один: сценарий (поддержка «скоро»), адрес, «Продолжить»; шага «Начать создание» нет (2.7s)
+  ✓  41 [dark-390] › tests/ui/guest-wizard.spec.ts:85:1 › неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте (1.7s)
+  ✘  38 [light-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px (32.3s)
+(node:66357) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  42 [dark-390] › tests/ui/guest-wizard.spec.ts:96:1 › без сайта: ссылка ведёт на проверку, ниша выбором и «Другое», «Далее» ждёт название и нишу (17.2s)
+  ✓  44 [dark-390] › tests/ui/guest-wizard.spec.ts:125:1 › найденное по сайту помечено, правка человека снимает пометку (2.8s)
+  ✓  43 [dark-1440] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation succeeded, reload and edit (8.8s)
+  ✓  45 [dark-390] › tests/ui/guest-wizard.spec.ts:141:1 › опрос: ответы уходят, «Пропустить» закрывает одним нажатием, тест бота пока «Скоро» (7.4s)
+  ✓  46 [dark-1440] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation failed, reload and edit (3.4s)
+  ✓  47 [dark-390] › tests/ui/guest-wizard.spec.ts:172:1 › возврат: баннер с шагом, «В начало» ведёт на первый экран без потери данных (3.3s)
+  ✓  48 [dark-1440] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload (2.3s)
+  ✓  49 [dark-390] › tests/ui/guest-wizard.spec.ts:188:1 › отказ сохранения не теряет ввод и не показывает успешный результат (1.7s)
+  ✓  50 [dark-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan failed allows manual entry without losing input (1.3s)
+  ✓  51 [dark-390] › tests/ui/guest-wizard.spec.ts:213:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (1.4s)
+  ✓  52 [dark-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input (2.0s)
+  ✓  54 [dark-1440] › tests/ui/guest-wizard.spec.ts:57:1 › первый экран один: сценарий (поддержка «скоро»), адрес, «Продолжить»; шага «Начать создание» нет (2.4s)
+  ✓  55 [dark-1440] › tests/ui/guest-wizard.spec.ts:85:1 › неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте (1.7s)
+  ✓  56 [dark-1440] › tests/ui/guest-wizard.spec.ts:96:1 › без сайта: ссылка ведёт на проверку, ниша выбором и «Другое», «Далее» ждёт название и нишу (3.0s)
+  ✓  57 [dark-1440] › tests/ui/guest-wizard.spec.ts:125:1 › найденное по сайту помечено, правка человека снимает пометку (2.0s)
+  ✓  58 [dark-1440] › tests/ui/guest-wizard.spec.ts:141:1 › опрос: ответы уходят, «Пропустить» закрывает одним нажатием, тест бота пока «Скоро» (5.8s)
+  ✓  53 [dark-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 1440px (20.9s)
+  ✓  59 [dark-1440] › tests/ui/guest-wizard.spec.ts:172:1 › возврат: баннер с шагом, «В начало» ведёт на первый экран без потери данных (6.2s)
+  ✓  61 [dark-1440] › tests/ui/guest-wizard.spec.ts:188:1 › отказ сохранения не теряет ввод и не показывает успешный результат (2.1s)
+  ✓  62 [dark-1440] › tests/ui/guest-wizard.spec.ts:213:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (2.4s)
+  ✓  60 [dark-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 390px (15.4s)
+  ✘  63 [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 1440px (32.0s)
+(node:66613) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  64 [dark-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 1440px (30.2s)
+(node:66623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  66 [dark-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px (40.2s)
+  ✘  65 [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 390px (40.2s)
+(node:66752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  67 [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 1440px (18.3s)
+  ✘  68 [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px (31.8s)
+
+
+  1) [light-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 1440px ───────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.screenshot: Test timeout of 30000ms exceeded.
+    Call log:
+      - taking page screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+
+
+      268 |         );
+      269 |         mkdirSync(report, { recursive: true });
+    > 270 |         await page.screenshot({
+          |                    ^
+      271 |           path: `${report}/${name}-${theme}-${width}.png`,
+      272 |           caret: 'initial',
+      273 |         });
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/guest-wizard.spec.ts:270:20
+
+    Error Context: test-results/guest-wizard-доступность-и-снимки-light-1440px-light-390/error-context.md
+
+  2) [light-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Адрес сайта')
+
+
+      119 |     await page.goto('/create');
+      120 |     await page.getByRole('button', { name: 'Назад', exact: true }).click();
+    > 121 |     await page.getByLabel('Адрес сайта').fill('https://example.test');
+          |                                          ^
+      122 |     await page.getByRole('button', { name: 'Создать бота по сайту', exact: true }).click();
+      123 |     if (outcome === 'running')
+      124 |       await page.getByRole('button', { name: 'Заполнить вручную, пока ждём' }).click();
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/guest-wizard-scan.spec.ts:121:42
+
+    Error Context: test-results/guest-wizard-scan-scan-run-7c752--entry-without-losing-input-light-1440/error-context.md
+
+  3) [light-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 1440px ───────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:33211/create", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/guest-wizard.spec.ts:258:20
+
+    Error Context: test-results/guest-wizard-доступность-и-снимки-dark-1440px-light-1440/error-context.md
+
+  4) [light-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px ────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.screenshot: Test timeout of 30000ms exceeded.
+    Call log:
+      - taking page screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+
+
+      268 |         );
+      269 |         mkdirSync(report, { recursive: true });
+    > 270 |         await page.screenshot({
+          |                    ^
+      271 |           path: `${report}/${name}-${theme}-${width}.png`,
+      272 |           caret: 'initial',
+      273 |         });
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/guest-wizard.spec.ts:270:20
+
+    Error Context: test-results/guest-wizard-доступность-и-снимки-dark-390px-light-1440/error-context.md
+
+  5) [dark-390] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.reload: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for navigation until "load"
+        - navigated to "http://127.0.0.1:33211/create"
+
+
+       at fixtures.ts:169
+
+      167 |     const reload = page.reload.bind(page);
+      168 |     page.reload = async (options) => {
+    > 169 |       const response = await reload(options);
+          |                              ^
+      170 |       await settleStreaming(page);
+      171 |       return response;
+      172 |     };
+        at _Page.reload (/Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/fixtures.ts:169:30)
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/guest-wizard-scan.spec.ts:65:14
+
+    Error Context: test-results/guest-wizard-scan-site-sca-ccdd0-nd-preserves-them-on-reload-dark-390/error-context.md
+
+  6) [dark-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 1440px ─────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error Context: test-results/guest-wizard-доступность-и-снимки-dark-1440px-dark-390/error-context.md
+
+  7) [dark-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px ──────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error Context: test-results/guest-wizard-доступность-и-снимки-dark-390px-dark-390/error-context.md
+
+  8) [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 1440px ───────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:33211/create", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/guest-wizard.spec.ts:258:20
+
+    Error Context: test-results/guest-wizard-доступность-и-снимки-light-1440px-dark-1440/error-context.md
+
+  9) [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 390px ────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error Context: test-results/guest-wizard-доступность-и-снимки-light-390px-dark-1440/error-context.md
+
+  10) [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px ────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: browserContext.newPage: Target page, context or browser has been closed
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      262 |           .click({ timeout: 1000 })
+      263 |           .catch(() => undefined);
+    > 264 |         const scan = await new AxeBuilder({ page }).analyze();
+          |                      ^
+      265 |         expect(scan.violations.map((v) => `${name}: ${v.id}`)).toEqual([]);
+      266 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      267 |           true,
+        at AxeBuilder.analyze (/Users/urijzapojnov/wetop-ai-seller-20261011/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/ui/guest-wizard.spec.ts:264:22
+
+    Error Context: test-results/guest-wizard-доступность-и-снимки-dark-390px-dark-1440/error-context.md
+
+  10 failed
+    [light-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 1440px ────────
+    [light-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input 
+    [light-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 1440px ────────
+    [light-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px ─────────
+    [dark-390] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload 
+    [dark-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 1440px ──────────
+    [dark-390] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px ───────────
+    [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 1440px ────────
+    [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: light, 390px ─────────
+    [dark-1440] › tests/ui/guest-wizard.spec.ts:237:5 › доступность и снимки: dark, 390px ──────────
+  58 passed (6.8m)
+
+# код выхода 1 · 6 мин 50 с

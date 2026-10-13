@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound, unstable_rethrow } from 'next/navigation';
 import { MEMBERSHIP_ROLES, PLATFORM_TIMEZONE, parseMembershipRole } from '@pms/domain';
-import { Page } from '../../../../components/page';
+import { Page, BackCrumb } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { RefreshButton } from '../../../../components/refresh-button';
 import {
@@ -66,6 +66,7 @@ import { ActionsJournal } from '../actions-view';
 // «Проверка» и «Знания» — те же формы, что у «ИИ-продавца» (DESIGN.md §8)
 import '../../../ai-seller/ai-seller.css';
 import '../support.css';
+import { Tabs } from '../../../../components/tabs';
 
 /** Раздел оператора платформы: время обращений — по поясу платформы, а не отдельной гостиницы (С-13) */
 const platformClock = propertyClock(PLATFORM_TIMEZONE);
@@ -131,30 +132,21 @@ export default async function SupportPage({
       title={view ? tab.label : 'Техподдержка'}
       subtitle="ИИ-помощник отвечает тем, кто пишет из стойки и с wetop.ai: диалоги, его знания и сводка за сутки."
       actions={<RefreshButton />}
-      crumbs={view ? <Link href="/platform/support">Техподдержка</Link> : undefined}
+      crumbs={view ? <BackCrumb href="/platform/support">Техподдержка</BackCrumb> : undefined}
     >
       {access.platform && (
-        <nav className="settings-tabs" aria-label="Агент">
-          <Link href="/ai-seller" prefetch={false}>
-            Продавец
-          </Link>
-          <Link href="/platform/support" aria-current="page">
-            Техподдержка
-          </Link>
-        </nav>
+        <Tabs
+          label="Агент"
+          items={[
+            { href: '/ai-seller', label: 'Продавец', current: false },
+            { href: '/platform/support', label: 'Техподдержка', current: true },
+          ]}
+        />
       )}
-      <nav className="settings-tabs" aria-label="Техподдержка">
-        {TABS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={false}
-            aria-current={item.view === view ? 'page' : undefined}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <Tabs
+        label="Техподдержка"
+        items={TABS.map((item) => ({ href: item.href, label: item.label, current: item.view === view }))}
+      />
       <Suspense key={view} fallback={<LoadingState label="Спрашиваем помощника…" />}>
         <SupportScreen
           view={view}

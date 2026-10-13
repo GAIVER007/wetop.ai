@@ -40,6 +40,22 @@ const render = (items: BranchItem[], businesses: BusinessCardView[]) =>
     }),
   );
 describe('organization workspace states', () => {
+  it('separates address and capacity without inventing an operating status', () => {
+    const hotel = {
+      ...item,
+      name: 'Test hotel',
+      address: 'Test street, 12',
+      vertical: 'HOSPITALITY' as const,
+      _count: { inventoryUnits: 88, accommodationTypes: 5 },
+    };
+    const html = render([hotel], []);
+    expect(html).toMatch(/class="org-branch-address"[^>]*>Test street, 12<\/small>/);
+    expect(html).toContain('Номеров и коек: 88');
+    expect(html).toContain('Категорий: 5');
+    expect(html).toContain('aria-label="Открыть объект: Test hotel"');
+    expect(html).not.toContain('class="org-dot"');
+  });
+
   it('keeps the page focused on business cards without lower panels', () => {
     const html = render([item], [card]);
     expect(html).not.toContain('Результаты по объектам');

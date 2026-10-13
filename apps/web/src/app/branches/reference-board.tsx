@@ -240,16 +240,24 @@ export function ReferenceBoard({
                     {group.branches.map((branch) => (
                       <form key={branch.id} action={selectBranch}>
                         <input type="hidden" name="id" value={branch.id} />
-                        <button type="submit">
-                          <span className="org-dot" />
-                          <span>
+                        <button type="submit" aria-label={`Открыть объект: ${branch.name}`}>
+                          <span className="org-branch-symbol">
+                            <Icon name={businessIcons[branch.vertical]} />
+                          </span>
+                          <span className="org-branch-info">
                             <strong>{branch.name}</strong>
-                            <small>
+                            <small
+                              className="org-branch-address"
+                              title={branch.address || undefined}
+                            >
                               {branch.address || 'Адрес не указан'}
-                              {branch.vertical === 'HOSPITALITY'
-                                ? `, ${branch._count.inventoryUnits} номеров и коек, ${branch._count.accommodationTypes} категорий`
-                                : ''}
                             </small>
+                            {branch.vertical === 'HOSPITALITY' && (
+                              <span className="org-branch-capacity">
+                                <span>Номеров и коек: {branch._count.inventoryUnits}</span>
+                                <span>Категорий: {branch._count.accommodationTypes}</span>
+                              </span>
+                            )}
                           </span>
                           <Icon name="chevron" />
                         </button>

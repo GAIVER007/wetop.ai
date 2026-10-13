@@ -1,7 +1,16 @@
 import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
-const day = '2026-10-12';
+// Ближайший понедельник после сегодняшнего дня по поясу филиала стенда (Asia/Almaty): тесты заводят мастеру
+// рабочий понедельник. Дата была зашита как 2026-10-12, и с полуночи 13.10 по Алматы отсутствие на этот день
+// стало прошедшим: список отсутствий показывает только идущие и будущие (`schedule.ts`, `dateTo >= сегодня`)
+const day = (() => {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const d = new Date(`${today}T00:00:00Z`);
+  do d.setUTCDate(d.getUTCDate() + 1);
+  while (d.getUTCDay() !== 1);
+  return d.toISOString().slice(0, 10);
+})();
 const shots = 'reports/mv5-beauty-ui-2026-10-04/screenshots';
 type Fixture = { business: string; otherBusiness: string; locations: string[] };
 const pointer = (business: string, location: string) => `business=${business};location=${location}`;

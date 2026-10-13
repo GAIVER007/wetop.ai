@@ -328,8 +328,9 @@ export class PrismaBarRepository implements BarRepository {
     catch (error) {
       const e = error as { code?: string; meta?: { modelName?: string; target?: string[]; driverAdapterError?: { cause?: { constraint?: { index?: string } } } } };
       const target = e.meta?.target;
-      const sameKey = e.meta?.driverAdapterError?.cause?.constraint?.index === 'bar_sales_property_id_idempotency_key_key' ||
-        (e.meta?.modelName === 'BarSale' && Array.isArray(target) && target.length === 2 && target.includes('property_id') && target.includes('idempotency_key'));
+      // Ключ продажи уникален по филиалу (§44, миграция 102 переименовала индекс property_id → location_id)
+      const sameKey = e.meta?.driverAdapterError?.cause?.constraint?.index === 'bar_sales_location_id_idempotency_key_key' ||
+        (e.meta?.modelName === 'BarSale' && Array.isArray(target) && target.length === 2 && target.includes('location_id') && target.includes('idempotency_key'));
       if (e.code !== 'P2002' || !sameKey) throw error;
       // The failed transaction has rolled back before this scoped reread.
       const replay = await this.prisma.db.$transaction(tx => this.replaySale(tx, propertyId, input));

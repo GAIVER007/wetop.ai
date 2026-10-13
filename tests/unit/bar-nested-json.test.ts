@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { PrismaBarRepository } from '../../apps/api/src/bar/bar.repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
-vi.mock('../../apps/api/src/database/property-ref', () => ({
-  propertyIdRef: async () => '00000000-0000-4000-8000-000000000001',
-}));
+vi.mock('../../apps/api/src/database/property-ref', () => ({ propertyRef: async () => ({ id: '00000000-0000-4000-8000-000000000001', timezone: 'Asia/Almaty' }) }));
+// область бара (§44): гостиничный путь берёт филиал и валюту у объекта
+const property = { findUniqueOrThrow: async () => ({ locationId: '00000000-0000-4000-8000-000000000009', currency: 'USD' }) };
 const product = {
   id: 'product',
   name: 'Synthetic goods',
@@ -15,6 +15,7 @@ describe('Bar nested product JSON boundary', () => {
   it('serializes the real nested product in sale history without precision loss', async () => {
     const repo = new PrismaBarRepository({
       db: {
+        property,
         barSale: {
           findMany: vi
             .fn()
@@ -48,6 +49,7 @@ describe('Bar nested product JSON boundary', () => {
   it('serializes the real nested product in movements without precision loss', async () => {
     const repo = new PrismaBarRepository({
       db: {
+        property,
         $queryRaw: vi
           .fn()
           .mockResolvedValueOnce([{ currency: 'USD' }])

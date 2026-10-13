@@ -1,9 +1,8 @@
 import 'reflect-metadata';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../database/property-ref', () => ({
-  propertyIdRef: async () => '00000000-0000-4000-8000-000000000001',
-  propertyToday: async () => '2026-10-09',
+  propertyRef: async () => ({ id: '00000000-0000-4000-8000-000000000001', timezone: 'Asia/Almaty' }),
 }));
 vi.mock('../accounts/actor', () => ({ auditUserId: () => null }));
 
@@ -14,12 +13,15 @@ import { PrismaBarRepository } from './bar.repository';
  * попадало ни в один периодный отчёт (они отбирают начисления по `service_date`), хотя входило в остаток счёта.
  */
 describe('бар на счёт: дата услуги начисления', () => {
+  afterEach(() => vi.useRealTimers());
   it('начисление создаётся с сегодняшней датой объекта', async () => {
+    // 9 октября, 23:30 по Алматы: по UTC ещё 9-е, по поясу объекта тоже; дата услуги из пояса объекта
+    vi.useFakeTimers({ now: new Date('2026-10-09T18:30:00Z'), toFake: ['Date'] });
     const created: Array<Record<string, unknown>> = [];
     const tx = {
-      // валюта объекта отвечает KZT (D-CUR), сверка истории закупок и замки строк — пусто
+      // валюта филиала отвечает KZT (D-CUR, §44), сверка истории закупок и замки строк — пусто
       $queryRaw: async (strings: TemplateStringsArray) =>
-        strings.join('?').includes('SELECT currency FROM properties') ? [{ currency: 'KZT' }] : [],
+        strings.join('?').includes('SELECT currency FROM locations') ? [{ currency: 'KZT' }] : [],
       barSale: {
         findFirst: async () => null,
         create: async () => ({ id: 'sale-1' }),
@@ -45,7 +47,7 @@ describe('бар на счёт: дата услуги начисления', () 
       db: {
         $transaction: async (fn: (t: unknown) => unknown) => fn(tx),
         // бар на филиале (§44): строки бара пишутся с филиалом объекта
-        property: { findUniqueOrThrow: async () => ({ locationId: '00000000-0000-4000-8000-0000000000f1' }) },
+        property: { findUniqueOrThrow: async () => ({ locationId: '00000000-0000-4000-8000-0000000000f1', currency: 'KZT' }) },
       },
     };
     const repo = new PrismaBarRepository(prisma as never);

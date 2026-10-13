@@ -1,0 +1,46 @@
+# Интеграционные (integration) · 13.10.2026 20:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит 17963a8 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T15-29-34Z-integration-d20e.json' 'tests/integration/bar-restaurant-cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ❯ |integration| tests/integration/bar-restaurant-cash.test.ts (3 tests | 1 failed) 362ms
+   ❯ бар: деньги по направлению филиала (integration) (3)
+     × ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 159ms
+     ✓ салон: склад работает, продажа и оплата закрыты до кассы салона 32ms
+     ✓ филиал ресторана не видит бар салона и наоборот 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-restaurant-cash.test.ts > бар: деньги по направлению филиала (integration) > ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход
+AssertionError: expected { purchasesMinor: '300000', …(9) } to match object { currency: 'KZT', …(2) }
+(16 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "currency": "KZT",
+    "supplierDebtMinor": "200000",
+    "supplierPaidMinor": "100000",
+  }
+
+ ❯ tests/integration/bar-restaurant-cash.test.ts:83:59
+     81|     expect(expense.amount).toBe(100000n);
+     82|     // Правило владельца 13.10.2026: долг поставщику уменьшают только …
+     83|     expect(await as('FOOD_SERVICE', () => repo.report())).toMatchObjec…
+       |                                                           ^
+     84|     await prisma.db.restaurantCashOperation.update({ where: { id: expe…
+     85|     expect(await as('FOOD_SERVICE', () => repo.report())).toMatchObjec…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  08:29:35
+   Duration  1.79s (transform 42%, tests 30%, import 27%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T15-29-34Z-integration-d20e.json
+
+# код выхода 1 · 3 с

@@ -2,7 +2,13 @@ import { cookies, headers } from 'next/headers';
 import type { AuthClientInfo } from './api';
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
 import { lockRequired } from './auth-lock';
-import { SCOPE_COOKIE, scopeCookieOptions } from './scope-pointer';
+import {
+  LAST_BRANCH_COOKIE,
+  SCOPE_COOKIE,
+  lastBranchCookieOptions,
+  pointerLocation,
+  scopeCookieOptions,
+} from './scope-pointer';
 import { publicAuthUrl } from './auth-entry';
 
 // имена сохранены: их зовут действия входа, спеки и посредник
@@ -73,7 +79,11 @@ export async function clearSessionCookie(): Promise<void> {
 
 /** Указатель филиала: значение только из ответа сервера (`GET /branches`, `registration-context`). */
 export async function setScopeCookie(pointer: string): Promise<void> {
-  (await cookies()).set(SCOPE_COOKIE, pointer, scopeCookieOptions(process.env));
+  const jar = await cookies();
+  jar.set(SCOPE_COOKIE, pointer, scopeCookieOptions(process.env));
+  // Запомнить выбор на устройстве: следующий вход откроет этот филиал сам (`/scope/resolve`)
+  const location = pointerLocation(pointer);
+  if (location) jar.set(LAST_BRANCH_COOKIE, location, lastBranchCookieOptions(process.env));
 }
 
 export async function clearScopeCookie(): Promise<void> {

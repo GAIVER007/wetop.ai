@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.10.2026 17:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 333b4d9 (claude/inventory-surplus), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-03-48Z-unit-500a.json' 'packages/domain/src/food/stock.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ✓ |unit| packages/domain/src/food/stock.test.ts (12 tests) 10ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  05:03:49
+   Duration  98ms (transform 54%, tests 23%, import 19%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-03-48Z-unit-500a.json
+
+# код выхода 0 · 1 с

@@ -1,0 +1,68 @@
+# Модульные (unit) · 13.10.2026 17:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 333b4d9 (claude/inventory-surplus), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-03-07Z-unit-8952.json' 'packages/domain/src/food/stock.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ❯ |unit| packages/domain/src/food/stock.test.ts (12 tests | 2 failed) 13ms
+   ✓ количество склада кухни (2)
+     ✓ тысячные доли целым числом, без float 1ms
+     ✓ ноль, отрицательное и четыре знака отклоняются 0ms
+   ✓ стоимость склада совпадает с техкартой §33.1 (2)
+     ✓ граммы по цене за кг и штуки по цене за штуку 0ms
+     ✓ та же функция, что строка техкарты: расхождение невозможно 0ms
+   ✓ FIFO по партиям (2)
+     ✓ сначала ранняя партия, затем следующая, себестоимость по цене каждой 6ms
+     ✓ ниже нуля нельзя, сообщение называет остаток 0ms
+   ✓ инвентаризация (1)
+     ✓ недостача, излишек, совпадение 0ms
+   ✓ разбор форм склада (3)
+     ✓ ингредиент: единица только г, мл, шт 0ms
+     ✓ приход: строки, цена целыми тиынами, даты календарные 1ms
+     ✓ списание требует причину, инвентаризация принимает ноль 0ms
+   ❯ излишек при инвентаризации (Q-KITCHEN-9, ADR-175) (2)
+     × цена: средняя по остатку партий, взвешенная количеством; без остатка нет 2ms
+     × ручная цена в инвентаризации необязательна и в тех же единицах, что у прихода 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/food/stock.test.ts > излишек при инвентаризации (Q-KITCHEN-9, ADR-175) > цена: средняя по остатку партий, взвешенная количеством; без остатка нет
+TypeError: surplusUnitCost is not a function
+ ❯ packages/domain/src/food/stock.test.ts:118:7
+    116|   it('цена: средняя по остатку партий, взвешенная количеством; без ост…
+    117|     expect(
+    118|       surplusUnitCost([
+       |       ^
+    119|         { remaining: 2_000_000n, unitCost: 600_000n },
+    120|         { remaining: 1_000_000n, unitCost: 700_000n },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/food/stock.test.ts > излишек при инвентаризации (Q-KITCHEN-9, ADR-175) > ручная цена в инвентаризации необязательна и в тех же единицах, что у прихода
+AssertionError: expected undefined to be null
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/food/stock.test.ts:130:74
+    128|   it('ручная цена в инвентаризации необязательна и в тех же единицах, …
+    129|     const id = '00000000-0000-4000-8000-000000000001';
+    130|     expect(parseInventory({ productId: id, actualQty: '100' }).unitCos…
+       |                                                                          ^
+    131|     expect(parseInventory({ productId: id, actualQty: '100', unitCost:…
+    132|     expect(() => parseInventory({ productId: id, actualQty: '100', uni…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  05:03:09
+   Duration  134ms (transform 54%, tests 25%, import 17%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-03-07Z-unit-8952.json
+
+# код выхода 1 · 1 с

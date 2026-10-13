@@ -14,6 +14,7 @@ import {
   foodLocal,
   foodObject,
   inventoryDelta,
+  surplusUnitCost,
   milliOf,
   milliText,
   parseInventory,
@@ -454,7 +455,7 @@ export class StockService {
       return productView(p, await this.liveLots(tx, s, p.id));
     });
   }
-  /** Инвентаризация: недостача списывается FIFO, излишек ждёт Q-KITCHEN-9 */
+  /** Инвентаризация: недостача списывается FIFO, излишек приходуется по средней остатка (Q-KITCHEN-9, ADR-175) */
   async inventory(raw: unknown) {
     return this.write('desk', async (tx, s) => {
       const b = parsed(() => parseInventory(raw));
@@ -462,10 +463,44 @@ export class StockService {
       const lots = await this.liveLots(tx, s, p.id);
       const onHand = lots.reduce((sum, l) => sum + milliOf(l.remainingQty), 0n);
       const delta = inventoryDelta(onHand, b.actualQty);
-      if (delta.kind === 'surplus')
-        throw new ConflictException(
-          `Факт больше учёта на ${milliText(delta.milli)} ${p.unit}: оформите излишек приходом с ценой`,
-        );
+      if (delta.kind === 'surplus') {
+        const unitCost =
+          b.unitCost ?? surplusUnitCost(lots.map((l) => ({ remaining: milliOf(l.remainingQty), unitCost: l.unitCost })));
+        if (unitCost === null)
+          throw new ConflictException('На складе пусто: укажите цену излишка, по ней он будет принят');
+        const lot = await tx.kitchenStockLot.create({
+          data: {
+            locationId: s.locationId,
+            productId: p.id,
+            document: 'Инвентаризация',
+            receivedOn: new Date(`${foodLocal(new Date(), s.timezone).date}T00:00:00Z`),
+            receivedQty: milliText(delta.milli),
+            remainingQty: milliText(delta.milli),
+            unitCost,
+            createdById: currentUserId() ?? null,
+          },
+        });
+        const cost = stockCost(delta.milli, p.unit, unitCost);
+        await tx.kitchenStockMovement.create({
+          data: {
+            locationId: s.locationId,
+            productId: p.id,
+            lotId: lot.id,
+            kind: 'INVENTORY',
+            qty: milliText(delta.milli),
+            cost,
+            reason: b.reason ?? 'Инвентаризация: излишек',
+            createdById: currentUserId() ?? null,
+          },
+        });
+        await this.audit(tx, s, p.id, 'kitchen.inventory', {
+          counted: milliText(b.actualQty),
+          surplus: milliText(delta.milli),
+          unitCost: unitCost.toString(),
+          cost: cost.toString(),
+          manualPrice: b.unitCost !== null,
+        });
+      }
       if (delta.kind === 'shortage') {
         const cost = await this.consume(tx, s, p, delta.milli, 'INVENTORY', b.reason ?? 'Инвентаризация');
         await this.audit(tx, s, p.id, 'kitchen.inventory', {

@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 13.10.2026 17:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит 333b4d9 (claude/inventory-surplus), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'инвентаризация'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается FIFO, излишек приходуется по средней (Q-KITCHEN-9) (2.9s)
+  ✘  2 tests/food-ui/stock.spec.ts:133:1 › инвентаризация пустого склада: излишек только с ценой, введённой вручную (6.1s)
+
+
+  1) tests/food-ui/stock.spec.ts:133:1 › инвентаризация пустого склада: излишек только с ценой, введённой вручную 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByRole('dialog')
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        14 × locator resolved to <dialog open="" aria-labelledby="_r_0_" class="ui-overlay ui-drawer  food-drawer">…</dialog>
+           - unexpected value "visible"
+
+
+      142 |   await price.fill('2400');
+      143 |   await dialog.getByRole('button', { name: 'Сверить', exact: true }).click();
+    > 144 |   await expect(dialog).not.toBeVisible();
+          |                            ^
+      145 |   await expect(row(page, 'Сливки 33%')).toContainText('500 мл');
+      146 | });
+      147 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/stock.spec.ts:144:28
+
+    Error Context: test-results/stock-инвентаризация-пусто-76190-о-с-ценой-введённой-вручную/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-инвентаризация-пусто-76190-о-с-ценой-введённой-вручную/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-инвентаризация-пусто-76190-о-с-ценой-введённой-вручную/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/stock.spec.ts:133:1 › инвентаризация пустого склада: излишек только с ценой, введённой вручную 
+  1 passed (15.3s)
+
+# код выхода 1 · 16 с

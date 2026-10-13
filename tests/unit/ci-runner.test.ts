@@ -100,7 +100,7 @@ describe('свой раннер CI', () => {
     const auth = withoutComments(job('ui-auth'));
     expect(auth).toMatch(/needs: fast/);
     expect(auth).toContain('tests/ui/playwright.auth.config.ts --workers=2');
-    expect(withoutComments(job('ui-shard'))).toContain('--workers=2');
+    expect(withoutComments(job('ui-shard'))).toContain('--workers=1');
     // часть набора выбирает харнесс, а не --shard: тот отдавал первую часть целиком одному из двух worker
     expect(withoutComments(job('ui-shard'))).toContain('UI_SHARD: ${{ matrix.shard }}/3');
     expect(withoutComments(job('ui-shard'))).not.toContain('--shard');

@@ -58,7 +58,7 @@ export function ReferenceBoard({
     ...group,
     card: businesses.find((b) => b.id === group.id) ?? {
       id: group.id,
-      name: businessLabels[group.vertical],
+      name: group.branches[0]?.name ?? businessLabels[group.vertical],
       vertical: group.vertical,
       description: null,
       coverUrl: null,

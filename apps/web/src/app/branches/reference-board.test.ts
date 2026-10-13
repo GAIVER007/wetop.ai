@@ -42,6 +42,19 @@ const render = (items: BranchItem[], businesses: BusinessCardView[]) =>
     }),
   );
 describe('organization workspace states', () => {
+  it('keeps a configured existing hotel when the older API omits card metadata', () => {
+    const existing = {
+      ...item,
+      name: 'Configured hotel',
+      vertical: 'HOSPITALITY' as const,
+      _count: { inventoryUnits: 88, accommodationTypes: 5 },
+    };
+    const html = render([existing], []);
+    expect(html).toContain('<h2 title="Configured hotel">Configured hotel</h2>');
+    expect(html).toContain('Configured hotel');
+    expect(html).toContain('value="object"');
+    expect(html).toContain('88');
+  });
   it('starts with a compact project and one object without direction filters', () => {
     const html = render([item], [card]);
     expect(html).toContain('org-reference--single');

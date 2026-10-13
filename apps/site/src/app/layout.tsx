@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans, Manrope } from 'next/font/google';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
 import { AuthDialog } from '../components/auth-dialog';
+import { DevAgentation } from '../components/dev-agentation';
 import { SiteFooter } from '../components/site-footer';
 import { SiteHeader } from '../components/site-header';
 import { getDictionary, localeInfo } from '../i18n';
@@ -120,6 +121,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </noscript>
         {/* Чат ИИ-помощника (ТЗ П2): анонимный, адрес — assistantUrl в site.config.ts */}
         {assistantSrc && <Script src={assistantSrc} />}
+        <DevAgentation />
       </body>
     </html>
   );

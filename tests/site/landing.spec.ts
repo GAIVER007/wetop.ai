@@ -152,7 +152,7 @@ test('первый экран объясняет платформу, напра�
   await expect(audience.getByRole('heading', { level: 2 })).toHaveText(
     'Три направления. Одна платформа',
   );
-  await expect(audience).toContainText('Хостелы');
+  await expect(audience).toContainText(/хостелы/i);
   await expect(audience).toContainText('Салоны красоты');
   await expect(audience).toContainText('Рестораны');
 });

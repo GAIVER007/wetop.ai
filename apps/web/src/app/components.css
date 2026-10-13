@@ -3143,3 +3143,44 @@
     }
   }
 }
+
+/* Таблица карточками на телефоне (`Table stack`): одна реализация вместо копий в разделах (мастер-проход UI, этап 3) */
+@layer components {
+  @media (max-width: 600px) {
+    .tbl--stack thead {
+      display: none;
+    }
+    .tbl--stack,
+    .tbl--stack tbody,
+    .tbl--stack tr {
+      display: grid;
+      gap: var(--space-2);
+    }
+    .tbl--stack tr {
+      padding: var(--space-4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--surface);
+    }
+    .tbl--stack td {
+      display: grid;
+      grid-template-columns: minmax(96px, 35%) minmax(0, 1fr);
+      gap: var(--space-2);
+      padding: 0;
+      border: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    .tbl--stack td::before {
+      content: attr(data-label);
+      color: var(--muted);
+      font-size: var(--text-sm);
+    }
+    .tbl--stack td:not([data-label])::before {
+      content: none;
+    }
+    .tbl--stack td:not([data-label]) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

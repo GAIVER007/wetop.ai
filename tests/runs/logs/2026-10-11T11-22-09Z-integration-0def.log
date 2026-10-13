@@ -1,0 +1,60 @@
+# Интеграционные (integration) · 11.10.2026 16:22 Алматы · MacBook-Air-Urij.local
+# коммит 540d721 (codex/ai-seller-wizard-chat-20261011), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-22-09Z-integration-0def.json' '--config' 'tests/wizard-scan.config.ts' 'tests/integration/wizard-chat.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ❯ |integration| tests/integration/wizard-chat.test.ts (3 tests | 3 failed) 460ms
+   ❯ guest chat quota and delivery (3)
+     × last slot has one winner; replay costs nothing and changed text conflicts 378ms
+     × workers deduplicate, persist history and release a technical failure exactly once 18ms
+     × rejects stale generation and discards a late response after editing 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/wizard-chat.test.ts > guest chat quota and delivery > last slot has one winner; replay costs nothing and changed text conflicts
+TypeError: service.message is not a function
+ ❯ tests/integration/wizard-chat.test.ts:35:79
+     33|   it('last slot has one winner; replay costs nothing and changed text …
+     34|     const d = await draft(4);
+     35|     const results = await Promise.allSettled(['one', 'two'].map(id => …
+       |                                                                               ^
+     36|     expect(results.filter(r => r.status === 'fulfilled')).toHaveLength…
+     37|     const refused = results.find(r => r.status === 'rejected');
+ ❯ tests/integration/wizard-chat.test.ts:35:61
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/wizard-chat.test.ts > guest chat quota and delivery > workers deduplicate, persist history and release a technical failure exactly once
+Error: Cannot find module '/apps/api/src/wizard/wizard-chat-worker' imported from /Users/urijzapojnov/wetop-ai-seller-20261011/tests/integration/wizard-chat.test.ts
+ ❯ tests/integration/wizard-chat.test.ts:47:34
+     45|   });
+     46|   it('workers deduplicate, persist history and release a technical fai…
+     47|     const { WizardChatWorker } = await import('../../apps/api/src/wiza…
+       |                                  ^
+     48|     const d = await draft();
+     49|     const send = async () => ({ status: 'ok', answer: 'Доступны стрижк…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/wizard-chat.test.ts > guest chat quota and delivery > rejects stale generation and discards a late response after editing
+Error: Cannot find module '/apps/api/src/wizard/wizard-chat-worker' imported from /Users/urijzapojnov/wetop-ai-seller-20261011/tests/integration/wizard-chat.test.ts
+ ❯ tests/integration/wizard-chat.test.ts:65:34
+     63|   });
+     64|   it('rejects stale generation and discards a late response after edit…
+     65|     const { WizardChatWorker } = await import('../../apps/api/src/wiza…
+       |                                  ^
+     66|     const d = await draft();
+     67|     await service.message(d.guestToken, input('late'), 'a'.repeat(64));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  15:22:11
+   Duration  2.41s (transform 54%, import 25%, tests 20%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-22-09Z-integration-0def.json
+
+# код выхода 1 · 4 с

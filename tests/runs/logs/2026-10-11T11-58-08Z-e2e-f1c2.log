@@ -1,0 +1,111 @@
+# Сквозные (e2e) · 11.10.2026 16:58 Алматы · MacBook-Air-Urij.local
+# коммит 38e875e (codex/ai-seller-wizard-chat-20261011)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts'
+[WebServer] (node:80280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80322) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:80374) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 526ms. If /Users/urijzapojnov/wetop-ai-seller-20261011/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 2 workers
+
+(node:80381) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:80382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (6.4s)
+  ✘   1 tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (6.4s)
+
+
+  1) tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload 
+
+    Test was interrupted.
+
+    Error: page.reload: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - waiting for navigation until "load"
+
+
+      65 |   expect(apiMoney).toBe(1200000n);
+      66 |   await expect(page.getByRole('main').getByTestId('revenue-KZT')).toHaveText(/^12\s000,00 KZT$/);
+    > 67 |   await page.reload();
+         |              ^
+      68 |   await expect(page.getByRole('main').getByTestId('period-DONE')).toHaveText('1');
+      69 | });
+      70 | test('MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance', async ({
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/branches-ui/analytics.spec.ts:67:14
+
+    Error Context: test-results/analytics-MV9-Beauty-numbe-4df35-ase-aggregates-after-reload/error-context.md
+
+    Error Context: test-results/analytics-MV9-Beauty-numbe-4df35-ase-aggregates-after-reload/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-Beauty-numbe-4df35-ase-aggregates-after-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-Beauty-numbe-4df35-ase-aggregates-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается 
+
+    Test was interrupted.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('table', { name: 'Статистика по филиалам' }).getByRole('rowheader')
+    - Expected  - 0
+    + Received  + 1
+
+      Array [
+        "Тестовый отель",
+    +   "Тестовый отель",
+      ]
+
+    Call log:
+      - Expect "toHaveText" getByRole('table', { name: 'Статистика по филиалам' }).getByRole('rowheader') with timeout 5000ms
+      - waiting for getByRole('table', { name: 'Статистика по филиалам' }).getByRole('rowheader')
+        2 × locator resolved to 2 elements
+      - Test ended.
+
+
+      63 |     // Смешанная организация: в гостиничной сводке только отель, салон и рестораны не показываются нулями
+      64 |     const summary = page.getByRole('table', { name: 'Статистика по филиалам' });
+    > 65 |     await expect(summary.getByRole('rowheader')).toHaveText(['Тестовый отель']);
+         |                                                  ^
+      66 |   });
+      67 |
+      68 |   test('устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране', async ({
+        at /Users/urijzapojnov/wetop-ai-seller-20261011/tests/branches-ui/branches.spec.ts:65:50
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-a9319-ый-филиал-сам-не-выбирается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-a9319-ый-филиал-сам-не-выбирается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-a9319-ый-филиал-сам-не-выбирается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 interrupted
+    tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload 
+    tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается 
+  37 did not run
+
+# код выхода 130 · 31 с

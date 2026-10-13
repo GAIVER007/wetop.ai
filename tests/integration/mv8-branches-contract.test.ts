@@ -245,6 +245,21 @@ it('real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned 
     expect(replay.status).toBe(201);
     expect(await replay.json()).toEqual(created);
     expect(await db.location.count({ where: { id: createId } })).toBe(1);
+    expect(saved).toMatchObject({
+      name: payload.name,
+      currency: payload.currency,
+      timezone: payload.timezone,
+    });
+    expect(
+      await db.auditLog.count({
+        where: {
+          organizationId: orgA,
+          userId: user,
+          entityId: createId,
+          action: 'location.restaurant_created',
+        },
+      }),
+    ).toBe(1);
   } finally {
     await app?.close();
     await db.$transaction(async (tx) => {

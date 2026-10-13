@@ -77,7 +77,9 @@ test('первый экран один: сценарий (поддержка «�
   expect((first.config as Record<string, string>).botType).toBe('sales');
   // домен .kz подставил тенге и пояс Алматы
   expect((first.config as Record<string, string>).currency).toBe('KZT');
-  expect(mock.calls.some((c) => c.operation === 'event' && c.type === 'source_submitted')).toBe(true);
+  expect(mock.calls.some((c) => c.operation === 'event' && c.type === 'source_submitted')).toBe(
+    true,
+  );
 });
 
 test('неверный адрес: ошибка у поля, мастер не уходит дальше и ввод на месте', async ({ page }) => {
@@ -112,7 +114,9 @@ test('без сайта: ссылка ведёт на проверку, ниша
   await page.getByLabel('Имя ассистента').fill('Алина');
   await expect(page.getByRole('complementary', { name: 'Превью агента' })).toContainText('Алина');
   await next.click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Пока мы готовим бота');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Соберите помощника по вашим данным',
+  );
   const last = saves(mock).at(-1)!;
   expect(last.step).toBe('generating');
   expect((last.config as Record<string, string>).niche).toBe('Стоматология');
@@ -148,7 +152,9 @@ test('опрос: ответы уходят, «Пропустить» закры
   await page.getByRole('button', { name: 'Далее', exact: true }).click();
   await page.getByRole('radio', { name: 'Google' }).click();
   await page.getByRole('button', { name: 'Готово', exact: true }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Спасибо, данные сохранены');
+  await expect(
+    page.getByRole('heading', { level: 2, name: 'Спасибо, данные сохранены' }),
+  ).toBeVisible();
   const survey = mock.calls.find((c) => c.operation === 'survey')!;
   expect(survey.answers).toEqual({ goal: 'Больше броней', leadsPerDay: '10-50', source: 'Google' });
   await expect(page.getByRole('button', { name: 'Протестировать бота' })).toBeDisabled();
@@ -157,7 +163,9 @@ test('опрос: ответы уходят, «Пропустить» закры
   const again = await mockWizard(page, { lastStep: 'generating' });
   await page.reload();
   await page.getByRole('button', { name: 'Пропустить' }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Спасибо, данные сохранены');
+  await expect(
+    page.getByRole('heading', { level: 2, name: 'Спасибо, данные сохранены' }),
+  ).toBeVisible();
   expect(again.calls.some((c) => c.operation === 'survey')).toBe(false);
 });
 
@@ -235,7 +243,11 @@ for (const theme of ['light', 'dark'] as const) {
           'review',
           {
             lastStep: 'review',
-            wizardData: { businessName: 'Хостел «Тест»', niche: 'Хостел', foundFields: 'businessName' },
+            wizardData: {
+              businessName: 'Хостел «Тест»',
+              niche: 'Хостел',
+              foundFields: 'businessName',
+            },
           },
         ],
         ['build', { lastStep: 'generating' }],
@@ -245,14 +257,20 @@ for (const theme of ['light', 'dark'] as const) {
         await mockWizard(page, state);
         await page.goto('/create');
         await expect(page.getByRole('main')).toBeVisible();
-        await page.getByRole('button', { name: 'Скрыть' }).click({ timeout: 1000 }).catch(() => undefined);
+        await page
+          .getByRole('button', { name: 'Скрыть' })
+          .click({ timeout: 1000 })
+          .catch(() => undefined);
         const scan = await new AxeBuilder({ page }).analyze();
         expect(scan.violations.map((v) => `${name}: ${v.id}`)).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
           true,
         );
         mkdirSync(report, { recursive: true });
-        await page.screenshot({ path: `${report}/${name}-${theme}-${width}.png`, caret: 'initial' });
+        await page.screenshot({
+          path: `${report}/${name}-${theme}-${width}.png`,
+          caret: 'initial',
+        });
       }
     });
   }

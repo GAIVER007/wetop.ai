@@ -17,25 +17,15 @@ export function FinancialWidgets({ summary }: { summary: OrganizationSummary | n
     <>
       <div className="org-kpis org-financial-kpis">
         <div>
-          <span className="org-symbol">
-            <Icon name="money" />
+          <span className="org-symbol teal">
+            <Icon name="cash" />
           </span>
           <section>
-            <p>Выручка (оплаты)</p>
+            <p>Расходы</p>
             <strong className="org-money">
-              {amounts(summary?.currencies ?? [], 'receiptsMinor')}
+              {amounts(summary?.currencies ?? [], 'expensesMinor')}
             </strong>
-            <small>Оплаты за выбранный месяц</small>
-          </section>
-        </div>
-        <div>
-          <span className="org-symbol purple">
-            <Icon name="booking" />
-          </span>
-          <section>
-            <p>Оплаченные заказы</p>
-            <strong>{summary ? summary.orders : 'Нет данных'}</strong>
-            <small>Бронирования и заказы</small>
+            <small>Учтённые расходы за месяц</small>
           </section>
         </div>
         <div>
@@ -51,15 +41,25 @@ export function FinancialWidgets({ summary }: { summary: OrganizationSummary | n
           </section>
         </div>
         <div>
-          <span className="org-symbol teal">
-            <Icon name="inventory" />
+          <span className="org-symbol purple">
+            <Icon name="booking" />
           </span>
           <section>
-            <p>Расходы</p>
+            <p>Оплаченные заказы</p>
+            <strong>{summary ? summary.orders : 'Нет данных'}</strong>
+            <small>Бронирования и заказы</small>
+          </section>
+        </div>
+        <div>
+          <span className="org-symbol">
+            <Icon name="money" />
+          </span>
+          <section>
+            <p>Доход от оплат</p>
             <strong className="org-money">
-              {amounts(summary?.currencies ?? [], 'expensesMinor')}
+              {amounts(summary?.currencies ?? [], 'receiptsMinor')}
             </strong>
-            <small>Включая выплаты зарплат</small>
+            <small>Поступившие оплаты за месяц</small>
           </section>
         </div>
       </div>

@@ -1,0 +1,17 @@
+# Модульные (unit) · 13.10.2026 23:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит e8bfc4f (codex/organizations-card-editor), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-31-25Z-unit-72a7.json' 'apps/web/src/app/branches/financial-widgets.test.ts' 'tests/unit/design-slop.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |unit| apps/web/src/app/branches/financial-widgets.test.ts (1 test) 23ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 23ms
+
+ Test Files  2 passed (2)
+      Tests  19 passed (19)
+   Start at  11:31:28
+   Duration  967ms (import 80%, transform 15%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T18-31-25Z-unit-72a7.json
+
+# код выхода 0 · 4 с

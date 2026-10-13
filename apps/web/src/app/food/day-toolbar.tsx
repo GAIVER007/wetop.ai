@@ -33,6 +33,7 @@ export function DayToolbar({
       {/* день: общий DateBar (MV8.5 DS1c); переход сразу при смене даты */}
       <DateBar
         compact
+        className="rest-day-bar"
         date={data.date}
         onPrevious={() => go(shiftDate(data.date, -1))}
         onNext={() => go(shiftDate(data.date, 1))}

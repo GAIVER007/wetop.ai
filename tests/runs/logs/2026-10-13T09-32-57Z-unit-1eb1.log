@@ -1,0 +1,113 @@
+# Модульные (unit) · 13.10.2026 14:32 Алматы · MacBook-Air-Urij.local
+# коммит 66fe9e5 (claude/scope-remember-branch-20261013), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-32-57Z-unit-1eb1.json' 'apps/web/src/lib/scope-resolve.test.ts' 'apps/web/src/app/scope/resolve/route.test.ts' 'apps/web/src/lib/session.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-urijzapojnov-Documents-ChatGPT-WETOP/a8708228-98f1-45e4-a395-95f6ac3385d1/scratchpad/scope-wt
+
+ ❯ |unit| apps/web/src/lib/session.test.ts (2 tests | 1 failed) 6ms
+   ✓ выход снимает и сессию, и указатель филиала: следующий вход на этом устройстве начинает с чистого выбора 1ms
+   × указатель ставится одним помощником с теми же признаками, что сессия 4ms
+ ❯ |unit| apps/web/src/lib/scope-resolve.test.ts (10 tests | 1 failed) 8ms
+   ✓ нет доступных филиалов: прежний путь настройки, указатель не ставится 1ms
+   ✓ один филиал: выбирается сам, указатель только из ответа сервера 1ms
+   ✓ несколько филиалов: никогда не выбирается первый, человек выбирает на /branches 0ms
+   × несколько филиалов: тот, что человек выбирал последним, выбирается сам, если он ещё доступен 4ms
+   ✓ запомненный филиал, которого нет в ответе сервера, не выбирается: человек выбирает сам 0ms
+   ✓ next чужого направления заменяется стартовой страницей направления 0ms
+   ✓ /today общий для всех направлений: сохраняется у салона и ресторана (MV8) 0ms
+   ✓ next своего направления и общие разделы сохраняются 0ms
+   ✓ next только безопасный локальный путь 0ms
+   ✓ устаревший указатель: кука есть, а /auth/me не подтвердил ни Business, ни филиал 0ms
+ ❯ |unit| apps/web/src/app/scope/resolve/route.test.ts (5 tests | 1 failed) 17ms
+   ✓ сначала снимает прежний указатель, затем ставит единственный филиал и ведёт в его раздел 12ms
+   ✓ несколько филиалов: указатель не ставится, человек выбирает на /branches 0ms
+   ✓ нет филиалов: прежний путь настройки 0ms
+   ✓ без сессии: на вход, указатель не ставится 0ms
+   × несколько филиалов: последний выбранный на этом устройстве выбирается сам и запоминается снова 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/scope-resolve.test.ts > несколько филиалов: тот, что человек выбирал последним, выбирается сам, если он ещё доступен
+AssertionError: expected { kind: 'choose', target: '/branches' } to deeply equal { kind: 'select', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "kind": "select",
+-   "pointer": "business=33333333-3333-4333-8333-333333333333;location=44444444-4444-4444-8444-444444444444",
+-   "target": "/today",
++   "kind": "choose",
++   "target": "/branches",
+  }
+
+ ❯ apps/web/src/lib/scope-resolve.test.ts:35:44
+     33| it('несколько филиалов: тот, что человек выбирал последним, выбирается…
+     34|   const items = [branch('HOSPITALITY'), branch('BEAUTY', B2, L2)];
+     35|   expect(decideScope(items, '/today', L2)).toEqual({
+       |                                            ^
+     36|     kind: 'select',
+     37|     pointer: `business=${B2};location=${L2}`,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/session.test.ts > указатель ставится одним помощником с теми же признаками, что сессия
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'wetop_last_branch', 'l', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   "wetop_last_branch",
+-   "l",
+-   ObjectContaining {
++   "wetop_scope",
++   "business=b;location=l",
++   {
+      "httpOnly": true,
+-     "maxAge": Any<Number>,
+      "path": "/",
++     "sameSite": "lax",
+      "secure": true,
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/lib/session.test.ts:25:19
+     23|   });
+     24|   // Выбор запоминается на устройстве: следующий вход сам откроет этот…
+     25|   expect(jar.set).toHaveBeenCalledWith(
+       |                   ^
+     26|     'wetop_last_branch',
+     27|     'l',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/scope/resolve/route.test.ts > несколько филиалов: последний выбранный на этом устройстве выбирается сам и запоминается снова
+AssertionError: expected '/branches' to be '/finance' // Object.is equality
+
+Expected: "/finance"
+Received: "/branches"
+
+ ❯ apps/web/src/app/scope/resolve/route.test.ts:77:33
+     75|   } as never);
+     76|   jar.get.mockImplementation((name: string) => (name === 'wetop_last_b…
+     77|   expect(await run('/finance')).toBe('/finance');
+       |                                 ^
+     78|   expect(jar.set).toHaveBeenCalledWith('wetop_scope', `business=${B};l…
+     79|   expect(jar.set).toHaveBeenCalledWith(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  3 failed | 14 passed (17)
+   Start at  13:33:01
+   Duration  208ms (transform 72%, import 14%, tests 10%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-32-57Z-unit-1eb1.json
+
+# код выхода 1 · 3 с

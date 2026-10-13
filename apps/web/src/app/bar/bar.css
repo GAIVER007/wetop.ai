@@ -820,6 +820,19 @@
     }
   }
   @media (max-width: 600px) {
+    /* плитки в две колонки: значок 36 px съедал место, подписи обрезались многоточием (13.10.2026) */
+    .bar-kpi {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .bar-kpi-icon {
+      display: none;
+    }
+    .bar-kpi-label {
+      white-space: normal;
+    }
+    .bar-kpi-hint {
+      grid-column: 1;
+    }
     .bar-inline,
     .bar-inline--folio,
     .bar-card-writeoff {

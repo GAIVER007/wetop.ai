@@ -19,6 +19,12 @@ export interface DiningTable {
   active: boolean;
   /** Статус «Уборка» на плане зала (§33.3) */
   needsCleaning?: boolean;
+  /** Схема зала (§42): центр на полотне зоны 0–1000; null значит «не расставлен» */
+  posX?: number | null;
+  posY?: number | null;
+  shape?: 'ROUND' | 'SQUARE' | 'RECT' | null;
+  scale?: number;
+  rotation?: number;
 }
 export interface ServicePeriod {
   id: string;
@@ -315,6 +321,16 @@ export interface FoodEmployee {
   /** §39: рейтинг по оценкам гостей; average null, пока оценок нет */
   rating?: { average: number | null; count: number };
 }
+/** График смен (Q-REST-11): неделя с понедельника, у выходного дня список пуст */
+export interface FoodShiftWeekDay {
+  weekday: number;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+}
+export interface FoodShiftRow {
+  id: string;
+  name: string;
+  week: FoodShiftWeekDay[];
+}
 export type PayModel = 'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT' | 'BONUS_ONLY';
 export interface PayrollRow {
   employeeId: string;
@@ -417,6 +433,8 @@ export interface FoodPeriodReport {
   to: string;
   currency: string;
   ordersCount: number;
+  /** гости закрытых заказов периода */
+  guestsCount?: number;
   revenueMinor: string;
   averageCheckMinor: string | null;
   payments: Array<{ method: string; amountMinor: string; count: number }>;

@@ -5,6 +5,7 @@ import { loadErrorProps } from '../../lib/load-error';
 import { restaurantApi } from '../../lib/food-api';
 import { PayrollBoard } from '../food/payroll-board';
 import { restaurantShell } from '../food/restaurant-load';
+import { StaffTabs } from '../food/staff-tabs';
 import '../food/food.css';
 import '../food/restaurant.css';
 
@@ -25,6 +26,7 @@ export default async function PayrollPage({
         title="Зарплата и финансы"
         subtitle="Оклады, процент от заказов, премии и штрафы. Выплата уходит расходом из кассы"
       >
+        <StaffTabs current="payroll" />
         <div key={shell.scopeKey}>
           <PayrollBoard
             scopeKey={shell.scopeKey}

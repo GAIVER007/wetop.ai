@@ -47,7 +47,7 @@ export async function deskShell(): Promise<DeskShell> {
       typeof c.locationId !== 'string' ||
       !c.locationId
     )
-      return { ...shell, access: UNKNOWN_SHELL.access };
+      return { ...shell, access: UNKNOWN_SHELL.access, branchNeeded: true };
     return { ...shell, scopeKey: `${c.businessId}:${c.locationId}` };
   } catch (error) {
     unstable_rethrow(error);

@@ -1,0 +1,51 @@
+# Сквозные (e2e) · 13.10.2026 13:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 31ed391 (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'real API screenshots'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:93203) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '164053570'
+[WebServer] }
+  ✘  1 tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe (41.5s)
+
+
+  1) tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe ─────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      197 |         expect(
+      198 |           await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    > 199 |         ).toBe(true);
+          |           ^
+      200 |         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      201 |       }
+      202 |       await page.goto(`/floor-plan?date=${date}&time=19:00`);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/food-ui/food.spec.ts:199:11
+
+    Error Context: test-results/food-real-API-screenshots-keyboard-and-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe ──────────────────────
+
+# код выхода 1 · 54 с

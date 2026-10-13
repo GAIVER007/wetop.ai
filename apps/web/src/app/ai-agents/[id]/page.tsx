@@ -25,7 +25,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
   }
   if (!agent) {
     return (
-      <Page title="AI-продавец" crumbs={<BackCrumb href="/ai-agents">ИИ-продавцы</BackCrumb>}>
+      <Page title="ИИ-продавец" crumbs={<BackCrumb href="/ai-agents">ИИ-продавцы</BackCrumb>}>
         <LoadError testId="agent-error" title="Не удалось загрузить агента" {...loadErrorProps(failure)} />
       </Page>
     );

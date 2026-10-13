@@ -1,0 +1,42 @@
+# Сквозные (e2e) · 13.10.2026 13:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 776f11f (claude/restaurant-shifts)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'график смен'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/food-ui/restaurant.spec.ts:619:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода (568ms)
+
+
+  1) tests/food-ui/restaurant.spec.ts:619:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода 
+
+    TypeError: Cannot read properties of undefined (reading 'find')
+
+      620 |   const { headers, waiter } = await seed(page, request);
+      621 |   const shifts = async () => (await (await request.get(`${api}/food-service/shifts`, { headers })).json()).employees;
+    > 622 |   const empty = (await shifts()).find((e: { id: string }) => e.id === waiter.id);
+          |                                  ^
+      623 |   expect(empty.week).toHaveLength(7);
+      624 |   expect(empty.week.every((d: { intervals: unknown[] }) => d.intervals.length === 0)).toBe(true);
+      625 |   const bad = await request.put(`${api}/food-service/employees/${waiter.id}/working-hours`, {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/restaurant.spec.ts:622:34
+
+    Error Context: test-results/restaurant-график-смен-Q-R-f9109-правка-часов-проверка-ввода/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-график-смен-Q-R-f9109-правка-часов-проверка-ввода/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-график-смен-Q-R-f9109-правка-часов-проверка-ввода/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:619:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода 
+
+# код выхода 1 · 10 с

@@ -453,6 +453,17 @@ export async function AttentionCard({
       href: `${period}&debts=overdue#debts`,
       tone: 'danger',
     });
+  // Уборка в видимом списке (13.10.2026): без неё «Все задачи 86» не сходилось с пунктами списка
+  const dirty = board?.rows.filter((r) => r.unit.housekeepingStatus === 'DIRTY').length ?? 0;
+  if (dirty > 0)
+    rows.push({
+      key: 'dirty',
+      count: dirty,
+      title: 'Нужна уборка',
+      caption: pluralRu(dirty, ['место ждёт уборки', 'места ждут уборки', 'мест ждут уборки']),
+      href: '/chessboard',
+      tone: 'warning',
+    });
   if (lowDays.length > 0)
     rows.push({
       key: 'low-load',

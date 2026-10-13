@@ -19,6 +19,7 @@ import {
   birthdayInDays,
   parseCustomerMarks,
   parseFoodCatalog,
+  parseAreaLayout,
   parseFoodCreate,
   timeOffWindow,
   type FoodCatalogKind,
@@ -314,6 +315,24 @@ export class FoodService {
         before,
       );
       return catalogView(row);
+    });
+  }
+  /** Схема зала (§42): расстановка зоны одним запросом, каждый стол обязан быть из этой зоны */
+  async setLayout(areaIdRaw: string, raw: unknown) {
+    return this.write('property', async (tx, s) => {
+      const areaId = parsed(() => foodId(areaIdRaw));
+      const layout = parsed(() => parseAreaLayout(raw));
+      const area = await tx.diningArea.findFirst({ where: { id: areaId, locationId: s.locationId } });
+      if (!area) throw new NotFoundException('Зона не найдена');
+      const owned = await tx.diningTable.count({ where: { areaId, id: { in: layout.map((t) => t.id) } } });
+      if (owned !== layout.length) throw new BadRequestException('Стол не из этой зоны');
+      for (const t of layout)
+        await tx.diningTable.update({
+          where: { id: t.id },
+          data: { posX: t.posX, posY: t.posY, shape: t.shape, scale: t.scale, rotation: t.rotation },
+        });
+      await this.audit(tx, s, areaId, 'food.area.layout.set', { tables: layout.length });
+      return { tables: layout };
     });
   }
   async customers(query: unknown) {

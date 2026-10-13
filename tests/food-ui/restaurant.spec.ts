@@ -262,7 +262,7 @@ test('кухня: колонки KDS и переходы кнопками', asyn
   await expect(cooking.getByRole('listitem')).toHaveText('Паста Карбонара×1');
   await cooking.getByRole('button', { name: 'Готово' }).click();
   const ready = page.getByRole('region', { name: 'Готово' });
-  await ready.getByRole('button', { name: 'Подать' }).click();
+  await ready.getByRole('button', { name: 'Отметить как выдано' }).click();
   await expect(newCol.getByText('Пусто')).toBeVisible();
   await expect(page.getByRole('region', { name: 'Задерживаются' })).toContainText('Кухня успевает');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
@@ -337,6 +337,11 @@ test('бронирования: шкала по столам, бронь пол�
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новая бронь' })).toBeVisible();
   await expect(dialog.locator('select[name="tableId"]')).toHaveValue(table.id);
+  // полоса шагов макета (экран 4): «Основное» заполнено датой, временем и периодом, «Стол» выбран кликом
+  const steps = dialog.getByRole('list', { name: 'Шаги брони' });
+  await expect(steps.getByRole('listitem').nth(0)).toHaveAttribute('data-done', 'true');
+  await expect(steps.getByRole('listitem').nth(2)).toHaveAttribute('data-done', 'true');
+  await expect(steps.getByRole('listitem').nth(1)).toHaveAttribute('aria-current', 'step');
   // подбор столов по макету (экран 4): на 19:00 стол 7 занят бронью Ольги, свободных нет
   await dialog.getByLabel('Время', { exact: true }).fill('19:00');
   await expect(dialog.getByRole('heading', { name: 'Доступные столы (0)' })).toBeVisible();
@@ -500,6 +505,7 @@ test('отчёт за период: выручка, средний чек, оп�
   expect(res.ok()).toBe(true);
   const r = await res.json();
   expect(r.ordersCount).toBe(2);
+  expect(r.guestsCount).toBe(4);
   expect(r.revenueMinor).toBe('266000');
   expect(r.averageCheckMinor).toBe('133000');
   expect(r.payments).toEqual([
@@ -614,6 +620,105 @@ test('оценка по QR (§40): ссылка смены, страница г�
   for (let i = 0; i < 121; i++) statuses.push((await publicGet('y'.repeat(43), '203.0.113.9')).status());
   expect(statuses.slice(0, 120).every((s) => s === 404)).toBe(true);
   expect(statuses[120]).toBe(429);
+});
+
+test('график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода', async ({ page, request }) => {
+  const { headers, waiter } = await seed(page, request);
+  const shifts = async () => (await (await request.get(`${api}/food-service/shifts`, { headers })).json()).employees;
+  const empty = (await shifts()).find((e: { id: string }) => e.id === waiter.id);
+  expect(empty.week).toHaveLength(7);
+  expect(empty.week.every((d: { intervals: unknown[] }) => d.intervals.length === 0)).toBe(true);
+  const bad = await request.put(`${api}/food-service/employees/${waiter.id}/working-hours`, {
+    headers,
+    data: { intervals: [{ weekday: 1, timeFrom: '18:00', timeTo: '10:00' }] },
+  });
+  expect(bad.status()).toBe(400);
+
+  await page.goto('/employees');
+  await page.getByRole('link', { name: 'График смен' }).click();
+  await expect(page).toHaveURL(/\/employees\/shifts$/);
+  const line = page.locator('tbody tr', { hasText: waiter.name });
+  await expect(line).toContainText('Выходной');
+  await line.getByRole('button', { name: 'Изменить график' }).click();
+  const dialog = page.getByRole('dialog');
+  const monday = dialog.getByRole('group', { name: 'Понедельник' });
+  await monday.getByRole('button', { name: 'Сделать рабочим' }).click();
+  await monday.getByLabel('Понедельник: начало').fill('10:00');
+  await monday.getByLabel('Понедельник: конец').fill('18:00');
+  await dialog.getByRole('button', { name: 'Сохранить график' }).click();
+  await expect(dialog.getByRole('status')).toContainText('График сохранён');
+  await page.keyboard.press('Escape');
+  await expect(line).toContainText('10:00–18:00');
+  const saved = (await shifts()).find((e: { id: string }) => e.id === waiter.id);
+  expect(saved.week[0]).toEqual({ weekday: 1, intervals: [{ timeFrom: '10:00', timeTo: '18:00' }] });
+  const axe = await new AxeBuilder({ page }).analyze();
+  expect(axe.violations).toEqual([]);
+});
+
+test('схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API', async ({
+  page,
+  request,
+}) => {
+  const { headers, area, table } = await seed(page, request);
+  const second = await post(request, headers, '/food-service/tables', {
+    areaId: area.id,
+    name: '8',
+    capacity: 2,
+    sortOrder: 1,
+    active: true,
+  });
+  const terrace = await post(request, headers, '/food-service/areas', { name: 'Терраса', sortOrder: 1, active: true });
+  const foreign = await post(request, headers, '/food-service/tables', {
+    areaId: terrace.id,
+    name: '20',
+    capacity: 2,
+    sortOrder: 0,
+    active: true,
+  });
+  const put = (tables: unknown[]) =>
+    request.put(`${api}/food-service/areas/${area.id}/layout`, { headers, data: { tables } });
+  const spot = (id: string, posX = 100) => ({ id, posX, posY: 100, shape: null, scale: 100, rotation: 0 });
+  expect((await put([spot(foreign.id)])).status()).toBe(400);
+  expect((await put([spot(table.id, 1001)])).status()).toBe(400);
+
+  await page.goto('/floor-plan');
+  await page.getByRole('button', { name: 'Расставить столы: Основной зал' }).click();
+  const editor = page.getByTestId('floor-layout-editor');
+  // клавиатура: стол 7 по порядку стоит в (100, 500), Shift+стрелка двигает на 50
+  const seven = editor.getByRole('button', { name: /^7: место/ });
+  await seven.focus();
+  for (let i = 0; i < 5; i++) await page.keyboard.press('Shift+ArrowRight');
+  await editor.getByLabel('Форма: 7').selectOption('ROUND');
+  await editor.getByLabel('Размер: 7').selectOption('130');
+  // мышь: стол 8 в точку 75 % по ширине, 25 % по высоте
+  const canvas = await editor.locator('.rest-fp__layout').boundingBox();
+  const eight = await editor.getByRole('button', { name: /^8: место/ }).boundingBox();
+  await page.mouse.move(eight!.x + eight!.width / 2, eight!.y + eight!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(canvas!.x + canvas!.width * 0.75, canvas!.y + canvas!.height * 0.25, { steps: 8 });
+  await page.mouse.up();
+  const axe = await new AxeBuilder({ page }).include('[data-testid="floor-layout-editor"]').analyze();
+  expect(axe.violations).toEqual([]);
+  await editor.getByRole('button', { name: 'Сохранить расстановку' }).click();
+  await expect(editor).toHaveCount(0);
+  await expect(page.locator('.rest-fp__layout .rest-fp__spot')).toHaveCount(2);
+
+  const tables = (await (await request.get(`${api}/food-service/tables`, { headers })).json()).items as Array<{
+    id: string;
+    posX: number;
+    posY: number;
+    shape: string | null;
+    scale: number;
+  }>;
+  const t7 = tables.find((t) => t.id === table.id)!;
+  const t8 = tables.find((t) => t.id === second.id)!;
+  expect(t7).toMatchObject({ posX: 350, posY: 500, shape: 'ROUND', scale: 130 });
+  expect(Math.abs(t8.posX - 750)).toBeLessThanOrEqual(10);
+  expect(Math.abs(t8.posY - 250)).toBeLessThanOrEqual(10);
+  // перезагрузка: схема стоит, стол чужой зоны своей зоне не мешает
+  await page.reload();
+  await expect(page.locator('.rest-fp__layout .rest-fp__spot')).toHaveCount(2);
+  expect(tables.find((t) => t.id === foreign.id)!.posX).toBeNull();
 });
 
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({

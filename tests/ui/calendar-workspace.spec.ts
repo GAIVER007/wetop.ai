@@ -4,7 +4,7 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
-test('calendar fills notebook screen with a side summary and frozen headings', async ({ page }) => {
+test('calendar fills notebook screen without a side summary and keeps frozen headings', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/chessboard');
   const grid = page.getByRole('region', { name: 'Календарь по дням' });
@@ -12,8 +12,8 @@ test('calendar fills notebook screen with a side summary and frozen headings', a
   await expect(grid).toHaveAttribute('data-density', 'normal');
   const box = (await grid.boundingBox())!;
   expect(box.height).toBeGreaterThan(460);
-  const summary = (await page.getByRole('group', { name: 'Сводка дня' }).boundingBox())!;
-  expect(summary.x).toBeGreaterThanOrEqual(box.x + box.width);
+  await expect(page.getByRole('group', { name: 'Сводка дня' })).toHaveCount(0);
+  expect(box.width).toBeGreaterThan(1200);
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
     true,
   );

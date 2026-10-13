@@ -1,0 +1,95 @@
+# Модульные (unit) · 13.10.2026 14:37 Алматы · MacBook-Air-Urij.local
+# коммит 66fe9e5 (claude/scope-remember-branch-20261013), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-37-19Z-unit-147d.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/db-backup-offsite.test.ts' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-urijzapojnov-Documents-ChatGPT-WETOP/a8708228-98f1-45e4-a395-95f6ac3385d1/scratchpad/scope-wt
+
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 16552ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 3114ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 2296ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 2839ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 2801ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 2909ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 2575ms
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 1 skipped) 21780ms
+   ✓ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     ✓ последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 2280ms
+     ✓ шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 2734ms
+     ✓ закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере 1199ms
+   ✓ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     ✓ ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 2538ms
+     ✓ настройки читаются из .env клона, как у db-backup.sh 1714ms
+     ✓ Telegram: токен в адресе через stdin, а не аргументом 1874ms
+   ✓ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     ✓ ночная копия старше 26 часов: наружу не несём, сообщаем 2217ms
+     ✓ R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 2521ms
+     ✓ размер в R2 не совпал: сбой, статус не тронут 2573ms
+     ✓ rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 2094ms
+ ❯ |unit| tests/unit/guard-run.test.ts (8 tests | 2 failed) 24553ms
+   ❯ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ только токен подписки: отказ до первого круга, модель не зовётся 12ms
+     ✓ ни ключа, ни токена: отказ с подсказкой про ключ 11ms
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 4662ms
+     × подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 5094ms
+   ❯ дежурный агент: дневной потолок денег (ADR-137) (4)
+     × каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 5091ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 3111ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 4081ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 2490ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 40353ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 2905ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1317ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 4323ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2840ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 4598ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 2865ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 2657ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2614ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2112ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 2426ms
+     ✓ локальные правки в клоне — не затирает их 1688ms
+     ✓ историю ветки переписали — не выкладывает поверх 2254ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2092ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 2247ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1978ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1436ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:122:3
+    120|   });
+    121|
+    122|   it('подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет …
+       |   ^
+    123|     const s = sandbox();
+    124|     const r = s.run({ CLAUDE_CODE_OAUTH_TOKEN: 'subscription-token', G…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:132:3
+    130|
+    131| describe('дежурный агент: дневной потолок денег (ADR-137)', () => {
+    132|   it('каждый запуск с потолком --max-budget-usd и счётчиком за сутки U…
+       |   ^
+    133|     const s = sandbox();
+    134|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>', GUARD_RUN_BUDGET_U…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  2 failed | 40 passed | 1 skipped (43)
+   Start at  13:37:20
+   Duration  40.50s (tests 100%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-37-19Z-unit-147d.json
+
+# код выхода 1 · 42 с

@@ -1,0 +1,19 @@
+# Модульные (unit) · 13.10.2026 15:10 Алматы · MacBook-Air-Urij.local
+# коммит 3bd01f4 (claude/calendar-narrow-20261013), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T10-10-51Z-unit-9cbb.json' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/design-primitive-owner.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-urijzapojnov-Documents-ChatGPT-WETOP/a8708228-98f1-45e4-a395-95f6ac3385d1/scratchpad/cal-wt
+
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 4ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 7ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 67ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+
+ Test Files  4 passed (4)
+      Tests  42 passed (42)
+   Start at  14:10:53
+   Duration  379ms (import 56%, transform 26%, tests 16%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T10-10-51Z-unit-9cbb.json
+
+# код выхода 0 · 2 с

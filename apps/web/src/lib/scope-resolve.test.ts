@@ -30,6 +30,27 @@ it('несколько филиалов: никогда не выбираетс�
   expect(decision).not.toHaveProperty('pointer');
 });
 
+it('несколько филиалов: тот, что человек выбирал последним, выбирается сам, если он ещё доступен', () => {
+  const items = [branch('HOSPITALITY'), branch('BEAUTY', B2, L2)];
+  expect(decideScope(items, '/today', L2)).toEqual({
+    kind: 'select',
+    pointer: `business=${B2};location=${L2}`,
+    target: '/today',
+  });
+  expect(decideScope(items, null, L1)).toEqual({
+    kind: 'select',
+    pointer: `business=${B1};location=${L1}`,
+    target: '/finance',
+  });
+});
+
+it('запомненный филиал, которого нет в ответе сервера, не выбирается: человек выбирает сам', () => {
+  const items = [branch('HOSPITALITY'), branch('BEAUTY', B2, L2)];
+  const gone = '55555555-5555-4555-8555-555555555555';
+  expect(decideScope(items, '/today', gone)).toEqual({ kind: 'choose', target: '/branches' });
+  expect(decideScope(items, '/today', '')).toEqual({ kind: 'choose', target: '/branches' });
+});
+
 it('next чужого направления заменяется стартовой страницей направления', () => {
   expect(decideScope([branch('HOSPITALITY')], '/calendar')).toMatchObject({ target: '/finance' });
   expect(decideScope([branch('FOOD_SERVICE')], '/chessboard')).toMatchObject({

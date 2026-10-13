@@ -95,9 +95,8 @@ test('direction pages preselect the correct vertical in existing AuthDialog', as
     // Со страницы направления выбора нет: плашка с направлением страницы, без общего списка
     await expect(dialog.getByRole('radio')).toHaveCount(0);
     await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText(name);
-    await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText(
-      path === '/for/hotels/' ? 'Доступно' : 'По приглашению',
-    );
+    // регистрация открыта всем направлениям (ADR-172)
+    await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText('Доступно');
     await page.keyboard.press('Escape');
   }
 });
@@ -137,6 +136,9 @@ test('business positioning: three verticals, no maturity labels, five capabiliti
   await expect(page.locator('.verticals')).not.toContainText(/пилот/i);
   for (const card of await cards.all()) {
     await expect(card.locator('.verticals__capabilities li')).toHaveCount(5);
-    await expect(card.locator('.verticals__art')).toBeVisible();
+    const photo = card.locator('.verticals__photo');
+    await expect(photo).toBeVisible();
+    // Фото загрузилось, а не битая ссылка: у картинки есть собственная ширина.
+    expect(await photo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
   }
 });

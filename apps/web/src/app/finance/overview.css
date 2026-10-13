@@ -411,6 +411,17 @@
     .biz-kpis {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    /* Значок слева съедал половину плитки: суммы ломались на две строки, подписи шли по слову (13.10.2026).
+       Как у плиток «Гостей»: на телефоне без значка, сумма целиком */
+    .biz-kpis .stat--icon {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .biz-kpis .stat__icon {
+      display: none;
+    }
+    .biz-kpis .stat__value {
+      white-space: nowrap;
+    }
     .biz-money,
     .biz-methods,
     .biz-today,
@@ -427,6 +438,11 @@
     .biz-period {
       justify-content: flex-start;
     }
+    /* отрезок словами своей строкой, под ним три окна в один ряд */
+    .biz-period__range {
+      flex-basis: 100%;
+      margin-right: 0;
+    }
     .biz-period a:not(.biz-period__range) {
       min-height: 44px;
     }
@@ -437,6 +453,12 @@
       height: 1px;
       overflow: hidden;
       clip-path: inset(50%);
+    }
+    /* карточки во всю ширину экрана: общий .tbl держит min-width 520px для прокрутки, здесь прокрутки нет */
+    .biz-recent__table {
+      display: block;
+      min-width: 0;
+      width: 100%;
     }
     .biz-recent__table tbody {
       display: grid;

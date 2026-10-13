@@ -1,5 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
+import type { TableLayout } from '@pms/domain';
 import { unstable_rethrow } from 'next/navigation';
 import { ApiError, dishPhotoApi } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
@@ -225,3 +226,43 @@ export async function dishPhoto(
     return failure(error);
   }
 }
+
+/** График смен сотрудника (Q-REST-11): форма недели салона, `scopeKey` привязан заранее */
+export async function saveFoodShifts(
+  scopeKey: string,
+  _prev: { error?: string; message?: string } | null,
+  form: FormData,
+): Promise<{ error?: string; message?: string }> {
+  let intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>;
+  try {
+    intervals = JSON.parse(String(form.get('intervals') ?? '[]'));
+  } catch {
+    return { error: 'Не удалось прочитать график. Обновите страницу перед повтором.' };
+  }
+  try {
+    await scope(scopeKey);
+    await restaurantApi.setShifts(String(form.get('id') ?? ''), intervals);
+    for (const path of ['/employees', '/employees/shifts', '/today']) revalidatePath(path);
+    return { message: 'График сохранён' };
+  } catch (error) {
+    const { error: message } = failure(error);
+    return { error: message ?? 'Не удалось сохранить график' };
+  }
+}
+
+/** Схема зала (§42): расстановка зоны одним запросом */
+export async function saveFloorLayout(
+  scopeKey: string,
+  areaId: string,
+  tables: TableLayout[],
+): Promise<{ error: string | null }> {
+  try {
+    await scope(scopeKey);
+    await foodApi.setLayout(areaId, tables);
+    for (const path of ['/floor-plan', '/dining-areas', '/today']) revalidatePath(path);
+    return { error: null };
+  } catch (error) {
+    return { error: failure(error).error };
+  }
+}
+

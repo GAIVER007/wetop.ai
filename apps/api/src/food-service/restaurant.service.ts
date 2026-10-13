@@ -15,6 +15,8 @@ import {
   orderNext,
   orderPayment,
   parseOrderRating,
+  parseWorkingHoursWeek,
+  weekTemplate,
   hashSessionToken,
   newSessionToken,
   ratingSummary,
@@ -882,6 +884,63 @@ export class RestaurantService {
     );
   }
 
+  // ─── График смен (Q-REST-11): недельный шаблон в `working_hours`, как у мастеров салона (§19.1) ───
+
+  /** Неделя каждого действующего сотрудника этого филиала */
+  async shifts() {
+    foodMay('desk');
+    const s = await foodScope(this.prisma.db);
+    const rows = await this.prisma.db.employee.findMany({
+      where: { businessId: s.businessId, status: 'ACTIVE', locations: { some: { locationId: s.locationId } } },
+      include: {
+        workingHours: {
+          where: { locationId: s.locationId },
+          orderBy: [{ weekday: 'asc' }, { timeFrom: 'asc' }],
+          select: { weekday: true, timeFrom: true, timeTo: true },
+        },
+      },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+    });
+    return {
+      employees: rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        week: weekTemplate(
+          r.workingHours.map((h) => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: clockText(h.timeTo) })),
+        ),
+      })),
+    };
+  }
+
+  /** Неделя целиком: список заменяет прежний график сотрудника в этом филиале */
+  async setShifts(idRaw: string, raw: unknown) {
+    return this.write('staff', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      const week = parseWorkingHoursWeek(raw);
+      if (!week.ok) throw new BadRequestException(week.reason);
+      const employee = await tx.employee.findFirst({
+        where: { id, businessId: s.businessId, locations: { some: { locationId: s.locationId } } },
+        select: { id: true },
+      });
+      if (!employee) throw new NotFoundException('Сотрудник не найден');
+      await tx.workingHours.deleteMany({ where: { employeeId: id, locationId: s.locationId } });
+      if (week.value.length)
+        await tx.workingHours.createMany({
+          data: week.value.map((i) => ({
+            employeeId: id,
+            locationId: s.locationId,
+            weekday: i.weekday,
+            timeFrom: new Date(`1970-01-01T${i.timeFrom}:00Z`),
+            timeTo: new Date(`1970-01-01T${i.timeTo}:00Z`),
+          })),
+        });
+      await this.audit(tx, s, 'employee', id, 'food.employee.working_hours.set', {
+        intervals: week.value.map((i) => `${i.weekday} ${i.timeFrom}-${i.timeTo}`),
+      });
+      return { week: weekTemplate(week.value) };
+    });
+  }
+
   async createEmployee(raw: unknown) {
     return this.write('staff', async (tx, s) => {
       const b = parsed(() => foodObject(raw, ['name', 'phone', 'email']));
@@ -1276,7 +1335,11 @@ export class RestaurantService {
       closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
     };
     const [orders, payments, items, waiters, closedDays] = await Promise.all([
-      db.restaurantOrder.aggregate({ where: closedWhere, _count: { _all: true }, _sum: { total: true } }),
+      db.restaurantOrder.aggregate({
+        where: closedWhere,
+        _count: { _all: true },
+        _sum: { total: true, guestCount: true },
+      }),
       db.restaurantPayment.groupBy({
         by: ['method'],
         where: { locationId: s.locationId, status: 'COMPLETED', paidAt: { gte: w.fromUtc, lt: w.toUtcExclusive } },
@@ -1366,6 +1429,8 @@ export class RestaurantService {
         qty: milliText(x.milli),
       })),
       ordersCount: count,
+      // гости закрытых заказов периода (макет «Аналитика», плитка «Гостей»)
+      guestsCount: orders._sum.guestCount ?? 0,
       revenueMinor: revenue.toString(),
       averageCheckMinor: count ? ((revenue + BigInt(count) / 2n) / BigInt(count)).toString() : null,
       payments: payments

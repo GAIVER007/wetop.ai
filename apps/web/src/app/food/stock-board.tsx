@@ -468,11 +468,12 @@ export function StockBoard({
             </Button>
           )}
           {ctx.canDesk && products.some((p) => p.active) && (
-            <Button onClick={() => setDraft({ kind: 'receipt' })}>+ Приход</Button>
+            <Button onClick={() => setDraft({ kind: 'receipt' })}>+ Приход товара</Button>
           )}
         </div>
       </div>
       <Tabs
+        className="rest-tabs-line"
         label="Склад"
         panels={[
           { id: 'stock', label: 'Остатки', content: stockTable },

@@ -2462,6 +2462,42 @@
     }
   }
 
+  /*
+   * Ноутбук и планшет (601–1279 px по лестнице DESIGN.md §4.1): колонка мест сужена до 120–176 px (premium.css), а в строке категории рядом с
+   * названием стояла полоска загрузки «3/16», и названию оставалось ~30 px: «Двухместный номер» шёл по слогам
+   * в столбик (обход app.wetop.ai 13.10.2026). Как на телефоне: стрелка и название сеткой, до трёх строк, полоска
+   * скрыта (свободные места по дням и так в строке категории). «Свернуть категории» переносится внутри колонки.
+   */
+  @media (min-width: 601px) and (max-width: 1279px) {
+    .board--week .board-group-toggle {
+      display: grid;
+      grid-template-columns: 10px minmax(0, 1fr);
+      column-gap: var(--space-1);
+      align-items: start;
+    }
+    .board--week .board-group-toggle > .board-group-load {
+      display: none;
+    }
+    .board--week .board-group-name-text {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: auto;
+      font-size: var(--text-xs);
+      line-height: 1.25;
+    }
+    .board--week th.board__unit-head {
+      white-space: normal;
+    }
+    .board--week th.board__unit-head .board-overview-controls .btn {
+      display: block;
+      max-width: 100%;
+    }
+  }
+
   /* Правая панель брони (образец владельца 09.10.2026): рядом с сеткой, не окном */
   .stay-panel {
     display: flex;
@@ -3240,29 +3276,6 @@
   body:has(.calendar-shell[data-expanded='true']) {
     overflow: hidden;
   }
-  .calendar-day-summary .board-day-panel {
-    border: 0;
-    padding: 0;
-    background: transparent;
-  }
-  .calendar-day-summary .board-day-panel__title {
-    font-size: var(--text-lg);
-  }
-  .calendar-day-summary .board-day-panel__columns {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-  .calendar-day-summary .board-day-panel__row {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-2);
-    padding-block: var(--space-2);
-  }
-  .calendar-day-summary .board-day-panel__col + .board-day-panel__col {
-    border-top: 1px solid var(--border);
-    padding-top: var(--space-2);
-  }
   .stay-panel:has(.stay-preview-finance) .stay-panel__facts,
   .stay-panel:has(.stay-preview-finance) .stay-panel__contacts {
     display: none;
@@ -3308,15 +3321,6 @@
   }
   .calendar-shell .board-stage > .board-wrap:has(.board--month) {
     scrollbar-gutter: auto;
-  }
-  .calendar-day-summary {
-    width: 232px;
-  }
-  /* Все 31 даты важнее повторной сводки: 888px сетки, 232px сводки и отступы. */
-  @container calendar-screen (max-width: 1160px) {
-    .board-stage:has(.board--month) .calendar-day-summary {
-      display: none;
-    }
   }
   @media (min-width: 601px) {
     .calendar-shell .board-toolbar .board-search .inp {

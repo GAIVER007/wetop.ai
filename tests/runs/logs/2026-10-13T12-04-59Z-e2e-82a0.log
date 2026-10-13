@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 13.10.2026 17:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит 333b4d9 (claude/inventory-surplus), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'инвентаризация'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] [Nest] 74799  - 10/13/2026, 5:05:11 AM   ERROR [ExceptionsHandler] TypeError: null is not a function
+[WebServer]     at <anonymous> (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/apps/api/src/food-service/stock.service.ts:468:26)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async Proxy._transactionWithCallback (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18)
+[WebServer]     at async foodTransaction (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/apps/api/src/food-service/scope.ts:69:12)
+  ✘  1 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается FIFO, излишек приходуется по средней (Q-KITCHEN-9) (7.3s)
+  ✓  2 tests/food-ui/stock.spec.ts:133:1 › инвентаризация пустого склада: излишек только с ценой, введённой вручную (1.1s)
+
+
+  1) tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается FIFO, излишек приходуется по средней (Q-KITCHEN-9) 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByRole('dialog')
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        14 × locator resolved to <dialog open="" aria-labelledby="_r_0_" class="ui-overlay ui-drawer  food-drawer">…</dialog>
+           - unexpected value "visible"
+
+
+      112 |   await dialog.getByLabel('Фактически на складе, г').fill('3200');
+      113 |   await dialog.getByRole('button', { name: 'Сверить', exact: true }).click();
+    > 114 |   await expect(dialog).not.toBeVisible();
+          |                            ^
+      115 |   await expect(row(page, 'Говядина Рибай')).toContainText('3200 г');
+      116 |   const lots = (await (await request.get(`${api}/food-service/stock/lots?productId=${beef.id}`, { headers })).json()).items as Array<{
+      117 |     receivedQty: string;
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/stock.spec.ts:114:28
+
+    Error Context: test-results/stock-инвентаризация-недос-368b6-тся-по-средней-Q-KITCHEN-9-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-инвентаризация-недос-368b6-тся-по-средней-Q-KITCHEN-9-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-инвентаризация-недос-368b6-тся-по-средней-Q-KITCHEN-9-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается FIFO, излишек приходуется по средней (Q-KITCHEN-9) 
+  1 passed (17.1s)
+
+# код выхода 1 · 18 с

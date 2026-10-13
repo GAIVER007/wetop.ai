@@ -101,22 +101,48 @@ test('списание по FIFO: сначала ранняя партия, ни
   await expect(page.getByRole('row', { name: /Списание.*-500 г/ })).toContainText('−3 500 ₸');
 });
 
-test('инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9', async ({ page, request }) => {
+test('инвентаризация: недостача списывается FIFO, излишек приходуется по средней (Q-KITCHEN-9)', async ({ page, request }) => {
   const { headers } = await reset(page, request);
-  await seedBeef(request, headers);
+  const beef = await seedBeef(request, headers);
   await page.goto('/stock');
   await page.getByRole('button', { name: 'Инвентаризация: Говядина Рибай' }).click();
   const dialog = page.getByRole('dialog');
+  // склад не пуст: цену излишка не спрашиваем, она средняя по остатку
+  await expect(dialog.getByLabel(/Цена излишка/)).toHaveCount(0);
   await dialog.getByLabel('Фактически на складе, г').fill('3200');
   await dialog.getByRole('button', { name: 'Сверить', exact: true }).click();
-  await expect(dialog.getByRole('alert')).toContainText('Факт больше учёта на 200 г');
-  await dialog.getByLabel('Фактически на складе, г').fill('2800');
+  await expect(dialog).not.toBeVisible();
+  await expect(row(page, 'Говядина Рибай')).toContainText('3200 г');
+  const lots = (await (await request.get(`${api}/food-service/stock/lots?productId=${beef.id}`, { headers })).json()).items as Array<{
+    receivedQty: string;
+    unitCostMinor: string;
+    document: string | null;
+  }>;
+  // 2000 г по 6 000 ₸/кг и 1000 г по 7 000 ₸/кг: средняя 6 333,33 ₸/кг
+  expect(lots.find((l) => l.document === 'Инвентаризация')).toMatchObject({ receivedQty: '200', unitCostMinor: '633333' });
+  await page.getByRole('button', { name: 'Инвентаризация: Говядина Рибай' }).click();
+  await dialog.getByLabel('Фактически на складе, г').fill('3000');
   await dialog.getByRole('button', { name: 'Сверить', exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(row(page, 'Говядина Рибай')).toContainText('2800 г');
   await page.getByRole('tab', { name: 'Движения' }).click();
   // недостача 200 г из ранней партии по 6 000 ₸/кг
   await expect(page.getByRole('row', { name: /Инвентаризация.*-200 г/ })).toContainText('−1 200 ₸');
+  await expect(page.getByRole('row', { name: /Инвентаризация.*\+?200 г/ }).first()).toBeVisible();
+});
+
+test('инвентаризация пустого склада: излишек только с ценой, введённой вручную', async ({ page, request }) => {
+  const { headers } = await reset(page, request);
+  await post(request, headers, '/food-service/stock/products', { name: 'Сливки 33%', unit: 'мл', minQty: '0' });
+  await page.goto('/stock');
+  await page.getByRole('button', { name: 'Инвентаризация: Сливки 33%' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Фактически на складе, мл').fill('500');
+  const price = dialog.getByLabel('Цена излишка за л, ₸');
+  await expect(price).toBeVisible();
+  await price.fill('2400');
+  await dialog.getByRole('button', { name: 'Сверить', exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(row(page, 'Сливки 33%')).toContainText('500 мл');
 });
 
 test('сторно: нетронутая партия сторнируется, начатая нет', async ({ page, request }) => {

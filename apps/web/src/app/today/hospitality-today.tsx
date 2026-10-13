@@ -1,0 +1,74 @@
+import { Suspense } from 'react';
+import Link from 'next/link';
+import { Page } from '../../components/page';
+import { Icon } from '../../components/icon';
+import { financeApi } from '../../lib/api';
+import { hotelToday } from '../../lib/hotel-api';
+import { periods } from '../../lib/report-periods';
+import { OwnerLoad } from '../finance/owner-dashboard';
+import { AttentionCard, TodayCard } from '../finance/overview';
+import { AttentionPlaceholder, OwnerPlaceholder } from '../finance/owner-loading';
+import '../finance/owner-dashboard.css';
+import '../finance/attention.css';
+import '../finance/overview.css';
+
+/**
+ * Главная гостиницы (решение владельца 13.10.2026, поверх ADR-152): «Финансы» по эталону стали чисто
+ * денежным экраном, а загрузка с прогнозом, события дня и «Что требует внимания» вернулись сюда.
+ * Блоки те же, что стояли на «Обзоре бизнеса», расчёты не менялись.
+ */
+export async function HospitalityToday() {
+  const cal = periods(await hotelToday());
+  const period = `/finance?from=${cal.month.from}&to=${cal.month.to}`;
+  const debts = await financeApi.debts(cal.month.from, cal.month.to).catch(() => null);
+  return (
+    <Page
+      title="Главная"
+      subtitle="Загрузка, события дня и задачи объекта"
+      width="full"
+      actions={
+        <>
+          <Link className="btn btn--secondary" href="/chessboard">
+            <Icon name="board" />
+            Календарь
+          </Link>
+          <Link className="btn" href="/reservations/new">
+            <Icon name="plus" />
+            Новая бронь
+          </Link>
+        </>
+      }
+    >
+      <div className="biz-overview" data-testid="hospitality-home">
+        <div className="biz-row biz-row--two">
+          <Suspense
+            fallback={
+              <div className="owner-load owner-surface">
+                <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
+              </div>
+            }
+          >
+            <OwnerLoad date={cal.today} />
+          </Suspense>
+          <Suspense
+            fallback={
+              <div className="biz-today owner-surface">
+                <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
+              </div>
+            }
+          >
+            <TodayCard
+              date={cal.today}
+              debts={debts}
+              period={period}
+              currency={debts?.currency ?? 'KZT'}
+            />
+          </Suspense>
+        </div>
+        <Suspense fallback={<AttentionPlaceholder />}>
+          <AttentionCard date={cal.today} debts={debts} period={period} />
+        </Suspense>
+      </div>
+    </Page>
+  );
+}

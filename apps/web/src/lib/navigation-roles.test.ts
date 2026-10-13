@@ -37,8 +37,8 @@ describe('меню по ролям', () => {
 
   it('администратор: работа с гостями, продавец (диалоги), финансы и статистика, неисправности', () => {
     expect(hrefs(access('STAFF'))).toEqual([
-      // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md);
-      // с ADR-157 это группа, «Бар» её пункт
+      // «Главная» первой (решение владельца 13.10.2026), затем группа «Финансы» с «Баром» (ADR-157)
+      '/today',
       '/finance',
       '/bar',
       '/chessboard',
@@ -53,6 +53,7 @@ describe('меню по ролям', () => {
       '/incidents',
     ]);
     expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
+      'today',
       'finance',
       'chessboard',
       'guests',

@@ -1,6 +1,6 @@
 import { requireVertical } from '../../lib/vertical-guard';
 import { FilterHistory } from './filter-history';
-import { Suspense, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
@@ -40,18 +40,18 @@ import './finance.css';
 import './owner-dashboard.css';
 import './attention.css';
 import './overview.css';
-import { OwnerLoad } from './owner-dashboard';
-import { DashboardRefresh } from './owner-controls';
-import { OwnerPlaceholder, AttentionPlaceholder } from './owner-loading';
+import { DateRangePopover } from '../../components/date-range-popover';
 import {
-  AttentionCard,
-  BizKpis,
-  MoneyOverview,
-  PaymentMethods,
-  RecentOperations,
-  TodayCard,
-  periodWord,
-} from './overview';
+  AnalyticsCta,
+  ExpenseCategories,
+  FinanceDynamics,
+  FinanceKpis,
+  FinanceReports,
+  IncomeStructure,
+  dailyFlow,
+} from './finance-board';
+import './finance-board.css';
+import { PaymentMethods, RecentOperations } from './overview';
 import { FinanceWorkspace } from './workspace';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { operationFilter } from './operation-filter';
@@ -131,6 +131,7 @@ export default async function FinanceReportPage({
     servicesLoaded,
     periodOpsLoaded,
     prevOpsLoaded,
+    prevReportLoaded,
   ] = await Promise.all([
     valid ? settle(financeApi.report(from, to)) : null,
     valid ? settle(financeApi.debts(from, to)) : null,
@@ -145,6 +146,8 @@ export default async function FinanceReportPage({
       ? settle(financeApi.operations(from, to, { limit: OPS_ALL }))
       : null,
     valid ? settle(financeApi.operations(prevFrom, prevTo, { limit: 1 })) : null,
+    // «Общий доход» к прошлому периоду: тот же отчёт за отрезок той же длины (эталон «Финансы» 13.10.2026)
+    valid ? settle(financeApi.report(prevFrom, prevTo)) : null,
   ]);
   const r = loaded?.ok ? loaded.r : null;
   const loadError = loaded && !loaded.ok ? loaded.e : null;
@@ -168,13 +171,6 @@ export default async function FinanceReportPage({
   const period = `/finance?from=${from}&to=${to}`;
   const preset = (p: { from: string; to: string }) => `/finance?from=${p.from}&to=${p.to}`;
   const isPreset = (p: { from: string; to: string }) => p.from === from && p.to === to;
-  const presetKind = isPreset({ from: cal.today, to: cal.today })
-    ? ('today' as const)
-    : isPreset(cal.week)
-      ? ('week' as const)
-      : isPreset(cal.month)
-        ? ('month' as const)
-        : ('custom' as const);
   // деньги обзора: поступления, возвраты и расходы кассовыми правилами (finance-cash-first), в BigInt.
   // Решение владельца 13.10.2026: возврат гостю не «расход», а отдельная строка «Возвраты»
   const income = periodOps ? BigInt(periodOps.paidMinor) + BigInt(periodOps.incomeMinor) : null;
@@ -215,94 +211,95 @@ export default async function FinanceReportPage({
   if (opParam) exportQuery.set('op', opParam);
   if (filter.method) exportQuery.set('method', filter.method);
   if (srcParam) exportQuery.set('src', srcParam);
+  const prevReport = prevReportLoaded?.ok ? prevReportLoaded.r : null;
+  const flow = periodOps ? dailyFlow(periodOps.rows, from, to) : [];
+  const profit =
+    sums.income !== null && sums.refunds !== null && sums.expense !== null
+      ? sums.income - sums.refunds - sums.expense
+      : null;
+  const prevProfit =
+    sums.prevIncome !== null && sums.prevRefunds !== null && sums.prevExpense !== null
+      ? sums.prevIncome - sums.prevRefunds - sums.prevExpense
+      : null;
+  const kindLabel = (kind: string) => KINDS.find(([k]) => k === kind)?.[1] ?? kind;
   return (
     <Page
-      title="Обзор бизнеса"
-      subtitle="Ключевые показатели, деньги, загрузка и задачи в одном месте"
+      title="Финансы"
+      subtitle="Доходы, расходы и финансовые показатели вашего бизнеса"
       width="full"
       actions={
         <>
-          <nav className="biz-period" aria-label="Период обзора">
-            <a href="#finance-filters" className="biz-period__range" data-testid="finance-period">
-              За период с {displayDate(from, 'numeric')} по {displayDate(to, 'numeric')}
-            </a>
-            {(
-              [
-                ['Сегодня', { from: cal.today, to: cal.today }],
-                ['7 дней', cal.week],
-                ['Месяц', cal.month],
-              ] as const
-            ).map(([label, p]) => (
-              <Link
-                key={label}
-                href={preset(p)}
-                className={isPreset(p) ? 'is-active' : ''}
-                aria-current={isPreset(p) ? 'page' : undefined}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-          <DashboardRefresh />
+          {/* один контрол периода (Q-DES-1) вместо «Сегодня / 7 дней / Месяц» и строки дат */}
+          <div className="fin-period">
+            <DateRangePopover
+              from={from}
+              to={to}
+              today={cal.today}
+              maxDays={MAX_REPORT_DAYS}
+              action="/finance"
+              triggerTestId="finance-period"
+              compact
+            />
+            {dates && (
+              <>
+                <Link
+                  className="icon-button"
+                  href={preset({ from: prevFrom, to: prevTo })}
+                  aria-label="Предыдущий период"
+                >
+                  <Icon name="chevron" className="rotate-left" />
+                </Link>
+                <Link
+                  className="icon-button"
+                  href={preset({ from: plusDays(to, 1), to: plusDays(to, days) })}
+                  aria-label="Следующий период"
+                >
+                  <Icon name="chevron" />
+                </Link>
+              </>
+            )}
+          </div>
+          <a
+            className="btn"
+            href={`/finance/export?${exportQuery}`}
+            data-testid="finance-export-top"
+          >
+            Экспорт
+          </a>
         </>
       }
     >
-      {/* «Обзор бизнеса» по макету владельца (план finance-overview-2026-10-09): блоки бывшей
-          Главной и деньги кассы одним экраном; числа макета вымышленные, всё считается из API */}
-      <div className="biz-overview" data-testid="owner-dashboard">
-        <Suspense
-          fallback={
-            <section className="biz-kpis" aria-label="Ключевые показатели">
-              <OwnerPlaceholder variant="today" label="Загружаем показатели…" />
-            </section>
-          }
-        >
-          <BizKpis
-            sums={sums}
-            periodLabel={periodWord(presetKind)}
-            debts={debts}
-            date={cal.today}
-            yesterday={yesterdayDate}
-          />
-        </Suspense>
-        <div className="biz-row biz-row--two">
-          <Suspense
-            fallback={
-              <div className="owner-load owner-surface">
-                <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
-              </div>
-            }
-          >
-            <OwnerLoad date={cal.today} />
-          </Suspense>
-          <MoneyOverview
-            sums={sums}
-            ops={periodOps}
-            from={from}
-            to={to}
-            cash={cashBalances}
-            detailsHref={`${period}&show=1#operations`}
-          />
+      {/* «Финансы» по эталону владельца 13.10.2026: только деньги. Загрузка, события дня и задачи
+          вернулись на «Главную» (/today); числа считаются из тех же ответов API, что раньше */}
+      <div className="fin-board" data-testid="finance-board">
+        <FinanceKpis
+          charged={r ? BigInt(r.chargedMinor) : null}
+          prevCharged={prevReport ? BigInt(prevReport.chargedMinor) : null}
+          income={sums.income}
+          prevIncome={sums.prevIncome}
+          expense={sums.expense}
+          prevExpense={sums.prevExpense}
+          profit={profit}
+          prevProfit={prevProfit}
+          currency={sums.currency}
+          flow={flow}
+        />
+        <div className="fin-row fin-row--wide">
+          <FinanceDynamics flow={flow} currency={sums.currency} />
+          <IncomeStructure report={r} kindLabel={kindLabel} />
         </div>
-        <div className="biz-row biz-row--three">
+        <div className="fin-row fin-row--wide">
+          <RecentOperations ops={periodOps} period={period} />
+          <ExpenseCategories ops={periodOps} allHref={opsHref({ op: 'expense' })} />
+        </div>
+        <div className="fin-row fin-row--three">
           <PaymentMethods
             report={r}
             opsHref={(method) => opsHref(method ? { op: 'payment', method } : { op: 'payment' })}
           />
-          <Suspense
-            fallback={
-              <div className="biz-today owner-surface">
-                <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
-              </div>
-            }
-          >
-            <TodayCard date={cal.today} debts={debts} period={period} currency={sums.currency} />
-          </Suspense>
-          <Suspense fallback={<AttentionPlaceholder />}>
-            <AttentionCard date={cal.today} debts={debts} period={period} />
-          </Suspense>
+          <FinanceReports exportHref={`/finance/export?${exportQuery}`} from={from} to={to} />
+          <AnalyticsCta />
         </div>
-        <RecentOperations ops={periodOps} period={period} />
       </div>
       {cashError !== null && (
         <LoadError testId="cash-summary-error" {...loadErrorProps(cashError)} />

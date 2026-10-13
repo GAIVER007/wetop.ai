@@ -1037,3 +1037,38 @@
     }
   }
 }
+
+@layer sections {
+  /*
+   * UI4.3 по эталону владельца (`design/references/01_hospitality/inventory.png`, DESIGN.md §21): вкладок
+   * «Номера и койки / Категории» над сводкой нет (категории кнопкой в шапке), «Динамика за» стоит в шапке
+   * рядом с действиями, поля фильтров высотой `--control-h`, таблица плотная 13 px.
+   */
+  .page__actions .inv-period {
+    font-size: var(--text-xs);
+  }
+  .page__actions .inv-period .inp {
+    width: auto;
+    min-height: var(--control-h);
+  }
+  .inventory-toolbar .inp,
+  .inventory-toolbar .inventory-search .inp,
+  .inventory-filter .inp {
+    min-height: var(--control-h);
+    height: var(--control-h);
+    font-size: var(--text-sm);
+  }
+  .inventory-table th,
+  .inventory-table td {
+    font-size: var(--text-xs);
+  }
+  .inventory-table td {
+    padding-block: var(--space-2);
+  }
+  .inventory-table .badge {
+    font-size: var(--text-xs);
+  }
+  .inventory-group-row td {
+    font-size: var(--text-xs);
+  }
+}

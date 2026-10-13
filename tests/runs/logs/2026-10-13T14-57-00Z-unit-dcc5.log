@@ -1,0 +1,24 @@
+# Модульные (unit) · 13.10.2026 19:57 Алматы · MacBook-Air-Urij.local
+# коммит c7c5983 (claude/ui42-chessboard-20261013), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T14-57-00Z-unit-dcc5.json' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract
+
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 8552ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1620ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 1602ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1599ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1100ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 1578ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1035ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  18:57:01
+   Duration  8.66s (tests 100%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T14-57-00Z-unit-dcc5.json
+
+# код выхода 0 · 10 с

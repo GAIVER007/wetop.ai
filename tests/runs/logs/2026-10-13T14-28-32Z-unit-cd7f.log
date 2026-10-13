@@ -1,0 +1,103 @@
+# Модульные (unit) · 13.10.2026 19:28 Алматы · MacBook-Air-Urij.local
+# коммит c7c5983 (claude/ui42-chessboard-20261013), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T14-28-32Z-unit-cd7f.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/desk-glass.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/design-rules.test.ts' 'apps/web/src/components/date-range-popover.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract
+
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 15ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 1 failed) 234ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 17ms
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 1ms
+     ✓ design/contrast.md совпадает с расчётом 10ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 199ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 1ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 1ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 0ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 1ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 1ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ✓ |unit| apps/web/src/components/date-range-popover.test.ts (3 tests) 25ms
+ ✓ |unit| tests/unit/desk-glass.test.ts (4 tests) 245ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 496ms
+ ❯ |unit| tests/unit/design-slop.test.ts (18 tests | 1 failed) 8ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (18)
+     × color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 6ms
+     ✓ space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 0ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     ✓ dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 0ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     ✓ radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 0ms
+     ✓ z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 0ms
+     ✓ font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a) 0ms
+     ✓ space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a) 0ms
+     ✓ inline-style: style={…} в TSX: только геометрия из данных и только с `slop-allow: inline-style <причина>` (MV8.5 DS0a) 0ms
+     ✓ important: !important в CSS: каскад решают слои и порядок, исключение только с `slop-allow: important <причина>` (MV8.5 DS0b) 0ms
+     ✓ breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1) 0ms
+     ✓ layer-name: @layer вне договора reset, tokens, base, components, sections, utilities (DESIGN.md §20.6) 0ms
+     ✓ orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a) 0ms
+     ✓ снимок покрывает все правила 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--board-unit-col' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--board-unit-col",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:118:21
+    116|     ]);
+    117|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+    118|     expect(missing).toEqual([]);
+       |                     ^
+    119|   });
+    120| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/chessboard/board.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 4 passed (6)
+      Tests  2 failed | 60 passed (62)
+   Start at  18:28:37
+   Duration  842ms (tests 41%, import 37%, transform 20%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T14-28-32Z-unit-cd7f.json
+
+# код выхода 1 · 5 с

@@ -1,0 +1,519 @@
+# Сквозные (e2e) · 13.10.2026 19:28 Алматы · MacBook-Air-Urij.local
+# коммит c7c5983 (claude/ui42-chessboard-20261013), незакоммиченных файлов набора: 23
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/calendar-workspace.spec.ts' 'tests/ui/chessboard-blocks.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/chessboard-extend.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-focus.spec.ts' 'tests/ui/chessboard-gate-pr3.spec.ts' 'tests/ui/chessboard-gate-pr4.spec.ts' 'tests/ui/chessboard-gate-pr5.spec.ts' 'tests/ui/chessboard-gate-pr6.spec.ts' 'tests/ui/chessboard-gate-pr7.spec.ts' 'tests/ui/chessboard-gate.spec.ts' 'tests/ui/chessboard-grid.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-range.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-unassigned.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/date-range-popover.spec.ts' 'tests/ui/search-filter-recovery.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/ui31-board-width.spec.ts' 'tests/ui/ui31-settings-loading.spec.ts' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/app-font.spec.ts' 'tests/ui/finance-card-actions.spec.ts' 'tests/ui/finance-cash-first.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/finance-f2.spec.ts' 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/finance-services.spec.ts' 'tests/ui/finance-units-design.spec.ts' 'tests/ui/guests-bookings.spec.ts' 'tests/ui/market-charts.spec.ts' 'tests/ui/market-competitors.spec.ts' 'tests/ui/market.spec.ts' 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing-site.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/platform-overview.spec.ts' 'tests/ui/channels-compact.spec.ts' 'tests/ui/channels-list.spec.ts' 'tests/ui/channels-reconcile.spec.ts' 'tests/ui/bar.spec.ts' 'tests/ui/design-system.spec.ts' '--workers=1'
+
+Running 335 tests using 1 worker
+
+  ✓    1 tests/ui/app-font.spec.ts:36:1 › Inter скачан и применён: веса, цифры, таблица, плитка, кнопка, окно, телефон (8.1s)
+  ✓    2 tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные (4.6s)
+  ✓    3 tests/ui/bar.spec.ts:74:1 › быстрая продажа одной строкой и фильтры доски (2.4s)
+  ✓    4 tests/ui/bar.spec.ts:98:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (3.8s)
+  ✓    5 tests/ui/bar.spec.ts:131:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (1.8s)
+  ✓    6 tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (1.5s)
+  ✓    7 tests/ui/bar.spec.ts:162:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.5s)
+  ✓    8 tests/ui/bar.spec.ts:174:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (4.6s)
+  ✓    9 tests/ui/bar.spec.ts:203:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (3.0s)
+  ✓   10 tests/ui/bar.spec.ts:215:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (4.1s)
+  ✓   11 tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений (2.1s)
+  ✓   12 tests/ui/bar.spec.ts:253:3 › доступность и телефон: light (3.4s)
+  ✓   13 tests/ui/bar.spec.ts:253:3 › доступность и телефон: dark (3.5s)
+  ✓   14 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (1.4s)
+  ✓   15 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1280px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (1.7s)
+  ✓   16 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1366px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (1.6s)
+  ✓   17 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1440px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (1.6s)
+  ✓   18 tests/ui/calendar-workspace.spec.ts:7:1 › calendar fills notebook screen without a side summary and keeps frozen headings (1.7s)
+  ✓   19 tests/ui/calendar-workspace.spec.ts:29:1 › expanded calendar restores the workspace with Escape and remembers density (3.5s)
+  ✓   20 tests/ui/calendar-workspace.spec.ts:53:1 › booking menu and keyboard remain usable in the expanded calendar (1.9s)
+  ✓   21 tests/ui/channels-compact.spec.ts:7:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (2.7s)
+  ✓   22 tests/ui/channels-compact.spec.ts:28:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (1.2s)
+  ✓   23 tests/ui/channels-compact.spec.ts:49:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (877ms)
+  ✓   24 tests/ui/channels-compact.spec.ts:57:1 › sync never calls an empty disconnected queue successful (985ms)
+  ✓   25 tests/ui/channels-list.spec.ts:24:1 › вкладка «Каналы»: подключённые с ID, названием, бронями за 30 дней и честным статусом (1.7s)
+  ✓   26 tests/ui/channels-list.spec.ts:63:1 › поиск сужает список; «Все доступные» — каталог Channex с отметкой подключённых (5.6s)
+  ✓   27 tests/ui/channels-list.spec.ts:78:1 › владелец открывает окно Channex; после «Готово» окно закрывается (8.0s)
+  ✓   28 tests/ui/channels-list.spec.ts:88:1 › владелец подтягивает будущие брони канала, который это умеет; у другого канала пункта нет (4.3s)
+  ✓   29 tests/ui/channels-list.spec.ts:101:1 › управляющий видит каналы, но не подключает: окно Channex только у владельца (2.7s)
+  ✓   30 tests/ui/channels-list.spec.ts:114:1 › Channex не ответил: причина словами, брони мимо подключений видны (2.4s)
+  ✓   31 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 1440px (3.2s)
+  ✓   32 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: light, 390px (3.1s)
+  ✓   33 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: dark, 1440px (3.9s)
+  ✓   34 tests/ui/channels-list.spec.ts:128:5 › доступность и снимок: dark, 390px (4.2s)
+  ✓   35 tests/ui/channels-list.spec.ts:148:1 › снимок «Все доступные» и окна Channex (3.4s)
+  ✓   36 tests/ui/channels-reconcile.spec.ts:13:1 › свежая сверка без расхождений (1.1s)
+  ✓   37 tests/ui/channels-reconcile.spec.ts:22:1 › канал видит больше мест: расхождение с числом ночей и что делает сторож (880ms)
+  ✓   38 tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки залита плашкой и называет тип словом (1.6s)
+  ✓   39 tests/ui/chessboard-blocks.spec.ts:48:1 › блокировка «с X до X+1» закрывает одну ночь X, как API; пустой период стенд отклоняет (1.6s)
+  ✓   40 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (1.7s)
+  ✓   41 tests/ui/chessboard-calendar.spec.ts:49:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (1.0s)
+  ✓   42 tests/ui/chessboard-calendar.spec.ts:62:3 › гейт «Календарь»: light (2.1s)
+  ✓   43 tests/ui/chessboard-calendar.spec.ts:62:3 › гейт «Календарь»: dark (2.2s)
+  ✓   44 tests/ui/chessboard-calendar.spec.ts:75:1 › пустая клетка не дублирует дату из шапки календаря (1.6s)
+  ✓   45 tests/ui/chessboard-calendar.spec.ts:83:1 › даты в шапке не повторяют свободные и занятые места (1.4s)
+  ✓   46 tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (1.9s)
+  ✓   47 tests/ui/chessboard-card.spec.ts:45:1 › двойной клик открывает полную карточку брони (2.0s)
+  ✓   48 tests/ui/chessboard-card.spec.ts:51:1 › живой двойной щелчок по самой правой плашке открывает полную карточку, хотя первый щелчок сужает сетку (2.1s)
+  ✓   49 tests/ui/chessboard-card.spec.ts:76:1 › действия по статусу: подтверждённой: заселить, проживающему: выселить (2.1s)
+  ✓   50 tests/ui/chessboard-card.spec.ts:98:1 › повторный щелчок по той же плашке закрывает панель, по другой переключает её (2.1s)
+  ✓   51 tests/ui/chessboard-card.spec.ts:118:1 › панель брони не висит всегда: нет при загрузке, закрывается щелчком мимо и сменой периода (3.2s)
+  ✓   52 tests/ui/chessboard-card.spec.ts:152:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (5.0s)
+  ✓   53 tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (5.2s)
+  ✓   54 tests/ui/chessboard-card.spec.ts:232:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (3.9s)
+  ✓   55 tests/ui/chessboard-card.spec.ts:260:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (4.8s)
+  ✓   56 tests/ui/chessboard-card.spec.ts:275:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (3.7s)
+  ✓   57 tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (1.9s)
+  ✓   58 tests/ui/chessboard-compact-screen.spec.ts:62:1 › свёрнутые категории переживают перезагрузку и разворачиваются (2.7s)
+  ✓   59 tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Обычный» (образец владельца 09.10), сохранённые «Компактный» и «Подробный» восстанавливаются (9.4s)
+  ✓   60 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (2.6s)
+  ✓   61 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (3.8s)
+  ✓   62 tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: light, компактное управление и доступная сетка (11.3s)
+  ✓   63 tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: dark, компактное управление и доступная сетка (11.9s)
+  ✓   64 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (4.0s)
+  ✓   65 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (3.0s)
+  ✓   66 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (2.1s)
+  ✓   67 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (4.2s)
+  ✓   68 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (2.9s)
+  ✓   69 tests/ui/chessboard-extend.spec.ts:27:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (1.9s)
+  ✓   70 tests/ui/chessboard-extend.spec.ts:46:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (4.8s)
+  ✓   71 tests/ui/chessboard-extend.spec.ts:85:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (3.5s)
+  ✓   72 tests/ui/chessboard-extend.spec.ts:118:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (3.1s)
+  ✓   73 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (3.6s)
+  ✓   74 tests/ui/chessboard-filters.spec.ts:147:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (2.6s)
+  ✓   75 tests/ui/chessboard-filters.spec.ts:178:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (4.2s)
+  ✓   76 tests/ui/chessboard-filters.spec.ts:243:1 › §37: ничего не найдено — «Сбросить фильтры» (2.2s)
+  ✓   77 tests/ui/chessboard-filters.spec.ts:256:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (3.7s)
+  ✓   78 tests/ui/chessboard-filters.spec.ts:288:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (1.9s)
+  ✓   79 tests/ui/chessboard-filters.spec.ts:306:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (1.8s)
+  ✓   80 tests/ui/chessboard-filters.spec.ts:333:1 › доступность: окошко «Фильтры» открыто (2.5s)
+  ✓   81 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling (1.8s)
+  ✓   82 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling (1.8s)
+  ✓   83 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling (1.8s)
+  ✓   84 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling (1.8s)
+  ✓   85 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling (1.7s)
+  ✓   86 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling (1.8s)
+  ✓   87 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling (1.8s)
+  ✓   88 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling (1.8s)
+  ✓   89 tests/ui/chessboard-focus.spec.ts:64:1 › free panel outside click leaves focus on the selected control (1.9s)
+  ✓   90 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: light (5.9s)
+  ✓   91 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark (6.9s)
+  ✓   92 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light (10.5s)
+  ✓   93 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: dark (11.0s)
+  ✓   94 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light (7.4s)
+  ✓   95 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: dark (6.3s)
+  ✓   96 tests/ui/chessboard-gate-pr6.spec.ts:47:3 › гейт PR 6: light (6.2s)
+  ✓   97 tests/ui/chessboard-gate-pr6.spec.ts:47:3 › гейт PR 6: dark (6.8s)
+  ✓   98 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: light (6.4s)
+  ✓   99 tests/ui/chessboard-gate-pr7.spec.ts:48:3 › гейт PR 7: dark (5.8s)
+  ✓  100 tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (3.0s)
+  ✓  101 tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх (4.4s)
+  ✓  102 tests/ui/chessboard-gate.spec.ts:104:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (9.2s)
+  ✓  103 tests/ui/chessboard-grid.spec.ts:12:1 › колонка места объясняет себя подсказкой: вид, код и состояние уборки (2.4s)
+  ✓  104 tests/ui/chessboard-grid.spec.ts:23:1 › свёрнутая категория переживает перезагрузку страницы (4.1s)
+  ✓  105 tests/ui/chessboard-grid.spec.ts:39:1 › строка категории прилипает под шапкой дат при вертикальной прокрутке (1.6s)
+  ✓  106 tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (3.7s)
+  ✓  107 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (2.7s)
+  ✓  108 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (2.7s)
+  ✓  109 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (3.6s)
+  ✓  110 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (1.6s)
+  ✓  111 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (2.2s)
+  ✓  112 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (2.3s)
+  ✓  113 tests/ui/chessboard-mobile.spec.ts:160:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (1.2s)
+  ✓  114 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (1.8s)
+  ✓  115 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (2.0s)
+  ✓  116 tests/ui/chessboard-mobile.spec.ts:188:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (1.8s)
+  ✓  117 tests/ui/chessboard-mobile.spec.ts:222:1 › мобильная панель меняет заезд без закрытия и показывает выезд (1.9s)
+  ✓  118 tests/ui/chessboard-mobile.spec.ts:242:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (3.3s)
+  ✓  119 tests/ui/chessboard-mobile.spec.ts:274:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (1.2s)
+  ✓  120 tests/ui/chessboard-mobile.spec.ts:297:3 › телефон light: длинное имя и бронь на 28 ночей (2.9s)
+  ✓  121 tests/ui/chessboard-mobile.spec.ts:297:3 › телефон dark: длинное имя и бронь на 28 ночей (3.1s)
+  ✓  122 tests/ui/chessboard-mobile.spec.ts:330:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (4.4s)
+  ✓  123 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (6.6s)
+  ✓  124 tests/ui/chessboard-month.spec.ts:26:1 › все 31 день помещаются по ширине окна (4.8s)
+  ✓  125 tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (6.4s)
+  ✓  126 tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (6.1s)
+  ✓  127 tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (5.6s)
+  ✓  128 tests/ui/chessboard-month.spec.ts:50:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (5.5s)
+  ✓  129 tests/ui/chessboard-month.spec.ts:65:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (7.6s)
+  ✓  130 tests/ui/chessboard-month.spec.ts:88:1 › 30 дней: окно от сегодня и шаг стрелки равен диапазону (4.9s)
+  ✓  131 tests/ui/chessboard-month.spec.ts:114:1 › в месяце открываются брони, свободные даты и группы номеров (8.5s)
+  ✓  132 tests/ui/chessboard-month.spec.ts:157:3 › месячная сетка: light, читаемость и адаптивность (22.4s)
+  ✓  133 tests/ui/chessboard-month.spec.ts:157:3 › месячная сетка: dark, читаемость и адаптивность (22.6s)
+  ✓  134 tests/ui/chessboard-range.spec.ts:58:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (3.1s)
+  ✓  135 tests/ui/chessboard-range.spec.ts:92:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево (3.9s)
+  ✓  136 tests/ui/chessboard-range.spec.ts:134:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом (2.3s)
+  ✓  137 tests/ui/chessboard-range.spec.ts:157:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает (3.2s)
+  ✘  138 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (1.8s)
+  ✘  139 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (2.1s)
+  ✘  140 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (1.9s)
+  ✓  141 tests/ui/chessboard-statistics.spec.ts:76:1 › today statistics stay available when the calendar shows another month (3.9s)
+  ✓  142 tests/ui/chessboard-statistics.spec.ts:90:1 › empty booking base shows zero occupancy and no urgent bookings (1.7s)
+  ✓  143 tests/ui/chessboard-statistics.spec.ts:104:3 › daily widgets light: accessible labels and contrasts (2.5s)
+  ✓  144 tests/ui/chessboard-statistics.spec.ts:104:3 › daily widgets dark: accessible labels and contrasts (2.5s)
+  ✓  145 tests/ui/chessboard-statistics.spec.ts:121:3 › desktop daily widgets light: accessible pointer targets (2.4s)
+  ✓  146 tests/ui/chessboard-statistics.spec.ts:121:3 › desktop daily widgets dark: accessible pointer targets (2.4s)
+  ✓  147 tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) (2.6s)
+  ✓  148 tests/ui/chessboard-unassigned.spec.ts:116:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом (2.5s)
+  ✓  149 tests/ui/chessboard-unassigned.spec.ts:157:1 › «Разрешить» у «Продано сверх мест» и ссылка с Главной открывают ящик; тон critical (1.9s)
+  ✓  150 tests/ui/chessboard-unassigned.spec.ts:175:1 › «только чтение» (ADR-102): места видны, назначить нельзя, бронь открывается (3.3s)
+  ✓  151 tests/ui/chessboard-week.spec.ts:20:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (2.5s)
+  ✓  152 tests/ui/chessboard-week.spec.ts:39:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (4.4s)
+  ✓  153 tests/ui/chessboard-week.spec.ts:94:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (2.6s)
+  ✓  154 tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (3.9s)
+  ✓  155 tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (3.6s)
+  ✓  156 tests/ui/chessboard-week.spec.ts:126:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (3.5s)
+  ✓  157 tests/ui/chessboard-week.spec.ts:146:1 › в неделе работают бронь, категории и создание на воскресенье (2.9s)
+  ✓  158 tests/ui/chessboard-week.spec.ts:186:3 › неделя помещается на экране: light, обе панели и телефон (11.7s)
+  ✓  159 tests/ui/chessboard-week.spec.ts:186:3 › неделя помещается на экране: dark, обе панели и телефон (12.1s)
+  ✓  160 tests/ui/chessboard-week.spec.ts:225:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (1.9s)
+  ✓  161 tests/ui/date-range-popover.spec.ts:5:1 › единый выбор периода: пресет, ручной диапазон и Escape (4.4s)
+  ✓  162 tests/ui/date-range-popover.spec.ts:26:1 › «Отмена» возвращает отрезок экрана и закрывает окно (2.4s)
+  ✓  163 tests/ui/date-range-popover.spec.ts:41:1 › popover помещается на планшете и телефоне в обеих темах (3.4s)
+  -  164 tests/ui/date-range-popover.spec.ts:58:1 › визуальное доказательство выбора периода в обеих темах
+  ✓  165 tests/ui/design-system.spec.ts:22:1 › три темы на одной странице, у интерактивных компонентов восемь состояний (3.4s)
+  ✓  166 tests/ui/design-system.spec.ts:47:1 › переключатель тем сообщает выбранное состояние (2.9s)
+  ✓  167 tests/ui/design-system.spec.ts:61:1 › ошибка Field связана с невалидным полем (1.7s)
+  ✓  168 tests/ui/design-system.spec.ts:69:1 › повышенная контрастность проходит axe AA (4.7s)
+  ✓  169 tests/ui/design-system.spec.ts:84:3 › axe и эталонные снимки секций: light (10.9s)
+  ✓  170 tests/ui/design-system.spec.ts:84:3 › axe и эталонные снимки секций: dark (11.3s)
+  ✓  171 tests/ui/design-system.spec.ts:111:1 › масштаб 200 %: нет горизонтальной прокрутки (1.8s)
+  ✓  172 tests/ui/design-system.spec.ts:132:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (2.4s)
+  ✓  173 tests/ui/design-system.spec.ts:154:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (2.9s)
+  ✓  174 tests/ui/design-system.spec.ts:169:1 › уведомление появляется в живой области и закрывается (2.2s)
+  ✓  175 tests/ui/design-system.spec.ts:181:1 › подсказка открывается фокусом и закрывается Escape (2.2s)
+  ✓  176 tests/ui/design-system.spec.ts:194:1 › состояния: пусто говорит что сделать, загрузка помечена словом, сбой различает связь и адрес (2.0s)
+  ✓  177 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (1.5s)
+  ✓  178 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (1.6s)
+  ✓  179 tests/ui/finance-card-actions.spec.ts:82:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (1.7s)
+  ✓  180 tests/ui/finance-card-actions.spec.ts:106:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (1.5s)
+  ✓  181 tests/ui/finance-card-actions.spec.ts:129:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (1.8s)
+  ✓  182 tests/ui/finance-card-actions.spec.ts:155:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (1.4s)
+  ✓  183 tests/ui/finance-card-actions.spec.ts:174:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (3.6s)
+  ✓  184 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (3.1s)
+  ✓  185 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (2.9s)
+  ✓  186 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (2.8s)
+  ✓  187 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (2.8s)
+  ✓  188 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (3.3s)
+  ✓  189 tests/ui/finance-cash-first.spec.ts:69:3 › касса: доступность и верстка 1440 (2.7s)
+  ✓  190 tests/ui/finance-cash-first.spec.ts:69:3 › касса: доступность и верстка 390 (2.5s)
+  ✓  191 tests/ui/finance-cash-first.spec.ts:69:3 › касса: доступность и верстка 360 (2.5s)
+  ✓  192 tests/ui/finance-cash-first.spec.ts:99:1 › касса: первый экран без лишних кнопок, действия внутри управления (1.8s)
+  ✓  193 tests/ui/finance-cash-first.spec.ts:119:1 › касса: визуальная иерархия итогов и спокойный сброс (1.4s)
+  ✓  194 tests/ui/finance-cash-first.spec.ts:138:1 › касса: тёмное оформление читается на телефоне (2.8s)
+  ✓  195 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (1.9s)
+  ✓  196 tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (3.4s)
+  ✓  197 tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (3.1s)
+  ✓  198 tests/ui/finance-cash.spec.ts:112:1 › статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода (3.2s)
+  ✓  199 tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны (2.9s)
+  ✓  200 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, light (2.7s)
+  ✓  201 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, dark (2.4s)
+  ✓  202 tests/ui/finance-cash.spec.ts:174:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (2.2s)
+  ✓  203 tests/ui/finance-cash.spec.ts:202:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (2.1s)
+  ✓  204 tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (3.0s)
+  ✓  205 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (1.6s)
+  ✓  206 tests/ui/finance-f1.spec.ts:99:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (2.1s)
+  ✓  207 tests/ui/finance-f1.spec.ts:149:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (1.5s)
+  ✓  208 tests/ui/finance-f1.spec.ts:180:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (1.9s)
+  ✓  209 tests/ui/finance-f1.spec.ts:222:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (3.6s)
+  ✓  210 tests/ui/finance-f1.spec.ts:238:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (2.7s)
+  ✓  211 tests/ui/finance-f1.spec.ts:259:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (1.6s)
+  ✓  212 tests/ui/finance-f1.spec.ts:279:3 › F1, стоп-гейт: снимки для владельца, light (2.7s)
+  ✓  213 tests/ui/finance-f1.spec.ts:279:3 › F1, стоп-гейт: снимки для владельца, dark (2.6s)
+  ✓  214 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (3.7s)
+  ✓  215 tests/ui/finance-f2.spec.ts:67:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (5.7s)
+  ✓  216 tests/ui/finance-f2.spec.ts:86:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (3.8s)
+  ✓  217 tests/ui/finance-f2.spec.ts:106:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (2.7s)
+  ✓  218 tests/ui/finance-f2.spec.ts:133:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (1.8s)
+  ✓  219 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (5.4s)
+  ✓  220 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (5.3s)
+  ✓  221 tests/ui/finance-f2.spec.ts:186:1 › F2: «Аннулировать» у платежа в ленте — вопрос с суммой, статус «аннулирована», сумма ушла из «Оплачено» (2.7s)
+  ✓  222 tests/ui/finance-home-merge.spec.ts:19:1 › обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек (1.6s)
+  ✓  223 tests/ui/finance-home-merge.spec.ts:102:1 › очередь «Требуют внимания» открывается из «Все задачи» (1.6s)
+  ✓  224 tests/ui/finance-home-merge.spec.ts:109:1 › /today гостиницы перенаправляет в финансы (1.9s)
+  ✓  225 tests/ui/finance-home-merge.spec.ts:117:1 › меню: «Финансы» первой вкладкой, «Главной» нет (1.4s)
+  ✓  226 tests/ui/finance-home-merge.spec.ts:126:1 › период в шапке: Сегодня, 7 дней, Месяц; Месяц по умолчанию (1.8s)
+  ✓  227 tests/ui/finance-home-merge.spec.ts:138:1 › телефон: показатели первым экраном, фильтры достижимы (1.5s)
+  ✓  228 tests/ui/finance-services.spec.ts:53:1 › вкладка «Услуги»: строки из API, «вручную» словами, «Итого» равно строке «Услуги» обзора (1.6s)
+  ✓  229 tests/ui/finance-services.spec.ts:100:1 › CSV услуг: кнопка на вкладке, файл со сводом и строкой «вручную» (2.0s)
+  ✓  230 tests/ui/finance-services.spec.ts:115:1 › хаб «Отчёты»: карточка услуг с суммой из сводки ведёт на вкладку (2.7s)
+  ✓  231 tests/ui/finance-services.spec.ts:131:1 › пустая база: вкладка честно говорит, что начислений нет (1.2s)
+  ✓  232 tests/ui/finance-services.spec.ts:139:3 › доступность и снимки, light (3.6s)
+  ✓  233 tests/ui/finance-services.spec.ts:139:3 › доступность и снимки, dark (3.4s)
+  ✓  234 tests/ui/finance-units-design.spec.ts:23:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (1440) (1.7s)
+  ✓  235 tests/ui/finance-units-design.spec.ts:23:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (телефон) (1.8s)
+  ✓  236 tests/ui/finance-units-design.spec.ts:67:1 › карточка ячейки: подзаголовок словами, даты проживаний в <time>, заголовок без скобок (1.1s)
+  ✓  237 tests/ui/guests-bookings.spec.ts:25:1 › гости и бронирования: плитки, виды со счётчиками, одна строка на гостя, панель первого гостя (2.3s)
+  ✓  238 tests/ui/guests-bookings.spec.ts:90:1 › гости и бронирования: панель гостя: вкладки, бронь, оплата, история, закрытие и выбор строкой (3.4s)
+  ✓  239 tests/ui/guests-bookings.spec.ts:160:1 › гости и бронирования: отметки строк и нижняя полоса действий (1.7s)
+  ✓  240 tests/ui/guests-bookings.spec.ts:198:1 › гости и бронирования: поиск, статус, источник, переключатели и период живут в адресе (5.8s)
+  ✓  241 tests/ui/guests-bookings.spec.ts:264:1 › гости и бронирования: страницы и размер страницы (3.5s)
+  ✓  242 tests/ui/guests-bookings.spec.ts:283:1 › гости и бронирования: пустые состояния, пустая база, сбой API (2.1s)
+  ✓  243 tests/ui/guests-bookings.spec.ts:315:1 › гости и бронирования: одна вкладка меню, ссылка в классический список и новая бронь (1.9s)
+  ✓  244 tests/ui/guests-bookings.spec.ts:334:3 › гости и бронирования: доступность и ширина экрана, светлая тема (5.2s)
+  ✓  245 tests/ui/guests-bookings.spec.ts:334:3 › гости и бронирования: доступность и ширина экрана, тёмная тема (5.0s)
+  ✓  246 tests/ui/guests-bookings.spec.ts:373:3 › гости и бронирования: на 1366×768 таблица показывает несколько строк, а не одну (1.2s)
+  ✓  247 tests/ui/guests-bookings.spec.ts:373:3 › гости и бронирования: на 1280×800 таблица показывает несколько строк, а не одну (937ms)
+  ✓  248 tests/ui/guests-bookings.spec.ts:373:3 › гости и бронирования: на 1280×900 таблица показывает несколько строк, а не одну (911ms)
+  ✓  249 tests/ui/guests-bookings.spec.ts:373:3 › гости и бронирования: на 1440×1000 таблица показывает несколько строк, а не одну (873ms)
+  ✓  250 tests/ui/market-charts.spec.ts:47:1 › три графика: линии загрузки, наличие данных и изменение; значения доступны таблицей (2.8s)
+  ✓  251 tests/ui/market-charts.spec.ts:92:1 › без сравнения: график изменения говорит, как его включить, а не рисует нули (2.0s)
+  ✓  252 tests/ui/market-charts.spec.ts:104:1 › пока конкурентов нет, графиков нет: пустое состояние как раньше (3.1s)
+  ✓  253 tests/ui/market-charts.spec.ts:112:5 › доступность и снимки: light, 1440px (3.3s)
+  ✓  254 tests/ui/market-charts.spec.ts:112:5 › доступность и снимки: light, 390px (2.9s)
+  ✓  255 tests/ui/market-charts.spec.ts:112:5 › доступность и снимки: dark, 1440px (3.2s)
+  ✓  256 tests/ui/market-charts.spec.ts:112:5 › доступность и снимки: dark, 390px (3.5s)
+  ✓  257 tests/ui/market-competitors.spec.ts:51:1 › список: район, тип, загрузка сегодня, средняя цена, изменение и статус (1.5s)
+  ✓  258 tests/ui/market-competitors.spec.ts:68:1 › отбор по району оставляет одну строку и сбрасывается (3.1s)
+  ✓  259 tests/ui/market-competitors.spec.ts:80:1 › цены на графике: четвёртый график появляется, когда цены внесены (2.4s)
+  ✓  260 tests/ui/market-competitors.spec.ts:95:1 › цены вносятся панелью: сохранённое видно в списке, очищенное снимает (3.0s)
+  ✓  261 tests/ui/market-competitors.spec.ts:111:1 › цена словами ошибки: ввод не теряется (1.7s)
+  ✓  262 tests/ui/market-competitors.spec.ts:121:1 › карточка: район, тип и настройки мониторинга сохраняются; автообновление честно названо будущим (2.9s)
+  ✓  263 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: light, 1440px (3.0s)
+  ✓  264 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: light, 390px (3.0s)
+  ✓  265 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: dark, 1440px (3.1s)
+  ✓  266 tests/ui/market-competitors.spec.ts:152:5 › доступность и снимки: dark, 390px (2.9s)
+  ✓  267 tests/ui/market.spec.ts:61:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (4.8s)
+  ✓  268 tests/ui/market.spec.ts:126:1 › плитки, календарь сигналов, график, рекомендация и таблица конкурентов; убрать из списка (5.0s)
+  ✓  269 tests/ui/market.spec.ts:190:1 › календарь сигналов: дата открывает «Историю ночи» (2.3s)
+  ✓  270 tests/ui/market.spec.ts:198:1 › «только чтение»: показатели и таблицы видны, добавлять и вносить нельзя (3.1s)
+  ✓  271 tests/ui/market.spec.ts:216:3 › снимки и доступность: light (4.5s)
+  ✓  272 tests/ui/market.spec.ts:216:3 › снимки и доступность: dark (4.4s)
+  ✓  273 tests/ui/market.spec.ts:259:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (2.4s)
+  ✓  274 tests/ui/market.spec.ts:288:1 › «История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса (3.5s)
+  ✓  275 tests/ui/market.spec.ts:328:1 › снимок сборщика только уровнем: ячейка словом, строка рынка считает почти полных (1.3s)
+  ✓  276 tests/ui/marketing-budget.spec.ts:55:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (2.7s)
+  ✓  277 tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (3.0s)
+  ✓  278 tests/ui/marketing-budget.spec.ts:99:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (3.3s)
+  ✓  279 tests/ui/marketing-budget.spec.ts:136:1 › аналитика маркетинга: расходы с динамикой, эффективность источников, честные «Недостаточно данных» (2.6s)
+  ✓  280 tests/ui/marketing-budget.spec.ts:162:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (1.0s)
+  ✓  281 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: light (5.0s)
+  ✓  282 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: dark (4.9s)
+  ✓  283 tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (1.5s)
+  ✓  284 tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (1.1s)
+  ✓  285 tests/ui/marketing-site.spec.ts:51:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (2.8s)
+  ✓  286 tests/ui/marketing-site.spec.ts:98:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (1.3s)
+  ✓  287 tests/ui/marketing-site.spec.ts:114:1 › источник брони выбирается явно; архив с вопросом (4.0s)
+  ✓  288 tests/ui/marketing-site.spec.ts:127:3 › страница на компьютере и телефоне, доступность: light (3.9s)
+  ✓  289 tests/ui/marketing-site.spec.ts:127:3 › страница на компьютере и телефоне, доступность: dark (5.1s)
+  ✓  290 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (3.9s)
+  ✓  291 tests/ui/marketing.spec.ts:75:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (6.5s)
+  ✓  292 tests/ui/marketing.spec.ts:95:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (2.6s)
+  ✓  293 tests/ui/marketing.spec.ts:185:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (5.2s)
+  ✓  294 tests/ui/marketing.spec.ts:243:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.1s)
+  ✓  295 tests/ui/marketing.spec.ts:265:3 › хаб на компьютере и телефоне, доступность: light (9.6s)
+  ✓  296 tests/ui/marketing.spec.ts:265:3 › хаб на компьютере и телефоне, доступность: dark (8.4s)
+  ✓  297 tests/ui/marketing.spec.ts:320:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (7.3s)
+  ✓  298 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: скрытое меню доступно на основных маршрутах без нижней панели и переполнения (14.5s)
+  ✓  299 tests/ui/mobile-adaptation.spec.ts:52:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (2.8s)
+  ✓  300 tests/ui/mobile-adaptation.spec.ts:61:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (2.6s)
+  ✓  301 tests/ui/mobile-adaptation.spec.ts:76:1 › телефон: сводка и управление оставляют сетку на первом экране (1.7s)
+  ✓  302 tests/ui/mobile-adaptation.spec.ts:94:1 › узкий телефон: плитки финансов встают в одну колонку (1.7s)
+  ✓  303 tests/ui/mobile-adaptation.spec.ts:105:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (8.4s)
+  ✓  304 tests/ui/mobile-adaptation.spec.ts:138:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (10.8s)
+  ✓  305 tests/ui/platform-overview.spec.ts:23:1 › обзор: плитки, рост, направления, статусы; про деньги: честные слова, а не числа (5.1s)
+  ✓  306 tests/ui/platform-overview.spec.ts:55:1 › подписи колец направлений и статусов читаются целиком на 1440 px рядом с левой колонкой (4.5s)
+  ✓  307 tests/ui/platform-overview.spec.ts:71:1 › таблица клиентов: направления, филиалы, дата подключения; поиск и отборы работают на месте (13.9s)
+  ✓  308 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (4.6s)
+  ✓  309 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (2.0s)
+  ✓  310 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (1.6s)
+  ✓  311 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (1.4s)
+  ✓  312 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search (1.4s)
+  ✓  313 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (2.9s)
+  ✘  314 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (16.7s)
+  ✓  315 tests/ui/search-filter-recovery.spec.ts:146:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (6.1s)
+  ✓  316 tests/ui/search-filter-recovery.spec.ts:172:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (4.1s)
+  ✓  317 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (1.5s)
+  ✓  318 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (1.5s)
+  ✓  319 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (1.4s)
+  ✓  320 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (1.3s)
+  ✓  321 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search (1.3s)
+  ✓  322 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (2.5s)
+  ✘  323 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (16.2s)
+  ✓  324 tests/ui/search-filter-recovery.spec.ts:146:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (5.4s)
+  ✓  325 tests/ui/search-filter-recovery.spec.ts:172:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (3.0s)
+  ✓  326 tests/ui/ui31-board-width.spec.ts:3:1 › UI3.1: сетка занимает ширину без постоянной сводки дня (9.1s)
+  ✓  327 tests/ui/ui31-settings-loading.spec.ts:3:1 › UI3.1: переход в настройки показывает загрузку до ответа API (4.0s)
+  ✓  328 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (2.7s)
+  ✓  329 tests/ui/ui31-shell.spec.ts:40:1 › UI3.1: mobile освобождает низ и возвращает фокус (1.9s)
+  ✓  330 tests/ui/ui31-shell.spec.ts:60:1 › UI3.1: переход закрывает меню, active route сохраняется (2.2s)
+  ✓  331 tests/ui/ui31-shell.spec.ts:77:1 › UI3.1: граница desktop/mobile и узкий экран (3.9s)
+  ✓  332 tests/ui/ui31-shell.spec.ts:111:1 › UI3.1: размеры целей шапки и мобильной поверхности (2.3s)
+  ✓  333 tests/ui/ui31-shell.spec.ts:136:3 › UI3.1: история периода закрывает меню 1440 (2.2s)
+  ✓  334 tests/ui/ui31-shell.spec.ts:136:3 › UI3.1: история периода закрывает меню 390 (2.3s)
+  ✓  335 tests/ui/ui31-shell.spec.ts:159:1 › UI3.1: мобильный переход фокусирует готовое содержимое (2.6s)
+
+
+  1) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 8
+
+    - Array []
+    + Array [
+    +   "Заезд",
+    +   "сегодня",
+    +   "Выезд",
+    +   "сегодня",
+    +   "Требует",
+    +   "внимания",
+    + ]
+
+      49 |       return broken;
+      50 |     });
+    > 51 |     expect(brokenWords).toEqual([]);
+         |                         ^
+      52 |     await expect(panel.getByRole('link', { name: /^Свободно / })).toBeVisible();
+      53 |     await expect(panel.getByTestId('day-in-house')).toBeVisible();
+      54 |     const label = page.locator('.board-group-name-text').first();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/chessboard-statistics.spec.ts:51:25
+
+    Error Context: test-results/chessboard-statistics-stat-1853e-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-1853e-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "Требует",
+    +   "внимания",
+    + ]
+
+      49 |       return broken;
+      50 |     });
+    > 51 |     expect(brokenWords).toEqual([]);
+         |                         ^
+      52 |     await expect(panel.getByRole('link', { name: /^Свободно / })).toBeVisible();
+      53 |     await expect(panel.getByTestId('day-in-house')).toBeVisible();
+      54 |     const label = page.locator('.board-group-name-text').first();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/chessboard-statistics.spec.ts:51:25
+
+    Error Context: test-results/chessboard-statistics-stat-d9659-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-d9659-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-d9659-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "Требует",
+    +   "внимания",
+    + ]
+
+      49 |       return broken;
+      50 |     });
+    > 51 |     expect(brokenWords).toEqual([]);
+         |                         ^
+      52 |     await expect(panel.getByRole('link', { name: /^Свободно / })).toBeVisible();
+      53 |     await expect(panel.getByTestId('day-in-house')).toBeVisible();
+      54 |     const label = page.locator('.board-group-name-text').first();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/chessboard-statistics.spec.ts:51:25
+
+    Error Context: test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-stat-f5f83-and-complete-category-words/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /^Свободно .*Найти места$/ })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: /^Свободно .*Найти места$/ }) with timeout 15000ms
+      - waiting for getByRole('link', { name: /^Свободно .*Найти места$/ })
+
+
+      135 |       // Карточка считает все места, включая койки, и передаёт выбранный период и категорию.
+      136 |       const link = page.getByRole('link', { name: /^Свободно .*Найти места$/ });
+    > 137 |       await expect(link).toBeVisible();
+          |                          ^
+      138 |       await link.click();
+      139 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+      140 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/search-filter-recovery.spec.ts:137:26
+
+    Error Context: test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /^Свободно .*Найти места$/ })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: /^Свободно .*Найти места$/ }) with timeout 15000ms
+      - waiting for getByRole('link', { name: /^Свободно .*Найти места$/ })
+
+
+      135 |       // Карточка считает все места, включая койки, и передаёт выбранный период и категорию.
+      136 |       const link = page.getByRole('link', { name: /^Свободно .*Найти места$/ });
+    > 137 |       await expect(link).toBeVisible();
+          |                          ^
+      138 |       await link.click();
+      139 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+      140 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/search-filter-recovery.spec.ts:137:26
+
+    Error Context: test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words 
+    tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words 
+    tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+    tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category 
+  1 skipped
+  329 passed (20.3m)
+
+# код выхода 1 · 20 мин 21 с

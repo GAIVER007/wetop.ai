@@ -1,0 +1,40 @@
+# Интеграционные (integration) · 11.10.2026 15:11 Алматы · MacBook-Air-Urij.local
+# коммит 0491010 (codex/ai-seller-wizard-scan-20261011), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-11-53Z-integration-edf8.json' '--config' 'tests/wizard-scan.config.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ❯ |integration| tests/integration/wizard-scan.test.ts (4 tests | 1 failed) 783ms
+   ❯ isolated scan queue (4)
+     ✓ enqueues one scan for concurrent requests at the same revision 644ms
+     ✓ persists fields and FAQ after worker restart; concurrent workers claim only once 68ms
+     × does not overwrite a manual edit while a scan is running 30ms
+     ✓ recovers abandoned lease with the same paid request id 31ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/wizard-scan.test.ts > isolated scan queue > does not overwrite a manual edit while a scan is running
+AssertionError: expected 'failed' to be 'stale' // Object.is equality
+
+Expected: "stale"
+Received: "failed"
+
+ ❯ tests/integration/wizard-scan.test.ts:97:31
+     95|     const state = await service.scanStatus(token);
+     96|     expect(state.draft.businessName).toBe('Моя правка');
+     97|     expect(state.scan?.state).toBe('stale');
+       |                               ^
+     98|   });
+     99|   it('recovers abandoned lease with the same paid request id', async (…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  14:11:56
+   Duration  2.26s (transform 45%, tests 37%, import 18%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-11-53Z-integration-edf8.json
+
+# код выхода 1 · 5 с

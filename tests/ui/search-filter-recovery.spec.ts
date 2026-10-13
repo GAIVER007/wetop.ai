@@ -134,7 +134,7 @@ for (const width of [1440, 390]) {
     test('availability: calendar transfers its inclusive range and category', async ({ page }) => {
       await page.goto('/chessboard?from=2026-10-10&to=2026-10-12&category=MALE');
       // Карточка считает все места, включая койки, и передаёт выбранный период и категорию.
-      const link = page.getByRole('link', { name: 'Поиск свободных мест', exact: true });
+      const link = page.getByRole('link', { name: /^Свободно мест: .*Поиск свободных мест$/ });
       await expect(link).toBeVisible();
       await link.click();
       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');

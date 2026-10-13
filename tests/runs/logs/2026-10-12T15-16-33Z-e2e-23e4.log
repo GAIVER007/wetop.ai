@@ -1,0 +1,652 @@
+# Сквозные (e2e) · 12.10.2026 20:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 75b9695 (claude/ui-master-pass3), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/invites.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/password-reset.spec.ts' 'tests/ui/system-screens.spec.ts'
+
+Running 33 tests using 1 worker
+
+  ✓   1 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (23.2s)
+  ✓   2 tests/ui/invites.spec.ts:49:1 › без сессии формы приглашения нет (4.8s)
+  ✘   3 tests/ui/invites.spec.ts:56:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (17.6s)
+  ✓   4 tests/ui/invites.spec.ts:75:1 › мёртвая ссылка — один текст и путь на форму входа (11.5s)
+  ✘   5 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (33.2s)
+  ✘   6 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (45.2s)
+  ✘   7 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (48.1s)
+  ✘   8 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (45.8s)
+  ✘   9 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (48.1s)
+  ✘  10 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (43.9s)
+  ✘  11 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (54.4s)
+  ✘  12 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (32.4s)
+  ✘  13 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (49.7s)
+  ✘  14 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (45.2s)
+  ✘  15 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (18.5s)
+  ✘  16 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (45.1s)
+  ✓  17 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (1.1s)
+  ✘  18 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (45.2s)
+  ✘  19 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (45.6s)
+  ✓  20 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (8.3s)
+  ✘  21 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (20.2s)
+  ✘  22 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (26.5s)
+  ✓  23 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (13.2s)
+  ✓  24 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (5.2s)
+  ✓  25 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (6.7s)
+  ✓  26 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (3.4s)
+  ✓  27 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (29.5s)
+  ✓  28 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (5.8s)
+  ✓  29 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (10.6s)
+  ✓  30 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (24.1s)
+  ✘  31 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (47.2s)
+  ✓  32 tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (27.4s)
+  ✘  33 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (53.5s)
+
+
+  1) tests/ui/invites.spec.ts:56:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им 
+
+    Error: page.waitForURL: net::ERR_CONNECTION_REFUSED
+    =========================== logs ===========================
+    waiting for navigation to "http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>" until "load"
+    ============================================================
+
+      69 |   await page.getByLabel('Пароль ещё раз', { exact: true }).fill('novyj-parol-2026');
+      70 |   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
+    > 71 |   await page.waitForURL('http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>');
+         |              ^
+      72 |   await expect(page.getByRole('dialog')).toContainText('Пароль сохранён');
+      73 | });
+      74 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/invites.spec.ts:71:14
+
+    Error Context: test-results/invites-ссылка-из-письма-к-46cbe-аёт-себе-пароль-и-входит-им/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/invites-ссылка-из-письма-к-46cbe-аёт-себе-пароль-и-входит-им/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/invites-ссылка-из-письма-к-46cbe-аёт-себе-пароль-и-входит-им/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' }) with timeout 15000ms
+      - waiting for getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' })
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+
+
+      31 | test('главная просит почту и пароль, без второго рекламного экрана', async ({ page }) => {
+      32 |   await page.goto('/login');
+    > 33 |   await expect(dialog(page).getByRole('heading', { name: 'Вход в WETOP' })).toBeVisible();
+         |                                                                             ^
+      34 |   await expect(dialog(page).getByLabel('Пароль', { exact: true })).toHaveAttribute(
+      35 |     'autocomplete',
+      36 |     'current-password',
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:33:77
+
+    Error Context: test-results/login-access-главная-проси-2ab7c-з-второго-рекламного-экрана/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-главная-проси-2ab7c-з-второго-рекламного-экрана/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-главная-проси-2ab7c-з-второго-рекламного-экрана/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:43:9
+
+    Error Context: test-results/login-access-верный-пароль-6fd3a-од-возвращает-форму-главной/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-верный-пароль-6fd3a-од-возвращает-форму-главной/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-верный-пароль-6fd3a-од-возвращает-форму-главной/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+        - waiting for navigation to finish...
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:52:9
+
+    Error Context: test-results/login-access-неверный-паро-c197e-ытия-существования-аккаунта/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-неверный-паро-c197e-ытия-существования-аккаунта/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-неверный-паро-c197e-ытия-существования-аккаунта/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:59:9
+
+    Error Context: test-results/login-access-сбой-API-сохр-397a7-сле-восстановления-работает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-сбой-API-сохр-397a7-сле-восстановления-работает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-сбой-API-сохр-397a7-сле-восстановления-работает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки ─
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:70:9
+
+    Error Context: test-results/login-access-клавиатура-по-eb48c-окировка-повторной-отправки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-клавиатура-по-eb48c-окировка-повторной-отправки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-клавиатура-по-eb48c-окировка-повторной-отправки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light ────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      106 |       await page.setViewportSize({ width, height: 1000 });
+      107 |       await page.goto('/login');
+    > 108 |       await expect(dialog(page)).toBeVisible();
+          |                                  ^
+      109 |       expect(
+      110 |         await page.evaluate('document.documentElement.scrollWidth - innerWidth'),
+      111 |       ).toBeLessThanOrEqual(1);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:108:34
+
+    Error Context: test-results/login-access-доступность-формы-и-адаптивность-—-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-доступность-формы-и-адаптивность-—-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-доступность-формы-и-адаптивность-—-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark ─────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      106 |       await page.setViewportSize({ width, height: 1000 });
+      107 |       await page.goto('/login');
+    > 108 |       await expect(dialog(page)).toBeVisible();
+          |                                  ^
+      109 |       expect(
+      110 |         await page.evaluate('document.documentElement.scrollWidth - innerWidth'),
+      111 |       ).toBeLessThanOrEqual(1);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:108:34
+
+    Error Context: test-results/login-access-доступность-формы-и-адаптивность-—-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-доступность-формы-и-адаптивность-—-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-доступность-формы-и-адаптивность-—-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('dialog').getByLabel('Почта')
+    Expected: ""
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog').getByLabel('Почта') with timeout 15000ms
+      - waiting for getByRole('dialog').getByLabel('Почта')
+        2 × waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+
+
+      125 |   });
+      126 |   await page.goto('/login');
+    > 127 |   await expect(dialog(page).getByLabel('Почта')).toHaveValue('');
+          |                                                  ^
+      128 |   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
+      129 | });
+      130 | test('сеансы открываются в профиле, команда в «Сотрудниках», не на входе', async ({ page }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:127:50
+
+    Error Context: test-results/login-access-заголовок-пре-5172f-вляет-почту-и-не-авторизует/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-заголовок-пре-5172f-вляет-почту-и-не-авторизует/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-заголовок-пре-5172f-вляет-почту-и-не-авторизует/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+        - waiting for navigation to finish...
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:132:9
+
+    Error Context: test-results/login-access-сеансы-открыв-f3786-в-«Сотрудниках»-не-на-входе/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-сеансы-открыв-f3786-в-«Сотрудниках»-не-на-входе/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-сеансы-открыв-f3786-в-«Сотрудниках»-не-на-входе/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Регистрация', exact: true })
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+
+
+      145 | test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
+      146 |   await page.goto('/login');
+    > 147 |   await dialog(page).getByRole('tab', { name: 'Регистрация', exact: true }).click();
+          |                                                                             ^
+      148 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      149 |   await expect(
+      150 |     dialog(page).getByRole('link', { name: 'политикой конфиденциальности' }),
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:147:77
+
+    Error Context: test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByRole('heading', { name: 'Новый аккаунт' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByRole('heading', { name: 'Новый аккаунт' }) with timeout 15000ms
+      - waiting for getByRole('dialog').getByRole('heading', { name: 'Новый аккаунт' })
+        - waiting for navigation to finish...
+
+
+      155 | test('старая ссылка mode=register открывает регистрацию на главной', async ({ page }) => {
+      156 |   await page.goto('/login?mode=register');
+    > 157 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+          |                                                                              ^
+      158 |   await expect(page).toHaveURL(SITE + '/?next=%2Ftoday#register');
+      159 | });
+      160 | test('до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:157:78
+
+    Error Context: test-results/login-access-старая-ссылка-ab1b6-вает-регистрацию-на-главной/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-старая-ссылка-ab1b6-вает-регистрацию-на-главной/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-старая-ссылка-ab1b6-вает-регистрацию-на-главной/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+
+
+      16 | async function fillRegister(page: Page, email = '<email>') {
+      17 |   const form = dialog(page);
+    > 18 |   await form.getByLabel('Почта').fill(email);
+         |                                  ^
+      19 |   await form.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
+      20 |   await form.getByLabel('Название бизнеса').fill('Тестовый объект');
+      21 |   await form.getByLabel('Страна', { exact: true }).selectOption('KZ');
+        at fillRegister (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:18:34)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:165:9
+
+    Error Context: test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      16 | async function fillRegister(page: Page, email = '<email>') {
+      17 |   const form = dialog(page);
+    > 18 |   await form.getByLabel('Почта').fill(email);
+         |                                  ^
+      19 |   await form.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
+      20 |   await form.getByLabel('Название бизнеса').fill('Тестовый объект');
+      21 |   await form.getByLabel('Страна', { exact: true }).selectOption('KZ');
+        at fillRegister (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:18:34)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:180:9
+
+    Error Context: test-results/login-access-без-согласия--22daa-еверный-телефон-отклоняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-без-согласия--22daa-еверный-телефон-отклоняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-без-согласия--22daa-еверный-телефон-отклоняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию ──────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      16 | async function fillRegister(page: Page, email = '<email>') {
+      17 |   const form = dialog(page);
+    > 18 |   await form.getByLabel('Почта').fill(email);
+         |                                  ^
+      19 |   await form.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
+      20 |   await form.getByLabel('Название бизнеса').fill('Тестовый объект');
+      21 |   await form.getByLabel('Страна', { exact: true }).selectOption('KZ');
+        at fillRegister (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:18:34)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/login-access.spec.ts:191:9
+
+    Error Context: test-results/login-access-занятая-почта-7a252-ий-пароль-не-создают-сессию/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-занятая-почта-7a252-ий-пароль-не-создают-сессию/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-занятая-почта-7a252-ий-пароль-не-создают-сессию/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>"
+    Received: "chrome-error://chromewebdata/"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3151/login/set-password?token=<скрыто>"
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday&password=set" navigation to finish...
+        27 × locator resolved to <html dir="ltr" lang="ru">…</html>
+           - unexpected value "chrome-error://chromewebdata/"
+
+
+      33 |   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
+      34 |
+    > 35 |   await expect(page).toHaveURL('http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>');
+         |                      ^
+      36 |   await expect(page.getByRole('dialog')).toContainText('Пароль сохранён');
+      37 |
+      38 |   await page.getByLabel('Почта', { exact: true }).fill('<email>');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/password-reset.spec.ts:35:22
+
+    Error Context: test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает ───────────────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>"
+    Received: "chrome-error://chromewebdata/"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        6 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3151/login/set-password?token=<скрыто>"
+        2 × locator resolved to <html dir="ltr" lang="ru">…</html>
+          - unexpected value "chrome-error://chromewebdata/"
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday&password=set" navigation to finish...
+        24 × locator resolved to <html dir="ltr" lang="ru">…</html>
+           - unexpected value "chrome-error://chromewebdata/"
+
+
+      47 |   await page.getByLabel('Пароль ещё раз', { exact: true }).fill('zhanga-parol-2026');
+      48 |   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
+    > 49 |   await expect(page).toHaveURL('http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>');
+         |                      ^
+      50 |
+      51 |   await page.goto('/login/set-password?token=<скрыто>');
+      52 |   await page.getByLabel('Пароль', { exact: true }).fill('basqa-parol-2026');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/password-reset.spec.ts:49:22
+
+    Error Context: test-results/password-reset-второй-раз-та-же-ссылка-не-работает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/password-reset-второй-раз-та-же-ссылка-не-работает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/password-reset-второй-раз-та-же-ссылка-не-работает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Target page, context or browser has been closed
+
+      215 |   await page.setViewportSize({ width: 390, height: 844 });
+      216 |   await page.goto('/management/analytics/occupancy');
+    > 217 |   const layout = await page.evaluate(() => {
+          |                             ^
+      218 |     const w = globalThis as unknown as {
+      219 |       innerWidth: number;
+      220 |       document: { documentElement: { scrollWidth: number } };
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/system-screens.spec.ts:217:29
+
+    Error Context: test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3151/profile/access", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/system-screens.spec.ts:317:14
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19 failed
+    tests/ui/invites.spec.ts:56:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им 
+    tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана 
+    tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной 
+    tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта 
+    tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает 
+    tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки ──
+    tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light ─────────────────
+    tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark ──────────────────
+    tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует 
+    tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе 
+    tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+    tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной 
+    tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+    tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется 
+    tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию ────────
+    tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним 
+    tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает ─────────────────────
+    tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+  14 passed (19.3m)
+
+# код выхода 1 · 19 мин 25 с

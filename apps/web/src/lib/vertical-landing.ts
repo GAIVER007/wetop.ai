@@ -40,6 +40,9 @@ const routes: Record<WebVertical, string[]> = {
     '/stock',
     '/payroll',
     '/cashbox',
+    '/drinks',
+    '/restaurant-finance',
+    '/restaurant-settings',
   ],
 };
 export function routeVertical(path: string): WebVertical | null {

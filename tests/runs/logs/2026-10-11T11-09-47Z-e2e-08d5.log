@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 11.10.2026 16:09 Алматы · MacBook-Air-Urij.local
+# коммит 33a2369 (codex/ai-seller-wizard-generate-20261011)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/wizard-generate.config.ts' '--workers' '1' 'guest-wizard-generate.spec.ts' 'guest-wizard-scan.spec.ts'
+[WebServer] (node:69893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69894) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 1 worker
+
+(node:69899) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [light-390] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation succeeded, reload and edit (4.8s)
+  ✓   2 [light-390] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation failed, reload and edit (3.4s)
+  ✓   3 [light-390] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload (2.5s)
+  ✓   4 [light-390] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan failed allows manual entry without losing input (1.5s)
+  ✓   5 [light-390] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input (1.6s)
+(node:69932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [light-1440] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation succeeded, reload and edit (3.6s)
+  ✓   7 [light-1440] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation failed, reload and edit (2.3s)
+  ✓   8 [light-1440] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload (5.9s)
+  ✓   9 [light-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan failed allows manual entry without losing input (3.1s)
+  ✓  10 [light-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input (1.8s)
+(node:69999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [dark-390] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation succeeded, reload and edit (5.9s)
+  ✓  12 [dark-390] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation failed, reload and edit (2.1s)
+  ✓  13 [dark-390] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload (2.5s)
+  ✓  14 [dark-390] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan failed allows manual entry without losing input (985ms)
+  ✓  15 [dark-390] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input (1.1s)
+(node:70032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 [dark-1440] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation succeeded, reload and edit (2.9s)
+  ✓  17 [dark-1440] › tests/ui/guest-wizard-generate.spec.ts:6:3 › support generation failed, reload and edit (1.9s)
+  ✓  18 [dark-1440] › tests/ui/guest-wizard-scan.spec.ts:5:1 › site scan returns restaurant fields and preserves them on reload (2.9s)
+  ✓  19 [dark-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan failed allows manual entry without losing input (927ms)
+  ✓  20 [dark-1440] › tests/ui/guest-wizard-scan.spec.ts:70:3 › scan running allows manual entry without losing input (1.2s)
+
+  20 passed (1.1m)
+
+# код выхода 0 · 1 мин 11 с

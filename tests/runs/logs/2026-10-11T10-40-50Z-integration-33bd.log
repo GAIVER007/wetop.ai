@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 11.10.2026 15:40 Алматы · MacBook-Air-Urij.local
+# коммит b67fdb7 (codex/ai-seller-wizard-generate-20261011), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-40-50Z-integration-33bd.json' '--config' 'tests/wizard-scan.config.ts' 'tests/integration/wizard-generate.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ✓ |integration| tests/integration/wizard-generate.test.ts (3 tests) 3343ms
+   ✓ isolated generation queue (3)
+     ✓ deduplicates parallel requests and caps generation at five revisions per session 2013ms
+     ✓ persists both outputs without changing the input revision; never returns stale output 890ms
+     ✓ discards delayed generation after an edit; recovers a lease using the same request id 302ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  14:40:54
+   Duration  7.81s (tests 45%, transform 38%, import 18%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-40-50Z-integration-33bd.json
+
+# код выхода 0 · 12 с

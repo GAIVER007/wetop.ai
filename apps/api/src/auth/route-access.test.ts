@@ -100,6 +100,12 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /bar/receipts/:id/payments': 'desk',
   // Каталог салона (срез B3, Q-253): читать может смена, цены меняет `rates`, мастеров `property`
   // MV6 Food Service: explicit Business and Location on every route.
+  // ── «Маркетинг → Бюджет», учёт расходов (МКТ-В1/В2, ADR-MKT-B1): право раздела, филиал строго из scope ──
+  'GET /marketing/budget': 'settings',
+  'PUT /marketing/budget': 'settings',
+  'POST /marketing/expenses': 'settings',
+  'PATCH /marketing/expenses/:id': 'settings',
+  'DELETE /marketing/expenses/:id': 'settings',
   // ── «Маркетинг → Сайт и SEO», ядро сайта (MKT3): право сайта, филиал строго из scope ──
   'GET /marketing/site': 'settings',
   // MKT9.2: заведение сайта с пустым телом вместо прежнего POST с названием и адресом
@@ -501,6 +507,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /wizard/session': 'public',
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',
+  'POST /wizard/scan': 'public',
+  'POST /wizard/generate': 'public',
+  'POST /wizard/message': 'public',
+  'GET /wizard/scan': 'public',
   'GET /wizard/quota': 'public',
   'POST /wizard/survey': 'public',
   'POST /wizard/event': 'public',

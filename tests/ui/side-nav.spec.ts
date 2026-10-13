@@ -16,6 +16,9 @@ const routes = [
   '/market',
   '/channels',
   '/marketing',
+  // МКТ-В1/В2: «Бюджет» и «Аналитика» в группе «Маркетинг»
+  '/marketing/budget',
+  '/marketing/analytics',
   '/reports',
   '/finance',
   '/bar',

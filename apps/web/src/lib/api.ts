@@ -3325,6 +3325,20 @@ const ipHeader = (ip?: string | null): Record<string, string> =>
 
 /** Fixed guest operations: no browser-supplied backend path or credentials. */
 export const wizardApi = {
+  message: (token: string, body: unknown, ip?: string | null) =>
+    sendJson<{ requestId: string; state: string }>('POST', '/wizard/message', body, {
+      'x-wizard-token': token, ...ipHeader(ip),
+    }),
+  generate: (token: string, body: unknown, ip?: string | null) =>
+    sendJson<{ id: string; state: string }>('POST', '/wizard/generate', body, {
+      'x-wizard-token': token, ...ipHeader(ip),
+    }),
+  scan: (token: string, body: unknown, ip?: string | null) =>
+    sendJson<{ id: string; state: string }>('POST', '/wizard/scan', body, {
+      'x-wizard-token': token, ...ipHeader(ip),
+    }),
+  scanStatus: (token: string) =>
+    getJson<import('./wizard-types').WizardState>('/wizard/scan', { 'x-wizard-token': token }),
   open: (token: string, ref: string, ip?: string | null) =>
     sendJson<import('./wizard-types').WizardState>(
       'POST',
@@ -3745,6 +3759,47 @@ export const marketApi = {
       `/market/competitors/${encodeURIComponent(id)}/occupancy`,
       { entries },
     ),
+};
+
+/** Расход маркетинга (МКТ-В1/В2, DATA_MODEL §41.1). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+export interface MarketingExpenseRow {
+  id: string;
+  date: string;
+  platform: string;
+  campaign: string | null;
+  category: string;
+  description: string | null;
+  /** Сумма в валюте ввода, minor units */
+  amount: string;
+  currency: string;
+  fxRate: string;
+  /** Сумма в валюте отчётности организации, minor units, по курсу на дату операции */
+  baseAmount: string;
+  countedInBudget: boolean;
+}
+
+export interface MarketingBudgetView {
+  month: string;
+  today: string;
+  reportingCurrency: string;
+  locationCurrency: string;
+  plan: string | null;
+  prevSpent: string;
+  expenses: MarketingExpenseRow[];
+}
+
+export const marketingBudgetApi = {
+  view: (month?: string) =>
+    getJson<MarketingBudgetView>(
+      `/marketing/budget${month ? `?month=${encodeURIComponent(month)}` : ''}`,
+    ),
+  setPlan: (body: unknown) =>
+    sendJson<{ month: string; amount: string }>('PUT', '/marketing/budget', body),
+  createExpense: (body: unknown) => sendJson<MarketingExpenseRow>('POST', '/marketing/expenses', body),
+  updateExpense: (id: string, body: unknown) =>
+    sendJson<MarketingExpenseRow>('PATCH', `/marketing/expenses/${encodeURIComponent(id)}`, body),
+  deleteExpense: (id: string) =>
+    deleteJson<{ ok: true }>(`/marketing/expenses/${encodeURIComponent(id)}`),
 };
 
 export interface SharedOnboardingState {

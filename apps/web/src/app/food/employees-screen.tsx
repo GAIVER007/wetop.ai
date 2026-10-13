@@ -22,6 +22,7 @@ export async function FoodEmployeesScreen() {
             scopeKey={shell.scopeKey}
             write={shell.canStaff && !shell.readOnly}
             employees={employees}
+            branchName={shell.branchName}
           />
         </div>
       </Page>

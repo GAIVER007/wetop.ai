@@ -14,14 +14,17 @@ import SalesPage from '../sales/page';
 import MarketingPage from '../marketing/page';
 
 describe('Разделы роста по направлению бизнеса', () => {
-  it('маркетинг салона сохраняет композицию трёх модулей и результатов', () => {
+  it('маркетинг салона сохраняет композицию модулей и результатов; бюджет у салона «Скоро»', () => {
     const html = renderToStaticMarkup(
       createElement(BusinessGrowthScreen, { vertical: 'BEAUTY', mode: 'marketing' }),
     );
     expect(html).toContain('marketing-hub__modules');
     expect(html).toContain('Сайт и SEO');
     expect(html).toContain('Результаты за 30 дней');
-    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(3);
+    // МКТ-В1/В2: четвёртым модулем «Бюджет»; его экраны пока только у гостиницы, салону ссылки не дают
+    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(4);
+    expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>Скоро</);
+    expect(html).not.toContain('href="/marketing/budget"');
     expect(html).not.toContain('>Подключен<');
   });
   it('продажи ресторана показывают хаб с показателями и честной доступностью модулей', () => {

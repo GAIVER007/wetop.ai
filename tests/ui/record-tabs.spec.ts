@@ -133,3 +133,11 @@ test('переход между бронями без перезагрузки �
   });
   await expect(tab(underneath, 'Действия')).toHaveAttribute('aria-selected', 'true');
 });
+
+// Карточка брони в панели не повторяет id="main-content": цель ссылки «К содержимому» одна (мастер-проход UI, этап 4)
+test('панель брони не дублирует цель «К содержимому»', async ({ page }) => {
+  await page.goto('/reservations');
+  await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.locator('#main-content')).toHaveCount(1);
+});

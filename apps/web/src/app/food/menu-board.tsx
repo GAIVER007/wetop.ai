@@ -13,7 +13,6 @@ import {
   Table,
   Textarea,
 } from '../../components/ui';
-import { Chip, ChipGroup } from '../../components/chip';
 import { Icon } from '../../components/icon';
 import { IconField } from '../../components/icon-field';
 import { wholeTenge } from '../../lib/dashboard-format';
@@ -398,6 +397,7 @@ export function MenuBoard({
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [category, setCategory] = useState('');
+  const [view, setView] = useState<'items' | 'categories'>('items');
   const [search, setSearch] = useState('');
   const [dish, setDish] = useState<MenuItemView | null | 'new'>(null);
   const [tech, setTech] = useState<MenuItemView | null>(null);
@@ -435,31 +435,30 @@ export function MenuBoard({
   return (
     <div className="food-workspace" data-testid="menu-board">
       {error && <Alert>{error}</Alert>}
-      <div className="food-section-heading">
-        <ChipGroup label="Категория меню">
-          <Chip selected={!category} onClick={() => setCategory('')} count={items.length}>
-            Все блюда
-          </Chip>
-          {categories
-            .filter((c) => c.active)
-            .map((c) => (
-              <Chip
-                key={c.id}
-                selected={category === c.id}
-                count={items.filter((m) => m.categoryId === c.id).length}
-                onClick={() => setCategory(c.id)}
-              >
-                {c.name}
-              </Chip>
-            ))}
-        </ChipGroup>
+      <div className="rest-bar">
+        <nav className="rest-utabs" aria-label="Меню">
+          <button
+            type="button"
+            aria-current={view === 'items' ? 'page' : undefined}
+            onClick={() => setView('items')}
+          >
+            Позиции ({items.length})
+          </button>
+          <button
+            type="button"
+            aria-current={view === 'categories' ? 'page' : undefined}
+            onClick={() => setView('categories')}
+          >
+            Категории ({categories.filter((c) => c.active).length})
+          </button>
+        </nav>
         {ctx.write && (
           <div className="food-inline-actions">
-            <Button onClick={() => setDish('new')} disabled={!categories.length}>
-              + Добавить блюдо
-            </Button>
             <Button tone="secondary" onClick={() => setNewCategory('')}>
               + Категория
+            </Button>
+            <Button onClick={() => setDish('new')} disabled={!categories.length}>
+              + Добавить блюдо
             </Button>
           </div>
         )}
@@ -490,8 +489,52 @@ export function MenuBoard({
               />
             </IconField>
           </Field>
+          {view === 'items' && (
+            <Field label={<span className="sr-only">Категория меню</span>}>
+              <Select value={category} onChange={(e) => setCategory(e.target.value)}>
+                <option value="">Все категории</option>
+                {categories
+                  .filter((c) => c.active)
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({items.filter((m) => m.categoryId === c.id).length})
+                    </option>
+                  ))}
+              </Select>
+            </Field>
+          )}
         </div>
-        {list.length === 0 ? (
+        {view === 'categories' ? (
+          <Table density="compact" caption="Категории меню" captionHidden>
+            <thead>
+              <tr>
+                <th scope="col">Категория</th>
+                <th scope="col" className="num">
+                  Блюд
+                </th>
+                <th scope="col" className="num">
+                  В меню
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories
+                .filter((c) => c.active && (!needle || c.name.toLocaleLowerCase('ru').includes(needle)))
+                .map((c) => {
+                  const dishes = items.filter((m) => m.categoryId === c.id);
+                  return (
+                    <tr key={c.id}>
+                      <td>
+                        <strong>{c.name}</strong>
+                      </td>
+                      <td className="num">{dishes.length}</td>
+                      <td className="num">{dishes.filter((m) => m.active).length}</td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </Table>
+        ) : list.length === 0 ? (
           <EmptyState
             title={items.length ? 'Блюда не найдены' : 'Меню пока пустое'}
             actions={

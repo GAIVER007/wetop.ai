@@ -1,0 +1,35 @@
+2026-10-08T09:19:20.6595336Z   1) [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять 
+2026-10-08T09:19:20.6596298Z 
+2026-10-08T09:19:20.6596473Z     Test timeout of 120000ms exceeded.
+2026-10-08T09:19:20.6596689Z 
+2026-10-08T09:19:20.6596961Z     Error: locator.click: Test timeout of 120000ms exceeded.
+2026-10-08T09:19:20.6597470Z     Call log:
+2026-10-08T09:19:20.6598666Z       - waiting for locator('dialog[open][data-testid="confirm-dialog"]').getByRole('button', { name: 'Отменить бронь', exact: true })
+2026-10-08T09:19:20.6599617Z 
+2026-10-08T09:19:20.6599624Z 
+2026-10-08T09:19:20.6599743Z        at confirm.ts:22
+2026-10-08T09:19:20.6599945Z 
+2026-10-08T09:19:20.6600420Z       20 |   await expect(dialog, 'окно подтверждения не открылось').toHaveCount(1);
+2026-10-08T09:19:20.6601370Z       21 |   if (expectText) await expect(dialog).toContainText(expectText);
+2026-10-08T09:19:20.6602167Z     > 22 |   await dialog.getByRole('button', { name: button, exact: true }).click();
+2026-10-08T09:19:20.6602706Z          |                                                                   ^
+2026-10-08T09:19:20.6603146Z       23 |   await expect(openDialog(page)).toHaveCount(0);
+2026-10-08T09:19:20.6603665Z       24 | }
+2026-10-08T09:19:20.6603886Z       25 |
+2026-10-08T09:19:20.6604711Z         at confirmDialog (/home/runner/work/wetop.ai/wetop.ai/tests/e2e/confirm.ts:22:67)
+2026-10-08T09:19:20.6605623Z         at /home/runner/work/wetop.ai/wetop.ai/tests/e2e/cancellation-penalty.spec.ts:62:3
+2026-10-08T09:19:20.6606668Z 
+2026-10-08T09:19:20.6607479Z     Error Context: test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/error-context.md
+2026-10-08T09:19:20.6608317Z 
+2026-10-08T09:19:20.6608822Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-08T09:19:20.6609799Z     test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/trace.zip
+2026-10-08T09:19:20.6610265Z     Usage:
+2026-10-08T09:19:20.6610379Z 
+2026-10-08T09:19:20.6612696Z         npx playwright show-trace test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/trace.zip
+2026-10-08T09:19:20.6613520Z 
+2026-10-08T09:19:20.6614237Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-08T09:19:20.6614762Z 
+2026-10-08T09:19:20.6615728Z   2) [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку 
+2026-10-08T09:19:20.6616950Z 
+2026-10-08T09:19:20.6617272Z     Error: expect(locator).toContainText(expected) failed
+2026-10-08T09:19:20.6617661Z 

@@ -1,4 +1,12 @@
-import { FIXTURE_API, boardFilter, expect, test, devNoise, openProfileMenu } from './fixtures';
+import {
+  FIXTURE_API,
+  boardFilter,
+  expect,
+  openFullCard,
+  openProfileMenu,
+  test,
+  devNoise,
+} from './fixtures';
 import { mkdirSync } from 'node:fs';
 const fixture = FIXTURE_API;
 const screenshotDir = 'reports/premium-ui';
@@ -48,7 +56,7 @@ test('drawer: бронь открывается поверх доски, вкл�
 }) => {
   await page.goto('/chessboard');
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/chessboard-light.png` });
-  await page.getByTestId('stay-cell').first().dblclick();
+  await openFullCard(page.getByTestId('stay-cell').first());
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole('heading', { level: 1 })).toContainText('Бронь');
@@ -68,7 +76,11 @@ test('drawer: бронь открывается поверх доски, вкл�
   );
   await drawer
     .getByTestId('payment-form')
-    .getByRole('button', { name: 'Принять оплату', exact: true })
+    .getByRole('button', { name: 'Проверить оплату', exact: true })
+    .click();
+  await drawer
+    .getByTestId('payment-form')
+    .getByRole('button', { name: 'Подтвердить оплату' })
     .click();
   await expect(drawer.getByTestId('folio-balance')).toHaveText('0 ₸ · оплачено');
   await page.keyboard.press('Escape');

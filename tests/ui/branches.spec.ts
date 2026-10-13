@@ -16,7 +16,7 @@ test('филиалы: создание, сохранение после reload �
   await page.reload();
   await expect(main.getByRole('heading', { name: 'Тестовый филиал у парка' })).toBeVisible();
   await expect(
-    main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+    main.getByRole('heading', { name: 'Сводка по гостиницам', exact: true }),
   ).toBeVisible();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -147,7 +147,8 @@ test('переключатель филиалов сохраняет разде�
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const mobile = page.locator('.mobile-navigation');
   await mobile.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
-  await expect(mobile.getByRole('button', { name: /Филиал Север Тестовая/ })).toHaveAttribute(
+  // в кнопке между названием и адресом подписано направление (#403): «Филиал Север Гостиничный бизнес Тестовая улица…»
+  await expect(mobile.getByRole('button', { name: /Филиал Север .*Тестовая улица/ })).toHaveAttribute(
     'aria-pressed',
     'true',
   );

@@ -1,0 +1,16 @@
+# Модульные (unit) · 12.10.2026 12:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9ed9f07 (claude/restaurant-period-report), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T07-19-24Z-unit-afb8.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 61ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  00:19:29
+   Duration  6.58s (transform 52%, import 47%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T07-19-24Z-unit-afb8.json
+
+# код выхода 0 · 12 с

@@ -1,0 +1,19 @@
+# Модульные (unit) · 12.10.2026 00:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2d3476c (claude/restaurant-vip-birthdays), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T19-04-11Z-unit-32c9.json' 'packages/domain/src/food'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| packages/domain/src/food/cash.test.ts (10 tests) 6ms
+ ✓ |unit| packages/domain/src/food/customer-marks.test.ts (5 tests) 4ms
+ ✓ |unit| packages/domain/src/food/restaurant.test.ts (17 tests) 8ms
+ ✓ |unit| packages/domain/src/food/food.test.ts (6 tests) 26ms
+
+ Test Files  4 passed (4)
+      Tests  38 passed (38)
+   Start at  12:04:12
+   Duration  201ms (transform 58%, import 22%, tests 16%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T19-04-11Z-unit-32c9.json
+
+# код выхода 0 · 1 с

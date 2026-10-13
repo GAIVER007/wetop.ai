@@ -133,13 +133,10 @@ for (const width of [1440, 390]) {
 
     test('availability: calendar transfers its inclusive range and category', async ({ page }) => {
       await page.goto('/chessboard?from=2026-10-10&to=2026-10-12&category=MALE');
-      // с 09.10 это карточка «Свободно»: ссылка со своим именем, текст внутри — число и «Свободно номеров»
-      const link = page.getByRole('link', { name: 'Поиск свободных номеров' });
-      if (width === 390) {
-        // The existing mobile calendar hides this desktop header action. Verify its destination,
-        // then the actual mobile search, without forcing clicks on hidden controls.
-        await page.goto((await link.getAttribute('href'))!);
-      } else await link.click();
+      // Карточка считает все места, включая койки, и передаёт выбранный период и категорию.
+      const link = page.getByRole('link', { name: 'Поиск свободных мест', exact: true });
+      await expect(link).toBeVisible();
+      await link.click();
       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(

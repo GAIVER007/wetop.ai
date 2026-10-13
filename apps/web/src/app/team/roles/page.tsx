@@ -10,7 +10,7 @@ import {
 import { TeamNavigation } from '../../../components/team-navigation';
 import { Page } from '../../../components/page';
 import { Notice, Table } from '../../../components/ui';
-import { currentMe } from '../../../lib/desk-shell';
+import { currentMe, deskShell } from '../../../lib/desk-shell';
 import { sessionToken } from '../../../lib/session';
 import '../team.css';
 
@@ -21,11 +21,37 @@ import '../team.css';
  */
 const ROLES: readonly MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF'];
 
+/**
+ * Салон и ресторан видят права своими словами (мастер-проход UI 11.10.2026): права и их проверка те же
+ * (`ROLE_PERMISSIONS`), меняется только подпись строки; строки гостиничных разделов (тарифы, каналы, ИИ-продавец)
+ * у них не показываются, этих разделов в их меню нет.
+ */
+const VERTICAL_LABELS: Partial<Record<'BEAUTY' | 'FOOD_SERVICE', Partial<Record<Permission, string>>>> = {
+  BEAUTY: {
+    desk: 'Записи и клиенты',
+    property: 'Мастера, услуги и график',
+    reports: 'Аналитика и оплаты',
+    settings: 'Настройки филиала',
+  },
+  FOOD_SERVICE: {
+    desk: 'Зал, брони и заказы',
+    property: 'Меню, залы и столы',
+    reports: 'Аналитика и касса',
+    settings: 'Настройки филиала',
+  },
+};
+const HOTEL_ONLY: readonly Permission[] = ['dialogs', 'rates', 'channels', 'seller'];
+
 export default async function TeamRolesPage() {
   const token = await sessionToken();
   const me = await currentMe().catch(() => ({ user: null }));
   const role = me.user?.role ? parseMembershipRole(me.user.role) : null;
   const allowed = !!token && !!role && canManageStaff(role);
+  const vertical = me.user ? (await deskShell()).vertical : 'HOSPITALITY';
+  const labels = vertical === 'HOSPITALITY' ? {} : (VERTICAL_LABELS[vertical] ?? {});
+  const rows = (Object.keys(PERMISSIONS) as Permission[]).filter(
+    (p) => vertical === 'HOSPITALITY' || !HOTEL_ONLY.includes(p),
+  );
   return (
     <Page title="Сотрудники и доступ" subtitle="Роли и права: что разрешено каждой должности">
       {allowed ? (
@@ -45,9 +71,9 @@ export default async function TeamRolesPage() {
               </tr>
             </thead>
             <tbody>
-              {(Object.keys(PERMISSIONS) as Permission[]).map((p) => (
+              {rows.map((p) => (
                 <tr key={p} data-testid="roles-row">
-                  <td>{PERMISSIONS[p].label}</td>
+                  <td>{labels[p] ?? PERMISSIONS[p].label}</td>
                   {ROLES.map((r) => (
                     <td key={r}>
                       {can(r, p) ? (

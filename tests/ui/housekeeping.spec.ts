@@ -74,7 +74,7 @@ test('шахматка: цикл в строке — требует уборки
   // счётчик уборки, в пункте поля «Места» окошка «Фильтры» (PR 7 «Шахматки v2», с 09.10 в окошке)
   const pop = await openBoardFilters(page);
   await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
-    'Уборка 1',
+    'Уборка и проверка 1',
   );
   await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
 });
@@ -85,7 +85,7 @@ test('шахматка: «Уборка» в фильтрах считает вс
   // «Уборка N» — пункт поля «Места» (PR 7 «Шахматки v2»), а не чип
   const pop = await openBoardFilters(page);
   const cleaning = pop.getByLabel('Места в календаре').locator('option[value="cleaning"]');
-  await expect(cleaning).toHaveText('Уборка 2');
+  await expect(cleaning).toHaveText('Уборка и проверка 2');
   await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
   const r01 = main.getByTestId('unit-row').filter({ hasText: /\bR01\b/ });
   await r01.getByTestId('unit-housekeeping').getByRole('button').click();
@@ -104,7 +104,7 @@ test('шахматка: «Уборка» в фильтрах считает вс
   // убранная, но не проверенная ячейка всё ещё в списке уборки: счётчик читаем из окошка заново
   const again = await openBoardFilters(page);
   await expect(again.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
-    'Уборка 2',
+    'Уборка и проверка 2',
   );
   await again.getByLabel('Места в календаре').selectOption('cleaning');
   await again.getByRole('button', { name: 'Применить', exact: true }).click();
@@ -194,7 +194,7 @@ test('карточка брони: заселение в непроверенн�
 test('выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155)', async ({
   page,
 }) => {
-  // ячейка проверена и доступна — заселение без предупреждения
+  // Проверенная ячейка: явное подтверждение заселения до команды.
   await page.goto('/units/R01');
   const panel = page.getByRole('main').getByTestId('housekeeping-panel');
   await panel.getByTestId('hk-CLEAN').click();
@@ -204,10 +204,18 @@ test('выезд сам переводит ячейку в «требует уб
   await page.goto(`/reservations/${BOOKING}`);
   await actionsTab(page);
   await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
+  await page
+    .getByRole('dialog', { name: /Заселить в/ })
+    .getByRole('button', { name: 'Заселить', exact: true })
+    .click();
   await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   // выезд с долгом — окно с суммой, как и раньше
   await page.getByTestId('check-out-ui-item').filter({ visible: true }).click();
+  await page
+    .getByRole('dialog', { name: /Выселить из/ })
+    .getByRole('button', { name: 'Выселить', exact: true })
+    .click();
   await page
     .getByRole('dialog', { name: 'Выселить с долгом?' })
     .getByRole('button', { name: 'Выселить с долгом' })

@@ -151,7 +151,7 @@ async function Organizations({
             icon={<Icon name="inventory" width={32} height={32} />}
             title="Организаций нет"
           >
-            Здесь появятся гостиницы, зарегистрированные на платформе.
+            Здесь появятся организации, зарегистрированные на платформе.
           </EmptyState>
         ) : (
           <ClientsTable items={visible} ownId={ownId} selected={selected} archivedParam={archivedParam} />

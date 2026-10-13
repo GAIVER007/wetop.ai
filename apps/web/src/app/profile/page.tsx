@@ -13,6 +13,7 @@ export default async function ProfilePage() {
     <ProfileView
       person={deskShellOf(me).person}
       seller={me.user ? (me.access?.aiSeller ?? null) : null}
+      hospitality={deskShellOf(me).vertical === 'HOSPITALITY'}
     />
   );
 }

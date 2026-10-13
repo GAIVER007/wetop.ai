@@ -1,0 +1,17 @@
+# Модульные (unit) · 12.10.2026 20:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит ee7f7e6 (claude/order-rating-qr), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-36-44Z-unit-52ca.json' 'apps/web/src/design-rules.test.ts' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 589ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 5ms
+
+ Test Files  2 passed (2)
+      Tests  35 passed (35)
+   Start at  08:36:51
+   Duration  1.01s (import 51%, tests 40%, transform 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-36-44Z-unit-52ca.json
+
+# код выхода 0 · 8 с

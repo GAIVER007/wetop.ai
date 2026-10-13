@@ -1,0 +1,29 @@
+# Сквозные (e2e) · 12.10.2026 12:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9ed9f07 (claude/restaurant-period-report), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json 'tests/branches-ui/analytics.spec.ts' '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 996ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (18.4s)
+  ✓   2 tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (17.4s)
+  ✓   3 tests/branches-ui/analytics.spec.ts:135:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (19.2s)
+  ✓   4 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (4.2s)
+  ✓   5 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (12.0s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (31.2s)
+  ✓   7 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (37.1s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (10.9s)
+  ✓   9 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 light: accessibility, keyboard and screenshot (29.5s)
+  ✓  10 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (22.1s)
+  ✓  11 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (8.4s)
+
+  11 passed (4.0m)
+
+# код выхода 0 · 4 мин 8 с

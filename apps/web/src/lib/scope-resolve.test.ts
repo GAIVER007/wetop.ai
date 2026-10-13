@@ -41,7 +41,7 @@ it('next чужого направления заменяется стартов
 });
 
 it('/today общий для всех направлений: сохраняется у салона и ресторана (MV8)', () => {
-  for (const v of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)
+  for (const v of ['BEAUTY', 'FOOD_SERVICE'] as const)
     expect(decideScope([branch(v)], '/today')).toMatchObject({ target: '/today' });
 });
 
@@ -58,9 +58,10 @@ it('next своего направления и общие разделы сох
 });
 
 it('next только безопасный локальный путь', () => {
-  // небезопасная строка падает в общий «/today» (safeReturnPath), гостиницу оттуда уводит редирект в «Финансы»
-  for (const next of ['//evil.invalid', 'https://evil.invalid/today', '/login', '/\\evil'])
-    expect(decideScope([branch('HOSPITALITY')], next)).toMatchObject({ target: '/today' });
+  // небезопасная строка падает в общий «/today» (safeReturnPath); гостиницу сразу ведём в «Финансы», без
+  // второго перехода /today → /finance: он обрывал следующую навигацию (ERR_ABORTED, гейт 12.10.2026)
+  for (const next of ['//evil.invalid', 'https://evil.invalid/today', '/login', '/\\evil', '/today'])
+    expect(decideScope([branch('HOSPITALITY')], next)).toMatchObject({ target: '/finance' });
   expect(decideScope([branch('HOSPITALITY')], null)).toMatchObject({ target: '/finance' });
 });
 

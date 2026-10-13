@@ -26,7 +26,7 @@ export function DashMock() {
             <div className="dash__main">
               <div className="dash__heading">
                 <div>
-                  <h2>{dash.title}</h2>
+                  <p className="dash__title">{dash.title}</p>
                   <p>{dash.date}</p>
                 </div>
                 <span className="dash__scope">{dash.scope}</span>
@@ -42,7 +42,7 @@ export function DashMock() {
               </div>
               <div className="dash__columns">
                 <div className="dash__arrivals">
-                  <h3>{dash.arrivalsTitle}</h3>
+                  <p className="dash__subtitle">{dash.arrivalsTitle}</p>
                   {dash.arrivals.map((row) => (
                     <div className="dash__arrival" key={row.name}>
                       <span className="dash__time">{row.time}</span>
@@ -54,7 +54,7 @@ export function DashMock() {
                   <span className="dash__more">{dash.showAll}</span>
                 </div>
                 <div className="dash__chart">
-                  <h3>{dash.chartTitle}</h3>
+                  <p className="dash__subtitle">{dash.chartTitle}</p>
                   <div className="dash__bars" role="img" aria-label={dash.chartTitle}>
                     {dash.chartValues.map((value, i) => (
                       <div className="dash__bar-col" key={dash.chartDays[i]}>

@@ -37,7 +37,7 @@ test('порядок: «Принять оплату» первой, затем �
   const panel = await openAccounts(page);
   const pay = panel.getByTestId('payment-form');
   await expect(pay).toBeVisible();
-  await expect(pay.getByRole('button', { name: 'Принять оплату', exact: true })).toBeVisible();
+  await expect(pay.getByRole('button', { name: 'Проверить оплату', exact: true })).toBeVisible();
   const payY = await top(pay);
   const chargesY = await top(panel.getByTestId('folio-charges-title'));
   const paymentsY = await top(panel.getByTestId('folio-payments-title'));
@@ -68,7 +68,8 @@ test('возврат кнопкой «Вернуть»: форма с остат
   await expect(form.getByLabel('Сумма возврата')).toHaveValue('8000.00');
   await form.getByLabel('Сумма возврата').fill('500');
   await form.getByLabel('Причина возврата').fill('ранний выезд');
-  await form.getByRole('button', { name: 'вернуть' }).click();
+  await form.getByRole('button', { name: 'Проверить возврат', exact: true }).click();
+  await form.getByRole('button', { name: 'Подтвердить возврат', exact: true }).click();
   await expect(panel.getByText(/Возвраты:/)).toContainText('500 ₸');
   await expect(row.locator('td').nth(3)).toContainText('500 ₸');
   await expect(panel.getByTestId('refund-form')).toHaveCount(0);

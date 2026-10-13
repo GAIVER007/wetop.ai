@@ -34,12 +34,12 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
         <div className="login-form" data-testid="invite-page">
           {!loaded.ok ? (
             <>
-              <h2>Приглашение не прочиталось</h2>
+              <h1>Приглашение не прочиталось</h1>
               <LoadError testId="invite-load-error" {...loadErrorProps(loaded.e)} />
             </>
           ) : preview ? (
             <>
-              <h2>Вас приглашают</h2>
+              <h1>Вас приглашают</h1>
               <p>
                 в организацию <b>{preview.organizationName}</b> в WETOP как <b>{preview.email}</b>.
                 <br />
@@ -55,7 +55,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
             </>
           ) : (
             <>
-              <h2>Приглашение не открылось</h2>
+              <h1>Приглашение не открылось</h1>
               <p role="alert">{INVITE_INVALID_MESSAGE}</p>
               <p className="muted">
                 Попросите новую ссылку у того, кто вас приглашал, или{' '}

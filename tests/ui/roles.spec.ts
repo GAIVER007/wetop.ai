@@ -65,7 +65,7 @@ test('администратор: закрытые разделы по адре�
   await asRole(request, 'STAFF');
   const main = page.getByRole('main');
   for (const [route, title, text] of [
-    ['/journal', 'Журнал', '«Журнал операций»: доступ есть только у владельца.'],
+    ['/journal', 'Журнал операций', '«Журнал операций»: доступ есть только у владельца.'],
     ['/channels', 'Каналы продаж', '«Каналы продаж»: доступ есть у владельца и управляющего.'],
     [
       '/hotel-settings',
@@ -122,7 +122,8 @@ test('администратор принимает оплату, но возв�
     const form = page.getByTestId('payment-form').first();
     await form.locator('[name=amount]').fill('1000');
     await form.locator('[name=note]').fill(note);
-    await form.getByRole('button', { name: 'Принять оплату' }).click();
+    await form.getByRole('button', { name: 'Проверить оплату' }).click();
+    await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
     await expect(page.getByTestId('payment-row').filter({ hasText: note })).toHaveCount(1);
   };
 

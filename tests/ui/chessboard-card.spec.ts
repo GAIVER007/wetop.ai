@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, openFullCard, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 3 (ТЗ §18–§25, §58): карточка брони и быстрый предпросмотр.
@@ -8,7 +8,9 @@ import { FIXTURE_API, expect, test } from './fixtures';
  */
 const fixture = FIXTURE_API;
 
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async ({ request, page }) => {
+  // These cases verify the two-line booking caption in the normal view.
+  await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
   await request.post(`${fixture}/__test/reset`);
 });
 
@@ -31,15 +33,10 @@ test('одинарный клик — предпросмотр без ухода
   await expect(preview.getByTestId('preview-dates')).toContainText(/ноч/);
   await expect(preview.getByTestId('preview-place')).not.toBeEmpty();
   await expect(preview.getByTestId('preview-sums')).toContainText('₸');
-  // переходы в карточку брони, гостя и счёт лежат в меню «…» (образец владельца 09.10.2026)
-  await preview.getByRole('button', { name: 'Подробнее о брони', exact: true }).click();
-  await expect(preview.getByRole('menuitem', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
-    'href',
-    `/reservations/${number}`,
-  );
-  // первый Escape закрывает только меню, второй панель
-  await page.keyboard.press('Escape');
-  await expect(preview).toBeVisible();
+  await expect(
+    preview.getByRole('link', { name: 'Редактировать бронь', exact: true }),
+  ).toHaveAttribute('href', `/reservations/${number}#booking-actions`);
+  await expect(preview.getByRole('link', { name: 'Открыть гостя', exact: true })).toHaveCount(0);
   await page.keyboard.press('Escape');
   await expect(preview).toBeHidden();
   await expect(stay).toBeFocused();
@@ -47,32 +44,30 @@ test('одинарный клик — предпросмотр без ухода
 
 test('двойной клик открывает полную карточку брони', async ({ page }) => {
   await page.goto('/chessboard');
-  await page.getByTestId('stay-cell').first().dblclick();
+  await openFullCard(page.getByTestId('stay-cell').first());
   await expect(page.getByRole('dialog', { name: 'Бронирование', exact: true })).toBeVisible();
 });
 
-test('действия по статусу: подтверждённой — заселить, заселённому — выселить', async ({ page }) => {
+test('действия по статусу: подтверждённой: заселить, проживающему: выселить', async ({ page }) => {
   await page.goto('/chessboard');
   const preview = page.getByTestId('stay-preview');
 
   await page.locator('td[data-status="CONFIRMED"] [data-testid="stay-cell"]').first().click();
   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toBeVisible();
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toHaveCount(0);
-  await preview.getByRole('button', { name: 'Подробнее о брони', exact: true }).click();
-  await expect(preview.getByRole('menuitem', { name: 'Принять оплату', exact: true })).toHaveAttribute(
-    'href',
-    /#booking-finance$/,
-  );
-  await page.keyboard.press('Escape');
-  await expect(preview.getByRole('link', { name: 'Переселить', exact: true })).toHaveAttribute(
-    'href',
-    /#booking-actions$/,
-  );
+  await expect(
+    preview.getByRole('button', { name: 'Оплата / возврат', exact: true }),
+  ).toBeVisible();
+  await expect(
+    preview.getByRole('link', { name: 'Редактировать бронь', exact: true }),
+  ).toHaveAttribute('href', /#booking-actions$/);
+  await expect(preview.locator('.stay-panel__actions > *')).toHaveCount(3);
   await page.keyboard.press('Escape');
 
   await page.locator('td[data-status="CHECKED_IN"] [data-testid="stay-cell"]').first().click();
   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toHaveCount(0);
+  await expect(preview.locator('.stay-panel__actions > *')).toHaveCount(3);
 });
 
 test('повторный щелчок по той же плашке закрывает панель, по другой переключает её', async ({
@@ -110,7 +105,10 @@ test('панель брони не висит всегда: нет при заг
   await expect(preview).toBeVisible();
 
   // щелчок мимо (шапка сетки) закрывает
-  await page.locator('.board thead').first().click({ position: { x: 5, y: 5 } });
+  await page
+    .locator('.board thead')
+    .first()
+    .click({ position: { x: 5, y: 5 } });
   await expect(preview).toHaveCount(0);
 
   // и карточка показателей
@@ -128,6 +126,7 @@ test('панель брони не висит всегда: нет при заг
 
 test('«Заселить» из предпросмотра выполняет существующую команду и меняет статус', async ({
   page,
+  request,
 }) => {
   await page.goto('/chessboard');
   const confirmed = page.locator('td[data-status="CONFIRMED"] [data-testid="stay-cell"]').first();
@@ -137,12 +136,38 @@ test('«Заселить» из предпросмотра выполняет с
     .getByTestId('stay-preview')
     .getByRole('button', { name: 'Заселить', exact: true })
     .click();
-  // как в карточке брони (Q-156): в непроверенную ячейку — только после подтверждения
+  // как в карточке брони (Q-156): в непроверенную ячейку только после подтверждения
   const checkedIn = page.locator(`td[data-status="CHECKED_IN"] [data-number="${number}"]`).first();
   const confirm = page.locator('dialog[open]');
   await expect(confirm.or(checkedIn)).toBeVisible();
   if (await confirm.isVisible()) await confirm.getByRole('button', { name: /^Заселить/ }).click();
   await expect(checkedIn).toBeVisible();
+  const preview = page.getByTestId('stay-preview');
+  await expect(preview).toBeVisible();
+  await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toHaveCount(0);
+  await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
+  await expect(preview.getByTestId('preview-status')).toContainText('Проживает');
+  await expect(page.getByTestId('board-status-legend')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.reload();
+  const persisted = page.locator(`td[data-status="CHECKED_IN"] [data-number="${number}"]`).first();
+  await persisted.click();
+  await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toBeVisible();
+  await preview.getByRole('button', { name: 'Выселить', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Выселить', exact: true }).click();
+  const debt = page.locator('dialog[open]');
+  const checkedOut = preview.locator('[data-testid="preview-status"][data-status="CHECKED_OUT"]');
+  await expect(debt.or(checkedOut)).toBeVisible();
+  if (await debt.isVisible())
+    await debt.getByRole('button', { name: 'Выселить с долгом', exact: true }).click();
+  await expect(preview.getByTestId('preview-status')).toContainText('Выехал');
+  await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toHaveCount(0);
+  const saved = await request.get(`${fixture}/reservations/${number}`, {
+    headers: { 'x-wetop-test-client': '1' },
+  });
+  expect(saved.ok()).toBe(true);
+  const card = await saved.json();
+  expect(card.items.some((item: { status: string }) => item.status === 'CHECKED_OUT')).toBe(true);
 });
 
 test('подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой', async ({
@@ -247,9 +272,7 @@ test('служебный код скрыт на плашке, источник �
   await page.screenshot({ path: 'reports/chessboard-readable-label.png' });
   await stay.click();
   await expect(page.getByTestId('preview-guest')).toHaveText('Бронь со стойки');
-  await page.getByRole('button', { name: 'Подробнее о брони', exact: true }).click();
-  await expect(page.getByRole('menuitem', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
-    'href',
-    `/reservations/${number}`,
-  );
+  await expect(
+    page.getByRole('link', { name: 'Редактировать бронь', exact: true }),
+  ).toHaveAttribute('href', `/reservations/${number}#booking-actions`);
 });

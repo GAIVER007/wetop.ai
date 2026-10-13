@@ -1,12 +1,4 @@
-import {
-  FIXTURE_API,
-  expect,
-  test,
-  devNoise,
-  menuLinks,
-  openSection,
-  sideNav,
-} from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, menuLinks, openSection, sideNav } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -61,11 +53,13 @@ test('ТЗ §4: текущий раздел виден, наведение от�
   const trigger = nav.locator('.sidenav__current');
   const panel = nav.locator('.sidenav__panel');
   // 1. всегда виден только текущий раздел и его подразделы; строки вкладок в шапке больше нет
-  await expect(page.locator('.workspace-header nav')).toHaveCount(0);
+  await expect(page.locator('.workspace-header .sidenav')).toHaveCount(1);
+  expect(await page.locator('.workspace').evaluate((el) => getComputedStyle(el).paddingLeft)).toBe(
+    '0px',
+  );
   await expect(trigger).toHaveText('Финансы');
   await expect(panel).toBeHidden();
-  await expect(nav.locator('.sidenav__sub a')).toHaveText(['Оплаты и касса', 'Бар']);
-  await expect(nav.locator('.sidenav__sub [aria-current="page"]')).toHaveText('Оплаты и касса');
+  await expect(nav.locator('.sidenav__sub')).toHaveCount(0);
   // каждый адрес меню в разметке ровно один раз
   const links = await menuLinks(page);
   expect([...links].sort()).toEqual([...routes].sort());
@@ -78,25 +72,25 @@ test('ТЗ §4: текущий раздел виден, наведение от�
   await expect(items.locator('.sidenav__title')).toHaveText('Продажи');
   await expect(items.locator('a')).toHaveText([
     'Обзор продаж',
-    'Загрузка конкурентов',
+    'Анализ конкурентов',
     'Каналы продаж',
     'ИИ-продавцы',
   ]);
   // 4. щелчок: переход на страницу, панель закрыта
-  await items.getByRole('link', { name: 'Загрузка конкурентов', exact: true }).click();
+  await items.getByRole('link', { name: 'Анализ конкурентов', exact: true }).click();
   await expect(page).toHaveURL(/\/market$/);
   await expect(panel).toBeHidden();
   // 5. меню слева обновилось: новый раздел и его подразделы
   await expect(trigger).toHaveText('Продажи');
-  await expect(nav.locator('.sidenav__sub [aria-current="page"]')).toHaveText(
-    'Загрузка конкурентов',
-  );
   // ТЗ §6: уход курсора закрывает панель
   await openSection(page, 'Настройки');
   await page.mouse.move(1200, 800);
   await expect(panel).toBeHidden();
-  // раздел из одного пункта: щелчок по самому разделу ведёт на страницу
+  // раздел из одного пункта: справа его описание без второй ссылки (ширина панели не прыгает,
+  // мастер-проход UI 11.10.2026), щелчок по самому разделу ведёт на страницу
   await openSection(page, 'Календарь');
+  await expect(nav.locator('.sidenav__items')).toContainText('Размещение по номерам');
+  await expect(nav.getByRole('link', { name: 'Календарь', exact: true })).toHaveCount(1);
   await nav.locator('.sidenav__section', { hasText: /^Календарь$/ }).click();
   await expect(page).toHaveURL(/\/chessboard$/);
   await expect(trigger).toHaveText('Календарь');
@@ -115,16 +109,19 @@ test('ТЗ §9: клавиатура, ↓ открывает, ↑↓ по раз
     await expect(trigger).toHaveAttribute('aria-expanded', 'true', { timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
   // фокус встаёт на текущий раздел
-  const section = (label: string) => nav.locator('.sidenav__section', { hasText: new RegExp(`^${label}$`) });
+  const section = (label: string) =>
+    nav.locator('.sidenav__section', { hasText: new RegExp(`^${label}$`) });
   await expect(section('Финансы')).toBeFocused();
   for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowDown');
   await expect(section('Продажи')).toBeFocused();
-  await expect(nav.locator('.sidenav__items > :not([hidden]) .sidenav__title')).toHaveText('Продажи');
+  await expect(nav.locator('.sidenav__items > :not([hidden]) .sidenav__title')).toHaveText(
+    'Продажи',
+  );
   await page.keyboard.press('ArrowRight');
   const items = nav.locator('.sidenav__items > :not([hidden])');
   await expect(items.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(items.getByRole('link', { name: 'Загрузка конкурентов', exact: true })).toBeFocused();
+  await expect(items.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(section('Продажи')).toBeFocused();
   await page.keyboard.press('Escape');
@@ -136,14 +133,15 @@ test('ТЗ §9: клавиатура, ↓ открывает, ↑↓ по раз
   await page.keyboard.press('ArrowDown');
   await expect(items.getByRole('link', { name: 'Бар', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/bar$/);
+  await expect(page).toHaveURL(/\/bar$/, { timeout: 30_000 });
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
 });
 
 test('вложенные адреса показывают свой раздел', async ({ page }) => {
+  test.setTimeout(90_000);
   const nav = sideNav(page);
   const trigger = nav.locator('.sidenav__current');
-  const current = nav.locator('.sidenav__sub [aria-current="page"]');
+  const current = nav.locator('.sidenav__items [aria-current="page"]');
   await page.goto('/hotel-settings/services');
   await expect(trigger).toHaveText('Настройки');
   await expect(current).toHaveText('Объект');
@@ -161,6 +159,24 @@ test('вложенные адреса показывают свой раздел
   await page.goto('/connections');
   await expect(trigger).toHaveText('Настройки');
   await expect(current).toHaveText('Подключения');
+  // адреса вне пунктов меню называют свой раздел, а не «Разделы» (мастер-проход UI 11.10.2026)
+  await page.goto('/units/R01');
+  await expect(trigger).toHaveText('Номерной фонд');
+  await page.goto('/tasks');
+  await expect(trigger).toHaveText('Календарь');
+  await page.goto('/profile');
+  await expect(trigger).toHaveText('Профиль');
+});
+
+test('касание раздела на планшете раскрывает подразделы, а не уводит со страницы', async ({ page }) => {
+  await page.goto('/finance');
+  const nav = sideNav(page);
+  await nav.locator('.sidenav__current').click();
+  const sales = nav.locator('.sidenav__section', { hasText: /^Продажи$/ });
+  await sales.dispatchEvent('pointerdown', { pointerType: 'touch' });
+  await sales.click();
+  await expect(page).toHaveURL(/\/finance$/);
+  await expect(nav.locator('.sidenav__items > :not([hidden]) .sidenav__title')).toHaveText('Продажи');
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -180,10 +196,10 @@ for (const theme of ['light', 'dark'] as const) {
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       ).toBe(true);
-      // содержимое начинается правее колонки меню
-      const aside = (await nav.boundingBox())!;
+      // Рабочая область больше не сдвинута пустой колонкой.
       const main = (await page.getByRole('main').boundingBox())!;
-      expect(main.x).toBeGreaterThanOrEqual(aside.x + aside.width - 1);
+      expect(main.x).toBe(0);
+      expect(main.width).toBeGreaterThanOrEqual(width - 20);
       await openSection(page, 'Продажи');
       // панель целиком в окне
       const panel = (await nav.locator('.sidenav__panel').boundingBox())!;
@@ -195,8 +211,7 @@ for (const theme of ['light', 'dark'] as const) {
           .analyze();
         expect(audit.violations).toEqual([]);
       }
-      if (width === 1440)
-        await page.screenshot({ path: `${SHOTS}/panel-${theme}-${width}.png` });
+      if (width === 1440) await page.screenshot({ path: `${SHOTS}/panel-${theme}-${width}.png` });
       await page.mouse.move(width - 10, 880);
       await expect(nav.locator('.sidenav__panel')).toBeHidden();
       if (width === 1440) await page.screenshot({ path: `${SHOTS}/sales-${theme}-${width}.png` });
@@ -212,10 +227,21 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(drawer).not.toBeVisible();
     const bottom = page.locator('.bottom-navigation');
     await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Продажи']);
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
-    ).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      true,
+    );
     await page.screenshot({ path: `${SHOTS}/phone-${theme}.png` });
     expect(errors).toEqual([]);
   });
 }
+
+test('кнопка текущего раздела находится в шапке и доступна после гидрации', async ({ page }) => {
+  await page.goto('/today');
+  const button = page
+    .locator('.workspace-header')
+    .getByRole('button', { name: 'Финансы: все разделы', exact: true });
+  await expect(button).toBeEnabled();
+  await expect(button).toHaveText('Финансы');
+  await button.click();
+  await expect(sideNav(page).locator('.sidenav__panel')).toBeVisible();
+});

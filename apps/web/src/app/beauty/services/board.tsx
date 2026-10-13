@@ -2,16 +2,7 @@
 import { useActionState, useState } from 'react';
 import { parseBeautyServiceInput, parseLocationServiceInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
-import {
-  Alert,
-  Badge,
-  Button,
-  EmptyState,
-  Field,
-  Input,
-  Select,
-  Table,
-} from '../../../components/ui';
+import { Alert, Badge, Button, Field, Input, Select, Table } from '../../../components/ui';
 import { formatMoney } from '../../../lib/money';
 import type { BeautyServiceRow } from '../../../lib/api';
 import { saveBeautyService, saveLocationService } from '../actions';
@@ -53,11 +44,6 @@ export function ServicesBoard({
           </Button>
         )}
       </div>
-      {items.length === 0 && (
-        <EmptyState title="Добавьте первую услугу">
-          Укажите название, длительность и цену, затем включите услугу в филиале.
-        </EmptyState>
-      )}
       <Table className="beauty-operational-table">
         <thead>
           <tr>

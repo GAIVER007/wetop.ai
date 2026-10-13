@@ -7,7 +7,7 @@
 # `release-candidate` или кнопка Actions → release-checks → Run workflow. Зелёный гейт на `main` перематывает
 # `release` сам (auto-release.yml), дальше сервер забирает и выкладывает (ADR-080). Документы гейт не гоняют
 # (paths-ignore): выкладки они не требуют. Один прогон стоит около 95 минут из 2000 бесплатных в месяц
-# (бюджет Actions $0 со «Stop usage»); параллельные вершины main схлопывает concurrency ниже. Свои наборы
+# (бюджет Actions $0 со «Stop usage»); вершины main встают в очередь concurrency ниже. Свои наборы
 # сессии по-прежнему гоняют сами до слияния (TESTING.md).
 # Секретов здесь нет и не будет (SECURITY.md §3).
 name: release-checks
@@ -28,10 +28,14 @@ on:
       - 'project-input/**'
       - 'Claude outputs/**'
 
-# Новый кандидат заменяет прежний: итог старого уже никому не нужен, а минуты тратятся
+# На main прогон не отменяется следующим слиянием, а ждёт в очереди: GitHub держит один идущий и один ожидающий
+# (самый свежий), промежуточные вершины схлопываются. Иначе гейт около 95 минут не доходит до конца, когда слияния
+# идут чаще: с 10.10.2026 по 11.10 из 59 прогонов на main 39 отменены, ни одного зелёного, release не двигался.
+# Минут это не прибавляет: отменённый прогон тоже их тратит, только без итога. На прочих ветках новый прогон
+# по-прежнему заменяет прежний: их итог release не перематывает.
 concurrency:
   group: release-checks-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
@@ -207,6 +211,7 @@ jobs:
       - name: Браузерные проверки без базы
         env:
           UI_BROWSER_CHANNEL: chromium
+        # вход с включённым замком гоняет своя задача ui-auth (два worker), второй раз в первой части не нужен
         run: npx playwright test --config tests/ui/playwright.config.ts --shard=${{ matrix.shard }}/3 --workers=2
       - uses: actions/upload-artifact@v4
         if: failure()

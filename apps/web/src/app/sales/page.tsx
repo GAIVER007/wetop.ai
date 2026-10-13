@@ -1,3 +1,4 @@
+import { BusinessGrowthScreen } from '../growth/business-screen';
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { formatOccupancy, formatPoints } from '@pms/domain';
@@ -43,7 +44,9 @@ const minusDays = (iso: string, n: number) =>
   new Date(Date.parse(`${iso}T00:00:00Z`) - n * 86_400_000).toISOString().slice(0, 10);
 
 export default async function SalesHubPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  await requireVertical(['HOSPITALITY']);
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  if (me.context?.vertical === 'BEAUTY' || me.context?.vertical === 'FOOD_SERVICE')
+    return <BusinessGrowthScreen vertical={me.context.vertical} mode="sales" />;
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const period = salesPeriod({ days: sp.days, from: sp.from, to: sp.to }, today);
@@ -237,7 +240,7 @@ function MarketCard({ board }: { board: MarketView['board'] | null }) {
           <Icon name="analytics" />
         </span>
         <div>
-          <h2 id="sales-market-title">Загрузка конкурентов</h2>
+          <h2 id="sales-market-title">Анализ конкурентов</h2>
           <p>Мониторинг рынка, сравнение загрузки, подсказки к цене.</p>
         </div>
       </div>

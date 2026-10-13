@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 11.10.2026 13:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1fff2aa (claude/gate-integration-fix), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-18-17Z-integration-9167.json' 'tests/integration/platform-extensions.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin
+
+ ✓ |integration| tests/integration/platform-extensions.test.ts (8 tests) 1439ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  01:18:21
+   Duration  7.25s (transform 46%, tests 28%, import 26%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-18-17Z-integration-9167.json
+
+# код выхода 0 · 12 с

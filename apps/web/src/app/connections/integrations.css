@@ -1,10 +1,5 @@
 /* «Интеграции» INT1 (ADR-116): карточка подключения из готовых частей — Panel, Badge, кнопки; своих цветов нет */
 @layer sections {
-  .integration-tab__count {
-    margin-left: var(--space-1);
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
   .integration-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr));
@@ -144,11 +139,6 @@
   }
   .integrations-page .page__subtitle {
     font-size: 13px;
-  }
-  .integrations-page .settings-tabs {
-    margin-bottom: 16px;
-    border: 0;
-    background: transparent;
   }
   .integrations-page .integration-list {
     grid-template-columns: minmax(0, 1fr);

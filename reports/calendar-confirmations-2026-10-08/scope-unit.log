@@ -1,0 +1,9 @@
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008
+
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  11:00:45
+   Duration  4.48s (transform 60%, import 24%, tests 15%, worker 1%)
+

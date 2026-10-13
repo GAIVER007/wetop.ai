@@ -11,16 +11,30 @@ import type { FoodCustomer, RestaurantReservation } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 import { pluralRu } from '../../lib/plural';
 import { restaurantShell } from './restaurant-load';
+import { CustomerMarks } from './customer-marks';
 import './food.css';
 import './restaurant.css';
 
 const name = (c: { firstName: string; lastName: string | null }) =>
   [c.firstName, c.lastName].filter(Boolean).join(' ');
 
-/** «Клиенты и бронирования» по макету (ADR-159): постоянный гость — от двух визитов (как Q-GB-2, Q-BS-3) */
+/** Дата рождения `ГГГГ-ММ-ДД` как «12 октября» */
+const dayMonth = (iso: string) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+const birthdayText = (c: FoodCustomer) =>
+  !c.birthDate
+    ? '—'
+    : c.birthdayInDays === 0
+      ? `${dayMonth(c.birthDate)}, сегодня`
+      : (c.birthdayInDays ?? 99) <= 7
+        ? `${dayMonth(c.birthDate)}, через ${pluralRu(c.birthdayInDays!, ['день', 'дня', 'дней'])}`
+        : dayMonth(c.birthDate);
+
+/** «Клиенты и бронирования» по макету (ADR-159): постоянный гость от двух визитов, VIP и дни рождения (§36) */
 export async function FoodCustomers() {
   try {
     const shell = await restaurantShell();
+    const write = shell.canDesk && !shell.readOnly;
     const [customers, reservations] = await Promise.all([
       completeFoodList<FoodCustomer>(foodApi.customers),
       completeFoodList<RestaurantReservation>(
@@ -37,16 +51,24 @@ export async function FoodCustomers() {
     const clock = (iso: string) => localInput(iso, shell.timezone).slice(11, 16);
     const bookingText = (r: RestaurantReservation) =>
       `${r.table ? `Стол ${r.table.name}` : 'Без стола'}, ${pluralRu(r.partySize, ['гость', 'гостя', 'гостей'])}, ${clock(r.startsAt)}`;
-    const customersTable = (list: FoodCustomer[]) =>
+    const customersTable = (
+      list: FoodCustomer[],
+      empty = 'Клиенты появятся после первого бронирования',
+    ) =>
       list.length === 0 ? (
-        <EmptyState title="Клиенты появятся после первого бронирования" />
+        <EmptyState title={empty} />
       ) : (
         <Table>
           <thead>
             <tr>
-              {['Клиент', 'Телефон', 'Визиты', 'Метка', 'Бронь на сегодня'].map((h) => (
+              {['Клиент', 'Телефон', 'Визиты', 'Метка', 'День рождения', 'Бронь на сегодня'].map((h) => (
                 <th key={h}>{h}</th>
               ))}
+              {write && (
+                <th>
+                  <span className="sr-only">Действия</span>
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -57,8 +79,28 @@ export async function FoodCustomers() {
                   <td>{name(c)}</td>
                   <td>{c.phone ?? 'Не указан'}</td>
                   <td>{c.visits ?? 0}</td>
-                  <td>{(c.visits ?? 0) >= 2 ? <Badge tone="info">Постоянный гость</Badge> : '—'}</td>
+                  <td>
+                    <span className="food-inline-actions">
+                      {c.isVip && <Badge tone="warn">VIP</Badge>}
+                      {(c.visits ?? 0) >= 2 && <Badge tone="info">Постоянный гость</Badge>}
+                      {!c.isVip && (c.visits ?? 0) < 2 && '—'}
+                    </span>
+                  </td>
+                  <td data-testid="customer-birthday">{birthdayText(c)}</td>
                   <td>{upcoming ? bookingText(upcoming) : '—'}</td>
+                  {write && (
+                    <td>
+                      <CustomerMarks
+                        scopeKey={shell.scopeKey}
+                        customer={{
+                          id: c.id,
+                          name: name(c),
+                          isVip: c.isVip ?? false,
+                          birthDate: c.birthDate ?? null,
+                        }}
+                      />
+                    </td>
+                  )}
                 </tr>
               );
             })}
@@ -104,6 +146,10 @@ export async function FoodCustomers() {
         </Table>
       );
     const regulars = customers.filter((c) => (c.visits ?? 0) >= 2);
+    const vips = customers.filter((c) => c.isVip);
+    const birthdays = customers
+      .filter((c) => c.birthdayInDays != null && c.birthdayInDays <= 7)
+      .sort((a, b) => a.birthdayInDays! - b.birthdayInDays!);
     return (
       <Page
         title="Клиенты"
@@ -125,6 +171,13 @@ export async function FoodCustomers() {
                 label: 'Постоянные гости',
                 count: regulars.length,
                 content: customersTable(regulars),
+              },
+              { id: 'vip', label: 'VIP', count: vips.length, content: customersTable(vips, 'VIP-гостей пока нет: метка ставится кнопкой «Изменить»') },
+              {
+                id: 'birthdays',
+                label: 'Дни рождения',
+                count: birthdays.length,
+                content: customersTable(birthdays, 'В ближайшую неделю дней рождения нет'),
               },
             ]}
           />

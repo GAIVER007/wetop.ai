@@ -36,14 +36,14 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
   await expect(menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ })).toBeFocused();
   await page.keyboard.press('ArrowRight');
-  const item = menu.locator('.sidenav__items').getByRole('link', { name: 'Сайт и SEO', exact: true });
+  const item = menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ });
   await expect(item).toBeFocused();
   await expect(item).toHaveAttribute('href', '/marketing');
   // Escape закрывает панель и возвращает фокус на кнопку
   await page.keyboard.press('Escape');
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   await expect(trigger).toBeFocused();
-  // снова: ↓, к «Маркетингу», → в пункт, Enter переходит
+  // Одиночный раздел открывается по Enter без дублирующего пункта.
   await page.keyboard.press('ArrowDown');
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');
@@ -54,7 +54,7 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Сайт и SEO');
   // «Продажи» без сайта
   const salesList = await openSection(page, 'Продажи');
-  await expect(salesList.locator('a')).toHaveText(['Обзор продаж', 'Загрузка конкурентов', 'Каналы продаж', 'ИИ-продавцы']);
+  await expect(salesList.locator('a')).toHaveText(['Обзор продаж', 'Анализ конкурентов', 'Каналы продаж', 'ИИ-продавцы']);
   await expect(
     menu.getByRole('link', { name: 'Сайт и онлайн-бронирование', includeHidden: true }),
   ).toHaveCount(0);
@@ -292,7 +292,7 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня»', async ({ page }) => {
+test('MKT3: салон видит маркетинг, гостиничный конструктор недоступен', async ({ page }) => {
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -313,7 +313,24 @@ test('MKT3: хаб «Маркетинг» только для гостиницы
     .click();
   // салон (BEAUTY) и после слияния 09.10 садится на свой `/today`; на `/finance` едет только гостиница
   await page.waitForURL('**/today');
-  await page.goto('/marketing');
-  await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByTestId('beauty-today')).toBeVisible();
+  await page.goto('/marketing');
+  await expect(page).toHaveURL(/\/marketing$/);
+  const hub = main(page).getByTestId('business-marketing');
+  await expect(hub).toBeVisible();
+  await expect(hub.getByTestId('marketing-module')).toHaveCount(3);
+  await expect(hub.getByTestId('marketing-site-status')).toHaveText('Скоро');
+  await expect(
+    hub.getByTestId('marketing-site').getByRole('button', { name: 'Скоро' }),
+  ).toBeDisabled();
+  await expect(hub.locator('a[href^="/website"], a[href^="/marketing/site"]')).toHaveCount(0);
+  for (const screen of ['ads', 'content'] as const) {
+    await hub
+      .getByRole('link', { name: screen === 'ads' ? 'Открыть: Реклама' : 'Открыть: Контент' })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`/marketing/${screen}$`));
+    await expect(main(page).getByTestId(`marketing-${screen}-screen`)).toBeVisible();
+    await page.goto('/marketing');
+    await expect(hub).toBeVisible();
+  }
 });

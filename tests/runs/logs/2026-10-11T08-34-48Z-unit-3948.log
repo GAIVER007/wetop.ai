@@ -1,0 +1,60 @@
+# Модульные (unit) · 11.10.2026 13:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9d71a58 (claude/kitchen-fs2-stock)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-34-48Z-unit-3948.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2
+
+ ❯ |unit| tests/unit/guard-run.test.ts (8 tests | 1 failed) 19609ms
+   ❯ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ только токен подписки: отказ до первого круга, модель не зовётся 5ms
+     ✓ ни ключа, ни токена: отказ с подсказкой про ключ 4ms
+     × заданы оба: платит ключ, токен подписки процессу агента не достаётся 6992ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 4801ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 2816ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1478ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 2149ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1363ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 29934ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 4251ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 844ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 3322ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2423ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 2652ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 1486ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1270ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 1961ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2309ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 2098ms
+     ✓ локальные правки в клоне — не затирает их 1197ms
+     ✓ историю ветки переписали — не выкладывает поверх 1260ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 1324ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 1567ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1110ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 860ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > заданы оба: платит ключ, токен подписки процессу агента не достаётся
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:109:3
+    107|   });
+    108|
+    109|   it('заданы оба: платит ключ, токен подписки процессу агента не доста…
+       |   ^
+    110|     const s = sandbox();
+    111|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>', CLAUDE_CODE_OAUTH_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 23 passed (24)
+   Start at  01:34:49
+   Duration  30.03s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-34-48Z-unit-3948.json
+
+# код выхода 1 · 31 с

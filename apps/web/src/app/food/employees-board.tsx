@@ -12,6 +12,7 @@ import {
   Select,
   Table,
 } from '../../components/ui';
+import { pluralRu } from '../../lib/plural';
 import { wholeTenge } from '../../lib/dashboard-format';
 import type { FoodEmployee } from '../../lib/food-types';
 import { mutateStaff } from './restaurant-actions';
@@ -185,7 +186,11 @@ export function EmployeesBoard({
                   </Badge>
                 </td>
                 <td>{wholeTenge(e.salesTodayMinor)}</td>
-                <td>—</td>
+                <td data-testid="employee-rating">
+                  {e.rating?.average != null
+                    ? `${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`
+                    : 'Оценок нет'}
+                </td>
                 <td>
                   {write && (
                     <Button tone="ghost" onClick={() => setDraft(e)}>

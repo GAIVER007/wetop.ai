@@ -35,20 +35,25 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   }).toPass({ timeout: 15_000 });
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
   await expect(menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ })).toBeFocused();
+  // МКТ-В1/В2: в группе три пункта, поэтому → уводит фокус в подразделы, как у остальных групп меню
   await page.keyboard.press('ArrowRight');
-  const item = menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ });
+  const items = menu.locator('.sidenav__items');
+  const item = items.getByRole('link', { name: 'Сайт и SEO', exact: true });
   await expect(item).toBeFocused();
   await expect(item).toHaveAttribute('href', '/marketing');
-  // МКТ-В1: рядом пункт «Бюджет»; состав группы целиком сверяют юниты навигации
-  await expect(menu.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
+  await expect(items.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
+  );
+  await expect(items.getByRole('link', { name: 'Аналитика', exact: true })).toHaveAttribute(
+    'href',
+    '/marketing/analytics',
   );
   // Escape закрывает панель и возвращает фокус на кнопку
   await page.keyboard.press('Escape');
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   await expect(trigger).toBeFocused();
-  // Одиночный раздел открывается по Enter без дублирующего пункта.
+  // снова: ↓ открывает, к «Маркетингу», → в первый подраздел, Enter переходит
   await page.keyboard.press('ArrowDown');
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');
@@ -336,12 +341,19 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(page).toHaveURL(/\/marketing$/);
   const hub = main(page).getByTestId('business-marketing');
   await expect(hub).toBeVisible();
-  await expect(hub.getByTestId('marketing-module')).toHaveCount(3);
+  // МКТ-В1/В2: «Бюджет» четвёртым модулем; его экраны только у гостиницы, салону «Скоро» без ссылки
+  await expect(hub.getByTestId('marketing-module')).toHaveCount(4);
   await expect(hub.getByTestId('marketing-site-status')).toHaveText('Скоро');
+  await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Скоро');
   await expect(
     hub.getByTestId('marketing-site').getByRole('button', { name: 'Скоро' }),
   ).toBeDisabled();
-  await expect(hub.locator('a[href^="/website"], a[href^="/marketing/site"]')).toHaveCount(0);
+  await expect(
+    hub.getByTestId('marketing-budget').getByRole('button', { name: 'Скоро' }),
+  ).toBeDisabled();
+  await expect(
+    hub.locator('a[href^="/website"], a[href^="/marketing/site"], a[href^="/marketing/budget"]'),
+  ).toHaveCount(0);
   for (const screen of ['ads', 'content'] as const) {
     await hub
       .getByRole('link', { name: screen === 'ads' ? 'Открыть: Реклама' : 'Открыть: Контент' })

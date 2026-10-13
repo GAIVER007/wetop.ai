@@ -26,40 +26,39 @@ test('форма брони: детализация цены по дням, су
 });
 
 for (const width of [1280, 1366, 1440]) {
-  test(`календарь ${width}px: одна полоса управления и шесть карточек под ней, сетка начинается выше`, async ({
+  test(`календарь ${width}px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка`, async ({
     page,
   }) => {
+    // Эталон владельца 13.10.2026 (UI4.2): заголовок слева и период, «Сегодня», «Новая бронь» справа одной
+    // строкой; под ним шесть плиток в один ряд; затем полоса фильтров; затем сетка.
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
     await expect(panel).toBeVisible();
+    const head = (await page.locator('main > .page__head').boundingBox())!;
     const p = (await panel.boundingBox())!;
     const bar = (await page.locator('.board-toolbar').boundingBox())!;
     const grid = (await page.locator('.board-wrap').boundingBox())!;
-    // образец владельца (09.10): полоса «Сегодня ‹ › период масштаб длина поиск Фильтры Новая бронь» одной
-    // строкой, под ней шесть карточек в один ряд, затем сетка
+    expect(head.height).toBeLessThanOrEqual(64);
+    expect(head.y + head.height).toBeLessThanOrEqual(p.y + 1);
+    expect(p.height).toBeLessThanOrEqual(120);
+    expect(p.y + p.height).toBeLessThanOrEqual(bar.y + 1);
     expect(bar.height).toBeLessThanOrEqual(56);
-    expect(bar.y + bar.height).toBeLessThanOrEqual(p.y + 1);
-    expect(p.height).toBeLessThanOrEqual(96);
-    expect(p.y + p.height).toBeLessThanOrEqual(grid.y + 1);
-    expect(grid.y).toBeLessThanOrEqual(260);
+    expect(bar.y + bar.height).toBeLessThanOrEqual(grid.y + 1);
+    expect(grid.y).toBeLessThanOrEqual(360);
     const tops = await panel
-      .locator('.board-kpi')
+      .locator('.stat')
       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
     expect(tops).toHaveLength(6);
     expect(new Set(tops).size).toBe(1);
-    // все шесть элементов полосы на одной линии
-    const barTops = await page
-      .locator('.board-toolbar')
-      .locator(
-        ':scope > .board-nav > *, :scope > .board-search, :scope > .board-filters-open, :scope > .board-new',
-      )
+    // период, «Сегодня» и «Новая бронь» на одной линии с заголовком
+    const lineTops = await page
+      .locator('main > .page__head')
+      .locator('.board-period, .board-nav > .btn, .board-new')
       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 8)));
-    expect(new Set(barTops).size).toBe(1);
+    expect(lineTops).toHaveLength(3);
+    expect(new Set(lineTops).size).toBe(1);
     await expect(panel.getByTestId('day-free')).toBeVisible();
     await expect(panel.getByTestId('day-units')).toHaveCount(0);
-    await page.screenshot({
-      path: `reports/calendar-confirmations-2026-10-08/header-${width}.png`,
-    });
   });
 }

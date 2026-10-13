@@ -1,0 +1,698 @@
+{
+  "320": {
+    "scrollWidth": 320,
+    "font": "-apple-system, \"system-ui\", Inter, \"Segoe UI\", sans-serif",
+    "fontsLoaded": [],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 320,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 8,
+      "y": 64,
+      "w": 1,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 16,
+      "y": 72,
+      "w": 288,
+      "h": 204,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 8,
+      "y": 340,
+      "w": 304,
+      "h": 221,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 8,
+      "y": 340,
+      "w": 99,
+      "h": 105,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "filters": {
+      "x": 8,
+      "y": 64,
+      "w": 304,
+      "h": 272,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "10px 10px 0px 0px"
+    },
+    "grid": {
+      "x": 8,
+      "y": 573,
+      "w": 304,
+      "h": 480,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 153,
+      "y": 574,
+      "w": 104,
+      "h": 56,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 8,
+      "y": 1057,
+      "w": 304,
+      "h": 100,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "0px"
+    }
+  },
+  "360": {
+    "scrollWidth": 360,
+    "font": "-apple-system, \"system-ui\", Inter, \"Segoe UI\", sans-serif",
+    "fontsLoaded": [],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 360,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 8,
+      "y": 64,
+      "w": 1,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 16,
+      "y": 72,
+      "w": 328,
+      "h": 152,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 8,
+      "y": 288,
+      "w": 344,
+      "h": 221,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 8,
+      "y": 288,
+      "w": 112,
+      "h": 105,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "filters": {
+      "x": 8,
+      "y": 64,
+      "w": 344,
+      "h": 220,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "10px 10px 0px 0px"
+    },
+    "grid": {
+      "x": 8,
+      "y": 521,
+      "w": 344,
+      "h": 480,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 153,
+      "y": 522,
+      "w": 104,
+      "h": 56,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 8,
+      "y": 1005,
+      "w": 344,
+      "h": 100,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "0px"
+    }
+  },
+  "390": {
+    "scrollWidth": 390,
+    "font": "-apple-system, \"system-ui\", Inter, \"Segoe UI\", sans-serif",
+    "fontsLoaded": [],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 8,
+      "y": 64,
+      "w": 1,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 16,
+      "y": 72,
+      "w": 358,
+      "h": 100,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 8,
+      "y": 236,
+      "w": 374,
+      "h": 200,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 8,
+      "y": 236,
+      "w": 122,
+      "h": 100,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "filters": {
+      "x": 8,
+      "y": 64,
+      "w": 374,
+      "h": 168,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "10px 10px 0px 0px"
+    },
+    "grid": {
+      "x": 8,
+      "y": 448,
+      "w": 374,
+      "h": 506,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 153,
+      "y": 449,
+      "w": 104,
+      "h": 56,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 8,
+      "y": 958,
+      "w": 374,
+      "h": 77,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "0px"
+    }
+  },
+  "768": {
+    "scrollWidth": 768,
+    "font": "-apple-system, \"system-ui\", Inter, \"Segoe UI\", sans-serif",
+    "fontsLoaded": [],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 768,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 16,
+      "y": 64,
+      "w": 1,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 24,
+      "y": 72,
+      "w": 705,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 16,
+      "y": 168,
+      "w": 736,
+      "h": 139,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 16,
+      "y": 168,
+      "w": 240,
+      "h": 67,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "filters": {
+      "x": 16,
+      "y": 64,
+      "w": 736,
+      "h": 100,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "10px 10px 0px 0px"
+    },
+    "grid": {
+      "x": 16,
+      "y": 319,
+      "w": 736,
+      "h": 614,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 137,
+      "y": 320,
+      "w": 88,
+      "h": 67,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 16,
+      "y": 937,
+      "w": 736,
+      "h": 54,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "0px"
+    }
+  },
+  "1024": {
+    "scrollWidth": 1024,
+    "font": "-apple-system, \"system-ui\", Inter, \"Segoe UI\", sans-serif",
+    "fontsLoaded": [],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1024,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 16,
+      "y": 64,
+      "w": 1,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 24,
+      "y": 72,
+      "w": 705,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 16,
+      "y": 168,
+      "w": 992,
+      "h": 139,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 16,
+      "y": 168,
+      "w": 325,
+      "h": 67,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "filters": {
+      "x": 16,
+      "y": 64,
+      "w": 992,
+      "h": 100,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "10px 10px 0px 0px"
+    },
+    "grid": {
+      "x": 16,
+      "y": 319,
+      "w": 992,
+      "h": 419,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 137,
+      "y": 320,
+      "w": 124,
+      "h": 53,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 16,
+      "y": 742,
+      "w": 992,
+      "h": 26,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "0px"
+    }
+  },
+  "1280": {
+    "scrollWidth": 1280,
+    "font": "-apple-system, \"system-ui\", Inter, \"Segoe UI\", sans-serif",
+    "fontsLoaded": [],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 16,
+      "y": 64,
+      "w": 1,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 24,
+      "y": 72,
+      "w": 589,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 16,
+      "y": 122,
+      "w": 1248,
+      "h": 69,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 16,
+      "y": 122,
+      "w": 201,
+      "h": 69,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "filters": {
+      "x": 16,
+      "y": 64,
+      "w": 1248,
+      "h": 54,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "10px 10px 0px 0px"
+    },
+    "grid": {
+      "x": 16,
+      "y": 203,
+      "w": 1248,
+      "h": 567,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 225,
+      "y": 204,
+      "w": 148,
+      "h": 53,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 16,
+      "y": 774,
+      "w": 1248,
+      "h": 26,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "0px"
+    }
+  },
+  "1440": {
+    "scrollWidth": 1440,
+    "font": "-apple-system, \"system-ui\", Inter, \"Segoe UI\", sans-serif",
+    "fontsLoaded": [],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 16,
+      "y": 64,
+      "w": 1,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 24,
+      "y": 72,
+      "w": 589,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 16,
+      "y": 122,
+      "w": 1408,
+      "h": 67,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 16,
+      "y": 122,
+      "w": 228,
+      "h": 67,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "filters": {
+      "x": 16,
+      "y": 64,
+      "w": 1408,
+      "h": 54,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "10px 10px 0px 0px"
+    },
+    "grid": {
+      "x": 16,
+      "y": 201,
+      "w": 1408,
+      "h": 669,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 225,
+      "y": 202,
+      "w": 171,
+      "h": 53,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 16,
+      "y": 874,
+      "w": 1408,
+      "h": 26,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "0px"
+    }
+  },
+  "ref-1586": {
+    "scrollWidth": 1586,
+    "font": "-apple-system, \"system-ui\", Inter, \"Segoe UI\", sans-serif",
+    "fontsLoaded": [],
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1586,
+      "h": 56,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "title": {
+      "x": 16,
+      "y": 64,
+      "w": 1,
+      "h": 26,
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "radius": "0px"
+    },
+    "controls": {
+      "x": 24,
+      "y": 72,
+      "w": 589,
+      "h": 38,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "stats": {
+      "x": 16,
+      "y": 122,
+      "w": 1554,
+      "h": 67,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "0px"
+    },
+    "statFirst": {
+      "x": 16,
+      "y": 122,
+      "w": 252,
+      "h": 67,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "filters": {
+      "x": 16,
+      "y": 64,
+      "w": 1554,
+      "h": 54,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "10px 10px 0px 0px"
+    },
+    "grid": {
+      "x": 16,
+      "y": 201,
+      "w": 1554,
+      "h": 761,
+      "fontSize": "15px",
+      "fontWeight": "400",
+      "radius": "20px"
+    },
+    "dateHead": {
+      "x": 225,
+      "y": 202,
+      "w": 192,
+      "h": 53,
+      "fontSize": "13px",
+      "fontWeight": "500",
+      "radius": "0px"
+    },
+    "plate": null,
+    "legend": {
+      "x": 16,
+      "y": 966,
+      "w": 1554,
+      "h": 26,
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "radius": "0px"
+    }
+  }
+}

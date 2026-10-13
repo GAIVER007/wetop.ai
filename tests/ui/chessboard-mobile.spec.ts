@@ -193,7 +193,7 @@ for (const width of [360, 390, 430]) {
     await page.goto('/chessboard');
     const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
     await expect(stats).toBeVisible();
-    for (const id of ['arrivals', 'departures', 'free', 'occupied', 'occupancy', 'dirty', 'attention']) {
+    for (const id of ['arrivals', 'departures', 'free', 'occupied', 'occupancy', 'in-house', 'attention']) {
       await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
     }
     const day = await (

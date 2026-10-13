@@ -53,7 +53,6 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       main.getByLabel('Период: по', { exact: true }),
       main.getByRole('button', { name: 'Применить', exact: true }),
       main.getByRole('link', { name: 'Предыдущая неделя', exact: true }),
-      main.getByRole('link', { name: 'Неделя', exact: true }),
       toggle,
     ]) {
       await expect(control).toBeVisible();
@@ -62,10 +61,11 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       expect(box!.height, label).toBeGreaterThanOrEqual(44);
       expect(box!.width, label).toBeGreaterThanOrEqual(44);
     }
-    await expect(page.locator('.board-period-pop').getByText('С', { exact: true })).toBeVisible();
-    await expect(page.locator('.board-period-pop').getByText('По', { exact: true })).toBeVisible();
-    // раскрывашка периода закрывается, чтобы не накрывать кнопку «Фильтры» под ней
-    await page.getByTestId('board-period-button').click();
+    await expect(page.locator('.board-nav .date-range__inputs').getByText('С', { exact: true })).toBeVisible();
+    await expect(page.locator('.board-nav .date-range__inputs').getByText('По', { exact: true })).toBeVisible();
+    // окно периода на телефоне выезжает снизу поверх страницы: закрывается Escape, фокус на кнопку периода
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('board-period-button')).toBeFocused();
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     const filters = page.getByRole('dialog', { name: 'Фильтры календаря' });
@@ -237,10 +237,7 @@ test('по умолчанию видна текущая неделя с поне
   );
   await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
   await expect(page.getByTestId('date-col').last().locator('.board__wd')).toHaveText('вс');
-  // «7 дней» с 09.10 живёт в раскрывашке длины окна и отмечает текущую неделю
-  await page.getByTestId('board-length-button').click();
-  await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  // Q-DES-1 (13.10.2026): один контрол периода, без «День / Неделя / Месяц» и второго выбора длины
+  await expect(page.getByTestId('board-length-button')).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Масштаб календаря' })).toHaveCount(0);
 });

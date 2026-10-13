@@ -10,6 +10,7 @@ import { Switch } from '../../components/switch';
 import { Toolbar } from '../../components/toolbar';
 import { FormGrid } from '../../components/form-grid';
 import { PeriodPicker } from '../../components/period-picker';
+import { DateRangePopover } from '../../components/date-range-popover';
 import { ShareBar } from '../../components/share-bar';
 import {
   Alert,
@@ -1388,6 +1389,23 @@ export default function DesignSystemPage() {
           <h2 className="kit-theme__title">Повышенная контрастность</h2>
           <Kit theme="contrast" />
         </div>
+        {(['light', 'dark', 'contrast'] as const).map((theme) => (
+          <div
+            key={theme}
+            className="kit-theme"
+            data-theme={theme}
+            data-testid={`kit-range-popover-${theme}`}
+          >
+            <h3>Единый выбор периода</h3>
+            <DateRangePopover
+              from="2026-10-10"
+              to="2026-10-24"
+              today="2026-10-11"
+              maxDays={60}
+              action="/chessboard"
+            />
+          </div>
+        ))}
       </ThemeSwitcher>
     </Page>
   );

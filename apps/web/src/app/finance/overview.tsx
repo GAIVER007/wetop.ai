@@ -43,8 +43,12 @@ const moneyDelta = (current: bigint | null, previous: bigint | null): Delta | un
 
 export interface OverviewSums {
   income: bigint | null;
+  /** Возвраты гостям за период: отдельная строка, не часть расходов (решение владельца 13.10.2026) */
+  refunds: bigint | null;
+  /** Расходы кассы без возвратов */
   expense: bigint | null;
   prevIncome: bigint | null;
+  prevRefunds: bigint | null;
   prevExpense: bigint | null;
   currency: string;
 }
@@ -83,9 +87,13 @@ export async function BizKpis({
   const percent = summary && total > 0 ? Math.round((summary.occupied * 1000) / total) / 10 : null;
   const prev = before instanceof ApiError ? null : before.current;
   const counts = day instanceof ApiError ? null : day.counts;
-  const { income, expense, prevIncome, prevExpense, currency } = sums;
-  const profit = income !== null && expense !== null ? income - expense : null;
-  const prevProfit = prevIncome !== null && prevExpense !== null ? prevIncome - prevExpense : null;
+  const { income, refunds, expense, prevIncome, prevRefunds, prevExpense, currency } = sums;
+  const profit =
+    income !== null && refunds !== null && expense !== null ? income - refunds - expense : null;
+  const prevProfit =
+    prevIncome !== null && prevRefunds !== null && prevExpense !== null
+      ? prevIncome - prevRefunds - prevExpense
+      : null;
   const money = (v: bigint | null) =>
     v === null ? '—' : formatMoney(v.toString(), currency);
   return (
@@ -104,7 +112,7 @@ export async function BizKpis({
         icon={<Icon name="money" />}
         testId="biz-profit"
         delta={moneyDelta(profit, prevProfit)}
-        hint="поступления минус расходы"
+        hint="поступления минус возвраты и расходы"
       />
       <Stat
         label="Загрузка сегодня"
@@ -184,7 +192,7 @@ export function MoneyOverview({
   cash: CashBalances | null;
   detailsHref: string;
 }) {
-  const { income, expense, prevIncome, prevExpense, currency } = sums;
+  const { income, refunds, expense, prevIncome, prevRefunds, prevExpense, currency } = sums;
   const flow =
     ops && Math.round((Date.parse(to) - Date.parse(from)) / 86400000) < FLOW_CHART_MAX_DAYS
       ? dailyFlow(ops.rows, from, to)
@@ -217,6 +225,11 @@ export function MoneyOverview({
           <span>Поступления</span>
           <strong data-testid="cash-period-income">{money(income)}</strong>
           {deltaLine(moneyDelta(income, prevIncome))}
+        </div>
+        <div className="biz-money__sum biz-money__sum--expense">
+          <span>Возвраты</span>
+          <strong data-testid="cash-period-refunds">{money(refunds)}</strong>
+          {deltaLine(moneyDelta(refunds, prevRefunds))}
         </div>
         <div className="biz-money__sum biz-money__sum--expense">
           <span>Расходы</span>
@@ -257,7 +270,7 @@ export function MoneyOverview({
               <p className="biz-card__note">
                 <span className="biz-dot biz-dot--income" aria-hidden="true" /> поступления
                 {'  '}
-                <span className="biz-dot biz-dot--expense" aria-hidden="true" /> расходы
+                <span className="biz-dot biz-dot--expense" aria-hidden="true" /> возвраты и расходы
                 {ops?.truncated ? '; лента обрезана, график по последним операциям периода' : ''}
               </p>
             </>

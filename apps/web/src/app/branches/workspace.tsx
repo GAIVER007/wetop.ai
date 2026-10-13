@@ -1,105 +1,118 @@
-import './branches.css';
+import { BusinessRecent } from './business-recent';
 import { Suspense } from 'react';
-import { BranchOverview } from './overview';
-import { todayAt, isIsoDate } from '@pms/domain';
+import { BusinessTrend } from './business-trend';
+import './branches.css';
 import { randomUUID } from 'node:crypto';
+import { todayAt, isIsoDate } from '@pms/domain';
+import { branchesApi } from '../../lib/api';
+import { summarizeBranches } from '../../lib/branch-summary';
+import { formatMoney } from '../../lib/money';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import { Panel, Stack } from '../../components/ui';
-import { branchesApi } from '../../lib/api';
-import { BranchForm } from './form';
-import { selectBranch } from './actions';
 import { unstable_rethrow } from 'next/navigation';
+import { BranchForm } from './form';
+import { groupBusinessBranches } from './business-groups';
+import { ReferenceBoard } from './reference-board';
 export async function BranchWorkspace({
   query,
-  createLabel = 'Добавить филиал',
+  createLabel = 'Добавить объект или направление',
 }: {
   query: Record<string, string | string[] | undefined>;
   createLabel?: string;
 }) {
-  const loaded = await branchesApi.list().then(
-    (value) => ({ ok: true as const, value }),
-    (error: unknown) => {
+  try {
+    const loaded = await branchesApi.list();
+    const { organization, items, canCreate } = loaded;
+    const businesses = loaded.businesses ?? [];
+    const date = todayAt(items[0]?.timezone ?? 'UTC');
+    const from = typeof query.from === 'string' && isIsoDate(query.from) ? query.from : date;
+    const to = typeof query.to === 'string' && isIsoDate(query.to) ? query.to : from;
+    const overview = await branchesApi.overview(from, to).catch((error) => {
       unstable_rethrow(error);
-      return { ok: false as const, error };
-    },
-  );
-  if (!loaded.ok)
-    return <LoadError testId="branches-load-error" {...loadErrorProps(loaded.error)} />;
-  const { organization, items, canCreate } = loaded.value;
-  const today = todayAt(items[0]?.timezone ?? 'UTC');
-  const from = typeof query.from === 'string' && isIsoDate(query.from) ? query.from : today;
-  const to = typeof query.to === 'string' && isIsoDate(query.to) ? query.to : from;
-  return (
-    <section className="branches-workspace" aria-label="Объекты и филиалы">
-      <Stack>
-        <Panel>
-          <h2>{organization.name}</h2>
-          <details>
-            <summary>Реквизиты организации</summary>
-            <p className="muted">ID: {organization.id}</p>
-          </details>
-          <p>Один аккаунт, у каждого филиала свои данные и настройки.</p>
-        </Panel>
-        {canCreate && (
-          <Panel>
-            <details>
-              <summary className="branch-create-toggle">{createLabel}</summary>
-              <BranchForm id={randomUUID()} />
-            </details>
-          </Panel>
+      return null;
+    });
+    const summary = overview
+      ? summarizeBranches(overview.rows.filter((r) => r.branch.vertical === 'HOSPITALITY'))
+      : null;
+    return (
+      <ReferenceBoard
+        organization={organization.name}
+        periodLabel={from === date && to === date ? 'за сегодня' : `за ${from} - ${to}`}
+        items={items}
+        businesses={businesses}
+        preview={process.env.NODE_ENV === 'development' && process.env.APP_ALLOW_TEST_DATA === '1'}
+        metrics={Object.fromEntries(
+          groupBusinessBranches(items)
+            .filter((g) => g.vertical === 'HOSPITALITY')
+            .map((g) => {
+              const rows = overview?.rows.filter(
+                (r) => r.branch.vertical === 'HOSPITALITY' && r.branch.location.businessId === g.id,
+              );
+              const aggregate = rows ? summarizeBranches(rows) : null;
+              return [
+                g.id,
+                {
+                  money: aggregate
+                    ? [...aggregate.currencies].map(([currency, total]) =>
+                        formatMoney(total.revenue, currency),
+                      )
+                    : [],
+                  occupancy: aggregate ? `${aggregate.percent}%` : 'Нет данных',
+                },
+              ];
+            }),
         )}
-        <div
-          className="branches-grid"
-          style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))' }}
-        >
-          {items.map((item) => (
-            <Panel key={item.id}>
-              <h2>{item.name}</h2>
-              <p>{item.address || 'Адрес пока не указан'}</p>
-              {/* У салона номеров и коек нет вовсе (DATA_MODEL §19): состав фонда ему не показывается */}
-              <p>
-                {item.vertical === 'FOOD_SERVICE'
-                  ? 'Ресторан: залы, столы и бронирования'
-                  : item.vertical === 'BEAUTY'
-                    ? 'Салон красоты: клиенты, услуги и мастера'
-                    : `${item._count.inventoryUnits} номеров и коек, ${item._count.accommodationTypes} категорий`}
+        recent={
+          canCreate ? (
+            <Suspense
+              fallback={
+                <p className="org-chart-empty" role="status">
+                  Загружаем журнал…
+                </p>
+              }
+            >
+              <BusinessRecent businesses={businesses} />
+            </Suspense>
+          ) : (
+            <p className="org-chart-empty">Журнал доступен владельцу организации.</p>
+          )
+        }
+        trend={
+          <Suspense
+            fallback={
+              <p className="org-chart-empty" role="status">
+                Загружаем динамику…
               </p>
-              <p>
-                Валюта {item.currency}, часовой пояс {item.timezone}
-              </p>
-              <form action={selectBranch}>
-                <input type="hidden" name="id" value={item.id} />
-                <button className="btn" type="submit">
-                  {item.vertical === 'FOOD_SERVICE'
-                    ? 'Открыть ресторан'
-                    : item.vertical === 'BEAUTY'
-                      ? 'Открыть салон'
-                      : item._count.inventoryUnits
-                        ? 'Открыть филиал'
-                        : 'Настроить номера'}
-                </button>
-              </form>
-            </Panel>
-          ))}
-        </div>
-        <form className="branches-period">
-          <label>
-            С даты
-            <input className="inp" type="date" name="from" defaultValue={from} required />
-          </label>
-          <label>
-            По дату
-            <input className="inp" type="date" name="to" defaultValue={to} required min={from} />
-          </label>
-          <button className="btn" type="submit">
-            Показать
-          </button>
-        </form>
-        <Suspense fallback={<p role="status">Считаем показатели филиалов…</p>}>
-          <BranchOverview from={from} to={to} />
-        </Suspense>
-      </Stack>
-    </section>
-  );
+            }
+          >
+            {items.some((item) => item.vertical === 'HOSPITALITY') ? (
+              <BusinessTrend date={to} />
+            ) : (
+              <p className="org-chart-empty">Добавьте гостиничный объект, чтобы видеть динамику.</p>
+            )}
+          </Suspense>
+        }
+        money={
+          summary
+            ? [...summary.currencies].map(([currency, total]) =>
+                formatMoney(total.revenue, currency),
+              )
+            : []
+        }
+        create={
+          canCreate ? (
+            <details className="org-create" id="create-branch">
+              <summary>+ {createLabel}</summary>
+              <div>
+                <BranchForm id={randomUUID()} />
+              </div>
+            </details>
+          ) : null
+        }
+      />
+    );
+  } catch (error) {
+    unstable_rethrow(error);
+    return <LoadError testId="branches-load-error" {...loadErrorProps(error)} />;
+  }
 }

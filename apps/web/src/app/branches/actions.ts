@@ -79,3 +79,25 @@ export async function branchChoices() {
     return { error: 'Не удалось загрузить филиалы. Попробуйте ещё раз.' };
   }
 }
+
+export async function saveBusinessCard(form: FormData) {
+  const { businessCardsApi } = await import('../../lib/api');
+  const id = String(form.get('businessId') ?? '');
+  const payload = new FormData();
+  for (const key of ['name', 'description', 'expectedUpdatedAt', 'removeCover', 'file']) {
+    const value = form.get(key);
+    if (value !== null) payload.append(key, value);
+  }
+  try {
+    const business = await businessCardsApi.save(id, payload);
+    revalidatePath('/branches');
+    return { business };
+  } catch (error) {
+    return {
+      error:
+        error instanceof ApiError
+          ? error.message
+          : 'Не удалось сохранить карточку. Повторите попытку.',
+    };
+  }
+}

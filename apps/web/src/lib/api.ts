@@ -3409,6 +3409,7 @@ export const branchesApi = {
   list: () =>
     getJson<{
       organization: { id: string; name: string; status: string };
+      businesses?: BusinessCardView[];
       items: BranchItem[];
       canCreate: boolean;
     }>('/branches'),
@@ -3936,5 +3937,25 @@ export const orderRatingApi = {
       body: JSON.stringify(body),
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+};
+
+/** Cards belong to businesses inside the current organization. */
+export interface BusinessCardView {
+  id: string;
+  name: string;
+  vertical: WebVertical;
+  description: string | null;
+  coverUrl: string | null;
+  updatedAt: string;
+  canEdit: boolean;
+  canUpload: boolean;
+  hasCover: boolean;
+}
+export const businessCardsApi = {
+  save: async (id: string, form: FormData): Promise<BusinessCardView> => {
+    const res = await backendFetch(`/branches/businesses/${encodeURIComponent(id)}/card`, { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return await res.json() as BusinessCardView;
   },
 };

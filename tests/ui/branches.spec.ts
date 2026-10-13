@@ -8,15 +8,17 @@ test('филиалы: создание, сохранение после reload �
   await page.waitForURL('**/finance');
   await page.goto('/branches');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { name: 'Организация и филиалы' })).toBeVisible();
-  await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await main.getByLabel('Название филиала').fill('Тестовый филиал у парка');
+  await expect(main.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
+  await main.locator('summary').filter({ hasText: 'Добавить объект или направление' }).click();
+  await main.getByLabel('Название объекта').fill('Тестовый филиал у парка');
   await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
   await expect(main.getByRole('status')).toContainText('Филиал создан');
   await page.reload();
-  await expect(main.getByRole('heading', { name: 'Тестовый филиал у парка' })).toBeVisible();
   await expect(
-    main.getByRole('heading', { name: 'Сводка по гостиницам', exact: true }),
+    main.getByRole('button').filter({ hasText: 'Тестовый филиал у парка' }),
+  ).toBeVisible();
+  await expect(
+    main.getByRole('heading', { name: 'Динамика по всем филиалам', exact: true }),
   ).toBeVisible();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -56,7 +58,7 @@ test('организации: филиал создаётся прямо в ра
   await expect(main).not.toContainText('Реквизиты организации');
   await expect(main).not.toContainText('объект / филиал');
   await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await main.getByLabel('Название филиала').fill('Тестовый объект Север');
+  await main.getByLabel('Название объекта').fill('Тестовый объект Север');
   await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
   await expect(main.getByRole('status')).toContainText('Филиал создан');
   await page.reload();

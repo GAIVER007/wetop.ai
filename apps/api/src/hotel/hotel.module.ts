@@ -1,3 +1,4 @@
+import { BusinessCardsModule } from './business-cards';
 import { DashboardModule } from '../dashboard/dashboard.module';
 import { BranchesController, BranchesService } from './branches';
 import 'reflect-metadata';
@@ -519,7 +520,7 @@ export class HotelController {
 }
 
 @Module({
-  imports: [DashboardModule],
+  imports: [DashboardModule, BusinessCardsModule],
   controllers: [
     BranchesController,
     HotelController,

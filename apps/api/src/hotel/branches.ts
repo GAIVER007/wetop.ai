@@ -1,3 +1,4 @@
+import { BusinessCardsService } from './business-cards';
 import { DashboardService } from '../dashboard/dashboard.service';
 import 'reflect-metadata';
 import {
@@ -285,9 +286,17 @@ export class BranchesController {
   constructor(
     @Inject(BranchesService) private readonly service: BranchesService,
     @Inject(DashboardService) private readonly dashboard: DashboardService,
+    @Inject(BusinessCardsService) private readonly cards: BusinessCardsService,
   ) {}
-  @Access('desk') @ScopeAware() @Get() list() {
-    return this.service.list();
+  @Access('desk') @ScopeAware() @Get() async list() {
+    const result = await this.service.list();
+    return {
+      ...result,
+      businesses: await this.cards.list(
+        result.items.map((item) => item.location.businessId),
+        currentRole() === 'OWNER',
+      ),
+    };
   }
   @Access('reports')
   @ScopeAware()

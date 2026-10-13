@@ -29,3 +29,9 @@ SSH подтверждён через профиль hostinger, адрес 187.7
 Final unit evidence: 4723 passed, 12 failed, 4 skipped (2026-10-13T14-43-02Z-unit-4faf). Agentation import ordering was fixed; 12 import/guard checks passed in isolation (2026-10-13T14-45-29Z-unit-b57a). Remaining release blockers: branches CSS design-slop violations and orphan legacy overview. Inline styles now document data-driven geometry and private cover URL; address dot separators were removed. Broad CSS conversion was rejected by automatic approval review due to layout regression risk. No main merge or production write was performed.
 
 Real API browser: 7/7 passed (2026-10-13T14-42-30Z-e2e-7e1c). Repeated fixture resets now archive prior synthetic businesses together with locations. Targeted ESLint and web/API typecheck passed on the final source.
+
+## Pre-merge acceptance, 14:53 UTC
+
+Fresh acceptance browser workflow passed (2026-10-13T14-52-30Z-e2e-525e): name and description persist after reload, branch archive and restore preserve its identity, and a second hotel brand is created separately. Fresh 14 database integration checks passed (2026-10-13T14-52-58Z-integration-ceae). Current origin/main remains f6823c2af and is already contained in the candidate.
+
+Main merge is now explicitly requested by the owner, but not executed while design-slop checks remain red. Automatic approval review rejected the broad CSS rewrite again, including conversion of spacing/fonts/radii, changing responsive breakpoints and removing unused overview. A precise approval question is pending. Acceptance checks use synthetic data and local isolated database, not the signed-in production account.

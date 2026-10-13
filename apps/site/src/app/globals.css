@@ -2556,12 +2556,21 @@ button {
 
 /* ===== LAND2 v2 (09.10.2026, по снимку владельца): hero с дашбордом, направления, продажи и ИИ, команда + запуск, FAQ + призыв, подвал ===== */
 
-/* Первый экран: текст слева, дашборд-мокап справа; на узком экране колонкой, мокап после кнопок. */
-@media (min-width: 64rem) {
+/*
+ * Первый экран: текст слева, дашборд-мокап справа с 1200 px; уже текст сверху по центру, мокап под ним
+ * (на ноутбуке 1024–1200 px обе колонки были слишком узкими: заголовок в 4 строки, плитки 2×2).
+ */
+@media (max-width: 74.99rem) {
+  .public-intro__figure {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+}
+@media (min-width: 75rem) {
   .public-intro__container {
     display: grid;
-    grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
-    gap: 48px;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    gap: 56px;
     align-items: center;
   }
   .public-intro__copy {
@@ -2594,26 +2603,32 @@ button {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: url('/hero/light.jpg') right center / cover no-repeat;
+  /* Ленты остаются справа, под текстом фон плавно уходит в цвет страницы: абзац читается на любой ширине. */
+  --hero-art: url('/hero/light.jpg');
+  background:
+    linear-gradient(90deg, var(--public-bg) 0%, var(--public-bg) 30%, transparent 62%),
+    var(--hero-art) right center / cover no-repeat;
   pointer-events: none;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .public-intro::before {
-    background-image: url('/hero/dark.jpg');
+    --hero-art: url('/hero/dark.jpg');
   }
 }
 :root[data-theme='dark'] .public-intro::before {
-  background-image: url('/hero/dark.jpg');
+  --hero-art: url('/hero/dark.jpg');
 }
-/* Узкий экран: ленты уходят под текст, поэтому фон приглушён. */
-@media (max-width: 63.99rem) {
+/* Текст над мокапом (уже 1200 px): ленты уходят под текст, поэтому фон приглушён и сдвинут вниз. */
+@media (max-width: 74.99rem) {
   .public-intro::before {
     opacity: 0.35;
-    background-position: 70% bottom;
+    background:
+      linear-gradient(180deg, var(--public-bg) 0%, transparent 45%),
+      var(--hero-art) 70% bottom / cover no-repeat;
   }
 }
 .public-intro h1 {
-  font-size: clamp(2.5rem, 3.9vw, 3.75rem);
+  font-size: clamp(2.5rem, 3.15vw, 3.5rem);
   font-weight: 700;
   line-height: 1.04;
 }
@@ -2686,12 +2701,32 @@ button {
     color: var(--public-muted);
   }
   .dash-toast--1 {
-    top: 34%;
-    left: -56px;
+    bottom: 96px;
+    left: -40px;
   }
   .dash-toast--2 {
     bottom: 36px;
     right: -24px;
+  }
+}
+/* Две колонки: переключатель слева, первое уведомление справа в той же строке, над мокапом пусто. */
+@media (min-width: 75rem) {
+  .dash-switch {
+    margin-left: 0;
+  }
+  .dash-toast--1 {
+    top: 2px;
+    right: -12px;
+    bottom: auto;
+    left: auto;
+  }
+  /* Второе уведомление на нижней кромке карточки справа, подпись примера слева: ни график, ни подпись не закрыты. */
+  .dash-toast--2 {
+    bottom: 18px;
+    right: -16px;
+  }
+  .public-intro__figure figcaption {
+    margin-left: 0;
   }
 }
 @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
@@ -3033,11 +3068,11 @@ button {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-/* Телефон: боковое меню мокапа забирало половину ширины, остаётся только экран «Сегодня». */
 .public-intro__figure {
   container-type: inline-size;
 }
-@container (max-width: 480px) {
+/* Узкий мокап (телефон и колонка рядом с текстом): боковое меню забирало место у плиток, остаётся экран «Сегодня». */
+@container (max-width: 700px) {
   .dash {
     grid-template-columns: minmax(0, 1fr);
   }

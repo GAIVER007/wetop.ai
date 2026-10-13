@@ -1,0 +1,30 @@
+# Модульные (unit) · 09.10.2026 23:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 17
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-10-43Z-unit-9642.json' 'apps/web/src/app/marketing/budget/derive.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/web/src/app/marketing/budget/derive.test.ts (0 test)
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:10:54
+   Duration  476ms (worker 99%, environment 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-10-43Z-unit-9642.json
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/budget/derive.test.ts [ apps/web/src/app/marketing/budget/derive.test.ts ]
+Error: Cannot find module './derive' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/web/src/app/marketing/budget/derive.test.ts
+ ❯ apps/web/src/app/marketing/budget/derive.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { byDay, byPlatform, monthDelta, summarize, type BudgetExpense …
+       | ^
+      3|
+      4| const e = (over: Partial<BudgetExpense>): BudgetExpense => ({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+# код выхода 1 · 12 с

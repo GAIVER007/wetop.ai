@@ -182,7 +182,7 @@ jobs:
           if-no-files-found: ignore
 
   ui-shard:
-    name: UI · часть ${{ matrix.shard }}/3
+    name: UI · часть ${{ matrix.shard }}/5
     needs: fast
     # Три части UI идут параллельно на двух ядрах GitHub. На своём раннере (боевой сервер) `next dev`
     # не поднимался за 120 с, а 812 тестов не помещались в 25 минут (03.10.2026).
@@ -196,7 +196,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        # Пять частей (13.10.2026): при трёх часть 3/3 одним worker не уложилась в 60 минут (38388304633); время
+        # части задают тяжёлые спеки, а не число тестов, поэтому части мельче, потолок прежний
+        shard: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -213,7 +215,7 @@ jobs:
           UI_BROWSER_CHANNEL: chromium
           # часть набора выбирает харнесс до раздачи файлов двум worker (tests/ui/worker-ports.ts, shardSpecs):
           # --shard Playwright отдавал первую часть целиком одному worker
-          UI_SHARD: ${{ matrix.shard }}/3
+          UI_SHARD: ${{ matrix.shard }}/5
         # вход с включённым замком гоняет своя задача ui-auth (два worker), второй раз в первой части не нужен.
         # Один worker на часть: с двумя одновременно работающими стойками раннер на 2 ядра дважды подряд получал
         # shutdown signal посреди части 3/3 (release-checks 38377601835, попытки 2 и 3); баланс частей даёт UI_SHARD

@@ -1,0 +1,19 @@
+# Модульные (unit) · 13.10.2026 17:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6801fd6 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-19-19Z-unit-06fe.json' 'tests/unit/ci-runner.test.ts' 'tests/unit/ui-worker-ports.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ✓ |unit| tests/unit/ui-worker-ports.test.ts (6 tests) 4ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (25 tests) 1662ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 1203ms
+
+ Test Files  2 passed (2)
+      Tests  31 passed (31)
+   Start at  05:19:21
+   Duration  1.91s (tests 91%, transform 4%, import 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-19-19Z-unit-06fe.json
+
+# код выхода 0 · 4 с

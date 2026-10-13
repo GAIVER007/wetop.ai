@@ -1,0 +1,71 @@
+{
+  "files": [
+    {
+      "file": "findings.md",
+      "sha256": "239a02d0c2b9aa9a727bd3e97b385b727fa7e98451ebc0a56209d59db05ed1e4",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/findings.md"
+    },
+    {
+      "file": "common-code-review.md",
+      "sha256": "3d31d27b63f09425b7daff9f7ac12014e948d78c839660371b91d77c0f3bd43a",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/common-code-review.md"
+    },
+    {
+      "file": "beauty-code-review.md",
+      "sha256": "f393d80f5d30a125821ad02f77909576b30a49d65dccacd7a47e63a4511c9a2b",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/beauty-code-review.md"
+    },
+    {
+      "file": "food-code-review.md",
+      "sha256": "bd2e7026376248ecc051c1814d69661b14c09e154fc40c7048c37c9cbe6dfb90",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/food-code-review.md"
+    },
+    {
+      "file": "hospitality-code-review.md",
+      "sha256": "e056df9433b1781507f41e72aa6b1c11fe752e369ed5d076d8a4d5c474b25cab",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/hospitality-code-review.md"
+    },
+    {
+      "file": "shared-ui-review.md",
+      "sha256": "c25f4279bc08978a8e189a7fc2aecec3c24bfff2760af65f6df8201c8397d204",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/shared-ui-review.md"
+    },
+    {
+      "file": "marketing-ai-code-review.md",
+      "sha256": "d52407fd1fc3e768f869e00cb833f2d1f6e526e7e295327a607c4d07108a4bae",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/marketing-ai-code-review.md"
+    },
+    {
+      "file": "production-delta-review.md",
+      "sha256": "ad5ffe4a819cb8a030564f3590559c0a66067420519023cf3984c45e24ccbd6b",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/production-delta-review.md"
+    },
+    {
+      "file": "HANDOFF-AND-NEXT-PLAN.md",
+      "sha256": "1b8ce131e11100092371420fc790033b037f37f3db088ab21e6cbc2dd24823f4",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/HANDOFF-AND-NEXT-PLAN.md"
+    },
+    {
+      "file": "test-results.md",
+      "sha256": "d6487da7801d085db884d6a4faaf9d858386b499b27c1a98261dffaaf36529b5",
+      "provenance": "REUSED historical audit, unchanged",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/test-results.md"
+    },
+    {
+      "file": "help-wrong-vertical.png",
+      "sha256": "f2e5676c5fcfd909855d33d240c37814a2dec287349d5a235da1058df8797639",
+      "provenance": "REUSED historical L-02 image, unchanged; context described in shared-ui-review.md lines22-30",
+      "source": "/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/reports/full-ui-audit-2026-10-11/help-wrong-vertical.png"
+    }
+  ],
+  "currentRevalidation": "Only five UI-FIX-01 IDs; source documents retain historical statuses, failures and boundaries."
+}

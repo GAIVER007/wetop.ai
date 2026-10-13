@@ -1,0 +1,1401 @@
+{
+  "conclusion": "cancelled",
+  "headSha": "c10020148221ffc3a62d88b8588dfc6c6b096ab4",
+  "jobs": [
+    {
+      "completedAt": "2026-10-12T14:37:02Z",
+      "conclusion": "success",
+      "databaseId": 114860866061,
+      "name": "бот · pytest",
+      "startedAt": "2026-10-12T14:33:55Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:33:56Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:33:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:15Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-12T14:33:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:16Z",
+          "conclusion": "success",
+          "name": "uv закреплённой версии со сверкой суммы",
+          "number": 3,
+          "startedAt": "2026-10-12T14:34:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:18Z",
+          "conclusion": "success",
+          "name": "Python и зависимости бота без torch",
+          "number": 4,
+          "startedAt": "2026-10-12T14:34:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:36:59Z",
+          "conclusion": "success",
+          "name": "pytest бота",
+          "number": 5,
+          "startedAt": "2026-10-12T14:34:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:36:59Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 10,
+          "startedAt": "2026-10-12T14:36:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:36:59Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-10-12T14:36:59Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114860866061"
+    },
+    {
+      "completedAt": "2026-10-12T14:40:19Z",
+      "conclusion": "success",
+      "databaseId": 114860866430,
+      "name": "lint · typecheck · unit · главная",
+      "startedAt": "2026-10-12T14:33:55Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:33:56Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:33:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:42Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-12T14:33:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:48Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 3,
+          "startedAt": "2026-10-12T14:34:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:35:06Z",
+          "conclusion": "success",
+          "name": "Run npm ci --no-audit --no-fund",
+          "number": 4,
+          "startedAt": "2026-10-12T14:34:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:35:09Z",
+          "conclusion": "success",
+          "name": "Run npm run generate -w @pms/database",
+          "number": 5,
+          "startedAt": "2026-10-12T14:35:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:35:38Z",
+          "conclusion": "success",
+          "name": "Run npm run lint",
+          "number": 6,
+          "startedAt": "2026-10-12T14:35:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:36:22Z",
+          "conclusion": "success",
+          "name": "Run npm run typecheck && npm run typecheck:api && npm run typecheck:web",
+          "number": 7,
+          "startedAt": "2026-10-12T14:35:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:38:06Z",
+          "conclusion": "success",
+          "name": "Run npx vitest run --project unit",
+          "number": 8,
+          "startedAt": "2026-10-12T14:36:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:38:28Z",
+          "conclusion": "success",
+          "name": "Chromium для проверок главной",
+          "number": 9,
+          "startedAt": "2026-10-12T14:38:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:17Z",
+          "conclusion": "success",
+          "name": "Run npm run site:check",
+          "number": 10,
+          "startedAt": "2026-10-12T14:38:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:17Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 11,
+          "startedAt": "2026-10-12T14:40:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:17Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 12,
+          "startedAt": "2026-10-12T14:40:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:17Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 23,
+          "startedAt": "2026-10-12T14:40:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:17Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 24,
+          "startedAt": "2026-10-12T14:40:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:17Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-10-12T14:40:17Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114860866430"
+    },
+    {
+      "completedAt": "2026-10-12T14:47:47Z",
+      "conclusion": "success",
+      "databaseId": 114860866634,
+      "name": "UI-FIX-01 isolated proof",
+      "startedAt": "2026-10-12T14:33:54Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:33:56Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:33:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:17Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-10-12T14:33:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:30Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-10-12T14:34:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:33Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 4,
+          "startedAt": "2026-10-12T14:34:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:44Z",
+          "conclusion": "success",
+          "name": "Run npm ci --no-audit --no-fund",
+          "number": 5,
+          "startedAt": "2026-10-12T14:34:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:34:46Z",
+          "conclusion": "success",
+          "name": "Run npm run generate -w @pms/database",
+          "number": 6,
+          "startedAt": "2026-10-12T14:34:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:35:05Z",
+          "conclusion": "success",
+          "name": "Run npx playwright install --with-deps chromium",
+          "number": 7,
+          "startedAt": "2026-10-12T14:34:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:35:09Z",
+          "conclusion": "success",
+          "name": "Local database and runtime role",
+          "number": 8,
+          "startedAt": "2026-10-12T14:35:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:35:12Z",
+          "conclusion": "success",
+          "name": "Python without ML packages",
+          "number": 9,
+          "startedAt": "2026-10-12T14:35:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:35:17Z",
+          "conclusion": "success",
+          "name": "Addressed units and scope integration",
+          "number": 10,
+          "startedAt": "2026-10-12T14:35:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:35:48Z",
+          "conclusion": "success",
+          "name": "Real web API DB and KB storage",
+          "number": 11,
+          "startedAt": "2026-10-12T14:35:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:38:47Z",
+          "conclusion": "success",
+          "name": "UI controlled failures and adjacent regressions",
+          "number": 12,
+          "startedAt": "2026-10-12T14:35:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:39:00Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 13,
+          "startedAt": "2026-10-12T14:38:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:42:45Z",
+          "conclusion": "success",
+          "name": "Matching Linux before screenshots",
+          "number": 14,
+          "startedAt": "2026-10-12T14:39:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:12Z",
+          "conclusion": "success",
+          "name": "Expected RED for stale scope UI on fixed baseline",
+          "number": 15,
+          "startedAt": "2026-10-12T14:42:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:25Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 16,
+          "startedAt": "2026-10-12T14:43:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:44:11Z",
+          "conclusion": "success",
+          "name": "Expected RED for initial create B with typed C",
+          "number": 17,
+          "startedAt": "2026-10-12T14:43:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:41Z",
+          "conclusion": "success",
+          "name": "Matching Linux after screenshots",
+          "number": 18,
+          "startedAt": "2026-10-12T14:44:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:41Z",
+          "conclusion": "success",
+          "name": "Verify all proof outcomes",
+          "number": 19,
+          "startedAt": "2026-10-12T14:47:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:41Z",
+          "conclusion": "success",
+          "name": "Collect safe verification records",
+          "number": 20,
+          "startedAt": "2026-10-12T14:47:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:43Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 21,
+          "startedAt": "2026-10-12T14:47:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:43Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 38,
+          "startedAt": "2026-10-12T14:47:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:44Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 39,
+          "startedAt": "2026-10-12T14:47:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:44Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 40,
+          "startedAt": "2026-10-12T14:47:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:44Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 41,
+          "startedAt": "2026-10-12T14:47:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:44Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 42,
+          "startedAt": "2026-10-12T14:47:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:47:44Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 43,
+          "startedAt": "2026-10-12T14:47:44Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114860866634"
+    },
+    {
+      "completedAt": "2026-10-12T14:51:52Z",
+      "conclusion": "success",
+      "databaseId": 114863504262,
+      "name": "UI · часть 3/3",
+      "startedAt": "2026-10-12T14:40:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:40:22Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:40:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:36Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-12T14:40:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:38Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 3,
+          "startedAt": "2026-10-12T14:40:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:54Z",
+          "conclusion": "success",
+          "name": "Run npm ci --no-audit --no-fund",
+          "number": 4,
+          "startedAt": "2026-10-12T14:40:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:56Z",
+          "conclusion": "success",
+          "name": "Run npm run generate -w @pms/database",
+          "number": 5,
+          "startedAt": "2026-10-12T14:40:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:21Z",
+          "conclusion": "success",
+          "name": "Run npx playwright install --with-deps chromium",
+          "number": 6,
+          "startedAt": "2026-10-12T14:40:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:51:50Z",
+          "conclusion": "success",
+          "name": "Браузерные проверки без базы",
+          "number": 7,
+          "startedAt": "2026-10-12T14:41:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:51:50Z",
+          "conclusion": "skipped",
+          "name": "Единый вход с включённым замком",
+          "number": 8,
+          "startedAt": "2026-10-12T14:51:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:51:50Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 9,
+          "startedAt": "2026-10-12T14:51:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:51:50Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 10,
+          "startedAt": "2026-10-12T14:51:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:51:50Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 11,
+          "startedAt": "2026-10-12T14:51:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:51:50Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 21,
+          "startedAt": "2026-10-12T14:51:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:51:50Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 22,
+          "startedAt": "2026-10-12T14:51:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:51:50Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-12T14:51:50Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114863504262"
+    },
+    {
+      "completedAt": "2026-10-12T14:55:10Z",
+      "conclusion": "success",
+      "databaseId": 114863504313,
+      "name": "миграции · integration · e2e на чистом PostgreSQL 16",
+      "startedAt": "2026-10-12T14:40:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:40:22Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:40:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:37Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-10-12T14:40:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:43Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-10-12T14:40:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:48Z",
+          "conclusion": "success",
+          "name": "Клиент PostgreSQL 16 (psql, pg_dump той же мажорной версии, что сервер)",
+          "number": 4,
+          "startedAt": "2026-10-12T14:40:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:50Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 5,
+          "startedAt": "2026-10-12T14:40:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:11Z",
+          "conclusion": "success",
+          "name": "Run npm ci --no-audit --no-fund",
+          "number": 6,
+          "startedAt": "2026-10-12T14:40:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:14Z",
+          "conclusion": "success",
+          "name": "Run npm run generate -w @pms/database",
+          "number": 7,
+          "startedAt": "2026-10-12T14:41:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:49:50Z",
+          "conclusion": "success",
+          "name": "Применение и откат каждой миграции, schema.prisma против базы из миграций",
+          "number": 8,
+          "startedAt": "2026-10-12T14:41:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:49:50Z",
+          "conclusion": "success",
+          "name": "Run psql ***127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'",
+          "number": 9,
+          "startedAt": "2026-10-12T14:49:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:52:26Z",
+          "conclusion": "success",
+          "name": "Интеграционные тесты",
+          "number": 10,
+          "startedAt": "2026-10-12T14:49:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:53:20Z",
+          "conclusion": "success",
+          "name": "Сборка стойки и Chromium",
+          "number": 11,
+          "startedAt": "2026-10-12T14:52:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:53:23Z",
+          "conclusion": "success",
+          "name": "Свежий сид pms_test для сквозных",
+          "number": 12,
+          "startedAt": "2026-10-12T14:53:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:53:45Z",
+          "conclusion": "success",
+          "name": "Мастер настройки, сохранение и восстановление в браузере",
+          "number": 13,
+          "startedAt": "2026-10-12T14:53:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:54:57Z",
+          "conclusion": "success",
+          "name": "Сквозные тесты",
+          "number": 14,
+          "startedAt": "2026-10-12T14:53:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:54:57Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 15,
+          "startedAt": "2026-10-12T14:54:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:54:57Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 16,
+          "startedAt": "2026-10-12T14:54:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:54:57Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 30,
+          "startedAt": "2026-10-12T14:54:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:54:57Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 31,
+          "startedAt": "2026-10-12T14:54:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:55:09Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 32,
+          "startedAt": "2026-10-12T14:54:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:55:09Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 33,
+          "startedAt": "2026-10-12T14:55:09Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114863504313"
+    },
+    {
+      "completedAt": "2026-10-12T15:40:37Z",
+      "conclusion": "cancelled",
+      "databaseId": 114863504318,
+      "name": "UI · часть 1/3",
+      "startedAt": "2026-10-12T14:40:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:40:22Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:40:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:36Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-12T14:40:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:38Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 3,
+          "startedAt": "2026-10-12T14:40:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:59Z",
+          "conclusion": "success",
+          "name": "Run npm ci --no-audit --no-fund",
+          "number": 4,
+          "startedAt": "2026-10-12T14:40:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:02Z",
+          "conclusion": "success",
+          "name": "Run npm run generate -w @pms/database",
+          "number": 5,
+          "startedAt": "2026-10-12T14:40:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:24Z",
+          "conclusion": "success",
+          "name": "Run npx playwright install --with-deps chromium",
+          "number": 6,
+          "startedAt": "2026-10-12T14:41:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:35Z",
+          "conclusion": "cancelled",
+          "name": "Браузерные проверки без базы",
+          "number": 7,
+          "startedAt": "2026-10-12T14:41:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:35Z",
+          "conclusion": "skipped",
+          "name": "Единый вход с включённым замком",
+          "number": 8,
+          "startedAt": "2026-10-12T15:40:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:35Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 9,
+          "startedAt": "2026-10-12T15:40:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:35Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 10,
+          "startedAt": "2026-10-12T15:40:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:35Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 11,
+          "startedAt": "2026-10-12T15:40:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:35Z",
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 21,
+          "startedAt": "2026-10-12T15:40:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:36Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 22,
+          "startedAt": "2026-10-12T15:40:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:36Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-12T15:40:36Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114863504318"
+    },
+    {
+      "completedAt": "2026-10-12T14:43:58Z",
+      "conclusion": "success",
+      "databaseId": 114863504377,
+      "name": "UI · food-ui",
+      "startedAt": "2026-10-12T14:40:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:40:22Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:40:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:42Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-10-12T14:40:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:55Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-10-12T14:40:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:58Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 4,
+          "startedAt": "2026-10-12T14:40:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:10Z",
+          "conclusion": "success",
+          "name": "Run npm ci --no-audit --no-fund",
+          "number": 5,
+          "startedAt": "2026-10-12T14:40:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:12Z",
+          "conclusion": "success",
+          "name": "Run npm run generate -w @pms/database",
+          "number": 6,
+          "startedAt": "2026-10-12T14:41:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:21Z",
+          "conclusion": "success",
+          "name": "База pms_dev и схема pms_test с миграциями",
+          "number": 7,
+          "startedAt": "2026-10-12T14:41:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:35Z",
+          "conclusion": "success",
+          "name": "Run npx playwright install --with-deps chromium",
+          "number": 8,
+          "startedAt": "2026-10-12T14:41:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:55Z",
+          "conclusion": "success",
+          "name": "Браузерный набор на подставном API и настоящей схеме",
+          "number": 9,
+          "startedAt": "2026-10-12T14:41:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:55Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 10,
+          "startedAt": "2026-10-12T14:43:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:55Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 11,
+          "startedAt": "2026-10-12T14:43:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:55Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 20,
+          "startedAt": "2026-10-12T14:43:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:55Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 21,
+          "startedAt": "2026-10-12T14:43:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:56Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 22,
+          "startedAt": "2026-10-12T14:43:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:56Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-12T14:43:56Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114863504377"
+    },
+    {
+      "completedAt": "2026-10-12T14:42:54Z",
+      "conclusion": "success",
+      "databaseId": 114863504388,
+      "name": "UI · beauty-ui",
+      "startedAt": "2026-10-12T14:40:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:40:23Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:40:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:48Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-10-12T14:40:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:53Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-10-12T14:40:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:59Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 4,
+          "startedAt": "2026-10-12T14:40:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:11Z",
+          "conclusion": "success",
+          "name": "Run npm ci --no-audit --no-fund",
+          "number": 5,
+          "startedAt": "2026-10-12T14:40:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:13Z",
+          "conclusion": "success",
+          "name": "Run npm run generate -w @pms/database",
+          "number": 6,
+          "startedAt": "2026-10-12T14:41:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:25Z",
+          "conclusion": "success",
+          "name": "База pms_dev и схема pms_test с миграциями",
+          "number": 7,
+          "startedAt": "2026-10-12T14:41:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:45Z",
+          "conclusion": "success",
+          "name": "Run npx playwright install --with-deps chromium",
+          "number": 8,
+          "startedAt": "2026-10-12T14:41:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:42:51Z",
+          "conclusion": "success",
+          "name": "Браузерный набор на подставном API и настоящей схеме",
+          "number": 9,
+          "startedAt": "2026-10-12T14:41:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:42:51Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 10,
+          "startedAt": "2026-10-12T14:42:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:42:51Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 11,
+          "startedAt": "2026-10-12T14:42:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:42:51Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 20,
+          "startedAt": "2026-10-12T14:42:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:42:52Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 21,
+          "startedAt": "2026-10-12T14:42:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:42:52Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 22,
+          "startedAt": "2026-10-12T14:42:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:42:52Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-12T14:42:52Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114863504388"
+    },
+    {
+      "completedAt": "2026-10-12T14:43:43Z",
+      "conclusion": "success",
+      "databaseId": 114863504396,
+      "name": "UI · branches-ui",
+      "startedAt": "2026-10-12T14:40:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:40:23Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:40:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:45Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-10-12T14:40:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:59Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-10-12T14:40:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:05Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 4,
+          "startedAt": "2026-10-12T14:40:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:21Z",
+          "conclusion": "success",
+          "name": "Run npm ci --no-audit --no-fund",
+          "number": 5,
+          "startedAt": "2026-10-12T14:41:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:24Z",
+          "conclusion": "success",
+          "name": "Run npm run generate -w @pms/database",
+          "number": 6,
+          "startedAt": "2026-10-12T14:41:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:34Z",
+          "conclusion": "success",
+          "name": "База pms_dev и схема pms_test с миграциями",
+          "number": 7,
+          "startedAt": "2026-10-12T14:41:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:52Z",
+          "conclusion": "success",
+          "name": "Run npx playwright install --with-deps chromium",
+          "number": 8,
+          "startedAt": "2026-10-12T14:41:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:40Z",
+          "conclusion": "success",
+          "name": "Браузерный набор на подставном API и настоящей схеме",
+          "number": 9,
+          "startedAt": "2026-10-12T14:41:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:40Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 10,
+          "startedAt": "2026-10-12T14:43:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:40Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 11,
+          "startedAt": "2026-10-12T14:43:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:40Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 20,
+          "startedAt": "2026-10-12T14:43:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:40Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 21,
+          "startedAt": "2026-10-12T14:43:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:41Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 22,
+          "startedAt": "2026-10-12T14:43:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:43:41Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-12T14:43:41Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114863504396"
+    },
+    {
+      "completedAt": "2026-10-12T15:22:25Z",
+      "conclusion": "success",
+      "databaseId": 114863504646,
+      "name": "UI · часть 2/3",
+      "startedAt": "2026-10-12T14:40:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T14:40:23Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T14:40:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:37Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-12T14:40:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:40Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 3,
+          "startedAt": "2026-10-12T14:40:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:40:57Z",
+          "conclusion": "success",
+          "name": "Run npm ci --no-audit --no-fund",
+          "number": 4,
+          "startedAt": "2026-10-12T14:40:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:00Z",
+          "conclusion": "success",
+          "name": "Run npm run generate -w @pms/database",
+          "number": 5,
+          "startedAt": "2026-10-12T14:40:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T14:41:19Z",
+          "conclusion": "success",
+          "name": "Run npx playwright install --with-deps chromium",
+          "number": 6,
+          "startedAt": "2026-10-12T14:41:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:22:23Z",
+          "conclusion": "success",
+          "name": "Браузерные проверки без базы",
+          "number": 7,
+          "startedAt": "2026-10-12T14:41:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:22:23Z",
+          "conclusion": "skipped",
+          "name": "Единый вход с включённым замком",
+          "number": 8,
+          "startedAt": "2026-10-12T15:22:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:22:23Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 9,
+          "startedAt": "2026-10-12T15:22:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:22:23Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 10,
+          "startedAt": "2026-10-12T15:22:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:22:23Z",
+          "conclusion": "skipped",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 11,
+          "startedAt": "2026-10-12T15:22:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:22:23Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 21,
+          "startedAt": "2026-10-12T15:22:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:22:23Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 22,
+          "startedAt": "2026-10-12T15:22:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:22:23Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-12T15:22:23Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114863504646"
+    },
+    {
+      "completedAt": "2026-10-12T15:40:42Z",
+      "conclusion": "failure",
+      "databaseId": 114888186269,
+      "name": "стойка на синтетическом API (tests/ui)",
+      "startedAt": "2026-10-12T15:40:40Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T15:40:40Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T15:40:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:41Z",
+          "conclusion": "failure",
+          "name": "Все части UI прошли",
+          "number": 2,
+          "startedAt": "2026-10-12T15:40:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T15:40:41Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 3,
+          "startedAt": "2026-10-12T15:40:41Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879/job/114888186269"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/GAIVER007/wetop.ai/actions/runs/38263677879"
+}

@@ -1,0 +1,79 @@
+{
+  "candidate": "c366f522f582f19a8d182c9d188c9f5df4bdf621",
+  "records": [
+    {
+      "source": "candidate",
+      "id": "2026-10-12T11-29-25Z-unit-38ab",
+      "suite": "unit",
+      "args": [
+        "tests/unit/food-customer-update.test.ts",
+        "apps/web/src/app/team/scope-model.test.ts",
+        "apps/web/src/app/help/help.test.ts",
+        "apps/web/src/app/platform/support/kb-forms.test.ts"
+      ],
+      "startedAt": "2026-10-12T11:29:25.794Z",
+      "durationMs": 1951,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 18,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "c366f522f582f19a8d182c9d188c9f5df4bdf621",
+      "fingerprint": "e622bbed314d40639ca339e3682c95bc1b090da7ce278d3e525118e3ac29f9e4",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T11-29-28Z-integration-8cd2",
+      "suite": "integration",
+      "args": [
+        "tests/integration/member-scopes.test.ts"
+      ],
+      "startedAt": "2026-10-12T11:29:28.108Z",
+      "durationMs": 2269,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "c366f522f582f19a8d182c9d188c9f5df4bdf621",
+      "fingerprint": "a807dc0d8b02f9adcca079a43d6cd66816e7112941d6f71da9170560fc4adfcb",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T11-29-30Z-e2e-c0fe",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui-fix-01-runtime/playwright.config.ts",
+        "--workers=1"
+      ],
+      "startedAt": "2026-10-12T11:29:30.681Z",
+      "durationMs": 7536,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "c366f522f582f19a8d182c9d188c9f5df4bdf621",
+      "fingerprint": "b28f3f1ef0d3a46e0bf12638c80d996052f4c86bac00b753e070533972152d0a",
+      "codeChangedDuringRun": false
+    }
+  ]
+}

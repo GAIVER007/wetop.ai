@@ -1,0 +1,253 @@
+{
+  "candidate": "d89fbad1356292eda9c377db6ce3bc57815fdf56",
+  "outcomes": {
+    "ADDRESSED": "success",
+    "RUNTIME": "success",
+    "REGRESSION": "success",
+    "BEFORE": "success",
+    "AFTER": "success",
+    "STALE_RED": "success",
+    "NEW_DRAFT_RED": "success"
+  },
+  "records": [
+    {
+      "source": "candidate",
+      "id": "2026-10-12T17-20-14Z-unit-8703",
+      "suite": "unit",
+      "args": [
+        "tests/unit/food-customer-update.test.ts",
+        "apps/web/src/app/team/scope-model.test.ts",
+        "apps/web/src/app/help/help.test.ts",
+        "apps/web/src/app/platform/support/kb-forms.test.ts",
+        "apps/web/src/app/login/actions.test.ts",
+        "tests/unit/chessboard-active-readonly.test.ts"
+      ],
+      "startedAt": "2026-10-12T17:20:14.392Z",
+      "durationMs": 2601,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 29,
+        "passed": 29,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "d89fbad1356292eda9c377db6ce3bc57815fdf56",
+      "fingerprint": "941ae20f7f68d213e411b8ebeefc616e8058bcbebb75d07952690ec2e937a14b",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T17-20-17Z-integration-c61b",
+      "suite": "integration",
+      "args": [
+        "tests/integration/member-scopes.test.ts"
+      ],
+      "startedAt": "2026-10-12T17:20:17.390Z",
+      "durationMs": 2569,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "d89fbad1356292eda9c377db6ce3bc57815fdf56",
+      "fingerprint": "c9db91905873f3d93bd03e7adbec2fc574f74c1cbf4860a5cb7056a0013e36fa",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T17-20-20Z-e2e-cbc9",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui-fix-01-runtime/playwright.config.ts",
+        "--workers=1"
+      ],
+      "startedAt": "2026-10-12T17:20:20.326Z",
+      "durationMs": 38217,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "d89fbad1356292eda9c377db6ce3bc57815fdf56",
+      "fingerprint": "32f1c755caeb05bc54590fef9bf9433fcf4bae281075b5ae2383bc32de9682d2",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T17-21-01Z-e2e-04c9",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-access.spec.ts",
+        "tests/ui/ui-fix-01-kb.spec.ts",
+        "tests/ui/hospitality-read-only.spec.ts",
+        "tests/ui/team.spec.ts",
+        "tests/ui/support-kb.spec.ts",
+        "tests/ui/trial-read-only.spec.ts",
+        "tests/ui/chessboard-extend.spec.ts"
+      ],
+      "startedAt": "2026-10-12T17:21:01.357Z",
+      "durationMs": 232402,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 52,
+        "passed": 52,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "d89fbad1356292eda9c377db6ce3bc57815fdf56",
+      "fingerprint": "32f1c755caeb05bc54590fef9bf9433fcf4bae281075b5ae2383bc32de9682d2",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T17-31-07Z-e2e-ba52",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-visual.spec.ts"
+      ],
+      "startedAt": "2026-10-12T17:31:07.620Z",
+      "durationMs": 250236,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 68,
+        "passed": 68,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "d89fbad1356292eda9c377db6ce3bc57815fdf56",
+      "fingerprint": "32f1c755caeb05bc54590fef9bf9433fcf4bae281075b5ae2383bc32de9682d2",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T17-25-24Z-e2e-ce3e",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-visual.spec.ts"
+      ],
+      "startedAt": "2026-10-12T17:25:24.412Z",
+      "durationMs": 249577,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 68,
+        "passed": 68,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "ed9d22bae0f9bcbdbb188d9ed7f000e9f040c250c0b60e22201bc1ada9f6136a",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T17-29-34Z-unit-5912",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/login/actions.test.ts"
+      ],
+      "startedAt": "2026-10-12T17:29:34.466Z",
+      "durationMs": 1293,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 7,
+        "passed": 5,
+        "failed": 2,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "8055aeeefa965206a78508ac99b4eaadc6114fa3b2c790317575e5a67df73329",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T17-29-36Z-e2e-2fdd",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-access.spec.ts",
+        "--grep",
+        "scope switch closes"
+      ],
+      "startedAt": "2026-10-12T17:29:36.195Z",
+      "durationMs": 26019,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "da939be8969a11cc46b8d5756faed2df7fb00f88a4f80d84c3c6d393d9d55344",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "prior-candidate-new-draft-red",
+      "id": "2026-10-12T17-30-32Z-e2e-835c",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-kb.spec.ts",
+        "--grep",
+        "initial create B"
+      ],
+      "startedAt": "2026-10-12T17:30:32.122Z",
+      "durationMs": 35058,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "ddba4e1bc35ff43fb8cd681725257bd95a414b65",
+      "fingerprint": "66b4230d3cf64e13c2af3f90bac74fa5f09715e28e8c712a453a4018298d4569",
+      "codeChangedDuringRun": false
+    }
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "candidate": "ddba4e1bc35ff43fb8cd681725257bd95a414b65",
+  "outcomes": {
+    "ADDRESSED": "success",
+    "RUNTIME": "failure",
+    "REGRESSION": "failure",
+    "BEFORE": "success",
+    "AFTER": "success",
+    "STALE_RED": "success"
+  },
+  "records": [
+    {
+      "source": "candidate",
+      "id": "2026-10-12T12-17-22Z-unit-b925",
+      "suite": "unit",
+      "args": [
+        "tests/unit/food-customer-update.test.ts",
+        "apps/web/src/app/team/scope-model.test.ts",
+        "apps/web/src/app/help/help.test.ts",
+        "apps/web/src/app/platform/support/kb-forms.test.ts",
+        "apps/web/src/app/login/actions.test.ts"
+      ],
+      "startedAt": "2026-10-12T12:17:22.202Z",
+      "durationMs": 2546,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "ddba4e1bc35ff43fb8cd681725257bd95a414b65",
+      "fingerprint": "5a3210d2a9c1d8b060134411c130e6c319c260a28b5ba3bc25dfdab1ed3722bd",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T12-17-25Z-integration-cd65",
+      "suite": "integration",
+      "args": [
+        "tests/integration/member-scopes.test.ts"
+      ],
+      "startedAt": "2026-10-12T12:17:25.252Z",
+      "durationMs": 3092,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "ddba4e1bc35ff43fb8cd681725257bd95a414b65",
+      "fingerprint": "a807dc0d8b02f9adcca079a43d6cd66816e7112941d6f71da9170560fc4adfcb",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T12-17-28Z-e2e-5e1b",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui-fix-01-runtime/playwright.config.ts",
+        "--workers=1"
+      ],
+      "startedAt": "2026-10-12T12:17:28.814Z",
+      "durationMs": 8947,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "ddba4e1bc35ff43fb8cd681725257bd95a414b65",
+      "fingerprint": "d73731b1348721ac9f0e3628ea78c79f89cfa071c82677a4808386385a389775",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T12-17-38Z-e2e-2209",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-access.spec.ts",
+        "tests/ui/ui-fix-01-kb.spec.ts",
+        "tests/ui/hospitality-read-only.spec.ts",
+        "tests/ui/team.spec.ts",
+        "tests/ui/support-kb.spec.ts",
+        "tests/ui/trial-read-only.spec.ts"
+      ],
+      "startedAt": "2026-10-12T12:17:38.307Z",
+      "durationMs": 319336,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 47,
+        "passed": 44,
+        "failed": 3,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "ddba4e1bc35ff43fb8cd681725257bd95a414b65",
+      "fingerprint": "d73731b1348721ac9f0e3628ea78c79f89cfa071c82677a4808386385a389775",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "candidate",
+      "id": "2026-10-12T12-29-04Z-e2e-e226",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-visual.spec.ts"
+      ],
+      "startedAt": "2026-10-12T12:29:04.761Z",
+      "durationMs": 294878,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 68,
+        "passed": 68,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "ddba4e1bc35ff43fb8cd681725257bd95a414b65",
+      "fingerprint": "d73731b1348721ac9f0e3628ea78c79f89cfa071c82677a4808386385a389775",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T12-23-31Z-e2e-c50b",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-visual.spec.ts"
+      ],
+      "startedAt": "2026-10-12T12:23:31.460Z",
+      "durationMs": 301366,
+      "exitCode": 0,
+      "signal": null,
+      "status": "passed",
+      "counts": {
+        "total": 68,
+        "passed": 68,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "ed9d22bae0f9bcbdbb188d9ed7f000e9f040c250c0b60e22201bc1ada9f6136a",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T12-28-33Z-unit-6177",
+      "suite": "unit",
+      "args": [
+        "apps/web/src/app/login/actions.test.ts"
+      ],
+      "startedAt": "2026-10-12T12:28:33.401Z",
+      "durationMs": 1660,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 7,
+        "passed": 5,
+        "failed": 2,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "8055aeeefa965206a78508ac99b4eaadc6114fa3b2c790317575e5a67df73329",
+      "codeChangedDuringRun": false
+    },
+    {
+      "source": "baseline",
+      "id": "2026-10-12T12-28-35Z-e2e-e951",
+      "suite": "e2e",
+      "args": [
+        "--config",
+        "tests/ui/playwright.alt.config.ts",
+        "--workers=1",
+        "tests/ui/ui-fix-01-access.spec.ts",
+        "--grep",
+        "scope switch closes"
+      ],
+      "startedAt": "2026-10-12T12:28:35.634Z",
+      "durationMs": 28563,
+      "exitCode": 1,
+      "signal": null,
+      "status": "failed",
+      "counts": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "commit": "47b86b08fc0d7d1093fa835679b2d1f7134d2e3f",
+      "fingerprint": "c82cb11079c028b66eb17c41460bf0af6b868da4c0b03d8b1a793ae69f535d87",
+      "codeChangedDuringRun": false
+    }
+  ]
+}

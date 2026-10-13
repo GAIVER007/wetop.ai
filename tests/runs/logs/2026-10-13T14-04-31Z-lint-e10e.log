@@ -1,0 +1,5 @@
+# Линтер (lint) · 13.10.2026 19:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит bc2defd (codex/ui-fix-01-20261012), незакоммиченных файлов набора: 1
+# npx eslint . 'tests/integration/platform-p1-backfill.test.ts'
+
+# код выхода 0 · 18 с

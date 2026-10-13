@@ -60,10 +60,11 @@ describe.skipIf(!url)('Platform P1: цепочка Organization → Business →
       // связность: Business принадлежит организации объекта
       expect(loc.business.organizationId).toBe(p.organizationId);
     }
-    // 1:1: Location ровно столько же, сколько объектов; Business — один на организацию с объектами
-    expect(await db.location.count()).toBe(properties.length);
+    // Backfill касается Hospitality организаций с объектами. Другие вертикали имеют филиалы без Property.
     const orgs = new Set(properties.map((p) => p.organizationId));
-    expect(await db.business.count()).toBe(orgs.size);
+    const hospitality = { vertical: 'HOSPITALITY' as const, organizationId: { in: [...orgs] } };
+    expect(await db.location.count({ where: { business: hospitality } })).toBe(properties.length);
+    expect(await db.business.count({ where: hospitality })).toBe(orgs.size);
   });
 
   it('reporting_currency организации совпадает с однозначной фактической валютой её объектов', async () => {

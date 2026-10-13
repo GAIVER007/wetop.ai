@@ -1668,3 +1668,79 @@
     margin-bottom: var(--space-4);
   }
 }
+
+@layer sections {
+  /*
+   * UI4.5 по эталону владельца (`design/references/05_verticals/three_calendar_concepts.png`, зал ресторана;
+   * DESIGN.md §21): смены карточками с часами («Завтрак 08:00–11:00»), у зоны значок и «N столов»,
+   * подпись под заголовком. Схема зала и состояния столов прежние.
+   */
+  .rest-shifts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .rest-shift {
+    display: grid;
+    gap: 0;
+    min-width: 112px;
+    min-height: var(--control-h);
+    padding: var(--space-1) var(--space-4);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .rest-shift strong {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-shift span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-shift:hover {
+    background: var(--row-hover);
+  }
+  .rest-shift[aria-pressed='true'] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .rest-shift:focus-visible {
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .rest-fp__zones button {
+    justify-content: flex-start;
+    min-height: var(--space-12);
+  }
+  .rest-fp__zone-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    color: var(--text-2);
+  }
+  .rest-fp__zones button[aria-pressed='true'] .rest-fp__zone-icon {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .rest-fp__zone-text {
+    display: grid;
+    min-width: 0;
+  }
+  .rest-fp__zone-text small {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+  }
+}

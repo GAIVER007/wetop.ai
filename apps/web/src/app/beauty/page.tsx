@@ -51,7 +51,7 @@ export default async function BeautyPage({
     <Page
       className="beauty-page"
       title="Календарь"
-      subtitle={loaded.value.location.name ?? 'Записи филиала'}
+      subtitle={`Расписание мастеров и услуг салона${loaded.value.location.name ? `, ${loaded.value.location.name}` : ''}`}
     >
       <JournalBoard
         day={loaded.value}

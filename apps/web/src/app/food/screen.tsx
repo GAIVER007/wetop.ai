@@ -25,7 +25,11 @@ export async function FoodScreen({
   try {
     const data = await loadFood(date, time, kind !== 'floor', kind === 'floor');
     return (
-      <Page title={title}>
+      <Page
+        title={title}
+        // эталон владельца 13.10.2026 (зал ресторана): подпись под заголовком плана
+        subtitle={kind === 'floor' ? 'Бронирования столов и загрузка зала' : undefined}
+      >
         <div key={data.scopeKey}>
           {kind === 'catalog' ? (
             <CatalogBoard data={data} />

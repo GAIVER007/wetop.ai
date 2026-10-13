@@ -8,7 +8,9 @@ import { expect, test } from '@playwright/test';
  */
 const PATH = '/for/salons/';
 
-test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({ page }) => {
+test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({
+  page,
+}) => {
   await page.goto(PATH);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'Полный день каждого мастера, без тетрадей и переписок',
@@ -25,10 +27,15 @@ test('герой: заголовок, регистрация с направле
   );
   // Мокап-календарь по мастерам: вымышленные данные, подпись примера, интерактива внутри нет (§19.9)
   await expect(hero).toContainText('Пример интерфейса. Данные вымышленные.');
-  await expect(hero.locator('.salon-hero__mock a, .salon-hero__mock button')).toHaveCount(0);
-  expect(await hero.locator('.salon-hero__apt').count(), 'записей в календаре').toBeGreaterThanOrEqual(5);
-  await expect(hero.locator('.salon-hero__col').first()).toContainText('Дана');
-  await expect(hero.locator('.salon-hero__free').first()).toContainText('Свободно');
+  await expect(hero.locator('figure a, figure button')).toHaveCount(0);
+  const preview = hero.locator('figure img');
+  await expect(preview).toHaveAttribute('src', '/design-only/beauty.svg');
+  const illustration = await page.request.get('/design-only/beauty.svg');
+  expect(illustration.ok()).toBe(true);
+  const svg = await illustration.text();
+  expect(svg.match(/Клиент 0[1-6]/g)?.length, 'записей в календаре').toBeGreaterThanOrEqual(5);
+  expect(svg).toContain('Мастер 01');
+  expect(svg).toContain('Свободное время');
 });
 
 test('полоса фактов и возможности: восемь карточек, без выдуманных чисел', async ({ page }) => {
@@ -39,7 +46,9 @@ test('полоса фактов и возможности: восемь карт
   await expect(features.first()).toContainText('Календарь без накладок');
   const body = await page.locator('body').innerText();
   // Чисел клиентов, рейтингов и процентов результата не бывает (§19.9); «пилота» и « · » тоже
-  expect(body).not.toMatch(/салон(ов|а)? (уже )?с нами|2\s?000|4[.,]9|рост выручки|\+\d+\s?%|−\d+\s?%|-\d+\s?%/i);
+  expect(body).not.toMatch(
+    /салон(ов|а)? (уже )?с нами|2\s?000|4[.,]9|рост выручки|\+\d+\s?%|−\d+\s?%|-\d+\s?%/i,
+  );
   expect(body).not.toMatch(/14\s?дней|пилот/i);
   expect(body).not.toContain(' · ');
   // Тарифов и кейсов с именами нет: решения нет (Q-141, Q-143), отзывов никто не давал

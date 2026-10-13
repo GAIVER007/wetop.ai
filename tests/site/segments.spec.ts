@@ -21,7 +21,9 @@ const SEGMENTS = [
 ];
 
 for (const segment of SEGMENTS) {
-  test(`${segment.path} — герой с фото, возможности, вопросы и призыв своего направления`, async ({ page }) => {
+  test(`${segment.path} — герой с интерфейсом, возможности, вопросы и призыв своего направления`, async ({
+    page,
+  }) => {
     await page.goto(segment.path);
     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
@@ -30,9 +32,21 @@ for (const segment of SEGMENTS) {
       'href',
       `https://wetop.ai/?vertical=${segment.vertical}#register`,
     );
-    // Своё цветное фото (KIE), не сток: файл отдаётся, у картинки описание
+    // Предпросмотр своего направления: файл отдаётся, данные обозначены как вымышленные
     const photo = hero.locator('img');
-    await expect(photo).toHaveAttribute('alt', /.+/);
+    await expect(photo).toHaveAttribute('alt', /вымышленные/);
+    const preview =
+      segment.vertical === 'HOSPITALITY'
+        ? 'hospitality'
+        : segment.vertical === 'BEAUTY'
+          ? 'beauty'
+          : 'restaurant';
+    await expect(photo).toHaveAttribute('src', `/design-only/${preview}.svg`);
+    if (segment.vertical === 'HOSPITALITY') {
+      for (const source of ['Booking.com', 'Trip.com', 'Agoda', 'Стойка']) {
+        await expect(hero.getByText(source, { exact: true })).toBeVisible();
+      }
+    }
     expect((await page.request.get((await photo.getAttribute('src')) ?? '')).status()).toBe(200);
     expect(
       await page.locator('#segment-features .card').count(),
@@ -40,7 +54,10 @@ for (const segment of SEGMENTS) {
     ).toBeGreaterThanOrEqual(5);
     // Экран календаря размещений есть только у гостиниц: у салона и ресторана другой продукт
     if (segment.calendar)
-      await expect(page.locator('.hotel-shot img')).toHaveAttribute('src', '/screens/calendar-week-light.png');
+      await expect(page.locator('.hotel-shot img')).toHaveAttribute(
+        'src',
+        '/screens/calendar-week-light.png',
+      );
     else await expect(page.locator('.hotel-shot')).toHaveCount(0);
     await expect(page.locator('.faq details')).toHaveCount(4);
     await expect(page.locator('.cta [data-auth="register"]')).toBeVisible();
@@ -51,8 +68,13 @@ for (const segment of SEGMENTS) {
     expect(text, 'строка «чего нет»').not.toMatch(/Пока нет|пока не входят|пока не учитываются/i);
     await expect(page.locator('#segment-day-title')).toHaveText('Как проходит день с WETOP');
     await expect(page.locator('.steps .step')).toHaveCount(3);
-    expect(await page.locator('.prose--center p').count(), 'текст о формате').toBeGreaterThanOrEqual(2);
-    expect(text, 'цифры клиентов и цены').not.toMatch(/\d+\s?(клиент|отел[яей]\b)|\d+\s?₸\s*(в месяц|\/ мес)/i);
+    expect(
+      await page.locator('.prose--center p').count(),
+      'текст о формате',
+    ).toBeGreaterThanOrEqual(2);
+    expect(text, 'цифры клиентов и цены').not.toMatch(
+      /\d+\s?(клиент|отел[яей]\b)|\d+\s?₸\s*(в месяц|\/ мес)/i,
+    );
     expect(text, '«7 дней» один раз на экран').toMatch(/^(?![\s\S]*7 дней[\s\S]*7 дней)/);
   });
 }
@@ -64,7 +86,8 @@ test('карточки направлений на главной ведут н�
   }
   // Подвал ведёт на все страницы типов бизнеса и на сами направления (внутренние ссылки)
   const footer = page.locator('.site-footer__directions');
-  for (const segment of SEGMENTS) await expect(footer.locator(`a[href="${segment.path}"]`)).toHaveCount(1);
+  for (const segment of SEGMENTS)
+    await expect(footer.locator(`a[href="${segment.path}"]`)).toHaveCount(1);
   for (const direction of ['/for/hotels/', '/for/salons/', '/for/restaurants/'])
     await expect(footer.locator(`a[href="${direction}"]`)).toHaveCount(1);
 });
@@ -72,10 +95,14 @@ test('карточки направлений на главной ведут н�
 test('страницы направлений ведут карточками на свои типы бизнеса', async ({ page }) => {
   for (const [direction, types] of [
     ['/for/hotels/', ['/for/hostels/', '/for/mini-hotels/', '/for/apart-hotels/']],
-    ['/for/salons/', ['/for/beauty-salons/', '/for/barbershops/', '/for/spa/', '/for/nail-studios/']],
+    [
+      '/for/salons/',
+      ['/for/beauty-salons/', '/for/barbershops/', '/for/spa/', '/for/nail-studios/'],
+    ],
     ['/for/restaurants/', ['/for/cafes/', '/for/bars/']],
   ] as const) {
     await page.goto(direction);
-    for (const path of types) await expect(page.locator(`main .card a[href="${path}"]`)).toHaveCount(1);
+    for (const path of types)
+      await expect(page.locator(`main .card a[href="${path}"]`)).toHaveCount(1);
   }
 });

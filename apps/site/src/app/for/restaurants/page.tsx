@@ -1,3 +1,4 @@
+import { ProductPreview } from '../../../components/landing/product-preview';
 import type { Metadata } from 'next';
 import { Icon } from '../../../components/icon';
 import { LandingFinal } from '../../../components/landing/landing-final';
@@ -64,8 +65,9 @@ export default function RestaurantLandingPage() {
                 ))}
               </ul>
             </div>
-            <figure className="hotel-hero__figure restaurant-hero__photo">
-              <img src="/photos/restaurant.jpg" alt={s.photoAlt} width={1184} height={864} fetchPriority="high" />
+            <figure className="hotel-hero__figure">
+              <ProductPreview vertical="FOOD_SERVICE" label={t.hero.dash.label} />
+              <figcaption>{t.hero.dash.label}</figcaption>
             </figure>
           </section>
 

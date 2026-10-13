@@ -1,6 +1,6 @@
+import { ProductPreview } from '../../../components/landing/product-preview';
 import type { Metadata } from 'next';
 import { Icon } from '../../../components/icon';
-import { DashMock } from '../../../components/landing/dash-mock';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
@@ -66,7 +66,7 @@ export default function HotelLandingPage() {
               </ul>
             </div>
             <figure className="hotel-hero__figure">
-              {t.hero.dash.views[0] ? <DashMock dash={t.hero.dash} view={t.hero.dash.views[0]} /> : null}
+              <ProductPreview vertical="HOSPITALITY" label={t.hero.dash.label} />
               <figcaption>{t.hero.dash.label}</figcaption>
             </figure>
           </section>
@@ -116,7 +116,10 @@ export default function HotelLandingPage() {
             <figure className="hotel-shot__frame">
               {/* Настоящий экран стойки с демо-данными: светлая и тёмная темы (design/reference/current) */}
               <picture>
-                <source srcSet="/screens/calendar-week-dark.png" media="(prefers-color-scheme: dark)" />
+                <source
+                  srcSet="/screens/calendar-week-dark.png"
+                  media="(prefers-color-scheme: dark)"
+                />
                 <img
                   src="/screens/calendar-week-light.png"
                   alt={s.calendar.alt}

@@ -8,7 +8,9 @@ import { expect, test } from '@playwright/test';
  */
 const PATH = '/for/hotels/';
 
-test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({ page }) => {
+test('герой: заголовок, регистрация с направлением и мокап с подписью примера', async ({
+  page,
+}) => {
   await page.goto(PATH);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'Все брони, гости и деньги гостиницы в одном окне',
@@ -24,9 +26,12 @@ test('герой: заголовок, регистрация с направле
     '#hotel-features',
   );
   // Общий мокап «Сегодня»: вымышленные данные, подпись примера, интерактива внутри нет (§19.9)
-  await expect(hero.locator('.dash')).toBeVisible();
+  await expect(hero.locator('figure img')).toHaveAttribute('src', '/design-only/hospitality.svg');
+  for (const source of ['Booking.com', 'Trip.com', 'Agoda', 'Стойка']) {
+    await expect(hero.getByText(source, { exact: true })).toBeVisible();
+  }
   await expect(hero).toContainText('Пример интерфейса. Данные вымышленные.');
-  await expect(hero.locator('.dash a, .dash button, .dash [role="button"]')).toHaveCount(0);
+  await expect(hero.locator('figure a, figure button, figure [role="button"]')).toHaveCount(0);
 });
 
 test('полоса фактов и возможности: восемь карточек, без выдуманных чисел', async ({ page }) => {

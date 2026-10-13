@@ -1,3 +1,4 @@
+import { ProductPreview } from '../../../components/landing/product-preview';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Icon } from '../../../components/icon';
@@ -24,8 +25,18 @@ type Props = { params: Promise<{ segment: string }> };
 /** Что у страницы своё по направлению: словарь маркетинга, родитель для крошек, фото призыва, вторая ссылка. */
 const BY_DIRECTION = {
   hotels: { marketing: 'hotel', parent: 'hotel', ctaPhoto: '/photos/hotel.jpg', page: 'page' },
-  salons: { marketing: 'salon', parent: 'salon', ctaPhoto: '/photos/reception.jpg', page: 'page salon-page' },
-  restaurants: { marketing: 'restaurant', parent: 'restaurant', ctaPhoto: '/photos/barcounter.jpg', page: 'page' },
+  salons: {
+    marketing: 'salon',
+    parent: 'salon',
+    ctaPhoto: '/photos/reception.jpg',
+    page: 'page salon-page',
+  },
+  restaurants: {
+    marketing: 'restaurant',
+    parent: 'restaurant',
+    ctaPhoto: '/photos/barcounter.jpg',
+    page: 'page',
+  },
 } as const;
 
 export function generateStaticParams(): Array<{ segment: SegmentSlug }> {
@@ -100,8 +111,9 @@ export default async function SegmentPage({ params }: Props) {
                 ))}
               </ul>
             </div>
-            <figure className="hotel-hero__figure hotel-hero__photo">
-              <img src={type.photo} alt={item.photoAlt ?? ''} width={1184} height={864} fetchPriority="high" />
+            <figure className="hotel-hero__figure">
+              <ProductPreview vertical={type.vertical} label={t.hero.dash.label} />
+              <figcaption>{t.hero.dash.label}</figcaption>
             </figure>
           </section>
 
@@ -169,28 +181,31 @@ export default async function SegmentPage({ params }: Props) {
           </section>
 
           {type.vertical === 'HOSPITALITY' ? (
-          <section className="hotel-shot" aria-labelledby="segment-calendar-title">
-            <div className="section-heading section-heading--center">
-              <p className="eyebrow">{t.hotel.calendar.eyebrow}</p>
-              <h2 id="segment-calendar-title" className="section-heading__title">
-                {typo(t.hotel.calendar.title)}
-              </h2>
-              <p className="section-heading__lead">{typo(t.hotel.calendar.lead)}</p>
-            </div>
-            <figure className="hotel-shot__frame">
-              <picture>
-                <source srcSet="/screens/calendar-week-dark.png" media="(prefers-color-scheme: dark)" />
-                <img
-                  src="/screens/calendar-week-light.png"
-                  alt={t.hotel.calendar.alt}
-                  width={1440}
-                  height={1000}
-                  loading="lazy"
-                />
-              </picture>
-              <figcaption>{t.hotel.calendar.note}</figcaption>
-            </figure>
-          </section>
+            <section className="hotel-shot" aria-labelledby="segment-calendar-title">
+              <div className="section-heading section-heading--center">
+                <p className="eyebrow">{t.hotel.calendar.eyebrow}</p>
+                <h2 id="segment-calendar-title" className="section-heading__title">
+                  {typo(t.hotel.calendar.title)}
+                </h2>
+                <p className="section-heading__lead">{typo(t.hotel.calendar.lead)}</p>
+              </div>
+              <figure className="hotel-shot__frame">
+                <picture>
+                  <source
+                    srcSet="/screens/calendar-week-dark.png"
+                    media="(prefers-color-scheme: dark)"
+                  />
+                  <img
+                    src="/screens/calendar-week-light.png"
+                    alt={t.hotel.calendar.alt}
+                    width={1440}
+                    height={1000}
+                    loading="lazy"
+                  />
+                </picture>
+                <figcaption>{t.hotel.calendar.note}</figcaption>
+              </figure>
+            </section>
           ) : null}
 
           {item.about ? (

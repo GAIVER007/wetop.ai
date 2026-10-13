@@ -1,6 +1,8 @@
 'use client';
+import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { IconField } from '../../components/icon-field';
 import { Overlay } from '../../components/overlay';
 import {
   Alert,
@@ -106,10 +108,12 @@ export function EmployeesBoard({
   scopeKey,
   write,
   employees,
+  branchName,
 }: {
   scopeKey: string;
   write: boolean;
   employees: FoodEmployee[];
+  branchName: string;
 }) {
   const [search, setSearch] = useState('');
   const [onlyShift, setOnlyShift] = useState(false);
@@ -120,89 +124,112 @@ export function EmployeesBoard({
       (!needle || `${e.name} ${e.phone ?? ''}`.toLocaleLowerCase('ru').includes(needle)) &&
       (!onlyShift || e.onShift),
   );
+  const initials = (name: string) =>
+    name
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0] ?? '')
+      .join('')
+      .toUpperCase();
   return (
-    <div className="food-workspace" data-testid="employees-board">
-      <div className="food-section-heading">
-        <div className="food-toolbar">
-          <Field label="Поиск по сотрудникам">
-            <Input
-              type="search"
-              data-page-search
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+    <div className="food-workspace rest-ws" data-testid="employees-board">
+      <div className="rest-bar">
+        <nav className="rest-utabs" aria-label="Команда">
+          <Link href="/employees" aria-current="page">
+            Список
+          </Link>
+          <Link href="/payroll">Зарплата</Link>
+          <Link href="/staff">Роли и доступы</Link>
+        </nav>
+        {write && <Button onClick={() => setDraft('new')}>+ Добавить сотрудника</Button>}
+      </div>
+      <div className="rest-card">
+        <div className="rest-card__tools">
+          <Field label={<span className="sr-only">Поиск по сотрудникам</span>}>
+            <IconField icon="search">
+              <Input
+                type="search"
+                placeholder="Поиск сотрудника"
+                data-page-search
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </IconField>
           </Field>
-          <Field label="Смена">
+          <Field label={<span className="sr-only">Смена</span>}>
             <Select
               value={onlyShift ? 'shift' : 'all'}
               onChange={(e) => setOnlyShift(e.target.value === 'shift')}
             >
-              <option value="all">Все</option>
+              <option value="all">Все сотрудники</option>
               <option value="shift">На смене сейчас</option>
             </Select>
           </Field>
         </div>
-        {write && (
-          <div className="food-inline-actions">
-            <Button onClick={() => setDraft('new')}>+ Добавить сотрудника</Button>
-          </div>
+        {list.length === 0 ? (
+          <EmptyState
+            title={employees.length ? 'Сотрудники не найдены' : 'Сотрудников пока нет'}
+            actions={
+              write && !employees.length ? (
+                <Button onClick={() => setDraft('new')}>Добавить первого сотрудника</Button>
+              ) : null
+            }
+          />
+        ) : (
+          <Table density="compact" caption="Сотрудники ресторана" captionHidden>
+            <thead>
+              <tr>
+                {['Сотрудник', 'Телефон', 'Филиал', 'Смена сегодня', 'Статус', 'Продажи сегодня', 'Рейтинг'].map(
+                  (h) => (
+                    <th key={h} scope="col">
+                      {h}
+                    </th>
+                  ),
+                )}
+                <th scope="col">
+                  <span className="sr-only">Действия</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.map((e) => (
+                <tr key={e.id}>
+                  <td>
+                    <span className="rest-person">
+                      <span className="rest-avatar" aria-hidden="true">
+                        {initials(e.name)}
+                      </span>
+                      <strong>{e.name}</strong>
+                      {e.status === 'ARCHIVED' && <Badge>В архиве</Badge>}
+                    </span>
+                  </td>
+                  <td>{e.phone ?? '—'}</td>
+                  <td>{branchName}</td>
+                  <td>{e.shift ?? 'Выходной'}</td>
+                  <td>
+                    <Badge tone={e.onShift ? 'ok' : 'neutral'}>
+                      {e.onShift ? 'На смене' : 'Не на смене'}
+                    </Badge>
+                  </td>
+                  <td>{wholeTenge(e.salesTodayMinor)}</td>
+                  <td data-testid="employee-rating">
+                    {e.rating?.average != null
+                      ? `${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`
+                      : 'Оценок нет'}
+                  </td>
+                  <td>
+                    {write && (
+                      <Button tone="ghost" size="sm" onClick={() => setDraft(e)}>
+                        Изменить
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         )}
       </div>
-      {list.length === 0 ? (
-        <EmptyState
-          title={employees.length ? 'Сотрудники не найдены' : 'Сотрудников пока нет'}
-          actions={
-            write && !employees.length ? (
-              <Button onClick={() => setDraft('new')}>Добавить первого сотрудника</Button>
-            ) : null
-          }
-        />
-      ) : (
-        <Table>
-          <thead>
-            <tr>
-              {['Имя', 'Телефон', 'Смена сегодня', 'Статус', 'Продажи сегодня', 'Рейтинг'].map(
-                (h) => (
-                  <th key={h}>{h}</th>
-                ),
-              )}
-              <th>
-                <span className="sr-only">Действия</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((e) => (
-              <tr key={e.id}>
-                <td>
-                  {e.name}
-                  {e.status === 'ARCHIVED' && <Badge> В архиве</Badge>}
-                </td>
-                <td>{e.phone ?? '—'}</td>
-                <td>{e.shift ?? 'Выходной'}</td>
-                <td>
-                  <Badge tone={e.onShift ? 'ok' : 'neutral'}>
-                    {e.onShift ? 'На смене' : 'Не на смене'}
-                  </Badge>
-                </td>
-                <td>{wholeTenge(e.salesTodayMinor)}</td>
-                <td data-testid="employee-rating">
-                  {e.rating?.average != null
-                    ? `${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`
-                    : 'Оценок нет'}
-                </td>
-                <td>
-                  {write && (
-                    <Button tone="ghost" onClick={() => setDraft(e)}>
-                      Изменить
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
       {draft && (
         <EmployeeDrawer
           scopeKey={scopeKey}

@@ -1,0 +1,15 @@
+# Сквозные (e2e) · 12.10.2026 22:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит bd73277 (claude/ui-master-pass4), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/record-tabs.spec.ts'
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера (3.1s)
+  ✓  2 tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони (2.1s)
+  ✓  3 tests/ui/record-tabs.spec.ts:93:1 › якорь внутри карточки переключает вкладку: «Продлить или переселить» → «Действия» (1.2s)
+  ✓  4 tests/ui/record-tabs.spec.ts:108:1 › переход между бронями без перезагрузки открывает вкладку из адреса — и из карточки, и внутри панели (2.1s)
+  ✓  5 tests/ui/record-tabs.spec.ts:138:1 › панель брони не дублирует цель «К содержимому» (1.6s)
+
+  5 passed (12.8s)
+
+# код выхода 0 · 14 с

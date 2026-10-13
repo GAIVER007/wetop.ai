@@ -402,7 +402,8 @@ function DayStats({
                 title="К вчерашнему дню, процентных пунктов"
               >
                 <Icon name="arrow" className={trend > 0 ? 'rotate-up' : 'rotate-down'} />
-                {trend > 0 ? `+${trend}%` : `${trend}%`}
+                {/* разница загрузки в процентных пунктах (DESIGN.md §14), минус настоящий */}
+                {trend > 0 ? `+${trend} п.п.` : `−${Math.abs(trend)} п.п.`}
               </span>
             )}
           </span>
@@ -450,7 +451,11 @@ function DayStats({
           <Icon name="incidents" />
         </span>
         <div className="board-kpi__body">
-          <Link className="board-kpi__row board-kpi__attention-link" href="/chessboard?stays=debt">
+          <Link
+            className="board-kpi__row board-kpi__attention-link"
+            href="/chessboard?stays=debt"
+            aria-label={`Требует внимания: ${attention}. Неоплаченные брони`}
+          >
             <b className="board-kpi__value" data-testid="day-attention">
               {attention}
             </b>
@@ -466,7 +471,10 @@ function DayStats({
             resetKey={today}
           >
             <div className="board-kpi-more__panel">
-              <Link href={availabilityHref} aria-label="Поиск свободных мест">
+              <Link
+                href={availabilityHref}
+                aria-label={`Свободно мест: ${n(free)}. Поиск свободных мест`}
+              >
                 <Icon name="inventory" />
                 <span>Свободно мест</span>
                 <b data-testid="day-free">{n(free)}</b>

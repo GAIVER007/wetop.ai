@@ -9,7 +9,7 @@ import { mutateOrder } from './restaurant-actions';
 const COLUMNS = [
   { id: 'NEW', title: 'Новые', action: 'COOKING' as OrderStatus, button: 'Принять' },
   { id: 'COOKING', title: 'Готовятся', action: 'READY' as OrderStatus, button: 'Готово' },
-  { id: 'READY', title: 'Готово', action: 'SERVED' as OrderStatus, button: 'Подать' },
+  { id: 'READY', title: 'Готово', action: 'SERVED' as OrderStatus, button: 'Отметить как выдано' },
 ] as const;
 
 function minutesAgo(iso: string, now: number) {

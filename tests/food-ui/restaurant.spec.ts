@@ -108,7 +108,10 @@ test('меню: категория и блюдо с экрана, переклю
   await page.getByRole('button', { name: '+ Категория' }).click();
   await page.getByLabel('Название категории').fill('Десерты');
   await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Десерты' })).toBeVisible();
+  // вкладка «Категории» по макету (экран 8)
+  await page.getByRole('button', { name: /^Категории/ }).click();
+  await expect(page.getByTestId('menu-board').locator('tbody')).toContainText('Десерты');
+  await page.getByRole('button', { name: /^Позиции/ }).click();
   await page.getByRole('button', { name: '+ Добавить блюдо' }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Название').fill('Тирамису');
@@ -259,7 +262,7 @@ test('кухня: колонки KDS и переходы кнопками', asyn
   await expect(cooking.getByRole('listitem')).toHaveText('Паста Карбонара×1');
   await cooking.getByRole('button', { name: 'Готово' }).click();
   const ready = page.getByRole('region', { name: 'Готово' });
-  await ready.getByRole('button', { name: 'Подать' }).click();
+  await ready.getByRole('button', { name: 'Отметить как выдано' }).click();
   await expect(newCol.getByText('Пусто')).toBeVisible();
   await expect(page.getByRole('region', { name: 'Задерживаются' })).toContainText('Кухня успевает');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
@@ -497,6 +500,7 @@ test('отчёт за период: выручка, средний чек, оп�
   expect(res.ok()).toBe(true);
   const r = await res.json();
   expect(r.ordersCount).toBe(2);
+  expect(r.guestsCount).toBe(4);
   expect(r.revenueMinor).toBe('266000');
   expect(r.averageCheckMinor).toBe('133000');
   expect(r.payments).toEqual([
@@ -611,6 +615,39 @@ test('оценка по QR (§40): ссылка смены, страница г�
   for (let i = 0; i < 121; i++) statuses.push((await publicGet('y'.repeat(43), '203.0.113.9')).status());
   expect(statuses.slice(0, 120).every((s) => s === 404)).toBe(true);
   expect(statuses[120]).toBe(429);
+});
+
+test('график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода', async ({ page, request }) => {
+  const { headers, waiter } = await seed(page, request);
+  const shifts = async () => (await (await request.get(`${api}/food-service/shifts`, { headers })).json()).employees;
+  const empty = (await shifts()).find((e: { id: string }) => e.id === waiter.id);
+  expect(empty.week).toHaveLength(7);
+  expect(empty.week.every((d: { intervals: unknown[] }) => d.intervals.length === 0)).toBe(true);
+  const bad = await request.put(`${api}/food-service/employees/${waiter.id}/working-hours`, {
+    headers,
+    data: { intervals: [{ weekday: 1, timeFrom: '18:00', timeTo: '10:00' }] },
+  });
+  expect(bad.status()).toBe(400);
+
+  await page.goto('/employees');
+  await page.getByRole('link', { name: 'График смен' }).click();
+  await expect(page).toHaveURL(/\/employees\/shifts$/);
+  const line = page.locator('tbody tr', { hasText: waiter.name });
+  await expect(line).toContainText('Выходной');
+  await line.getByRole('button', { name: 'Изменить график' }).click();
+  const dialog = page.getByRole('dialog');
+  const monday = dialog.getByRole('group', { name: 'Понедельник' });
+  await monday.getByRole('button', { name: 'Сделать рабочим' }).click();
+  await monday.getByLabel('Понедельник: начало').fill('10:00');
+  await monday.getByLabel('Понедельник: конец').fill('18:00');
+  await dialog.getByRole('button', { name: 'Сохранить график' }).click();
+  await expect(dialog.getByRole('status')).toContainText('График сохранён');
+  await page.keyboard.press('Escape');
+  await expect(line).toContainText('10:00–18:00');
+  const saved = (await shifts()).find((e: { id: string }) => e.id === waiter.id);
+  expect(saved.week[0]).toEqual({ weekday: 1, intervals: [{ timeFrom: '10:00', timeTo: '18:00' }] });
+  const axe = await new AxeBuilder({ page }).analyze();
+  expect(axe.violations).toEqual([]);
 });
 
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({
@@ -753,8 +790,10 @@ test('клиенты: вкладки, «Постоянный гость» от �
   await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');
   await expect(page.getByTestId('guest-marks').first()).toContainText('День рождения');
   await page.goto('/today');
-  await expect(page.getByTestId('today-attention-birthdays')).toContainText('1');
-  await expect(page.getByTestId('today-attention-vip')).toContainText('1');
+  // внутри видимого блока: потоковая отрисовка Next на миг держит копию куска страницы в скрытом div
+  const attention = page.getByRole('region', { name: 'Требуют внимания' });
+  await expect(attention.getByTestId('today-attention-birthdays')).toContainText('1');
+  await expect(attention.getByTestId('today-attention-vip')).toContainText('1');
 });
 
 test('навигация ресторана: пункты макета на месте и ведут на экраны', async ({
@@ -767,6 +806,68 @@ test('навигация ресторана: пункты макета на ме
   const hrefs = await page
     .locator('.sidenav a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
-  for (const path of ['/orders', '/kitchen', '/menu', '/customers', '/employees', '/payroll'])
+  for (const path of ['/orders', '/kitchen', '/drinks', '/menu', '/customers', '/employees', '/payroll', '/restaurant-finance', '/restaurant-settings'])
     expect(hrefs, path).toContain(path);
+});
+
+test('бар, финансы и настройки ресторана по макету (экраны 7, 12, 13)', async ({ page, request }) => {
+  const { headers, table, pasta } = await seed(page, request);
+  // бар: категория «Напитки» и напиток; плитка открывает заказ с этим напитком
+  const drinks = await post(request, headers, '/food-service/menu/categories', { name: 'Напитки' });
+  const mojito = await post(request, headers, '/food-service/menu/items', {
+    categoryId: drinks.id,
+    name: 'Мохито',
+    price: 55000,
+  });
+  const order = await post(request, headers, '/food-service/orders', {
+    tableId: table.id,
+    guestCount: 2,
+    items: [
+      { menuItemId: pasta.id, qty: 1 },
+      { menuItemId: mojito.id, qty: 2 },
+    ],
+  });
+  await page.goto('/drinks');
+  const current = page.getByRole('region', { name: /Текущие заказы/ });
+  await expect(current).toContainText(`№${order.number}`);
+  await expect(current).toContainText('Мохито×2');
+  await expect(current).not.toContainText('Паста');
+  await page.getByRole('button', { name: 'Новый заказ: Мохито, 550 ₸' }).click();
+  await expect(page.getByRole('dialog').getByTestId('order-draft-total')).toContainText('550 ₸');
+  await page.keyboard.press('Escape');
+  // финансы: оплата заказа это выручка, расход кассы со знаком минус
+  await serveAndPay(request, headers, order);
+  await post(request, headers, '/food-service/cash/operations', {
+    kind: 'EXPENSE',
+    method: 'CASH',
+    amount: 12_500,
+    note: 'Закупка продуктов',
+  });
+  await page.goto('/restaurant-finance');
+  const board = page.getByTestId('finance-board');
+  await expect(board.locator('tbody')).toContainText(`Оплата заказа №${order.number}`);
+  await expect(page.getByTestId('finance-total')).toContainText('1 490 ₸');
+  await board.getByRole('button', { name: 'Расходы' }).click();
+  await expect(board.locator('tbody')).toContainText('Закупка продуктов');
+  await expect(board.locator('tbody td[data-negative]')).toContainText('−125 ₸');
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+  // настройки: включённый день создаёт период, время сохраняется
+  await page.goto('/restaurant-settings');
+  await expect(page.getByRole('heading', { name: 'Часы работы' })).toBeVisible();
+  await page.getByRole('switch', { name: 'Понедельник: работаем' }).click();
+  // создание периода идёт через серверное действие и обновление страницы: под нагрузкой дольше 5 с
+  await expect(page.getByRole('switch', { name: 'Понедельник: работаем' })).toBeChecked({
+    timeout: 20_000,
+  });
+  const start = page.getByLabel('Понедельник, начало');
+  await expect(start).toBeEnabled();
+  await start.fill('11:00');
+  await start.blur();
+  await expect
+    .poll(async () => {
+      const r = await request.get(`${api}/food-service/service-periods?limit=100`, { headers });
+      return (await r.json()).items.find((p: { weekday: number }) => p.weekday === 1)?.timeFrom;
+    })
+    .toBe('11:00');
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
 });

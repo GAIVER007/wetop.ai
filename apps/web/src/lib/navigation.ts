@@ -72,6 +72,10 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/stock', label: 'Склад', icon: 'stock', requires: 'desk', description: 'Склад кухни: ингредиенты и остатки' },
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
       { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса ресторана' },
+      // макет ресторана из 14 экранов (12.10.2026): бар, финансы и настройки ресторана своими экранами
+      { href: '/drinks', label: 'Бар', icon: 'breakfast', requires: 'desk', description: 'Бар: напитки и заказы' },
+      { href: '/restaurant-finance', label: 'Финансы', icon: 'money', requires: 'reports', description: 'Выручка, расходы и поступления ресторана' },
+      { href: '/restaurant-settings', label: 'Настройки', icon: 'settings', requires: 'property', description: 'Часы работы, бронирования и разделы ресторана' },
 
       {
         href: '/calendar',
@@ -343,6 +347,22 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Сайт и SEO, а дальше реклама, контент и репутация.',
       },
       {
+        // МКТ-В1/В2 (ADR-MKT-B1): учёт рекламного бюджета и расходов; право раздела, как у хаба
+        href: '/marketing/budget',
+        requires: 'settings',
+        label: 'Бюджет маркетинга',
+        icon: 'money',
+        description: 'План месяца и расходы на продвижение по каналам.',
+      },
+      {
+        // «Маркетинг → Аналитика» (10.10.2026): эффективность источников; лиды и выручка с этапов В3/В5/В6
+        href: '/marketing/analytics',
+        requires: 'settings',
+        label: 'Аналитика маркетинга',
+        icon: 'analytics',
+        description: 'Расходы, лиды и продажи по источникам: куда уходят деньги и что они приносят.',
+      },
+      {
         // ADR-117: сайт объекта — одно место (раньше «Аналитика сайта», «Настройки сайта» и панель в «Интеграциях»)
         href: '/website',
         requires: 'settings',
@@ -505,7 +525,11 @@ export const menuSections: MenuSection[] = [
     id: 'marketing',
     label: 'Маркетинг',
     icon: 'send',
-    items: [menuItem('/marketing', 'Сайт и SEO')],
+    items: [
+      menuItem('/marketing', 'Сайт и SEO'),
+      menuItem('/marketing/budget', 'Бюджет'),
+      menuItem('/marketing/analytics', 'Аналитика'),
+    ],
     match: ['/website'],
   },
   {
@@ -576,12 +600,18 @@ export const foodMenuSections: MenuSection[] = [
     items: [
       menuItem('/orders'),
       menuItem('/kitchen'),
+      menuItem('/drinks'),
       menuItem('/menu'),
       menuItem('/stock'),
-      menuItem('/cashbox'),
     ],
   },
   direct('customers', '/customers', 'guests', 'Клиенты'),
+  {
+    id: 'money',
+    label: 'Финансы',
+    icon: 'money',
+    items: [menuItem('/restaurant-finance'), menuItem('/cashbox')],
+  },
   {
     id: 'team',
     label: 'Команда',
@@ -592,6 +622,7 @@ export const foodMenuSections: MenuSection[] = [
   direct('sales', '/sales', 'rates', 'Продажи'),
   direct('marketing', '/marketing', 'send', 'Маркетинг'),
   direct('analytics', '/management/analytics', 'analytics'),
+  direct('settings', '/restaurant-settings', 'settings', 'Настройки'),
   direct('journal', '/journal', 'journal'),
   direct('help', '/help', 'help'),
   direct('profile', '/profile', 'guests'),

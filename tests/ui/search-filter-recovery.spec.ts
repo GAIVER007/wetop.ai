@@ -135,7 +135,7 @@ for (const width of [1440, 390]) {
       // Поиск в деталях считает все места, включая койки, и передаёт период и категорию.
       await page.getByRole('group', { name: 'Сегодня на объекте' })
         .getByText('Другие показатели', { exact: true }).click();
-      const link = page.getByRole('link', { name: 'Поиск свободных мест', exact: true });
+      const link = page.getByRole('link', { name: /^Свободно мест: .*Поиск свободных мест$/ });
       await expect(link).toBeVisible();
       await link.click();
       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');

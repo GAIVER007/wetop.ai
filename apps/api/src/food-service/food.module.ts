@@ -227,6 +227,13 @@ export class FoodStaffController {
   ) {
     return this.service.updateEmployee(id, b);
   }
+  // График смен (Q-REST-11): смотрят все роли стойки, меняет право «сотрудники»
+  @Get('shifts') shifts() {
+    return this.service.shifts();
+  }
+  @Put('employees/:id/working-hours') @Access('staff') setShifts(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.setShifts(id, b);
+  }
   @Get('payroll') @Access('staff') payroll(@Query() q: Record<string, unknown>) {
     return this.service.payroll(q);
   }

@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 12.10.2026 20:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит aa160c0 (claude/restaurant-design-mockup), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' '--grep' 'клиенты: вкладки|бар, финансы|навигация ресторана'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1157ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+[WebServer] (node:32794) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/restaurant.spec.ts:597:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (50.5s)
+  ✓  2 tests/food-ui/restaurant.spec.ts:684:1 › навигация ресторана: пункты макета на месте и ведут на экраны (3.8s)
+  ✓  3 tests/food-ui/restaurant.spec.ts:698:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) (57.9s)
+
+  3 passed (2.7m)
+
+# код выхода 0 · 2 мин 54 с

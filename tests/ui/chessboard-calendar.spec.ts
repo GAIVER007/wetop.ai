@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test } from './fixtures';
+import { expect, hydrated, test } from './fixtures';
 
 /**
  * «Календарь» (02.10.2026, план `plans/calendar-litepms-2026-10-02.md`): раздел «Шахматка»
@@ -18,7 +18,10 @@ test('календарь: заголовок, сводка дня и быстр�
   await expect(stats.locator('.board-kpi')).toHaveCount(4);
   for (const id of ['occupancy', 'arrivals', 'departures', 'attention'])
     await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
-  await stats.getByText('Другие показатели', { exact: true }).click();
+  const more = stats.locator('details.board-kpi-more');
+  await hydrated(more.locator('summary'));
+  await more.locator('summary').click();
+  await expect(more).toHaveAttribute('open', '');
   for (const id of ['free', 'dirty'])
     await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
   // часов в сводке больше нет: образец их не показывает
@@ -37,11 +40,13 @@ test('календарь: заголовок, сводка дня и быстр�
   const arrival = (await dateColumns.first().getAttribute('data-date'))!;
   const last = (await dateColumns.last().getAttribute('data-date'))!;
   const departure = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
-  await expect(page.getByRole('link', { name: 'Поиск свободных мест', exact: true })).toHaveAttribute(
-    'href',
-    `/rooms/availability?arrival=${arrival}&departure=${departure}`,
-  );
-  await expect(stats.getByRole('link', { name: /Требует внимания/ })).toHaveAttribute(
+  // Имя ссылки включает видимую подпись и цель, как в компактной панели показателей.
+  await expect(
+    page.getByRole('link', { name: /^Свободно мест: .*Поиск свободных мест$/ }),
+  ).toHaveAttribute('href', `/rooms/availability?arrival=${arrival}&departure=${departure}`);
+  await expect(
+    page.getByRole('link', { name: /^Требует внимания: \d+\. Неоплаченные брони$/ }),
+  ).toHaveAttribute(
     'href',
     '/chessboard?stays=debt',
   );

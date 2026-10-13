@@ -468,3 +468,46 @@ for (const theme of ['light', 'dark'] as const) {
     await audit();
   });
 }
+
+test('MKT10.3: отмена и повтор несохранённой правки, кнопками и с клавиатуры, сервер не трогают', async ({ page }) => {
+  await page.goto('/marketing/site/editor');
+  const m = main(page);
+  const undo = m.getByRole('button', { name: 'Отменить', exact: true });
+  const redo = m.getByRole('button', { name: 'Повторить', exact: true });
+  await expect(undo).toBeDisabled();
+  await expect(redo).toBeDisabled();
+  const revision = await m.getByTestId('ed-revision').textContent();
+  await pick(page, 'sec-hero');
+  const before = await heroHeading(page).inputValue();
+  await heroHeading(page).fill('Первая правка');
+  await heroHeading(page).fill('Первая правка, дописанная');
+  await expect(m.getByTestId('ed-dirty')).toHaveText('Есть несохранённые изменения');
+  // ввод в одно поле подряд это один шаг: одна отмена возвращает исходный текст целиком
+  await undo.click();
+  await expect(heroHeading(page)).toHaveValue(before);
+  await expect(m.getByTestId('ed-dirty')).toHaveText('Все изменения сохранены');
+  await expect(undo).toBeDisabled();
+  await redo.click();
+  await expect(heroHeading(page)).toHaveValue('Первая правка, дописанная');
+  await expect(redo).toBeDisabled();
+  // с клавиатуры, когда фокус не в поле ввода (в поле работает родная отмена браузера)
+  await m.getByTestId('ed-dirty').click();
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(heroHeading(page)).toHaveValue(before);
+  await page.keyboard.press('ControlOrMeta+Shift+z');
+  await expect(heroHeading(page)).toHaveValue('Первая правка, дописанная');
+  // отмена живёт в браузере: новой версии на сервере не появилось
+  await expect(m.getByTestId('ed-revision')).toHaveText(revision!);
+});
+
+test('MKT10.3: просмотр на ширине планшета', async ({ page }) => {
+  await page.goto('/marketing/site/editor');
+  const m = main(page);
+  await expect(frame(page).locator('#sec-hero')).toBeVisible();
+  const tablet = m.getByRole('button', { name: 'Планшет', exact: true });
+  await tablet.click();
+  await expect(tablet).toHaveAttribute('aria-pressed', 'true');
+  await expect(m.getByRole('button', { name: 'Компьютер', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  const box = await m.getByTestId('ed-frame').boundingBox();
+  expect(Math.round(box!.width)).toBe(768);
+});

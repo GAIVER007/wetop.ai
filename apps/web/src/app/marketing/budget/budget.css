@@ -1,0 +1,251 @@
+/* «Маркетинг → Бюджет» (МКТ-В1/В2): обзор, журнал расходов, аналитика. Только токены; примитивы
+   (.panel, .stat, .tbl, .tabs, .chip) живут в components.css, здесь — свои классы раздела. */
+@layer sections {
+  .budget-screen {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .budget-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .budget-month {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .budget-month__name {
+    min-width: 9em;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .budget-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    color: var(--text-2);
+  }
+
+  .budget-plan-used {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .budget-plan-used .share-bar {
+    flex: 1;
+    min-width: 72px;
+  }
+
+  /* Распределение по каналам: имя, полоса, деньги, процент одной строкой */
+  .budget-shares {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .budget-shares__row {
+    display: grid;
+    grid-template-columns: minmax(96px, 160px) 1fr auto auto;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .budget-shares__money {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .budget-shares__pct {
+    color: var(--muted);
+    min-width: 3.5em;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Последние расходы на обзоре: карточки-строки, как список «Срезов» */
+  .budget-recent-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .budget-recent {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .budget-recent__row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+  }
+
+  .budget-recent__what {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .budget-recent__platform {
+    font-weight: 600;
+  }
+
+  .budget-recent__detail,
+  .budget-recent__when {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+
+  .budget-recent__sum {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  /* Журнал: фильтр чипами, итог и выгрузка одной полосой */
+  .budget-filter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .budget-filter__chips {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .budget-filter__sum {
+    margin-inline-start: auto;
+    color: var(--text-2);
+  }
+
+  .budget-td-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .budget-cell-main {
+    display: block;
+  }
+
+  .budget-cell-sub {
+    display: block;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  /* «Эффективность источников»: полоса доли в ячейке таблицы не схлопывается */
+  .man-share {
+    min-width: 160px;
+  }
+
+  .man-share .share-bar {
+    width: 100%;
+  }
+
+  .budget-delete {
+    margin-block-start: var(--space-8);
+    padding-block-start: var(--space-6);
+    border-block-start: 1px solid var(--border-soft);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+
+  /* График расходов по дням: токены графика, как «Сравнение загрузки» */
+  .budget-chart {
+    margin: 0;
+  }
+
+  .budget-chart__svg {
+    width: 100%;
+    height: auto;
+  }
+
+  .budget-chart__grid {
+    stroke: var(--grid-line);
+  }
+
+  .budget-chart__bar {
+    fill: var(--chart-1);
+  }
+
+  .budget-chart__tick {
+    fill: var(--muted);
+    font-size: var(--text-xs);
+  }
+
+  .budget-chart__empty {
+    color: var(--text-2);
+    margin: var(--space-4) 0 0;
+  }
+
+  .budget-chart__details {
+    margin-block-start: var(--space-4);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+
+  .budget-chart__details ul {
+    margin: var(--space-2) 0 0;
+    padding-inline-start: var(--space-8);
+    columns: 3;
+  }
+
+  @media (max-width: 960px) {
+    .budget-chart__details ul {
+      columns: 2;
+    }
+  }
+
+  @media (max-width: 600px) {
+    /* Телефон (390): распределение и строки складываются в два этажа, как карточки макета */
+    .budget-shares__row {
+      grid-template-columns: 1fr auto;
+    }
+
+    .budget-shares__row .share-bar {
+      grid-column: 1 / -1;
+    }
+
+    .budget-recent__row {
+      grid-template-columns: 1fr auto;
+    }
+
+    .budget-recent__when {
+      grid-column: 1;
+    }
+
+    .budget-chart__details ul {
+      columns: 1;
+    }
+
+    .budget-filter__sum {
+      margin-inline-start: 0;
+      flex-basis: 100%;
+    }
+  }
+}

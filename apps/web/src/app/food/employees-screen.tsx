@@ -7,6 +7,7 @@ import { completeFoodList } from '../../lib/food-data';
 import type { FoodEmployee } from '../../lib/food-types';
 import { EmployeesBoard } from './employees-board';
 import { restaurantShell } from './restaurant-load';
+import { StaffTabs } from './staff-tabs';
 import './food.css';
 import './restaurant.css';
 
@@ -17,11 +18,13 @@ export async function FoodEmployeesScreen() {
     const employees = await completeFoodList<FoodEmployee>(restaurantApi.employees);
     return (
       <Page title="Сотрудники">
+        <StaffTabs current="list" />
         <div key={shell.scopeKey}>
           <EmployeesBoard
             scopeKey={shell.scopeKey}
             write={shell.canStaff && !shell.readOnly}
             employees={employees}
+            branchName={shell.branchName}
           />
         </div>
       </Page>

@@ -1,0 +1,78 @@
+# Сквозные (e2e) · 13.10.2026 11:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 789517d (worktree-marketing-module-b1), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-budget.spec.ts:55:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (10.2s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   2 tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (3.3s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   3 tests/ui/marketing-budget.spec.ts:99:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (4.4s)
+  ✓   4 tests/ui/marketing-budget.spec.ts:136:1 › аналитика маркетинга: расходы с динамикой, эффективность источников, честные «Недостаточно данных» (3.6s)
+  ✓   5 tests/ui/marketing-budget.spec.ts:162:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (1.9s)
+  ✓   6 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: light (15.3s)
+  ✓   7 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: dark (21.9s)
+  ✘   8 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (26.2s)
+  ✓   9 tests/ui/marketing.spec.ts:68:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (16.7s)
+  ✓  10 tests/ui/marketing.spec.ts:88:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (16.8s)
+  ✓  11 tests/ui/marketing.spec.ts:178:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (38.8s)
+  ✓  12 tests/ui/marketing.spec.ts:236:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (30.2s)
+  ✓  13 tests/ui/marketing.spec.ts:258:3 › хаб на компьютере и телефоне, доступность: light (1.1m)
+  ✓  14 tests/ui/marketing.spec.ts:258:3 › хаб на компьютере и телефоне, доступность: dark (17.3s)
+  ✓  15 tests/ui/marketing.spec.ts:313:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (17.6s)
+
+
+  1) tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('.sidenav').locator('.sidenav__section').filter({ hasText: /^Маркетинг$/ })
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('.sidenav').locator('.sidenav__section').filter({ hasText: /^Маркетинг$/ }) with timeout 15000ms
+      - waiting for locator('.sidenav').locator('.sidenav__section').filter({ hasText: /^Маркетинг$/ })
+        34 × locator resolved to <a href="/marketing" data-tour="section-marketing" class="sidenav__section is-shown">…</a>
+           - unexpected value "inactive"
+
+
+      38 |   await page.keyboard.press('ArrowRight');
+      39 |   const item = menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ });
+    > 40 |   await expect(item).toBeFocused();
+         |                      ^
+      41 |   await expect(item).toHaveAttribute('href', '/marketing');
+      42 |   // МКТ-В1: рядом пункт «Бюджет»; состав группы целиком сверяют юниты навигации
+      43 |   await expect(menu.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing.spec.ts:40:22
+
+    Error Context: test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+  14 passed (5.2m)
+
+# код выхода 1 · 5 мин 13 с

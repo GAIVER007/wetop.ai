@@ -1,0 +1,89 @@
+# Сквозные (e2e) · 13.10.2026 11:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 789517d (worktree-marketing-module-b1), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/side-nav.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 22 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-budget.spec.ts:55:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (3.5s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   2 tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (2.0s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   3 tests/ui/marketing-budget.spec.ts:99:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (2.4s)
+  ✓   4 tests/ui/marketing-budget.spec.ts:136:1 › аналитика маркетинга: расходы с динамикой, эффективность источников, честные «Недостаточно данных» (2.1s)
+  ✓   5 tests/ui/marketing-budget.spec.ts:162:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (926ms)
+  ✓   6 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: light (4.9s)
+  ✓   7 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: dark (4.6s)
+  ✓   8 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (4.6s)
+  ✓   9 tests/ui/marketing.spec.ts:73:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (8.3s)
+  ✓  10 tests/ui/marketing.spec.ts:93:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (5.1s)
+  ✓  11 tests/ui/marketing.spec.ts:183:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (8.7s)
+  ✓  12 tests/ui/marketing.spec.ts:241:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (8.6s)
+  ✓  13 tests/ui/marketing.spec.ts:263:3 › хаб на компьютере и телефоне, доступность: light (9.7s)
+  ✓  14 tests/ui/marketing.spec.ts:263:3 › хаб на компьютере и телефоне, доступность: dark (7.0s)
+  ✓  15 tests/ui/marketing.spec.ts:318:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (16.8s)
+  ✘  16 tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (13.0s)
+  ✓  17 tests/ui/side-nav.spec.ts:100:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (7.1s)
+  ✓  18 tests/ui/side-nav.spec.ts:140:1 › вложенные адреса показывают свой раздел (19.9s)
+  ✓  19 tests/ui/side-nav.spec.ts:171:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (4.1s)
+  ✓  20 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: light (12.0s)
+  ✓  21 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: dark (6.6s)
+  ✓  22 tests/ui/side-nav.spec.ts:238:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (3.2s)
+
+
+  1) tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 2
+
+    @@ -11,9 +11,11 @@
+        "/inventory",
+        "/journal",
+        "/management/analytics",
+        "/market",
+        "/marketing",
+    +   "/marketing/analytics",
+    +   "/marketing/budget",
+        "/reports",
+        "/sales",
+        "/team",
+      ]
+
+      63 |   // каждый адрес меню в разметке ровно один раз
+      64 |   const links = await menuLinks(page);
+    > 65 |   expect([...links].sort()).toEqual([...routes].sort());
+         |                             ^
+      66 |
+      67 |   // 2. наведение: все разделы
+      68 |   const items = await openSection(page, 'Продажи');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/side-nav.spec.ts:65:29
+
+    Error Context: test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню 
+  21 passed (2.8m)
+
+# код выхода 1 · 2 мин 50 с

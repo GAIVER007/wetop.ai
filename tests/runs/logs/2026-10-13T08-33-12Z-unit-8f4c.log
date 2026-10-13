@@ -1,0 +1,18 @@
+# Модульные (unit) · 13.10.2026 13:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd3064f (claude/open-registration-verticals), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-33-12Z-unit-8f4c.json' 'apps/api/src/accounts/sessions.controller.test.ts' 'apps/api/src/analytics/collect.controller.test.ts' 'apps/api/src/hotel/hotel.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 168ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 119ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 121ms
+
+ Test Files  3 passed (3)
+      Tests  33 passed (33)
+   Start at  01:33:16
+   Duration  2.14s (import 58%, transform 35%, tests 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-33-12Z-unit-8f4c.json
+
+# код выхода 0 · 6 с

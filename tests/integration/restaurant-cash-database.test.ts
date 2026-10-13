@@ -151,6 +151,18 @@ describe.skipIf(!url)('restaurant cash: database guards, grants and RLS', () => 
       expect(ops.rowCount).toBe(0);
     }));
 
+  it('pay journal only grows: the app cannot edit or delete premiums and fines (§33.4, Q-REST-7)', () =>
+    rollback(async () => {
+      await db.query('SET LOCAL ROLE wetop_app');
+      for (const sql of [
+        'UPDATE employee_pay_adjustments SET amount_minor = amount_minor WHERE false',
+        'DELETE FROM employee_pay_adjustments WHERE false',
+      ])
+        await savepoint(async () => {
+          await expect(db.query(sql)).rejects.toThrow(/permission denied/);
+        });
+    }));
+
   it('guest rating: only a closed order, waiter snapshot must match, the app cannot edit or delete (§39)', () =>
     rollback(async () => {
       const a = await seed();

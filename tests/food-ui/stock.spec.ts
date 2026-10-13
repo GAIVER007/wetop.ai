@@ -58,7 +58,7 @@ test('пустой склад, ингредиент и приход с экра�
   await dialog.getByRole('button', { name: 'Создать', exact: true }).click();
   await expect(dialog).not.toBeVisible();
   await expect(row(page, 'Соль морская')).toContainText('Нет на складе');
-  await page.getByRole('button', { name: '+ Приход', exact: true }).click();
+  await page.getByRole('button', { name: '+ Приход товара', exact: true }).click();
   await dialog.getByLabel('Поставщик').fill('Тестовый поставщик');
   await dialog.getByLabel('Количество, г').fill('1500');
   await dialog.getByLabel('Цена за кг, ₸').fill('800');
@@ -138,7 +138,7 @@ test('роли: администратор работает со складом,
   const beef = await seedBeef(request, headers);
   await request.post(`${api}/__test/control`, { data: { role: 'STAFF' } });
   await page.goto('/stock');
-  await expect(page.getByRole('button', { name: '+ Приход', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '+ Приход товара', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Списать: Говядина Рибай' })).toBeVisible();
   await expect(page.getByRole('button', { name: '+ Ингредиент', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Изменить: Говядина Рибай' })).toHaveCount(0);
@@ -146,7 +146,7 @@ test('роли: администратор работает со складом,
   await request.post(`${api}/__test/control`, { data: { readOnly: true } });
   await page.reload();
   await expect(page.getByTestId('read-only-banner')).toContainText('Режим только для чтения');
-  await expect(page.getByRole('button', { name: '+ Приход', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '+ Приход товара', exact: true })).toHaveCount(0);
   expect(
     (await request.post(`${api}/food-service/stock/write-offs`, { headers, data: { productId: beef.id, qty: '1', reason: 'Нельзя' } })).status(),
   ).toBe(403);
@@ -172,7 +172,7 @@ test('снимки и axe в двух темах на 1440 и 390', async ({ pag
       await page.screenshot({ path: `${shots}/stock-${theme}-${width}.png`, fullPage: true });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-      await page.getByRole('button', { name: '+ Приход', exact: true }).click();
+      await page.getByRole('button', { name: '+ Приход товара', exact: true }).click();
       await expect(page.getByRole('dialog')).toBeVisible();
       await settled(page);
       await page.screenshot({ path: `${shots}/stock-receipt-${theme}-${width}.png`, fullPage: true });

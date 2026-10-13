@@ -4,6 +4,7 @@ import { DateBar } from '../../components/date-bar';
 import { Field, Input, Select } from '../../components/ui';
 import { shiftDate } from '../../lib/food-data';
 import type { FoodWorkspace } from '../../lib/food-types';
+import { localInput } from '../beauty/time';
 
 /** Подпись поля только для программы чтения: панель экрана одной строкой, как на макете */
 export const quiet = (text: string) => <span className="sr-only">{text}</span>;
@@ -36,6 +37,8 @@ export function DayToolbar({
         onPrevious={() => go(shiftDate(data.date, -1))}
         onNext={() => go(shiftDate(data.date, 1))}
         onDateChange={(next) => go(next)}
+        // «Сегодня» на расписании, как на макете (экран 3); на плане зала её нет, как и раньше
+        onToday={floor ? undefined : () => go(localInput(new Date().toISOString(), data.timezone).slice(0, 10))}
       />
       <Field label={quiet('Период')}>
         <Select value={period} onChange={(e) => setPeriod(e.target.value)}>

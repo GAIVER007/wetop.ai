@@ -1,0 +1,47 @@
+# Интеграционные (integration) · 13.10.2026 13:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит adb43da (claude/pay-journal-append-only), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-13-42Z-integration-ce0c.json' 'tests/integration/restaurant-cash-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+[pms_test] миграций применено 2; данные на месте
+ ❯ |integration| tests/integration/restaurant-cash-database.test.ts (4 tests | 1 failed) 382ms
+   ❯ restaurant cash: database guards, grants and RLS (4)
+     ✓ guards reject foreign parents, edits of money and resurrection of voided rows 303ms
+     ✓ application role cannot delete money rows and sees only its organization 10ms
+     × pay journal only grows: the app cannot edit or delete premiums and fines (§33.4, Q-REST-7) 6ms
+     ✓ guest rating: only a closed order, waiter snapshot must match, the app cannot edit or delete (§39) 50ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/restaurant-cash-database.test.ts > restaurant cash: database guards, grants and RLS > pay journal only grows: the app cannot edit or delete premiums and fines (§33.4, Q-REST-7)
+AssertionError: expected [Function] to throw error matching /permission denied/ but got 'column "amount" does not exist'
+
+- Expected:
+/permission denied/
+
++ Received:
+"column \"amount\" does not exist"
+
+ ❯ tests/integration/restaurant-cash-database.test.ts:162:38
+    160|       ])
+    161|         await savepoint(async () => {
+    162|           await expect(db.query(sql)).rejects.toThrow(/permission deni…
+       |                                      ^
+    163|         });
+    164|     }));
+ ❯ savepoint tests/integration/restaurant-cash-database.test.ts:35:13
+ ❯ tests/integration/restaurant-cash-database.test.ts:161:9
+ ❯ rollback tests/integration/restaurant-cash-database.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  01:13:46
+   Duration  3.69s (transform 60%, tests 24%, import 15%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-13-42Z-integration-ce0c.json
+
+# код выхода 1 · 8 с

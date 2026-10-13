@@ -12,7 +12,7 @@ type StockCommand =
   | { kind: 'receipt'; body: StockReceiptInput }
   | { kind: 'reverse'; id: string }
   | { kind: 'write-off'; body: { productId: string; qty: string; reason: string } }
-  | { kind: 'inventory'; body: { productId: string; actualQty: string; reason?: string | null } };
+  | { kind: 'inventory'; body: { productId: string; actualQty: string; reason?: string | null; unitCost?: number } };
 
 async function scope(key: string) {
   const { context } = await currentMe();

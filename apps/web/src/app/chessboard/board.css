@@ -3342,3 +3342,28 @@
     }
   }
 }
+
+/*
+ * Телефон (обход 13.10.2026): полоса управления занимала пять строк и 272 px до сетки. «7 дней» не помещалось
+ * рядом с «День / Неделя / Месяц» (347 px при 343), а «+» новой брони уходило отдельной строкой за кнопкой
+ * «На весь экран», которая на телефоне ничего не даёт. Теперь три строки: дата, масштаб с длиной, поиск с действиями.
+ */
+@layer sections {
+  @media (max-width: 600px) {
+    .board-toolbar .calendar-expand {
+      display: none;
+    }
+    .board-toolbar .board-search {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .board-nav .board-scale {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .board-nav .board-scale > a {
+      flex: 1 1 0;
+      padding-inline: var(--space-2);
+    }
+  }
+}

@@ -14,7 +14,7 @@ export type FeatureGroup = {
  * из 15 карточек три вкладки. Все панели есть в HTML (поиск и читалки видят весь текст), неактивные
  * скрыты атрибутом hidden. Клавиатура по шаблону WAI-ARIA Tabs: стрелки, Home, End.
  */
-export function FeatureTabs({ groups, soon }: { groups: FeatureGroup[]; soon: string }) {
+export function FeatureTabs({ groups }: { groups: FeatureGroup[]; soon: string }) {
   const [active, setActive] = useState(0);
   const base = useId();
   const tabs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -78,7 +78,6 @@ export function FeatureTabs({ groups, soon }: { groups: FeatureGroup[]; soon: st
               <div className="card__body">
                 <h3 className="card__title">
                   {typo(item.title)}
-                  {item.soon ? <span className="features__soon">{soon}</span> : null}
                 </h3>
                 <p className="card__text">{typo(item.text)}</p>
               </div>

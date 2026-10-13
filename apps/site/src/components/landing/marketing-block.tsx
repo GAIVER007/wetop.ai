@@ -10,7 +10,6 @@ import { typo } from '../typo';
 export function MarketingBlock({
   copy,
   eyebrow,
-  soon,
   id,
 }: {
   copy: MarketingCopy;
@@ -39,11 +38,6 @@ export function MarketingBlock({
             </span>
             <h3 className="card__title">{typo(item.title)}</h3>
             <p className="card__text">{typo(item.text)}</p>
-            {item.soon ? (
-              <ul className="tag-list">
-                <li className="tag">{soon}</li>
-              </ul>
-            ) : null}
           </li>
         ))}
       </ul>

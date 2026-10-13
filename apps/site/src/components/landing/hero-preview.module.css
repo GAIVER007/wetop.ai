@@ -1,0 +1,32 @@
+.preview {
+  overflow: hidden;
+  border: 1px solid var(--public-border);
+  border-radius: var(--public-radius);
+  background: var(--public-surface);
+  box-shadow: var(--public-shadow);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  color-scheme: light;
+}
+
+/* Embedded SVGs follow the existing site theme. */
+
+:global(:root[data-theme='dark']) .image {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme='light'])) .image {
+    color-scheme: dark;
+  }
+}
+
+@media (min-width: 64rem) {
+  .preview {
+    margin-bottom: 48px;
+  }
+}

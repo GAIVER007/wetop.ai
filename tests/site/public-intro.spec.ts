@@ -22,9 +22,9 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(hero).toContainText('Рестораны');
       await expect(hero).not.toContainText(/пилот/i);
       // Дашборд-мокап (LAND2 v2): вымышленные данные и подпись примера, интерактива внутри нет
-      await expect(hero.locator('.dash')).toBeVisible();
+      await expect(hero.locator('.public-intro__figure img')).toBeVisible();
       await expect(hero).toContainText('Пример интерфейса. Данные вымышленные.');
-      await expect(hero.locator('.dash a, .dash button, .dash [role="button"]')).toHaveCount(0);
+      await expect(hero.locator('.public-intro__figure img').locator('..').locator('a, button, [role="button"]')).toHaveCount(0);
       const cards = page.locator('.verticals__card');
       await expect(cards).toHaveCount(3);
       await expect(cards.nth(0)).toContainText('Гостиницы');
@@ -41,7 +41,7 @@ for (const theme of ['dark', 'light'] as const) {
       const layout = await page.evaluate(() => ({
         width: innerWidth,
         scroll: document.documentElement.scrollWidth,
-        preview: document.querySelector('.dash')!.getBoundingClientRect().top,
+        preview: document.querySelector('.public-intro__figure img')!.getBoundingClientRect().top,
       }));
       expect(layout.scroll).toBeLessThanOrEqual(layout.width);
       expect(layout.preview).toBeLessThan(width === 1440 ? 900 : 1400);

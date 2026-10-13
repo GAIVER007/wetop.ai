@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import marketStyles from './growth-market.module.css';
+import aiStyles from './growth-ai.module.css';
 import { getDictionary } from '../../i18n';
 import type { IconName } from '../icon';
 import { registerLink } from '../../lib/site';
@@ -90,7 +92,7 @@ type ModuleProps = {
 /** Витрина: метка направления, заголовок, текст, пункты и кнопка; справа (или слева) пример экрана. */
 function Module({ id, tone, kicker, icon, title, text, points, action, children }: ModuleProps) {
   return (
-    <article id={id} className={`card glass growth__module growth__module--${tone}`}>
+    <article id={id} className={`card glass growth__module growth__module--${tone} ${tone === 'marketing' ? marketStyles.module : tone === 'ai' ? aiStyles.module : ''}`}>
       <div className="growth__module-copy">
         <span className="growth__kicker">
           <Icon name={icon} size={16} />
@@ -151,12 +153,12 @@ function MarketPreview() {
   const points = chart.map((y, i) => `${i * step},${y}`).join(' ');
   const markerIndex = 3;
   return (
-    <aside className="growth__panel" aria-label={preview.label}>
-      <div className="growth__panel-head">
+    <aside className={`growth__panel ${marketStyles.panel}`} aria-label={preview.label}>
+      <div className={`growth__panel-head ${marketStyles.heading}`}>
         <strong>{typo(preview.title)}</strong>
         <span className="dash__delta">{preview.delta}</span>
       </div>
-      <ul className="growth__prices">
+      <ul className={`growth__prices ${marketStyles.prices}`}>
         {preview.rows.map((row) => (
           <li key={row.name} className={row.own ? 'growth__price--own' : undefined}>
             <span>{row.name}</span>
@@ -164,7 +166,7 @@ function MarketPreview() {
           </li>
         ))}
       </ul>
-      <div className="growth__chart">
+      <div className={`growth__chart ${marketStyles.chart}`}>
         <svg viewBox={`0 -14 ${w} ${h + 28}`} role="img" aria-label={preview.label}>
           <polyline points={points} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
           {chart.map((y, i) => (
@@ -180,7 +182,7 @@ function MarketPreview() {
           ))}
         </div>
       </div>
-      <p className="growth__example">{preview.label}</p>
+      <p className={`growth__example ${marketStyles.example}`}>{preview.label}</p>
     </aside>
   );
 }
@@ -188,7 +190,7 @@ function MarketPreview() {
 function AiChat() {
   const { chat } = getDictionary().growth.ai;
   return (
-    <aside className="growth__panel growth__chat" aria-label={chat.label}>
+    <aside className={`growth__panel growth__chat ${aiStyles.chat}`} aria-label={chat.label}>
       <div className="growth__chat-head">
         <span className="dash__logo" aria-hidden="true">
           W
@@ -198,6 +200,11 @@ function AiChat() {
       </div>
       <p className="growth__bubble growth__bubble--in">{typo(chat.inbound)}</p>
       <p className="growth__bubble growth__bubble--out">{typo(chat.outbound)}</p>
+      <p className="growth__bubble growth__bubble--in">{typo(chat.confirmation)}</p>
+      <p className={`growth__bubble growth__bubble--out ${aiStyles.confirmed}`}>
+        <Icon name="check" size={18} />
+        <span>{typo(chat.booked)}</span>
+      </p>
       <div className="growth__chat-input" aria-hidden="true">
         <span>{chat.placeholder}</span>
         <Icon name="arrowRight" size={14} />

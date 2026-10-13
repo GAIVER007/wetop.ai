@@ -1,0 +1,87 @@
+.footer {
+  border-top: 1px solid var(--public-border);
+  background: var(--public-surface);
+  padding-block: 40px 24px;
+  color: var(--public-text);
+}
+.footer :global(.site-footer__row) {
+  border: 0;
+  padding: 0 0 32px;
+  gap: 24px;
+  align-items: flex-start;
+}
+.footer :global(.site-footer__row .site-footer__brand) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.footer :global(.site-footer__brand p),
+.footer :global(.site-footer__copy) {
+  color: var(--public-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.footer :global(.site-footer__links) { gap: 8px; }
+.footer :global(.site-footer__links a) {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  background: var(--public-bg);
+  border-color: var(--public-border);
+  border-radius: var(--radius-sm);
+  color: var(--public-text);
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 0.875rem;
+}
+.footer :global(.site-footer__directions) {
+  gap: 24px;
+  padding-block: 24px 32px;
+  border-block: 1px solid var(--public-border);
+}
+.footer :global(.site-footer__directions > div) {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--public-radius);
+  background: var(--public-bg);
+}
+.footer :global(.site-footer__directions ul) { gap: 8px; }
+.footer :global(.site-footer__directions a) {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--public-muted);
+  text-decoration: none;
+  line-height: 1.5;
+}
+.footer :global(.site-footer__directions .site-footer__direction) {
+  color: var(--public-text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.footer .legal {
+  padding-block: 24px 0;
+  gap: 12px 24px;
+  font-size: 0.875rem;
+}
+.legal a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--public-text);
+  line-height: 1.5;
+}
+.footer a:hover { color: var(--public-accent); }
+.footer a:focus-visible {
+  outline: 2px solid var(--public-accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+@media (max-width: 600px) {
+  .footer { padding-block: 32px 24px; }
+  .footer :global(.site-footer__row) { flex-direction: column; }
+  .footer :global(.site-footer__links) { justify-content: flex-start; }
+  .footer :global(.site-footer__directions) { grid-template-columns: minmax(0, 1fr); }
+  .footer .legal { flex-direction: column; align-items: flex-start; }
+}

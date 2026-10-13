@@ -39,7 +39,7 @@ export function Audience() {
           {t.intro.cards.map((card) => {
             const direction = DIRECTION[card.id];
             return (
-              <article className="verticals__card" key={card.id}>
+              <article className={`verticals__card ${styles.card}`} key={card.id}>
                 <img
                   className="verticals__photo"
                   src={PHOTO[card.id]}
@@ -67,7 +67,7 @@ export function Audience() {
                     </li>
                   ))}
                 </ul>
-                <a className="btn btn--secondary verticals__action" href={`/for/${direction}/`}>
+                <a className={`verticals__action ${styles.action}`} href={`/for/${direction}/`}>
                   {card.action}
                   <Icon name="arrowRight" size={16} />
                 </a>
@@ -76,6 +76,7 @@ export function Audience() {
                   {subtypesOf(direction).map((slug) => (
                     <Link key={slug} href={`/for/${slug}/`}>
                       {t.segments.items[slug].metaTitle}
+                      <Icon name="arrowRight" size={16} />
                     </Link>
                   ))}
                 </div>

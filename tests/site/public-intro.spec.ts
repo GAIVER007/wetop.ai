@@ -24,7 +24,12 @@ for (const theme of ['dark', 'light'] as const) {
       // Дашборд-мокап (LAND2 v2): вымышленные данные и подпись примера, интерактива внутри нет
       await expect(hero.locator('.public-intro__figure img')).toBeVisible();
       await expect(hero).toContainText('Пример интерфейса. Данные вымышленные.');
-      await expect(hero.locator('.public-intro__figure img').locator('..').locator('a, button, [role="button"]')).toHaveCount(0);
+      await expect(
+        hero
+          .locator('.public-intro__figure img')
+          .locator('..')
+          .locator('a, button, [role="button"]'),
+      ).toHaveCount(0);
       const cards = page.locator('.verticals__card');
       await expect(cards).toHaveCount(3);
       await expect(cards.nth(0)).toContainText('Гостиницы');
@@ -140,5 +145,20 @@ test('business positioning: three verticals, no maturity labels, five capabiliti
     await expect(photo).toBeVisible();
     // Фото загрузилось, а не битая ссылка: у картинки есть собственная ширина.
     expect(await photo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  }
+});
+
+test('direction links have comfortable targets and separate rows', async ({ page }) => {
+  await page.goto('/');
+  const groups = page.locator('.verticals__segments');
+  await expect(groups).toHaveCount(3);
+  for (const group of await groups.all()) {
+    expect(
+      await group.evaluate((el) => Number.parseFloat(getComputedStyle(el).rowGap)),
+    ).toBeGreaterThanOrEqual(8);
+    for (const link of await group.getByRole('link').all()) {
+      expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      await expect(link).toHaveAttribute('href', /^\/for\/[^/]+\/$/);
+    }
   }
 });

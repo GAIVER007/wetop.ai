@@ -1,3 +1,4 @@
+import { ProductPreview } from '../../../components/landing/product-preview';
 import type { Metadata } from 'next';
 import { Icon } from '../../../components/icon';
 import { LandingFinal } from '../../../components/landing/landing-final';
@@ -65,51 +66,7 @@ export default function SalonLandingPage() {
               </ul>
             </div>
             <figure className="salon-hero__figure">
-              <div className="salon-hero__mock">
-                <div className="salon-hero__mock-head">
-                  <div>
-                    <strong>{s.mock.title}</strong>
-                    <span className="salon-hero__mock-date">{s.mock.date}</span>
-                  </div>
-                  <div className="salon-hero__mock-summary">
-                    {s.mock.summary.map((item) => (
-                      <span key={item.name}>
-                        <strong>{item.value}</strong> {item.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="salon-hero__cal">
-                  <div className="salon-hero__rail">
-                    <span className="salon-hero__master" aria-hidden="true" />
-                    {s.mock.times.map((time) => (
-                      <span key={time}>{time}</span>
-                    ))}
-                  </div>
-                  {s.mock.masters.map((master) => (
-                    <div className="salon-hero__col" key={master.name}>
-                      <span className="salon-hero__master">{master.name}</span>
-                      {s.mock.times.map((time) => {
-                        const apt = master.appointments.find((a) => a.time === time);
-                        if (apt)
-                          return (
-                            <span key={time} className={`salon-hero__apt salon-hero__apt--${apt.tone}`}>
-                              <strong>{apt.service}</strong>
-                              {apt.client}
-                            </span>
-                          );
-                        if (master.free.includes(time))
-                          return (
-                            <span key={time} className="salon-hero__free">
-                              {s.mock.freeLabel}
-                            </span>
-                          );
-                        return <span key={time} className="salon-hero__slot" />;
-                      })}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ProductPreview vertical="BEAUTY" label={s.mock.label} />
               <figcaption>{s.mock.label}</figcaption>
             </figure>
           </section>

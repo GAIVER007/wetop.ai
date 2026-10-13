@@ -72,6 +72,7 @@ export async function BusinessTrend({
             >
               <div className="org-trend-bar">
                 <span
+                  // slop-allow: inline-style высота столбца вычисляется по сумме полученных оплат
                   style={{
                     height: `${point.value === null || max === 0n ? 0 : Number((point.value * 100n) / max)}%`,
                   }}

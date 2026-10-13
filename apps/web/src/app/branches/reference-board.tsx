@@ -195,6 +195,7 @@ export function ReferenceBoard({
               <article key={group.id} className={`org-card org-card--${group.vertical}`}>
                 <div
                   className={`org-cover ${group.card.coverUrl ? 'org-cover--custom' : ''}`}
+                  // slop-allow: inline-style обложка задаётся сохранённым приватным URL бизнеса
                   style={
                     group.card.coverUrl
                       ? { backgroundImage: `url(${JSON.stringify(group.card.coverUrl)})` }
@@ -258,7 +259,7 @@ export function ReferenceBoard({
                             <small>
                               {branch.address || 'Адрес не указан'}
                               {branch.vertical === 'HOSPITALITY'
-                                ? ` · ${branch._count.inventoryUnits} номеров и коек, ${branch._count.accommodationTypes} категорий`
+                                ? `, ${branch._count.inventoryUnits} номеров и коек, ${branch._count.accommodationTypes} категорий`
                                 : ''}
                             </small>
                           </span>

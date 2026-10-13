@@ -1,0 +1,89 @@
+# Интеграционные (integration) · 13.10.2026 17:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4335d2f (claude/bar-location-model), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-51-19Z-integration-1410.json' 'tests/integration/bar-location.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ❯ |integration| tests/integration/bar-location.test.ts (5 tests | 4 failed) 54ms
+   ❯ BAR on locations (§44) (5)
+     × бар ресторана живёт без объекта гостиницы; у гостиничной строки филиал берётся из объекта 28ms
+     × объект гостиницы чужого филиала не принимается; филиал и объект неизменны 6ms
+     × владение по филиалу: товар с категорией другого филиала отклоняется 2ms
+     ✓ продажа без объекта не связывается с кассой гостиницы 7ms
+     × RLS: чужая организация не видит бар ресторана и не пишет в его филиал 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-location.test.ts > BAR on locations (§44) > бар ресторана живёт без объекта гостиницы; у гостиничной строки филиал берётся из объекта
+error: inconsistent types deduced for parameter $1
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ category tests/integration/bar-location.test.ts:61:5
+     59|   const category = async (location: string, property: string | null = …
+     60|     const id = randomUUID();
+     61|     await client.query(
+       |     ^
+     62|       `INSERT INTO bar_categories (id,location_id,property_id,name,def…
+     63|       [id, location, property],
+ ❯ tests/integration/bar-location.test.ts:71:18
+ ❯ rollback tests/integration/bar-location.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/bar-location.test.ts > BAR on locations (§44) > объект гостиницы чужого филиала не принимается; филиал и объект неизменны
+AssertionError: expected [Function] to throw error including 'BAR property belongs to another locat…' but got 'inconsistent types deduced for parame…'
+
+Expected: "BAR property belongs to another location"
+Received: "inconsistent types deduced for parameter $1"
+
+ ❯ tests/integration/bar-location.test.ts:89:62
+     87|       const hotel = await branch('HOSPITALITY');
+     88|       await savepoint(async () => {
+     89|         await expect(category(food.location, hotel.property)).rejects.…
+       |                                                              ^
+     90|       });
+     91|       const id = await category(food.location);
+ ❯ savepoint tests/integration/bar-location.test.ts:35:13
+ ❯ tests/integration/bar-location.test.ts:88:7
+ ❯ rollback tests/integration/bar-location.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| tests/integration/bar-location.test.ts > BAR on locations (§44) > владение по филиалу: товар с категорией другого филиала отклоняется
+error: inconsistent types deduced for parameter $1
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ category tests/integration/bar-location.test.ts:61:5
+     59|   const category = async (location: string, property: string | null = …
+     60|     const id = randomUUID();
+     61|     await client.query(
+       |     ^
+     62|       `INSERT INTO bar_categories (id,location_id,property_id,name,def…
+     63|       [id, location, property],
+ ❯ tests/integration/bar-location.test.ts:103:23
+ ❯ rollback tests/integration/bar-location.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| tests/integration/bar-location.test.ts > BAR on locations (§44) > RLS: чужая организация не видит бар ресторана и не пишет в его филиал
+error: inconsistent types deduced for parameter $1
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ category tests/integration/bar-location.test.ts:61:5
+     59|   const category = async (location: string, property: string | null = …
+     60|     const id = randomUUID();
+     61|     await client.query(
+       |     ^
+     62|       `INSERT INTO bar_categories (id,location_id,property_id,name,def…
+     63|       [id, location, property],
+ ❯ tests/integration/bar-location.test.ts:133:7
+ ❯ rollback tests/integration/bar-location.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  05:51:20
+   Duration  1.52s (transform 73%, import 18%, tests 9%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-51-19Z-integration-1410.json
+
+# код выхода 1 · 3 с

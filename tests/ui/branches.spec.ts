@@ -9,10 +9,26 @@ test('филиалы: создание, сохранение после reload �
   await page.goto('/branches');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
-  await main.locator('summary').filter({ hasText: 'Добавить объект или направление' }).click();
-  await main.getByLabel('Название объекта').fill('Тестовый филиал у парка');
-  await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
-  await expect(main.getByRole('status')).toContainText('Филиал создан');
+  const monthControls = await page
+    .locator('.org-month a, .org-month input, .org-month button')
+    .evaluateAll((elements) =>
+      elements.map((element) => ({
+        height: element.getBoundingClientRect().height,
+        bottom: element.getBoundingClientRect().bottom,
+      })),
+    );
+  expect(monthControls).toHaveLength(4);
+  expect(monthControls.every((control) => control.height === 40)).toBe(true);
+  expect(
+    monthControls.every((control) => Math.abs(control.bottom - monthControls[0]!.bottom) < 1),
+  ).toBe(true);
+
+  await main.getByRole('button', { name: 'Добавить', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+  await expect(creation).toBeVisible();
+  await creation.getByLabel('Название объекта', { exact: true }).fill('Тестовый филиал у парка');
+  await creation.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
+  await expect(creation.getByRole('status')).toContainText('Филиал создан');
   await page.reload();
   await expect(
     main.getByRole('button').filter({ hasText: 'Тестовый филиал у парка' }),
@@ -109,6 +125,7 @@ test('переключатель филиалов сохраняет разде�
   const sidebar = page.locator('.workspace-header');
   const trigger = sidebar.getByRole('button', { name: 'Выбрать филиал', exact: true });
   const navigation = page.getByRole('main');
+  await expect(navigation).toBeVisible();
   const before = await navigation.boundingBox();
   await trigger.click();
   const choices = sidebar.getByRole('region', { name: 'Выбор филиала' });

@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 13.10.2026 17:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4335d2f (claude/bar-location-model), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-54-10Z-integration-9156.json' 'tests/integration/bar-ownership.test.ts' 'tests/integration/function-search-path.test.ts' 'tests/integration/platform-p1-backfill.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ✓ |integration| tests/integration/bar-ownership.test.ts (105 tests) 646ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 128ms
+ ❯ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests | 1 failed) 130ms
+   ❯ Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) (3)
+     × каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business 90ms
+     ✓ reporting_currency организации совпадает с однозначной фактической валютой её объектов 9ms
+     ✓ вошедший получает тот же объект по цепочке, что и прежним путём; резолвер филиала его видит 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/platform-p1-backfill.test.ts > Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) > каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business
+AssertionError: expected 'ARCHIVED' to be 'ACTIVE' // Object.is equality
+
+Expected: "ACTIVE"
+Received: "ARCHIVED"
+
+ ❯ tests/integration/platform-p1-backfill.test.ts:57:26
+     55|       expect(loc.timezone).toBe(p.timezone);
+     56|       expect(loc.currency).toBe(p.currency);
+     57|       expect(loc.status).toBe('ACTIVE');
+       |                          ^
+     58|       expect(loc.business.vertical).toBe('HOSPITALITY');
+     59|       expect(loc.business.status).toBe('ACTIVE');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 109 passed (110)
+   Start at  05:54:11
+   Duration  2.23s (tests 56%, import 23%, transform 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-54-10Z-integration-9156.json
+
+# код выхода 1 · 3 с

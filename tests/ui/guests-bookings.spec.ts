@@ -315,8 +315,8 @@ test('гости и бронирования: пустые состояния, �
 test('гости и бронирования: одна вкладка меню, ссылка в классический список и новая бронь', async ({ page }) => {
   await page.goto('/guests');
   // подразделы левого меню (ADR-161) в панели, она закрыта: ищем с учётом скрытых
-  const menu = page.locator('.sidenav__items');
-  const tab = menu.locator('a[href="/guests"]');
+  const menu = page.locator('.sidenav__panel');
+  const tab = menu.locator('.sidenav__sections a[href="/guests"]');
   await expect(tab).toHaveAttribute('aria-current', 'page');
   await expect(menu.getByRole('link', { name: 'Гости', exact: true, includeHidden: true })).toHaveCount(0);
   await expect(menu.getByRole('link', { name: 'Брони', exact: true, includeHidden: true })).toHaveCount(0);

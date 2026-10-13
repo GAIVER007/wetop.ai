@@ -12,13 +12,14 @@ const report = 'reports/reports-2-0-rpt2-1-2026-10-09/shell';
 test('вкладки раздела и переходы между ними', async ({ page }) => {
   await page.goto('/reports/overview');
   const tabs = page.getByRole('navigation', { name: 'Отчёты' });
+  // «Все отчёты» первой: на неё ведёт пункт меню, и это хаб всех карточек, а не «Документы» (обход 13.10.2026)
   await expect(tabs.getByRole('link')).toHaveText([
+    'Все отчёты',
     'Обзор',
     'Загрузка',
     'По номерам',
     'Финансы',
     'Каналы',
-    'Документы',
   ]);
   await expect(tabs.getByRole('link', { name: 'Обзор' })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByTestId('pa-kpis')).toBeVisible();
@@ -26,8 +27,9 @@ test('вкладки раздела и переходы между ними', as
   await expect(page).toHaveURL(/\/reports\/occupancy/);
   await tabs.getByRole('link', { name: 'По номерам' }).click();
   await expect(page).toHaveURL(/\/reports\/units/);
-  await tabs.getByRole('link', { name: 'Документы' }).click();
+  await tabs.getByRole('link', { name: 'Все отчёты' }).click();
   await expect(page).toHaveURL(/\/reports$/);
+  await expect(tabs.getByRole('link', { name: 'Все отчёты' })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByTestId('report-finance')).toBeVisible();
 });
 

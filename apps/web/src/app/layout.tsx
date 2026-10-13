@@ -1,7 +1,7 @@
-import { AgentationPreview } from '../components/agentation-preview';
 // CSS первым: globals.css объявляет порядок слоёв каскада (DESIGN.md §20.6), и любой CSS,
 // импортированный компонентом выше, объявил бы свой слой раньше и перевернул порядок (MV8.5 DS0b).
 import './globals.css';
+import { AgentationPreview } from '../components/agentation-preview';
 import './components.css';
 import './workspace.css';
 import './tokens.css';

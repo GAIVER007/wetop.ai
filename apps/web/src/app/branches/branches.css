@@ -1486,7 +1486,7 @@ body:has(.org-reference) .topmenu {
 }
 .org-month {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 4px;
 }
 .org-month form {
@@ -1737,5 +1737,50 @@ body:has(.org-reference) .topmenu {
   .org-cover {
     height: 96px;
     min-height: 96px;
+  }
+}
+
+/* Keep month navigation, input and submit on a single baseline. */
+.org-month input,
+.org-month a,
+.org-month button {
+  height: 40px;
+  min-height: 40px;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+}
+.org-month input {
+  width: 168px;
+  max-width: 168px;
+  padding: 8px 10px;
+}
+.org-month a {
+  width: 40px;
+  padding: 0;
+  flex: none;
+}
+.org-month button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.org-month label {
+  gap: 4px;
+}
+.org-month label > span {
+  font-size: 12px;
+  line-height: 16px;
+}
+.org-heading-controls {
+  align-items: flex-end;
+}
+@media (max-width: 760px) {
+  .org-month input {
+    width: 152px;
+    max-width: 152px;
+  }
+  .org-month button {
+    padding-inline: 8px;
   }
 }

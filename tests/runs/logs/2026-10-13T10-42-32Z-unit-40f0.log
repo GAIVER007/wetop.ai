@@ -1,0 +1,19 @@
+# Модульные (unit) · 13.10.2026 15:42 Алматы · MacBook-Air-Urij.local
+# коммит 6f6ca74 (claude/calendar-phone-toolbar-20261013), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T10-42-32Z-unit-40f0.json' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/design-primitive-owner.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-urijzapojnov-Documents-ChatGPT-WETOP/a8708228-98f1-45e4-a395-95f6ac3385d1/scratchpad/calm-wt
+
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 9ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 13ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 85ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+
+ Test Files  4 passed (4)
+      Tests  42 passed (42)
+   Start at  14:42:35
+   Duration  514ms (import 58%, transform 24%, tests 15%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T10-42-32Z-unit-40f0.json
+
+# код выхода 0 · 3 с

@@ -1,0 +1,56 @@
+# Интеграционные (integration) · 13.10.2026 17:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 25a8873 (claude/booking-rules), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-14-16Z-integration-83bf.json' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 1 failed) 849ms
+   ❯ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     × каждая таблица схемы названа: арендаторская под RLS или осознанно без него 14ms
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 316ms
+     ✓ гость чужой организации не виден своей; без переменной не видно ничего 74ms
+     ✓ записать бронь в объект чужой организации нельзя — отказ базы 87ms
+     ✓ служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 170ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 141ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > каждая таблица схемы названа: арендаторская под RLS или осознанно без него
+AssertionError: expected [ 'accommodation_type_photos', …(110) ] to deeply equal [ 'accommodation_type_photos', …(111) ]
+
+- Expected
++ Received
+
+@@ -38,11 +38,10 @@
+    "employees",
+    "fiscal_receipts",
+    "floors",
+    "folios",
+    "food_booking_rules",
+-   "food_closed_days",
+    "generation_runs",
+    "guest_documents",
+    "guests",
+    "housekeeping_events",
+    "inventory_blocks",
+
+ ❯ tests/integration/rls-isolation.test.ts:117:51
+    115|         WHERE n.nspname = current_schema() AND c.relkind = 'r' AND c.r…
+    116|     );
+    117|     expect(rls.rows.map((r) => r.relname).sort()).toEqual([...RLS_TENA…
+       |                                                   ^
+    118|     const barTables = RLS_TENANT_TABLES.filter((table) => table.starts…
+    119|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  05:14:17
+   Duration  1.83s (tests 64%, transform 28%, import 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-14-16Z-integration-83bf.json
+
+# код выхода 1 · 3 с

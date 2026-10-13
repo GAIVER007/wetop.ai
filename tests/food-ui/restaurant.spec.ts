@@ -579,7 +579,8 @@ test('оценка по QR (§40): ссылка смены, страница г�
   const guest = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const phone = await guest.newPage();
   await phone.goto(`/rate/${second.token}`);
-  const main = phone.locator('main');
+  // getByRole не видит скрытую потоковую копию страницы: у нового контекста нет обёртки goto фикстуры
+  const main = phone.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Как вас обслужили?' })).toBeVisible();
   await expect(main).toContainText(`заказ № ${a.number}`);
   await expect(main).toContainText('Иванова Анна');
@@ -617,7 +618,9 @@ test('оценка по QR (§40): ссылка смены, страница г�
 
   // лимит по адресу посетителя: 120 в час, дальше 429 (свой адрес, чтобы не задеть соседние шаги)
   const statuses: number[] = [];
-  for (let i = 0; i < 121; i++) statuses.push((await publicGet('y'.repeat(43), '203.0.113.9')).status());
+  // окно лимита живёт в памяти API час: свой адрес на прогон, иначе повтор теста упрётся в счётчик прошлого
+  const visitor = `198.51.100.${(Date.now() % 250) + 1}`;
+  for (let i = 0; i < 121; i++) statuses.push((await publicGet('y'.repeat(43), visitor)).status());
   expect(statuses.slice(0, 120).every((s) => s === 404)).toBe(true);
   expect(statuses[120]).toBe(429);
 });

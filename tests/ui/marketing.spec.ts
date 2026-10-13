@@ -37,10 +37,12 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await expect(menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ })).toBeFocused();
   // МКТ-В1/В2: в группе три пункта, поэтому → уводит фокус в подразделы, как у остальных групп меню
   await page.keyboard.press('ArrowRight');
+  const item = menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ });
   const items = menu.locator('.sidenav__items');
-  const item = items.getByRole('link', { name: 'Сайт и SEO', exact: true });
-  await expect(item).toBeFocused();
-  await expect(item).toHaveAttribute('href', '/marketing');
+  const siteLink = items.getByRole('link', { name: 'Сайт и SEO', exact: true });
+  await expect(item).toHaveAttribute('aria-expanded', 'true');
+  await expect(siteLink).toBeFocused();
+  await expect(siteLink).toHaveAttribute('href', '/marketing');
   await expect(items.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
@@ -53,11 +55,11 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await page.keyboard.press('Escape');
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   await expect(trigger).toBeFocused();
-  // снова: ↓ открывает, к «Маркетингу», → в первый подраздел, Enter переходит
+  // Группа открывает подраздел с клавиатуры.
   await page.keyboard.press('ArrowDown');
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');
-  await expect(item).toBeFocused();
+  await expect(siteLink).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/marketing$/);
   await expect(trigger).toHaveText('Маркетинг');

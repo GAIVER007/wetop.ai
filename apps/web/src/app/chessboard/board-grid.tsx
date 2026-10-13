@@ -160,7 +160,6 @@ export function ChessboardGrid({
   actions,
   kpis,
   help,
-  summary,
 }: {
   board: Chessboard;
   today: string;
@@ -175,7 +174,6 @@ export function ChessboardGrid({
   kpis?: ReactNode;
   /** Текст «Как работать с календарём»: раскрывашка внизу окошка «Фильтры» (в полосе значка «?» нет) */
   help?: ReactNode;
-  summary?: ReactNode;
 }) {
   const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
@@ -1113,7 +1111,7 @@ export function ChessboardGrid({
       )}
       <div
         className="board-stage"
-        data-docked={docked && (preview || summary) ? 'true' : undefined}
+        data-docked={docked && preview ? 'true' : undefined}
       >
         <div
           ref={wrapRef}
@@ -1344,9 +1342,6 @@ export function ChessboardGrid({
             </tbody>
           </table>
         </div>
-        {docked && !preview && summary && (
-          <aside className="stay-panel calendar-day-summary">{summary}</aside>
-        )}
         {docked && preview && (
           <StayPreview
             key={`${preview.number}:${preview.itemId}`}

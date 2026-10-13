@@ -1,4 +1,4 @@
-import type { TableLayout } from '@pms/domain';
+import type { BookingRules, TableLayout } from '@pms/domain';
 import { getJsonPublic, sendJson } from './api';
 import type {
   FoodShiftRow,
@@ -53,6 +53,15 @@ export const foodApi = {
   createArea: (body: AreaInput) => sendJson<DiningArea>('POST', `${base}/areas`, body),
   updateArea: (id: string, body: Partial<AreaInput>) =>
     sendJson<DiningArea>('PATCH', idPath('areas', id), body),
+  /** Правила брони столов (§43): настройки и будущие закрытые дни */
+  bookingRules: () =>
+    getJsonPublic<{ rules: BookingRules; closedDays: Array<{ id: string; day: string; reason: string | null }> }>(
+      `${base}/booking-rules`,
+    ),
+  setBookingRules: (rules: BookingRules) => sendJson<BookingRules>('PUT', `${base}/booking-rules`, rules),
+  addClosedDay: (body: { day: string; reason: string | null }) =>
+    sendJson<{ id: string }>('POST', `${base}/closed-days`, body),
+  removeClosedDay: (id: string) => sendJson<{ ok: true }>('DELETE', idPath('closed-days', id), {}),
   /** Схема зала (§42): расстановка зоны целиком */
   setLayout: (areaId: string, tables: TableLayout[]) =>
     sendJson<{ tables: TableLayout[] }>('PUT', `${idPath('areas', areaId)}/layout`, { tables }),

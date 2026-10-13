@@ -76,12 +76,12 @@ describe('business card database persistence and tenant isolation', () => {
   });
 
   it('persists metadata, rolls back an audit failure, and rejects stale versions', async () => {
-    const before = await owner(() => db.business.findUniqueOrThrow({ where: { id: businessA } }));
+    const [beforeCard] = await owner(() => service.list([businessA]));
     const saved = await owner(() =>
       service.save(businessA, {
         name: 'Новое название',
         description: 'Сохранённое описание',
-        expectedUpdatedAt: before.updatedAt.toISOString(),
+        expectedUpdatedAt: beforeCard!.updatedAt,
         removeCover: '0',
       }),
     );
@@ -126,7 +126,7 @@ describe('business card database persistence and tenant isolation', () => {
         service.save(businessA, {
           name: 'Устаревшая версия',
           description: '',
-          expectedUpdatedAt: before.updatedAt.toISOString(),
+          expectedUpdatedAt: beforeCard!.updatedAt,
           removeCover: '0',
         }),
       ),
@@ -182,7 +182,7 @@ describe('business card database persistence and tenant isolation', () => {
         businessA,
         {
           name: row.name,
-          description: row.description,
+          description: row.description ?? '',
           expectedUpdatedAt: cardBefore!.updatedAt,
           removeCover: '0',
         },

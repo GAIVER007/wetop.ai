@@ -38,6 +38,19 @@ export class FoodCatalogController {
   @Post('areas') @Access('property') createArea(@Body() b: unknown) {
     return this.service.createCatalog('area', b);
   }
+  // Правила брони столов (§43, ADR-177): смотрят все роли стойки, меняет право «объект»
+  @Get('booking-rules') bookingSettings() {
+    return this.service.bookingSettings();
+  }
+  @Put('booking-rules') @Access('property') setBookingRules(@Body() b: unknown) {
+    return this.service.setBookingRules(b);
+  }
+  @Post('closed-days') @Access('property') addClosedDay(@Body() b: unknown) {
+    return this.service.addClosedDay(b);
+  }
+  @Delete('closed-days/:id') @Access('property') removeClosedDay(@Param('id') id: string) {
+    return this.service.removeClosedDay(id);
+  }
   // Схема зала (§42, ADR-174): расстановка зоны целиком
   @Put('areas/:id/layout') @Access('property') layout(@Param('id') id: string, @Body() b: unknown) {
     return this.service.setLayout(id, b);

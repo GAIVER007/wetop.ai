@@ -84,7 +84,23 @@ export function allocateStock(
   return { allocations, cost: allocations.reduce((sum, a) => sum + a.cost, 0n) };
 }
 
-/** Инвентаризация: недостача списывается, излишек не приходуется до Q-KITCHEN-9 */
+/** Инвентаризация: недостача списывается, излишек приходуется (Q-KITCHEN-9, ADR-175) */
+/**
+ * Цена единицы излишка (Q-KITCHEN-9, ADR-175): средняя по остатку партий, взвешенная количеством, не меньше 1.
+ * Остатка нет: `null`, цену называет человек.
+ */
+export function surplusUnitCost(lots: ReadonlyArray<{ remaining: bigint; unitCost: bigint }>): bigint | null {
+  let qty = 0n,
+    sum = 0n;
+  for (const l of lots) {
+    qty += l.remaining;
+    sum += l.remaining * l.unitCost;
+  }
+  if (qty <= 0n) return null;
+  const avg = (sum + qty / 2n) / qty;
+  return avg > 0n ? avg : 1n;
+}
+
 export function inventoryDelta(
   onHand: bigint,
   actual: bigint,
@@ -100,7 +116,7 @@ function stockUnit(v: unknown): IngredientUnit {
     throw new Error('Единица: г, мл или шт');
   return v as IngredientUnit;
 }
-function stockDate(v: unknown): string {
+export function stockDate(v: unknown): string {
   const d = foodText(v, 10);
   if (
     !/^\d{4}-\d{2}-\d{2}$/.test(d) ||
@@ -182,12 +198,15 @@ export interface InventoryInput {
   productId: string;
   actualQty: bigint;
   reason: string | null;
+  unitCost: bigint | null;
 }
 export function parseInventory(raw: unknown): InventoryInput {
-  const b = foodObject(raw, ['productId', 'actualQty', 'reason']);
+  const b = foodObject(raw, ['productId', 'actualQty', 'reason', 'unitCost']);
   return {
     productId: foodId(b.productId),
     actualQty: stockQty(b.actualQty, true),
     reason: b.reason == null || b.reason === '' ? null : foodText(b.reason, 500),
+    // цена излишка вручную, когда остатка нет (Q-KITCHEN-9); в тех же единицах, что у прихода
+    unitCost: b.unitCost == null ? null : stockPrice(b.unitCost),
   };
 }

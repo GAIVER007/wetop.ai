@@ -280,6 +280,95 @@ test('overlap and archived catalog preserve creation draft and idempotency key',
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Клиенты появятся после первого бронирования');
 });
+test('правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется', async ({
+  page,
+  request,
+}) => {
+  const { headers, table, period } = await seed(page, request);
+  const res = (startsAt: string, partySize = 2, tableId: string | null = table.id) =>
+    request.post(`${api}/food-service/reservations`, {
+      headers: { ...headers, 'Idempotency-Key': crypto.randomUUID() },
+      data: { servicePeriodId: period.id, startsAt, partySize, source: 'DESK', tableId, customer: { firstName: 'Правила' } },
+    });
+  // ближайший понедельник через неделю-две и понедельник через 60+ дней: период «Ужин» только по понедельникам
+  const monday = (minDays: number) => {
+    const d = new Date(Date.now() + minDays * 86_400_000);
+    while (d.getUTCDay() !== 1) d.setUTCDate(d.getUTCDate() + 1);
+    return d.toISOString().slice(0, 10);
+  };
+  const near = monday(7),
+    far = monday(60);
+  const before = await (await request.get(`${api}/food-service/booking-rules`, { headers })).json();
+  expect(before).toEqual({ rules: { bufferMinutes: 0, horizonDays: null, maxPartySize: null }, closedDays: [] });
+  const first = await (await res(`${date}T19:00:00+05:00`)).json();
+  // до правил: следующая посадка встык к 21:00 принимается
+  expect((await res(`${date}T21:00:00+05:00`, 2, null)).ok()).toBe(true);
+  const put = await request.put(`${api}/food-service/booking-rules`, {
+    headers,
+    data: { bufferMinutes: 30, horizonDays: 30, maxPartySize: 6 },
+  });
+  expect(put.ok()).toBe(true);
+  const refused = async (r: Promise<import('@playwright/test').APIResponse>, text: string) => {
+    const response = await r;
+    expect(response.status()).toBe(409);
+    expect((await response.json()).message).toContain(text);
+  };
+  await refused(res(`${date}T21:00:00+05:00`), 'занят');
+  await refused(res(`${near}T19:00:00+05:00`, 7), 'не больше 6 гостей');
+  await refused(res(`${far}T19:00:00+05:00`), 'не дальше чем на 30 дней');
+  const closed = await (
+    await request.post(`${api}/food-service/closed-days`, { headers, data: { day: near, reason: 'Санитарный день' } })
+  ).json();
+  await refused(res(`${near}T19:00:00+05:00`, 2, null), 'не принимает брони');
+  expect(
+    (await request.post(`${api}/food-service/closed-days`, { headers, data: { day: near } })).status(),
+  ).toBe(409);
+  expect((await request.delete(`${api}/food-service/closed-days/${closed.id}`, { headers })).ok()).toBe(true);
+  expect((await res(`${near}T19:00:00+05:00`, 2, null)).ok()).toBe(true);
+  // правило ужесточили: заметку старой брони менять можно, число гостей поднять нельзя
+  await request.put(`${api}/food-service/booking-rules`, {
+    headers,
+    data: { bufferMinutes: 30, horizonDays: 30, maxPartySize: 1 },
+  });
+  const token = { expectedStatus: first.status, expectedUpdatedAt: first.updatedAt };
+  const notes = await request.patch(`${api}/food-service/reservations/${first.id}`, {
+    headers,
+    data: { ...token, notes: 'У окна' },
+  });
+  expect(notes.ok()).toBe(true);
+  const updated = await notes.json();
+  await refused(
+    request.patch(`${api}/food-service/reservations/${first.id}`, {
+      headers,
+      data: { expectedStatus: updated.status, expectedUpdatedAt: updated.updatedAt, partySize: 3 },
+    }),
+    'не больше 1 гостя',
+  );
+});
+
+test('правила брони: экран настроек сохраняет правила, закрывает и открывает день', async ({ page, request }) => {
+  const { headers } = await seed(page, request);
+  await page.goto('/restaurant-settings?section=bookings');
+  const rules = page.getByTestId('booking-rules');
+  await rules.getByLabel('Перерыв между посадками за одним столом').selectOption('30');
+  await rules.getByLabel('Гостей в одной брони не больше').fill('6');
+  await rules.getByRole('button', { name: 'Сохранить правила' }).click();
+  await expect(rules.getByRole('status')).toContainText('Правила сохранены');
+  const api_ = async () => (await request.get(`${api}/food-service/booking-rules`, { headers })).json();
+  expect((await api_()).rules).toEqual({ bufferMinutes: 30, horizonDays: null, maxPartySize: 6 });
+  const day = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
+  await rules.getByLabel('Закрыть день').fill(day);
+  await rules.getByLabel('Причина').fill('Банкет');
+  await rules.getByRole('button', { name: 'Закрыть день', exact: true }).click();
+  const shown = day.split('-').reverse().join('.');
+  await expect(rules.getByRole('listitem')).toContainText([`${shown}Банкет`]);
+  const axe = await new AxeBuilder({ page }).include('[data-testid="booking-rules"]').analyze();
+  expect(axe.violations).toEqual([]);
+  await rules.getByRole('button', { name: `Открыть день ${shown}` }).click();
+  await expect(rules).toContainText('Закрытых дней впереди нет');
+  expect((await api_()).closedDays).toEqual([]);
+});
+
 test('stale token refreshes drawer without automatic mutation retry', async ({ page, request }) => {
   const { headers } = await seed(page, request);
   const d = await create(page);

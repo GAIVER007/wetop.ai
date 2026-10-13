@@ -32,7 +32,7 @@ export function ArchivedBranches({ items }: { items: ArchivedBranch[] | null }) 
                   <strong>{item.name}</strong>
                   <small>
                     {item.businessName}
-                    {item.address ? ` · ${item.address}` : ''}
+                    {item.address ? `, ${item.address}` : ''}
                   </small>
                 </div>
                 <BranchArchiveButton id={item.id} name={item.name} restore />

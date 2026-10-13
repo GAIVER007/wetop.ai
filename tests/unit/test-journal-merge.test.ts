@@ -2,7 +2,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, describe, expect, it } from 'vitest';
 import { ROOT } from '../tools/git-state';
 import {
   JOURNAL_FILE,
@@ -91,26 +91,42 @@ describe('журнал прогонов: две ветки сливаются б
 });
 
 describe('журнал из записей: test:status видит то же, что видел по общему файлу', () => {
-  it('нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты', () => {
-    const archive = readFileSync(resolve(ROOT, JOURNAL_FILE), 'utf8');
-    const before = parseJournal(archive);
-    expect(before.length).toBeGreaterThan(100);
-    // копии одного прогона (след `merge=union`) читаются один раз
-    expect(new Set(before.map((r) => r.id)).size).toBe(before.length);
+  describe('весь нынешний архив, ограниченные порции файлового ввода-вывода', () => {
+    const before = parseJournal(readFileSync(resolve(ROOT, JOURNAL_FILE), 'utf8'));
+    const batchSize = 200;
+    const batches = Array.from({ length: Math.ceil(before.length / batchSize) }, (_, index) => ({
+      index,
+      records: before.slice(index * batchSize, (index + 1) * batchSize),
+    }));
+    const restored = new Map<number, RunRecord[]>();
 
-    const repo = mkdtempSync(join(tmpdir(), 'journal-entries-'));
-    dirs.push(repo);
-    for (const r of before) writeRunRecord(repo, r);
-    const after = parseJournal(readJournalText(repo));
-    expect(after).toEqual(before);
+    it('архив содержит историю без повторов id', () => {
+      expect(before.length).toBeGreaterThan(100);
+      expect(new Set(before.map((r) => r.id)).size).toBe(before.length);
+    });
 
-    const now = new Date(before.at(-1)!.startedAt);
-    for (const suite of Object.values(SUITES)) {
-      const fingerprint = [...before].reverse().find((r) => r.suite === suite.name)?.fingerprint ?? 'none';
-      expect(assess(suite, after, { fingerprint, now }), suite.name).toEqual(
-        assess(suite, before, { fingerprint, now }),
-      );
-    }
+    // Все записи проверяются, но рост архива не увеличивает I/O одного теста сверх его 5 секунд.
+    it.each(batches)('порция $index сохраняет каждую запись', ({ index, records }) => {
+      const repo = mkdtempSync(join(tmpdir(), 'journal-entries-'));
+      dirs.push(repo);
+      for (const r of records) writeRunRecord(repo, r);
+      const after = parseJournal(readJournalText(repo));
+      expect(after).toEqual(records);
+      restored.set(index, after);
+    });
+
+    afterAll(() => {
+      expect(restored.size).toBe(batches.length);
+      const after = batches.flatMap(({ index }) => restored.get(index) ?? []);
+      expect(after).toEqual(before);
+      const now = new Date(before.at(-1)!.startedAt);
+      for (const suite of Object.values(SUITES)) {
+        const fingerprint = [...before].reverse().find((r) => r.suite === suite.name)?.fingerprint ?? 'none';
+        expect(assess(suite, after, { fingerprint, now }), suite.name).toEqual(
+          assess(suite, before, { fingerprint, now }),
+        );
+      }
+    });
   });
 
   it('архив и записи вместе: старое из архива, новое из записи, порядок по времени', () => {

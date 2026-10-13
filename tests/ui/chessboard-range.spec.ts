@@ -29,7 +29,9 @@ async function openWeek(page: Page, request: APIRequestContext): Promise<string>
   };
   const from = add(stay.arrivalDate, -1);
   await page.goto(`/chessboard?from=${from}&to=${add(from, 6)}`);
-  await expect(page.locator('.board-stage')).toHaveAttribute('data-docked', 'true');
+  // UI3.1: постоянной боковой сводки нет, ширина сетки после гидратации не меняется; ждём оживления строк
+  await expect(page.locator('.board-stage')).not.toHaveAttribute('data-docked', 'true');
+  await hydrated(page.getByTestId('unit-row').first());
   return stay.arrivalDate;
 }
 

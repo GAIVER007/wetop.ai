@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 13.10.2026 11:25 Алматы · MacBook-Air-Urij.local
+# коммит 9ceea9e (claude/ui42-onto-main-20261013), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/chessboard-extend.spec.ts' 'tests/ui/chessboard-range.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-extend.spec.ts:27:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (3.3s)
+  ✓  2 tests/ui/chessboard-extend.spec.ts:46:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (6.3s)
+  ✓  3 tests/ui/chessboard-extend.spec.ts:85:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (3.4s)
+  ✓  4 tests/ui/chessboard-extend.spec.ts:118:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (3.6s)
+  ✓  5 tests/ui/chessboard-range.spec.ts:58:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (4.0s)
+  ✓  6 tests/ui/chessboard-range.spec.ts:92:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево (4.8s)
+  ✓  7 tests/ui/chessboard-range.spec.ts:134:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом (3.6s)
+  ✓  8 tests/ui/chessboard-range.spec.ts:157:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает (4.1s)
+
+  8 passed (42.0s)
+
+# код выхода 0 · 43 с

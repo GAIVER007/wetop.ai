@@ -15,8 +15,9 @@ async function openAroundCheckout(page: Page, request: APIRequestContext, reserv
   const from = new Date(`${stay.departureDate}T12:00:00Z`);
   from.setUTCDate(from.getUTCDate() - 7);
   await page.goto(`/chessboard?from=${from.toISOString().slice(0, 10)}`);
-  // Боковая сводка появляется при гидратации и меняет ширину сетки.
-  await expect(page.locator('.board-stage')).toHaveAttribute('data-docked', 'true');
+  // UI3.1: постоянной боковой сводки нет, ширина сетки после гидратации не меняется; ждём оживления строк
+  await expect(page.locator('.board-stage')).not.toHaveAttribute('data-docked', 'true');
+  await hydrated(page.getByTestId('unit-row').first());
 }
 
 test.beforeEach(async ({ request }) => {

@@ -1,8 +1,6 @@
 'use client';
 import { Agentation } from 'agentation';
-import { usePathname } from 'next/navigation';
-/** Manual annotations in an explicitly synthetic development preview. */
+/** Manual annotations in local development only. */
 export function AgentationPreview({ enabled }: { enabled: boolean }) {
-  const path = usePathname();
-  return enabled && path === '/branches' ? <Agentation /> : null;
+  return enabled ? <Agentation /> : null;
 }

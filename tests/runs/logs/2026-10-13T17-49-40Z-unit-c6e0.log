@@ -1,0 +1,26 @@
+# Модульные (unit) · 13.10.2026 22:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 802ebc1 (codex/organizations-card-editor), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T17-49-40Z-unit-c6e0.json' 'tests/unit/design-slop.test.ts' 'tests/unit/organization-migration-order.test.ts' 'tests/unit/guard-run.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 3ms
+ ✓ |unit| tests/unit/organization-migration-order.test.ts (1 test) 2ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 5644ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1849ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 851ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 898ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 637ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 861ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 529ms
+
+ Test Files  3 passed (3)
+      Tests  27 passed (27)
+   Start at  10:49:41
+   Duration  5.80s (tests 92%, import 6%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T17-49-40Z-unit-c6e0.json
+
+# код выхода 0 · 8 с

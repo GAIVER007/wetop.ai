@@ -80,7 +80,7 @@
     "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx": 4,
     "apps/web/src/app/ai-seller/agents/editor.tsx": 1,
     "apps/web/src/app/beauty/journal.tsx": 6,
-    "apps/web/src/app/branches/workspace.tsx": 2,
+    "apps/web/src/app/branches/workspace.tsx": 1,
     "apps/web/src/app/chessboard/board-grid.tsx": 9,
     "apps/web/src/app/chessboard/stay-resize.tsx": 1,
     "apps/web/src/app/finance/overview.tsx": 2,

@@ -29,6 +29,8 @@ async function openWeek(page: Page, request: APIRequestContext): Promise<string>
   };
   const from = add(stay.arrivalDate, -1);
   await page.goto(`/chessboard?from=${from}&to=${add(from, 6)}`);
+  // Сетка оживлена: с UI3.1 постоянной правой сводки нет (поручение владельца 11.10.2026), и `data-docked`
+  // ставится только у открытой брони, поэтому ждём оживления самой сетки, а не появления сводки.
   await hydrated(page.locator('.board-stage'));
   return stay.arrivalDate;
 }

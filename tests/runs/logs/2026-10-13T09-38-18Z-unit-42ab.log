@@ -1,0 +1,22 @@
+# Модульные (unit) · 13.10.2026 14:38 Алматы · MacBook-Air-Urij.local
+# коммит 66fe9e5 (claude/scope-remember-branch-20261013), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-38-18Z-unit-42ab.json' 'apps/web/src/lib/desk-shell.test.ts' 'apps/web/src/lib/scope-resolve.test.ts' 'apps/web/src/app/scope/resolve/route.test.ts' 'apps/web/src/lib/session.test.ts' 'apps/web/src/lib/scope-pointer.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-urijzapojnov-Documents-ChatGPT-WETOP/a8708228-98f1-45e4-a395-95f6ac3385d1/scratchpad/scope-wt
+
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 3ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (10 tests) 5ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (5 tests) 16ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 419ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 416ms
+
+ Test Files  5 passed (5)
+      Tests  33 passed (33)
+   Start at  13:38:19
+   Duration  603ms (tests 49%, transform 41%, import 8%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-38-18Z-unit-42ab.json
+
+# код выхода 0 · 2 с

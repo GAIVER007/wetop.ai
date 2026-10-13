@@ -1,13 +1,14 @@
 import { getDictionary } from '../../i18n';
-import { DashMock } from './dash-mock';
+import { HeroDash } from './hero-dash';
 import { VerticalChips } from './vertical-chips';
 import { registerLink } from '../../lib/site';
 import { Icon } from '../icon';
 
 /*
  * Первый экран по снимку владельца (LAND2 v2, 09.10.2026): заголовок в три строки, две кнопки,
- * чипы направлений и дашборд-мокап справа (сайдбар, четыре метрики, ближайшие заезды, график недели).
- * Мокап — чистый HTML/CSS с вымышленными данными и подписью примера; интерактива в нём нет (§19.9).
+ * чипы направлений и дашборд-мокап справа (сайдбар, четыре метрики, список дня, график недели).
+ * Мокап (`HeroDash`) с вымышленными данными и подписью примера; над ним переключатель гостиница, салон,
+ * ресторан (13.10.2026), внутри самого мокапа кнопок нет (§19.9).
  */
 const DIRECTION: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
   HOSPITALITY: '/for/hotels/',
@@ -17,6 +18,7 @@ const DIRECTION: Record<'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', string> = {
 
 export function Hero() {
   const t = getDictionary();
+  const { dash } = t.hero;
   return (
     <section id="product" className="public-intro" aria-labelledby="hero-title">
       <div className="public-intro__container">
@@ -51,8 +53,8 @@ export function Hero() {
           <p className="public-intro__note">{t.hero.note}</p>
         </div>
         <figure className="public-intro__figure">
-          <DashMock />
-          <figcaption>{t.hero.dash.label}</figcaption>
+          <HeroDash dash={dash} />
+          <figcaption>{dash.label}</figcaption>
         </figure>
       </div>
     </section>

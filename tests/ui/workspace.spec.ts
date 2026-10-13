@@ -1074,7 +1074,11 @@ test('настройки услуг: путь к начислению назва
 test('общие настройки показывают адрес PMS без дублирования контента Channex', async ({ page }) => {
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
-  await expect(page.getByTestId('stored-property')).toContainText('Тестовый адрес, 1');
+  // «Настройки объекта» по макету владельца (ADR-158): адрес теперь в поле формы, а значение поля в текст блока
+  // не входит, поэтому сверяем само поле
+  await expect(
+    page.getByTestId('stored-property').getByLabel('Адрес', { exact: true }),
+  ).toHaveValue('Тестовый адрес, 1');
   await expect(page.getByText('Адрес в Channex')).toHaveCount(0);
 });
 

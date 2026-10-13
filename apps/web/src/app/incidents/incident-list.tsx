@@ -6,7 +6,7 @@ import { pluralRu } from '../../lib/plural';
 import { Badge, Button, EmptyState, Field, Input, cx, type BadgeTone } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { IncidentButtons } from './buttons';
-import { guardWords, incidentOrder, repeatWords } from './incident-view';
+import { incidentHeadline, guardWords, incidentOrder, repeatWords } from './incident-view';
 
 /**
  * Список открытых неисправностей (правка 21.09.2026 по снимку рабочего экрана: «чтобы каши не было»).
@@ -157,11 +157,17 @@ export function IncidentList({
               data-severity={i.severity}
             >
               <div className="incident__head">
-                <h3 className="incident__title">{i.title}</h3>
+                <h3 className="incident__title">{incidentHeadline(i.title).headline}</h3>
                 <Badge tone={STATUS_TONE[i.status]} data-testid="incident-status">
                   {STATUS_RU[i.status]}
                 </Badge>
               </div>
+              {incidentHeadline(i.title).details && (
+                <details className="incident__details">
+                  <summary>Технические подробности</summary>
+                  <pre>{incidentHeadline(i.title).details}</pre>
+                </details>
+              )}
               <p className="incident__facts">
                 {i.severity === 'CRITICAL' && <span className="incident__urgent">Срочно. </span>}
                 Замечена <time dateTime={i.firstSeenAt}>{clock.when(i.firstSeenAt)}</time>.{' '}

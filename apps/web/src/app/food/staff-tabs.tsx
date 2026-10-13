@@ -1,14 +1,23 @@
-import { Tabs } from '../../components/tabs';
+import Link from 'next/link';
 
-/** «Сотрудники» ресторана двумя вкладками-маршрутами: список и график смен (Q-REST-11) */
-export function StaffTabs({ current }: { current: 'list' | 'shifts' }) {
+/**
+ * Раздел «Сотрудники» ресторана одной полосой вкладок с подчёркиванием, как на макете (экран 11):
+ * список, график смен (Q-REST-11), зарплата и роли с доступами. Вкладки это маршруты.
+ */
+export function StaffTabs({ current }: { current: 'list' | 'shifts' | 'payroll' }) {
+  const items = [
+    { href: '/employees', label: 'Список', id: 'list' },
+    { href: '/employees/shifts', label: 'График смен', id: 'shifts' },
+    { href: '/payroll', label: 'Зарплата', id: 'payroll' },
+    { href: '/staff', label: 'Роли и доступы', id: 'roles' },
+  ];
   return (
-    <Tabs
-      label="Раздел сотрудников"
-      items={[
-        { href: '/employees', label: 'Сотрудники', current: current === 'list' },
-        { href: '/employees/shifts', label: 'График смен', current: current === 'shifts' },
-      ]}
-    />
+    <nav className="rest-utabs rest-staff-tabs" aria-label="Раздел сотрудников">
+      {items.map((i) => (
+        <Link key={i.href} href={i.href} aria-current={current === i.id ? 'page' : undefined}>
+          {i.label}
+        </Link>
+      ))}
+    </nav>
   );
 }

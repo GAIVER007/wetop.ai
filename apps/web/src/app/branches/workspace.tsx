@@ -68,9 +68,6 @@ export async function BranchWorkspace({
               <p>
                 Валюта {item.currency}, часовой пояс {item.timezone}
               </p>
-              <p className="muted" style={{ overflowWrap: 'anywhere' }}>
-                <small>ID филиала: {item.locationId}</small>
-              </p>
               <form action={selectBranch}>
                 <input type="hidden" name="id" value={item.id} />
                 <button className="btn" type="submit">

@@ -66,7 +66,7 @@ export default function HotelLandingPage() {
               </ul>
             </div>
             <figure className="hotel-hero__figure">
-              <DashMock />
+              {t.hero.dash.views[0] ? <DashMock dash={t.hero.dash} view={t.hero.dash.views[0]} /> : null}
               <figcaption>{t.hero.dash.label}</figcaption>
             </figure>
           </section>

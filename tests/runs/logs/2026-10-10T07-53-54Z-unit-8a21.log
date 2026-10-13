@@ -1,0 +1,52 @@
+# Модульные (unit) · 10.10.2026 12:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 34
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-53-54Z-unit-8a21.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/test-journal-merge.test.ts' 'tests/unit/fixture-demo.test.ts' 'packages/domain/src/property/property.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| packages/domain/src/property/property.test.ts (3 tests) 449ms
+   ✓ реквизиты объекта (3)
+     ✓ ИИН/БИН объекта в коде не держим 388ms
+ ✓ |unit| tests/unit/fixture-demo.test.ts (1 test) 1273ms
+   ✓ local demo preview (1)
+     ✓ starts its synthetic API without a database or providers 1272ms
+ ✓ |unit| tests/unit/test-journal-merge.test.ts (3 tests) 5882ms
+   ✓ журнал прогонов: две ветки сливаются без конфликта (1)
+     ✓ у каждой ветки свой прогон от одного предка, merge-tree чистый 606ms
+   ✓ журнал из записей: test:status видит то же, что видел по общему файлу (2)
+     ✓ нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты 5265ms
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 14860ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 2727ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 2628ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 2516ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 2521ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 2406ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 1994ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 26595ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 2727ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1743ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 2937ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2653ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 4029ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 1951ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1036ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 1299ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 1063ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 1276ms
+     ✓ локальные правки в клоне — не затирает их 748ms
+     ✓ историю ветки переписали — не выкладывает поверх 1108ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 1097ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 1109ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1039ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 773ms
+
+ Test Files  5 passed (5)
+      Tests  30 passed (30)
+   Start at  00:53:56
+   Duration  27.12s (tests 94%, transform 5%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T07-53-54Z-unit-8a21.json
+
+# код выхода 0 · 30 с

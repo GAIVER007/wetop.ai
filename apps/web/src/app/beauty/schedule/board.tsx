@@ -200,14 +200,17 @@ export function WeekForm({
   employeeId,
   onSaved,
   week,
+  save = saveBeautyWorkingHours,
 }: {
   employeeId: string;
   onSaved?: () => Promise<void>;
   week: BeautySchedule['week'];
+  /** Действие сохранения недели: салонное по умолчанию, ресторан передаёт своё (Q-REST-11) */
+  save?: typeof saveBeautyWorkingHours;
 }) {
   const [state, action, pending] = useActionState(
     async (prev: Awaited<ReturnType<typeof saveBeautyWorkingHours>> | null, form: FormData) => {
-      const result = await saveBeautyWorkingHours(prev, form);
+      const result = await save(prev, form);
       if (!result.error) await onSaved?.();
       return result;
     },

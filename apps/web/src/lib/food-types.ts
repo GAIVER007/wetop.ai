@@ -315,6 +315,16 @@ export interface FoodEmployee {
   /** §39: рейтинг по оценкам гостей; average null, пока оценок нет */
   rating?: { average: number | null; count: number };
 }
+/** График смен (Q-REST-11): неделя с понедельника, у выходного дня список пуст */
+export interface FoodShiftWeekDay {
+  weekday: number;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+}
+export interface FoodShiftRow {
+  id: string;
+  name: string;
+  week: FoodShiftWeekDay[];
+}
 export type PayModel = 'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT' | 'BONUS_ONLY';
 export interface PayrollRow {
   employeeId: string;

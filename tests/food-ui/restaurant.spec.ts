@@ -262,7 +262,7 @@ test('кухня: колонки KDS и переходы кнопками', asyn
   await expect(cooking.getByRole('listitem')).toHaveText('Паста Карбонара×1');
   await cooking.getByRole('button', { name: 'Готово' }).click();
   const ready = page.getByRole('region', { name: 'Готово' });
-  await ready.getByRole('button', { name: 'Подать' }).click();
+  await ready.getByRole('button', { name: 'Отметить как выдано' }).click();
   await expect(newCol.getByText('Пусто')).toBeVisible();
   await expect(page.getByRole('region', { name: 'Задерживаются' })).toContainText('Кухня успевает');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
@@ -500,6 +500,7 @@ test('отчёт за период: выручка, средний чек, оп�
   expect(res.ok()).toBe(true);
   const r = await res.json();
   expect(r.ordersCount).toBe(2);
+  expect(r.guestsCount).toBe(4);
   expect(r.revenueMinor).toBe('266000');
   expect(r.averageCheckMinor).toBe('133000');
   expect(r.payments).toEqual([

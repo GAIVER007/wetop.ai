@@ -33,26 +33,15 @@ export function FoodPeriodPanel({ report }: { report: FoodPeriodReport }) {
     );
   return (
     <div className="vertical-food" data-testid="food-period">
-      <Stats min={160} aria-label="Деньги за период">
+      <Stats min={180} className="vertical-food__kpis" aria-label="Продажи за период">
         <Stat label="Выручка" value={money(report.revenueMinor)} hint="закрытые заказы" testId="food-period-revenue" />
-        <Stat label="Заказов" value={report.ordersCount} testId="food-period-orders" />
+        <Stat label="Гостей" value={report.guestsCount ?? '—'} testId="food-period-guests" />
         <Stat
           label="Средний чек"
           value={report.averageCheckMinor === null ? '—' : money(report.averageCheckMinor)}
           testId="food-period-check"
         />
-        <Stat
-          label="Себестоимость"
-          value={money(report.costMinor)}
-          hint="списано со склада по заказам"
-          testId="food-period-cost"
-        />
-        <Stat label="Валовая прибыль" value={money(report.grossProfitMinor)} testId="food-period-profit" />
-        <Stat
-          label="Фудкост"
-          value={report.foodCostPct === null ? '—' : `${report.foodCostPct} %`}
-          testId="food-period-foodcost"
-        />
+        <Stat label="Заказов" value={report.ordersCount} testId="food-period-orders" />
       </Stats>
       {(report.revenueByDay || report.categories) && (
         <div className="vertical-food__charts">
@@ -93,6 +82,25 @@ export function FoodPeriodPanel({ report }: { report: FoodPeriodReport }) {
           )}
         </div>
       )}
+      <Panel title="Себестоимость и прибыль">
+        <dl className="vertical-food__facts">
+          <div>
+            <dt>Себестоимость</dt>
+            <dd data-testid="food-period-cost">{money(report.costMinor)}</dd>
+          </div>
+          <div>
+            <dt>Валовая прибыль</dt>
+            <dd data-testid="food-period-profit">{money(report.grossProfitMinor)}</dd>
+          </div>
+          <div>
+            <dt>Фудкост</dt>
+            <dd data-testid="food-period-foodcost">
+              {report.foodCostPct === null ? '—' : `${report.foodCostPct} %`}
+            </dd>
+          </div>
+        </dl>
+        <p className="muted">Себестоимость списана со склада по заказам периода.</p>
+      </Panel>
       <Panel title="Оплаты по способам">
         {table(
           ['Способ', 'Платежей', 'Сумма'],

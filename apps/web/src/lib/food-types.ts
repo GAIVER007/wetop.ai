@@ -417,6 +417,8 @@ export interface FoodPeriodReport {
   to: string;
   currency: string;
   ordersCount: number;
+  /** гости закрытых заказов периода */
+  guestsCount?: number;
   revenueMinor: string;
   averageCheckMinor: string | null;
   payments: Array<{ method: string; amountMinor: string; count: number }>;

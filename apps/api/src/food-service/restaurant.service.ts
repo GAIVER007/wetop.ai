@@ -1276,7 +1276,11 @@ export class RestaurantService {
       closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
     };
     const [orders, payments, items, waiters, closedDays] = await Promise.all([
-      db.restaurantOrder.aggregate({ where: closedWhere, _count: { _all: true }, _sum: { total: true } }),
+      db.restaurantOrder.aggregate({
+        where: closedWhere,
+        _count: { _all: true },
+        _sum: { total: true, guestCount: true },
+      }),
       db.restaurantPayment.groupBy({
         by: ['method'],
         where: { locationId: s.locationId, status: 'COMPLETED', paidAt: { gte: w.fromUtc, lt: w.toUtcExclusive } },
@@ -1366,6 +1370,8 @@ export class RestaurantService {
         qty: milliText(x.milli),
       })),
       ordersCount: count,
+      // гости закрытых заказов периода (макет «Аналитика», плитка «Гостей»)
+      guestsCount: orders._sum.guestCount ?? 0,
       revenueMinor: revenue.toString(),
       averageCheckMinor: count ? ((revenue + BigInt(count) / 2n) / BigInt(count)).toString() : null,
       payments: payments

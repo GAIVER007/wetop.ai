@@ -1,6 +1,6 @@
 /*
  * «Аналитика» (ADR-114, срез AN1). Плитки, графики, источники и таблица — общие классы Главной
- * (`.kpi*`, `.bars*`, `.dash-*`, `.sources` в today/dashboard.css) и вкладки `.settings-tabs`; здесь только
+ * (`.kpi*`, `.bars*`, `.dash-*`, `.sources` в today/dashboard.css) и вкладки `Tabs`; здесь только
  * то, чего у них нет: полоса периода с типом фонда, шесть плиток в ряд, скелетон.
  */
 @layer sections {
@@ -696,11 +696,6 @@
   }
   .analytics-page .page__subtitle {
     font-size: var(--text-xs);
-  }
-  .analytics-page .pa-tabs {
-    background: transparent;
-    border: 0;
-    margin-bottom: 16px;
   }
   .analytics-page .pa-toolbar {
     margin-bottom: 16px;

@@ -427,4 +427,8 @@ export interface FoodPeriodReport {
   grossProfitMinor: string;
   foodCostPct: number | null;
   shortages: Array<{ name: string; unit: string; qty: string }>;
+  /** выручка закрытых заказов по дням периода (пояс филиала), каждый день периода */
+  revenueByDay?: Array<{ date: string; revenueMinor: string; orders: number }>;
+  /** продажи по категориям меню, по убыванию */
+  categories?: Array<{ name: string; revenueMinor: string }>;
 }

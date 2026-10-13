@@ -1,0 +1,100 @@
+# Сквозные (e2e) · 12.10.2026 22:35 Алматы · vm
+# коммит 9b0f383 (claude/sharp-dirac-6s46fw)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/site-editor.spec.ts' 'tests/ui/site-builder-licensed.spec.ts' 'tests/ui/marketing-site.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 48 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (5.6s)
+  ✓   2 tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (3.2s)
+  ✓   3 tests/ui/marketing-site.spec.ts:51:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (6.3s)
+  ✓   4 tests/ui/marketing-site.spec.ts:98:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (2.9s)
+  ✓   5 tests/ui/marketing-site.spec.ts:114:1 › источник брони выбирается явно; архив с вопросом (3.1s)
+  ✓   6 tests/ui/marketing-site.spec.ts:127:3 › страница на компьютере и телефоне, доступность: light (10.7s)
+  ✓   7 tests/ui/marketing-site.spec.ts:127:3 › страница на компьютере и телефоне, доступность: dark (9.3s)
+  ✓   8 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (10.4s)
+  ✓   9 tests/ui/marketing.spec.ts:63:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (11.3s)
+  ✓  10 tests/ui/marketing.spec.ts:83:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (3.5s)
+  ✓  11 tests/ui/marketing.spec.ts:160:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (9.3s)
+  ✓  12 tests/ui/marketing.spec.ts:218:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (16.2s)
+  ✓  13 tests/ui/marketing.spec.ts:240:3 › хаб на компьютере и телефоне, доступность: light (21.4s)
+  ✓  14 tests/ui/marketing.spec.ts:240:3 › хаб на компьютере и телефоне, доступность: dark (23.1s)
+  ✘  15 tests/ui/marketing.spec.ts:295:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (26.9s)
+  ✓  16 tests/ui/site-builder-licensed.spec.ts:29:1 › лицензии нет: всё видно, правка, ИИ, «Текст» и сохранение закрыты; полоса проекта говорит почему (6.4s)
+  ✓  17 tests/ui/site-builder-licensed.spec.ts:49:1 › срок лицензии вышел: та же закрытая правка, слова «Срок лицензии вышел»; первый экран без лицензии (3.6s)
+  ✓  18 tests/ui/site-builder-licensed.spec.ts:62:1 › режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление (7.7s)
+  ✓  19 tests/ui/site-builder-licensed.spec.ts:78:1 › режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз (17.2s)
+  ✓  20 tests/ui/site-builder-licensed.spec.ts:106:1 › варианты оформления на первом экране: три карточки с выбором, сайт создаётся с выбранным оформлением (11.4s)
+  ✓  21 tests/ui/site-builder-licensed.spec.ts:128:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ (5.6s)
+  ✓  22 tests/ui/site-builder-licensed.spec.ts:160:1 › закладки: звёздочка с подписью, закреплённый список сверху, снять закладку (5.7s)
+  ✓  23 tests/ui/site-builder-licensed.spec.ts:176:1 › знания проекта: сохраняются отдельно от черновика и переживают обновление (4.7s)
+  ✓  24 tests/ui/site-builder-licensed.spec.ts:197:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала (15.9s)
+  ✓  25 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: light (26.9s)
+  ✓  26 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: dark (27.3s)
+  ✓  27 tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами (5.1s)
+  ✓  28 tests/ui/site-editor.spec.ts:90:1 › просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит (3.3s)
+  ✓  29 tests/ui/site-editor.spec.ts:108:1 › открыть в новой вкладке: с несохранёнными правками просит сохранить, без них открывает ссылку (3.1s)
+  ✓  30 tests/ui/site-editor.spec.ts:123:1 › восстановить старую версию как новый черновик (4.1s)
+  ✓  31 tests/ui/site-editor.spec.ts:136:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (3.9s)
+  ✓  32 tests/ui/site-editor.spec.ts:154:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (3.7s)
+  ✓  33 tests/ui/site-editor.spec.ts:172:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (3.7s)
+  ✓  34 tests/ui/site-editor.spec.ts:191:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (4.1s)
+  ✓  35 tests/ui/site-editor.spec.ts:209:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (2.5s)
+  ✓  36 tests/ui/site-editor.spec.ts:219:1 › добавить секцию, переставить и сделать копию с клавиатуры (3.5s)
+  ✓  37 tests/ui/site-editor.spec.ts:241:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (3.3s)
+  ✓  38 tests/ui/site-editor.spec.ts:254:1 › ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было (9.0s)
+  ✓  39 tests/ui/site-editor.spec.ts:280:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна (6.7s)
+  ✓  40 tests/ui/site-editor.spec.ts:298:1 › ИИ с несохранёнными правками: «Сохранить и отправить» сохраняет версию, ошибка ИИ словами, «Повторить запрос» (7.3s)
+  ✓  41 tests/ui/site-editor.spec.ts:315:1 › первый экран MKT9.2: «Сайт для …», без названия, адреса и примеров; факты филиала; сайт создаётся и открывается редактор (5.9s)
+  ✓  42 tests/ui/site-editor.spec.ts:336:1 › первый экран: сайт есть без версий; ошибка ИИ словами, текст на месте (5.3s)
+  ✓  43 tests/ui/site-editor.spec.ts:349:3 › окно «Создать сайт»: снимки и доступность, light (6.1s)
+  ✓  44 tests/ui/site-editor.spec.ts:349:3 › окно «Создать сайт»: снимки и доступность, dark (6.0s)
+  ✓  45 tests/ui/site-editor.spec.ts:369:3 › редактор на компьютере, доступность и снимки: light (19.4s)
+  ✓  46 tests/ui/site-editor.spec.ts:424:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light (8.2s)
+  ✓  47 tests/ui/site-editor.spec.ts:369:3 › редактор на компьютере, доступность и снимки: dark (8.1s)
+  ✓  48 tests/ui/site-editor.spec.ts:424:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark (8.7s)
+
+
+  1) tests/ui/marketing.spec.ts:295:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  "http://127.0.0.1:3100/marketing"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/marketing"
+
+
+      315 |   await page.waitForURL('**/today');
+      316 |   await page.goto('/marketing');
+    > 317 |   await expect(page).toHaveURL(/\/today$/);
+          |                      ^
+      318 |   await expect(page.getByTestId('beauty-today')).toBeVisible();
+      319 | });
+      320 |
+        at /home/user/wetop.ai/tests/ui/marketing.spec.ts:317:22
+
+    Error Context: test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-хаб-«Маркет-51156--уводится-на-свой-«Сегодня»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/marketing.spec.ts:295:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» 
+  47 passed (8.1m)
+
+# код выхода 1 · 8 мин 10 с

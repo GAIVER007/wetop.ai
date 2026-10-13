@@ -26,6 +26,7 @@ import type { DeskShell } from '../lib/desk-person';
 import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
+import { isPublicEntryPath } from '../lib/public-entry';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
@@ -39,13 +40,6 @@ export const viewport = {
   initialScale: 1,
   viewportFit: 'cover' as const,
 };
-
-/** Public entry screens must never start authenticated hotel requests from the workspace shell. */
-function isPublicEntryPath(path: string): boolean {
-  return ['/create', '/login', '/register', '/invite', '/auth/fallback', '/status'].some(
-    (entry) => path === entry || path.startsWith(`${entry}/`),
-  );
-}
 
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
   const shell = await deskShell();

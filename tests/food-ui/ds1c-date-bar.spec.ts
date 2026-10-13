@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 /**
  * MV8.5 DS1c: день плана зала на общем `DateBar`: переход сразу, по тем же адресам `?date=` (время

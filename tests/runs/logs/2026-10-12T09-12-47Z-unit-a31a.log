@@ -1,0 +1,24 @@
+# Модульные (unit) · 12.10.2026 14:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит e45b8b3 (claude/ui-master-final-20261011)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-12-47Z-unit-a31a.json' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 5073ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 972ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 950ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 942ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 662ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 949ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 587ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  02:12:47
+   Duration  5.16s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-12-47Z-unit-a31a.json
+
+# код выхода 0 · 6 с

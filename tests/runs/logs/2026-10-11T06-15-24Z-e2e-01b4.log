@@ -1,0 +1,212 @@
+# Сквозные (e2e) · 11.10.2026 11:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 397664d (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/stock.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (6.5s)
+  ✘  2 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (185ms)
+  ✘  3 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9 (95ms)
+  ✘  4 tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет (102ms)
+  ✘  5 tests/food-ui/stock.spec.ts:136:1 › роли: администратор работает со складом, но не правит справочник; только чтение (91ms)
+  ✘  6 tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 (162ms)
+
+
+  1) tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Склад', level: 1 })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Склад', level: 1 }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Склад', level: 1 })
+
+
+      50 |   await reset(page, request);
+      51 |   await page.goto('/stock');
+    > 52 |   await expect(page.getByRole('heading', { level: 1, name: 'Склад' })).toBeVisible();
+         |                                                                        ^
+      53 |   await expect(page.getByText('Добавьте первый ингредиент')).toBeVisible();
+      54 |   await page.getByRole('button', { name: '+ Ингредиент', exact: true }).click();
+      55 |   const dialog = page.getByRole('dialog');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:52:72
+
+    Error Context: test-results/stock-пустой-склад-ингреди-85fb9--экрана-остаток-и-стоимость/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-пустой-склад-ингреди-85fb9--экрана-остаток-и-стоимость/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-пустой-склад-ингреди-85fb9--экрана-остаток-и-стоимость/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя ──
+
+    Error: /food-service/stock/products: 404
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      18 | async function post(request: APIRequestContext, headers: Record<string, string>, path: string, data: unknown) {
+      19 |   const res = await request.post(`${api}${path}`, { headers, data });
+    > 20 |   expect(res.ok(), `${path}: ${res.status()}`).toBe(true);
+         |                                                ^
+      21 |   return res.json();
+      22 | }
+      23 | async function settled(page: Page) {
+        at post (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:20:48)
+        at seedBeef (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:35:16)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:78:3
+
+    Error Context: test-results/stock-списание-по-FIFO-сна-dcb36-няя-партия-ниже-нуля-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-списание-по-FIFO-сна-dcb36-няя-партия-ниже-нуля-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-списание-по-FIFO-сна-dcb36-няя-партия-ниже-нуля-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9 
+
+    Error: /food-service/stock/products: 404
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      18 | async function post(request: APIRequestContext, headers: Record<string, string>, path: string, data: unknown) {
+      19 |   const res = await request.post(`${api}${path}`, { headers, data });
+    > 20 |   expect(res.ok(), `${path}: ${res.status()}`).toBe(true);
+         |                                                ^
+      21 |   return res.json();
+      22 | }
+      23 | async function settled(page: Page) {
+        at post (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:20:48)
+        at seedBeef (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:35:16)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:106:3
+
+    Error Context: test-results/stock-инвентаризация-недос-b261c-онён-до-решения-Q-KITCHEN-9/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-инвентаризация-недос-b261c-онён-до-решения-Q-KITCHEN-9/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-инвентаризация-недос-b261c-онён-до-решения-Q-KITCHEN-9/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет ───────
+
+    Error: /food-service/stock/products: 404
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      18 | async function post(request: APIRequestContext, headers: Record<string, string>, path: string, data: unknown) {
+      19 |   const res = await request.post(`${api}${path}`, { headers, data });
+    > 20 |   expect(res.ok(), `${path}: ${res.status()}`).toBe(true);
+         |                                                ^
+      21 |   return res.json();
+      22 | }
+      23 | async function settled(page: Page) {
+        at post (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:20:48)
+        at seedBeef (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:35:16)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:124:16
+
+    Error Context: test-results/stock-сторно-нетронутая-партия-сторнируется-начатая-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-сторно-нетронутая-партия-сторнируется-начатая-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-сторно-нетронутая-партия-сторнируется-начатая-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/food-ui/stock.spec.ts:136:1 › роли: администратор работает со складом, но не правит справочник; только чтение 
+
+    Error: /food-service/stock/products: 404
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      18 | async function post(request: APIRequestContext, headers: Record<string, string>, path: string, data: unknown) {
+      19 |   const res = await request.post(`${api}${path}`, { headers, data });
+    > 20 |   expect(res.ok(), `${path}: ${res.status()}`).toBe(true);
+         |                                                ^
+      21 |   return res.json();
+      22 | }
+      23 | async function settled(page: Page) {
+        at post (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:20:48)
+        at seedBeef (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:35:16)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:138:16
+
+    Error Context: test-results/stock-роли-администратор-р-5f8dd-ит-справочник-только-чтение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-роли-администратор-р-5f8dd-ит-справочник-только-чтение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-роли-администратор-р-5f8dd-ит-справочник-только-чтение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 ───────────────────
+
+    Error: /food-service/stock/products: 404
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      18 | async function post(request: APIRequestContext, headers: Record<string, string>, path: string, data: unknown) {
+      19 |   const res = await request.post(`${api}${path}`, { headers, data });
+    > 20 |   expect(res.ok(), `${path}: ${res.status()}`).toBe(true);
+         |                                                ^
+      21 |   return res.json();
+      22 | }
+      23 | async function settled(page: Page) {
+        at post (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:20:48)
+        at seedBeef (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:35:16)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/tests/food-ui/stock.spec.ts:158:3
+
+    Error Context: test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость 
+    tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя ───
+    tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9 
+    tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет ────────
+    tests/food-ui/stock.spec.ts:136:1 › роли: администратор работает со складом, но не правит справочник; только чтение 
+    tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 ────────────────────
+
+# код выхода 1 · 16 с

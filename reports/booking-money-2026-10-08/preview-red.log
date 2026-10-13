@@ -1,0 +1,56 @@
+[WebServer] (node:83748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83891) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:84051) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/booking-money-confirmation.spec.ts:40:1 › календарь: оплата без перехода и отказ от незавершённого ввода (2.2m)
+
+
+  1) tests/ui/booking-money-confirmation.spec.ts:40:1 › календарь: оплата без перехода и отказ от незавершённого ввода 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByTestId('stay-preview').getByRole('button', { name: 'Оплата / возврат', exact: true })
+
+
+      44 |   await page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first().click();
+      45 |   const preview = page.getByTestId('stay-preview');
+    > 46 |   await preview.getByRole('button', { name: 'Оплата / возврат', exact: true }).click();
+         |                                                                                ^
+      47 |   const form = preview.getByTestId('payment-form');
+      48 |   await form.getByLabel('Сумма', { exact: true }).fill('100');
+      49 |   await preview.getByRole('button', { name: 'Закрыть предпросмотр' }).click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/booking-money-confirmation.spec.ts:46:80
+
+    Error Context: test-results/booking-money-confirmation-ea6ee-каз-от-незавершённого-ввода/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-money-confirmation-ea6ee-каз-от-незавершённого-ввода/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-money-confirmation-ea6ee-каз-от-незавершённого-ввода/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/booking-money-confirmation.spec.ts:40:1 › календарь: оплата без перехода и отказ от незавершённого ввода 

@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, openProfileMenu, test } from './fixtures';
 
 /**
  * Стойка с включённым замком: `APP_AUTH_REQUIRED=1`, а синтетический API отвечает 401 без сессии.
@@ -35,7 +35,7 @@ test('после входа рабочее место открывается, «
   await page.goto('/chessboard');
   await expect(page.getByRole('heading', { name: 'Календарь' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).toHaveURL(/\/login/);
 

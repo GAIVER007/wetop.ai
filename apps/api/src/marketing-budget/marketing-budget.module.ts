@@ -8,7 +8,7 @@ import {
 } from './marketing-budget.repository';
 import { MarketingBudgetService } from './marketing-budget.service';
 
-/** Учёт бюджета и расходов маркетинга (МКТ-В1/В2, ADR-MKT-B1, DATA_MODEL §34) */
+/** Учёт бюджета и расходов маркетинга (МКТ-В1/В2, ADR-MKT-B1, DATA_MODEL §41) */
 @Module({
   controllers: [MarketingBudgetController],
   providers: [

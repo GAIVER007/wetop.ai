@@ -4,6 +4,11 @@ import { DateBar } from '../../components/date-bar';
 import { Field, Input, Select } from '../../components/ui';
 import { shiftDate } from '../../lib/food-data';
 import type { FoodWorkspace } from '../../lib/food-types';
+
+/** Подпись поля только для программы чтения: панель экрана одной строкой, как на макете */
+export const quiet = (text: string) => <span className="sr-only">{text}</span>;
+
+/** День, период и время плана одной строкой (макет, экраны 2 и 3); адреса `?date=` и `?time=` прежние */
 export function DayToolbar({
   data,
   floor,
@@ -23,17 +28,18 @@ export function DayToolbar({
     router.push(`${path}?${q}`);
   }
   return (
-    <div className="food-toolbar">
-      {/* день: общий DateBar (MV8.5 DS1c); переход сразу при смене даты, как было (уход с поля и Enter: DS6) */}
+    <>
+      {/* день: общий DateBar (MV8.5 DS1c); переход сразу при смене даты */}
       <DateBar
+        compact
         date={data.date}
         onPrevious={() => go(shiftDate(data.date, -1))}
         onNext={() => go(shiftDate(data.date, 1))}
         onDateChange={(next) => go(next)}
       />
-      <Field label="Период">
+      <Field label={quiet('Период')}>
         <Select value={period} onChange={(e) => setPeriod(e.target.value)}>
-          <option value="">Все</option>
+          <option value="">Все периоды</option>
           {data.periods
             .filter((p) => p.active)
             .map((p) => (
@@ -44,7 +50,7 @@ export function DayToolbar({
         </Select>
       </Field>
       {floor && (
-        <Field label="Время плана">
+        <Field label={quiet('Время плана')}>
           <Input
             type="time"
             value={data.time}
@@ -52,6 +58,6 @@ export function DayToolbar({
           />
         </Field>
       )}
-    </div>
+    </>
   );
 }

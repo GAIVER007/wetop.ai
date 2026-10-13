@@ -187,6 +187,7 @@ test('«Регистрация» при открытой регистрации 
     phoneCountry: 'KZ',
     phone: '701 555 44 33',
     privacyAccepted: true,
+    locale: 'ru',
   });
   // повтор письма — не чаще раза в минуту: сразу после отправки кнопка ждёт
   const resend = dialog.getByRole('button', { name: /Ещё раз — через \d+ с/ });
@@ -331,5 +332,5 @@ test('registration: country sets the phone code, language is Russian only', asyn
   const language = dialog.getByLabel('Язык системы');
   await expect(language).toHaveValue('ru');
   await expect(language.locator('option[value="kk"]')).toBeDisabled();
-  await expect(dialog).toContainText('Пока интерфейс только на русском.');
+  await expect(dialog).toContainText('Интерфейс на русском, казахский и английский на подходе.');
 });

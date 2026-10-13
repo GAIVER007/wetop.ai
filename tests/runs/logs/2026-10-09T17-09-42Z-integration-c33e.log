@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 09.10.2026 22:09 Алматы · vm
+# коммит b97fc22 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T17-09-42Z-integration-c33e.json' 'tests/integration/rls-isolation.test.ts' 'tests/integration/category-photos.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/category-photos.test.ts (1 test) 585ms
+   ✓ category photos (1)
+     ✓ stores order, refuses foreign or non-image assets and over ten, trigger guards raw SQL 583ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 444ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  17:09:43
+   Duration  4.88s (transform 43%, tests 31%, import 25%)
+
+JSON report written to /tmp/pms-test-2026-10-09T17-09-42Z-integration-c33e.json
+
+# код выхода 0 · 6 с

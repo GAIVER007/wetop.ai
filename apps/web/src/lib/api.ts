@@ -266,6 +266,21 @@ export const propertyMediaApi = {
   removeContract: () => sendJson<unknown>('DELETE', '/hotel/media/contract', {}),
 };
 
+/** Фото блюда ресторана (DATA_MODEL §37): одно на блюдо, загрузка заменяет прежнее */
+export const dishPhotoApi = {
+  upload: async (id: string, file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/food-service/menu/items/${encodeURIComponent(id)}/photo`, {
+      method: 'POST',
+      body: form,
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  remove: (id: string) =>
+    sendJson<unknown>('DELETE', `/food-service/menu/items/${encodeURIComponent(id)}/photo`, {}),
+};
+
 /** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
 export const hotelSettingsApi = {
   update: (patch: Record<string, unknown>) =>
@@ -651,6 +666,7 @@ export const authApi = {
       phoneCountry: string;
       phone: string;
       privacyAccepted: boolean;
+      locale?: string;
     },
     info?: AuthClientInfo,
   ) =>
@@ -2871,7 +2887,33 @@ export interface PlatformOrganization {
   owners: string[];
   /** Владелец заведён главным администратором и ещё не задал пароль: ему можно выслать ссылку */
   ownerPending: boolean;
+  /** Направления бизнесов организации по порядку создания, без повторов */
+  verticals: PlatformVertical[];
+  /** Число филиалов во всех бизнесах организации */
+  locations: number;
   aiSeller: ExtensionAccessView & { note: string | null; updatedAt: string | null };
+}
+
+export type PlatformVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+
+/**
+ * Обзор платформы (срез P1, `plans/platform-superadmin-2026-10-10.md`): итоги, рост подключений за 12 месяцев,
+ * направления и статусы. Денег здесь нет: платежи платформе не ведутся (ADR-102, Q-PA-1, Q-PA-2).
+ */
+export interface PlatformOverview {
+  totals: {
+    organizations: number;
+    active: number;
+    trial: number;
+    readOnly: number;
+    suspended: number;
+    newLast30d: number;
+    usersTotal: number;
+    activeUsers: number;
+  };
+  growth: Array<{ month: string; added: number; total: number }>;
+  verticals: Array<{ vertical: PlatformVertical; organizations: number }>;
+  statuses: Array<{ status: SignedInOrganization['status']; organizations: number }>;
 }
 
 /** Изменение расширения: статус, дата «до» (`ГГГГ-ММ-ДД`, включительно; пусто — бессрочно) и заметка */
@@ -2894,6 +2936,8 @@ export interface PlatformSiteBuilderLocation {
 
 export const platformApi = {
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
+  /** Обзор платформы: только главному администратору, остальным API отвечает 403 */
+  overview: () => getJson<PlatformOverview>('/platform/overview'),
   siteBuilder: (organizationId: string) =>
     getJson<{ items: PlatformSiteBuilderLocation[] }>(`/platform/organizations/${encodeURIComponent(organizationId)}/site-builder`),
   changeSiteBuilder: (organizationId: string, locationId: string, body: ExtensionChangeBody) =>
@@ -3360,7 +3404,7 @@ export const branchesApi = {
     address: string;
     currency: string;
     timezone: string;
-    vertical?: 'HOSPITALITY' | 'BEAUTY';
+    vertical?: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
   }) => sendJson<BranchItem>('POST', '/branches', body),
 };
 
@@ -3593,6 +3637,8 @@ export interface MarketCell {
   bp: number | null;
   deltaBp: number | null;
   source: MarketSource | null;
+  /** Уровень наличия со страницы сборщика или из процента (DATA_MODEL §23.1); у старых ответов поля нет */
+  level?: 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE' | null;
 }
 export type MarketInsightKind = 'high-behind' | 'high' | 'low-ahead' | 'low' | 'missing';
 export interface MarketInsight {
@@ -3623,7 +3669,8 @@ export interface MarketView {
       sources: MarketSource[];
       lastObservedOn: string | null;
     }>;
-    market: Array<{ date: string; bp: number | null; count: number }>;
+    /** `tight` из `withLevel` соседей почти полны («нет мест» или «мало мест») */
+    market: Array<{ date: string; bp: number | null; count: number; tight?: number; withLevel?: number }>;
     gap: Array<{ date: string; bp: number | null }>;
     summary: {
       marketBp: number | null;
@@ -3700,7 +3747,7 @@ export const marketApi = {
     ),
 };
 
-/** Расход маркетинга (МКТ-В1/В2, DATA_MODEL §34.1). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+/** Расход маркетинга (МКТ-В1/В2, DATA_MODEL §41.1). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
 export interface MarketingExpenseRow {
   id: string;
   date: string;
@@ -3830,6 +3877,12 @@ export const barApi = {
 };
 
 /** MV9: fixed read-only report queries for a branch returned by GET /branches. No mutations or arbitrary paths. */
+/** Отчёт ресторана за период по филиалу (контекст филиала заголовком, как у `branchReportDay`) */
+export async function branchFoodPeriod(branch: Pick<BranchItem, 'locationId' | 'location'>, from: string, to: string): Promise<import('./food-types').FoodPeriodReport> {
+  const response = await backendFetch(`/food-service/period-report?${new URLSearchParams({ from, to })}`, {}, `business=${branch.location.businessId};location=${branch.locationId}`);
+  if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
+  return response.json();
+}
 export async function branchReportDay(branch: Pick<BranchItem, 'vertical' | 'locationId' | 'location'>, date: string, cursor?: string): Promise<BeautyDay | import('./food-types').FoodPage<import('./food-types').RestaurantReservation>> {
   const q = new URLSearchParams({ date });
   if (branch.vertical === 'FOOD_SERVICE') {
@@ -3841,3 +3894,33 @@ export async function branchReportDay(branch: Pick<BranchItem, 'vertical' | 'loc
   if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
   return response.json();
 }
+
+/**
+ * Оценка официанта с телефона гостя (§40): страница `/rate/<ключ>` без входа зовёт API своим сервером и передаёт
+ * адрес посетителя для лимита. `null`: ссылка недействительна (404), причину гостю не называем.
+ */
+export const orderRatingApi = {
+  preview: async (
+    token: string,
+    info: AuthClientInfo,
+  ): Promise<{ placeName: string; waiterName: string | null; orderNumber: number } | null> => {
+    const res = await backendFetch(`/public/order-rating/${encodeURIComponent(token)}`, {
+      headers: authHeaders(info),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { placeName: string; waiterName: string | null; orderNumber: number };
+  },
+  rate: async (
+    token: string,
+    body: { stars: number; comment: string | null },
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/public/order-rating/${encodeURIComponent(token)}`, {
+      method: 'POST',
+      headers: authHeaders(info),
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+};

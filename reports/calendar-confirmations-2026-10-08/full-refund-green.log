@@ -1,0 +1,38 @@
+[WebServer] (node:97413) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97609) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+(node:97677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/preview-money-confirmation.spec.ts:9:1 › календарь: оплата без перехода и отказ от незавершённого ввода (12.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '739557167'
+[WebServer] }
+  ✓  2 tests/ui/preview-money-confirmation.spec.ts:54:1 › телефон: возврат в календаре проверяет платёж и подтверждает сумму (8.3s)
+  ✓  3 tests/ui/preview-money-confirmation.spec.ts:98:1 › закрытие незавершённого ввода ничего не проводит (7.8s)
+  ✓  4 tests/ui/preview-money-confirmation.spec.ts:130:1 › проведённая оплата остаётся видна при ошибке обновления счёта (10.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '739557167'
+[WebServer] }
+  ✓  5 tests/ui/preview-money-confirmation.spec.ts:151:1 › полный возврат убирает платёж из выбора и освобождает окно после отправки (12.8s)
+
+  5 passed (1.4m)

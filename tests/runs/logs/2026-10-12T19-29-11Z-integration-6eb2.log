@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 13.10.2026 00:29 Алматы · vm
+# коммит 6509791 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-12T19-29-11Z-integration-6eb2.json' 'tests/integration/beauty-appointments.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 1084ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  19:29:13
+   Duration  5.73s (transform 50%, tests 33%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-12T19-29-11Z-integration-6eb2.json
+
+# код выхода 0 · 7 с

@@ -31,6 +31,26 @@ for (const width of [360, 390, 430]) {
       (r: { cells: { state: string }[] }) => r.cells[0]?.state === 'FREE',
     ).length;
     await expect(panel.getByTestId('day-free')).toHaveText(String(free));
+    await page.evaluate(() => document.fonts.ready);
+    const brokenWords = await panel.locator('.board-kpi__label').evaluateAll((labels) => {
+      const broken: string[] = [];
+      for (const label of labels) {
+        const walker = document.createTreeWalker(label, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          for (const match of (node.textContent ?? '').matchAll(/\S+/g)) {
+            const range = document.createRange();
+            range.setStart(node, match.index!);
+            range.setEnd(node, match.index! + match[0].length);
+            if (range.getClientRects().length > 1) broken.push(match[0]);
+          }
+        }
+      }
+      return broken;
+    });
+    expect(brokenWords).toEqual([]);
+    await expect(panel.locator('.board-kpi--free')).toContainText('мест');
+    await expect(panel.locator('.board-kpi--dirty')).toContainText('Нужна уборка');
     const label = page.locator('.board-group-name-text').first();
     await label.scrollIntoViewIfNeeded();
     await page.evaluate(() => document.fonts.ready);

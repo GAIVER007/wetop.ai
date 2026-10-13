@@ -1,0 +1,81 @@
+# Модульные (unit) · 11.10.2026 13:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит ff174db (claude/market-charts-clarity), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-53-36Z-unit-fa0f.json' 'apps/web/src/app/market/chart-data.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-charts
+
+ ❯ |unit| apps/web/src/app/market/chart-data.test.ts (10 tests | 4 failed) 6ms
+   ✓ графики «Загрузки конкурентов»: данные (4)
+     ✓ на каждую ночь: вы, рынок, самый свободный и самый загруженный сосед, число соседей с данными 2ms
+     ✓ изменение: среднее по соседям, у которых есть сравнение; нет сравнения нет и столбца 0ms
+     ✓ линия рвётся там, где данных нет, а не соединяет через пропуск 0ms
+     ✓ одиночная точка между пропусками рисуется точкой, а не пропадает 0ms
+   ✓ цены рынка для графика (2)
+     ✓ строки: числа и пропуск как null, а не ноль 0ms
+     ✓ подпись оси: тысячи сокращены, малое целым 0ms
+   ❯ coverageRuns: ночи подряд с одинаковой полнотой данных (2)
+     × склеивает соседние ночи с тем же «N из M» и рвёт на смене 2ms
+     × пустой период даёт пустой список 0ms
+   ❯ changeSummary: что произошло с загрузкой соседей к прошлому замеру (2)
+     × среднее только по ночам со сравнением, отдельно счёт роста и падения 0ms
+     × без сравнения сводки нет, а не ноль 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/market/chart-data.test.ts > coverageRuns: ночи подряд с одинаковой полнотой данных > склеивает соседние ночи с тем же «N из M» и рвёт на смене
+TypeError: coverageRuns is not a function
+ ❯ apps/web/src/app/market/chart-data.test.ts:99:18
+     97| describe('coverageRuns: ночи подряд с одинаковой полнотой данных', () …
+     98|   it('склеивает соседние ночи с тем же «N из M» и рвёт на смене', () =…
+     99|     const runs = coverageRuns([
+       |                  ^
+    100|       row('2026-10-09', 2, 2),
+    101|       row('2026-10-10', 2, 2),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/app/market/chart-data.test.ts > coverageRuns: ночи подряд с одинаковой полнотой данных > пустой период даёт пустой список
+TypeError: coverageRuns is not a function
+ ❯ apps/web/src/app/market/chart-data.test.ts:114:12
+    112|   });
+    113|   it('пустой период даёт пустой список', () => {
+    114|     expect(coverageRuns([])).toEqual([]);
+       |            ^
+    115|   });
+    116| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/app/market/chart-data.test.ts > changeSummary: что произошло с загрузкой соседей к прошлому замеру > среднее только по ночам со сравнением, отдельно счёт роста и падения
+TypeError: changeSummary is not a function
+ ❯ apps/web/src/app/market/chart-data.test.ts:121:7
+    119|   it('среднее только по ночам со сравнением, отдельно счёт роста и пад…
+    120|     expect(
+    121|       changeSummary([
+       |       ^
+    122|         row('2026-10-09', 1, 1, 1200),
+    123|         row('2026-10-10', 1, 1, -300),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/app/market/chart-data.test.ts > changeSummary: что произошло с загрузкой соседей к прошлому замеру > без сравнения сводки нет, а не ноль
+TypeError: changeSummary is not a function
+ ❯ apps/web/src/app/market/chart-data.test.ts:130:12
+    128|   });
+    129|   it('без сравнения сводки нет, а не ноль', () => {
+    130|     expect(changeSummary([row('2026-10-09', 1, 1, null)])).toBeNull();
+       |            ^
+    131|   });
+    132| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 6 passed (10)
+   Start at  01:53:38
+   Duration  156ms (transform 72%, import 12%, tests 10%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-53-36Z-unit-fa0f.json
+
+# код выхода 1 · 3 с

@@ -1,0 +1,11 @@
+# Линтер (lint) · 11.10.2026 11:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 907a513 (claude/kitchen-fs2-stock)
+# npx eslint .
+
+/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/aeee488f-f617-4926-afe1-2b54ef411df4/scratchpad/fs2/apps/web/src/app/food/stock-board.tsx
+  275:5  error  Definition for rule 'react-hooks/exhaustive-deps' was not found  react-hooks/exhaustive-deps
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 38 с

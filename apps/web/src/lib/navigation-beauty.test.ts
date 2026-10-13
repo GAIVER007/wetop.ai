@@ -25,7 +25,6 @@ describe('меню салона', () => {
       '/channels',
       '/hotel-settings',
       '/website',
-      '/marketing',
       '/finance',
       '/bar',
     ]) {
@@ -41,8 +40,12 @@ describe('меню салона', () => {
       '/appointments',
       '/customers',
       '/employees',
+      // «График» мастеров своей вкладкой: решение владельца №1 по плану DS2 (09.10.2026), мастер-проход 11.10
+      '/beauty/schedule',
       '/services',
       '/staff',
+      '/sales',
+      '/marketing',
       '/management/analytics',
       '/journal',
       '/help',

@@ -34,6 +34,9 @@ import {
 import { CompetitorButton, NightDrawer } from './drawers';
 import { MarketCharts } from './market-charts';
 import { CompetitorsTable } from './competitors-table';
+import { signalCells, signalNights } from './derive';
+import { SignalCalendar } from './calendar';
+import { OccupancyChart } from './chart';
 import { insightText } from './insight-text';
 import '../directory.css';
 import './market.css';
@@ -56,6 +59,13 @@ const dayHead = (d: string) => ({
   day: displayDate(d),
 });
 
+/** Уровень наличия без точного процента (сборщик видит «мест нет» или «осталось 2»): словом, тон как у спроса */
+const AVAILABILITY: Record<'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE', { word: string; tone: DemandLevel }> = {
+  SOLD_OUT: { word: 'Нет мест', tone: 'high' },
+  FEW_LEFT: { word: 'Мало мест', tone: 'mid' },
+  AVAILABLE: { word: 'Есть места', tone: 'low' },
+};
+
 const LEVEL_WORD: Record<DemandLevel, string> = {
   high: 'высокий спрос',
   mid: 'средний спрос',
@@ -63,9 +73,10 @@ const LEVEL_WORD: Record<DemandLevel, string> = {
 };
 
 /**
- * «Загрузка конкурентов» (ADR-142, план `plans/market-competitor-occupancy-2026-10-03.md`): ваша загрузка по календарю
- * рядом с загрузкой ближайших отелей на каждую ночь, средняя по рынку, разница и подсказки к цене. Данные вносит
- * человек; сбор ИИ-агентом, следующий срез (Q-257).
+ * «Анализ конкурентов» (ADR-142; редизайн COMP3.2, план `plans/competitor-analysis-comp3-2026-10-09.md`):
+ * пять показателей, календарь рыночных сигналов, график «вы и рынок», рекомендация по данным,
+ * таблица конкурентов и детализация «По ночам». Данные вносит человек или ИИ-коллектор; цены соседей (SALES2.3, `competitor_rates`)
+ * идут вторым необязательным запросом: таблица конкурентов и графики цен.
  */
 export default async function MarketPage({
   searchParams,
@@ -115,22 +126,23 @@ export default async function MarketPage({
   const editable = !shell.readOnly && (role === null || can(role, 'rates'));
   const subtitle = (
     <span data-testid="market-subtitle">
-      Сравните свою загрузку с ближайшими отелями на каждую ночь: где рынок полон, цену можно
-      поднять; где пусто, пора акция.
+      Сравните свою загрузку с ближайшими объектами: где рынок полон, цену можно поднять; где
+      пусто, пора акция.
     </span>
   );
   if (!loaded.ok)
     return (
-      <Page width="wide" title="Загрузка конкурентов" subtitle={subtitle}>
+      <Page width="wide" title="Анализ конкурентов" subtitle={subtitle}>
         <LoadError testId="market-error" {...loadErrorProps(loaded.e)} />
       </Page>
     );
   const view = loaded.r;
   const empty = view.competitors.length === 0;
+  const cells = empty ? [] : signalCells(view.board);
   return (
     <Page
       width="wide"
-      title="Загрузка конкурентов"
+      title="Анализ конкурентов"
       subtitle={subtitle}
       // одна кнопка «Добавить» на экране: пусто, она в пустом состоянии; есть конкуренты, в шапке
       actions={editable && !empty ? <CompetitorButton defaultOpen={sp.add === '1'} /> : undefined}
@@ -149,17 +161,40 @@ export default async function MarketPage({
         </EmptyState>
       ) : (
         <>
-          <Summary view={view} />
-          <Insights view={view} />
-          <CompetitorsTable
-            view={view}
-            rates={rates}
-            today={today}
-            editable={editable}
-            district={district}
-            category={category}
-            keep={[...base.entries()]}
-          />
+          <Summary view={view} signals={signalNights(cells)} />
+          <div className="market-overview">
+            <section className="market-block" aria-labelledby="market-calendar-title">
+              <SectionTitle id="market-calendar-title">
+                Календарь рыночных сигналов ({pluralRu(days, ['ночь', 'ночи', 'ночей'])})
+              </SectionTitle>
+              <SignalCalendar cells={cells} nightHref={nightHref} />
+            </section>
+            <section className="market-block" aria-labelledby="market-chart-title">
+              <SectionTitle id="market-chart-title">Сравнение загрузки</SectionTitle>
+              <OccupancyChart
+                points={cells.map((c) => ({
+                  date: c.date,
+                  label: displayDate(c.date),
+                  ownBp: c.ownBp,
+                  marketBp: c.marketBp,
+                  count: c.count,
+                }))}
+              />
+            </section>
+            <Recommendation view={view} asOf={asOf} />
+          </div>
+          <div className={cx('market-main', view.board.insights.length <= 1 && 'market-main--single')}>
+            <CompetitorsTable
+              view={view}
+              rates={rates}
+              today={today}
+              editable={editable}
+              district={district}
+              category={category}
+              keep={[...base.entries()]}
+            />
+            <Insights view={view} />
+          </div>
           <MarketCharts board={view.board} rates={rates && rates.board.summary.competitorsWithData > 0 ? rates : null} />
           <Grid view={view} nightHref={nightHref} />
           {night && (
@@ -269,17 +304,17 @@ function Toolbar({
   );
 }
 
-function Summary({ view }: { view: MarketView }) {
+function Summary({ view, signals }: { view: MarketView; signals: number }) {
   const s = view.board.summary;
   return (
     <div className="market-tiles" data-testid="market-tiles">
+      <Stat label="Ваша загрузка" value={pctTile(s.ownBp)} hint="по календарю" testId="market-tile-own" />
       <Stat
         label="Загрузка рынка"
         value={pctTile(s.marketBp)}
         hint={`по ${s.competitorsWithData} из ${pluralRu(s.competitors, ['конкурента', 'конкурентов', 'конкурентов'])}`}
         testId="market-tile-market"
       />
-      <Stat label="Ваша загрузка" value={pctTile(s.ownBp)} hint="по календарю" testId="market-tile-own" />
       <Stat
         label="Разница с рынком"
         value={s.gapBp === null ? '–' : formatPoints(round(s.gapBp, 10))}
@@ -293,12 +328,51 @@ function Summary({ view }: { view: MarketView }) {
         hint="рынок от 85 %"
         testId="market-tile-high"
       />
+      <Stat
+        label="Рыночные сигналы"
+        value={String(signals)}
+        hint="дат, стоящих внимания"
+        testId="market-tile-signals"
+      />
     </div>
   );
 }
 
+/**
+ * Рекомендация (ТЗ §7): первая подсказка домена акцентной карточкой, с основанием и честной строкой
+ * «по каким данным». Уровня уверенности нет: подсказки считаются правилами по снимкам, не моделью.
+ */
+function Recommendation({ view, asOf }: { view: MarketView; asOf: string }) {
+  const first = view.board.insights[0];
+  const s = view.board.summary;
+  if (!first) return null;
+  const t = insightText(first);
+  return (
+    <section
+      className={cx('market-reco', `market-reco--${t.tone}`)}
+      aria-labelledby="market-reco-title"
+      data-testid="market-reco"
+    >
+      <Badge tone="info">Рекомендация по данным</Badge>
+      <h2 id="market-reco-title">{t.title}</h2>
+      <p>{t.text}</p>
+      <p className="market-reco__basis">
+        По данным {s.competitorsWithData} из{' '}
+        {pluralRu(s.competitors, ['конкурента', 'конкурентов', 'конкурентов'])}, снимок на{' '}
+        {displayDay(asOf)}. Цены меняете только вы: автоматических изменений нет.
+      </p>
+      {first.kind !== 'missing' && (
+        <Link href="/rooms/categories" className="btn" data-testid="market-reco-rates">
+          Открыть тарифы
+        </Link>
+      )}
+    </section>
+  );
+}
+
 function Insights({ view }: { view: MarketView }) {
-  const { insights } = view.board;
+  // первая подсказка показана карточкой рекомендации, здесь остальные
+  const insights = view.board.insights.slice(1);
   if (!insights.length) return null;
   return (
     <section className="market-insights" aria-labelledby="market-insights-title" data-testid="market-insights">
@@ -326,14 +400,27 @@ function Insights({ view }: { view: MarketView }) {
   );
 }
 
-function Cell({ bp, delta }: { bp: number | null; delta?: number | null | undefined }) {
-  const level = demandLevel(bp);
+function Cell({
+  bp,
+  delta,
+  availability,
+  hint,
+}: {
+  bp: number | null;
+  delta?: number | null | undefined;
+  availability?: 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE' | null | undefined;
+  hint?: string | undefined;
+}) {
+  // снимок сборщика бывает только уровнем: показываем его словом, а не прочерком «нет данных»
+  const byLevel = bp === null && availability ? AVAILABILITY[availability] : null;
+  const level = byLevel ? byLevel.tone : demandLevel(bp);
   return (
     <td
       className={cx('market-cell', level && `market-cell--${level}`)}
-      title={level ? LEVEL_WORD[level] : 'нет данных'}
+      title={byLevel ? byLevel.word : level ? LEVEL_WORD[level] : 'нет данных'}
     >
-      <span className="market-cell__value">{pct(bp)}</span>
+      <span className="market-cell__value">{byLevel ? byLevel.word : pct(bp)}</span>
+      {hint && <span className="market-cell__delta">{hint}</span>}
       {delta !== null && delta !== undefined && round(delta, 100) !== 0 && (
         <span className={cx('market-cell__delta', delta > 0 ? 'is-up' : 'is-down')}>
           {points(delta)}
@@ -414,7 +501,7 @@ function Grid({
                   </span>
                 </th>
                 {c.cells.map((cell) => (
-                  <Cell key={cell.date} bp={cell.bp} delta={cell.deltaBp} />
+                  <Cell key={cell.date} bp={cell.bp} delta={cell.deltaBp} availability={cell.level} />
                 ))}
               </tr>
             );
@@ -426,7 +513,11 @@ function Grid({
               Средняя по рынку
             </th>
             {board.market.map((m) => (
-              <Cell key={m.date} bp={m.bp} />
+              <Cell
+                key={m.date}
+                bp={m.bp}
+                hint={m.withLevel ? `почти полны ${m.tight ?? 0} из ${m.withLevel}` : undefined}
+              />
             ))}
           </tr>
           <tr className="market-row--gap" data-testid="market-row-gap">

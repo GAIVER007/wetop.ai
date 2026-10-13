@@ -1,0 +1,22 @@
+# Интеграционные (integration) · 12.10.2026 13:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 973ed02 (claude/kitchen-stock-takeover), незакоммиченных файлов набора: 32
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-00-51Z-integration-b805.json' 'tests/integration/kitchen-stock.test.ts' 'tests/integration/restaurant-cash-database.test.ts' 'tests/integration/mv6-food-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+[pms_test] миграций применено 2; данные на месте
+ ✓ |integration| tests/integration/mv6-food-database.test.ts (4 tests) 1981ms
+   ✓ MV6 populated RLS and database constraints (4)
+     ✓ database guards reject cross-location, cross-organization, invalid values and missing seated assignment 1162ms
+     ✓ assignment cannot be moved to another reservation leaving SEATED without a table 446ms
+ ✓ |integration| tests/integration/kitchen-stock.test.ts (5 tests) 115ms
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (2 tests) 73ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  01:00:55
+   Duration  6.90s (tests 56%, transform 29%, import 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-00-51Z-integration-b805.json
+
+# код выхода 0 · 11 с

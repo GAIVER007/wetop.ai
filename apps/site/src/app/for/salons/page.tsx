@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { Icon } from '../../../components/icon';
 import { LandingFinal } from '../../../components/landing/landing-final';
+import { MarketingBlock } from '../../../components/landing/marketing-block';
+import { SubtypeLinks } from '../../../components/landing/subtype-links';
+import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -15,6 +18,7 @@ import { registerLink } from '../../../lib/site';
  */
 export const metadata: Metadata = pageMetadata({
   path: '/for/salons/',
+  image: '/og/salon.jpg',
   title: getDictionary().salon.metaTitle,
   description: getDictionary().salon.description,
 });
@@ -26,159 +30,177 @@ export default function SalonLandingPage() {
   return (
     <div className="page salon-page">
       <div className="container">
-        <section className="salon-hero" aria-labelledby="salon-title">
-          <div>
-            <p className="salon-hero__badge">{s.badge}</p>
-            <h1 id="salon-title" className="page-header__title">
-              {typo(s.title)}
-            </h1>
-            <p className="page-header__lead">{typo(s.lead)}</p>
-            <div className="salon-hero__actions">
-              <a className="btn btn--primary btn--lg" href={register} data-auth="register">
-                {s.primary}
-                <Icon name="arrowRight" size={18} />
-              </a>
-              <a className="btn btn--secondary btn--lg" href="#salon-features">
-                {s.secondary}
-                <Icon name="arrowDown" size={18} />
-              </a>
-            </div>
-            <ul className="salon-hero__chips">
-              {s.chips.map((chip) => (
-                <li key={chip}>
-                  <Icon name="check" size={15} />
-                  {chip}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <figure className="salon-hero__figure">
-            <div className="salon-hero__mock">
-              <div className="salon-hero__mock-head">
-                <div>
-                  <strong>{s.mock.title}</strong>
-                  <span className="salon-hero__mock-date">{s.mock.date}</span>
-                </div>
-                <div className="salon-hero__mock-summary">
-                  {s.mock.summary.map((item) => (
-                    <span key={item.name}>
-                      <strong>{item.value}</strong> {item.name}
-                    </span>
-                  ))}
-                </div>
+        <Breadcrumbs
+          label={t.a11y.breadcrumbs}
+          trail={[
+            { name: t.a11y.crumbHome, path: '/' },
+            { name: t.salon.badge, path: '/for/salons/' },
+          ]}
+        />
+        <div className="landing">
+          <section className="salon-hero" aria-labelledby="salon-title">
+            <div>
+              <p className="salon-hero__badge">{s.badge}</p>
+              <h1 id="salon-title" className="page-header__title">
+                {typo(s.title)}
+              </h1>
+              <p className="page-header__lead">{typo(s.lead)}</p>
+              <div className="salon-hero__actions">
+                <a className="btn btn--primary btn--lg" href={register} data-auth="register">
+                  {s.primary}
+                  <Icon name="arrowRight" size={18} />
+                </a>
+                <a className="btn btn--secondary btn--lg" href="#salon-features">
+                  {s.secondary}
+                  <Icon name="arrowDown" size={18} />
+                </a>
               </div>
-              <div className="salon-hero__cal">
-                <div className="salon-hero__rail">
-                  <span className="salon-hero__master" aria-hidden="true" />
-                  {s.mock.times.map((time) => (
-                    <span key={time}>{time}</span>
-                  ))}
-                </div>
-                {s.mock.masters.map((master) => (
-                  <div className="salon-hero__col" key={master.name}>
-                    <span className="salon-hero__master">{master.name}</span>
-                    {s.mock.times.map((time) => {
-                      const apt = master.appointments.find((a) => a.time === time);
-                      if (apt)
-                        return (
-                          <span key={time} className={`salon-hero__apt salon-hero__apt--${apt.tone}`}>
-                            <strong>{apt.service}</strong>
-                            {apt.client}
-                          </span>
-                        );
-                      if (master.free.includes(time))
-                        return (
-                          <span key={time} className="salon-hero__free">
-                            {s.mock.freeLabel}
-                          </span>
-                        );
-                      return <span key={time} className="salon-hero__slot" />;
-                    })}
-                  </div>
+              <ul className="salon-hero__chips">
+                {s.chips.map((chip) => (
+                  <li key={chip}>
+                    <Icon name="check" size={15} />
+                    {chip}
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
-            <figcaption>{s.mock.label}</figcaption>
-          </figure>
-        </section>
+            <figure className="salon-hero__figure">
+              <div className="salon-hero__mock">
+                <div className="salon-hero__mock-head">
+                  <div>
+                    <strong>{s.mock.title}</strong>
+                    <span className="salon-hero__mock-date">{s.mock.date}</span>
+                  </div>
+                  <div className="salon-hero__mock-summary">
+                    {s.mock.summary.map((item) => (
+                      <span key={item.name}>
+                        <strong>{item.value}</strong> {item.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="salon-hero__cal">
+                  <div className="salon-hero__rail">
+                    <span className="salon-hero__master" aria-hidden="true" />
+                    {s.mock.times.map((time) => (
+                      <span key={time}>{time}</span>
+                    ))}
+                  </div>
+                  {s.mock.masters.map((master) => (
+                    <div className="salon-hero__col" key={master.name}>
+                      <span className="salon-hero__master">{master.name}</span>
+                      {s.mock.times.map((time) => {
+                        const apt = master.appointments.find((a) => a.time === time);
+                        if (apt)
+                          return (
+                            <span key={time} className={`salon-hero__apt salon-hero__apt--${apt.tone}`}>
+                              <strong>{apt.service}</strong>
+                              {apt.client}
+                            </span>
+                          );
+                        if (master.free.includes(time))
+                          return (
+                            <span key={time} className="salon-hero__free">
+                              {s.mock.freeLabel}
+                            </span>
+                          );
+                        return <span key={time} className="salon-hero__slot" />;
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <figcaption>{s.mock.label}</figcaption>
+            </figure>
+          </section>
 
-        <ul className="salon-facts">
-          {s.facts.map((fact) => (
-            <li key={fact.value} className="salon-facts__item">
-              <strong>{fact.value}</strong>
-              <span>{typo(fact.text)}</span>
-            </li>
-          ))}
-        </ul>
-
-        <section
-          id="salon-features"
-          className="section section--tight"
-          aria-labelledby="salon-features-title"
-        >
-          <div className="section-heading section-heading--center">
-            <p className="eyebrow">{t.nav.features}</p>
-            <h2 id="salon-features-title" className="section-heading__title">
-              {typo(s.featuresTitle)}
-            </h2>
-            <p className="section-heading__lead">{typo(s.featuresLead)}</p>
-          </div>
-          <ul className="card-grid card-grid--4">
-            {s.features.map((card) => (
-              <li key={card.title} className="card">
-                <span className="icon-tile">
-                  <Icon name={card.icon} />
-                </span>
-                <h3 className="card__title">{typo(card.title)}</h3>
-                <p className="card__text">{typo(card.text)}</p>
+          <ul className="salon-facts">
+            {s.facts.map((fact) => (
+              <li key={fact.value} className="salon-facts__item">
+                <strong>{fact.value}</strong>
+                <span>{typo(fact.text)}</span>
               </li>
             ))}
           </ul>
-        </section>
 
-        <section className="salon-growth" aria-labelledby="salon-growth-title">
-          <div className="salon-growth__art">
-            <span className="salon-growth__photo">
-              {/* Фото сгенерировано через KIE по решению владельца 10.10.2026: тёплая палитра макета */}
-              <img src="/photos/salon-warm.jpg" alt="" loading="lazy" width={1184} height={864} />
-            </span>
-            <span className="salon-growth__float">
-              <strong>{s.growth.float.value}</strong>
-              {s.growth.float.text}
-            </span>
-          </div>
-          <div>
-            <p className="salon-hero__badge">{s.growth.badge}</p>
-            <h2 id="salon-growth-title" className="salon-growth__title">
-              {typo(s.growth.title)}
-            </h2>
-            <p className="salon-growth__text">{typo(s.growth.text)}</p>
-            <ul className="salon-growth__points">
-              {s.growth.points.map((point) => (
-                <li key={point}>
-                  <Icon name="check" size={15} />
-                  {typo(point)}
+          <section
+            id="salon-features"
+            className="section section--tight"
+            aria-labelledby="salon-features-title"
+          >
+            <div className="section-heading section-heading--center">
+              <p className="eyebrow">{t.nav.features}</p>
+              <h2 id="salon-features-title" className="section-heading__title">
+                {typo(s.featuresTitle)}
+              </h2>
+              <p className="section-heading__lead">{typo(s.featuresLead)}</p>
+            </div>
+            <ul className="card-grid card-grid--4">
+              {s.features.map((card) => (
+                <li key={card.title} className="card">
+                  <span className="icon-tile">
+                    <Icon name={card.icon} />
+                  </span>
+                  <h3 className="card__title">{typo(card.title)}</h3>
+                  <p className="card__text">{typo(card.text)}</p>
                 </li>
               ))}
             </ul>
-            <a className="btn btn--primary" href={register} data-auth="register">
-              {s.growth.action}
-              <Icon name="arrowRight" size={16} />
-            </a>
-          </div>
-        </section>
+          </section>
 
-        <LandingFinal
-          faq={{ title: s.faqTitle, items: s.faq }}
-          cta={{
-            title: s.ctaTitle,
-            text: s.ctaText,
-            note: t.final.note,
-            register: { href: register, label: t.nav.register },
-            secondary: { href: '/', label: t.segments.home },
-            photo: { src: '/photos/reception.jpg', alt: '' },
-          }}
-        />
+          <section className="salon-growth" aria-labelledby="salon-growth-title">
+            <div className="salon-growth__art">
+              <span className="salon-growth__photo">
+                {/* Фото сгенерировано через KIE по решению владельца 10.10.2026: тёплая палитра макета */}
+                <img src="/photos/salon-warm.jpg" alt="" loading="lazy" width={1184} height={864} />
+              </span>
+              <span className="salon-growth__float">
+                <strong>{s.growth.float.value}</strong>
+                {s.growth.float.text}
+              </span>
+            </div>
+            <div>
+              <p className="salon-hero__badge">{s.growth.badge}</p>
+              <h2 id="salon-growth-title" className="salon-growth__title">
+                {typo(s.growth.title)}
+              </h2>
+              <p className="salon-growth__text">{typo(s.growth.text)}</p>
+              <ul className="salon-growth__points">
+                {s.growth.points.map((point) => (
+                  <li key={point}>
+                    <Icon name="check" size={15} />
+                    {typo(point)}
+                  </li>
+                ))}
+              </ul>
+              <a className="btn btn--primary" href={register} data-auth="register">
+                {s.growth.action}
+                <Icon name="arrowRight" size={16} />
+              </a>
+            </div>
+          </section>
+
+          <SubtypeLinks direction="salons" title={t.segments.typesTitle.salons} />
+
+          <MarketingBlock
+            id="marketing"
+            copy={t.marketing.salon}
+            eyebrow={t.marketing.eyebrow}
+            soon={t.marketing.soon}
+          />
+
+          <LandingFinal
+            faq={{ title: s.faqTitle, items: s.faq }}
+            cta={{
+              title: s.ctaTitle,
+              text: s.ctaText,
+              note: t.final.note,
+              register: { href: register, label: t.nav.register },
+              secondary: { href: '/', label: t.segments.home },
+              photo: { src: '/photos/reception.jpg', alt: '' },
+            }}
+          />
+        </div>
       </div>
     </div>
   );

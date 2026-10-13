@@ -37,7 +37,7 @@ export default async function RegistrationCompletePage() {
           )}
           {!selected || context.vertical === 'HOSPITALITY' ? (
             <form action={confirmRegistrationContext}>
-              <button className="btn btn-primary" type="submit">
+              <button className="btn btn--primary" type="submit">
                 Продолжить
               </button>
             </form>

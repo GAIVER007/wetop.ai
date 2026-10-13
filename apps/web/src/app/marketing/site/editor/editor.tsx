@@ -66,7 +66,7 @@ interface Base {
   revision: number;
   spec: Spec;
 }
-type Tab = 'ai' | 'blocks' | 'site' | 'preview';
+type Tab = 'ai' | 'blocks' | 'design' | 'site' | 'preview';
 type Message = { tone: 'ok' | 'error'; text: string };
 type Rec = Record<string, unknown>;
 type AiTarget = { pageId: string; sectionId: string };
@@ -486,7 +486,8 @@ export function SiteEditor({
 
   const goToError = (path: string) => {
     const at = errorLocation(path);
-    if (at.area === 'site') setTab('site');
+    // оформление и логотип на вкладке «Дизайн», прочее уровня сайта в «Настройках»
+    if (at.area === 'site') setTab(/^(theme|site\.brand\.(logo|faviconAssetId))(\.|$)/.test(path) ? 'design' : 'site');
     else select(at.sectionIndex === null ? { kind: 'page', page: at.pageIndex } : { kind: 'section', page: at.pageIndex, section: at.sectionIndex });
     setTimeout(() => {
       const parts = path.split('.');
@@ -531,12 +532,32 @@ export function SiteEditor({
       </Button>
     ) : null;
 
+  // вкладки как в макете Marketing 2.0 (экран 1): «Редактор» это разговор с ИИ, «Просмотр» только на узком экране
   const tabs: Array<[Tab, string]> = [
-    ['ai', 'ИИ'],
-    ['blocks', 'Блоки'],
-    ['site', 'Сайт'],
+    ['ai', 'Редактор'],
+    ['blocks', 'Страницы'],
+    ['design', 'Дизайн'],
+    ['site', 'Настройки'],
     ['preview', 'Просмотр'],
   ];
+  const tabList = (
+    <div className="ed-tabs" role="tablist" aria-label="Части редактора">
+      {tabs.map(([key, label]) => (
+        <button
+          key={key}
+          type="button"
+          role="tab"
+          id={`ed-tab-${key}`}
+          aria-selected={tab === key}
+          aria-controls={`ed-pane-${key}`}
+          className={cx('ed-tab', key === 'preview' && 'ed-tab--narrow', tab === key && 'is-on')}
+          onClick={() => setTab(key)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <EditorProvider value={context}>
@@ -553,6 +574,7 @@ export function SiteEditor({
               {LICENSE_TEXT[project.builder.access]}
             </p>
           </div>
+          {tabList}
           <dl className="ed-top__facts">
             <div>
               <dt>Черновик</dt>
@@ -582,12 +604,13 @@ export function SiteEditor({
             <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="editor-assets-link">
               Изображения
             </Link>
-            <Link className="btn btn--secondary" href="/marketing/site" data-testid="editor-publication-link">
-              Публикация
-            </Link>
-            <Button type="button" disabled={readOnly || !dirty || saving} onClick={() => void save()} data-testid="ed-save">
+            <Button type="button" tone="secondary" disabled={readOnly || !dirty || saving} onClick={() => void save()} data-testid="ed-save">
               {saving ? 'Сохраняем…' : 'Сохранить черновик'}
             </Button>
+            {/* публикация на своей странице (MKT7): там тариф бронирования, домен и подтверждение */}
+            <Link className="btn" href="/marketing/site" data-testid="editor-publication-link">
+              Опубликовать
+            </Link>
           </div>
         </div>
         {project.builder.access !== 'active' && (
@@ -671,24 +694,15 @@ export function SiteEditor({
 
         <div className="site-editor" data-testid="site-editor">
           <div className="ed-left">
-            <div className="ed-tabs" role="tablist" aria-label="Части редактора">
-              {tabs.map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  role="tab"
-                  id={`ed-tab-${key}`}
-                  aria-selected={tab === key}
-                  aria-controls={`ed-pane-${key}`}
-                  className={cx('ed-tab', key === 'preview' && 'ed-tab--narrow', tab === key && 'is-on')}
-                  onClick={() => setTab(key)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
             <div id="ed-pane-ai" role="tabpanel" aria-labelledby="ed-tab-ai" className={cx('site-editor__pane', tab === 'ai' && 'is-active')}>
-              <Panel>
+              {/* тёмная панель чата, как в макете: тёмные токены темы на самой панели, цвета не вписаны вручную */}
+              <div className="panel ed-chat" data-theme="dark" data-testid="ed-chat">
+                <p className="ed-chat__head">
+                  <span className="ed-chat__mark" aria-hidden="true">
+                    W
+                  </span>
+                  Создайте сайт с помощью ИИ
+                </p>
                 <AiChat
                   items={items}
                   revisionOf={(id) => versions.find((v) => v.id === id)?.revision ?? null}
@@ -709,7 +723,7 @@ export function SiteEditor({
                   setText={setAiText}
                   error={aiError}
                 />
-              </Panel>
+              </div>
             </div>
             <div id="ed-pane-blocks" role="tabpanel" aria-labelledby="ed-tab-blocks" className={cx('site-editor__pane', tab === 'blocks' && 'is-active')}>
               <Panel>
@@ -728,15 +742,22 @@ export function SiteEditor({
                 )}
               </Panel>
             </div>
+            <div id="ed-pane-design" role="tabpanel" aria-labelledby="ed-tab-design" className={cx('site-editor__pane', tab === 'design' && 'is-active')}>
+              {/* формы сайта в разметке только на своей вкладке: иначе их поля (логотип, ALT) двоились бы с формой блока */}
+              {tab === 'design' && (
+                <Panel>
+                  <SiteForm part="design" />
+                </Panel>
+              )}
+            </div>
             <div id="ed-pane-site" role="tabpanel" aria-labelledby="ed-tab-site" className={cx('site-editor__pane', tab === 'site' && 'is-active')}>
-              {/* форма сайта в разметке только на своей вкладке: иначе её поля (логотип, ALT) двоились бы с формой блока */}
               {tab === 'site' && (
                 <Stack>
                   <Panel>
                     <ProjectKnowledge initial={project.instructions} readOnly={readOnly} />
                   </Panel>
                   <Panel>
-                    <SiteForm />
+                    <SiteForm part="settings" />
                   </Panel>
                 </Stack>
               )}

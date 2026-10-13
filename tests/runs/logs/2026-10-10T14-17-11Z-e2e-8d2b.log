@@ -1,0 +1,352 @@
+# Сквозные (e2e) · 10.10.2026 19:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2341cfb (claude/platform-superadmin), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/platform-overview.spec.ts' 'tests/ui/organizations-manage.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/branches.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 22 tests using 1 worker
+
+  ✓   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (7.6s)
+  ✓   2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (7.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4031687153'
+[WebServer] }
+  ✓   3 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (10.8s)
+  ✓   4 tests/ui/organizations-manage.spec.ts:21:1 › переименование: название сохраняется и видно в таблице; пустое отклоняется словами API (5.5s)
+  ✓   5 tests/ui/organizations-manage.spec.ts:42:1 › архив вместо удаления: подтверждение, скрытие из списка, показ архивных и возврат с прежним статусом (8.1s)
+  ✓   6 tests/ui/organizations-manage.spec.ts:84:1 › своя организация: помечена «Ваша», в архив не убирается (4.6s)
+  ✓   7 tests/ui/organizations-manage.spec.ts:101:1 › создание организации: письмо владельцу ушло, в таблице «ждёт пароля», повторная ссылка сразу нельзя (7.5s)
+  ✓   8 tests/ui/organizations-manage.spec.ts:136:1 › письмо не ушло: организация создана, ссылку можно отправить ещё раз, когда почта заработала (7.9s)
+  ✓   9 tests/ui/organizations-manage.spec.ts:162:1 › создание: отказы API видны словами; ссылка на самостоятельную регистрацию остаётся (5.6s)
+  ✓  10 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (10.2s)
+  ✘  11 tests/ui/platform-access.spec.ts:85:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (49.0s)
+  ✓  12 tests/ui/platform-access.spec.ts:107:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (22.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4031687153'
+[WebServer] }
+  ✘  13 tests/ui/platform-access.spec.ts:146:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (53.1s)
+  ✘  14 tests/ui/platform-access.spec.ts:174:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (58.2s)
+  ✘  15 tests/ui/platform-access.spec.ts:194:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (1.0m)
+  ✘  16 tests/ui/platform-access.spec.ts:217:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (50.6s)
+  ✓  17 tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, light, 1440px (2.8m)
+  ✘  18 tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, dark, 1440px (4.1m)
+  ✘  19 tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, light, 390px (3.4m)
+  ✘  20 tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, dark, 390px (3.3m)
+  ✘  21 tests/ui/platform-overview.spec.ts:23:1 › обзор: плитки, рост, направления, статусы; про деньги — честные слова, а не числа (58.6s)
+  ✘  22 tests/ui/platform-overview.spec.ts:53:1 › таблица клиентов: направления, филиалы, дата подключения; поиск и отборы работают на месте (57.2s)
+
+
+  1) tests/ui/platform-access.spec.ts:85:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/platform-access-расширение-e8a8c-одключает-в-профиле-—-то-же/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-расширение-e8a8c-одключает-в-профиле-—-то-же/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-расширение-e8a8c-одключает-в-профиле-—-то-же/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/platform-access.spec.ts:146:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: net::ERR_ABORTED; maybe frame was detached?
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3100/today"
+    ============================================================
+
+      19 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      20 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 21 |   await page.waitForURL('**/finance');
+         |              ^
+      22 | }
+      23 |
+      24 | const control = (
+        at signIn (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-access.spec.ts:21:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-access.spec.ts:150:3
+
+    Error Context: test-results/platform-access-администра-2311e-елец-и-управляющий-ADR-107-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-администра-2311e-елец-и-управляющий-ADR-107-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-администра-2311e-елец-и-управляющий-ADR-107-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/platform-access.spec.ts:174:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3100/today"
+      navigated to "http://127.0.0.1:3100/finance"
+      "domcontentloaded" event fired
+    ============================================================
+
+      19 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      20 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 21 |   await page.waitForURL('**/finance');
+         |              ^
+      22 | }
+      23 |
+      24 | const control = (
+        at signIn (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-access.spec.ts:21:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-access.spec.ts:178:3
+
+    Error Context: test-results/platform-access-управляющи-4014f-равне-с-владельцем-ADR-107-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-управляющи-4014f-равне-с-владельцем-ADR-107-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-управляющи-4014f-равне-с-владельцем-ADR-107-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/platform-access.spec.ts:194:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/ai-seller/knowledge", waiting until "load"
+
+
+       at fixtures.ts:134
+
+      132 |     const goto = page.goto.bind(page);
+      133 |     page.goto = async (url, options) => {
+    > 134 |       const response = await goto(url, options);
+          |                              ^
+      135 |       await settleStreaming(page);
+      136 |       return response;
+      137 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/fixtures.ts:134:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-access.spec.ts:200:14
+
+    Error Context: test-results/platform-access-за-неделю--f7f50-яющий-и-администратор-—-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-за-неделю--f7f50-яющий-и-администратор-—-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-за-неделю--f7f50-яющий-и-администратор-—-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/platform-access.spec.ts:217:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('platform-organizations')
+    Expected substring: "Luxx Aparts"
+    Received string:    ""
+
+    Call log:
+      - Expect "toContainText" getByTestId('platform-organizations') with timeout 15000ms
+      - waiting for getByTestId('platform-organizations')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      227 |   await page.goto('/platform');
+      228 |   const table = page.getByTestId('platform-organizations');
+    > 229 |   await expect(table).toContainText('Luxx Aparts');
+          |                       ^
+      230 |   await expect(table).toContainText('Хостел «Пример»');
+      231 |   await expect(table).toContainText('<email>');
+      232 |   const other = table.getByRole('row', { name: /Хостел «Пример»/ });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-access.spec.ts:229:23
+
+    Error Context: test-results/platform-access-«Платформа-8e6f1-лючает-продавца-организации/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-«Платформа-8e6f1-лючает-продавца-организации/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-«Платформа-8e6f1-лючает-продавца-организации/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, dark, 1440px 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: visible
+    Received: undefined
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      291 |         await control(request, body);
+      292 |         await page.goto(route);
+    > 293 |         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+          |                                                               ^
+      294 |         const result = await new AxeBuilder({ page })
+      295 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      296 |           .analyze();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-access.spec.ts:293:63
+
+    Error Context: test-results/platform-access-доступност-5f661-яния-расширения-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-доступност-5f661-яния-расширения-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-доступност-5f661-яния-расширения-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, light, 390px 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/ai-seller/connections", waiting until "load"
+
+
+       at fixtures.ts:134
+
+      132 |     const goto = page.goto.bind(page);
+      133 |     page.goto = async (url, options) => {
+    > 134 |       const response = await goto(url, options);
+          |                              ^
+      135 |       await settleStreaming(page);
+      136 |       return response;
+      137 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/fixtures.ts:134:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-access.spec.ts:292:20
+
+    Error Context: test-results/platform-access-доступност-7d3f6-яния-расширения-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-доступност-7d3f6-яния-расширения-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-доступност-7d3f6-яния-расширения-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, dark, 390px 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 180000ms exceeded.
+
+      292 |         await page.goto(route);
+      293 |         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    > 294 |         const result = await new AxeBuilder({ page })
+          |                        ^
+      295 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      296 |           .analyze();
+      297 |         expect
+        at AxeBuilder.analyze (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/node_modules/@axe-core/playwright/dist/index.mjs:202:42)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-access.spec.ts:294:24
+
+    Error Context: test-results/platform-access-доступност-2140d-ояния-расширения-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-доступност-2140d-ояния-расширения-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-доступност-2140d-ояния-расширения-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/platform-overview.spec.ts:23:1 › обзор: плитки, рост, направления, статусы; про деньги — честные слова, а не числа 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/platform", waiting until "load"
+
+
+       at fixtures.ts:134
+
+      132 |     const goto = page.goto.bind(page);
+      133 |     page.goto = async (url, options) => {
+    > 134 |       const response = await goto(url, options);
+          |                              ^
+      135 |       await settleStreaming(page);
+      136 |       return response;
+      137 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/fixtures.ts:134:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-overview.spec.ts:28:14
+
+    Error Context: test-results/platform-overview-обзор-пл-8a27e--—-честные-слова-а-не-числа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-overview-обзор-пл-8a27e--—-честные-слова-а-не-числа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-overview-обзор-пл-8a27e--—-честные-слова-а-не-числа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/platform-overview.spec.ts:53:1 › таблица клиентов: направления, филиалы, дата подключения; поиск и отборы работают на месте 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: net::ERR_ABORTED; maybe frame was detached?
+    =========================== logs ===========================
+    waiting for navigation to "**/finance" until "load"
+      navigated to "http://127.0.0.1:3100/today"
+    ============================================================
+
+      17 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      18 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 19 |   await page.waitForURL('**/finance'); // /today у отеля сразу ведёт на /finance (ADR-152)
+         |              ^
+      20 |   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
+      21 | }
+      22 |
+        at signInAsPlatformAdmin (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-overview.spec.ts:19:14)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-overview.spec.ts:57:3
+
+    Error Context: test-results/platform-overview-таблица--4342b--и-отборы-работают-на-месте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-overview-таблица--4342b--и-отборы-работают-на-месте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-overview-таблица--4342b--и-отборы-работают-на-месте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests/ui/platform-access.spec.ts:85:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же 
+    tests/ui/platform-access.spec.ts:146:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) 
+    tests/ui/platform-access.spec.ts:174:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) 
+    tests/ui/platform-access.spec.ts:194:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет 
+    tests/ui/platform-access.spec.ts:217:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации 
+    tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, dark, 1440px 
+    tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, light, 390px 
+    tests/ui/platform-access.spec.ts:274:5 › доступность: «Организации» и состояния расширения, dark, 390px 
+    tests/ui/platform-overview.spec.ts:23:1 › обзор: плитки, рост, направления, статусы; про деньги — честные слова, а не числа 
+    tests/ui/platform-overview.spec.ts:53:1 › таблица клиентов: направления, филиалы, дата подключения; поиск и отборы работают на месте 
+  12 passed (27.1m)
+
+# код выхода 1 · 27 мин 12 с

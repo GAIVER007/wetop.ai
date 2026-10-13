@@ -1,0 +1,67 @@
+[WebServer] (node:96338) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96359) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:96401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96501) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/reservation-fixed-occupancy.spec.ts:3:1 › действия брони не предлагают редактировать количество гостей (18.4s)
+
+
+  1) tests/ui/reservation-fixed-occupancy.spec.ts:3:1 › действия брони не предлагают редактировать количество гостей 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('reservation-actions').locator('[data-testid^="guests-form-"]')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('reservation-actions').locator('[data-testid^="guests-form-"]') with timeout 15000ms
+      - waiting for getByTestId('reservation-actions').locator('[data-testid^="guests-form-"]')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+       7 |   await expect(actions).toBeVisible();
+       8 |   await expect(actions.getByRole('button', { name: 'Заселить', exact: true })).toBeVisible();
+    >  9 |   await expect(actions.locator('[data-testid^="guests-form-"]')).toHaveCount(0);
+         |                                                                  ^
+      10 |   await expect(actions.locator('input[name="adults"], input[name="children"]')).toHaveCount(0);
+      11 | });
+      12 |
+        at /private/tmp/wetop-calendar-workspace-20261007/tests/ui/reservation-fixed-occupancy.spec.ts:9:66
+
+    Error Context: test-results/reservation-fixed-occupanc-3f614-ктировать-количество-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservation-fixed-occupanc-3f614-ктировать-количество-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservation-fixed-occupanc-3f614-ктировать-количество-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/reservation-fixed-occupancy.spec.ts:3:1 › действия брони не предлагают редактировать количество гостей 

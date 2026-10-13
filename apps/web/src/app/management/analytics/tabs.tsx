@@ -1,9 +1,9 @@
-import Link from 'next/link';
 import type { DashboardFund } from '@pms/domain';
 import { ANALYTICS_PATH } from './params';
+import { Tabs } from '../../../components/tabs';
 
 /**
- * Вкладки модуля «Аналитика» (ADR-114): ссылки с `aria-current`, приём «Настроек гостиницы» (`.settings-tabs`).
+ * Вкладки модуля «Аналитика» (ADR-114): ссылки с `aria-current`, общий `Tabs` маршрутами.
  * Тип фонда переходит между вкладками, период — нет: у «Обзора» по умолчанию месяц, у «Загрузки» — день.
  * «Брони», «Продажи» и «Категории» появятся срезами AN3–AN5 — пустых заглушек нет.
  */
@@ -23,12 +23,11 @@ export function AnalyticsTabs({
     { id: 'channels', label: 'Каналы', href: `${ANALYTICS_PATH}/channels` },
   ] as const;
   return (
-    <nav className="settings-tabs pa-tabs" aria-label="Аналитика" data-testid="pa-tabs">
-      {tabs.map((t) => (
-        <Link key={t.id} href={t.href} aria-current={t.id === current ? 'page' : undefined}>
-          {t.label}
-        </Link>
-      ))}
-    </nav>
+    <div data-testid="pa-tabs">
+      <Tabs
+        label="Аналитика"
+        items={tabs.map((t) => ({ href: t.href, label: t.label, current: t.id === current }))}
+      />
+    </div>
   );
 }

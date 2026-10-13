@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 11.10.2026 17:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит b811e67 (claude/restaurant-payments-plan), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/restaurant.spec.ts' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (4.4s)
+[WebServer] (node:55342) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 tests/food-ui/restaurant.spec.ts:148:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (3.6s)
+  ✓   3 tests/food-ui/restaurant.spec.ts:192:1 › кухня: колонки KDS и переходы кнопками (1.9s)
+  ✓   4 tests/food-ui/restaurant.spec.ts:214:1 › главная: плитки, последние заказы и выручка после закрытия (1.1s)
+  ✓   5 tests/food-ui/restaurant.spec.ts:233:1 › план зала: заказ занимает стол, уборка включается и видна легенда (1.4s)
+  ✓   6 tests/food-ui/restaurant.spec.ts:263:1 › сотрудники: список с продажами, добавление и правка (1.5s)
+  ✓   7 tests/food-ui/restaurant.spec.ts:285:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (3.6s)
+  ✓   8 tests/food-ui/restaurant.spec.ts:350:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (2.0s)
+  ✓   9 tests/food-ui/restaurant.spec.ts:409:1 › клиенты: вкладки и «Постоянный гость» от двух визитов (1.3s)
+  ✓  10 tests/food-ui/restaurant.spec.ts:466:1 › навигация ресторана: пункты макета на месте и ведут на экраны (659ms)
+
+  10 passed (29.1s)
+
+# код выхода 0 · 30 с

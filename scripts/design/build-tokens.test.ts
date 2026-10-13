@@ -99,6 +99,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--plate-repair-ink',
       '--plate-block',
       '--plate-block-ink',
+      '--tl-hours', // food/restaurant.css: число часов шкалы броней, задаётся на .rest-tl__grid
       '--share-fill', // components.css: цвет полосы ShareBar по тону, объявлен в .share-bar (DS1c)
       '--share-track', // components.css: дорожка ShareBar по тону, там же
       '--module-fill', // marketing.css: плитка значка модуля хаба по модулю, объявлена в .marketing-module (MKT10)

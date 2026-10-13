@@ -21,7 +21,7 @@ export const PLATFORM_LABELS: Record<string, string> = {
 };
 export const platformLabel = (p: string): string => PLATFORM_LABELS[p] ?? p;
 
-/** Статьи-подсказки формы: свободный текст, список не ограничивает (DATA_MODEL §34.1) */
+/** Статьи-подсказки формы: свободный текст, список не ограничивает (DATA_MODEL §41.1) */
 export const CATEGORY_HINTS = ['Реклама', 'Креативы', 'Инфлюенсеры', 'Подписки и сервисы', 'Прочее'];
 
 const MONTH_NAME = new Intl.DateTimeFormat('ru-RU', {

@@ -1,0 +1,19 @@
+# Модульные (unit) · 11.10.2026 22:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0db5d6f (claude/gate-queue-on-main), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T17-20-23Z-unit-345a.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-queue
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (25 tests) 1002ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 568ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 356ms
+
+ Test Files  1 passed (1)
+      Tests  25 passed (25)
+   Start at  10:20:23
+   Duration  1.11s (tests 97%, transform 2%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T17-20-23Z-unit-345a.json
+
+# код выхода 0 · 2 с

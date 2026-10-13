@@ -10,13 +10,15 @@ import {
   Field,
   Input,
   Select,
+  Table,
   Textarea,
 } from '../../components/ui';
 import { Chip, ChipGroup } from '../../components/chip';
 import { Icon } from '../../components/icon';
+import { IconField } from '../../components/icon-field';
 import { wholeTenge } from '../../lib/dashboard-format';
 import type { IngredientInput, MenuCategory, MenuItemView } from '../../lib/food-types';
-import { mutateMenu } from './restaurant-actions';
+import { dishPhoto, mutateMenu } from './restaurant-actions';
 
 interface Ctx {
   scopeKey: string;
@@ -25,7 +27,15 @@ interface Ctx {
 }
 
 const UNITS = ['г', 'мл', 'шт'] as const;
-type Row = { name: string; normQty: string; unit: (typeof UNITS)[number]; unitCost: string };
+type Row = {
+  name: string;
+  normQty: string;
+  unit: (typeof UNITS)[number];
+  unitCost: string;
+  /** §38: ингредиент склада той же единицы; «Готово» по заказу списывает его */
+  productId: string | null;
+};
+type StockOption = { id: string; name: string; unit: string };
 
 /** Предварительный счёт в тенге для живой строки; точный целочисленный счёт делает API (§33.1) */
 function rowCost(row: Row): number {
@@ -33,6 +43,48 @@ function rowCost(row: Row): number {
   const cost = Number(row.unitCost);
   if (!Number.isFinite(qty) || !Number.isFinite(cost) || qty <= 0 || cost < 0) return 0;
   return row.unit === 'шт' ? qty * cost : (qty * cost) / 1000;
+}
+
+/** Фото блюда (§37): превью, загрузка заменяет прежнее, «Убрать фото» */
+function DishPhoto({ ctx, item }: { ctx: Ctx; item: MenuItemView }) {
+  const router = useRouter();
+  const [error, setError] = useState('');
+  const [pending, start] = useTransition();
+  const run = (form: FormData | null) =>
+    start(async () => {
+      const result = await dishPhoto(ctx.scopeKey, item.id, form);
+      if (result.error) setError(result.error);
+      else {
+        setError('');
+        router.refresh();
+      }
+    });
+  return (
+    <section className="rest-dish-photo" aria-label="Фото блюда" data-testid="dish-photo">
+      {error && <Alert>{error}</Alert>}
+      {item.photoUrl ? (
+        <img src={item.photoUrl} alt={item.name} width={160} height={120} />
+      ) : (
+        <p className="muted">Фото пока нет. JPEG, PNG или WebP до 10 МБ.</p>
+      )}
+      <form action={(form) => run(form)} className="food-actions">
+        <Input
+          type="file"
+          name="file"
+          accept="image/jpeg,image/png,image/webp"
+          aria-label="Файл фото блюда"
+        />
+        <Button type="submit" disabled={pending}>
+          {item.photoUrl ? 'Заменить фото' : 'Загрузить фото'}
+        </Button>
+        {item.photoUrl && (
+          <Button tone="secondary" disabled={pending} onClick={() => run(null)}>
+            Убрать фото
+          </Button>
+        )}
+      </form>
+    </section>
+  );
 }
 
 function DishDrawer({
@@ -79,7 +131,14 @@ function DishDrawer({
     });
   }
   return (
-    <Overlay open onClose={close} title={item ? 'Изменить блюдо' : 'Новое блюдо'} drawer className="food-drawer" trapFocus>
+    <Overlay
+      open
+      onClose={close}
+      title={item ? 'Изменить блюдо' : 'Новое блюдо'}
+      drawer
+      className="food-drawer"
+      trapFocus
+    >
       <div className="food-form" data-testid="dish-drawer">
         {error && <Alert>{error}</Alert>}
         <Field label="Название">
@@ -96,17 +155,13 @@ function DishDrawer({
             </Select>
           </Field>
           <Field label={`Цена, ${ctx.currencyHint}`}>
-            <Input
-              type="number"
-              min={0}
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
+            <Input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} />
           </Field>
         </div>
         <Field label="Выход, г">
           <Input type="number" min={1} value={weight} onChange={(e) => setWeight(e.target.value)} />
         </Field>
+        {item && ctx.write && <DishPhoto ctx={ctx} item={item} />}
         <div className="food-actions">
           <Button disabled={pending} onClick={submit}>
             Сохранить
@@ -123,10 +178,12 @@ function DishDrawer({
 function TechCardDrawer({
   ctx,
   item,
+  stock,
   close,
 }: {
   ctx: Ctx;
   item: MenuItemView;
+  stock: StockOption[];
   close: () => void;
 }) {
   const router = useRouter();
@@ -138,6 +195,7 @@ function TechCardDrawer({
       normQty: i.normQty,
       unit: (UNITS as readonly string[]).includes(i.unit) ? (i.unit as Row['unit']) : 'г',
       unitCost: String(BigInt(i.unitCostMinor) / 100n),
+      productId: i.productId ?? null,
     })),
   );
   const [tech, setTech] = useState(item.techNotes ?? '');
@@ -158,7 +216,13 @@ function TechCardDrawer({
         setError('У каждой строки нужны название, норма и цена');
         return;
       }
-      ingredients.push({ name: r.name.trim(), normQty: qty, unit: r.unit, unitCost: cost });
+      ingredients.push({
+        name: r.name.trim(),
+        normQty: qty,
+        unit: r.unit,
+        unitCost: cost,
+        productId: r.productId,
+      });
     }
     start(async () => {
       const replaced = await mutateMenu(ctx.scopeKey, {
@@ -220,7 +284,7 @@ function TechCardDrawer({
             <Select
               aria-label="Единица"
               value={r.unit}
-              onChange={(e) => set(index, { unit: e.target.value as Row['unit'] })}
+              onChange={(e) => set(index, { unit: e.target.value as Row['unit'], productId: null })}
             >
               {UNITS.map((u) => (
                 <option key={u} value={u}>
@@ -235,7 +299,9 @@ function TechCardDrawer({
               value={r.unitCost}
               onChange={(e) => set(index, { unitCost: e.target.value })}
             />
-            <span className="rest-tech-cost">{wholeTenge(String(Math.round(rowCost(r) * 100)), item.currency)}</span>
+            <span className="rest-tech-cost">
+              {wholeTenge(String(Math.round(rowCost(r) * 100)), item.currency)}
+            </span>
             <Button
               tone="ghost"
               aria-label="Убрать строку"
@@ -243,11 +309,36 @@ function TechCardDrawer({
             >
               ×
             </Button>
+            {stock.length > 0 && (
+              <Select
+                className="rest-tech-link"
+                aria-label={`Склад для строки ${index + 1}`}
+                value={r.productId ?? ''}
+                onChange={(e) => {
+                  const p = stock.find((x) => x.id === e.target.value);
+                  set(index, {
+                    productId: p?.id ?? null,
+                    ...(p && !r.name.trim() ? { name: p.name } : {}),
+                  });
+                }}
+              >
+                <option value="">Не списывать со склада</option>
+                {stock
+                  .filter((p) => p.unit === r.unit)
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      Списывать со склада: {p.name}
+                    </option>
+                  ))}
+              </Select>
+            )}
           </div>
         ))}
         <Button
           tone="secondary"
-          onClick={() => setRows([...rows, { name: '', normQty: '', unit: 'г', unitCost: '' }])}
+          onClick={() =>
+            setRows([...rows, { name: '', normQty: '', unit: 'г', unitCost: '', productId: null }])
+          }
         >
           + Ингредиент
         </Button>
@@ -295,10 +386,13 @@ export function MenuBoard({
   ctx,
   categories,
   items,
+  stock = [],
 }: {
   ctx: Ctx;
   categories: MenuCategory[];
   items: MenuItemView[];
+  /** Ингредиенты склада для связи строк техкарты (§38); пусто, если склада нет */
+  stock?: StockOption[];
 }) {
   const router = useRouter();
   const [error, setError] = useState('');
@@ -383,83 +477,129 @@ export function MenuBoard({
           </Button>
         </div>
       )}
-      <div className="food-toolbar">
-        <Field label="Поиск по блюдам">
-          <Input
-            type="search"
-            data-page-search
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </Field>
-      </div>
-      {list.length === 0 ? (
-        <EmptyState
-          title={items.length ? 'Блюда не найдены' : 'Меню пока пустое'}
-          actions={
-            ctx.write && !items.length ? (
-              <Button onClick={() => (categories.length ? setDish('new') : setNewCategory(''))}>
-                {categories.length ? 'Добавить блюдо' : 'Сначала добавить категорию'}
-              </Button>
-            ) : null
-          }
-        />
-      ) : (
-        <div className="rest-menu-list" data-testid="menu-list">
-          {list.map((m) => (
-            <div className="rest-menu-row" key={m.id}>
-              <span className="rest-menu-thumb" aria-hidden="true">
-                <Icon name="kettle" />
-              </span>
-              <div className="rest-menu-main">
-                <strong>{m.name}</strong>
-                <small>
-                  {categoryName.get(m.categoryId) ?? 'Без категории'}
-                  {m.weightGrams ? `, ${m.weightGrams} г` : ''}
-                  {m.totals?.foodCostPct != null ? `, food cost ${m.totals.foodCostPct} %` : ''}
-                </small>
-              </div>
-              <span className="rest-menu-price">{wholeTenge(m.priceMinor, m.currency)}</span>
-              <span className="rest-menu-actions">
-                {!m.active && <Badge>Скрыто из меню</Badge>}
-                {ctx.write && (
-                  <label className="switch">
-                    <span className="switch__text">
-                      <span className="switch__label">В меню</span>
-                    </span>
-                    <input
-                      className="switch__input"
-                      type="checkbox"
-                      role="switch"
-                      checked={m.active}
-                      disabled={pending}
-                      onChange={() => toggle(m)}
-                    />
-                    <span className="switch__track" aria-hidden="true" />
-                  </label>
-                )}
-                <Button tone="secondary" onClick={() => setTech(m)}>
-                  Техкарта
-                </Button>
-                {ctx.write && (
-                  <Button tone="ghost" onClick={() => setDish(m)}>
-                    Изменить
-                  </Button>
-                )}
-              </span>
-            </div>
-          ))}
+      <div className="rest-card">
+        <div className="rest-card__tools">
+          <Field label={<span className="sr-only">Поиск по блюдам</span>}>
+            <IconField icon="search">
+              <Input
+                type="search"
+                placeholder="Поиск блюда"
+                data-page-search
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </IconField>
+          </Field>
         </div>
-      )}
+        {list.length === 0 ? (
+          <EmptyState
+            title={items.length ? 'Блюда не найдены' : 'Меню пока пустое'}
+            actions={
+              ctx.write && !items.length ? (
+                <Button onClick={() => (categories.length ? setDish('new') : setNewCategory(''))}>
+                  {categories.length ? 'Добавить блюдо' : 'Сначала добавить категорию'}
+                </Button>
+              ) : null
+            }
+          />
+        ) : (
+          <div className="rest-menu-list" data-testid="menu-list">
+            <Table density="compact" caption="Блюда меню" captionHidden>
+              <thead>
+                <tr>
+                  <th scope="col">Название</th>
+                  <th scope="col">Категория</th>
+                  <th scope="col" className="num">
+                    Цена
+                  </th>
+                  <th scope="col" className="num">
+                    Food cost
+                  </th>
+                  <th scope="col">Статус</th>
+                  <th scope="col">
+                    <span className="sr-only">Действия</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.map((m) => (
+                  <tr className="rest-menu-row" key={m.id}>
+                    <td>
+                      <span className="rest-menu-name">
+                        <span className="rest-menu-thumb" aria-hidden="true">
+                          {m.photoUrl ? (
+                            <img src={m.photoUrl} alt="" width={44} height={44} loading="lazy" />
+                          ) : (
+                            <Icon name="kettle" />
+                          )}
+                        </span>
+                        <span>
+                          <strong>{m.name}</strong>
+                          {m.weightGrams ? <small>{m.weightGrams} г</small> : null}
+                        </span>
+                      </span>
+                    </td>
+                    <td>{categoryName.get(m.categoryId) ?? 'Без категории'}</td>
+                    <td className="num rest-menu-price">{wholeTenge(m.priceMinor, m.currency)}</td>
+                    <td className="num">
+                      {m.totals?.foodCostPct != null && m.totals.costMinor !== '0'
+                        ? `${m.totals.foodCostPct} %`
+                        : '—'}
+                    </td>
+                    <td>
+                      <span className="rest-menu-status">
+                        {m.active ? (
+                          <Badge tone="ok">Активно</Badge>
+                        ) : (
+                          <Badge>Скрыто из меню</Badge>
+                        )}
+                        {ctx.write && (
+                          <label className="switch">
+                            <span className="switch__text">
+                              <span className="switch__label sr-only">В меню</span>
+                            </span>
+                            <input
+                              className="switch__input"
+                              type="checkbox"
+                              role="switch"
+                              checked={m.active}
+                              disabled={pending}
+                              onChange={() => toggle(m)}
+                            />
+                            <span className="switch__track" aria-hidden="true" />
+                          </label>
+                        )}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="rest-menu-actions">
+                        <Button tone="secondary" size="sm" onClick={() => setTech(m)}>
+                          Техкарта
+                        </Button>
+                        {ctx.write && (
+                          <Button tone="ghost" size="sm" onClick={() => setDish(m)}>
+                            Изменить
+                          </Button>
+                        )}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        )}
+      </div>
       {dish && (
         <DishDrawer
           ctx={ctx}
           categories={categories.filter((c) => c.active)}
-          item={dish === 'new' ? null : dish}
+          // свежее блюдо из списка: после загрузки фото список обновился, а снимок в состоянии нет
+          item={dish === 'new' ? null : (items.find((i) => i.id === dish.id) ?? dish)}
           close={() => setDish(null)}
         />
       )}
-      {tech && <TechCardDrawer ctx={ctx} item={tech} close={() => setTech(null)} />}
+      {tech && <TechCardDrawer stock={stock} ctx={ctx} item={tech} close={() => setTech(null)} />}
     </div>
   );
 }

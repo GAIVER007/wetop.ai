@@ -118,11 +118,11 @@ test('все разделы, карточки и печать открывают
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/finance');
-  // левое меню (ADR-161): панель разделов, «Продажи» → «Загрузка конкурентов»
+  // левое меню (ADR-161): панель разделов, «Продажи» → «Анализ конкурентов»
   const sidebar = page.locator('.sidenav__items');
-  await goViaMenu(page, 'Продажи', 'Загрузка конкурентов');
+  await goViaMenu(page, 'Продажи', 'Анализ конкурентов');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Загрузка конкурентов');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
   // переход закрывает панель; кнопка показывает раздел текущего экрана
   await expect(page.locator('.sidenav__panel')).toBeHidden();
   await expect(page.locator('.sidenav__current')).toHaveText('Продажи');
@@ -599,11 +599,13 @@ test('общий платёж: ошибка не стирает распреде
   await form.getByLabel('Общая сумма, KZT').fill('2000');
   await form.getByLabel('На счёт 1', { exact: true }).fill('1000');
   await form.getByLabel('На счёт 2', { exact: true }).fill('500');
-  await form.getByRole('button', { name: 'Принять общий платёж' }).click();
+  await form.getByRole('button', { name: 'Проверить общий платёж' }).click();
+  await form.getByRole('button', { name: 'Подтвердить общий платёж' }).click();
   await expect(form.getByRole('alert')).toContainText('должны совпадать');
   await expect(form.getByLabel('На счёт 1', { exact: true })).toHaveValue('1000');
   await form.getByLabel('На счёт 2', { exact: true }).fill('1000');
-  await form.getByRole('button', { name: 'Принять общий платёж' }).click();
+  await form.getByRole('button', { name: 'Проверить общий платёж' }).click();
+  await form.getByRole('button', { name: 'Подтвердить общий платёж' }).click();
   await expect(form.getByRole('status')).toContainText('Платёж принят');
   await expect(page.getByTestId('finance-total')).toContainText('30 000 ₸');
   const result = await (
@@ -1210,7 +1212,8 @@ test('счета: приём оплаты подтверждается сумм�
   await page.getByRole('tab', { name: 'Счета', exact: true }).click();
   const payment = page.getByTestId('payment-form').filter({ visible: true }).first();
   await payment.getByLabel('Сумма', { exact: true }).fill('1200');
-  await payment.getByRole('button', { name: 'Принять оплату', exact: true }).click();
+  await payment.getByRole('button', { name: 'Проверить оплату', exact: true }).click();
+  await payment.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
   await expect(page.getByTestId('finance-done')).toContainText('Оплата принята');
   await expect(page.getByTestId('finance-done')).toContainText('1 200');
 });
@@ -1242,8 +1245,6 @@ test('деньги за период: период длиннее года об�
  * никогда.
  */
 test('шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке', async ({ page }) => {
-  // канал и долг живут во второй строке подписи, а её показывает «Обычный» вид; «Компактный» по умолчанию
-  // (решение владельца 07.10.2026) вторую строку прячет: без этого в CI бейдж не находился (прогон #148)
   await page.addInitScript(() => localStorage.setItem('wetop.chessboard.view', 'normal'));
   await page.goto('/chessboard');
   const plate = page.getByTestId('stay-cell').first();
@@ -1269,7 +1270,7 @@ test('шахматка: фильтр «Уборка» показывает гр�
   // уборка со счётчиком: «Уборка 2» (21.09); с PR 7 «Шахматки v2» — пункт поля «Места»
   const pop = await openBoardFilters(page);
   await expect(pop.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
-    /^Уборка \d+$/,
+    /^Уборка и проверка \d+$/,
   );
   await pop.getByRole('button', { name: 'Закрыть фильтры' }).click();
   await boardFilter(page, { state: 'cleaning' });
@@ -1277,7 +1278,8 @@ test('шахматка: фильтр «Уборка» показывает гр�
   expect(dirty).toBeGreaterThan(0);
   expect(dirty).toBeLessThan(all);
   // легенда называет статусы глифом и словом, а не одним цветом (принцип 4)
-  await expect(page.getByTestId('board-legend')).toContainText('не подтверждена');
+  await expect(page.getByTestId('board-status-legend')).toBeVisible();
+  await expect(page.getByTestId('board-status-legend')).toContainText('Не подтверждена');
 });
 
 /**
@@ -1351,11 +1353,12 @@ test('незаезд: окно называет штраф суммой, а не
   await page.goto('/reservations/20260913-TEST1');
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
   await page
-    .getByTestId(/^no-show-/)
+    .getByTestId(/^cancel-stay-/)
     .first()
     .click();
   const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
-  await expect(dialog).toContainText('Отметить незаезд');
+  await dialog.getByLabel('Причина отмены').selectOption('no_show');
+  await expect(dialog).toContainText('Подтвердить незаезд');
   await expect(dialog.getByTestId('no-show-penalty')).toHaveText(
     'Штраф 8 000 ₸ останется на счёте',
   );

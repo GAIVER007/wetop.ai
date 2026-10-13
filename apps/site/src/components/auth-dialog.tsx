@@ -268,6 +268,7 @@ export function AuthDialog({ texts, urls }: Props) {
       phoneCountry: form.phoneCountry,
       phone: form.phone.trim(),
       privacyAccepted,
+      locale: form.language,
     };
     if (!body.email || !body.name || !body.businessName || !body.password || !body.phone) {
       return setError({ text: texts.errors.required, fallback: false });

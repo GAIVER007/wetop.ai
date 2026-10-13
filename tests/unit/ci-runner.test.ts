@@ -96,9 +96,11 @@ describe('свой раннер CI', () => {
     const summary = withoutComments(job('ui'));
     expect(summary).toContain('needs: ui-shard');
     expect(summary).toContain('test "$UI_RESULT" = success');
-    // новый кандидат заменяет прежний: его итог уже никому не нужен, а минуты тратятся
+    // На main прогон не отменяется следующим слиянием, а ждёт в очереди (один, самый свежий): с 10.10.2026 по 11.10
+    // из 59 прогонов на main 39 отменены, 19 красные, ни одного зелёного, и release не двигался. На прочих ветках
+    // новый прогон по-прежнему заменяет прежний.
     const block = /\nconcurrency:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '';
-    expect(withoutComments(block)).toMatch(/cancel-in-progress: true/);
+    expect(withoutComments(block)).toMatch(/cancel-in-progress: \$\{\{ github\.ref != 'refs\/heads\/main' \}\}/);
     expect(withoutComments(RELEASE)).toMatch(/permissions:\n\s+contents: read/);
   });
 

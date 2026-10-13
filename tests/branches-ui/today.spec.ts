@@ -185,9 +185,8 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     expect(m.activeTables).toBe(3);
     // «Главная» ресторана по макету (ADR-159): счётчик дня и плитка занятости вместо прежних четырёх плиток
     await expect(value(page, 'today-planned'), 'today-planned').toHaveText(String(m.planned));
-    await expect(value(page, 'today-tables'), 'today-tables').toHaveText(
-      `${m.activeTables - m.freeNow} / ${m.activeTables}`,
-    );
+    // плитка «Свободные столы» по макету ресторана (экран 1)
+    await expect(value(page, 'today-tables'), 'today-tables').toHaveText(String(m.freeNow));
     for (const [id, n] of [
       ['today-attention-unconfirmed', m.awaitingConfirmation],
       ['today-attention-no-show', m.noShow],
@@ -199,6 +198,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     // боковое меню (ADR-161) держит разделы в панели: открыть её и найти «Бронирования»
     const nav = page.getByRole('navigation', { name: 'Разделы' });
     await nav.locator('.sidenav__current').click();
+    await nav.getByRole('link', { name: 'Зал', exact: true }).focus();
     await expect(nav.getByRole('link', { name: 'Бронирования', exact: true }).first()).toBeVisible();
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);

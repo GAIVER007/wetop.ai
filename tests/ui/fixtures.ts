@@ -15,8 +15,9 @@
  * `reservations-states`, «загрузка словом» в `system-screens` и `channex-screens`). Длинное
  * ожидание здесь отдавало бы им уже загруженную страницу и проверяло пустоту вместо скелетона.
  */
-import { test as base, expect, type Page } from '@playwright/test';
+import { test as base, expect, type Locator, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { settleNextRedirect } from '../tools/next-redirect';
 
 const STREAM_GRACE_MS = 700;
 
@@ -111,6 +112,35 @@ export const devNoise = /Failed to execute 'measure' on 'Performance'/;
 export const HEADER_GROWTH_PX = 28;
 
 /**
+ * Оживил ли React этот узел. Сервер рисует кнопку раньше, чем браузер получит и выполнит скрипты стойки, и клик в
+ * этот промежуток пропадает: кнопка видна, а обработчика у неё ещё нет. Признак оживления: служебное свойство React
+ * на самом узле (`__reactProps$…`), его ставят вместе с обработчиками (тот же признак, что у `ai-seller.spec.ts`).
+ * На медленном раннере GitHub промежуток доходит до секунд: TESTING.md, строки 20.09 (`real-data`), 27.09
+ * (`ai-seller`) и 03.10 (`login-access`, release-checks #7).
+ */
+export async function hydrated(target: Locator): Promise<void> {
+  await expect
+    .poll(
+      () =>
+        target.evaluate((node) => Object.keys(node).some((key) => key.startsWith('__reactProps$'))),
+      { message: 'React не оживил элемент: скрипты стойки не дошли или упали', timeout: 30_000 },
+    )
+    .toBe(true);
+}
+
+/**
+ * «Меню администратора» в шапке: нажать, когда React оживил кнопку, и убедиться, что меню раскрылось. Спеки открывают
+ * меню профиля только так (сторож `tests/unit/ui-profile-menu.test.ts`); возвращает саму кнопку.
+ */
+export async function openProfileMenu(page: Page): Promise<Locator> {
+  const menu = page.getByRole('button', { name: 'Меню администратора' });
+  await hydrated(menu);
+  await menu.click();
+  await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  return menu;
+}
+
+/**
  * Обучение в стойке (ADR-100) само открывается на Главной у вошедшего, пока в браузере нет отметки «пройдено».
  * Спекам, которые входят и работают на Главной, окно поверх экрана не нужно: по умолчанию стенд считает обучение
  * пройденным. Спек обучения включает его сам: `test.use({ tour: true })`.
@@ -131,13 +161,20 @@ export const test = base.extend<{ tour: boolean }>({
     if (!tour) await page.addInitScript(TOUR_DONE_SCRIPT);
     const goto = page.goto.bind(page);
     page.goto = async (url, options) => {
+      // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      await settleNextRedirect(page, 'commit');
       const response = await goto(url, options);
+      const until = options?.waitUntil ?? 'load';
+      await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
       await settleStreaming(page);
       return response;
     };
     const reload = page.reload.bind(page);
     page.reload = async (options) => {
+      await settleNextRedirect(page, 'commit');
       const response = await reload(options);
+      const until = options?.waitUntil ?? 'load';
+      await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
       await settleStreaming(page);
       return response;
     };
@@ -164,6 +201,18 @@ const fixturePort = process.env['FIXTURE_PORT'];
 export const FIXTURE_API =
   process.env['UI_FIXTURE_API'] ??
   (fixturePort ? `http://127.0.0.1:${fixturePort}` : 'http://127.0.0.1:4311');
+
+/**
+ * Полная карточка брони двойным щелчком по плашке календаря. Событие подаётся плашке напрямую, а не двумя
+ * щелчками мыши: от 1280 px первый щелчок открывает панель брони рядом с сеткой, сетка сужается и плашка
+ * уезжает из-под курсора, поэтому второй щелчок попадает в панель. Плашка «заезд сегодня» стоит правее
+ * середины недели по субботам и воскресеньям (выходные по Алматы), и в эти дни гейт краснел сам по себе.
+ */
+export async function openFullCard(stay: Locator) {
+  // событие, поданное до оживления React, пропадает так же, как щелчок: сначала дожидаемся обработчиков
+  await hydrated(stay);
+  await stay.dispatchEvent('dblclick');
+}
 
 /**
  * Окошко «Фильтры» календаря. С 09.10.2026 (образец владельца) категория и «Места» живут в нём, а не
@@ -204,17 +253,27 @@ export async function openSection(page: Page, section: string) {
   const nav = sideNav(page);
   // шапка клиентская: до гидрации наведение без обработчика, поэтому повтор. Мышь сперва уводим: после перехода
   // панель закрывается по смене адреса, а курсор, уже стоящий на кнопке, нового pointerenter не даёт
+  // Увод мыши запускает закрытие панели через 150 мс (CLOSE_DELAY): открытой она может быть ещё мгновение.
+  // Поэтому ждём закрытия и открываем заново, а наведение на раздел проверяем внутри того же повтора
+  const panel = nav.locator('.sidenav__panel');
   await expect(async () => {
     await page.mouse.move(page.viewportSize()!.width - 1, page.viewportSize()!.height - 1);
-    await nav.locator('.sidenav__current').hover();
-    await expect(nav.locator('.sidenav__panel')).toBeVisible({ timeout: 1_000 });
+    await page.waitForTimeout(250);
+    if ((await nav.locator('.sidenav__current').getAttribute('aria-expanded')) !== 'true')
+      await nav.locator('.sidenav__current').click();
+    await expect(panel).toBeVisible({ timeout: 1_000 });
+    await nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) }).hover();
+    await expect(panel).toBeVisible({ timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
-  await nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) }).hover();
   return nav.locator('.sidenav__items > :not([hidden])');
 }
 
 /** Переход через панель: раздел → подраздел, как человек мышью */
 export async function goViaMenu(page: Page, section: string, item: string) {
   const items = await openSection(page, section);
-  await items.getByRole('link', { name: item, exact: true }).click();
+  if (await items.count()) await items.getByRole('link', { name: item, exact: true }).click();
+  else
+    await sideNav(page)
+      .locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) })
+      .click();
 }

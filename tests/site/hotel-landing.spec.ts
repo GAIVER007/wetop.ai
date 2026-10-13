@@ -27,9 +27,7 @@ test('герой: заголовок, регистрация с направле
   );
   // Общий мокап «Сегодня»: вымышленные данные, подпись примера, интерактива внутри нет (§19.9)
   await expect(hero.locator('figure img')).toHaveAttribute('src', '/design-only/hospitality.svg');
-  for (const source of ['Booking.com', 'Trip.com', 'Agoda', 'Стойка']) {
-    await expect(hero.getByText(source, { exact: true })).toBeVisible();
-  }
+  await expect(hero.getByText('Источники бронирований', { exact: true })).toHaveCount(0);
   await expect(hero).toContainText('Пример интерфейса. Данные вымышленные.');
   await expect(hero.locator('figure a, figure button, figure [role="button"]')).toHaveCount(0);
 });

@@ -42,11 +42,8 @@ for (const segment of SEGMENTS) {
           ? 'beauty'
           : 'restaurant';
     await expect(photo).toHaveAttribute('src', `/design-only/${preview}.svg`);
-    if (segment.vertical === 'HOSPITALITY') {
-      for (const source of ['Booking.com', 'Trip.com', 'Agoda', 'Стойка']) {
-        await expect(hero.getByText(source, { exact: true })).toBeVisible();
-      }
-    }
+    await expect(hero.getByText('Источники бронирований', { exact: true })).toHaveCount(0);
+
     expect((await page.request.get((await photo.getAttribute('src')) ?? '')).status()).toBe(200);
     expect(
       await page.locator('#segment-features .card').count(),

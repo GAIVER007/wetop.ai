@@ -1181,11 +1181,7 @@ export function ChessboardGrid({
                           }
                         >
                           <span className="board-group-bar" aria-hidden="true">
-                            <span
-                              style={{
-                                width: loadPct(g.code),
-                              }} /* slop-allow: inline-style доля занятых мест категории из данных */
-                            />
+                            <span style={{ width: loadPct(g.code) }} /* slop-allow: inline-style доля занятых мест категории из данных */ />
                           </span>
                           <span className="board-group-ratio">
                             {groupLoad(g.code)
@@ -1718,10 +1714,9 @@ function Cell({
       ) : cell.state === 'FREE' && readOnly ? (
         <button
           type="button"
-          className="board__free board__free--link"
+          className="board__free board__free--link board__free--view"
           data-testid="free-cell"
           tabIndex={-1}
-          style={{ width: '100%', padding: 0, border: 0 }}
           aria-label={`Свободно: ${unitCode}, ${cell.date}`}
           onClick={(event) =>
             onViewFree?.(event.currentTarget.closest('td') ?? event.currentTarget)

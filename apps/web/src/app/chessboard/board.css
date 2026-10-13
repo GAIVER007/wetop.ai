@@ -3338,3 +3338,11 @@
     }
   }
 }
+
+/* Кнопка безопасного просмотра свободной клетки без ссылок записи. */
+.board .board__free--view {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}

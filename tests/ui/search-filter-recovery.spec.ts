@@ -132,7 +132,9 @@ for (const width of [1440, 390]) {
 
     test('availability: calendar transfers its inclusive range and category', async ({ page }) => {
       await page.goto('/chessboard?from=2026-10-10&to=2026-10-12&category=MALE');
-      // Карточка считает все места, включая койки, и передаёт выбранный период и категорию.
+      // Поиск в деталях считает все места, включая койки, и передаёт период и категорию.
+      await page.getByRole('group', { name: 'Сегодня на объекте' })
+        .getByText('Другие показатели', { exact: true }).click();
       const link = page.getByRole('link', { name: 'Поиск свободных мест', exact: true });
       await expect(link).toBeVisible();
       await link.click();

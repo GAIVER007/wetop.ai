@@ -94,9 +94,14 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
       if (width > 600)
         await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
-      // Длинная категория не должна заходить на число мест в узкой первой колонке.
+      // Обрезанный текст категории не должен заходить на соседние показатели.
       for (const name of await page.locator('.board-group-name-text').all()) {
-        expect(await name.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+        const overlap = await name.evaluate((el) => {
+          const next = el.nextElementSibling;
+          if (!next || getComputedStyle(next).display === 'none') return 0;
+          return el.getBoundingClientRect().right - next.getBoundingClientRect().left;
+        });
+        expect(overlap).toBeLessThanOrEqual(1);
       }
       const audit = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])

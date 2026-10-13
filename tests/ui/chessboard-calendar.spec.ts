@@ -12,10 +12,14 @@ import { expect, test } from './fixtures';
 test('календарь: заголовок, сводка дня и быстрые действия', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
-  // Шесть карточек по образцу владельца (09.10): загрузка, заезды, выезды, свободно, уборка, внимание.
+  // Четыре основные карточки; свободные места и уборка доступны в деталях.
   const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(stats).toBeVisible();
-  for (const id of ['occupancy', 'arrivals', 'departures', 'free', 'dirty', 'attention'])
+  await expect(stats.locator('.board-kpi')).toHaveCount(4);
+  for (const id of ['occupancy', 'arrivals', 'departures', 'attention'])
+    await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
+  await stats.getByText('Другие показатели', { exact: true }).click();
+  for (const id of ['free', 'dirty'])
     await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
   // часов в сводке больше нет: образец их не показывает
   await expect(stats.getByRole('heading')).toHaveCount(0);
@@ -37,7 +41,7 @@ test('календарь: заголовок, сводка дня и быстр�
     'href',
     `/rooms/availability?arrival=${arrival}&departure=${departure}`,
   );
-  await expect(page.getByRole('link', { name: 'Неоплаченные' })).toHaveAttribute(
+  await expect(stats.getByRole('link', { name: /Требует внимания/ })).toHaveAttribute(
     'href',
     '/chessboard?stays=debt',
   );

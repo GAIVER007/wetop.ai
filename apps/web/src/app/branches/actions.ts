@@ -19,9 +19,10 @@ export async function selectBranch(form: FormData) {
       destination === '/management/analytics' ? destination : landingForVertical(branch.vertical),
     );
   }
+  const destination = branchDestination(String(form.get('returnTo') ?? ''));
   redirect(
-    branch._count.inventoryUnits
-      ? branchDestination(String(form.get('returnTo') ?? ''))
+    branch._count.inventoryUnits || destination === '/hotel-settings'
+      ? destination
       : '/onboarding',
   );
 }

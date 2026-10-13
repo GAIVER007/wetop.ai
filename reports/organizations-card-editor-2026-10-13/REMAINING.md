@@ -40,3 +40,34 @@ Object storage на сервере выключен; S3-конфигурации
 После удаления панелей обновлено последнее устаревшее ожидание в organization-card-workflow. Красный 2026-10-13T18-19-38Z-e2e-5027 дошёл до отсутствующей таблицы после сохранения, архива, восстановления и второго бренда. Повтор 2026-10-13T18-21-28Z-e2e-482e завершился таймаутом локальной загрузки. Зелёный полный сценарий 1/1: 2026-10-13T18-23-45Z-e2e-a6be, локальный CLI timeout=90000, 58.6 секунд; постоянный лимит теста не менялся. Проверка теперь требует отсутствие нижних панелей и наличие верхних итогов.
 
 По последнему поручению верхняя сводка идёт от расходов к доходу: Расходы, Средний чек, Оплаченные заказы, Доход от оплат. Изменены только порядок, подписи и финансовая иконка расходов; расчётные поля и формулы прежние. Красный 2026-10-13T18-29-54Z-unit-8c3c; зелёный 25/25 2026-10-13T18-30-50Z-unit-8086, финальный повтор после иконки 19/19 2026-10-13T18-31-25Z-unit-72a7. Web typecheck и targeted lint прошли. Браузер подтвердил фактический порядок четырёх подписей.
+
+Последние правки владельца: строка фильтров, поиск бизнесов, сортировка и переключатель вида удалены; все карточки показаны сразу. Архив перенесён в верхние действия. В общем меню выровнены колонки и строки, разделены поверхности, добавлено явное закрытие с возвратом фокуса. Маршруты, права и клавиатурное управление сохранены. Меню приватного preview обновлено из текущего компонента. Старый grid-selector ограничен заголовком, чтобы кнопка добавления не переносилась.
+Доказательства: красный фильтры unit 2026-10-13T18-36-23Z-unit-cba9; зелёные 26/26 2026-10-13T18-50-48Z-unit-48c1; красное закрытие 2026-10-13T18-41-17Z-e2e-07ae; зелёное меню 3/3 2026-10-13T18-52-08Z-e2e-9645 (переходы, стрелки, Escape, закрытие); красная раскладка заголовка 2026-10-13T18-53-37Z-e2e-2426; зелёные размеры/создание/reload 1/1 2026-10-13T18-55-30Z-e2e-cbab; финальные 18/18 style guards 2026-10-13T18-55-44Z-unit-7ed0. Web typecheck и targeted lint прошли.
+CI 38447686483: integration остановился на жёстком личном порту 55613 в organization-feedback.test.ts. Исправлен только guard: существующая проверка локального адреса и обязательная схема pms_test, проверяется также app URL, если задан. Красный через localhost на том же изолированном сервере: 2026-10-13T18-59-43Z-integration-691b. Зелёный 6/6 (бизнес-сценарии и гостиничные связи) 2026-10-13T19-01-31Z-integration-018c; CI-подобный режим без app URL 3/3 2026-10-13T19-03-23Z-integration-7fb7. Production пока не менялся.
+
+## Следующая правка: карточка Luxx Aparts
+
+- Удалён длинный перечень недоступных объектов из финансовой сводки. Короткая подпись сохраняет область частичных сумм; неизвестные суммы не заменяются нулями.
+- Red: unit 2026-10-13T19-18-27Z-unit-512f, новый тест падает на старом предупреждении. Green: 2026-10-13T19-18-41Z-unit-d38c, 2/2. Web typecheck и targeted ESLint прошли.
+- AI-обложка подготовлена локально: output/imagegen/luxx-aparts-cover.png. В production не загружена, SITE_ASSET_STORAGE отключён.
+- Демонстрационные бизнесы пока не удалены: владелец указал сначала отправить текущие правки. Merge PR492 отклонён автоматической проверкой по AGENTS.md §18; запрошено прямое исключение.
+- Создание рабочего Luxx Aparts 2 и переход в него ещё не выполнены. Существующий гостиничный объект и его идентификатор сохраняются; production-данные не менялись.
+
+### Проверка рабочего списка и настройки филиала
+
+- Рабочий домен прочитан через существующую сессию владельца: Luxx Aparts, 88 номеров и коек, 5 категорий; Luxx Aparts 2 уже существует, 0 номеров. Дубли не создавались. WETOP Салон и WETOP Ресторан ещё активны.
+- В приватном synthetic preview оставлен один бизнес и два объекта с AI-обложкой. Эти данные не доказывают обновление production.
+- Редактор бизнеса получил кнопку «Настройки объекта» для каждого гостиничного филиала. Переход в существующие /hotel-settings разрешён и для пустого филиала, без принудительного онбординга; выбор по актуальному списку и проверка чужого id сохранены.
+- Red: 2026-10-13T19-23-59Z-unit-2cc8. Green: 2026-10-13T19-24-24Z-unit-ba90, 21/21 (switch, FinancialWidgets, ReferenceBoard). Web typecheck и targeted ESLint прошли.
+- Единственная карточка бизнеса использует ширину до 640px и при нескольких филиалах.
+
+## Final design verification and main authorization
+
+The owner explicitly authorized agent commit, push, merge into main and standard publication of the verified current design delta on 2026-10-13. No schema, money computation, dependency or CI/CD configuration changes are added.
+
+- Responsive regression red: 2026-10-13T19-32-05Z-e2e-148b, page height 1025 instead of 900.
+- Green: 2026-10-13T19-33-01Z-e2e-fbd1, 5/5: creation/reload, metadata/archive/restore, menu transitions, keyboard, close with focus restoration.
+- Final CSS verification: e2e 2026-10-13T19-34-01Z-e2e-c1a7, 1/1; unit 2026-10-13T19-34-13Z-unit-c301, 25/25. Web typecheck and targeted ESLint passed.
+- CUA: 1440x900 and 1024x900, scrollHeight=900 and footer visible. At 390px, scrollWidth=390. Screenshots design-final-1440.png, design-final-1024.png, design-final-390.png, design-menu-final.png. Private preview figures are synthetic, not production evidence.
+- Cover v2 keeps Luxx Aparts readable inside a shallow central crop. Production upload is still unavailable.
+- Review: scoped UI delta, validated branch selection and safe destination, partial totals, menu close/focus reviewed. No blocking issue identified in this delta. Full release gate and live domain remain separate checks.

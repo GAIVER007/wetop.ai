@@ -1,0 +1,18 @@
+# Модульные (unit) · 14.10.2026 00:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит b8a01c3 (codex/organizations-card-editor), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T19-24-24Z-unit-ba90.json' 'apps/web/src/app/branches/switch.test.ts' 'apps/web/src/app/branches/financial-widgets.test.ts' 'apps/web/src/app/branches/reference-board.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (12 tests) 15ms
+ ✓ |unit| apps/web/src/app/branches/financial-widgets.test.ts (2 tests) 8ms
+ ✓ |unit| apps/web/src/app/branches/reference-board.test.ts (7 tests) 20ms
+
+ Test Files  3 passed (3)
+      Tests  21 passed (21)
+   Start at  12:24:25
+   Duration  276ms (import 50%, transform 39%, tests 10%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T19-24-24Z-unit-ba90.json
+
+# код выхода 0 · 2 с

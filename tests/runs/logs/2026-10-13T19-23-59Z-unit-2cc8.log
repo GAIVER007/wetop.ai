@@ -1,0 +1,47 @@
+# Модульные (unit) · 14.10.2026 00:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит b8a01c3 (codex/organizations-card-editor), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T19-23-59Z-unit-2cc8.json' 'apps/web/src/app/branches/switch.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |unit| apps/web/src/app/branches/switch.test.ts (12 tests | 1 failed) 16ms
+   ✓ переключение сохраняет безопасный раздел /chessboard 11ms
+   ✓ переключение сохраняет безопасный раздел /reservations/other-branch-booking 0ms
+   ✓ переключение сохраняет безопасный раздел /guests/other-guest 0ms
+   ✓ переключение сохраняет безопасный раздел /finance?folioId=old 0ms
+   ✓ переключение сохраняет безопасный раздел https://outside.test 0ms
+   ✓ переключение сохраняет безопасный раздел //outside.test 0ms
+   ✓ чужой филиал не меняет cookie 0ms
+   ✓ canonical landing for verified FOOD_SERVICE branch ignores old vertical route 0ms
+   ✓ canonical landing for verified BEAUTY branch ignores old vertical route 0ms
+   ✓ MV9 shared analytics survives BEAUTY branch switch without old filters 0ms
+   ✓ MV9 shared analytics survives FOOD_SERVICE branch switch without old filters 0ms
+   × opens settings of an empty hotel branch without forcing inventory onboarding 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > opens settings of an empty hotel branch without forcing inventory onboarding
+AssertionError: expected [Function] to throw error including 'redirect:/hotel-settings' but got 'redirect:/onboarding'
+
+Expected: "redirect:/hotel-settings"
+Received: "redirect:/onboarding"
+
+ ❯ apps/web/src/app/branches/switch.test.ts:100:35
+     98|   state.list.mockResolvedValue({ items: [{ id: 'own', vertical: 'HOSPI…
+     99|   const form = new FormData(); form.set('id', 'own'); form.set('return…
+    100|   await expect(selectBranch(form)).rejects.toThrow('redirect:/hotel-se…
+       |                                   ^
+    101|   expect(state.set).toHaveBeenCalledOnce();
+    102| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  12:24:00
+   Duration  135ms (transform 54%, tests 24%, import 18%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T19-23-59Z-unit-2cc8.json
+
+# код выхода 1 · 1 с

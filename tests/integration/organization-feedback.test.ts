@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { isLocalDatabase } from '../tools/seed-local';
 import { randomUUID } from 'node:crypto';
 import { beforeAll, afterAll, expect, it } from 'vitest';
 import { createPrismaClient } from '@pms/database';
@@ -27,8 +28,13 @@ const input = (id = randomUUID()) => ({
 });
 let hotelA: string, hotelB: string, foreignBusiness: string;
 beforeAll(async () => {
-  if (!process.env.DATABASE_URL?.includes('127.0.0.1:55613'))
-    throw new Error('Isolated local database required');
+  if (
+    !process.env.DATABASE_URL ||
+    !isLocalDatabase(process.env.DATABASE_URL) ||
+    (process.env.DATABASE_APP_URL && !isLocalDatabase(process.env.DATABASE_APP_URL)) ||
+    process.env.DATABASE_SCHEMA !== 'pms_test'
+  )
+    throw new Error('Isolated local test schema required');
   await db.user.create({
     data: { id: user, email: `feedback-${user}@example.invalid`, name: 'Тестовый владелец' },
   });

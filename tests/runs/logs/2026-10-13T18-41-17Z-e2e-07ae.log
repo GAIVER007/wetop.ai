@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 13.10.2026 23:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8391e6a (codex/organizations-card-editor), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/side-nav.spec.ts' '--grep' 'explicit close action' '--workers=1'
+[WebServer] (node:9287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9321) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9358) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:9496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9502) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:9672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/side-nav.spec.ts:252:1 › menu panel offers an explicit close action and restores trigger focus (31.7s)
+
+
+  1) tests/ui/side-nav.spec.ts:252:1 › menu panel offers an explicit close action and restores trigger focus 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.sidenav').getByRole('button', { name: 'Закрыть меню', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.sidenav').getByRole('button', { name: 'Закрыть меню', exact: true }) with timeout 15000ms
+      - waiting for locator('.sidenav').getByRole('button', { name: 'Закрыть меню', exact: true })
+
+
+      256 |   await trigger.click();
+      257 |   const close = nav.getByRole('button', { name: 'Закрыть меню', exact: true });
+    > 258 |   await expect(close).toBeVisible();
+          |                       ^
+      259 |   await close.click();
+      260 |   await expect(nav.locator('.sidenav__panel')).toBeHidden();
+      261 |   await expect(trigger).toBeFocused();
+        at /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/tests/ui/side-nav.spec.ts:258:23
+
+    Error Context: test-results/side-nav-menu-panel-offers-3fe0a--and-restores-trigger-focus/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-menu-panel-offers-3fe0a--and-restores-trigger-focus/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-menu-panel-offers-3fe0a--and-restores-trigger-focus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/side-nav.spec.ts:252:1 › menu panel offers an explicit close action and restores trigger focus 
+
+# код выхода 1 · 2 мин 40 с

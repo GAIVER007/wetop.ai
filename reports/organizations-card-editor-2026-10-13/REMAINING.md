@@ -83,3 +83,7 @@ PR492 merged into main as dae7250c95e05a1483612f50b99c579b556c49c0. Its exact-SH
 - Tour retains precise spotlight geometry for visible search in Finance and checks the centered explanation when search is absent in Calendar. Final green: 2026-10-13T20-10-15Z-e2e-f61c.
 - Two full local unit runs are NOT green: 2026-10-13T19-55-39Z-unit-2a7f (guard-run timeout) and 2026-10-13T20-02-29Z-unit-051d (web-booking socket hang up), each 4741 passed, 1 failed, 4 skipped. Both previously failed files and the design guard passed isolated, 67/67, in 2026-10-13T20-08-38Z-unit-d0d3 without source changes. Full GitHub gate remains mandatory before publication. Web typecheck and targeted ESLint passed.
 - Production storage is disabled. The generated cover remains local; requested owner information about an existing Kazakhstan bucket. No production data changes, backups, migrations or deployment performed yet.
+
+### Final full local result
+
+2026-10-13T20-22-01Z-unit-6c09: 4742 passed, 4 existing skips, 0 failures, 492 passed files plus one skipped file. Full unit verification ran without concurrent UI load with two workers; no product source changes or timeout adjustments were needed for the two earlier transient failures. Production application DB role checked read-only: administrative=false. No database privileges were changed.

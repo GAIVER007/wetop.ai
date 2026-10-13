@@ -37,9 +37,9 @@ test('касса: простой вход, фильтры применяются
   await expect(page.getByTestId('cash-period-income')).toHaveText(
     money((BigInt(ops.paidMinor) + BigInt(ops.incomeMinor)).toString()),
   );
-  await expect(page.getByTestId('cash-period-expense')).toHaveText(
-    money((BigInt(ops.refundedMinor) + BigInt(ops.expenseMinor)).toString()),
-  );
+  // Решение владельца 13.10.2026: возвраты отдельной строкой, в «Расходах» только расходы кассы
+  await expect(page.getByTestId('cash-period-refunds')).toHaveText(money(ops.refundedMinor));
+  await expect(page.getByTestId('cash-period-expense')).toHaveText(money(ops.expenseMinor));
   const before = await page.getByTestId('cash-period-income').innerText();
   await page.getByLabel('Тип операции', { exact: true }).selectOption('expense');
   await page.getByLabel('Способ оплаты', { exact: true }).selectOption('KASPI');

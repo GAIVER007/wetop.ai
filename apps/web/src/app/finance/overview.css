@@ -106,9 +106,10 @@
   }
 
   /* финансовый обзор */
+  /* поступления, возвраты, расходы (возвраты отдельной строкой, решение владельца 13.10.2026) */
   .biz-money__sums {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-4);
     margin-bottom: var(--space-4);
   }

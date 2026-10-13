@@ -38,7 +38,7 @@ export class FoodCatalogController {
   @Post('areas') @Access('property') createArea(@Body() b: unknown) {
     return this.service.createCatalog('area', b);
   }
-  // Правила брони столов (§43, ADR-176): смотрят все роли стойки, меняет право «объект»
+  // Правила брони столов (§43, ADR-177): смотрят все роли стойки, меняет право «объект»
   @Get('booking-rules') bookingSettings() {
     return this.service.bookingSettings();
   }

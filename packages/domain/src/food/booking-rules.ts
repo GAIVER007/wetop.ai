@@ -1,7 +1,7 @@
 import { foodInt, foodObject, foodText } from './food';
 import { stockDate } from './stock';
 
-/** Правила брони столов филиала (DATA_MODEL §43, ADR-176); умолчания равны прежнему поведению */
+/** Правила брони столов филиала (DATA_MODEL §43, ADR-177); умолчания равны прежнему поведению */
 export interface BookingRules {
   bufferMinutes: number;
   horizonDays: number | null;

@@ -262,7 +262,7 @@ function Bookings({ data, write }: { data: FoodWorkspace; write: boolean }) {
 const BUFFERS = [0, 10, 15, 20, 30, 45, 60];
 const optionalNumber = (raw: FormDataEntryValue | null) => (String(raw ?? '').trim() ? Number(raw) : null);
 
-/** Правила брони столов (§43, ADR-176): буфер, горизонт, предел гостей и закрытые дни */
+/** Правила брони столов (§43, ADR-177): буфер, горизонт, предел гостей и закрытые дни */
 function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write: boolean; booking: BookingSettings }) {
   const router = useRouter();
   const [pending, start] = useTransition();

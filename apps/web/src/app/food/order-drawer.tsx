@@ -2,7 +2,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Chip, ChipGroup } from '../../components/chip';
+import { IconField } from '../../components/icon-field';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, StatusBadge, Textarea } from '../../components/ui';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
@@ -268,20 +268,32 @@ function DishPicker({
   };
   return (
     <div className="rest-pos-menu">
-      <ChipGroup label="Категория">
-        <Chip selected={!category} onClick={() => setCategory('')}>
+      <nav className="rest-utabs" aria-label="Категории меню">
+        <button type="button" aria-current={!category ? 'page' : undefined} onClick={() => setCategory('')}>
           Все блюда
-        </Chip>
+        </button>
         {ctx.categories
           .filter((c) => c.active)
           .map((c) => (
-            <Chip key={c.id} selected={category === c.id} onClick={() => setCategory(c.id)}>
+            <button
+              key={c.id}
+              type="button"
+              aria-current={category === c.id ? 'page' : undefined}
+              onClick={() => setCategory(c.id)}
+            >
               {c.name}
-            </Chip>
+            </button>
           ))}
-      </ChipGroup>
-      <Field label="Поиск блюда">
-        <Input type="search" value={query} onChange={(e) => setQuery(e.target.value)} />
+      </nav>
+      <Field label={<span className="sr-only">Поиск блюда</span>}>
+        <IconField icon="search">
+          <Input
+            type="search"
+            placeholder="Поиск блюда"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </IconField>
       </Field>
       {dishes.length === 0 ? (
         <p className="muted">Блюд не найдено</p>
@@ -593,7 +605,11 @@ export function OrderDrawer({
                 <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
               </Field>
               <div className="food-actions">
-                <Button disabled={pending || items.length === 0} onClick={submit}>
+                <Button
+                  className={order ? undefined : 'rest-btn-go'}
+                  disabled={pending || items.length === 0}
+                  onClick={submit}
+                >
                   {order ? 'Сохранить' : 'Отправить на кухню'}
                 </Button>
                 <Button

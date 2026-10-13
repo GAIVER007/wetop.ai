@@ -1451,3 +1451,18 @@
     font-weight: var(--weight-semibold);
   }
 }
+
+@layer sections {
+  /* главное действие POS зелёным, как на макете (экран 5): заказ уходит на кухню */
+  .btn.rest-btn-go {
+    border-color: var(--success);
+    background: var(--success);
+    color: var(--on-primary);
+  }
+  .btn.rest-btn-go:hover:not(:disabled) {
+    filter: brightness(0.95);
+  }
+  .rest-pos-menu .rest-utabs {
+    overflow-x: auto;
+  }
+}

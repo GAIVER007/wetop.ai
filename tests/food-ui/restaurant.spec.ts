@@ -108,7 +108,10 @@ test('меню: категория и блюдо с экрана, переклю
   await page.getByRole('button', { name: '+ Категория' }).click();
   await page.getByLabel('Название категории').fill('Десерты');
   await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Десерты' })).toBeVisible();
+  // вкладка «Категории» по макету (экран 8)
+  await page.getByRole('button', { name: /^Категории/ }).click();
+  await expect(page.getByTestId('menu-board').locator('tbody')).toContainText('Десерты');
+  await page.getByRole('button', { name: /^Позиции/ }).click();
   await page.getByRole('button', { name: '+ Добавить блюдо' }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Название').fill('Тирамису');
@@ -740,7 +743,10 @@ test('бар, финансы и настройки ресторана по ма�
   await page.goto('/restaurant-settings');
   await expect(page.getByRole('heading', { name: 'Часы работы' })).toBeVisible();
   await page.getByRole('switch', { name: 'Понедельник: работаем' }).click();
-  await expect(page.getByRole('switch', { name: 'Понедельник: работаем' })).toBeChecked();
+  // создание периода идёт через серверное действие и обновление страницы: под нагрузкой дольше 5 с
+  await expect(page.getByRole('switch', { name: 'Понедельник: работаем' })).toBeChecked({
+    timeout: 20_000,
+  });
   const start = page.getByLabel('Понедельник, начало');
   await expect(start).toBeEnabled();
   await start.fill('11:00');

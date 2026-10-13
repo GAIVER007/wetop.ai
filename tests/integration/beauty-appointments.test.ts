@@ -27,11 +27,18 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
   const own = { org: randomUUID(), business: randomUUID(), location: randomUUID(), user: randomUUID() };
   const other = { org: randomUUID(), business: randomUUID(), location: randomUUID(), customer: randomUUID() };
 
-  // понедельник 12 октября 2026; 10:00 по Алматы это 05:00 UTC
-  const DATE = '2026-10-12';
+  // Будущий понедельник: API не возвращает уже закончившиеся отсутствия.
+  // 10:00 по Алматы остаётся 05:00 UTC, недельное расписание не меняется.
+  const DATE = (() => {
+    const date = new Date();
+    date.setUTCDate(date.getUTCDate() + 7 + ((8 - date.getUTCDay()) % 7));
+    return date.toISOString().slice(0, 10);
+  })();
   const at = (hhmm: string) => {
     const [h, m] = hhmm.split(':').map(Number);
-    return new Date(Date.UTC(2026, 9, 12, (h as number) - 5, m)).toISOString();
+    const date = new Date(`${DATE}T00:00:00Z`);
+    date.setUTCHours((h as number) - 5, m);
+    return date.toISOString();
   };
 
   const as = <T>(role: 'OWNER' | 'STAFF', fn: () => Promise<T>) =>

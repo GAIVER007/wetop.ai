@@ -11,6 +11,7 @@ test('филиалы: создание, сохранение после reload �
   await expect(main.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
   await page.setViewportSize({ width: 1440, height: 900 });
   expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
+  await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(1);
   const monthControls = await page
     .locator('.org-month a, .org-month input, .org-month button')
     .evaluateAll((elements) =>

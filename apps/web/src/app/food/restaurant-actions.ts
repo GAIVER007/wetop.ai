@@ -225,3 +225,27 @@ export async function dishPhoto(
     return failure(error);
   }
 }
+
+/** График смен сотрудника (Q-REST-11): форма недели салона, `scopeKey` привязан заранее */
+export async function saveFoodShifts(
+  scopeKey: string,
+  _prev: { error?: string; message?: string } | null,
+  form: FormData,
+): Promise<{ error?: string; message?: string }> {
+  let intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>;
+  try {
+    intervals = JSON.parse(String(form.get('intervals') ?? '[]'));
+  } catch {
+    return { error: 'Не удалось прочитать график. Обновите страницу перед повтором.' };
+  }
+  try {
+    await scope(scopeKey);
+    await restaurantApi.setShifts(String(form.get('id') ?? ''), intervals);
+    for (const path of ['/employees', '/employees/shifts', '/today']) revalidatePath(path);
+    return { message: 'График сохранён' };
+  } catch (error) {
+    const { error: message } = failure(error);
+    return { error: message ?? 'Не удалось сохранить график' };
+  }
+}
+

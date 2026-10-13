@@ -1,7 +1,13 @@
 import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
-const day = '2026-10-12';
+// Keep the seeded absence in the future: the API lists only unexpired time off.
+// A Monday preserves the fixture's weekly schedule and timezone assertions.
+const day = (() => {
+  const date = new Date();
+  date.setUTCDate(date.getUTCDate() + 7 + ((8 - date.getUTCDay()) % 7));
+  return date.toISOString().slice(0, 10);
+})();
 const shots = 'reports/mv5-beauty-ui-2026-10-04/screenshots';
 type Fixture = { business: string; otherBusiness: string; locations: string[] };
 const pointer = (business: string, location: string) => `business=${business};location=${location}`;

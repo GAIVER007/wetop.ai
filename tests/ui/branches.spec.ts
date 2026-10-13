@@ -107,6 +107,7 @@ test('переключатель филиалов сохраняет разде�
   const sidebar = page.locator('.workspace-header');
   const trigger = sidebar.getByRole('button', { name: 'Выбрать филиал', exact: true });
   const navigation = page.getByRole('main');
+  await expect(navigation).toBeVisible();
   const before = await navigation.boundingBox();
   await trigger.click();
   const choices = sidebar.getByRole('region', { name: 'Выбор филиала' });

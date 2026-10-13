@@ -3276,29 +3276,6 @@
   body:has(.calendar-shell[data-expanded='true']) {
     overflow: hidden;
   }
-  .calendar-day-summary .board-day-panel {
-    border: 0;
-    padding: 0;
-    background: transparent;
-  }
-  .calendar-day-summary .board-day-panel__title {
-    font-size: var(--text-lg);
-  }
-  .calendar-day-summary .board-day-panel__columns {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-  .calendar-day-summary .board-day-panel__row {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-2);
-    padding-block: var(--space-2);
-  }
-  .calendar-day-summary .board-day-panel__col + .board-day-panel__col {
-    border-top: 1px solid var(--border);
-    padding-top: var(--space-2);
-  }
   .stay-panel:has(.stay-preview-finance) .stay-panel__facts,
   .stay-panel:has(.stay-preview-finance) .stay-panel__contacts {
     display: none;
@@ -3344,15 +3321,6 @@
   }
   .calendar-shell .board-stage > .board-wrap:has(.board--month) {
     scrollbar-gutter: auto;
-  }
-  .calendar-day-summary {
-    width: 232px;
-  }
-  /* Все 31 даты важнее повторной сводки: 888px сетки, 232px сводки и отступы. */
-  @container calendar-screen (max-width: 1160px) {
-    .board-stage:has(.board--month) .calendar-day-summary {
-      display: none;
-    }
   }
   @media (min-width: 601px) {
     .calendar-shell .board-toolbar .board-search .inp {

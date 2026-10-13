@@ -17,8 +17,6 @@ type Props = {
   money: string[];
   metrics: Record<string, Metric>;
   create: ReactNode;
-  trend: ReactNode;
-  recent: ReactNode;
   preview: boolean;
   period?: ReactNode;
   financial?: import('../../lib/api').OrganizationSummary | null;
@@ -45,8 +43,6 @@ export function ReferenceBoard({
   items,
   businesses,
   create,
-  trend,
-  recent,
   preview,
   period,
   financial,
@@ -90,14 +86,6 @@ export function ReferenceBoard({
     );
   const singleProject = groups.length === 1 && items.length <= 1;
   const hasHospitality = groups.some((g) => g.vertical === 'HOSPITALITY');
-  const distribution = categories.slice(1).map(([id, label]) => ({
-    id,
-    label,
-    count: groups.filter((group) => group.vertical === id).length,
-    objects: groups
-      .filter((group) => group.vertical === id)
-      .reduce((total, group) => total + group.branches.length, 0),
-  }));
   const openCreate = (vertical?: BranchItem['vertical'], businessId?: string) => {
     const trigger = document.getElementById('create-branch') as HTMLButtonElement | null;
     if (trigger) {
@@ -341,39 +329,6 @@ export function ReferenceBoard({
           ) : null}
         </div>
       )}
-      <div className={`org-bottom ${groups.length <= 1 ? 'org-bottom--simple' : ''}`}>
-        <section>
-          <h2>Оплаты по месяцам</h2>
-          <p className="org-panel-note">С начала года по выбранный месяц.</p>
-          {trend}
-        </section>
-        <section>
-          <h2>Бизнесы и объекты</h2>
-          <table className="org-business-breakdown" aria-label="Бизнесы и объекты по направлениям">
-            <thead>
-              <tr>
-                <th scope="col">Направление</th>
-                <th scope="col">Бизнесов</th>
-                <th scope="col">Объектов</th>
-              </tr>
-            </thead>
-            <tbody>
-              {distribution.map((row) => (
-                <tr key={row.id}>
-                  <th scope="row">{row.label}</th>
-                  <td>{row.count}</td>
-                  <td>{row.objects}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-        <section>
-          <h2>Изменения бизнесов</h2>
-          <p className="org-panel-note">Создание и оформление карточек.</p>
-          {recent}
-        </section>
-      </div>
       {editing && (
         <BusinessCardEditor
           business={editing}

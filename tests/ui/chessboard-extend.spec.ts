@@ -15,6 +15,8 @@ async function openAroundCheckout(page: Page, request: APIRequestContext, reserv
   const from = new Date(`${stay.departureDate}T12:00:00Z`);
   from.setUTCDate(from.getUTCDate() - 7);
   await page.goto(`/chessboard?from=${from.toISOString().slice(0, 10)}`);
+  // Боковая сводка появляется при гидратации и меняет ширину сетки.
+  await expect(page.locator('.board-stage')).toHaveAttribute('data-docked', 'true');
 }
 
 test.beforeEach(async ({ request }) => {
@@ -52,7 +54,7 @@ test('мышь: правый край добавляет две ночи тол�
   targetDate.setUTCDate(targetDate.getUTCDate() + 2);
   const target = row.locator(`td[data-date="${targetDate.toISOString().slice(0, 10)}"]`);
   await hydrated(handle);
-  await page.evaluate("document.fonts.ready");
+  await page.evaluate('document.fonts.ready');
   await target.scrollIntoViewIfNeeded();
   await handle.scrollIntoViewIfNeeded();
   const from = (await handle.boundingBox())!;

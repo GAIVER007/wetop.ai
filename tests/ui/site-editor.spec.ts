@@ -25,7 +25,7 @@ const tab = (page: Page, name: string) => main(page).getByRole('tab', { name, ex
 const pick = async (page: Page, sectionId: string) => frame(page).locator(`#${sectionId}`).click();
 /** Блок по списку во вкладке «Блоки» */
 const openBlock = async (page: Page, name: string) => {
-  await tab(page, 'Блоки').click();
+  await tab(page, 'Страницы').click();
   const back = main(page).getByTestId('ed-back');
   if (await back.isVisible()) await back.click();
   await structure(page).getByRole('button', { name, exact: true }).click();
@@ -42,11 +42,26 @@ test('открыть голову: щелчок по блоку на сайте,
   await expect(m.getByTestId('ed-revision')).toHaveText('версия 2');
   await expect(m.getByTestId('ed-dirty')).toHaveText('Все изменения сохранены');
   await expect(m.getByTestId('ed-save')).toBeDisabled();
-  // по умолчанию слева ИИ, справа живой сайт
-  await expect(tab(page, 'ИИ')).toHaveAttribute('aria-selected', 'true');
+  // раскладка по макету Marketing 2.0: вкладки в верхней полосе («Просмотр» только на узком экране), «Опубликовать» ведёт на публикацию, назад к модулям
+  await expect(m.getByTestId('ed-bar').getByRole('tab')).toHaveText(['Редактор', 'Страницы', 'Дизайн', 'Настройки']);
+  await expect(m.getByTestId('editor-publication-link')).toHaveText('Опубликовать');
+  await expect(m.getByTestId('editor-publication-link')).toHaveAttribute('href', '/marketing/site');
+  await expect(m.getByRole('link', { name: 'Назад к модулям', exact: true })).toHaveAttribute('href', '/marketing');
+  // по умолчанию слева разговор с ИИ тёмной панелью, справа живой сайт
+  await expect(tab(page, 'Редактор')).toHaveAttribute('aria-selected', 'true');
+  await expect(m.getByTestId('ed-chat')).toHaveAttribute('data-theme', 'dark');
+  await expect(m.getByTestId('ed-chat')).toContainText('Создайте сайт с помощью ИИ');
+  // «Дизайн»: оформление и логотип, без контактов; «Настройки» без оформления
+  await tab(page, 'Дизайн').click();
+  await expect(m.getByTestId('ed-design-form').getByTestId('ed-theme')).toBeVisible();
+  await expect(m.getByTestId('ed-contacts')).toHaveCount(0);
+  await tab(page, 'Настройки').click();
+  await expect(m.getByTestId('ed-contacts')).toBeVisible();
+  await expect(m.getByTestId('ed-theme')).toHaveCount(0);
+  await tab(page, 'Редактор').click();
   await expect(frame(page).locator('#sec-hero')).toContainText('Версия 2');
   await pick(page, 'sec-hero');
-  await expect(tab(page, 'Блоки')).toHaveAttribute('aria-selected', 'true');
+  await expect(tab(page, 'Страницы')).toHaveAttribute('aria-selected', 'true');
   await expect(heroHeading(page)).toHaveValue('Версия 2');
   await expect(frame(page).locator('#sec-hero')).toHaveAttribute('data-ed-selected', '');
   // JSON-редактора нет: только поля форм
@@ -80,7 +95,7 @@ test('просмотр: ссылка подвала на страницу сай
   await expect(frame(page).locator('#sec-rules')).toContainText('Правила проживания');
   await expect(m.locator('#ed-preview-page')).toHaveValue('page-rules');
   await expect(page).toHaveURL(/\/marketing\/site\/editor$/);
-  await tab(page, 'Блоки').click();
+  await tab(page, 'Страницы').click();
   await expect(structure(page).getByRole('button', { name: 'О гостинице: Правила проживания', exact: true })).toBeVisible();
   await m.locator('#ed-preview-page').selectOption({ label: 'Главная' });
   await expect(frame(page).locator('#sec-hero')).toBeVisible();
@@ -131,7 +146,7 @@ test('выбор картинки: только готовые нужного в
   await expect(m.getByTestId('ed-dirty')).toHaveText('Есть несохранённые изменения');
   await expect(m.locator('input[type="url"]')).toHaveCount(0);
 
-  await tab(page, 'Сайт').click();
+  await tab(page, 'Дизайн').click();
   await m.getByRole('button', { name: 'Заменить изображение' }).first().click();
   await expect(page.getByTestId('ed-asset-picker').getByTestId('ed-asset-option')).toHaveCount(1);
 });
@@ -168,7 +183,7 @@ test('ошибка проверки: ввод на месте, сводка ве
   await expect(heading).toHaveAttribute('aria-invalid', 'true');
   await expect(m.getByLabel('Абзацы: 1')).toHaveValue('Мой новый текст о гостинице');
   await expect(m.getByTestId('ed-revision')).toHaveText('версия 2');
-  await tab(page, 'Сайт').click();
+  await tab(page, 'Настройки').click();
   await m.getByTestId('ed-errors').getByRole('button').first().click();
   await expect(heading).toBeFocused();
 });
@@ -194,7 +209,7 @@ test('конфликт 409: правки остаются, сравнение, �
 test('удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны', async ({ page }) => {
   await page.goto('/marketing/site/editor');
   const m = main(page);
-  await tab(page, 'Блоки').click();
+  await tab(page, 'Страницы').click();
   await structure(page).getByRole('button', { name: 'Страница «Правила»: удалить' }).click();
   await expect(m.getByTestId('ed-blocked')).toContainText('Подвал: Правила');
   await expect(structure(page).getByTestId('ed-page')).toHaveCount(2);
@@ -204,7 +219,7 @@ test('удаление: страницу, на которую ссылается
 test('добавить секцию, переставить и сделать копию с клавиатуры', async ({ page }) => {
   await page.goto('/marketing/site/editor');
   const m = main(page);
-  await tab(page, 'Блоки').click();
+  await tab(page, 'Страницы').click();
   const sections = structure(page).getByTestId('ed-section');
   await expect(sections).toHaveCount(5);
   await structure(page).getByLabel('Новая секция').selectOption('faq');
@@ -228,7 +243,7 @@ test('уход со страницы с правками спрашивает; �
   const m = main(page);
   await pick(page, 'sec-hero');
   await heroHeading(page).fill('Не ушло');
-  await m.getByRole('link', { name: 'Публикация' }).first().click();
+  await m.getByRole('link', { name: 'Опубликовать' }).first().click();
   const dialog = page.getByRole('dialog').filter({ hasText: 'Уйти без сохранения?' });
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name: 'Остаться' }).click();
@@ -267,7 +282,7 @@ test('ИИ одного блока: щелчок по блоку на сайте
   const m = main(page);
   await pick(page, 'sec-about');
   await m.getByTestId('ed-ai-section').click();
-  await expect(tab(page, 'ИИ')).toHaveAttribute('aria-selected', 'true');
+  await expect(tab(page, 'Редактор')).toHaveAttribute('aria-selected', 'true');
   const ai = m.getByTestId('ed-ai');
   await expect(ai.getByTestId('ed-ai-target')).toContainText('Блок «О гостинице: О нас»');
   await expect(ai.getByLabel('Что изменить в этом блоке?')).toBeVisible();
@@ -286,7 +301,7 @@ test('ИИ с несохранёнными правками: «Сохранит�
   const m = main(page);
   await pick(page, 'sec-hero');
   await heroHeading(page).fill('Правка');
-  await tab(page, 'ИИ').click();
+  await tab(page, 'Редактор').click();
   const ai = m.getByTestId('ed-ai');
   await expect(ai.getByTestId('ed-ai-send')).toHaveText('Сохранить и отправить');
   await ai.getByLabel('Что изменить в этом блоке?').fill('Ярче');
@@ -373,7 +388,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(main(page).getByTestId('ed-section-form')).toBeVisible();
     await audit();
     await page.screenshot({ path: `${SHOTS}/block-${theme}-1440.png` });
-    await tab(page, 'Сайт').click();
+    await tab(page, 'Настройки').click();
     await audit();
     if (theme === 'light') {
       await main(page).getByTestId('ed-history-open').click();
@@ -386,12 +401,14 @@ for (const theme of ['light', 'dark'] as const) {
       await page.screenshot({ path: `${SHOTS}/diff-${theme}-1440.png` });
       await page.keyboard.press('Escape');
       await page.keyboard.press('Escape');
+      // логотип на вкладке «Дизайн»
+      await tab(page, 'Дизайн').click();
       await main(page).getByRole('button', { name: 'Заменить изображение' }).first().click();
       await expect(page.getByTestId('ed-asset-picker')).toBeVisible();
       await audit();
       await page.screenshot({ path: `${SHOTS}/picker-${theme}-1440.png` });
       await page.keyboard.press('Escape');
-      await tab(page, 'ИИ').click();
+      await tab(page, 'Редактор').click();
       await main(page).getByTestId('ed-ai').getByRole('button', { name: 'Убрать блок: изменить весь сайт' }).click();
       await main(page).getByTestId('ed-ai').getByLabel('Что изменить на сайте?').fill('Сделай первый экран короче');
       await main(page).getByTestId('ed-ai-send').click();
@@ -422,7 +439,7 @@ for (const theme of ['light', 'dark'] as const) {
       const result = await axe(page);
       expect(result.violations).toEqual([]);
     };
-    await expect(tab(page, 'ИИ')).toHaveAttribute('aria-selected', 'true');
+    await expect(tab(page, 'Редактор')).toHaveAttribute('aria-selected', 'true');
     await expect(m.getByTestId('ed-ai')).toBeVisible();
     await expect(m.getByTestId('ed-preview-pane')).toBeHidden();
     expect(await wide()).toEqual([]);
@@ -433,7 +450,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.screenshot({ path: `${SHOTS}/mobile-preview-${theme}-390.png`, fullPage: true });
     await audit();
     await pick(page, 'sec-rooms');
-    await expect(tab(page, 'Блоки')).toHaveAttribute('aria-selected', 'true');
+    await expect(tab(page, 'Страницы')).toHaveAttribute('aria-selected', 'true');
     await expect(m.getByLabel('Категория гостиницы')).toHaveValue('std');
     await heroHeading(page).fill('Номера и цены');
     await expect(m.getByTestId('ed-bar')).toContainText('Есть несохранённые изменения');
@@ -446,7 +463,7 @@ for (const theme of ['light', 'dark'] as const) {
     expect(await wide()).toEqual([]);
     await page.screenshot({ path: `${SHOTS}/mobile-structure-${theme}-390.png`, fullPage: true });
     await audit();
-    await tab(page, 'Сайт').click();
+    await tab(page, 'Настройки').click();
     expect(await wide()).toEqual([]);
     await audit();
   });

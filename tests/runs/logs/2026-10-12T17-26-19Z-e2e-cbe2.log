@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 12.10.2026 22:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1853a26 (claude/food-ui-redirect), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/streamed-redirect.spec.ts' 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/system-screens.spec.ts:305'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (10.1s)
+  ✓  2 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (6.1s)
+  ✓  3 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (7.5s)
+  ✓  4 tests/ui/streamed-redirect.spec.ts:10:1 › goto на адрес с потоковым редиректом отдаёт конечную страницу, следующий goto не обрывается (6.9s)
+  ✓  5 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (21.8s)
+
+  5 passed (1.1m)
+
+# код выхода 0 · 1 мин 12 с

@@ -125,6 +125,19 @@ export async function mutateOrder(
   }
 }
 
+/** Ссылка на оценку с телефона гостя по QR-коду (§40) */
+export async function orderRatingLink(
+  scopeKey: string,
+  id: string,
+): Promise<{ error: string | null; token?: string; expiresAt?: string }> {
+  try {
+    await scope(scopeKey);
+    return { error: null, ...(await restaurantApi.ratingLink(id)) };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 export async function setTableCleaning(
   scopeKey: string,
   tableId: string,

@@ -171,6 +171,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/orders/:id/status': 'desk',
   'POST /food-service/orders/:id/payments': 'desk',
   'POST /food-service/orders/:id/rating': 'desk',
+  'POST /food-service/orders/:id/rating-link': 'desk',
   'POST /food-service/payments/:id/void': 'refunds',
   'GET /food-service/cash': 'desk',
   'POST /food-service/cash/operations': 'desk',
@@ -482,6 +483,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /a/demo': 'public',
   'GET /w/widget.js': 'public',
   'GET /w/config': 'public',
+  // оценка официанта с телефона гостя (§40): только изнутри, страница стойки /rate/<ключ>
+  'GET /public/order-rating/:token': 'public',
+  'POST /public/order-rating/:token': 'public',
   'GET /w/availability': 'public',
   // Q-276: цена «от» тарифа брони сайта, тот же ключ и домен, что у availability
   'GET /w/from-prices': 'public',
@@ -497,6 +501,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /wizard/session': 'public',
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',
+  'POST /wizard/scan': 'public',
+  'POST /wizard/generate': 'public',
+  'POST /wizard/message': 'public',
+  'GET /wizard/scan': 'public',
   'GET /wizard/quota': 'public',
   'POST /wizard/survey': 'public',
   'POST /wizard/event': 'public',

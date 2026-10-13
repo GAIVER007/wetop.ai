@@ -1,0 +1,27 @@
+# Сквозные (e2e) · 12.10.2026 14:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит 961b74a (claude/restaurant-food-cost), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json 'tests/branches-ui/analytics.spec.ts' '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (1.9s)
+  ✓   2 tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (1.3s)
+  ✓   3 tests/branches-ui/analytics.spec.ts:135:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (2.4s)
+  ✓   4 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (957ms)
+  ✓   5 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (1.1s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (977ms)
+  ✓   7 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (1.1s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (1.0s)
+  ✓   9 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 light: accessibility, keyboard and screenshot (988ms)
+  ✓  10 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (935ms)
+  ✓  11 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (1.0s)
+
+  11 passed (17.9s)
+
+# код выхода 0 · 18 с

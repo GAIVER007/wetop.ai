@@ -2,6 +2,29 @@ import Link from 'next/link';
 import './agents.css';
 import { sellerAgentsApi, ApiError } from '../../../lib/api';
 import { RefreshButton } from '../../../components/refresh-button';
+import { Page } from '../../../components/page';
+import { Badge, EmptyState } from '../../../components/ui';
+import { Icon } from '../../../components/icon';
+
+/** Состояние агента словом: сырое значение из API («active») на экран не попадает */
+const LIFECYCLE: Record<string, { label: string; tone: 'neutral' | 'ok' | 'warn' }> = {
+  draft: { label: 'Черновик', tone: 'neutral' },
+  active: { label: 'Работает', tone: 'ok' },
+  paused: { label: 'На паузе', tone: 'warn' },
+  archived: { label: 'В архиве', tone: 'neutral' },
+};
+
+const FAILURE: Record<number, { title: string; text: string }> = {
+  503: {
+    title: 'Создание агентов пока недоступно',
+    text: 'Новый каталог ещё не подключён в этой среде. Настройки продавца гостиницы доступны отдельно.',
+  },
+  401: { title: 'Войдите в аккаунт', text: 'Откройте вход в этой же среде и вернитесь к списку.' },
+  403: {
+    title: 'Нужен доступ владельца',
+    text: 'Управление агентами доступно владельцу организации с активным доступом.',
+  },
+};
 
 export default async function AgentsPage() {
   let items: Awaited<ReturnType<typeof sellerAgentsApi.list>>['items'] = [];
@@ -12,101 +35,92 @@ export default async function AgentsPage() {
     if (e instanceof ApiError) failure = e.status;
     else throw e;
   }
+  const failed = failure
+    ? (FAILURE[failure] ?? {
+        title: 'Не удалось загрузить агентов',
+        text: 'Повторите загрузку. Сохранённые настройки не изменены.',
+      })
+    : null;
   return (
-    <main className="seller-agents">
-      <header className="seller-agents__header">
-        <div>
-          <span className="seller-agents__eyebrow">Продажи / ИИ-продавцы</span>
-          <h1>Мои ИИ-продавцы</h1>
-          <p>Создание и настройка помощников для вашего бизнеса.</p>
-        </div>
-        {!failure && (
-          <Link className="btn" href="/ai-seller/agents/new">
+    <Page
+      className="seller-agents"
+      title="Мои ИИ-продавцы"
+      subtitle="Создание и настройка помощников для вашего бизнеса."
+      actions={
+        !failure && (
+          <Link className="btn btn--primary" href="/ai-seller/agents/new">
             Создать агента
           </Link>
-        )}
-      </header>
+        )
+      }
+    >
       <nav className="seller-agents__nav" aria-label="Рабочее пространство ИИ-продавцов">
         <Link href="/ai-seller/agents" aria-current="page">
           Мои агенты
         </Link>
         <Link href="/ai-seller">Продавец гостиницы</Link>
       </nav>
-      {failure ? (
-        <section className="seller-agents__empty" role="status">
-          <span className="seller-agents__symbol" aria-hidden="true">
-            AI
-          </span>
-          <h2>
-            {failure === 503
-              ? 'Создание агентов пока недоступно'
-              : failure === 401
-                ? 'Войдите в аккаунт'
-                : failure === 403
-                  ? 'Нужен доступ владельца'
-                  : 'Не удалось загрузить агентов'}
-          </h2>
-          <p>
-            {failure === 503
-              ? 'Новый каталог ещё не подключён в этой среде. Настройки продавца гостиницы доступны отдельно.'
-              : failure === 401
-                ? 'Откройте вход в этой же среде и вернитесь к списку.'
-                : failure === 403
-                  ? 'Управление агентами доступно владельцу организации с активным доступом.'
-                  : 'Повторите загрузку. Сохранённые настройки не изменены.'}
-          </p>
-          <div className="seller-agents__actions">
-            <Link className="btn" href={failure === 401 ? '/login' : '/ai-seller'}>
-              {failure === 401 ? 'Войти' : 'Настроить продавца гостиницы'}
-            </Link>
-            <RefreshButton />
-          </div>
-        </section>
+      {failed ? (
+        <EmptyState
+          role="status"
+          icon={<Icon name="chat" width={32} height={32} />}
+          title={failed.title}
+          actions={
+            <>
+              <Link className="btn" href={failure === 401 ? '/login' : '/ai-seller'}>
+                {failure === 401 ? 'Войти' : 'Настроить продавца гостиницы'}
+              </Link>
+              <RefreshButton />
+            </>
+          }
+        >
+          {failed.text}
+        </EmptyState>
       ) : items.length === 0 ? (
-        <section className="seller-agents__empty">
-          <span className="seller-agents__symbol" aria-hidden="true">
-            AI
-          </span>
-          <h2>Начните с первого агента</h2>
-          <p>
-            Расскажите о компании и задаче — настройки сохранятся в черновике вашей организации.
-          </p>
-          <Link className="btn" href="/ai-seller/agents/new">
-            Создать первого агента
-          </Link>
-        </section>
+        <EmptyState
+          icon={<Icon name="chat" width={32} height={32} />}
+          title="Начните с первого агента"
+          actions={
+            <Link className="btn btn--primary" href="/ai-seller/agents/new">
+              Создать первого агента
+            </Link>
+          }
+        >
+          Расскажите о компании и задаче: настройки сохранятся в черновике вашей организации.
+        </EmptyState>
       ) : (
         <>
           <div className="seller-agents__count">Всего агентов: {items.length}</div>
           <div className="seller-agents__grid">
-            {items.map((agent) => (
-              <article key={agent.id}>
-                <div className="seller-agents__card-top">
-                  <span className="seller-agents__symbol" aria-hidden="true">
-                    AI
-                  </span>
-                  <span className="seller-agents__badge">
-                    {agent.lifecycle === 'draft' ? 'Черновик' : agent.lifecycle}
-                  </span>
-                </div>
-                <h2>
-                  <Link href={`/ai-seller/agents/${agent.id}`}>{agent.name}</Link>
-                </h2>
-                <p>{agent.profile.businessName || 'Компания не указана'}</p>
-                <dl>
-                  <dt>Сценарий</dt>
-                  <dd>{agent.scenario === 'support' ? 'Поддержка клиентов' : 'Продажи'}</dd>
-                  <dt>Задача</dt>
-                  <dd>{agent.profile.goal || 'Добавьте задачу в настройках'}</dd>
-                </dl>
-                <Link className="btn btn--secondary" href={`/ai-seller/agents/${agent.id}`}>
-                  Открыть настройки
-                </Link>
-              </article>
-            ))}
+            {items.map((agent) => {
+              const state = LIFECYCLE[agent.lifecycle] ?? { label: 'Черновик', tone: 'neutral' };
+              return (
+                <article key={agent.id}>
+                  <div className="seller-agents__card-top">
+                    <span className="seller-agents__symbol" aria-hidden="true">
+                      <Icon name="chat" />
+                    </span>
+                    <Badge tone={state.tone}>{state.label}</Badge>
+                  </div>
+                  <h2>
+                    <Link href={`/ai-seller/agents/${agent.id}`}>{agent.name}</Link>
+                  </h2>
+                  <p>{agent.profile.businessName || 'Компания не указана'}</p>
+                  <dl>
+                    <dt>Сценарий</dt>
+                    <dd>{agent.scenario === 'support' ? 'Поддержка клиентов' : 'Продажи'}</dd>
+                    <dt>Задача</dt>
+                    <dd>{agent.profile.goal || 'Добавьте задачу в настройках'}</dd>
+                  </dl>
+                  <Link className="btn btn--secondary" href={`/ai-seller/agents/${agent.id}`}>
+                    Открыть настройки
+                  </Link>
+                </article>
+              );
+            })}
           </div>
         </>
       )}
-    </main>
+    </Page>
   );
 }

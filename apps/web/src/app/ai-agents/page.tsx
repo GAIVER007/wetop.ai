@@ -91,7 +91,7 @@ export default async function AiAgentsPage() {
 /** Расширение не подключено: вместо списка — что даёт продавец и как его подключить (Q-SA-1: счёт, цены здесь нет) */
 function OffCard() {
   return (
-    <Panel title="AI-продавец" className="agent-card" data-testid="agent-seller">
+    <Panel title="ИИ-продавец" className="agent-card" data-testid="agent-seller">
       <Stack gap="sm">
         <div>Автоматизируйте ответы гостям, подбор размещения и продажи.</div>
         <div data-testid="agent-seller-off" className="muted">

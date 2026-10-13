@@ -88,3 +88,19 @@ export function repeatWords(i: IncidentView): string {
   const ms = heldFor(i);
   return ms >= 60_000 ? `Держится ${heldForWords(ms)}.` : '';
 }
+
+const HEADLINE_MAX = 120;
+
+/**
+ * Заголовок неисправности словами (13.10.2026): сторож пишет в title сырой текст ошибки с путями и стеком, владелец
+ * видел его целиком. Понятная часть идёт до « — » (так сторож отделяет суть от подробностей), длинный текст без
+ * разделителя обрезается. Полный текст остаётся в раскрывающихся подробностях: дежурному он нужен.
+ */
+export function incidentHeadline(title: string): { headline: string; details: string | null } {
+  const clean = title.trim();
+  const cut = clean.indexOf(' — ');
+  if (cut > 0) return { headline: clean.slice(0, cut).trim(), details: clean };
+  if (clean.length > HEADLINE_MAX)
+    return { headline: `${clean.slice(0, HEADLINE_MAX).trimEnd()}…`, details: clean };
+  return { headline: clean, details: null };
+}

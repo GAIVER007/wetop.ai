@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { authPorts, workerPorts } from '../ui/worker-ports';
+import { authPorts, shardSpecs, workerPorts } from '../ui/worker-ports';
 
 /**
  * Распределитель портов изолированных UI-стендов. До него второй worker основного UI садился на 4312 (демо-источник
@@ -39,5 +39,16 @@ describe('порты UI-стендов', () => {
   it('порт вне диапазона отклоняется', () => {
     expect(() => workerPorts({ web: 65_534 }, 2)).toThrow(/вне диапазона/);
     expect(() => authPorts({ AUTH_WEB_PORT: 'abc' })).toThrow(/вне диапазона/);
+  });
+
+  it('части UI: каждый файл ровно в одной части, у обоих worker в каждой части есть файлы', () => {
+    const specs = Array.from({ length: 95 }, (_, i) => `s${String(i).padStart(2, '0')}.spec.ts`);
+    const parts = [1, 2, 3].map((n) => shardSpecs(specs, `${n}/3`));
+    expect(parts.flat().sort()).toEqual(specs);
+    for (const part of parts)
+      for (const worker of [0, 1])
+        expect(part.filter((_, i) => i % 2 === worker).length).toBeGreaterThanOrEqual(15);
+    expect(shardSpecs(specs, undefined)).toBe(specs);
+    for (const bad of ['0/3', '4/3', '1', 'a/b']) expect(() => shardSpecs(specs, bad)).toThrow(/UI_SHARD/);
   });
 });

@@ -211,8 +211,11 @@ jobs:
       - name: Браузерные проверки без базы
         env:
           UI_BROWSER_CHANNEL: chromium
+          # часть набора выбирает харнесс до раздачи файлов двум worker (tests/ui/worker-ports.ts, shardSpecs):
+          # --shard Playwright отдавал первую часть целиком одному worker
+          UI_SHARD: ${{ matrix.shard }}/3
         # вход с включённым замком гоняет своя задача ui-auth (два worker), второй раз в первой части не нужен
-        run: npx playwright test --config tests/ui/playwright.config.ts --shard=${{ matrix.shard }}/3 --workers=2
+        run: npx playwright test --config tests/ui/playwright.config.ts --workers=2
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

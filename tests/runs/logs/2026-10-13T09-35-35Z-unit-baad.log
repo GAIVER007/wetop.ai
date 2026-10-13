@@ -1,0 +1,42 @@
+# Модульные (unit) · 13.10.2026 14:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 41deb81 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T09-35-35Z-unit-baad.json' 'tests/unit/ui-worker-ports.test.ts' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ❯ |unit| tests/unit/ui-worker-ports.test.ts (6 tests | 1 failed) 4ms
+   ❯ порты UI-стендов (6)
+     ✓ основной UI по умолчанию: fixture 4311 и 4331, web 3100 и 3101, site 3002 и 3003 1ms
+     ✓ auth по умолчанию: два набора api/proxy/web/site без пересечений и резерва 0ms
+     ✓ переопределение, которое сажает worker на демо-порт, останавливает запуск 0ms
+     ✓ пересечение ролей или workers останавливает запуск, а не делит сервер 0ms
+     ✓ порт вне диапазона отклоняется 0ms
+     × части UI: каждый файл ровно в одной части, у обоих worker в каждой части есть файлы 2ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (25 tests) 1506ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 1099ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 327ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ui-worker-ports.test.ts > порты UI-стендов > части UI: каждый файл ровно в одной части, у обоих worker в каждой части есть файлы
+AssertionError: expected 16 to be greater than 30
+ ❯ tests/unit/ui-worker-ports.test.ts:50:64
+     48|     for (const part of parts)
+     49|       for (const worker of [0, 1])
+     50|         expect(part.filter((_, i) => i % 2 === worker).length).toBeGre…
+       |                                                                ^
+     51|     expect(shardSpecs(specs, undefined)).toBe(specs);
+     52|     for (const bad of ['0/3', '4/3', '1', 'a/b']) expect(() => shardSp…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 30 passed (31)
+   Start at  02:35:36
+   Duration  1.63s (tests 95%, transform 3%, import 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T09-35-35Z-unit-baad.json
+
+# код выхода 1 · 3 с

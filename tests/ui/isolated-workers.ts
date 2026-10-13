@@ -9,7 +9,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
-import { workerPorts } from './worker-ports';
+import { shardSpecs, workerPorts } from './worker-ports';
 
 export type UiWorkerRuntime = {
   index: number;
@@ -236,7 +236,7 @@ export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
   const allSpecs = readdirSync(sourceUi)
     .filter((name) => name.endsWith('.spec.ts'))
     .sort();
-  const mainSpecs = allSpecs;
+  const mainSpecs = shardSpecs(allSpecs);
   const manifests: Array<{
     index: number;
     files: FileProof[];

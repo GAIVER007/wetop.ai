@@ -47,3 +47,18 @@ export function authPorts(env: NodeJS.ProcessEnv = process.env) {
     2,
   );
 }
+
+/**
+ * Часть набора для одной задачи гейта (`UI_SHARD=N/всего`), файлы по кругу. Делить надо до раздачи файлов двум
+ * worker: `--shard` Playwright режет общий список тестов по порядку проектов, и первая часть целиком доставалась
+ * проекту `main-ui-0`, вторая стойка простаивала (release-checks 38369219724: 530 тестов одним worker не уложились
+ * в 60 минут). Без переменной (локально) весь набор.
+ */
+export function shardSpecs(specs: string[], shard = process.env['UI_SHARD']): string[] {
+  if (!shard) return specs;
+  const match = /^([1-9]\d*)\/([1-9]\d*)$/.exec(shard);
+  const index = Number(match?.[1]);
+  const total = Number(match?.[2]);
+  if (!match || index > total) throw new Error(`UI_SHARD должен быть N/всего, получено ${shard}`);
+  return specs.filter((_, specIndex) => specIndex % total === index - 1);
+}

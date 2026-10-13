@@ -101,6 +101,9 @@ describe('свой раннер CI', () => {
     expect(auth).toMatch(/needs: fast/);
     expect(auth).toContain('tests/ui/playwright.auth.config.ts --workers=2');
     expect(withoutComments(job('ui-shard'))).toContain('--workers=2');
+    // часть набора выбирает харнесс, а не --shard: тот отдавал первую часть целиком одному из двух worker
+    expect(withoutComments(job('ui-shard'))).toContain('UI_SHARD: ${{ matrix.shard }}/3');
+    expect(withoutComments(job('ui-shard'))).not.toContain('--shard');
     // runtime-аудит (O-9) обязателен: своя задача гейта, прогон в закрытом сетевом пространстве, без исторического A3
     const audit = withoutComments(job('runtime-audit'));
     expect(audit).toMatch(/runs-on: ubuntu-24\.04/);

@@ -19,7 +19,7 @@ export default async function StockPage() {
       selectedWorkspaceBranch(),
     ]);
     return (
-      <Page title="Склад" subtitle="Ингредиенты кухни, приходы, списания и инвентаризация">
+      <Page title="Склад">
         <div key={shell.scopeKey}>
           <StockBoard
             ctx={{

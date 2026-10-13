@@ -16,6 +16,7 @@ export function DateBar({
   onToday,
   inputProps,
   className,
+  compact = false,
 }: {
   date: string;
   onDateChange: (date: string) => void;
@@ -27,6 +28,8 @@ export function DateBar({
   inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'onChange'> &
     Record<`data-${string}`, string>;
   className?: string;
+  /** подпись «Дата» только для программы чтения: полоса дня одной строкой в панели экрана */
+  compact?: boolean;
 }) {
   return (
     <div className={className ? `date-bar ${className}` : 'date-bar'}>
@@ -38,7 +41,7 @@ export function DateBar({
       <Button tone="ghost" type="button" aria-label="Предыдущий день" onClick={onPrevious}>
         <Icon name="back" />
       </Button>
-      <Field label="Дата">
+      <Field label={compact ? <span className="sr-only">Дата</span> : 'Дата'}>
         <Input
           {...inputProps}
           type="date"

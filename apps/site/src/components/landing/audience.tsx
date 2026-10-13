@@ -1,13 +1,11 @@
 import Link from 'next/link';
 import styles from './audience-segments.module.css';
 import { getDictionary } from '../../i18n';
-import { subtypesOf } from '../../lib/landings';
 import { Icon } from '../icon';
 
 /*
  * «Три направления. Одна платформа»: фото направления сверху карточки во всю ширину (пометка владельца
- * 13.10.2026: мелкие картинки сбоку выглядели бедно), иконка и название, список возможностей, кнопка
- * на страницу направления и под ней типы бизнеса направления из общего списка лендингов.
+ * 13.10.2026: мелкие картинки сбоку выглядели бедно), иконка и название, список возможностей и переход на страницу направления в заголовке.
  */
 const DIRECTION = {
   HOSPITALITY: 'hotels',
@@ -54,7 +52,12 @@ export function Audience() {
                     <Icon name={card.icon} size={22} />
                   </span>
                   <div>
-                    <h3>{card.title}</h3>
+                    <h3>
+                      <Link className={styles.titleLink} href={`/for/${direction}/`}>
+                        {card.title}
+                        <Icon name="arrowRight" size={18} />
+                      </Link>
+                    </h3>
                     <p className="verticals__name">{card.name}</p>
                   </div>
                 </div>
@@ -67,19 +70,6 @@ export function Audience() {
                     </li>
                   ))}
                 </ul>
-                <a className={`verticals__action ${styles.action}`} href={`/for/${direction}/`}>
-                  {card.action}
-                  <Icon name="arrowRight" size={16} />
-                </a>
-                {/* Типы бизнеса направления из общего списка лендингов (lib/landings.ts) */}
-                <div className={`verticals__segments ${styles.segments}`}>
-                  {subtypesOf(direction).map((slug) => (
-                    <Link key={slug} href={`/for/${slug}/`}>
-                      {t.segments.items[slug].metaTitle}
-                      <Icon name="arrowRight" size={16} />
-                    </Link>
-                  ))}
-                </div>
               </article>
             );
           })}

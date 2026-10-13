@@ -79,7 +79,7 @@ for (const segment of SEGMENTS) {
 test('карточки направлений на главной ведут на страницы по типам объектов', async ({ page }) => {
   await page.goto('/');
   for (const segment of SEGMENTS.filter((s) => s.vertical === 'HOSPITALITY')) {
-    await expect(page.locator(`#audience a[href="${segment.path}"]`)).toHaveCount(1);
+    await expect(page.locator(`#audience a[href="${segment.path}"]`)).toHaveCount(0);
   }
   // Подвал ведёт на все страницы типов бизнеса и на сами направления (внутренние ссылки)
   const footer = page.locator('.site-footer__directions');

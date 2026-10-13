@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, openFullCard, test } from './fixtures';
+import { FIXTURE_API, expect, hydrated, openFullCard, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 3 (ТЗ §18–§25, §58): карточка брони и быстрый предпросмотр.
@@ -46,6 +46,31 @@ test('двойной клик открывает полную карточку �
   await page.goto('/chessboard');
   await openFullCard(page.getByTestId('stay-cell').first());
   await expect(page.getByRole('dialog', { name: 'Бронирование', exact: true })).toBeVisible();
+});
+
+test('живой двойной щелчок по самой правой плашке открывает полную карточку, хотя первый щелчок сужает сетку', async ({
+  page,
+}) => {
+  // От 1280 px первый щелчок открывает панель брони рядом с сеткой, сетка сужается и плашка уезжает из-под
+  // курсора. Мышь здесь настоящая (не dispatchEvent, как у openFullCard): двойной щелчок обязан дойти до карточки.
+  await page.goto('/chessboard');
+  const cells = page.getByTestId('stay-cell');
+  await hydrated(cells.first());
+  const spot = await cells.evaluateAll((els) => {
+    const wrap = document.querySelector('.board-wrap')!.getBoundingClientRect();
+    let best: { x: number; y: number; number: string } | null = null;
+    for (const el of els) {
+      const box = el.getBoundingClientRect();
+      const x = box.left + box.width / 2;
+      if (box.width === 0 || x < wrap.left || x > wrap.right - 4) continue;
+      if (!best || x > best.x) best = { x, y: box.top + box.height / 2, number: el.getAttribute('data-number')! };
+    }
+    return best;
+  });
+  expect(spot).not.toBeNull();
+  await page.mouse.dblclick(spot!.x, spot!.y);
+  await expect(page.getByRole('dialog', { name: 'Бронирование', exact: true })).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/reservations/${spot!.number}`));
 });
 
 test('действия по статусу: подтверждённой: заселить, проживающему: выселить', async ({ page }) => {

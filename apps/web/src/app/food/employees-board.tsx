@@ -1,5 +1,4 @@
 'use client';
-import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconField } from '../../components/icon-field';
@@ -133,16 +132,11 @@ export function EmployeesBoard({
       .toUpperCase();
   return (
     <div className="food-workspace rest-ws" data-testid="employees-board">
-      <div className="rest-bar">
-        <nav className="rest-utabs" aria-label="Команда">
-          <Link href="/employees" aria-current="page">
-            Список
-          </Link>
-          <Link href="/payroll">Зарплата</Link>
-          <Link href="/staff">Роли и доступы</Link>
-        </nav>
-        {write && <Button onClick={() => setDraft('new')}>+ Добавить сотрудника</Button>}
-      </div>
+      {write && (
+        <div className="food-section-heading rest-actions-end">
+          <Button onClick={() => setDraft('new')}>+ Добавить сотрудника</Button>
+        </div>
+      )}
       <div className="rest-card">
         <div className="rest-card__tools">
           <Field label={<span className="sr-only">Поиск по сотрудникам</span>}>

@@ -29,6 +29,7 @@ async function openWeek(page: Page, request: APIRequestContext): Promise<string>
   };
   const from = add(stay.arrivalDate, -1);
   await page.goto(`/chessboard?from=${from}&to=${add(from, 6)}`);
+  await expect(page.locator('.board-stage')).toHaveAttribute('data-docked', 'true');
   return stay.arrivalDate;
 }
 
@@ -38,7 +39,7 @@ const cell = (page: Page, unit: string, date: string) =>
 /** Прижать мышь на одной клетке и провести до другой (обычные события указателя, не HTML5 drag) */
 async function sweep(page: Page, from: Locator, to: Locator) {
   await hydrated(from);
-  await page.evaluate("document.fonts.ready");
+  await page.evaluate('document.fonts.ready');
   await to.scrollIntoViewIfNeeded();
   await from.scrollIntoViewIfNeeded();
   const a = (await from.boundingBox())!;

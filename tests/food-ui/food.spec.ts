@@ -1,4 +1,4 @@
-import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
+import { test, expect, type Page, type APIRequestContext } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 const api = `http://127.0.0.1:${process.env.FOOD_UI_API_PORT ?? '55824'}`;
 const date = '2026-10-12';
@@ -589,6 +589,18 @@ test('creation 503 keeps the draft and retry key; invalid period stays inline', 
   ).json();
   expect(rows.items).toHaveLength(1);
   expect(rows.items[0].notes).toBe('Сохранённый ввод');
+});
+test('чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается', async ({
+  page,
+  request,
+}) => {
+  // без обёртки `fixtures.ts` адрес сразу после goto ещё `/calendar`, а отложенный переход рвёт следующий goto
+  await seed(page, request);
+  await page.goto('/calendar');
+  expect(new URL(page.url()).pathname).toBe('/today');
+  await expect(page.locator('meta#__next-page-redirect')).toHaveCount(0);
+  await page.goto('/orders');
+  await expect(page).toHaveURL(/\/orders$/);
 });
 test('Food excludes every registered foreign workspace route before API requests', async ({
   page,

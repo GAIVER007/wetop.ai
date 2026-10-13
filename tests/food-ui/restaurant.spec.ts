@@ -622,6 +622,39 @@ test('оценка по QR (§40): ссылка смены, страница г�
   expect(statuses[120]).toBe(429);
 });
 
+test('график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода', async ({ page, request }) => {
+  const { headers, waiter } = await seed(page, request);
+  const shifts = async () => (await (await request.get(`${api}/food-service/shifts`, { headers })).json()).employees;
+  const empty = (await shifts()).find((e: { id: string }) => e.id === waiter.id);
+  expect(empty.week).toHaveLength(7);
+  expect(empty.week.every((d: { intervals: unknown[] }) => d.intervals.length === 0)).toBe(true);
+  const bad = await request.put(`${api}/food-service/employees/${waiter.id}/working-hours`, {
+    headers,
+    data: { intervals: [{ weekday: 1, timeFrom: '18:00', timeTo: '10:00' }] },
+  });
+  expect(bad.status()).toBe(400);
+
+  await page.goto('/employees');
+  await page.getByRole('link', { name: 'График смен' }).click();
+  await expect(page).toHaveURL(/\/employees\/shifts$/);
+  const line = page.locator('tbody tr', { hasText: waiter.name });
+  await expect(line).toContainText('Выходной');
+  await line.getByRole('button', { name: 'Изменить график' }).click();
+  const dialog = page.getByRole('dialog');
+  const monday = dialog.getByRole('group', { name: 'Понедельник' });
+  await monday.getByRole('button', { name: 'Сделать рабочим' }).click();
+  await monday.getByLabel('Понедельник: начало').fill('10:00');
+  await monday.getByLabel('Понедельник: конец').fill('18:00');
+  await dialog.getByRole('button', { name: 'Сохранить график' }).click();
+  await expect(dialog.getByRole('status')).toContainText('График сохранён');
+  await page.keyboard.press('Escape');
+  await expect(line).toContainText('10:00–18:00');
+  const saved = (await shifts()).find((e: { id: string }) => e.id === waiter.id);
+  expect(saved.week[0]).toEqual({ weekday: 1, intervals: [{ timeFrom: '10:00', timeTo: '18:00' }] });
+  const axe = await new AxeBuilder({ page }).analyze();
+  expect(axe.violations).toEqual([]);
+});
+
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({
   page,
   request,

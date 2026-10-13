@@ -105,6 +105,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--spot-scale',
       '--spot-turn',
       '--share-fill', // components.css: цвет полосы ShareBar по тону, объявлен в .share-bar (DS1c)
+      '--font-inter', // next/font/local (app/fonts.ts) ставит её классом на <html>: шрифт стойки Inter, 13.10.2026
       '--share-track', // components.css: дорожка ShareBar по тону, там же
       '--module-fill', // marketing.css: плитка значка модуля хаба по модулю, объявлена в .marketing-module (MKT10)
       '--module-ink', // marketing.css: цвет значка модуля, там же

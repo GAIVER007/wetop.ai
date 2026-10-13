@@ -1,0 +1,22 @@
+# Интеграционные (integration) · 13.10.2026 13:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd3064f (claude/open-registration-verticals), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-26-00Z-integration-ca7b.json' 'tests/integration/mv2-registration.test.ts' 'tests/integration/platform-organization-create.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ✓ |integration| tests/integration/platform-organization-create.test.ts (6 tests) 1922ms
+   ✓ создание организации главным администратором (integration, DATABASE_URL required) (6)
+     ✓ гостиница: организация, филиал, владелец без пароля, ссылка и журнал; токен только хешем 482ms
+     ✓ почта занята: 409, транзакция откатилась, организации и филиала нет 333ms
+ ✓ |integration| tests/integration/mv2-registration.test.ts (6 tests) 1543ms
+   ✓ MV2 real registration persistence (6)
+     ✓ stores organization country and user locale 1043ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  01:26:06
+   Duration  6.58s (tests 65%, import 19%, transform 16%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-26-00Z-integration-ca7b.json
+
+# код выхода 0 · 13 с

@@ -27,12 +27,6 @@ export default async function RegistrationCompletePage() {
       <h1>{context.businessName}</h1>
       <p>{verticalDefinition(context.vertical).label}</p>
       <p>Филиал: {context.locationName}</p>
-      {context.vertical !== 'HOSPITALITY' && (
-        <p role="status">
-          Вы подключены к пилоту. Рабочие инструменты направления готовятся к запуску. Команда
-          согласует следующие шаги подключения.
-        </p>
-      )}
       {!selected || context.vertical === 'HOSPITALITY' ? (
         <form action={confirmRegistrationContext}>
           <button className="btn btn--primary" type="submit">

@@ -1,0 +1,37 @@
+# Модульные (unit) · 14.10.2026 00:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 77432cd (codex/organizations-card-editor), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T19-18-27Z-unit-512f.json' 'apps/web/src/app/branches/financial-widgets.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |unit| apps/web/src/app/branches/financial-widgets.test.ts (2 tests | 1 failed) 10ms
+   ✓ orders the overview from expenses to received income without changing values 5ms
+   × keeps partial totals scoped without a verbose per-object warning 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/branches/financial-widgets.test.ts > keeps partial totals scoped without a verbose per-object warning
+AssertionError: expected '<div class="org-kpis org-financial-kp…' not to contain 'Неполная сводка'
+
+Expected: "Неполная сводка"
+Received: "<div class="org-kpis org-financial-kpis"><div><span class="org-symbol teal"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-banknote" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg></span><section><p>Расходы</p><strong class="org-money">Нет данных</strong><small>Учтённые расходы за месяц</small></section></div><div><span class="org-symbol coral"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tags" aria-hidden="true"><path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z"></path><path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193"></path><circle cx="10.5" cy="6.5" r=".5" fill="currentColor"></circle></svg></span><section><p>Средний чек</p><strong class="org-money">Нет данных</strong><small>Оплаты / число заказов</small></section></div><div><span class="org-symbol purple"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-check" aria-hidden="true"><path d="M8 2v3"></path><path d="M16 2v3"></path><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18"></path><path d="m9 15 2 2 4-4"></path></svg></span><section><p>Оплаченные заказы</p><strong>0</strong><small>Бронирования и заказы</small></section></div><div><span class="org-symbol"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wallet" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg></span><section><p>Доход от оплат</p><strong class="org-money">Нет данных</strong><small>Поступившие оплаты за месяц</small></section></div></div><p class="org-finance-coverage" role="status">Неполная сводка: данные доступны по 0 из 1 объектов. Example salon: учёт оплат не подключён.</p>"
+
+ ❯ apps/web/src/app/branches/financial-widgets.test.ts:42:20
+     40|   };
+     41|   const html = renderToStaticMarkup(createElement(FinancialWidgets, { …
+     42|   expect(html).not.toContain('Неполная сводка');
+       |                    ^
+     43|   expect(html).not.toContain('Example salon');
+     44|   expect(html).toContain('По объектам с доступными финансовыми данными…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  12:18:29
+   Duration  185ms (import 58%, transform 31%, tests 9%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T19-18-27Z-unit-512f.json
+
+# код выхода 1 · 2 с

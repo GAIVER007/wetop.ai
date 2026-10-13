@@ -69,15 +69,7 @@ export function FinancialWidgets({ summary }: { summary: OrganizationSummary | n
         </p>
       ) : !summary.complete ? (
         <p className="org-finance-coverage" role="status">
-          Неполная сводка: данные доступны по {summary.covered} из {summary.total} объектов.{' '}
-          {summary.rows
-            .filter((row) => row.state !== 'READY')
-            .map(
-              (row) =>
-                `${row.name}: ${row.state === 'UNAVAILABLE' ? 'учёт оплат не подключён' : 'отчёт недоступен'}`,
-            )
-            .join('; ')}
-          .
+          По объектам с доступными финансовыми данными. Валюты показаны раздельно.
         </p>
       ) : (
         <p className="org-finance-coverage">

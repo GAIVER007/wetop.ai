@@ -88,6 +88,13 @@ model Location {
 
   bookingTrackedSite     TrackedSite?                   @relation("LocationBookingSite", fields: [bookingTrackedSiteId], references: [id], onDelete: SetNull)
   diningAreas            DiningArea[]
+  barCategories          BarCategory[]
+  barProducts            BarProduct[]
+  barSuppliers           BarSupplier[]
+  barReceipts            BarReceipt[]
+  barStockLots           BarStockLot[]
+  barStockMovements      BarStockMovement[]
+  barSales               BarSale[]
   servicePeriods         ServicePeriod[]
   foodBookingRules       FoodBookingRules?
   foodClosedDays         FoodClosedDay[]
@@ -1115,22 +1122,27 @@ enum BarSaleStatus {
 
 model BarCategory {
   id                 String   @id @default(uuid()) @db.Uuid
-  propertyId         String   @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId         String   @map("location_id") @db.Uuid
+  propertyId         String?  @map("property_id") @db.Uuid
   name               String
   defaultMarkupBasis Int      @map("default_markup_basis")
   active             Boolean  @default(true)
   createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  property Property     @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location Location     @relation(fields: [locationId], references: [id], onDelete: Restrict)
   products BarProduct[]
 
-  @@unique([propertyId, name])
+  @@unique([locationId, name])
   @@map("bar_categories")
 }
 
 model BarProduct {
   id                String   @id @default(uuid()) @db.Uuid
-  propertyId        String   @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId        String   @map("location_id") @db.Uuid
+  propertyId        String?  @map("property_id") @db.Uuid
   categoryId        String?  @map("category_id") @db.Uuid
   code              String
   name              String
@@ -1143,22 +1155,25 @@ model BarProduct {
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property     Property           @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property     Property?          @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location     Location           @relation(fields: [locationId], references: [id], onDelete: Restrict)
   category     BarCategory?       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   receiptLines BarReceiptLine[]
   lots         BarStockLot[]
   movements    BarStockMovement[]
   saleLines    BarSaleLine[]
 
-  @@unique([propertyId, code])
-  @@unique([propertyId, barcode])
-  @@index([propertyId, active])
+  @@unique([locationId, code])
+  @@unique([locationId, barcode])
+  @@index([locationId, active])
   @@map("bar_products")
 }
 
 model BarSupplier {
   id         String   @id @default(uuid()) @db.Uuid
-  propertyId String   @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId String   @map("location_id") @db.Uuid
+  propertyId String?  @map("property_id") @db.Uuid
   name       String
   phone      String?
   email      String?
@@ -1167,16 +1182,19 @@ model BarSupplier {
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property Property     @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location Location     @relation(fields: [locationId], references: [id], onDelete: Restrict)
   receipts BarReceipt[]
 
-  @@unique([propertyId, name])
+  @@unique([locationId, name])
   @@map("bar_suppliers")
 }
 
 model BarReceipt {
   id             String           @id @default(uuid()) @db.Uuid
-  propertyId     String           @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId     String           @map("location_id") @db.Uuid
+  propertyId     String?          @map("property_id") @db.Uuid
   supplierId     String           @map("supplier_id") @db.Uuid
   documentNumber String           @map("document_number")
   documentDate   DateTime         @map("document_date") @db.Date
@@ -1191,13 +1209,14 @@ model BarReceipt {
   createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property Property             @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property Property?            @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location Location             @relation(fields: [locationId], references: [id], onDelete: Restrict)
   supplier BarSupplier          @relation(fields: [supplierId], references: [id], onDelete: Restrict)
   lines    BarReceiptLine[]
   payments BarSupplierPayment[]
 
-  @@unique([propertyId, supplierId, documentNumber])
-  @@index([propertyId, receivedDate])
+  @@unique([locationId, supplierId, documentNumber])
+  @@index([locationId, receivedDate])
   @@map("bar_receipts")
 }
 
@@ -1221,7 +1240,9 @@ model BarReceiptLine {
 
 model BarStockLot {
   id             String    @id @default(uuid()) @db.Uuid
-  propertyId     String    @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId     String    @map("location_id") @db.Uuid
+  propertyId     String?   @map("property_id") @db.Uuid
   productId      String    @map("product_id") @db.Uuid
   receiptLineId  String    @unique @map("receipt_line_id") @db.Uuid
   receivedUnits  BigInt    @map("received_units")
@@ -1230,18 +1251,21 @@ model BarStockLot {
   receivedAt     DateTime  @map("received_at") @db.Timestamptz(6)
   expiresOn      DateTime? @map("expires_on") @db.Date
 
-  property    Property           @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property    Property?          @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location    Location           @relation(fields: [locationId], references: [id], onDelete: Restrict)
   product     BarProduct         @relation(fields: [productId], references: [id], onDelete: Restrict)
   receiptLine BarReceiptLine     @relation(fields: [receiptLineId], references: [id], onDelete: Restrict)
   movements   BarStockMovement[]
 
-  @@index([propertyId, productId, receivedAt])
+  @@index([locationId, productId, receivedAt])
   @@map("bar_stock_lots")
 }
 
 model BarStockMovement {
   id          String               @id @default(uuid()) @db.Uuid
-  propertyId  String               @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId  String               @map("location_id") @db.Uuid
+  propertyId  String?              @map("property_id") @db.Uuid
   productId   String               @map("product_id") @db.Uuid
   lotId       String?              @map("lot_id") @db.Uuid
   kind        BarStockMovementKind
@@ -1253,12 +1277,13 @@ model BarStockMovement {
   createdById String?              @map("created_by_id") @db.Uuid
   createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  property Property     @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location Location     @relation(fields: [locationId], references: [id], onDelete: Restrict)
   product  BarProduct   @relation(fields: [productId], references: [id], onDelete: Restrict)
   lot      BarStockLot? @relation(fields: [lotId], references: [id], onDelete: Restrict)
 
   @@unique([sourceType, sourceId, productId, lotId])
-  @@index([propertyId, productId, createdAt])
+  @@index([locationId, productId, createdAt])
   @@map("bar_stock_movements")
 }
 
@@ -1280,7 +1305,9 @@ model BarSupplierPayment {
 
 model BarSale {
   id              String        @id @default(uuid()) @db.Uuid
-  propertyId      String        @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId      String        @map("location_id") @db.Uuid
+  propertyId      String?       @map("property_id") @db.Uuid
   folioId         String?       @map("folio_id") @db.Uuid
   cashOperationId String?       @unique @map("cash_operation_id") @db.Uuid
   chargeId        String?       @unique @map("charge_id") @db.Uuid
@@ -1293,14 +1320,15 @@ model BarSale {
   reversedAt      DateTime?     @map("reversed_at") @db.Timestamptz(6)
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  property      Property       @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property      Property?      @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location      Location       @relation(fields: [locationId], references: [id], onDelete: Restrict)
   folio         Folio?         @relation(fields: [folioId], references: [id], onDelete: Restrict)
   cashOperation CashOperation? @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
   charge        Charge?        @relation(fields: [chargeId], references: [id], onDelete: Restrict)
   lines         BarSaleLine[]
 
-  @@unique([propertyId, idempotencyKey])
-  @@index([propertyId, createdAt])
+  @@unique([locationId, idempotencyKey])
+  @@index([locationId, createdAt])
   @@map("bar_sales")
 }
 

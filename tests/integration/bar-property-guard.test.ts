@@ -104,7 +104,8 @@ describe('BAR property guard: table-specific trigger dispatch', () => {
       const id = await product(a);
       await expect(
         client.query('UPDATE bar_products SET property_id=$1 WHERE id=$2', [b.property, id]),
-      ).rejects.toThrow('Category belongs to another property');
+        // §44: объект и филиал неизменны, поэтому раньше категории отказывает охрана неизменности
+      ).rejects.toThrow(/Category belongs to another property|BAR property_id is immutable/);
     });
   });
   it('receipt with own supplier succeeds without reading category_id', async () => {
@@ -139,7 +140,8 @@ describe('BAR property guard: table-specific trigger dispatch', () => {
       const id = await receipt(a);
       await expect(
         client.query('UPDATE bar_receipts SET property_id=$1 WHERE id=$2', [b.property, id]),
-      ).rejects.toThrow('Supplier belongs to another property');
+        // §44: объект и филиал неизменны, поэтому раньше поставщика отказывает охрана неизменности
+      ).rejects.toThrow(/Supplier belongs to another property|BAR property_id is immutable/);
     });
   });
   it('unknown table fails closed even with neither row-specific field', async () => {

@@ -39,7 +39,13 @@ describe('бар на счёт: дата услуги начисления', () 
       },
       auditLog: { create: async () => ({}) },
     };
-    const prisma = { db: { $transaction: async (fn: (t: unknown) => unknown) => fn(tx) } };
+    const prisma = {
+      db: {
+        $transaction: async (fn: (t: unknown) => unknown) => fn(tx),
+        // бар на филиале (§44): строки бара пишутся с филиалом объекта
+        property: { findUniqueOrThrow: async () => ({ locationId: '00000000-0000-4000-8000-0000000000f1' }) },
+      },
+    };
     const repo = new PrismaBarRepository(prisma as never);
     const result = await repo.sellToFolio({
       folioId: 'f1',

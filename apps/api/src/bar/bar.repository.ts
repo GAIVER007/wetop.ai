@@ -89,12 +89,18 @@ export const BAR_REPOSITORY = Symbol('BAR_REPOSITORY');
 export class PrismaBarRepository implements BarRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   private propertyId() { return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name); }
+  /** Бар на филиале (§44): объект гостиницы и его филиал; строки бара пишутся с обоими */
+  private async owner() {
+    const propertyId = await this.propertyId();
+    const { locationId } = await this.prisma.db.property.findUniqueOrThrow({ where: { id: propertyId }, select: { locationId: true } });
+    return { propertyId, locationId };
+  }
   async categories() {
     return (this.prisma.db as any).barCategory.findMany({ where: { propertyId: await this.propertyId() }, orderBy: { name: 'asc' } });
   }
   async createCategory(input: BarCategoryInput) {
-    const propertyId = await this.propertyId();
-    const row = await (this.prisma.db as any).barCategory.create({ data: { propertyId, ...input } });
+    const { propertyId, locationId } = await this.owner();
+    const row = await (this.prisma.db as any).barCategory.create({ data: { propertyId, locationId, ...input } });
     await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_category', entityId: row.id, action: 'bar.category.created', after: { name: row.name, defaultMarkupBasis: row.defaultMarkupBasis } } });
     return row;
   }
@@ -111,9 +117,9 @@ export class PrismaBarRepository implements BarRepository {
     return rows.map((row: any) => ({ ...row, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() }));
   }
   async createProduct(input: BarProductInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.owner();
     const row = await (this.prisma.db as any).barProduct.create({ data: {
-      propertyId, code: input.code, name: input.name, categoryId: input.categoryId, barcode: input.barcode,
+      propertyId, locationId, code: input.code, name: input.name, categoryId: input.categoryId, barcode: input.barcode,
       unitsPerPackage: input.unitsPerPackage, markupBasis: input.markupBasis, salePrice: input.salePriceMinor,
       minimumStockUnits: input.minimumStockUnits,
     } });
@@ -152,8 +158,8 @@ export class PrismaBarRepository implements BarRepository {
     return (this.prisma.db as any).barSupplier.findMany({ where: { propertyId: await this.propertyId() }, orderBy: { name: 'asc' } });
   }
   async createSupplier(input: BarSupplierInput) {
-    const propertyId = await this.propertyId();
-    const row = await (this.prisma.db as any).barSupplier.create({ data: { propertyId, ...input } });
+    const { propertyId, locationId } = await this.owner();
+    const row = await (this.prisma.db as any).barSupplier.create({ data: { propertyId, locationId, ...input } });
     await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_supplier', entityId: row.id, action: 'bar.supplier.created', after: { name: row.name } } });
     return row;
   }
@@ -285,7 +291,7 @@ export class PrismaBarRepository implements BarRepository {
     return { purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString(), month, popular };
   }
   async sellRetail(input: BarRetailSaleInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.owner();
     return this.prisma.db.$transaction(async (tx) => {
       const replay = await (tx as any).barSale.findFirst({ where: { propertyId, idempotencyKey: input.idempotencyKey } });
       if (replay) return { kind: 'posted' as const, id: replay.id, status: 'POSTED' as const, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
@@ -301,17 +307,17 @@ export class PrismaBarRepository implements BarRepository {
       }
       const revenue = product.salePrice * input.quantityUnits;
       const cash = await (tx as any).cashOperation.create({ data: { propertyId, kind: 'INCOME', method: input.method, amount: revenue, note: `Бар: ${product.name}`, createdById: auditUserId() } });
-      const sale = await (tx as any).barSale.create({ data: { propertyId, cashOperationId: cash.id, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency: 'KZT', totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
+      const sale = await (tx as any).barSale.create({ data: { propertyId, locationId, cashOperationId: cash.id, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency: 'KZT', totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
       for (const allocation of fifo.allocations) {
         await (tx as any).barStockLot.update({ where: { id: allocation.lotId }, data: { remainingUnits: { decrement: allocation.units } } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: product.id, lotId: allocation.lotId, kind: 'SALE', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_SALE', sourceId: sale.id, createdById: auditUserId() } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: allocation.lotId, kind: 'SALE', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_SALE', sourceId: sale.id, createdById: auditUserId() } });
       }
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_sale', entityId: sale.id, action: 'bar.sale.posted', after: { quantityUnits: input.quantityUnits.toString(), revenue: revenue.toString(), cost: fifo.totalCostMinor.toString() } } });
       return { kind: 'posted' as const, id: sale.id, status: 'POSTED' as const, revenueMinor: revenue.toString(), costMinor: fifo.totalCostMinor.toString() };
     });
   }
   async sellToFolio(input: BarFolioSaleInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.owner();
     // дата услуги: сегодня по часам объекта (docs/metrics.md §5, Q-292); без неё начисление выпадало из периодных отчётов
     const serviceDate = new Date(`${await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name)}T00:00:00Z`);
     return this.prisma.db.$transaction(async (tx) => {
@@ -332,17 +338,17 @@ export class PrismaBarRepository implements BarRepository {
       }
       const revenue = BigInt(product.salePrice) * input.quantityUnits;
       const charge = await (tx as any).charge.create({ data: { folioId: folio.id, kind: 'SERVICE', description: `Бар: ${product.name}`, quantity: Number(input.quantityUnits), unitPrice: product.salePrice, amount: revenue, serviceDate, createdBy: auditUserId() } });
-      const sale = await (tx as any).barSale.create({ data: { propertyId, folioId: folio.id, chargeId: charge.id, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency: folio.currency, totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
+      const sale = await (tx as any).barSale.create({ data: { propertyId, locationId, folioId: folio.id, chargeId: charge.id, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency: folio.currency, totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
       for (const allocation of fifo.allocations) {
         await (tx as any).barStockLot.update({ where: { id: allocation.lotId }, data: { remainingUnits: { decrement: allocation.units } } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: product.id, lotId: allocation.lotId, kind: 'SALE', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_SALE', sourceId: sale.id, createdById: auditUserId() } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: allocation.lotId, kind: 'SALE', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_SALE', sourceId: sale.id, createdById: auditUserId() } });
       }
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_sale', entityId: sale.id, action: 'bar.sale.folio_posted', after: { folioId: folio.id, chargeId: charge.id, quantityUnits: input.quantityUnits.toString(), revenue: revenue.toString(), cost: fifo.totalCostMinor.toString() } } });
       return { kind: 'posted' as const, id: sale.id, status: 'POSTED' as const, chargeId: charge.id, revenueMinor: revenue.toString(), costMinor: fifo.totalCostMinor.toString() };
     });
   }
   async reverseSale(id: string, restock: boolean, reason: string) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.owner();
     return this.prisma.db.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT id FROM bar_sales WHERE id = ${id}::uuid AND property_id = ${propertyId}::uuid FOR UPDATE`;
       const sale = await (tx as any).barSale.findFirst({ where: { id, propertyId } });
@@ -352,7 +358,7 @@ export class PrismaBarRepository implements BarRepository {
       if (restock) for (const movement of movements) {
         await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE id = ${movement.lotId}::uuid FOR UPDATE`;
         await (tx as any).barStockLot.update({ where: { id: movement.lotId }, data: { remainingUnits: { increment: -movement.units } } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: movement.productId, lotId: movement.lotId, kind: 'SALE_RETURN', units: -movement.units, unitCost: movement.unitCost, sourceType: 'BAR_SALE_RETURN', sourceId: id, note: reason, createdById: auditUserId() } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: movement.productId, lotId: movement.lotId, kind: 'SALE_RETURN', units: -movement.units, unitCost: movement.unitCost, sourceType: 'BAR_SALE_RETURN', sourceId: id, note: reason, createdById: auditUserId() } });
       }
       if (sale.cashOperationId) await (tx as any).cashOperation.update({ where: { id: sale.cashOperationId }, data: { status: 'VOIDED' } });
       if (sale.chargeId) await (tx as any).charge.update({ where: { id: sale.chargeId }, data: { voidedAt: new Date() } });
@@ -362,7 +368,7 @@ export class PrismaBarRepository implements BarRepository {
     });
   }
   async writeOff(input: BarWriteOffInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.owner();
     return this.prisma.db.$transaction(async (tx) => {
       const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, propertyId, active: true } });
       if (!product) return { kind: 'not_found' as const };
@@ -377,18 +383,18 @@ export class PrismaBarRepository implements BarRepository {
       const sourceId = randomUUID();
       for (const allocation of fifo.allocations) {
         await (tx as any).barStockLot.update({ where: { id: allocation.lotId }, data: { remainingUnits: { decrement: allocation.units } } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: product.id, lotId: allocation.lotId, kind: 'WRITE_OFF', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_WRITE_OFF', sourceId, note: input.reason, createdById: auditUserId() } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: allocation.lotId, kind: 'WRITE_OFF', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_WRITE_OFF', sourceId, note: input.reason, createdById: auditUserId() } });
       }
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_write_off', entityId: sourceId, action: 'bar.stock.written_off', after: { productId: product.id, quantityUnits: input.quantityUnits.toString(), cost: fifo.totalCostMinor.toString(), reason: input.reason } } });
       return { kind: 'posted' as const, id: sourceId, movementsCreated: fifo.allocations.length, costMinor: fifo.totalCostMinor.toString() };
     });
   }
   async createReceipt(input: BarReceiptInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.owner();
     const totalAmount = input.lines.reduce((s, l) => s + l.quantityUnits * l.unitCostMinor, 0n);
     const row = await (this.prisma.db as any).barReceipt.create({
       data: {
-        propertyId, supplierId: input.supplierId, documentNumber: input.documentNumber,
+        propertyId, locationId, supplierId: input.supplierId, documentNumber: input.documentNumber,
         documentDate: new Date(`${input.documentDate}T00:00:00Z`), receivedDate: new Date(`${input.receivedDate}T00:00:00Z`),
         currency: input.currency, totalAmount, note: input.note, createdById: auditUserId(),
         lines: { create: input.lines.map((l) => ({ productId: l.productId, quantityUnits: l.quantityUnits, unitCost: l.unitCostMinor, amount: l.quantityUnits * l.unitCostMinor, markupBasis: Number(l.markupBasis), calculatedPrice: salePriceFromMarkup(l.unitCostMinor, l.markupBasis) })) },
@@ -407,7 +413,7 @@ export class PrismaBarRepository implements BarRepository {
     };
   }
   async postReceipt(id: string) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.owner();
     return this.prisma.db.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${id}::uuid FOR UPDATE`;
       const receipt = await (tx as any).barReceipt.findFirst({ where: { id, propertyId }, include: { lines: true } });
@@ -416,8 +422,8 @@ export class PrismaBarRepository implements BarRepository {
       const now = new Date();
       for (const line of receipt.lines) {
         await (tx as any).barProduct.update({ where: { id: line.productId }, data: { salePrice: line.calculatedPrice } });
-        const lot = await (tx as any).barStockLot.create({ data: { propertyId, productId: line.productId, receiptLineId: line.id, receivedUnits: line.quantityUnits, remainingUnits: line.quantityUnits, unitCost: line.unitCost, receivedAt: now } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: line.productId, lotId: lot.id, kind: 'RECEIPT', units: line.quantityUnits, unitCost: line.unitCost, sourceType: 'BAR_RECEIPT', sourceId: receipt.id, createdById: auditUserId() } });
+        const lot = await (tx as any).barStockLot.create({ data: { propertyId, locationId, productId: line.productId, receiptLineId: line.id, receivedUnits: line.quantityUnits, remainingUnits: line.quantityUnits, unitCost: line.unitCost, receivedAt: now } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: line.productId, lotId: lot.id, kind: 'RECEIPT', units: line.quantityUnits, unitCost: line.unitCost, sourceType: 'BAR_RECEIPT', sourceId: receipt.id, createdById: auditUserId() } });
       }
       await (tx as any).barReceipt.update({ where: { id }, data: { status: 'POSTED', postedAt: now } });
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_receipt', entityId: id, action: 'bar.receipt.posted', after: { lines: receipt.lines.length, totalAmount: receipt.totalAmount.toString() } } });
@@ -447,7 +453,7 @@ export class PrismaBarRepository implements BarRepository {
     });
   }
   async inventoryCount(input: BarInventoryCountInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.owner();
     return this.prisma.db.$transaction(async (tx) => {
       const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, propertyId, active: true } });
       if (!product) return { kind: 'not_found' as const };
@@ -463,7 +469,7 @@ export class PrismaBarRepository implements BarRepository {
         cost = fifo.totalCostMinor;
         for (const allocation of fifo.allocations) {
           await (tx as any).barStockLot.update({ where: { id: allocation.lotId }, data: { remainingUnits: { decrement: allocation.units } } });
-          await (tx as any).barStockMovement.create({ data: { propertyId, productId: product.id, lotId: allocation.lotId, kind: 'INVENTORY_ADJUSTMENT', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_INVENTORY_COUNT', sourceId, note: `${input.reason}; по системе ${systemUnits}; факт ${input.actualUnits}`, createdById: auditUserId() } });
+          await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: allocation.lotId, kind: 'INVENTORY_ADJUSTMENT', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_INVENTORY_COUNT', sourceId, note: `${input.reason}; по системе ${systemUnits}; факт ${input.actualUnits}`, createdById: auditUserId() } });
         }
       }
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_inventory_count', entityId: sourceId, action: 'bar.inventory.counted', after: { productId: product.id, systemUnits: systemUnits.toString(), actualUnits: input.actualUnits.toString(), differenceUnits: difference.toString(), cost: cost.toString(), reason: input.reason } } });

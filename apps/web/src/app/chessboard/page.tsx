@@ -17,7 +17,6 @@ import { BoardZoom } from './board-zoom';
 import { displayDate } from '../../lib/display-date';
 import { hotelClock, validDate } from '../../lib/hotel-api';
 import { CalendarWorkspace, CalendarExpandButton } from './calendar-workspace';
-import { BoardClock } from './board-clock';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
@@ -372,11 +371,6 @@ export default async function ChessboardPage({
           actions={actions}
           kpis={kpis}
           help={help}
-          summary={
-            day ? (
-              <SideDayStats day={day} today={today} timeZone={clock.timezone} board={current} />
-            ) : null
-          }
         />
         <div className="board-footer">
           {/* Нижняя строка по образцу владельца (09.10.2026): цвета плашек словами, «Показать легенду»,
@@ -498,7 +492,7 @@ function DayStats({
   availabilityHref: string;
 }) {
   const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
-  const n = (value: number | null | undefined) => (value == null ? '—' : String(value));
+  const n = (value: number | null | undefined) => (value == null ? '–' : String(value));
   const c = day.counts;
   return (
     <section className="board-kpis" role="group" aria-label="Сегодня на объекте">
@@ -509,7 +503,7 @@ function DayStats({
         <div className="board-kpi__body">
           <span className="board-kpi__row">
             <b className="board-kpi__value" data-testid="day-occupancy">
-              {occupancy === null ? '—' : `${occupancy}%`}
+              {occupancy === null ? '–' : `${occupancy}%`}
             </b>
             {trend !== null && trend !== 0 && (
               <span
@@ -611,69 +605,6 @@ function DayStats({
           </span>
         </span>
       </Link>
-    </section>
-  );
-}
-
-function SideDayStats({
-  day,
-  board,
-  today,
-  timeZone,
-}: {
-  day: import('../../lib/api').DeskDay;
-  board: import('../../lib/api').Chessboard | null;
-  today: string;
-  timeZone: string;
-}) {
-  const s = board?.summary[today];
-  const units = s ? s.occupied + s.free + s.blocked : null;
-  const occupancy = s && units ? Math.round((s.occupied / units) * 100) : units === 0 ? 0 : null;
-  const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
-  const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
-  const n = (value: number | null | undefined) => (value == null ? '—' : String(value));
-  const title = new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    timeZone,
-  }).format(new Date(`${today}T12:00:00Z`));
-  const initialTime = new Intl.DateTimeFormat('ru-RU', {
-    timeZone,
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(new Date());
-  const c = day.counts;
-  const row = (id: string, label: string, value: React.ReactNode, href?: string) => (
-    <div className={`board-day-panel__row board-day-panel__row--${id}`}>
-      {href ? <Link href={href}>{label}</Link> : <span>{label}</span>}
-      <b data-testid={`summary-${id}`}>{value}</b>
-    </div>
-  );
-  return (
-    <section className="board-day-panel" role="group" aria-label="Сводка дня">
-      <h2 className="board-day-panel__title">
-        Сегодня, {title}, <BoardClock timeZone={timeZone} initial={initialTime} />
-      </h2>
-      <div className="board-day-panel__columns">
-        <div className="board-day-panel__col">
-          {row('arrivals', 'Заезды', c.arrivals, dayHref('arrival'))}
-          {row('departures', 'Выезды', c.departures, dayHref('departure'))}
-          {row('inhouse', 'Проживания', c.inHouse, '/reservations?view=inhouse')}
-        </div>
-        <div className="board-day-panel__col">
-          {/* Без разбивки на номера и койки, без дней рождения, задач, блокировок и «Всего номеров»:
-              владелец 06.10 «лишнее убери, в скобках убери», «всего номеров незачем видеть постоянно» */}
-          {row(
-            'free',
-            'Свободно мест',
-            n(s?.free),
-            `/rooms/availability?arrival=${today}&departure=${tomorrow}`,
-          )}
-          {row('occupied', 'Занято мест', n(s?.occupied))}
-          {row('occupancy', 'Загрузка', occupancy === null ? '—' : `${occupancy}%`)}
-        </div>
-      </div>
     </section>
   );
 }

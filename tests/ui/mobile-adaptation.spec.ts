@@ -5,8 +5,8 @@ import { FIXTURE_API } from './fixtures';
  * Мобильная версия стойки (02.10.2026, поручение владельца «особое внимание телефону»).
  *
  * Четыре дефекта, найденные живым проходом на 390 px:
- * 1) `.workspace .page` на телефоне оставлял снизу 40 px — последние ~30 px контента прятались под
- *    нижней навигацией (70 px): компенсацию имели только экраны со своими `:has()`-правилами.
+ * 1) После перехода на скрытое меню нижней панели больше нет: экраны должны сохранять
+ *    доступную кнопку меню и не создавать горизонтальную прокрутку.
  * 2) Шапка «Календаря» ставила `flex-wrap: nowrap`, и заголовок зажимался в колонку по буквам,
  *    пока три кнопки действий занимали ширину.
  * 3) Чипы отборов «Броней» и «Финансов» — 30 px (`--control-h-sm`): меньше цели 44 px
@@ -22,9 +22,8 @@ test.beforeEach(async ({ page, request }) => {
   await page.setViewportSize(PHONE);
 });
 
-test('телефон: низ страницы не прячется под нижней навигацией', async ({ page }) => {
+test('телефон: скрытое меню доступно на основных маршрутах без нижней панели и переполнения', async ({ page }) => {
   test.slow(); // обход 13 разделов: на холодном `next dev` первая сборка каждого занимает секунды
-  // Экраны без собственных `:has()`-компенсаций — они и страдали; у /channels своё правило 16px
   for (const route of [
     '/guests',
     '/finance',
@@ -39,23 +38,9 @@ test('телефон: низ страницы не прячется под ни�
     '/team',
   ]) {
     await page.goto(route);
-    const nav = page.locator('.bottom-navigation');
-    await expect(nav).toBeVisible();
-    const navHeight = (await nav.boundingBox())?.height ?? 0;
-    // На части экранов (вкладки тарифов) несколько .page — мерим видимую. Замер повторяется: у раздела
-    // со своим `loading.tsx` первым приходит `.page` экрана ожидания, потоковая отрисовка снимает его
-    // посреди замера, и у отцепленного узла `getComputedStyle` пуст (NaN, release-checks 37795974518)
-    await expect
-      .poll(
-        () =>
-          page
-            .locator('.page:visible')
-            .first()
-            .evaluate((el) => (el.isConnected ? parseFloat(getComputedStyle(el).paddingBottom) : Number.NaN))
-            .catch(() => Number.NaN),
-        { message: `${route}: padding-bottom меньше панели ${navHeight}` },
-      )
-      .toBeGreaterThanOrEqual(navHeight);
+    await expect(page.locator('.bottom-navigation')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Открыть меню' })).toBeVisible();
+    await expect(page.getByRole('main')).toBeVisible();
     // и страница не едет вбок
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
@@ -98,8 +83,7 @@ test('телефон: сводка и управление оставляют с
   expect((await summary.boundingBox())!.height).toBeLessThanOrEqual(280);
   const board = await grid.boundingBox();
   expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(700);
-  const navigation = await page.locator('.bottom-navigation').boundingBox();
-  expect(navigation!.y - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
+  expect(PHONE.height - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
   // с 09.10 период живёт в раскрывашке «Октябрь 2026 ▾» только полями «С» и «По» (образец владельца), готовых
   // периодов в ней нет; длина окна 7 / 14 / 30 дней стоит в своей раскрывашке
   await page.getByTestId('board-period-button').click();

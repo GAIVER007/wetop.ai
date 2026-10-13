@@ -1,4 +1,13 @@
-import { FIXTURE_API, boardFilter, expect, openBoardFilters, test, devNoise, type Page, goViaMenu } from './fixtures';
+import {
+  FIXTURE_API,
+  boardFilter,
+  expect,
+  openBoardFilters,
+  test,
+  devNoise,
+  type Page,
+  goViaMenu,
+} from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -118,26 +127,26 @@ test('все разделы, карточки и печать открывают
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/finance');
-  // левое меню (ADR-161): панель разделов, «Продажи» → «Анализ конкурентов»
-  const sidebar = page.locator('.sidenav__items');
+  // Скрытое меню: прямой раздел находится в первом столбце, подраздел во втором.
+  const menuPanel = page.locator('.sidenav__panel');
   await goViaMenu(page, 'Продажи', 'Анализ конкурентов');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
   // переход закрывает панель; кнопка показывает раздел текущего экрана
   await expect(page.locator('.sidenav__panel')).toBeHidden();
   await expect(page.locator('.sidenav__current')).toHaveText('Продажи');
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
   // вкладка модуля сайта подсвечивает один пункт «Сайт и SEO» группы «Маркетинг» (MKT2)
   await page.goto('/website/settings');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
   await page.goto('/connections');
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Подключения');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Подключения');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });
@@ -1456,11 +1465,9 @@ test('новая бронь: резюме выбора обновляется п
   const button = form.getByRole('button', { name: 'Создать бронь' });
   await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
   await expect(button).toBeInViewport();
-  const [box, nav] = await Promise.all([
-    button.boundingBox(),
-    page.locator('.bottom-navigation').boundingBox(),
-  ]);
-  expect(box!.y + box!.height).toBeLessThanOrEqual(nav!.y + 1);
+  const box = await button.boundingBox();
+  await expect(page.locator('.bottom-navigation')).toHaveCount(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(page.viewportSize()!.height + 1);
   const layout = await page.evaluate(() => ({
     viewport: window.innerWidth,
     content: document.documentElement.scrollWidth,
@@ -1584,7 +1591,9 @@ test('финансы F1: период в подзаголовке, четыре 
   const presets = main.getByRole('navigation', { name: 'Готовые периоды' });
   await presets.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL(/\/finance\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
-  await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(/is-active/);
+  await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(
+    /is-active/,
+  );
   await expect(main.getByTestId('finance-period')).toContainText('За период с');
   // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });

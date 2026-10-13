@@ -70,13 +70,21 @@ test('новая бронь: источник по умолчанию «стой
   await expect(page.getByRole('main').getByLabel('Источник *')).toHaveValue('DESK');
 });
 
-test('нижняя панель телефона — в порядке бокового меню (п. 1.6)', async ({ page }) => {
+test('меню телефона сохраняет порядок основных разделов (п. 1.6)', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  await expect(
-    page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link'),
-  // у «Гостей и бронирований» на панели телефона короткая подпись shortLabel «Брони»
-  ).toHaveText(['Финансы', 'Календарь', 'Брони', 'Продажи']);
+  await expect(page.locator('.bottom-navigation')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Открыть меню' }).click();
+  const menu = page.getByRole('dialog', { name: 'Навигация' });
+  await expect(menu).toBeVisible();
+  const sections = (await menu.locator('.sidebar-section-toggle').allTextContents()).map((s) =>
+    s.trim(),
+  );
+  expect(
+    sections.filter((label) =>
+      ['Финансы', 'Календарь', 'Гости и бронирования', 'Продажи'].includes(label),
+    ),
+  ).toEqual(['Финансы', 'Календарь', 'Гости и бронирования', 'Продажи']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {

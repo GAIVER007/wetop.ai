@@ -9,6 +9,8 @@ test('филиалы: создание, сохранение после reload �
   await page.goto('/branches');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
   const monthControls = await page
     .locator('.org-month a, .org-month input, .org-month button')
     .evaluateAll((elements) =>
@@ -33,10 +35,8 @@ test('филиалы: создание, сохранение после reload �
   await expect(
     main.getByRole('button').filter({ hasText: 'Тестовый филиал у парка' }),
   ).toBeVisible();
-  await expect(
-    main.getByRole('heading', { name: 'Динамика по всем филиалам', exact: true }),
-  ).toBeVisible();
-  for (const width of [1440, 390]) {
+  await expect(main.getByRole('heading', { name: 'Оплаты по месяцам', exact: true })).toBeVisible();
+  for (const width of [1440, 1024, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
@@ -83,7 +83,7 @@ test('организации: филиал создаётся прямо в ра
   ).toBeVisible();
   // показатели стоят прямо в карточке филиала
   await expect(main.getByText('Загрузка').first()).toBeVisible();
-  for (const width of [1440, 390]) {
+  for (const width of [1440, 1024, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,

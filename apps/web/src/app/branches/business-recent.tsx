@@ -23,7 +23,11 @@ export async function BusinessRecent({
             </span>
             <div>
               <strong>
-                {row.action === 'business.card_updated' ? 'Изменена карточка' : 'Обновлён бизнес'}
+                {row.action === 'business.card_updated'
+                  ? 'Изменена карточка'
+                  : row.action === 'business.created'
+                    ? 'Создан бизнес'
+                    : 'Обновлён бизнес'}
               </strong>
               <small>{businesses.find((business) => business.id === row.entityId)?.name}</small>
             </div>

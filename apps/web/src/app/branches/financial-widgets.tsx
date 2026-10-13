@@ -25,7 +25,7 @@ export function FinancialWidgets({ summary }: { summary: OrganizationSummary | n
             <strong className="org-money">
               {amounts(summary?.currencies ?? [], 'receiptsMinor')}
             </strong>
-            <small>Проведённые оплаты за период</small>
+            <small>Оплаты за выбранный месяц</small>
           </section>
         </div>
         <div>
@@ -35,7 +35,7 @@ export function FinancialWidgets({ summary }: { summary: OrganizationSummary | n
           <section>
             <p>Оплаченные заказы</p>
             <strong>{summary ? summary.orders : 'Нет данных'}</strong>
-            <small>Бронирования и заказы с оплатой</small>
+            <small>Бронирования и заказы</small>
           </section>
         </div>
         <div>
@@ -47,7 +47,7 @@ export function FinancialWidgets({ summary }: { summary: OrganizationSummary | n
             <strong className="org-money">
               {amounts(summary?.currencies ?? [], 'averageMinor')}
             </strong>
-            <small>Оплаты / оплаченные заказы</small>
+            <small>Оплаты / число заказов</small>
           </section>
         </div>
         <div>
@@ -59,7 +59,7 @@ export function FinancialWidgets({ summary }: { summary: OrganizationSummary | n
             <strong className="org-money">
               {amounts(summary?.currencies ?? [], 'expensesMinor')}
             </strong>
-            <small>Включая внесённые выплаты зарплаты</small>
+            <small>Включая выплаты зарплат</small>
           </section>
         </div>
       </div>

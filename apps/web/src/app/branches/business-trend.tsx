@@ -55,11 +55,14 @@ export async function BusinessTrend({
       (max, point) => (point.value !== null && point.value > max ? point.value : max),
       0n,
     );
+    const bar = (value: bigint | null) => ({
+      height: `${value === null || max === 0n ? 0 : Number((value * 100n) / max)}%`,
+    });
     return (
       <div className="org-trend">
         <div className="org-trend-caption">
-          <span>Поступления учтённых объектов, {currency}</span>
-          <span>{year}</span>
+          <span>Полученные оплаты, {currency}</span>
+          <span>{year} год</span>
         </div>
         <ol aria-label="Полученные оплаты по месяцам">
           {totals.map((point) => (
@@ -71,12 +74,7 @@ export async function BusinessTrend({
               aria-label={`${point.label}: ${point.value === null ? 'вне выбранного периода' : formatMoney(point.value, currency)}`}
             >
               <div className="org-trend-bar">
-                <span
-                  // slop-allow: inline-style высота столбца вычисляется по сумме полученных оплат
-                  style={{
-                    height: `${point.value === null || max === 0n ? 0 : Number((point.value * 100n) / max)}%`,
-                  }}
-                />
+                <span style={bar(point.value)} /* slop-allow: inline-style chart */ />
               </div>
               <small>{point.label}</small>
             </li>

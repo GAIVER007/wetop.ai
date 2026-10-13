@@ -94,8 +94,10 @@ export function ReferenceBoard({
     id,
     label,
     count: groups.filter((group) => group.vertical === id).length,
+    objects: groups
+      .filter((group) => group.vertical === id)
+      .reduce((total, group) => total + group.branches.length, 0),
   }));
-  let pieOffset = 0;
   const openCreate = (vertical?: BranchItem['vertical'], businessId?: string) => {
     const trigger = document.getElementById('create-branch') as HTMLButtonElement | null;
     if (trigger) {
@@ -191,16 +193,14 @@ export function ReferenceBoard({
       {visible.length ? (
         <div className={`org-cards ${view === 'list' ? 'org-list' : ''}`}>
           {visible.map((group) => {
+            const coverStyle = group.card.coverUrl
+              ? { backgroundImage: `url(${JSON.stringify(group.card.coverUrl)})` }
+              : undefined;
             return (
               <article key={group.id} className={`org-card org-card--${group.vertical}`}>
                 <div
                   className={`org-cover ${group.card.coverUrl ? 'org-cover--custom' : ''}`}
-                  // slop-allow: inline-style обложка задаётся сохранённым приватным URL бизнеса
-                  style={
-                    group.card.coverUrl
-                      ? { backgroundImage: `url(${JSON.stringify(group.card.coverUrl)})` }
-                      : undefined
-                  }
+                  style={coverStyle} /* slop-allow: inline-style cover */
                 >
                   {!group.card.coverUrl ? <Icon name="image" /> : null}
                   <span className="org-count">
@@ -343,53 +343,34 @@ export function ReferenceBoard({
       )}
       <div className={`org-bottom ${groups.length <= 1 ? 'org-bottom--simple' : ''}`}>
         <section>
-          <h2>{singleProject ? 'Динамика проекта' : 'Динамика по всем филиалам'}</h2>
+          <h2>Оплаты по месяцам</h2>
+          <p className="org-panel-note">С начала года по выбранный месяц.</p>
           {trend}
         </section>
         <section>
-          <h2>Распределение по типам бизнеса</h2>
-          <div className="org-distribution-shell">
-            <svg
-              className="org-donut"
-              viewBox="0 0 100 100"
-              role="img"
-              aria-label={distribution.map((row) => `${row.label}: ${row.count}`).join(', ')}
-            >
-              <circle cx="50" cy="50" r="34" fill="none" stroke="var(--border)" strokeWidth="16" />
-              {distribution.map((row, index) => {
-                const share = groups.length ? (row.count / groups.length) * 100 : 0;
-                const offset = pieOffset;
-                pieOffset += share;
-                return (
-                  <circle
-                    key={row.id}
-                    cx="50"
-                    cy="50"
-                    r="34"
-                    pathLength="100"
-                    fill="none"
-                    stroke={['var(--primary)', 'var(--danger)', 'var(--warning)'][index]}
-                    strokeWidth="16"
-                    strokeDasharray={`${share} ${100 - share}`}
-                    strokeDashoffset={-offset}
-                    transform="rotate(-90 50 50)"
-                  />
-                );
-              })}
-            </svg>
-            <div className="org-distribution">
-              {categories.slice(1).map(([id, label]) => (
-                <div key={id}>
-                  <span className={`org-distribution-dot org-distribution-dot--${id}`} />
-                  <span>{label}</span>
-                  <strong>{groups.filter((g) => g.vertical === id).length}</strong>
-                </div>
+          <h2>Бизнесы и объекты</h2>
+          <table className="org-business-breakdown" aria-label="Бизнесы и объекты по направлениям">
+            <thead>
+              <tr>
+                <th scope="col">Направление</th>
+                <th scope="col">Бизнесов</th>
+                <th scope="col">Объектов</th>
+              </tr>
+            </thead>
+            <tbody>
+              {distribution.map((row) => (
+                <tr key={row.id}>
+                  <th scope="row">{row.label}</th>
+                  <td>{row.count}</td>
+                  <td>{row.objects}</td>
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+          </table>
         </section>
         <section>
-          <h2>Последние действия</h2>
+          <h2>Изменения бизнесов</h2>
+          <p className="org-panel-note">Создание и оформление карточек.</p>
           {recent}
         </section>
       </div>

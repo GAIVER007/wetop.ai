@@ -12,6 +12,11 @@ test('business metadata and branch archive survive reload; second brand keeps it
   await page.waitForURL('**/finance');
   await page.goto('/branches');
   const first = page.locator('.org-card').first();
+  expect(
+    await first
+      .locator('.org-business-kind')
+      .evaluate((element) => parseFloat(getComputedStyle(element).marginTop)),
+  ).toBeLessThanOrEqual(4);
   const originalBranch = await first.locator('.org-branch-rows strong').first().innerText();
   await first.getByRole('button', { name: /^Редактировать:/ }).click();
   const editor = page.getByRole('dialog', { name: 'Редактировать карточку', exact: true });
@@ -64,4 +69,7 @@ test('business metadata and branch archive survive reload; second brand keeps it
     page.getByRole('heading', { name: 'Second Hotel Brand', exact: true }),
   ).toBeVisible();
   await expect(card).toContainText('Persisted business description');
+  await expect(
+    page.getByRole('table', { name: 'Бизнесы и объекты по направлениям' }),
+  ).toBeVisible();
 });

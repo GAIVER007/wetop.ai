@@ -8,6 +8,7 @@ import { Sidebar } from './shell/sidebar';
 import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
 import { SideNav } from './shell/side-nav';
 import { GlobalSearch } from './shell/search';
+import styles from './top-nav.module.css';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
@@ -170,7 +171,9 @@ export function TopNav({
         <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
           К содержимому
         </a>
-        <header className="workspace-header">
+        <header
+          className={`workspace-header ${path === '/chessboard' ? styles.calendarHeader : ''}`}
+        >
           <div className="workspace-header__row">
             <button
               className="icon-button mobile-menu"
@@ -209,33 +212,35 @@ export function TopNav({
                 <GrantedProperty desk={desk} property={property} close={undefined} path={path} />
               </Suspense>
             </div>
-            <button
-              className="workspace-search"
-              data-tour="search"
-              aria-label={
-                food ? 'Найти бронирование' : beauty ? 'Найти запись' : 'Найти гостя или бронь'
-              }
-              onClick={() =>
-                food
-                  ? router.push('/table-reservations')
-                  : beauty
-                    ? router.push('/appointments')
-                    : setSearch(true)
-              }
-            >
-              <Icon name="search" />
-              <span className="workspace-search-full">
-                {food
-                  ? 'Поиск бронирования или гостя'
-                  : beauty
-                    ? 'Поиск записи или клиента'
-                    : 'Поиск гостя, брони, номера...'}
-              </span>
-              <span className="workspace-search-short" aria-hidden="true">
-                Поиск
-              </span>
-              <kbd>{searchKey}</kbd>
-            </button>
+            {path !== '/chessboard' && (
+              <button
+                className="workspace-search"
+                data-tour="search"
+                aria-label={
+                  food ? 'Найти бронирование' : beauty ? 'Найти запись' : 'Найти гостя или бронь'
+                }
+                onClick={() =>
+                  food
+                    ? router.push('/table-reservations')
+                    : beauty
+                      ? router.push('/appointments')
+                      : setSearch(true)
+                }
+              >
+                <Icon name="search" />
+                <span className="workspace-search-full">
+                  {food
+                    ? 'Поиск бронирования или гостя'
+                    : beauty
+                      ? 'Поиск записи или клиента'
+                      : 'Поиск гостя, брони, номера...'}
+                </span>
+                <span className="workspace-search-short" aria-hidden="true">
+                  Поиск
+                </span>
+                <kbd>{searchKey}</kbd>
+              </button>
+            )}
             <div className="header-tools">
               {demo && (
                 <span

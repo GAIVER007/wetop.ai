@@ -88,6 +88,7 @@ test('7 дней, 14 дней, произвольный период и возв
   await month.click();
   await expect(page.getByTestId('date-col')).toHaveCount(29);
   await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', '2028-02-01');
+  await page.getByTestId('board-period-button').click();
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
@@ -124,6 +125,7 @@ test('30 дней: окно от сегодня, длина окна в раск
     next.toISOString().slice(0, 10),
   );
   await expect(page.getByTestId('date-col')).toHaveCount(30);
+  await page.getByTestId('board-period-button').click();
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(7);
 });

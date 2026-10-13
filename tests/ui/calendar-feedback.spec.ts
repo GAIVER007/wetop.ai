@@ -37,6 +37,7 @@ test('new booking cancel returns to the selected month and mobile actions fit', 
   await expect(form).toBeVisible();
   const cancel = form.getByRole('button', { name: 'Отмена', exact: true });
   await expect(cancel).toBeEnabled();
+  await cancel.scrollIntoViewIfNeeded();
   await expect(cancel).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   mkdirSync(evidence, { recursive: true });
@@ -44,4 +45,23 @@ test('new booking cancel returns to the selected month and mobile actions fit', 
   await cancel.click();
   await expect(page).toHaveURL(/chessboard\?from=2026-10-01&to=2026-10-31/);
   await expect(form).toHaveCount(0);
+});
+
+test('calendar has one search and keeps local filtering', async ({ page }) => {
+  await page.goto('/chessboard?from=2026-10-01&to=2026-10-31');
+  await expect(
+    page.getByRole('button', { name: 'Найти гостя или бронь', exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByText('Вид', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toBeHidden();
+  const search = page.getByLabel('Поиск в календаре');
+  await expect(search).toBeVisible();
+  await search.fill('R01');
+  await expect(page.getByTestId('unit-row')).toHaveCount(1);
+  await search.fill('');
+  await expect(page.getByTestId('unit-row')).toHaveCount(88);
+  await page.goto('/branches');
+  await expect(
+    page.getByRole('button', { name: 'Найти гостя или бронь', exact: true }),
+  ).toBeVisible();
 });

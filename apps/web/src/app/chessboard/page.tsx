@@ -155,7 +155,6 @@ export default async function ChessboardPage({
   })();
   /** Подпись кнопки периода: «Октябрь 2026» в пределах месяца, иначе короткий отрезок («28 сент. – 4 окт.») */
   const rangeTitle = sameMonth ? monthTitle : shortPeriodLabel;
-  const lengthLabel = pluralRu(board.dates.length, ['день', 'дня', 'дней']);
   const isDay = board.dates.length === 1;
   const dayDate = from <= today && today <= to ? today : from;
   const dayHref = `/chessboard?from=${dayDate}&to=${dayDate}`;
@@ -228,7 +227,7 @@ export default async function ChessboardPage({
           summary={
             <>
               <Icon name="board" className="board-period-icon" />
-              <span className="board-period-label">
+              <span className="board-period-label" data-testid="board-length-button">
                 {isMonth
                   ? new Intl.DateTimeFormat('ru-RU', {
                       month: 'long',
@@ -242,6 +241,54 @@ export default async function ChessboardPage({
           }
         >
           <div className="board-period-pop">
+            <nav className="seg board-scale" aria-label="Масштаб календаря">
+              <Link
+                href={dayHref}
+                className={cx(isDay && 'is-on')}
+                aria-current={isDay ? 'page' : undefined}
+              >
+                День
+              </Link>
+              <Link
+                href={weekHref()}
+                className={cx(isWeek && 'is-on')}
+                aria-current={isWeek ? 'page' : undefined}
+              >
+                Неделя
+              </Link>
+              <Link
+                href={monthHref()}
+                className={cx(isMonth && 'is-on')}
+                aria-current={isMonth ? 'page' : undefined}
+              >
+                Месяц
+              </Link>
+            </nav>
+            <nav className="board-length-pop" aria-label="Длина периода">
+              <Link
+                href={weekHref()}
+                className={cx(isWeek && 'is-on')}
+                aria-current={isWeek ? 'page' : undefined}
+              >
+                7 дней
+              </Link>
+              <Link
+                href={window(14)}
+                className={cx(board.dates.length === 14 && 'is-on')}
+                aria-current={board.dates.length === 14 ? 'page' : undefined}
+              >
+                14 дней
+              </Link>
+              <Link
+                href={window(30)}
+                className={cx(board.dates.length === 30 && !isMonth && 'is-on')}
+                aria-current={board.dates.length === 30 && !isMonth ? 'page' : undefined}
+              >
+                30 дней
+              </Link>
+            </nav>
+
+            <BoardTodayLink />
             <form method="get" className="board-period-form">
               <PeriodPicker from={board.from} to={board.to} fromName="from" toName="to" />
               <Button tone="secondary" type="submit">
@@ -266,66 +313,6 @@ export default async function ChessboardPage({
 
       {/* Длина окна: 7 дней, календарная неделя, 14 и 30, от сегодня (ТЗ «Шахматка v2» §6–7).
           «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
-      <BoardMenu
-        resetKey={`${board.from}-${board.to}`}
-        className="board-length-menu"
-        testId="board-length-button"
-        title={lengthLabel}
-        summary={
-          <>
-            <span>Вид</span>
-            <Icon name="chevron" className="board-period-caret" />
-          </>
-        }
-      >
-        <nav className="seg board-scale" aria-label="Масштаб календаря">
-          <Link
-            href={dayHref}
-            className={cx(isDay && 'is-on')}
-            aria-current={isDay ? 'page' : undefined}
-          >
-            День
-          </Link>
-          <Link
-            href={weekHref()}
-            className={cx(isWeek && 'is-on')}
-            aria-current={isWeek ? 'page' : undefined}
-          >
-            Неделя
-          </Link>
-          <Link
-            href={monthHref()}
-            className={cx(isMonth && 'is-on')}
-            aria-current={isMonth ? 'page' : undefined}
-          >
-            Месяц
-          </Link>
-        </nav>
-        <nav className="board-length-pop" aria-label="Длина периода">
-          <Link
-            href={weekHref()}
-            className={cx(isWeek && 'is-on')}
-            aria-current={isWeek ? 'page' : undefined}
-          >
-            7 дней
-          </Link>
-          <Link
-            href={window(14)}
-            className={cx(board.dates.length === 14 && 'is-on')}
-            aria-current={board.dates.length === 14 ? 'page' : undefined}
-          >
-            14 дней
-          </Link>
-          <Link
-            href={window(30)}
-            className={cx(board.dates.length === 30 && !isMonth && 'is-on')}
-            aria-current={board.dates.length === 30 && !isMonth ? 'page' : undefined}
-          >
-            30 дней
-          </Link>
-        </nav>
-      </BoardMenu>
-      <BoardTodayLink />
     </div>
   );
   const actions = (

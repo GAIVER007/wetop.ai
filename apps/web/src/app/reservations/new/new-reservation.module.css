@@ -151,3 +151,9 @@
     padding: var(--space-4);
   }
 }
+
+@media (max-width: 600px) {
+  .form :global(.booking-footer) {
+    position: static;
+  }
+}

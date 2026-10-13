@@ -1,0 +1,1000 @@
+# Сквозные (e2e) · 12.10.2026 21:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит c2c2347 (claude/ui-goto-aborted), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/branches.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/password-reset.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/platform-overview.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/sales-hub.spec.ts' 'tests/ui/sessions.spec.ts' 'tests/ui/side-nav.spec.ts' 'tests/ui/system-screens.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/team.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 212 tests using 1 worker
+
+  ✓    1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (6.7s)
+  ✓    2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (33.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3687557136'
+[WebServer] }
+  ✓    3 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (29.5s)
+  ✘    4 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (24.5s)
+  ✘    5 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (45.2s)
+  ✘    6 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (45.1s)
+  ✘    7 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (45.2s)
+  ✘    8 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (45.2s)
+  ✘    9 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (16.3s)
+  ✘   10 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (16.2s)
+  ✘   11 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (16.1s)
+  ✘   12 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (45.1s)
+  ✘   13 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (45.1s)
+  ✘   14 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (15.8s)
+  ✘   15 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (45.1s)
+  ✓   16 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (1.3s)
+  ✘   17 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (45.1s)
+  ✘   18 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (45.2s)
+  ✓   19 tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (3.8s)
+  ✓   20 tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (3.0s)
+  ✓   21 tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы (25.1s)
+  ✓   22 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (3.5s)
+  ✓   23 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (2.8s)
+  ✓   24 tests/ui/navigation.spec.ts:221:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой (2.3s)
+  ✓   25 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (1.2s)
+  ✘   26 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (16.2s)
+  ✘   27 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (15.8s)
+  ✓   28 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (961ms)
+  ✓   29 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (615ms)
+  ✓   30 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (574ms)
+  ✓   31 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (471ms)
+  ✓   32 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (897ms)
+  ✓   33 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (764ms)
+  ✓   34 tests/ui/platform-access.spec.ts:33:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.3s)
+  ✓   35 tests/ui/platform-access.spec.ts:73:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (3.9s)
+  ✓   36 tests/ui/platform-access.spec.ts:95:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (3.3s)
+  ✓   37 tests/ui/platform-access.spec.ts:134:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (3.5s)
+  ✓   38 tests/ui/platform-access.spec.ts:162:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (2.1s)
+  ✓   39 tests/ui/platform-access.spec.ts:182:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (3.0s)
+  ✓   40 tests/ui/platform-access.spec.ts:205:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (4.0s)
+  ✓   41 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, light, 1440px (9.3s)
+  ✓   42 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, dark, 1440px (7.5s)
+  ✓   43 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, light, 390px (8.0s)
+  ✓   44 tests/ui/platform-access.spec.ts:262:5 › доступность: «Организации» и состояния расширения, dark, 390px (7.9s)
+  ✓   45 tests/ui/platform-overview.spec.ts:23:1 › обзор: плитки, рост, направления, статусы; про деньги: честные слова, а не числа (2.5s)
+  ✓   46 tests/ui/platform-overview.spec.ts:55:1 › подписи колец направлений и статусов читаются целиком на 1440 px рядом с левой колонкой (2.0s)
+  ✓   47 tests/ui/platform-overview.spec.ts:71:1 › таблица клиентов: направления, филиалы, дата подключения; поиск и отборы работают на месте (2.1s)
+  ✓   48 tests/ui/platform-support.spec.ts:41:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (5.4s)
+  ✓   49 tests/ui/platform-support.spec.ts:55:1 › главный администратор: сводка, очередь, карточка — кто пишет (4.7s)
+  ✓   50 tests/ui/platform-support.spec.ts:95:1 › знания помощника: список и загрузка документа (4.9s)
+  ✓   51 tests/ui/platform-support.spec.ts:115:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (4.9s)
+  ✓   52 tests/ui/platform-support.spec.ts:167:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.2s)
+  ✓   53 tests/ui/platform-support.spec.ts:184:1 › помощник не подключён — раздел говорит, что вписать владельцу (1.8s)
+  ✓   54 tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: light, 1440px (8.7s)
+  ✓   55 tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: dark, 1440px (8.2s)
+  ✓   56 tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: light, 390px (8.8s)
+  ✓   57 tests/ui/platform-support.spec.ts:194:5 › доступность «Техподдержки»: dark, 390px (8.3s)
+  ✓   58 tests/ui/requests.spec.ts:85:3 › экран /chessboard: данные берутся одним запросом на путь (1.3s)
+  ✓   59 tests/ui/requests.spec.ts:85:3 › экран /reservations: данные берутся одним запросом на путь (1.3s)
+  ✓   60 tests/ui/requests.spec.ts:85:3 › экран /guests: данные берутся одним запросом на путь (1.6s)
+  ✓   61 tests/ui/requests.spec.ts:85:3 › экран /inventory: данные берутся одним запросом на путь (1.7s)
+  ✓   62 tests/ui/requests.spec.ts:85:3 › экран /rooms/categories: данные берутся одним запросом на путь (3.3s)
+  ✓   63 tests/ui/requests.spec.ts:85:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.4s)
+  ✓   64 tests/ui/requests.spec.ts:85:3 › экран /market: данные берутся одним запросом на путь (2.0s)
+  ✓   65 tests/ui/requests.spec.ts:85:3 › экран /management/analytics: данные берутся одним запросом на путь (2.1s)
+  ✓   66 tests/ui/requests.spec.ts:85:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.7s)
+  ✓   67 tests/ui/requests.spec.ts:85:3 › экран /management/analytics/units: данные берутся одним запросом на путь (1.9s)
+  ✓   68 tests/ui/requests.spec.ts:85:3 › экран /finance: данные берутся одним запросом на путь (2.1s)
+  ✓   69 tests/ui/requests.spec.ts:85:3 › экран /reports: данные берутся одним запросом на путь (1.3s)
+  ✓   70 tests/ui/requests.spec.ts:85:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (2.4s)
+  ✓   71 tests/ui/requests.spec.ts:85:3 › экран /channels: данные берутся одним запросом на путь (1.5s)
+  ✓   72 tests/ui/requests.spec.ts:85:3 › экран /connections/channex: данные берутся одним запросом на путь (1.7s)
+  ✓   73 tests/ui/requests.spec.ts:85:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.3s)
+  ✓   74 tests/ui/requests.spec.ts:85:3 › экран /channels/sync: данные берутся одним запросом на путь (1.2s)
+  ✓   75 tests/ui/requests.spec.ts:85:3 › экран /channels/events: данные берутся одним запросом на путь (1.3s)
+  ✓   76 tests/ui/requests.spec.ts:85:3 › экран /marketing: данные берутся одним запросом на путь (1.6s)
+  ✓   77 tests/ui/requests.spec.ts:85:3 › экран /website: данные берутся одним запросом на путь (1.8s)
+  ✓   78 tests/ui/requests.spec.ts:85:3 › экран /website/booking: данные берутся одним запросом на путь (1.7s)
+  ✓   79 tests/ui/requests.spec.ts:85:3 › экран /website/analytics: данные берутся одним запросом на путь (1.7s)
+  ✓   80 tests/ui/requests.spec.ts:85:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.5s)
+  ✓   81 tests/ui/requests.spec.ts:85:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.2s)
+  ✓   82 tests/ui/requests.spec.ts:85:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.2s)
+  ✓   83 tests/ui/requests.spec.ts:85:3 › экран /team: данные берутся одним запросом на путь (1.2s)
+  ✓   84 tests/ui/requests.spec.ts:85:3 › экран /connections: данные берутся одним запросом на путь (1.3s)
+  ✓   85 tests/ui/requests.spec.ts:85:3 › экран /ai-agents: данные берутся одним запросом на путь (1.3s)
+  ✓   86 tests/ui/requests.spec.ts:85:3 › экран /website/settings: данные берутся одним запросом на путь (1.9s)
+  ✓   87 tests/ui/requests.spec.ts:85:3 › экран /incidents: данные берутся одним запросом на путь (1.2s)
+  ✓   88 tests/ui/requests.spec.ts:85:3 › экран /journal: данные берутся одним запросом на путь (1.3s)
+  ✓   89 tests/ui/requests.spec.ts:85:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.1s)
+  ✓   90 tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.8s)
+  ✓   91 tests/ui/roles.spec.ts:60:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (4.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3687557136'
+[WebServer] }
+  ✓   92 tests/ui/roles.spec.ts:97:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (3.7s)
+  ✓   93 tests/ui/roles.spec.ts:114:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (5.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3687557136'
+[WebServer] }
+  ✓   94 tests/ui/roles.spec.ts:152:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (4.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   95 tests/ui/roles.spec.ts:214:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (4.2s)
+  ✓   96 tests/ui/roles.spec.ts:270:1 › владелец: зовёт управляющего и администратора, меняет роль (2.3s)
+  ✓   97 tests/ui/roles.spec.ts:301:1 › администратор: сотрудниками ведают владелец и управляющий (3.2s)
+  ✓   98 tests/ui/roles.spec.ts:313:5 › доступность: сотрудники и отказ по роли, light, 1440px (4.0s)
+  ✓   99 tests/ui/roles.spec.ts:313:5 › доступность: сотрудники и отказ по роли, dark, 1440px (4.0s)
+  ✓  100 tests/ui/roles.spec.ts:313:5 › доступность: сотрудники и отказ по роли, light, 390px (3.8s)
+  ✓  101 tests/ui/roles.spec.ts:313:5 › доступность: сотрудники и отказ по роли, dark, 390px (3.7s)
+  ✓  102 tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету (2.6s)
+  ✓  103 tests/ui/sales-hub.spec.ts:68:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули (1.3s)
+  ✓  104 tests/ui/sales-hub.spec.ts:88:1 › нет конкурентов: рекомендации зовут добавить, плитки не рисуют нули (1.1s)
+  ✓  105 tests/ui/sales-hub.spec.ts:97:1 › нет предложений: конверсия это знак пропуска, а не 0 % (894ms)
+  ✓  106 tests/ui/sales-hub.spec.ts:107:1 › сводка не посчиталась: сказано словами, плитки броней и конкурентов это пропуск, карточки живы (947ms)
+  ✓  107 tests/ui/sales-hub.spec.ts:120:1 › период: «7 дней» меняет адрес, неверные даты в адресе возвращают 30 дней (1.4s)
+  ✓  108 tests/ui/sales-hub.spec.ts:131:1 › расширение «ИИ-продавец» выключено: плитки диалогов это пропуск с причиной, карточка объясняет (938ms)
+  ✓  109 tests/ui/sales-hub.spec.ts:144:1 › администратор смены открывает хаб (3.3s)
+  ✓  110 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: light, 1440px (1.7s)
+  ✓  111 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: light, 390px (1.6s)
+  ✓  112 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: dark, 1440px (1.6s)
+  ✓  113 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: dark, 390px (1.6s)
+  ✓  114 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (1.8s)
+  ✘  115 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (1.9s)
+  ✘  116 tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» (19.1s)
+  ✓  117 tests/ui/sessions.spec.ts:76:1 › удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль (1.0s)
+  ✓  118 tests/ui/sessions.spec.ts:105:1 › без сессии списка сеансов нет (709ms)
+  ✓  119 tests/ui/sessions.spec.ts:113:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (8.2s)
+  ✓  120 tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (8.1s)
+  ✓  121 tests/ui/side-nav.spec.ts:100:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (3.3s)
+  ✓  122 tests/ui/side-nav.spec.ts:140:1 › вложенные адреса показывают свой раздел (15.9s)
+  ✓  123 tests/ui/side-nav.spec.ts:171:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (7.2s)
+  ✓  124 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: light (15.4s)
+  ✓  125 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: dark (6.3s)
+  ✓  126 tests/ui/side-nav.spec.ts:238:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (3.2s)
+  ✓  127 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (8.5s)
+  ✓  128 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (6.1s)
+  ✓  129 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (16.5s)
+  ✓  130 tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (11.3s)
+  ✓  131 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (16.4s)
+  ✓  132 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (5.3s)
+  ✓  133 tests/ui/team.spec.ts:49:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (2.6s)
+  ✓  134 tests/ui/team.spec.ts:66:1 › ошибка приглашения — словами в панели, ввод не стирается (2.7s)
+  ✓  135 tests/ui/team.spec.ts:78:1 › «Отключить» — только после подтверждения с последствием (1.9s)
+  ✓  136 tests/ui/team.spec.ts:90:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке (2.5s)
+  ✓  137 tests/ui/team.spec.ts:111:1 › неверный телефон: словами в панели, введённое не стирается (2.2s)
+  ✓  138 tests/ui/team.spec.ts:125:1 › управляющий: роль не меняет, приглашает только администраторов (2.1s)
+  ✓  139 tests/ui/team.spec.ts:141:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (643ms)
+  ✓  140 tests/ui/team.spec.ts:152:1 › администратору раздел закрыт: гейт и меню без пункта (2.2s)
+  ✓  141 tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: light (3.3s)
+  ✓  142 tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: dark (3.1s)
+  ✓  143 tests/ui/team.spec.ts:200:1 › «Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов (3.3s)
+  ✓  144 tests/ui/team.spec.ts:218:1 › «Роли и права»: вкладка только на чтение, права трёх ролей по таблице API (7.6s)
+  ✓  145 tests/ui/team.spec.ts:244:1 › «Роли и права»: администратору закрыто (4.0s)
+  ✓  146 tests/ui/team.spec.ts:252:1 › приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью (3.8s)
+  ✓  147 tests/ui/team.spec.ts:267:1 › приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием (2.8s)
+  ✓  148 tests/ui/team.spec.ts:288:1 › приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора (3.0s)
+  ✓  149 tests/ui/team.spec.ts:304:1 › область доступа сотрудника: «Доступ» → выбранные филиалы с ролью по месту → подпись в таблице; очистка (3.0s)
+  ✓  150 tests/ui/team.spec.ts:329:1 › область доступа: пустой выбор при «Выбранные филиалы» не отправляется, словами (2.3s)
+  ✓  151 tests/ui/team.spec.ts:342:1 › приглашение с именем, телефоном и филиалами: уходит с областью, видно в ожидающих (2.3s)
+  ✓  152 tests/ui/team.spec.ts:360:1 › управляющий: «Доступ» только администраторам, в списке ролей один вариант (2.6s)
+  ✓  153 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (36.0s)
+  ✓  154 tests/ui/workspace.spec.ts:119:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (5.5s)
+  ✓  155 tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (2.9s)
+  ✓  156 tests/ui/workspace.spec.ts:182:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (3.8s)
+  ✓  157 tests/ui/workspace.spec.ts:207:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (4.1s)
+  ✓  158 tests/ui/workspace.spec.ts:236:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (5.3s)
+  ✓  159 tests/ui/workspace.spec.ts:288:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (2.8s)
+  ✓  160 tests/ui/workspace.spec.ts:322:1 › шахматка: подсказка внутри окошка «Фильтры», Escape закрывает окошко целиком (1.8s)
+  ✓  161 tests/ui/workspace.spec.ts:343:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.0s)
+  ✓  162 tests/ui/workspace.spec.ts:380:1 › карточка: профиль гостя и заселение проходят через server actions (2.8s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:24:65)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:24:65)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  163 tests/ui/workspace.spec.ts:425:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (1.2s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:42:13)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  164 tests/ui/workspace.spec.ts:442:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (4.8s)
+  ✓  165 tests/ui/workspace.spec.ts:459:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (1.8s)
+  ✓  166 tests/ui/workspace.spec.ts:479:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (1.8s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:24:65)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  167 tests/ui/workspace.spec.ts:505:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.1s)
+  ✓  168 tests/ui/workspace.spec.ts:514:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (3.0s)
+  ✓  169 tests/ui/workspace.spec.ts:529:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (747ms)
+  ✓  170 tests/ui/workspace.spec.ts:541:1 › неверная дата в ссылке оставляет доступную форму для исправления (792ms)
+  ✓  171 tests/ui/workspace.spec.ts:550:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (1.7s)
+  ✓  172 tests/ui/workspace.spec.ts:559:1 › групповая бронь: разные категории сохраняются при конфликте (2.1s)
+  ✓  173 tests/ui/workspace.spec.ts:590:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.1s)
+  ✓  174 tests/ui/workspace.spec.ts:619:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (2.4s)
+  ✓  175 tests/ui/workspace.spec.ts:651:1 › ошибка буфера обмена видна, код остаётся доступен (1.9s)
+  ✓  176 tests/ui/workspace.spec.ts:669:1 › финансы: неверные даты можно исправить без падения страницы (2.6s)
+  ✓  177 tests/ui/workspace.spec.ts:685:1 › ошибка загрузки тарифов не позволяет включить виджет (837ms)
+  ✓  178 tests/ui/workspace.spec.ts:694:1 › номера: статус уборки, блокировка и снятие сохраняются (2.1s)
+  ✓  179 tests/ui/workspace.spec.ts:724:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (1.4s)
+  ✓  180 tests/ui/workspace.spec.ts:751:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (807ms)
+  ✓  181 tests/ui/workspace.spec.ts:763:1 › групповая бронь: три места показывают трёх гостей в итогах (959ms)
+  ✓  182 tests/ui/workspace.spec.ts:787:1 › неисправности: когда история обрезана, это написано (1.5s)
+  ✓  183 tests/ui/workspace.spec.ts:795:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (3.1s)
+  ✓  184 tests/ui/workspace.spec.ts:807:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (3.0s)
+  ✓  185 tests/ui/workspace.spec.ts:852:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (4.7s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:607:20)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:607:20)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:607:20)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:607:20)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:607:20)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:607:20)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async Object.me (src/lib/api.ts:607:20)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  186 tests/ui/workspace.spec.ts:908:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (8.8s)
+  ✓  187 tests/ui/workspace.spec.ts:980:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.3s)
+  ✓  188 tests/ui/workspace.spec.ts:1009:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (1.5s)
+  ✓  189 tests/ui/workspace.spec.ts:1033:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.4s)
+  ✓  190 tests/ui/workspace.spec.ts:1052:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (1.5s)
+  ✓  191 tests/ui/workspace.spec.ts:1065:1 › общие настройки показывают адрес PMS без дублирования контента Channex (1.8s)
+  ✓  192 tests/ui/workspace.spec.ts:1072:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (2.6s)
+  ✓  193 tests/ui/workspace.spec.ts:1104:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.4s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:28:28)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  194 tests/ui/workspace.spec.ts:1126:1 › фонд и категории открываются независимо от сбоя шахматки (2.7s)
+  ✓  195 tests/ui/workspace.spec.ts:1147:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (939ms)
+  ✓  196 tests/ui/workspace.spec.ts:1163:1 › подключения каналов: время события — по Алматы, а не сырой UTC (970ms)
+  ✓  197 tests/ui/workspace.spec.ts:1182:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (1.4s)
+  ✓  198 tests/ui/workspace.spec.ts:1197:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (924ms)
+  ✓  199 tests/ui/workspace.spec.ts:1210:1 › счета: приём оплаты подтверждается суммой на экране (1.5s)
+  ✓  200 tests/ui/workspace.spec.ts:1228:1 › деньги за период: период длиннее года объясняется на странице (1.1s)
+  ✓  201 tests/ui/workspace.spec.ts:1247:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.4s)
+  ✓  202 tests/ui/workspace.spec.ts:1267:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.8s)
+  ✓  203 tests/ui/workspace.spec.ts:1298:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (1.6s)
+  ✓  204 tests/ui/workspace.spec.ts:1318:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (974ms)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  205 tests/ui/workspace.spec.ts:1334:1 › каналы: входящая бронь ведёт на карточку брони (1.5s)
+  ✓  206 tests/ui/workspace.spec.ts:1352:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (1.3s)
+  ✓  207 tests/ui/workspace.spec.ts:1371:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3687557136'
+[WebServer] }
+  ✓  208 tests/ui/workspace.spec.ts:1409:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (1.5s)
+  ✓  209 tests/ui/workspace.spec.ts:1476:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (2.8s)
+  ✓  210 tests/ui/workspace.spec.ts:1555:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (2.7s)
+  ✓  211 tests/ui/workspace.spec.ts:1612:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (3.3s)
+  ✓  212 tests/ui/workspace.spec.ts:1639:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (1.4s)
+
+
+  1) tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' }) with timeout 15000ms
+      - waiting for getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' })
+
+
+      31 | test('главная просит почту и пароль, без второго рекламного экрана', async ({ page }) => {
+      32 |   await page.goto('/login');
+    > 33 |   await expect(dialog(page).getByRole('heading', { name: 'Вход в WETOP' })).toBeVisible();
+         |                                                                             ^
+      34 |   await expect(dialog(page).getByLabel('Пароль', { exact: true })).toHaveAttribute(
+      35 |     'autocomplete',
+      36 |     'current-password',
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:33:77
+
+    Error Context: test-results/login-access-главная-проси-2ab7c-з-второго-рекламного-экрана/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-главная-проси-2ab7c-з-второго-рекламного-экрана/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-главная-проси-2ab7c-з-второго-рекламного-экрана/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:43:9
+
+    Error Context: test-results/login-access-верный-пароль-6fd3a-од-возвращает-форму-главной/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-верный-пароль-6fd3a-од-возвращает-форму-главной/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-верный-пароль-6fd3a-од-возвращает-форму-главной/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:52:9
+
+    Error Context: test-results/login-access-неверный-паро-c197e-ытия-существования-аккаунта/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-неверный-паро-c197e-ытия-существования-аккаунта/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-неверный-паро-c197e-ытия-существования-аккаунта/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:59:9
+
+    Error Context: test-results/login-access-сбой-API-сохр-397a7-сле-восстановления-работает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-сбой-API-сохр-397a7-сле-восстановления-работает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-сбой-API-сохр-397a7-сле-восстановления-работает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки ─
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:70:9
+
+    Error Context: test-results/login-access-клавиатура-по-eb48c-окировка-повторной-отправки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-клавиатура-по-eb48c-окировка-повторной-отправки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-клавиатура-по-eb48c-окировка-повторной-отправки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light ────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      106 |       await page.setViewportSize({ width, height: 1000 });
+      107 |       await page.goto('/login');
+    > 108 |       await expect(dialog(page)).toBeVisible();
+          |                                  ^
+      109 |       expect(
+      110 |         await page.evaluate('document.documentElement.scrollWidth - innerWidth'),
+      111 |       ).toBeLessThanOrEqual(1);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:108:34
+
+    Error Context: test-results/login-access-доступность-формы-и-адаптивность-—-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-доступность-формы-и-адаптивность-—-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-доступность-формы-и-адаптивность-—-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark ─────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      106 |       await page.setViewportSize({ width, height: 1000 });
+      107 |       await page.goto('/login');
+    > 108 |       await expect(dialog(page)).toBeVisible();
+          |                                  ^
+      109 |       expect(
+      110 |         await page.evaluate('document.documentElement.scrollWidth - innerWidth'),
+      111 |       ).toBeLessThanOrEqual(1);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:108:34
+
+    Error Context: test-results/login-access-доступность-формы-и-адаптивность-—-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-доступность-формы-и-адаптивность-—-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-доступность-формы-и-адаптивность-—-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('dialog').getByLabel('Почта')
+    Expected: ""
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog').getByLabel('Почта') with timeout 15000ms
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      125 |   });
+      126 |   await page.goto('/login');
+    > 127 |   await expect(dialog(page).getByLabel('Почта')).toHaveValue('');
+          |                                                  ^
+      128 |   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
+      129 | });
+      130 | test('сеансы открываются в профиле, команда в «Сотрудниках», не на входе', async ({ page }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:127:50
+
+    Error Context: test-results/login-access-заголовок-пре-5172f-вляет-почту-и-не-авторизует/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-заголовок-пре-5172f-вляет-почту-и-не-авторизует/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-заголовок-пре-5172f-вляет-почту-и-не-авторизует/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      11 | const dialog = (page: Page) => page.getByRole('dialog');
+      12 | async function fillLogin(page: Page, password = '<скрыто>') {
+    > 13 |   await dialog(page).getByLabel('Почта').fill('<email>');
+         |                                          ^
+      14 |   await dialog(page).getByLabel('Пароль', { exact: true }).fill(password);
+      15 | }
+      16 | async function fillRegister(page: Page, email = '<email>') {
+        at fillLogin (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:13:42)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:132:9
+
+    Error Context: test-results/login-access-сеансы-открыв-f3786-в-«Сотрудниках»-не-на-входе/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-сеансы-открыв-f3786-в-«Сотрудниках»-не-на-входе/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-сеансы-открыв-f3786-в-«Сотрудниках»-не-на-входе/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Регистрация', exact: true })
+
+
+      145 | test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
+      146 |   await page.goto('/login');
+    > 147 |   await dialog(page).getByRole('tab', { name: 'Регистрация', exact: true }).click();
+          |                                                                             ^
+      148 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      149 |   await expect(
+      150 |     dialog(page).getByRole('link', { name: 'политикой конфиденциальности' }),
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:147:77
+
+    Error Context: test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByRole('heading', { name: 'Новый аккаунт' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByRole('heading', { name: 'Новый аккаунт' }) with timeout 15000ms
+      - waiting for getByRole('dialog').getByRole('heading', { name: 'Новый аккаунт' })
+
+
+      155 | test('старая ссылка mode=register открывает регистрацию на главной', async ({ page }) => {
+      156 |   await page.goto('/login?mode=register');
+    > 157 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+          |                                                                              ^
+      158 |   await expect(page).toHaveURL(SITE + '/?next=%2Ftoday#register');
+      159 | });
+      160 | test('до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:157:78
+
+    Error Context: test-results/login-access-старая-ссылка-ab1b6-вает-регистрацию-на-главной/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-старая-ссылка-ab1b6-вает-регистрацию-на-главной/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-старая-ссылка-ab1b6-вает-регистрацию-на-главной/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      16 | async function fillRegister(page: Page, email = '<email>') {
+      17 |   const form = dialog(page);
+    > 18 |   await form.getByLabel('Почта').fill(email);
+         |                                  ^
+      19 |   await form.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
+      20 |   await form.getByLabel('Название бизнеса').fill('Тестовый объект');
+      21 |   await form.getByLabel('Страна', { exact: true }).selectOption('KZ');
+        at fillRegister (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:18:34)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:165:9
+
+    Error Context: test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      16 | async function fillRegister(page: Page, email = '<email>') {
+      17 |   const form = dialog(page);
+    > 18 |   await form.getByLabel('Почта').fill(email);
+         |                                  ^
+      19 |   await form.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
+      20 |   await form.getByLabel('Название бизнеса').fill('Тестовый объект');
+      21 |   await form.getByLabel('Страна', { exact: true }).selectOption('KZ');
+        at fillRegister (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:18:34)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:180:9
+
+    Error Context: test-results/login-access-без-согласия--22daa-еверный-телефон-отклоняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-без-согласия--22daa-еверный-телефон-отклоняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-без-согласия--22daa-еверный-телефон-отклоняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию ──────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Почта')
+
+
+      16 | async function fillRegister(page: Page, email = '<email>') {
+      17 |   const form = dialog(page);
+    > 18 |   await form.getByLabel('Почта').fill(email);
+         |                                  ^
+      19 |   await form.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
+      20 |   await form.getByLabel('Название бизнеса').fill('Тестовый объект');
+      21 |   await form.getByLabel('Страна', { exact: true }).selectOption('KZ');
+        at fillRegister (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:18:34)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/login-access.spec.ts:191:9
+
+    Error Context: test-results/login-access-занятая-почта-7a252-ий-пароль-не-создают-сессию/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-занятая-почта-7a252-ий-пароль-не-создают-сессию/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-занятая-почта-7a252-ий-пароль-не-создают-сессию/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>"
+    Received: "chrome-error://chromewebdata/"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        - locator resolved to <html lang="ru" data-theme="light">…</html>
+        - unexpected value "http://127.0.0.1:3138/login/set-password?token=<скрыто>"
+        32 × locator resolved to <html dir="ltr" lang="ru">…</html>
+           - unexpected value "chrome-error://chromewebdata/"
+
+
+      33 |   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
+      34 |
+    > 35 |   await expect(page).toHaveURL('http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>');
+         |                      ^
+      36 |   await expect(page.getByRole('dialog')).toContainText('Пароль сохранён');
+      37 |
+      38 |   await page.getByLabel('Почта', { exact: true }).fill('<email>');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/password-reset.spec.ts:35:22
+
+    Error Context: test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает ───────────────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>"
+    Received: "chrome-error://chromewebdata/"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        - locator resolved to <html lang="ru" data-theme="light">…</html>
+        - unexpected value "http://127.0.0.1:3138/login/set-password?token=<скрыто>"
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday&password=set" navigation to finish...
+        32 × locator resolved to <html dir="ltr" lang="ru">…</html>
+           - unexpected value "chrome-error://chromewebdata/"
+
+
+      47 |   await page.getByLabel('Пароль ещё раз', { exact: true }).fill('zhanga-parol-2026');
+      48 |   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
+    > 49 |   await expect(page).toHaveURL('http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>');
+         |                      ^
+      50 |
+      51 |   await page.goto('/login/set-password?token=<скрыто>');
+      52 |   await page.getByLabel('Пароль', { exact: true }).fill('basqa-parol-2026');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/password-reset.spec.ts:49:22
+
+    Error Context: test-results/password-reset-второй-раз-та-же-ссылка-не-работает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/password-reset-второй-раз-та-же-ссылка-не-работает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/password-reset-второй-раз-та-же-ссылка-не-работает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет 
+
+    Error: page.waitForURL: net::ERR_CONNECTION_REFUSED
+    =========================== logs ===========================
+    waiting for navigation to "http://127.0.0.1:3002/?next=%2Ftoday#login" until "load"
+    ============================================================
+
+      42 |   const main = page.getByRole('main');
+      43 |   await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
+    > 44 |   await page.waitForURL('http://127.0.0.1:3002/?next=%2Ftoday#login');
+         |              ^
+      45 |   await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+      46 |   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
+      47 | });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/sessions.spec.ts:44:14
+
+    Error Context: test-results/sessions-«Завершить-все-се-c57f3-ащает-форму-куки-больше-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sessions-«Завершить-все-се-c57f3-ащает-форму-куки-больше-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sessions-«Завершить-все-се-c57f3-ащает-форму-куки-больше-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Войти', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Войти', exact: true }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Войти', exact: true })
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+
+
+      70 |   await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
+      71 |   await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
+    > 72 |   await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+         |                                                                          ^
+      73 |   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
+      74 | });
+      75 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/ui/sessions.spec.ts:72:74
+
+    Error Context: test-results/sessions-выписанный-ранее--2c807-ится-«Завершить-все-сеансы»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sessions-выписанный-ранее--2c807-ится-«Завершить-все-сеансы»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sessions-выписанный-ранее--2c807-ится-«Завершить-все-сеансы»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18 failed
+    tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана 
+    tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной 
+    tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта 
+    tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает 
+    tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки ──
+    tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light ─────────────────
+    tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark ──────────────────
+    tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует 
+    tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе 
+    tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+    tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной 
+    tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+    tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется 
+    tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию ────────
+    tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним 
+    tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает ─────────────────────
+    tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет 
+    tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» 
+  194 passed (22.0m)
+
+# код выхода 1 · 22 мин 3 с

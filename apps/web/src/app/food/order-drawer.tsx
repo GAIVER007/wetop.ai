@@ -2,6 +2,8 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
+import { Chip, ChipGroup } from '../../components/chip';
+import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, StatusBadge, Textarea } from '../../components/ui';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
 import type {
@@ -16,7 +18,8 @@ import type {
 } from '../../lib/food-types';
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
-import { mutateOrder } from './restaurant-actions';
+import { mutateOrder, orderRatingLink } from './restaurant-actions';
+import { QrCode, StarsInput } from './rating-parts';
 
 export interface OrderContext {
   scopeKey: string;
@@ -40,6 +43,88 @@ const STATUS_ACTION: Record<OrderStatus, string> = {
   CLOSED: 'Закрыть заказ',
   CANCELLED: 'Отменить заказ',
 };
+
+/** Оценка гостя после оплаты (§39): гость сам ставит 1–5 звёзд на устройстве смены, оценка не правится */
+function RatingPanel({
+  ctx,
+  order,
+  onSaved,
+}: {
+  ctx: OrderContext;
+  order: OrderView;
+  onSaved: (order: OrderView) => void;
+}) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [stars, setStars] = useState(0);
+  const [comment, setComment] = useState('');
+  const [error, setError] = useState('');
+  const [link, setLink] = useState<{ url: string; expiresAt: string } | null>(null);
+  if (order.status !== 'CLOSED') return null;
+  if (order.rating)
+    return (
+      <section className="rest-rating" aria-label="Оценка гостя" data-testid="order-rating">
+        <span className="rest-stars" aria-label={`Оценка ${order.rating.stars} из 5`}>
+          {'★'.repeat(order.rating.stars)}
+          {'☆'.repeat(5 - order.rating.stars)}
+        </span>
+        {order.rating.comment && <p>{order.rating.comment}</p>}
+      </section>
+    );
+  if (!ctx.write) return null;
+  function send() {
+    if (!stars) return setError('Выберите от 1 до 5 звёзд');
+    start(async () => {
+      const result = await mutateOrder(ctx.scopeKey, {
+        kind: 'rate',
+        id: order.id,
+        body: { stars, comment: comment.trim() || null },
+      });
+      if (result.error) setError(result.error);
+      else if (result.order) {
+        setError('');
+        onSaved(result.order);
+        router.refresh();
+      }
+    });
+  }
+  function qr() {
+    start(async () => {
+      const result = await orderRatingLink(ctx.scopeKey, order.id);
+      if (result.error || !result.token) return setError(result.error ?? 'Ссылка не выдана');
+      setError('');
+      setLink({ url: `${window.location.origin}/rate/${result.token}`, expiresAt: result.expiresAt ?? '' });
+    });
+  }
+  return (
+    <section className="rest-rating" aria-label="Оцените обслуживание" data-testid="order-rating">
+      {error && <Alert>{error}</Alert>}
+      <strong>Оцените обслуживание{order.waiter ? `: ${order.waiter.name}` : ''}</strong>
+      <StarsInput value={stars} onChange={setStars} />
+      <Field label="Комментарий гостя">
+        <Input value={comment} maxLength={500} onChange={(e) => setComment(e.target.value)} />
+      </Field>
+      <Button disabled={pending} onClick={send}>
+        Отправить оценку
+      </Button>
+      {link ? (
+        <div className="rest-qr-box" data-testid="order-rating-qr">
+          <QrCode text={link.url} label="QR-код: оценка с телефона гостя" />
+          <p className="muted">
+            Гость наводит камеру и ставит оценку сам. Ссылка одна на заказ и действует 72 часа.
+          </p>
+          <a href={link.url} target="_blank" rel="noreferrer" className="rest-qr-link">
+            {link.url}
+          </a>
+        </div>
+      ) : (
+        <Button tone="secondary" disabled={pending} onClick={qr}>
+          QR-код для гостя
+        </Button>
+      )}
+    </section>
+  );
+}
 
 /** Оплата заказа частями и разными способами (§35.1): остаток, платежи, аннулирование */
 function PaymentPanel({
@@ -164,7 +249,8 @@ function PaymentPanel({
   );
 }
 
-function ItemsEditor({
+/** Выбор блюд по макету POS (экран 5): вкладки категорий, поиск, плитки с фото и ценой; щелчок добавляет порцию */
+function DishPicker({
   ctx,
   items,
   setItems,
@@ -174,10 +260,76 @@ function ItemsEditor({
   setItems: (items: OrderItemInput[]) => void;
 }) {
   const [category, setCategory] = useState('');
-  const [dish, setDish] = useState('');
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLocaleLowerCase('ru');
   const dishes = ctx.menuItems.filter(
-    (m) => m.active && (!category || m.categoryId === category),
+    (m) =>
+      m.active &&
+      (!category || m.categoryId === category) &&
+      (!q || m.name.toLocaleLowerCase('ru').includes(q)),
   );
+  const add = (id: string) => {
+    const index = items.findIndex((i) => i.menuItemId === id);
+    if (index >= 0)
+      setItems(items.map((item, i) => (i === index ? { ...item, qty: item.qty + 1 } : item)));
+    else setItems([...items, { menuItemId: id, qty: 1 }]);
+  };
+  return (
+    <div className="rest-pos-menu">
+      <ChipGroup label="Категория">
+        <Chip selected={!category} onClick={() => setCategory('')}>
+          Все блюда
+        </Chip>
+        {ctx.categories
+          .filter((c) => c.active)
+          .map((c) => (
+            <Chip key={c.id} selected={category === c.id} onClick={() => setCategory(c.id)}>
+              {c.name}
+            </Chip>
+          ))}
+      </ChipGroup>
+      <Field label="Поиск блюда">
+        <Input type="search" value={query} onChange={(e) => setQuery(e.target.value)} />
+      </Field>
+      {dishes.length === 0 ? (
+        <p className="muted">Блюд не найдено</p>
+      ) : (
+        <div className="rest-pos-grid">
+          {dishes.map((m) => (
+            <button
+              type="button"
+              className="rest-pos-dish"
+              key={m.id}
+              aria-label={`Добавить: ${m.name}, ${wholeTenge(m.priceMinor, m.currency)}`}
+              onClick={() => add(m.id)}
+            >
+              {m.photoUrl ? (
+                <img src={m.photoUrl} alt="" width={160} height={120} />
+              ) : (
+                <span className="rest-pos-dish__ph" aria-hidden="true">
+                  <Icon name="kettle" />
+                </span>
+              )}
+              <span className="rest-pos-dish__name">{m.name}</span>
+              <strong>{wholeTenge(m.priceMinor, m.currency)}</strong>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Текущий заказ справа: строки с количеством, итог по ценам меню */
+function CurrentOrder({
+  ctx,
+  items,
+  setItems,
+}: {
+  ctx: OrderContext;
+  items: OrderItemInput[];
+  setItems: (items: OrderItemInput[]) => void;
+}) {
   const byId = new Map(ctx.menuItems.map((m) => [m.id, m]));
   const total = items.reduce(
     (acc, i) => acc + BigInt(byId.get(i.menuItemId)?.priceMinor ?? '0') * BigInt(i.qty),
@@ -189,48 +341,14 @@ function ItemsEditor({
   };
   return (
     <div className="rest-order-items">
-      <div className="food-form-row">
-        <Field label="Категория">
-          <Select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="">Все блюда</option>
-            {ctx.categories
-              .filter((c) => c.active)
-              .map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-          </Select>
-        </Field>
-        <Field label="Блюдо">
-          <Select value={dish} onChange={(e) => setDish(e.target.value)}>
-            <option value="">Выберите блюдо</option>
-            {dishes.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}, {wholeTenge(m.priceMinor, m.currency)}
-              </option>
-            ))}
-          </Select>
-        </Field>
-      </div>
-      <Button
-        tone="secondary"
-        disabled={!dish}
-        onClick={() => {
-          if (!dish) return;
-          const index = items.findIndex((i) => i.menuItemId === dish);
-          if (index >= 0) change(index, items[index]!.qty + 1);
-          else setItems([...items, { menuItemId: dish, qty: 1 }]);
-          setDish('');
-        }}
-      >
-        Добавить в заказ
-      </Button>
+      <h3>
+        Текущий заказ <small>({items.reduce((acc, i) => acc + i.qty, 0)})</small>
+      </h3>
+      {items.length === 0 && <p className="muted">Выберите блюда слева</p>}
       {items.map((item, index) => {
         const m = byId.get(item.menuItemId);
         return (
-          <div className="rest-order-item" key={item.menuItemId}>
-            <strong>{m?.name ?? 'Блюдо'}</strong>
+          <div className="rest-order-item rest-order-item--pos" key={item.menuItemId}>
             <span className="rest-order-qty">
               <Button tone="ghost" aria-label="Меньше" onClick={() => change(index, item.qty - 1)}>
                 −
@@ -240,6 +358,7 @@ function ItemsEditor({
                 +
               </Button>
             </span>
+            <strong>{m?.name ?? 'Блюдо'}</strong>
             <span className="rest-tech-cost">
               {m ? wholeTenge(String(BigInt(m.priceMinor) * BigInt(item.qty)), m.currency) : '—'}
             </span>
@@ -349,7 +468,15 @@ export function OrderDrawer({
   const title = order ? `Заказ №${order.number}` : 'Новый заказ';
   const itemsEditable = !order || order.status === 'NEW' || order.status === 'COOKING';
   return (
-    <Overlay open onClose={close} title={title} drawer className="food-drawer" trapFocus>
+    <Overlay
+      open
+      onClose={close}
+      title={title}
+      drawer={!(editing && itemsEditable)}
+      size={editing && itemsEditable ? 'lg' : 'md'}
+      className={editing && itemsEditable ? 'rest-pos' : 'food-drawer'}
+      trapFocus
+    >
       <div className="food-detail" data-testid="order-drawer">
         {error && <Alert>{error}</Alert>}
         {order && !editing ? (
@@ -401,6 +528,7 @@ export function OrderDrawer({
               </div>
             </div>
             <PaymentPanel ctx={ctx} order={order} onSaved={setSaved} />
+            <RatingPanel ctx={ctx} order={order} onSaved={setSaved} />
             {ctx.write && (
               <div className="food-actions">
                 {order.nextStatuses
@@ -425,63 +553,66 @@ export function OrderDrawer({
             )}
           </>
         ) : (
-          <>
-            <div className="food-form-row">
-              <Field label="Стол">
-                <Select value={tableId} onChange={(e) => setTableId(e.target.value)}>
-                  <option value="">Без стола</option>
-                  {ctx.tables
-                    .filter((t) => t.active)
-                    .map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {tableLabel(t)}
-                      </option>
-                    ))}
-                </Select>
+          <div className="rest-pos-layout">
+            {itemsEditable && <DishPicker ctx={ctx} items={items} setItems={setItems} />}
+            <div className="rest-pos-side">
+              <div className="food-form-row">
+                <Field label="Стол">
+                  <Select value={tableId} onChange={(e) => setTableId(e.target.value)}>
+                    <option value="">Без стола</option>
+                    {ctx.tables
+                      .filter((t) => t.active)
+                      .map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {tableLabel(t)}
+                        </option>
+                      ))}
+                  </Select>
+                </Field>
+                <Field label="Официант">
+                  <Select value={waiterId} onChange={(e) => setWaiterId(e.target.value)}>
+                    <option value="">Не назначен</option>
+                    {ctx.employees
+                      .filter((e) => e.status === 'ACTIVE')
+                      .map((e) => (
+                        <option key={e.id} value={e.id}>
+                          {e.name}
+                        </option>
+                      ))}
+                  </Select>
+                </Field>
+                <Field label="Гостей">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={1000}
+                    value={guestCount}
+                    onChange={(e) => setGuestCount(Math.max(1, Number(e.target.value) || 1))}
+                  />
+                </Field>
+              </div>
+              {itemsEditable ? (
+                <CurrentOrder ctx={ctx} items={items} setItems={setItems} />
+              ) : (
+                <p className="muted">Состав заморожен после готовности.</p>
+              )}
+              <Field label="Комментарий к заказу">
+                <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
               </Field>
-              <Field label="Официант">
-                <Select value={waiterId} onChange={(e) => setWaiterId(e.target.value)}>
-                  <option value="">Не назначен</option>
-                  {ctx.employees
-                    .filter((e) => e.status === 'ACTIVE')
-                    .map((e) => (
-                      <option key={e.id} value={e.id}>
-                        {e.name}
-                      </option>
-                    ))}
-                </Select>
-              </Field>
+              <div className="food-actions">
+                <Button disabled={pending || items.length === 0} onClick={submit}>
+                  {order ? 'Сохранить' : 'Отправить на кухню'}
+                </Button>
+                <Button
+                  tone="secondary"
+                  disabled={pending}
+                  onClick={() => (order ? setEditing(false) : close())}
+                >
+                  Отмена
+                </Button>
+              </div>
             </div>
-            <Field label="Гостей">
-              <Input
-                type="number"
-                min={1}
-                max={1000}
-                value={guestCount}
-                onChange={(e) => setGuestCount(Math.max(1, Number(e.target.value) || 1))}
-              />
-            </Field>
-            {itemsEditable ? (
-              <ItemsEditor ctx={ctx} items={items} setItems={setItems} />
-            ) : (
-              <p className="muted">Состав заморожен после готовности.</p>
-            )}
-            <Field label="Комментарий">
-              <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
-            </Field>
-            <div className="food-actions">
-              <Button disabled={pending || items.length === 0} onClick={submit}>
-                {order ? 'Сохранить' : 'Создать заказ'}
-              </Button>
-              <Button
-                tone="secondary"
-                disabled={pending}
-                onClick={() => (order ? setEditing(false) : close())}
-              >
-                Отмена
-              </Button>
-            </div>
-          </>
+          </div>
         )}
       </div>
     </Overlay>

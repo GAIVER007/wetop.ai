@@ -1,0 +1,102 @@
+# Модульные (unit) · 12.10.2026 10:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e559f8 (claude/ui-master-final-20261011), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T05-46-11Z-unit-6689.json' 'apps/web/src/lib/navigation-place.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ❯ |unit| apps/web/src/lib/navigation-place.test.ts (23 tests | 23 failed) 7ms
+   ❯ currentPlace (23)
+     × гостиница /finance → Финансы 4ms
+     × гостиница /bar/receipts/new → Финансы 0ms
+     × гостиница /reservations/20260913-TESTAA → Гости и бронирования 0ms
+     × гостиница /units/R01 → Номерной фонд 0ms
+     × гостиница /rooms/categories → Номерной фонд 0ms
+     × гостиница /tasks → Календарь 0ms
+     × гостиница /market → Продажи 0ms
+     × гостиница /ai-seller/dialogs → Продажи 0ms
+     × гостиница /website/settings → Маркетинг 0ms
+     × гостиница /management/analytics/units → Отчёты 0ms
+     × гостиница /branches → Настройки 0ms
+     × гостиница /profile → Профиль 0ms
+     × гостиница /help → Помощь 0ms
+     × салон /beauty → Календарь 0ms
+     × салон /beauty/masters → Мастера 0ms
+     × салон /beauty/schedule → График 0ms
+     × салон /beauty/services → Услуги 0ms
+     × салон /team → Сотрудники и доступ 0ms
+     × салон /team/roles → Сотрудники и доступ 0ms
+     × ресторан /table-reservations → Зал 0ms
+     × ресторан /dining-areas → Зал 0ms
+     × ресторан /kitchen → Заказы 0ms
+     × ресторан /team → Команда 0ms
+
+ Test Files  1 failed (1)
+      Tests  23 failed (23)
+   Start at  22:46:41
+   Duration  5.05s (transform 68%, import 30%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T05-46-11Z-unit-6689.json
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 23 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /finance → Финансы
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /bar/receipts/new → Финансы
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /reservations/20260913-TESTAA → Гости и бронирования
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /units/R01 → Номерной фонд
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /rooms/categories → Номерной фонд
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /tasks → Календарь
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /market → Продажи
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /ai-seller/dialogs → Продажи
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /website/settings → Маркетинг
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /management/analytics/units → Отчёты
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /branches → Настройки
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /profile → Профиль
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > гостиница /help → Помощь
+TypeError: currentPlace is not a function
+ ❯ label apps/web/src/lib/navigation-place.test.ts:9:3
+      7|  */
+      8| const label = (vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', pa…
+      9|   currentPlace(menuSectionsFor(CLOSED_ACCESS, vertical), path).label;
+       |   ^
+     10|
+     11| describe('currentPlace', () => {
+ ❯ apps/web/src/lib/navigation-place.test.ts:26:54
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/23]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > салон /beauty → Календарь
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > салон /beauty/masters → Мастера
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > салон /beauty/schedule → График
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > салон /beauty/services → Услуги
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > салон /team → Сотрудники и доступ
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > салон /team/roles → Сотрудники и доступ
+TypeError: currentPlace is not a function
+ ❯ label apps/web/src/lib/navigation-place.test.ts:9:3
+      7|  */
+      8| const label = (vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', pa…
+      9|   currentPlace(menuSectionsFor(CLOSED_ACCESS, vertical), path).label;
+       |   ^
+     10|
+     11| describe('currentPlace', () => {
+ ❯ apps/web/src/lib/navigation-place.test.ts:35:50
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/23]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > ресторан /table-reservations → Зал
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > ресторан /dining-areas → Зал
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > ресторан /kitchen → Заказы
+ FAIL  |unit| apps/web/src/lib/navigation-place.test.ts > currentPlace > ресторан /team → Команда
+TypeError: currentPlace is not a function
+ ❯ label apps/web/src/lib/navigation-place.test.ts:9:3
+      7|  */
+      8| const label = (vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', pa…
+      9|   currentPlace(menuSectionsFor(CLOSED_ACCESS, vertical), path).label;
+       |   ^
+     10|
+     11| describe('currentPlace', () => {
+ ❯ apps/web/src/lib/navigation-place.test.ts:42:53
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/23]⎯
+
+
+# код выхода 1 · 36 с

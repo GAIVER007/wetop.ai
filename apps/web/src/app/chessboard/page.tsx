@@ -498,7 +498,7 @@ function DayStats({
   availabilityHref: string;
 }) {
   const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
-  const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
+  const n = (value: number | null | undefined) => (value == null ? '—' : String(value));
   const c = day.counts;
   return (
     <section className="board-kpis" role="group" aria-label="Сегодня на объекте">
@@ -509,7 +509,7 @@ function DayStats({
         <div className="board-kpi__body">
           <span className="board-kpi__row">
             <b className="board-kpi__value" data-testid="day-occupancy">
-              {occupancy === null ? 'н/д' : `${occupancy}%`}
+              {occupancy === null ? '—' : `${occupancy}%`}
             </b>
             {trend !== null && trend !== 0 && (
               <span
@@ -631,7 +631,7 @@ function SideDayStats({
   const occupancy = s && units ? Math.round((s.occupied / units) * 100) : units === 0 ? 0 : null;
   const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
   const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
-  const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
+  const n = (value: number | null | undefined) => (value == null ? '—' : String(value));
   const title = new Intl.DateTimeFormat('ru-RU', {
     day: 'numeric',
     month: 'long',
@@ -671,7 +671,7 @@ function SideDayStats({
             `/rooms/availability?arrival=${today}&departure=${tomorrow}`,
           )}
           {row('occupied', 'Занято мест', n(s?.occupied))}
-          {row('occupancy', 'Загрузка', occupancy === null ? 'н/д' : `${occupancy}%`)}
+          {row('occupancy', 'Загрузка', occupancy === null ? '—' : `${occupancy}%`)}
         </div>
       </div>
     </section>

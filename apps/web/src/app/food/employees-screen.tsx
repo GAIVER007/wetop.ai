@@ -16,7 +16,7 @@ export async function FoodEmployeesScreen() {
     const shell = await restaurantShell();
     const employees = await completeFoodList<FoodEmployee>(restaurantApi.employees);
     return (
-      <Page title="Сотрудники" subtitle="Команда ресторана: смены по графику и продажи за сегодня">
+      <Page title="Сотрудники">
         <div key={shell.scopeKey}>
           <EmployeesBoard
             scopeKey={shell.scopeKey}

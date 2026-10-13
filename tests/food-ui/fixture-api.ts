@@ -10,6 +10,10 @@ import type { MembershipRole } from '@pms/domain';
 import { FoodModule } from '../../apps/api/src/food-service/food.module';
 import { BeautyModule } from '../../apps/api/src/beauty/beauty.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import {
+  MemorySiteAssetStorage,
+  SITE_ASSET_STORAGE,
+} from '../../apps/api/src/marketing-site/asset-storage';
 import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
 import { RoleGuard } from '../../apps/api/src/auth/role.guard';
 import { Access } from '../../apps/api/src/auth/access.decorator';
@@ -98,6 +102,9 @@ const module = await Test.createTestingModule({
 })
   .overrideProvider(PrismaService)
   .useValue(prisma)
+  // фото блюд (§37): хранилище в памяти; адреса подписаны, но картинка в браузере не грузится (проверяется адрес)
+  .overrideProvider(SITE_ASSET_STORAGE)
+  .useValue(new MemorySiteAssetStorage('https://assets.storage.test'))
   .compile();
 const app = module.createNestApplication();
 app.use(
@@ -235,6 +242,10 @@ app.use(
                 await tx.employee.deleteMany({ where: { business: b } });
                 await tx.beautyService.deleteMany({ where: { business: b } });
                 await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+                // лента склада только дописывается: удаление проходит только под audit_purge (DATA_MODEL §34)
+                await tx.kitchenStockMovement.deleteMany({ where: { location: { business: b } } });
+                await tx.kitchenStockLot.deleteMany({ where: { location: { business: b } } });
+                await tx.kitchenProduct.deleteMany({ where: { business: b } });
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
                 await tx.location.deleteMany({ where: { business: b } });
@@ -272,7 +283,7 @@ app.use(
 );
 app.useGlobalGuards(new RoleGuard(new Reflector()));
 app.useGlobalInterceptors(new AuthorInterceptor(prisma));
-await app.listen(55824, '127.0.0.1');
+await app.listen(Number(process.env.FOOD_UI_API_PORT ?? 55824), '127.0.0.1');
 for (const signal of ['SIGTERM', 'SIGINT'] as const)
   process.on(signal, () => {
     void app

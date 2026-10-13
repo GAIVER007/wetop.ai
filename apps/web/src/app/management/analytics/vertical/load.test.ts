@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 const read = vi.hoisted(() => vi.fn());
-vi.mock('../../../../lib/api', () => ({ branchReportDay: read }));
+const period = vi.hoisted(() => vi.fn());
+vi.mock('../../../../lib/api', () => ({ branchReportDay: read, branchFoodPeriod: period }));
 import { loadBranchPeriod } from './load';
 const branch = {
   id: 'l',
@@ -17,7 +18,11 @@ const row = {
   priceMinor: '101',
   currency: 'KZT',
 };
-beforeEach(() => read.mockReset());
+beforeEach(() => {
+  read.mockReset();
+  period.mockReset();
+  period.mockResolvedValue({ ordersCount: 0 });
+});
 describe('MV9 scoped report adapters', () => {
   it('checks day and location identity before counting actual snapshots', async () => {
     read.mockResolvedValue({
@@ -71,7 +76,10 @@ it('Food period excludes previous-day overlap and rejects a foreign Location res
   expect(await loadBranchPeriod(food, ['2026-10-07'])).toMatchObject({
     counts: { BOOKED: 1 },
     revenue: null,
+    food: { ordersCount: 0 },
   });
+  // деньги ресторана берутся за весь период одним запросом по филиалу
+  expect(period).toHaveBeenCalledWith(food, '2026-10-07', '2026-10-07');
   read.mockResolvedValue({
     items: [{ ...reservation, startsAt: '2026-10-05T11:00:00Z' }],
     nextCursor: null,

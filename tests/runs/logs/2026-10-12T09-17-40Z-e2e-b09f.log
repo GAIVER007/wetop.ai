@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 12.10.2026 14:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит 351e87c (claude/kitchen-consumption), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/stock.spec.ts' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'списание по заказу'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:23572) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/stock.spec.ts:185:1 › списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает (8.3s)
+
+  1 passed (25.2s)
+
+# код выхода 0 · 27 с

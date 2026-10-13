@@ -87,7 +87,7 @@ export async function BizKpis({
   const profit = income !== null && expense !== null ? income - expense : null;
   const prevProfit = prevIncome !== null && prevExpense !== null ? prevIncome - prevExpense : null;
   const money = (v: bigint | null) =>
-    v === null ? 'Нет данных' : formatMoney(v.toString(), currency);
+    v === null ? '—' : formatMoney(v.toString(), currency);
   return (
     <section className="biz-kpis" aria-label="Ключевые показатели">
       <Stat
@@ -108,7 +108,7 @@ export async function BizKpis({
       />
       <Stat
         label="Загрузка сегодня"
-        value={percent === null ? 'Нет данных' : formatPercent(percent)}
+        value={percent === null ? '—' : formatPercent(percent)}
         icon={<Icon name="board" />}
         testId="biz-occupancy"
         delta={percent !== null && prev ? deltaPoints(percent, prev.occupancy.percent) : undefined}
@@ -116,7 +116,7 @@ export async function BizKpis({
       />
       <Stat
         label="Заезды сегодня"
-        value={counts ? String(counts.arrivals) : 'Нет данных'}
+        value={counts ? String(counts.arrivals) : '—'}
         icon={<Icon name="arrival" />}
         testId="biz-arrivals-kpi"
         delta={counts ? intDelta(counts.arrivals, prev ? prev.arrivals.count : null) : undefined}
@@ -124,7 +124,7 @@ export async function BizKpis({
       />
       <Stat
         label="Выезды сегодня"
-        value={counts ? String(counts.departures) : 'Нет данных'}
+        value={counts ? String(counts.departures) : '—'}
         icon={<Icon name="departure" />}
         testId="biz-departures-kpi"
         delta={
@@ -134,7 +134,7 @@ export async function BizKpis({
       />
       <Stat
         label="К оплате / Долги"
-        value={debts ? formatMoney(debts.balanceMinor, currency) : 'Нет данных'}
+        value={debts ? formatMoney(debts.balanceMinor, currency) : '—'}
         icon={<Icon name="card" />}
         testId="biz-due"
         tone={debts && BigInt(debts.balanceMinor) > 0n ? 'warning' : undefined}
@@ -142,7 +142,7 @@ export async function BizKpis({
       />
       <Stat
         label="Свободно мест"
-        value={summary ? String(summary.free) : 'Нет данных'}
+        value={summary ? String(summary.free) : '—'}
         icon={<Icon name="bed" />}
         testId="biz-free"
         hint={summary ? `из ${total}` : 'данные фонда недоступны'}

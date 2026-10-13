@@ -27,17 +27,18 @@ test('герой: заголовок, регистрация с направле
   await expect(hero.locator('.restaurant-hero__photo img')).toHaveAttribute('alt', /зал ресторана/i);
 });
 
-test('полоса фактов и возможности: восемь карточек, без выдуманных чисел', async ({ page }) => {
+test('полоса фактов и возможности: девять карточек, без выдуманных чисел', async ({ page }) => {
   await page.goto(PATH);
   await expect(page.locator('.hotel-facts__item')).toHaveCount(4);
   const features = page.locator('#restaurant-features .card');
-  await expect(features).toHaveCount(8);
+  await expect(features).toHaveCount(9);
   await expect(features.first()).toContainText('План зала');
   // модули для владельца: пункты внутри каждой карточки; бара у ресторана ещё нет, он помечен «Скоро»
-  for (const name of ['Меню и калькуляция', 'График смен', 'Зарплата официантов', 'Личные кабинеты'])
+  for (const name of ['Касса и оплата', 'Меню и калькуляция', 'График смен', 'Зарплата официантов', 'Личные кабинеты'])
     await expect(features.filter({ hasText: name }).locator('li')).not.toHaveCount(0);
-  await expect(features.filter({ hasText: 'Бар и склад' }).locator('.tag')).toHaveText('Скоро');
-  await expect(features.locator('.tag')).toHaveCount(1);
+  // склад кухни работает на стойке с 12.10.2026: пометок «Скоро» в модулях больше нет
+  await expect(features.filter({ hasText: 'Склад кухни и бара' }).locator('li')).toHaveCount(4);
+  await expect(features.locator('.tag')).toHaveCount(0);
   const body = await page.locator('body').innerText();
   // Чисел клиентов и рейтингов не бывает (§19.9); «пилота» и « · » тоже. Проценты в мокапе
   // «Сегодня» легитимны (вымышленный пример с подписью), поэтому их сторож не ловит.
@@ -58,7 +59,7 @@ test('рост, вопросы и призыв: пункты без процен
   await expect(growth.locator('.hotel-growth__points li')).toHaveCount(4);
   expect(await growth.innerText()).not.toMatch(/%/);
   const faq = page.locator('.faq details');
-  await expect(faq).toHaveCount(5);
+  await expect(faq).toHaveCount(6);
   const first = faq.first();
   await first.locator('summary').click();
   await expect(first).toHaveAttribute('open', '');

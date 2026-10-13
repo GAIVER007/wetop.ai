@@ -1,9 +1,9 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { unstable_rethrow } from 'next/navigation';
-import { ApiError } from '../../lib/api';
+import { ApiError, dishPhotoApi } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
-import { restaurantApi } from '../../lib/food-api';
+import { foodApi, restaurantApi } from '../../lib/food-api';
 import type {
   FoodCashOperationInput,
   FoodPaymentMethod,
@@ -32,7 +32,8 @@ type OrderCommand =
       id: string;
       body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string };
     }
-  | { kind: 'void-payment'; id: string; reason: string };
+  | { kind: 'void-payment'; id: string; reason: string }
+  | { kind: 'rate'; id: string; body: { stars: number; comment: string | null } };
 type CashCommand =
   | { kind: 'operation'; body: FoodCashOperationInput }
   | { kind: 'void'; id: string }
@@ -112,10 +113,26 @@ export async function mutateOrder(
       case 'void-payment':
         order = await restaurantApi.voidPayment(command.id, command.reason);
         break;
+      case 'rate':
+        order = await restaurantApi.rateOrder(command.id, command.body);
+        break;
     }
-    for (const path of ['/orders', '/kitchen', '/floor-plan', '/today', '/cashbox'])
+    for (const path of ['/orders', '/kitchen', '/floor-plan', '/today', '/cashbox', '/employees'])
       revalidatePath(path);
     return { error: null, order };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** Ссылка на оценку с телефона гостя по QR-коду (§40) */
+export async function orderRatingLink(
+  scopeKey: string,
+  id: string,
+): Promise<{ error: string | null; token?: string; expiresAt?: string }> {
+  try {
+    await scope(scopeKey);
+    return { error: null, ...(await restaurantApi.ratingLink(id)) };
   } catch (error) {
     return failure(error);
   }
@@ -166,6 +183,43 @@ export async function mutateCash(
     else if (command.kind === 'void') await restaurantApi.voidCashOperation(command.id);
     else await restaurantApi.cashReconciliation(command.body);
     revalidatePath('/cashbox');
+    return { error: null };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** VIP-метка и дата рождения клиента (§36, ADR-166) */
+export async function markCustomer(
+  scopeKey: string,
+  id: string,
+  body: { isVip: boolean; birthDate: string | null },
+): Promise<{ error: string | null }> {
+  try {
+    await scope(scopeKey);
+    await foodApi.updateCustomer(id, body);
+    revalidatePath('/customers');
+    return { error: null };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** Фото блюда (§37): файл приходит формой, на API уходит тем же multipart */
+export async function dishPhoto(
+  scopeKey: string,
+  id: string,
+  form: FormData | null,
+): Promise<{ error: string | null }> {
+  try {
+    await scope(scopeKey);
+    if (form === null) await dishPhotoApi.remove(id);
+    else {
+      const file = form.get('file');
+      if (!(file instanceof File) || file.size === 0) return { error: 'Выберите файл: JPEG, PNG или WebP' };
+      await dishPhotoApi.upload(id, file);
+    }
+    revalidatePath('/menu');
     return { error: null };
   } catch (error) {
     return failure(error);

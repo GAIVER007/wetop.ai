@@ -2678,14 +2678,14 @@ button {
   justify-content: space-between;
   gap: 12px;
 }
-.dash__heading h2 {
+.dash__heading .dash__title {
   margin: 0;
   font-family: var(--font-head);
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.03em;
 }
-.dash__heading p {
+.dash__heading p:not(.dash__title) {
   margin: 2px 0 0;
   color: var(--public-muted);
   font-size: 0.75rem;
@@ -2733,8 +2733,7 @@ button {
   gap: 16px;
   margin-top: 16px;
 }
-.dash__arrivals h3,
-.dash__chart h3 {
+.dash__subtitle {
   margin: 0 0 8px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -3374,7 +3373,22 @@ button {
   position: relative;
 }
 
-/* Мобильная сцена /restaurants/: дашборд без сайдбара, метрики 2×2, телефон карточкой под ноутбуком */
+/* Телефон: дашборд-мокап без сайдбара, метрики 2×2, заезды и график друг под другом (реестр §19.5);
+   иначе на 390 px основной части остаётся ~180 px и суммы обрезаются */
+@media (max-width: 40rem) {
+  .dash {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dash__sidebar {
+    display: none;
+  }
+  .dash__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dash__columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 
 /* Чип направления с поповером (поручение владельца 09.10.2026): описание по щелчку, ссылка на страницу направления. */
 .chip {

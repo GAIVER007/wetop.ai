@@ -40,6 +40,11 @@ export interface FoodCustomer {
   name?: string;
   /** Посещения (посажен или завершён) в этом филиале; «Постоянный гость» от двух (ADR-159) */
   visits?: number;
+  /** Ручная метка VIP и дата рождения (§36, ADR-166) */
+  isVip?: boolean;
+  birthDate?: string | null;
+  /** Через сколько дней день рождения по дате филиала: 0 сегодня */
+  birthdayInDays?: number | null;
 }
 export interface RestaurantReservation {
   id: string;
@@ -113,6 +118,8 @@ export interface MenuCategory {
 }
 export interface MenuIngredient {
   id: string;
+  /** §38: ингредиент склада, null — строка не списывается */
+  productId?: string | null;
   name: string;
   normQty: string;
   unit: string;
@@ -138,6 +145,8 @@ export interface MenuItemView {
   updatedAt: string;
   ingredients?: MenuIngredient[];
   totals?: MenuTotals | null;
+  /** Подписанный адрес фото блюда на время (§37); null, если фото нет или хранилище выключено */
+  photoUrl?: string | null;
 }
 export interface MenuCategoryInput {
   name: string;
@@ -158,6 +167,7 @@ export interface IngredientInput {
   normQty: string;
   unit: 'г' | 'мл' | 'шт';
   unitCost: number;
+  productId?: string | null;
 }
 export interface OrderItemView {
   id: string;
@@ -190,6 +200,8 @@ export interface OrderView {
   nextStatuses: OrderStatus[];
   items: OrderItemView[];
   payments: OrderPaymentView[];
+  /** §39: оценка гостя после оплаты */
+  rating?: { stars: number; comment: string | null; createdAt: string } | null;
 }
 export type FoodPaymentMethod =
   | 'CASH'
@@ -300,6 +312,8 @@ export interface FoodEmployee {
   shift: string | null;
   onShift: boolean;
   salesTodayMinor: string;
+  /** §39: рейтинг по оценкам гостей; average null, пока оценок нет */
+  rating?: { average: number | null; count: number };
 }
 export type PayModel = 'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT' | 'BONUS_ONLY';
 export interface PayrollRow {
@@ -337,4 +351,84 @@ export interface PayrollView {
     reason: string;
     createdAt: string;
   }>;
+}
+
+// ── Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS). Количества строками («2.5»), деньги строками в minor units ──
+export type StockUnit = 'г' | 'мл' | 'шт';
+export interface StockProductView {
+  id: string;
+  name: string;
+  unit: StockUnit;
+  minQty: string;
+  active: boolean;
+  onHand: string;
+  valueMinor: string;
+  low: boolean;
+  nearestExpiry: string | null;
+}
+export interface StockLotView {
+  id: string;
+  productId: string;
+  supplier: string | null;
+  document: string | null;
+  receivedOn: string;
+  receivedQty: string;
+  remainingQty: string;
+  unitCostMinor: string;
+  expiresOn: string | null;
+  reversed: boolean;
+  reversible: boolean;
+}
+export type StockMovementKind =
+  | 'RECEIPT'
+  | 'WRITE_OFF'
+  | 'INVENTORY'
+  | 'REVERSAL'
+  | 'CONSUMPTION'
+  | 'SHORTAGE'
+  | 'CONSUMPTION_RETURN';
+export interface StockMovementView {
+  id: string;
+  productId: string;
+  productName: string;
+  unit: StockUnit;
+  lotId: string | null;
+  kind: StockMovementKind;
+  qty: string;
+  costMinor: string;
+  reason: string | null;
+  createdAt: string;
+}
+export interface StockProductInput {
+  name: string;
+  unit: StockUnit;
+  minQty?: string;
+  active?: boolean;
+}
+export interface StockReceiptInput {
+  supplier?: string | null;
+  document?: string | null;
+  receivedOn?: string | null;
+  lines: Array<{ productId: string; qty: string; unitCost: number; expiresOn?: string | null }>;
+}
+/** Отчёт ресторана за период (Аналитика): закрытые заказы, оплаты по способам, блюда, официанты */
+export interface FoodPeriodReport {
+  from: string;
+  to: string;
+  currency: string;
+  ordersCount: number;
+  revenueMinor: string;
+  averageCheckMinor: string | null;
+  payments: Array<{ method: string; amountMinor: string; count: number }>;
+  topDishes: Array<{ name: string; qty: number; revenueMinor: string }>;
+  waiters: Array<{ name: string; orders: number; revenueMinor: string }>;
+  /** §38: себестоимость проданного по ленте склада, валовая прибыль, фудкост и недостачи */
+  costMinor: string;
+  grossProfitMinor: string;
+  foodCostPct: number | null;
+  shortages: Array<{ name: string; unit: string; qty: string }>;
+  /** выручка закрытых заказов по дням периода (пояс филиала), каждый день периода */
+  revenueByDay?: Array<{ date: string; revenueMinor: string; orders: number }>;
+  /** продажи по категориям меню, по убыванию */
+  categories?: Array<{ name: string; revenueMinor: string }>;
 }

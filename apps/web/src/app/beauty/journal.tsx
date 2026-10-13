@@ -146,14 +146,15 @@ export function JournalBoard({
         <DateBar date={day.date} path="/calendar" />
         <Button
           disabled={readOnly || !day.columns.length || !day.services.length}
-          onClick={() => setPanel({ kind: 'new', employeeId: selected, time: '09:00' })}
+          onClick={() =>
+            setPanel({ kind: 'new', employeeId: selected, time: clock(day.bounds.fromMinutes) })
+          }
         >
           + Новая запись
         </Button>
       </div>
       <p className="beauty-note" data-testid="beauty-day-summary">
-        {live.length ? `Записей: ${live.length}` : 'Записей на этот день нет'} /{' '}
-        {day.location.timezone}
+        {live.length ? `Записей: ${live.length}` : 'Записей на этот день нет'}
       </p>
       {(!columns.length || !day.services.length) && (
         <p className="beauty-note" role="status">

@@ -1,0 +1,40 @@
+# Сквозные (e2e) · 12.10.2026 11:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e559f8 (claude/ui-master-final-20261011), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/side-nav.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/global-search-navigation.spec.ts'
+[WebServer] ⨯ Error: Тестовый источник отключён. Подключите рабочий API.
+[WebServer]     at f (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1212)
+[WebServer]     at async h (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1567)
+[WebServer]     at async Object.me (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5337) {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+
+Running 15 tests using 1 worker
+
+[WebServer] ⨯ Error: Тестовый источник отключён. Подключите рабочий API.
+[WebServer]     at f (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1212)
+[WebServer]     at async h (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1567)
+[WebServer]     at async Object.me (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5337) {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘   1 tests/ui/global-search-navigation.spec.ts:8:1 › поиск гостиницы предлагает гостиничные разделы и открывает календарь (48.2s)
+  ✘   2 tests/ui/global-search-navigation.spec.ts:24:1 › поиск не предлагает закрытый роли журнал (49.2s)
+[WebServer] ⨯ Error: Тестовый источник отключён. Подключите рабочий API.
+[WebServer]     at f (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1212)
+[WebServer]     at async h (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1567)
+[WebServer]     at async Object.me (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5337) {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘   3 tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (36.2s)
+[WebServer] ⨯ Error: Тестовый источник отключён. Подключите рабочий API.
+[WebServer]     at f (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1212)
+[WebServer]     at async h (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1567)
+[WebServer]     at async Object.me (.next-ui/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:5337) {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘   4 tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (33.5s)
+
+# код выхода —, сигнал SIGTERM · 4 мин 50 с

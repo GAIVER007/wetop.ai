@@ -1,0 +1,45 @@
+# Модульные (unit) · 12.10.2026 14:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8f513ec (claude/menu-dish-photos), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-01-19Z-unit-df3f.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/auto-deploy.test.ts' 'tests/unit/guard-run.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 6ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 58ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 9059ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 3458ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 1467ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1203ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 1028ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 1092ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 794ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 21254ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 2704ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 546ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 1405ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 1048ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 1552ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 1569ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1411ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 1554ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 1120ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 1355ms
+     ✓ локальные правки в клоне — не затирает их 788ms
+     ✓ историю ветки переписали — не выкладывает поверх 1213ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 1098ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 1614ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1082ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1194ms
+
+ Test Files  5 passed (5)
+      Tests  72 passed (72)
+   Start at  02:01:20
+   Duration  21.37s (tests 98%, import 1%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-01-19Z-unit-df3f.json
+
+# код выхода 0 · 22 с

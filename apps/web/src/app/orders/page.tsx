@@ -51,7 +51,7 @@ export default async function OrdersPage({
       menuItems,
     };
     return (
-      <Page title="Заказы" subtitle="Заказы ресторана за день и всё, что сейчас открыто">
+      <Page title="Заказы">
         <div key={shell.scopeKey}>
           <OrdersBoard ctx={ctx} orders={merged} />
         </div>

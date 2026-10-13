@@ -1,0 +1,97 @@
+# Сквозные (e2e) · 12.10.2026 11:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит ef925b3 (claude/restaurant-vip-in-bookings)
+# npx playwright test --workers=2 --reporter=list,json 'tests/food-ui/food.spec.ts' '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'walk-in|assignment reassign'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1445ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:44407) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (34.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '164053570'
+[WebServer] }
+  ✘  2 tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (1.3m)
+
+
+  1) tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload ───
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Стол 7, Свободен' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Стол 7, Свободен' }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Стол 7, Свободен' })
+
+
+      155 |   await dialog.getByRole('button', { name: 'Завершить', exact: true }).click();
+      156 |   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
+    > 157 |   await expect(page.getByRole('button', { name: 'Стол 7, Свободен' })).toBeVisible();
+          |                                                                        ^
+      158 | });
+      159 | test('real API screenshots, keyboard and axe', async ({ page, request }) => {
+      160 |   await seed(page, request);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/food-ui/food.spec.ts:157:72
+
+    Error Context: test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-walk-in-is-seated-imm-9ce6a--and-persisted-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByRole('dialog')
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        9 × locator resolved to <dialog open="" aria-labelledby="_r_6_" class="ui-overlay ui-drawer  food-drawer">…</dialog>
+          - unexpected value "visible"
+
+
+      532 |     }
+      533 |     await d.getByRole('button', { name: 'Архивировать', exact: true }).click();
+    > 534 |     await expect(d).not.toBeVisible();
+          |                         ^
+      535 |     if (kind === 'table')
+      536 |       await page.getByRole('button', { name: 'Изменить стол Стол 8', exact: true }).click();
+      537 |     else
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/food-ui/food.spec.ts:534:25
+
+    Error Context: test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload ────
+    tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+
+# код выхода 1 · 2 мин 40 с

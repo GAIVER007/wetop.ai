@@ -58,7 +58,7 @@ function Frame<R extends { date: string }>({
       </div>
       <details className="market-chart__table">
         <summary>Значения по ночам</summary>
-        <table className="table table--sm">
+        <table className="tbl tbl--compact">
           <thead>
             <tr>
               <th scope="col">Ночь</th>

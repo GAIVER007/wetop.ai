@@ -25,5 +25,9 @@ export * from './verticals/registry';
 
 export * from "./food/food";
 export * from "./food/restaurant";
+export * from "./food/stock";
+export * from "./food/consumption";
+export * from "./food/ratings";
 export * from "./food/cash";
+export * from "./food/customer-marks";
 export * from './marketing/index';

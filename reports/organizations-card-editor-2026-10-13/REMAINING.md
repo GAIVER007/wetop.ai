@@ -96,3 +96,13 @@ PR493 merged as a8181384d36d763ecaa415f34874db087c6fdddc. Release-checks 3846287
 - Changed only the test: obtain the persisted fixture id by employee and exact fixed DATE fields; keep all mutation rejection checks; additionally prove the time-off row remains. No product behavior, dates, schema, access rules or CI/CD configuration changed.
 - Full local MV4 integration green: 2026-10-13T20-59-32Z-integration-75f6, 23/23, isolated PostgreSQL55613/pms_test. Root typecheck and targeted ESLint green.
 - Production unchanged until the full exact-SHA gate is green.
+
+## Current publication blocker on 10d02d56
+
+PR494 merged as 10d02d565985e7aa7265e019048d46eea498103b. Full release-checks 38467879153 is pending behind the earlier failed run. UI part1 of 38462872531 has 509 passed and 9 failed: three desktop Calendar toolbar height checks (86 instead of <=56), three mobile category overflow-wrap checks, two design-system snapshot scenarios, and the reservation dialog width check (940 instead of760).
+
+- Local reproduction on current main: 2026-10-13T21-19-50Z-e2e-2e74, 7 failed, 6 passed, unchanged product and assertions. These seven failures concern Calendar/Reservation, outside the current design-only publication scope. Requested a bounded scope extension; no product correction made without the answer.
+- Inspected GitHub visual artifacts: icon registry additions expand the kit, requiring reviewed Linux references. Dispatched the existing ui-snapshots workflow38469619188; no workflow configuration or check changes. References are not accepted blindly.
+- Production is still the previously verified6d8b6d8 version. No backup, production migration, data cleanup, cover upload or deployment performed in this iteration.
+
+- ui-snapshots38469619188 succeeded on exact main10d02d56. Reviewed light/dark icon images and accepted only these two icon references from ci/ui-snapshots-24 (d2d88dc5). Did not accept the other24 changed references, including unrelated dark tokens. Snapshot tolerance, assertions and product code are unchanged.

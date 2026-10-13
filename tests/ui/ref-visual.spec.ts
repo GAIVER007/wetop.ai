@@ -11,7 +11,12 @@ import { FIXTURE_API, expect, test } from './fixtures';
 const ROUTES = (process.env.REF_ROUTES ?? '/guests,/inventory').split(',').filter(Boolean);
 const OUT = `${process.env.REF_OUT ?? 'reports/ui43-hospitality-2026-10-13'}/${process.env.REF_PHASE ?? 'after'}`;
 const VIEWPORTS = [
-  { name: 'ref-1672', width: 1672, height: 941 },
+  // ширина и высота эталона: `REF_SIZE=1536x1024` (по умолчанию эталоны гостиницы 1672×941)
+  {
+    name: 'ref',
+    width: Number((process.env.REF_SIZE ?? '1672x941').split('x')[0]),
+    height: Number((process.env.REF_SIZE ?? '1672x941').split('x')[1]),
+  },
   { name: '1440', width: 1440, height: 900 },
   { name: '1280', width: 1280, height: 800 },
   { name: '1024', width: 1024, height: 768 },

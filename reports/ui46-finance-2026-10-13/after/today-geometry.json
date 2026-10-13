@@ -1,0 +1,121 @@
+{
+  "320": {
+    "scrollWidth": 320,
+    "font": "inter",
+    "title": {
+      "x": 16,
+      "y": 78,
+      "w": 288,
+      "h": 31,
+      "fontSize": "26px",
+      "radius": "0px"
+    },
+    "stats": null,
+    "statFirst": null,
+    "table": null,
+    "firstRow": null,
+    "panel": null
+  },
+  "390": {
+    "scrollWidth": 390,
+    "font": "inter",
+    "title": {
+      "x": 16,
+      "y": 78,
+      "w": 21,
+      "h": 218,
+      "fontSize": "26px",
+      "radius": "0px"
+    },
+    "stats": null,
+    "statFirst": null,
+    "table": null,
+    "firstRow": null,
+    "panel": null
+  },
+  "768": {
+    "scrollWidth": 768,
+    "font": "inter",
+    "title": {
+      "x": 24,
+      "y": 72,
+      "w": 202,
+      "h": 36,
+      "fontSize": "30px",
+      "radius": "0px"
+    },
+    "stats": null,
+    "statFirst": null,
+    "table": null,
+    "firstRow": null,
+    "panel": null
+  },
+  "1024": {
+    "scrollWidth": 1024,
+    "font": "inter",
+    "title": {
+      "x": 24,
+      "y": 72,
+      "w": 330,
+      "h": 36,
+      "fontSize": "30px",
+      "radius": "0px"
+    },
+    "stats": null,
+    "statFirst": null,
+    "table": null,
+    "firstRow": null,
+    "panel": null
+  },
+  "1280": {
+    "scrollWidth": 1280,
+    "font": "inter",
+    "title": {
+      "x": 24,
+      "y": 72,
+      "w": 458,
+      "h": 36,
+      "fontSize": "30px",
+      "radius": "0px"
+    },
+    "stats": null,
+    "statFirst": null,
+    "table": null,
+    "firstRow": null,
+    "panel": null
+  },
+  "1440": {
+    "scrollWidth": 1440,
+    "font": "inter",
+    "title": {
+      "x": 24,
+      "y": 72,
+      "w": 538,
+      "h": 36,
+      "fontSize": "30px",
+      "radius": "0px"
+    },
+    "stats": null,
+    "statFirst": null,
+    "table": null,
+    "firstRow": null,
+    "panel": null
+  },
+  "ref": {
+    "scrollWidth": 1536,
+    "font": "inter",
+    "title": {
+      "x": 24,
+      "y": 72,
+      "w": 586,
+      "h": 36,
+      "fontSize": "30px",
+      "radius": "0px"
+    },
+    "stats": null,
+    "statFirst": null,
+    "table": null,
+    "firstRow": null,
+    "panel": null
+  }
+}

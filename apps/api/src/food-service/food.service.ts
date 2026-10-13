@@ -20,6 +20,11 @@ import {
   parseCustomerMarks,
   parseFoodCatalog,
   parseAreaLayout,
+  parseBookingRules,
+  parseClosedDay,
+  bookingRuleViolation,
+  DEFAULT_BOOKING_RULES,
+  foodLocal,
   parseFoodCreate,
   timeOffWindow,
   type FoodCatalogKind,
@@ -317,6 +322,54 @@ export class FoodService {
       return catalogView(row);
     });
   }
+  /** Правила брони и будущие закрытые дни (§43) */
+  async bookingSettings() {
+    foodMay('desk');
+    const s = await foodScope(this.prisma.db);
+    const today = foodLocal(new Date(), s.timezone).date;
+    const closedDays = await this.prisma.db.foodClosedDay.findMany({
+      where: { locationId: s.locationId, day: { gte: new Date(`${today}T00:00:00Z`) } },
+      orderBy: { day: 'asc' },
+      take: 400,
+    });
+    return {
+      rules: await this.bookingRules(this.prisma.db, s),
+      closedDays: closedDays.map((d) => ({ id: d.id, day: d.day.toISOString().slice(0, 10), reason: d.reason })),
+    };
+  }
+  async setBookingRules(raw: unknown) {
+    return this.write('property', async (tx, s) => {
+      const rules = parsed(() => parseBookingRules(raw));
+      const before = await this.bookingRules(tx, s);
+      await tx.foodBookingRules.upsert({
+        where: { locationId: s.locationId },
+        create: { locationId: s.locationId, ...rules },
+        update: rules,
+      });
+      await this.audit(tx, s, s.locationId, 'food.booking_rules.set', { ...rules }, { ...before });
+      return rules;
+    });
+  }
+  async addClosedDay(raw: unknown) {
+    return this.write('property', async (tx, s) => {
+      const b = parsed(() => parseClosedDay(raw));
+      const row = await tx.foodClosedDay.create({
+        data: { locationId: s.locationId, day: new Date(`${b.day}T00:00:00Z`), reason: b.reason },
+      });
+      await this.audit(tx, s, row.id, 'food.closed_day.added', { day: b.day, reason: b.reason });
+      return { id: row.id, day: b.day, reason: b.reason };
+    });
+  }
+  async removeClosedDay(idRaw: string) {
+    return this.write('property', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      const row = await tx.foodClosedDay.findFirst({ where: { id, locationId: s.locationId } });
+      if (!row) throw new NotFoundException('Закрытый день не найден');
+      await tx.foodClosedDay.delete({ where: { id } });
+      await this.audit(tx, s, id, 'food.closed_day.removed', { day: row.day.toISOString().slice(0, 10) });
+      return { ok: true };
+    });
+  }
   /** Схема зала (§42): расстановка зоны одним запросом, каждый стол обязан быть из этой зоны */
   async setLayout(areaIdRaw: string, raw: unknown) {
     return this.write('property', async (tx, s) => {
@@ -456,6 +509,28 @@ export class FoodService {
     );
     return endsAt;
   }
+  /** Правила брони филиала (§43); нет строки значит прежнее поведение */
+  private async bookingRules(db: Pick<DbTx, 'foodBookingRules'>, s: FoodScope) {
+    const row = await db.foodBookingRules.findUnique({ where: { locationId: s.locationId } });
+    return row
+      ? { bufferMinutes: row.bufferMinutes, horizonDays: row.horizonDays, maxPartySize: row.maxPartySize }
+      : DEFAULT_BOOKING_RULES;
+  }
+  /** Горизонт, закрытые дни и предел гостей (§43) по дате начала в поясе филиала */
+  private async checkRules(tx: DbTx, s: FoodScope, startsAt: Date, partySize: number) {
+    const day = foodLocal(startsAt, s.timezone).date;
+    const closed = await tx.foodClosedDay.findUnique({
+      where: { locationId_day: { locationId: s.locationId, day: new Date(`${day}T00:00:00Z`) } },
+    });
+    const violation = bookingRuleViolation({
+      day,
+      today: foodLocal(new Date(), s.timezone).date,
+      partySize,
+      rules: await this.bookingRules(tx, s),
+      closed: closed !== null,
+    });
+    if (violation) throw new ConflictException(violation);
+  }
   private async table(
     tx: DbTx,
     s: FoodScope,
@@ -469,6 +544,7 @@ export class FoodService {
     await tx.$queryRaw`SELECT id FROM dining_tables WHERE id=${id}::uuid FOR UPDATE`;
     if (!foodCapacity(r.partySize, table.capacity))
       throw new ConflictException('Недостаточная вместимость стола');
+    const buffer = (await this.bookingRules(tx, s)).bufferMinutes * 60_000;
     if (
       await tx.tableAssignment.findFirst({
         where: {
@@ -476,8 +552,9 @@ export class FoodService {
           reservation: {
             ...(r.id ? { id: { not: r.id } } : {}),
             status: { in: active },
-            startsAt: { lt: r.endsAt },
-            endsAt: { gt: r.startsAt },
+            // буфер между посадками (§43) расширяет занятость стола в обе стороны
+            startsAt: { lt: new Date(r.endsAt.getTime() + buffer) },
+            endsAt: { gt: new Date(r.startsAt.getTime() - buffer) },
           },
         },
       })
@@ -500,6 +577,7 @@ export class FoodService {
       }
       const startsAt = new Date(b.startsAt),
         endsAt = await this.period(tx, s, b.servicePeriodId, b.startsAt);
+      await this.checkRules(tx, s, startsAt, b.partySize);
       if (b.tableId)
         await this.table(tx, s, b.tableId, { startsAt, endsAt, partySize: b.partySize });
       let customerId = b.customerId;
@@ -601,6 +679,9 @@ export class FoodService {
       }));
       const startsAt = new Date(change.startsAt),
         endsAt = await this.period(tx, s, change.servicePeriodId, change.startsAt);
+      // правила только для новых времени и числа гостей: правка заметки старой брони им не подчиняется
+      if (startsAt.getTime() !== r.startsAt.getTime() || change.partySize !== r.partySize)
+        await this.checkRules(tx, s, startsAt, change.partySize);
       if (r.tableAssignment)
         await this.table(tx, s, r.tableAssignment.tableId, {
           id: r.id,

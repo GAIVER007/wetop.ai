@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 13.10.2026 17:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 25a8873 (claude/booking-rules), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-10-21Z-integration-5875.json' 'tests/integration/restaurant-cash-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (5 tests) 92ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  05:10:22
+   Duration  1.12s (transform 64%, tests 18%, import 17%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-10-21Z-integration-5875.json
+
+# код выхода 0 · 2 с

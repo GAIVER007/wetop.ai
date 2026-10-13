@@ -3,6 +3,7 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { loadFood } from '../food/load';
+import { foodApi } from '../../lib/food-api';
 import { RestaurantSettings, type SettingsSection } from '../food/settings-board';
 import '../food/food.css';
 import '../food/restaurant.css';
@@ -19,10 +20,11 @@ export default async function RestaurantSettingsPage({
   const current = SECTIONS.find((s) => s === section) ?? 'hours';
   try {
     const data = await loadFood();
+    const booking = current === 'bookings' ? await foodApi.bookingRules() : undefined;
     return (
       <Page title="Настройки ресторана">
         <div key={data.scopeKey}>
-          <RestaurantSettings data={data} section={current} />
+          <RestaurantSettings data={data} section={current} booking={booking} />
         </div>
       </Page>
     );

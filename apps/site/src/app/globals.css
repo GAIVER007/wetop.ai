@@ -2650,7 +2650,7 @@ button {
 }
 .dash-switch__button {
   min-height: 44px;
-  padding: 8px 18px;
+  padding: 8px 16px;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -3164,7 +3164,7 @@ button {
   align-items: center;
   gap: 8px;
   min-height: 44px;
-  padding: 8px 18px;
+  padding: 8px 16px;
   border: 1px solid var(--public-border);
   border-radius: 999px;
   background: var(--public-surface);

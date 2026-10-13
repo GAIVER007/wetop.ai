@@ -1,0 +1,19 @@
+# Модульные (unit) · 13.10.2026 13:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 31ed391 (claude/fix-food-daybar-390), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-58-38Z-unit-9ce4.json' 'apps/web/src/design-rules.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| scripts/design/dead-css.test.ts (2 tests) 15ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 141ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 345ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+
+ Test Files  4 passed (4)
+      Tests  52 passed (52)
+   Start at  01:58:40
+   Duration  539ms (tests 46%, import 36%, transform 16%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-58-38Z-unit-9ce4.json
+
+# код выхода 0 · 3 с

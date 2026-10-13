@@ -1,0 +1,21 @@
+# Модульные (unit) · 12.10.2026 16:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3188a7b (claude/ui-master-pass2), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T11-09-32Z-unit-3d0d.json' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/components'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 3ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 43ms
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 5ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 3ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 17ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (36 tests) 34ms
+
+ Test Files  6 passed (6)
+      Tests  98 passed (98)
+   Start at  04:09:33
+   Duration  708ms (transform 61%, import 32%, tests 6%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T11-09-32Z-unit-3d0d.json
+
+# код выхода 0 · 1 с

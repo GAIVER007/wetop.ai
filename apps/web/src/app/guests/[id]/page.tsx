@@ -9,7 +9,7 @@ import { deskShell } from '../../../lib/desk-shell';
 import { displayDate } from '../../../lib/display-date';
 import { formatMoney } from '../../../lib/money';
 import { pluralRu } from '../../../lib/plural';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { AmountChip } from '../../../components/amount-chip';
 import { EmptyState, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
@@ -358,7 +358,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
   return (
     <Page
       width="medium"
-      crumbs={<Link href="/guests">← гости</Link>}
+      crumbs={<BackCrumb href="/guests">Гости и бронирования</BackCrumb>}
       title={`${g.lastName} ${g.firstName} ${g.middleName ?? ''}`.trim()}
       actions={
         // «Только чтение» (ADR-102): действия, которых нельзя, не рисуются — как «Новая бронь» на «Бронях»

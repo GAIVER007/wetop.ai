@@ -1,0 +1,80 @@
+# Сквозные (e2e) · 12.10.2026 19:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит ec99ea7 (claude/profile-menu-spec), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/password-reset.spec.ts' 'tests/ui/system-screens.spec.ts' 'tests/ui/sales-hub.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 360ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1133ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/apps/site/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 26 tests using 1 worker
+
+  ✓   1 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (4.4s)
+  ✓   2 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (5.0s)
+  ✓   3 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (2.6s)
+  ✓   4 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (582ms)
+  ✓   5 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (700ms)
+  ✓   6 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (689ms)
+  ✓   7 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (670ms)
+  ✓   8 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (2.6s)
+  ✓   9 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (1.3s)
+  ✓  10 tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету (5.1s)
+  ✓  11 tests/ui/sales-hub.spec.ts:68:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули (5.6s)
+  ✓  12 tests/ui/sales-hub.spec.ts:88:1 › нет конкурентов: рекомендации зовут добавить, плитки не рисуют нули (2.6s)
+  ✓  13 tests/ui/sales-hub.spec.ts:97:1 › нет предложений: конверсия это знак пропуска, а не 0 % (1.8s)
+  ✓  14 tests/ui/sales-hub.spec.ts:107:1 › сводка не посчиталась: сказано словами, плитки броней и конкурентов это пропуск, карточки живы (1.3s)
+  ✓  15 tests/ui/sales-hub.spec.ts:120:1 › период: «7 дней» меняет адрес, неверные даты в адресе возвращают 30 дней (4.8s)
+  ✓  16 tests/ui/sales-hub.spec.ts:131:1 › расширение «ИИ-продавец» выключено: плитки диалогов это пропуск с причиной, карточка объясняет (2.4s)
+  ✓  17 tests/ui/sales-hub.spec.ts:144:1 › администратор смены открывает хаб (10.2s)
+  ✓  18 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: light, 1440px (5.7s)
+  ✓  19 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: light, 390px (7.1s)
+  ✓  20 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: dark, 1440px (5.3s)
+  ✓  21 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: dark, 390px (14.7s)
+  ✓  22 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (11.0s)
+  ✓  23 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (17.5s)
+  ✓  24 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (22.7s)
+  ✓  25 tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (34.5s)
+  ✘  26 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (54.1s)
+
+
+  1) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/invite/fixture-invite-token", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/system-screens.spec.ts:324:14
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+  25 passed (4.1m)
+
+# код выхода 1 · 4 мин 7 с

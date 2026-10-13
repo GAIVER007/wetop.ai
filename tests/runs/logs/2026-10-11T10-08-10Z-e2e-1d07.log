@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 11.10.2026 15:08 Алматы · MacBook-Air-Urij.local
+# коммит 0491010 (codex/ai-seller-wizard-scan-20261011), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/wizard-scan.config.ts'
+[WebServer] (node:3055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:3069) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/guest-wizard-scan.spec.ts:3:1 › site scan returns restaurant fields and preserves them on reload (3.0s)
+
+  1 passed (9.9s)
+
+# код выхода 0 · 12 с

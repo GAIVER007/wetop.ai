@@ -52,30 +52,7 @@
     }
   }
 
-  .seller-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    max-width: 100%;
-    padding: var(--space-1);
-    gap: var(--space-1);
-    background: var(--surface);
-    /* concentric corners: tab radius + container padding */
-    border-radius: calc(var(--radius-control) + var(--space-1));
-    scrollbar-width: thin;
-  }
-  .seller-tabs > a {
-    flex: none;
-    white-space: nowrap;
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--text-md);
-    min-height: 44px;
-    border-radius: var(--radius-control);
-  }
-  @media (max-width: 700px) {
-    .seller-tabs > a {
-      font-size: var(--text-sm);
-    }
-  } /* Метка состояния под заголовком: слово бейджем и строка рядом */
+ /* Метка состояния под заголовком: слово бейджем и строка рядом */
   .seller-state {
     display: inline-flex;
     flex-wrap: wrap;

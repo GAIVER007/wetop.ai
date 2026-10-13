@@ -176,7 +176,8 @@ describe('право вошедшего', () => {
 describe('«ИИ-агенты» (S0)', () => {
   it('пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела', () => {
     const item = navigationItems.find((i) => i.href === '/ai-agents');
-    expect(item?.label).toBe('ИИ-агенты');
+    // имя в реестре совпадает с пунктом меню и заголовком страницы (мастер-проход UI, этап 2)
+    expect(item?.label).toBe('ИИ-продавцы');
     expect(navigationItems.some((i) => i.href === '/ai-seller')).toBe(false);
   });
 

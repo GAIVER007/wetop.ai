@@ -1,0 +1,18 @@
+# Модульные (unit) · 12.10.2026 19:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4925fc3 (claude/ui-master-pass2)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-18-06Z-unit-bc82.json' 'tests/unit/test-journal-merge.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ✓ |unit| tests/unit/test-journal-merge.test.ts (3 tests) 2388ms
+   ✓ журнал из записей: test:status видит то же, что видел по общему файлу (2)
+     ✓ нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты 2092ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  07:18:11
+   Duration  3.03s (tests 81%, transform 15%, import 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-18-06Z-unit-bc82.json
+
+# код выхода 0 · 9 с

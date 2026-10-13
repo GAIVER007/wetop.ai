@@ -104,6 +104,10 @@ export interface AuthActionResult {
   error: string | null;
 }
 
+export interface VerifyEmailResult extends AuthActionResult {
+  destination?: string;
+}
+
 /** Текст для человека: своё сообщение API — как есть, сбой связи — одной фразой. */
 function errorText(e: unknown): string {
   if (e instanceof ApiError) return e.message;
@@ -143,7 +147,7 @@ export async function registerAction(input: {
  * Подтверждение почты по ссылке из письма: API проверяет ссылку и сразу отдаёт сессию — пароль
  * человек назвал при регистрации, спрашивать его второй раз незачем.
  */
-export async function verifyEmailAction(token: string): Promise<AuthActionResult> {
+export async function verifyEmailAction(token: string): Promise<VerifyEmailResult> {
   let pilot: boolean;
   let scoped: boolean;
   try {
@@ -162,7 +166,10 @@ export async function verifyEmailAction(token: string): Promise<AuthActionResult
   // `/scope/resolve` (SCOPE-HARDENING: «сюда ведут все входы»). Прямой `/today` без указателя
   // обрывался на полпути: страница успевала отдать каркас до серверного redirect, и человек
   // оставался на `/today` без филиала (login-access, 09.10.2026).
-  redirect(pilot ? '/register/complete' : scoped ? '/today' : scopeResolvePath('/today'));
+  return {
+    error: null,
+    destination: pilot ? '/register/complete' : scoped ? '/today' : scopeResolvePath('/today'),
+  };
 }
 
 export interface ResendState {

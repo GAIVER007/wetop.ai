@@ -22,6 +22,10 @@ export function VerifyPanel({ token }: { token: string }) {
   const confirm = () =>
     start(async () => {
       const result = await verifyEmailAction(token);
+      if (result.destination) {
+        window.location.replace(result.destination);
+        return;
+      }
       setError(result.error);
     });
 

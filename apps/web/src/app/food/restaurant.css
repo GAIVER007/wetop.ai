@@ -970,6 +970,25 @@
       flex-basis: 100%;
     }
   }
+  /* Правила брони столов (§43): форма и список закрытых дней */
+  .rest-booking-rules {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+  .rest-closed-days {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rest-closed-days li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    align-items: center;
+  }
   .rest-fp__canvas {
     display: grid;
     gap: var(--space-4);

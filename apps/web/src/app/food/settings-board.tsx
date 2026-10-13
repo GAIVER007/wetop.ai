@@ -2,9 +2,11 @@
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Alert, Field, Input, Select } from '../../components/ui';
+import { Alert, Button, Field, Input, Select } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
 import type { FoodWorkspace, ServicePeriod } from '../../lib/food-types';
+import type { BookingRules } from '@pms/domain';
+import { saveBookingRules, type BookingRulesCommand } from './actions';
 import { saveFoodCatalog } from './actions';
 
 export type SettingsSection = 'hours' | 'bookings' | 'notifications';
@@ -40,12 +42,20 @@ const minutes = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5)
  * строка дня правит первый период дня, выключатель включает или выключает его; включение дня без
  * периода создаёт период «Весь день» 10:00–23:00. Конец раньше начала значит работу после полуночи.
  */
+/** Правила брони и будущие закрытые дни (§43); грузятся только для раздела «Бронирования» */
+export interface BookingSettings {
+  rules: BookingRules;
+  closedDays: Array<{ id: string; day: string; reason: string | null }>;
+}
+
 export function RestaurantSettings({
   data,
   section,
+  booking,
 }: {
   data: FoodWorkspace;
   section: SettingsSection;
+  booking?: BookingSettings | undefined;
 }) {
   const write = data.canProperty && !data.readOnly;
   return (
@@ -72,6 +82,7 @@ export function RestaurantSettings({
       <section className="rest-settings__body" aria-labelledby="rest-settings-title">
         {section === 'hours' && <Hours data={data} write={write} />}
         {section === 'bookings' && <Bookings data={data} write={write} />}
+        {section === 'bookings' && booking && <BookingRulesForm data={data} write={write} booking={booking} />}
         {section === 'notifications' && (
           <>
             <h2 id="rest-settings-title">Уведомления</h2>
@@ -247,3 +258,136 @@ function Bookings({ data, write }: { data: FoodWorkspace; write: boolean }) {
     </>
   );
 }
+
+const BUFFERS = [0, 10, 15, 20, 30, 45, 60];
+const optionalNumber = (raw: FormDataEntryValue | null) => (String(raw ?? '').trim() ? Number(raw) : null);
+
+/** Правила брони столов (§43, ADR-177): буфер, горизонт, предел гостей и закрытые дни */
+function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write: boolean; booking: BookingSettings }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [error, setError] = useState('');
+  const [saved, setSaved] = useState('');
+  function run(command: BookingRulesCommand, done: string) {
+    setError('');
+    setSaved('');
+    start(async () => {
+      const r = await saveBookingRules(data.scopeKey, command);
+      if (r.error) return setError(r.error);
+      setSaved(done);
+      router.refresh();
+    });
+  }
+  return (
+    <section className="rest-booking-rules" aria-labelledby="rest-booking-rules-title" data-testid="booking-rules">
+      <h3 id="rest-booking-rules-title">Правила брони</h3>
+      {error && <Alert>{error}</Alert>}
+      {saved && <p role="status">{saved}</p>}
+      <form
+        className="food-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const f = new FormData(e.currentTarget);
+          run(
+            {
+              kind: 'rules',
+              rules: {
+                bufferMinutes: Number(f.get('buffer')),
+                horizonDays: optionalNumber(f.get('horizon')),
+                maxPartySize: optionalNumber(f.get('party')),
+              },
+            },
+            'Правила сохранены',
+          );
+        }}
+      >
+        <Field label="Перерыв между посадками за одним столом">
+          <Select name="buffer" defaultValue={booking.rules.bufferMinutes} disabled={!write || pending}>
+            {[...new Set([...BUFFERS, booking.rules.bufferMinutes])]
+              .sort((a, b) => a - b)
+              .map((m) => (
+                <option key={m} value={m}>
+                  {m ? `${m} мин` : 'Без перерыва'}
+                </option>
+              ))}
+          </Select>
+        </Field>
+        <Field label="Бронировать вперёд не больше, дней" hint="Пусто: без ограничения" controlId="rest-rules-horizon">
+          <Input
+            name="horizon"
+            type="number"
+            min={1}
+            max={730}
+            defaultValue={booking.rules.horizonDays ?? ''}
+            disabled={!write || pending}
+          />
+        </Field>
+        <Field label="Гостей в одной брони не больше" hint="Пусто: по вместимости стола" controlId="rest-rules-party">
+          <Input
+            name="party"
+            type="number"
+            min={1}
+            max={500}
+            defaultValue={booking.rules.maxPartySize ?? ''}
+            disabled={!write || pending}
+          />
+        </Field>
+        {write && (
+          <Button type="submit" disabled={pending}>
+            Сохранить правила
+          </Button>
+        )}
+      </form>
+      <h3>Закрытые дни</h3>
+      <p className="muted">В закрытый день новые брони не принимаются; уже сделанные остаются, отменяет их человек.</p>
+      {booking.closedDays.length === 0 ? (
+        <p className="muted">Закрытых дней впереди нет.</p>
+      ) : (
+        <ul className="rest-closed-days">
+          {booking.closedDays.map((d) => (
+            <li key={d.id}>
+              <time dateTime={d.day}>{d.day.split('-').reverse().join('.')}</time>
+              {d.reason && <span className="muted">{d.reason}</span>}
+              {write && (
+                <Button
+                  size="sm"
+                  tone="secondary"
+                  disabled={pending}
+                  aria-label={`Открыть день ${d.day.split('-').reverse().join('.')}`}
+                  onClick={() => run({ kind: 'open', id: d.id }, 'День снова открыт для броней')}
+                >
+                  Открыть
+                </Button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {write && (
+        <form
+          className="food-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const f = new FormData(e.currentTarget);
+            run(
+              { kind: 'close', day: String(f.get('day')), reason: String(f.get('reason') ?? '').trim() || null },
+              'День закрыт для броней',
+            );
+            e.currentTarget.reset();
+          }}
+        >
+          <Field label="Закрыть день">
+            <Input name="day" type="date" required disabled={pending} />
+          </Field>
+          <Field label="Причина">
+            <Input name="reason" maxLength={200} disabled={pending} />
+          </Field>
+          <Button type="submit" tone="secondary" disabled={pending}>
+            Закрыть день
+          </Button>
+        </form>
+      )}
+    </section>
+  );
+}
+

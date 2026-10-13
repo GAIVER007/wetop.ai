@@ -1,0 +1,338 @@
+# Интеграционные (integration) · 13.10.2026 17:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4335d2f (claude/bar-location-model), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-47-36Z-integration-22df.json' 'tests/integration/bar-ownership.test.ts' 'tests/integration/bar-property-guard.test.ts' 'tests/integration/bar-populated-rls.test.ts' 'tests/integration/bar-external-parent-ownership.test.ts' 'tests/integration/bar-parent-concurrency.test.ts' 'tests/integration/bar-overview.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 1122ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 533ms
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ❯ |integration| tests/integration/bar-populated-rls.test.ts (24 tests | 4 failed) 226ms
+   ❯ BAR populated tenant visibility and SQL ownership boundary (24)
+     ✓ bar_categories: own=1, foreign=0; unset/empty=0; service=2 45ms
+     ✓ bar_products: own=1, foreign=0; unset/empty=0; service=2 15ms
+     ✓ bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2 14ms
+     ✓ bar_receipts: own=1, foreign=0; unset/empty=0; service=2 13ms
+     ✓ bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2 14ms
+     ✓ bar_sales: own=1, foreign=0; unset/empty=0; service=2 12ms
+     ✓ bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2 11ms
+     ✓ bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2 12ms
+     ✓ bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2 13ms
+     ✓ bar_suppliers: own=1, foreign=0; unset/empty=0; service=2 12ms
+     ✓ all ten tables FORCE RLS; service has BYPASSRLS; app has no bypass 3ms
+     × bar_products: app A cannot create a row in property B 7ms
+     × bar_suppliers: app A cannot create a row in property B 4ms
+     × bar_receipts: app A cannot create a row in property B 3ms
+     × bar_sales: app A cannot create a row in property B 3ms
+     ✓ ownership denies receipt line foreign product 5ms
+     ✓ ownership denies lot foreign product 5ms
+     ✓ ownership denies movement foreign product 3ms
+     ✓ ownership denies movement foreign lot 3ms
+     ✓ ownership denies supplier payment foreign receipt 4ms
+     ✓ ownership denies supplier payment foreign cash 4ms
+     ✓ ownership denies sale line foreign product 5ms
+     ✓ ownership denies lot property A referencing a new receipt line in B 4ms
+     ✓ ownership denies direct INSERT of own receipt line with foreign product 4ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (29 tests) 198ms
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (200 tests) 2411ms
+ ❯ |integration| tests/integration/bar-ownership.test.ts (105 tests | 14 failed) 594ms
+   ❯ BAR ownership: invoker guards apply to app and BYPASSRLS service (105)
+     ✓ new guards are invokers with exact owning-schema/public/pg_temp pinned paths 3ms
+     ✓ wetop_app INSERT denies receipt line foreign product 17ms
+     ✓ wetop_app INSERT denies receipt line foreign receipt 9ms
+     ✓ wetop_app INSERT denies lot foreign product 8ms
+     ✓ wetop_app INSERT denies lot foreign receipt line 7ms
+     ✓ wetop_app INSERT denies lot same-property wrong product 7ms
+     ✓ wetop_app INSERT denies lot same-property wrong receipt-line pr… 11ms
+     ✓ wetop_app INSERT denies movement foreign product 6ms
+     ✓ wetop_app INSERT denies movement foreign lot 6ms
+     ✓ wetop_app INSERT denies movement same-property wrong lot product 5ms
+     ✓ wetop_app INSERT denies movement same-property wrong product 5ms
+     ✓ wetop_app INSERT denies sale line foreign product 6ms
+     ✓ wetop_app INSERT denies sale line foreign sale 5ms
+     ✓ wetop_app INSERT denies payment foreign receipt 6ms
+     ✓ wetop_app INSERT denies payment foreign unused cash 5ms
+     ✓ wetop_app INSERT denies sale foreign folio 5ms
+     ✓ wetop_app INSERT denies sale foreign unused cash 5ms
+     ✓ wetop_app INSERT denies sale foreign charge without folio 5ms
+     ✓ wetop_app INSERT denies sale charge mismatches own folio 6ms
+     ✓ wetop_app UPDATE denies receipt line foreign product 6ms
+     ✓ wetop_app UPDATE denies receipt line foreign receipt 6ms
+     ✓ wetop_app UPDATE denies lot foreign product 6ms
+     ✓ wetop_app UPDATE denies lot foreign receipt line 6ms
+     ✓ wetop_app UPDATE denies lot same-property wrong product 6ms
+     ✓ wetop_app UPDATE denies lot same-property wrong receipt-line pr… 6ms
+     ✓ wetop_app UPDATE denies movement foreign product 5ms
+     ✓ wetop_app UPDATE denies movement foreign lot 5ms
+     ✓ wetop_app UPDATE denies movement same-property wrong lot product 5ms
+     ✓ wetop_app UPDATE denies movement same-property wrong product 5ms
+     ✓ wetop_app UPDATE denies sale line foreign product 6ms
+     ✓ wetop_app UPDATE denies sale line foreign sale 6ms
+     ✓ wetop_app UPDATE denies payment foreign receipt 6ms
+     ✓ wetop_app UPDATE denies payment foreign unused cash 6ms
+     ✓ wetop_app UPDATE denies sale foreign folio 5ms
+     ✓ wetop_app UPDATE denies sale foreign unused cash 5ms
+     ✓ wetop_app UPDATE denies sale foreign charge without folio 5ms
+     ✓ wetop_app UPDATE denies sale charge mismatches own folio 6ms
+     × wetop_app denies reassignment of bar_categories to another visible Property 8ms
+     × wetop_app denies reassignment of bar_products to another visible Property 6ms
+     × wetop_app denies reassignment of bar_suppliers to another visible Property 5ms
+     × wetop_app denies reassignment of bar_receipts to another visible Property 5ms
+     × wetop_app denies reassignment of bar_stock_lots to another visible Property 5ms
+     × wetop_app denies reassignment of bar_stock_movements to another visible Property 5ms
+     × wetop_app denies reassignment of bar_sales to another visible Property 5ms
+     ✓ wetop_app: bar_receipt_lines own INSERT and actual relation UPDATE succeeds 9ms
+     ✓ wetop_app: bar_stock_lots own INSERT and actual relation UPDATE succeeds 7ms
+     ✓ wetop_app: bar_stock_movements own INSERT and actual relation UPDATE succeeds 7ms
+     ✓ wetop_app: bar_sale_lines own INSERT and actual relation UPDATE succeeds 7ms
+     ✓ wetop_app: bar_supplier_payments own INSERT and actual relation UPDATE succeeds 7ms
+     ✓ wetop_app: bar_sales own INSERT and actual relation UPDATE succeeds 10ms
+     ✓ wetop_app: own category/supplier changes and property no-op updates succeed 10ms
+     ✓ wetop_app: receipt line product edit cannot invalidate an existing lot 6ms
+     ✓ wetop_app: lot product edit cannot invalidate an existing movement 6ms
+     ✓ wetop_service INSERT denies receipt line foreign product 5ms
+     ✓ wetop_service INSERT denies receipt line foreign receipt 5ms
+     ✓ wetop_service INSERT denies lot foreign product 5ms
+     ✓ wetop_service INSERT denies lot foreign receipt line 5ms
+     ✓ wetop_service INSERT denies lot same-property wrong product 5ms
+     ✓ wetop_service INSERT denies lot same-property wrong receipt-line pr… 5ms
+     ✓ wetop_service INSERT denies movement foreign product 5ms
+     ✓ wetop_service INSERT denies movement foreign lot 5ms
+     ✓ wetop_service INSERT denies movement same-property wrong lot product 5ms
+     ✓ wetop_service INSERT denies movement same-property wrong product 5ms
+     ✓ wetop_service INSERT denies sale line foreign product 4ms
+     ✓ wetop_service INSERT denies sale line foreign sale 4ms
+     ✓ wetop_service INSERT denies payment foreign receipt 5ms
+     ✓ wetop_service INSERT denies payment foreign unused cash 5ms
+     ✓ wetop_service INSERT denies sale foreign folio 5ms
+     ✓ wetop_service INSERT denies sale foreign unused cash 5ms
+     ✓ wetop_service INSERT denies sale foreign charge without folio 5ms
+     ✓ wetop_service INSERT denies sale charge mismatches own folio 5ms
+     ✓ wetop_service UPDATE denies receipt line foreign product 5ms
+     ✓ wetop_service UPDATE denies receipt line foreign receipt 5ms
+     ✓ wetop_service UPDATE denies lot foreign product 5ms
+     ✓ wetop_service UPDATE denies lot foreign receipt line 5ms
+     ✓ wetop_service UPDATE denies lot same-property wrong product 5ms
+     ✓ wetop_service UPDATE denies lot same-property wrong receipt-line pr… 5ms
+     ✓ wetop_service UPDATE denies movement foreign product 5ms
+     ✓ wetop_service UPDATE denies movement foreign lot 5ms
+     ✓ wetop_service UPDATE denies movement same-property wrong lot product 6ms
+     ✓ wetop_service UPDATE denies movement same-property wrong product 5ms
+     ✓ wetop_service UPDATE denies sale line foreign product 5ms
+     ✓ wetop_service UPDATE denies sale line foreign sale 4ms
+     ✓ wetop_service UPDATE denies payment foreign receipt 5ms
+     ✓ wetop_service UPDATE denies payment foreign unused cash 5ms
+     ✓ wetop_service UPDATE denies sale foreign folio 4ms
+     ✓ wetop_service UPDATE denies sale foreign unused cash 5ms
+     ✓ wetop_service UPDATE denies sale foreign charge without folio 5ms
+     ✓ wetop_service UPDATE denies sale charge mismatches own folio 5ms
+     × wetop_service denies reassignment of bar_categories to another visible Property 5ms
+     × wetop_service denies reassignment of bar_products to another visible Property 5ms
+     × wetop_service denies reassignment of bar_suppliers to another visible Property 5ms
+     × wetop_service denies reassignment of bar_receipts to another visible Property 5ms
+     × wetop_service denies reassignment of bar_stock_lots to another visible Property 5ms
+     × wetop_service denies reassignment of bar_stock_movements to another visible Property 5ms
+     × wetop_service denies reassignment of bar_sales to another visible Property 5ms
+     ✓ wetop_service: bar_receipt_lines own INSERT and actual relation UPDATE succeeds 5ms
+     ✓ wetop_service: bar_stock_lots own INSERT and actual relation UPDATE succeeds 5ms
+     ✓ wetop_service: bar_stock_movements own INSERT and actual relation UPDATE succeeds 5ms
+     ✓ wetop_service: bar_sale_lines own INSERT and actual relation UPDATE succeeds 5ms
+     ✓ wetop_service: bar_supplier_payments own INSERT and actual relation UPDATE succeeds 5ms
+     ✓ wetop_service: bar_sales own INSERT and actual relation UPDATE succeeds 5ms
+     ✓ wetop_service: own category/supplier changes and property no-op updates succeed 5ms
+     ✓ wetop_service: receipt line product edit cannot invalidate an existing lot 5ms
+     ✓ wetop_service: lot product edit cannot invalidate an existing movement 5ms
+ ❯ |integration| tests/integration/bar-property-guard.test.ts (12 tests | 2 failed) 30ms
+   ❯ BAR property guard: table-specific trigger dispatch (12)
+     ✓ product with own category succeeds without reading supplier_id 6ms
+     ✓ product with null category succeeds 2ms
+     ✓ product rejects foreign category 2ms
+     ✓ product rejects nonexistent category 1ms
+     × product property update rejects previously own category 4ms
+     ✓ receipt with own supplier succeeds without reading category_id 2ms
+     ✓ receipt rejects foreign supplier 1ms
+     ✓ receipt rejects nonexistent supplier 1ms
+     ✓ receipt rejects null supplier 1ms
+     × receipt property update rejects previously own supplier 3ms
+     ✓ unknown table fails closed even with neither row-specific field 2ms
+     ✓ search_path is pinned to owning schema, public, pg_temp 1ms
+ ❯ |integration| tests/integration/bar-overview.test.ts (1 test | 1 failed) 84ms
+   ❯ бар: данные обзора на базе (1)
+     × последний проведённый приход даёт поставщика, закупку и дату; черновик их не меняет 81ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 21 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-overview.test.ts > бар: данные обзора на базе > последний проведённый приход даёт поставщика, закупку и дату; черновик их не меняет
+PrismaClientValidationError: 
+Invalid `prisma.barSupplier.create()` invocation:
+
+{
+  data: {
+    propertyId: "23c1accc-f0b2-4ce1-bee1-968682826393",
+    name: "Обзор 0dbfced5 первый",
+    phone: null,
+    email: null,
+    details: null,
++   location: {
++     create: LocationCreateWithoutBarSuppliersInput | LocationUncheckedCreateWithoutBarSuppliersInput,
++     connectOrCreate: LocationCreateOrConnectWithoutBarSuppliersInput,
++     connect: LocationWhereUniqueInput
++   }
+  }
+}
+
+Argument `location` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ PrismaBarRepository.createSupplier apps/api/src/bar/bar.repository.ts:156:17
+    154|   async createSupplier(input: BarSupplierInput) {
+    155|     const propertyId = await this.propertyId();
+    156|     const row = await (this.prisma.db as any).barSupplier.create({ dat…
+       |                 ^
+    157|     await this.prisma.db.auditLog.create({ data: { userId: auditUserId…
+    158|     return row;
+ ❯ tests/integration/bar-overview.test.ts:23:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_categories to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_products to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_suppliers to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_receipts to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_stock_lots to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_stock_movements to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_sales to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_categories to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_products to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_suppliers to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_receipts to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_stock_lots to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_stock_movements to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_sales to another visible Property
+AssertionError: expected [Function] to throw error matching /BAR .*ownership|BAR property_id is i…/i but got 'BAR property belongs to another locat…'
+
+- Expected:
+/BAR .*ownership|BAR property_id is immutable|row-level security/i
+
++ Received:
+"BAR property belongs to another location"
+
+ ❯ tests/integration/bar-ownership.test.ts:219:51
+    217|           }
+    218|           await proof.asRole(role, a.org, async () => {
+    219|             await expect(update(table, id, patch)).rejects.toThrow(den…
+       |                                                   ^
+    220|           });
+    221|         });
+ ❯ Object.asRole tests/tools/bar-proof-fixture.ts:341:20
+ ❯ tests/integration/bar-ownership.test.ts:218:11
+ ❯ Object.fixture tests/tools/bar-proof-fixture.ts:327:7
+ ❯ tests/integration/bar-ownership.test.ts:200:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: app A cannot create a row in property B
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: app A cannot create a row in property B
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: app A cannot create a row in property B
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: app A cannot create a row in property B
+AssertionError: expected [Function] to throw error matching /row-level security|Supplier belongs t…/ but got 'BAR property has no location'
+
+- Expected:
+/row-level security|Supplier belongs to another property/
+
++ Received:
+"BAR property has no location"
+
+ ❯ tests/integration/bar-populated-rls.test.ts:289:50
+    287|           const sql = `INSERT INTO ${table} (${columns[table]}) VALUES…
+    288|           // Receipt's invoker guard cannot see B's supplier and may d…
+    289|           await expect(client.query(sql, params)).rejects.toThrow(
+       |                                                  ^
+    290|             /row-level security|Supplier belongs to another property/,
+    291|           );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:268:9
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:267:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > product property update rejects previously own category
+AssertionError: expected [Function] to throw error including 'Category belongs to another property' but got 'BAR property belongs to another locat…'
+
+Expected: "Category belongs to another property"
+Received: "BAR property belongs to another location"
+
+ ❯ tests/integration/bar-property-guard.test.ts:107:8
+    105|       await expect(
+    106|         client.query('UPDATE bar_products SET property_id=$1 WHERE id=…
+    107|       ).rejects.toThrow('Category belongs to another property');
+       |        ^
+    108|     });
+    109|   });
+ ❯ fixture tests/integration/bar-property-guard.test.ts:24:7
+ ❯ tests/integration/bar-property-guard.test.ts:103:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt property update rejects previously own supplier
+AssertionError: expected [Function] to throw error including 'Supplier belongs to another property' but got 'BAR property belongs to another locat…'
+
+Expected: "Supplier belongs to another property"
+Received: "BAR property belongs to another location"
+
+ ❯ tests/integration/bar-property-guard.test.ts:142:8
+    140|       await expect(
+    141|         client.query('UPDATE bar_receipts SET property_id=$1 WHERE id=…
+    142|       ).rejects.toThrow('Supplier belongs to another property');
+       |        ^
+    143|     });
+    144|   });
+ ❯ fixture tests/integration/bar-property-guard.test.ts:24:7
+ ❯ tests/integration/bar-property-guard.test.ts:138:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+
+ Test Files  4 failed | 3 passed (7)
+      Tests  21 failed | 356 passed (377)
+   Start at  05:47:37
+   Duration  6.69s (tests 81%, import 12%, transform 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-47-36Z-integration-22df.json
+
+# код выхода 1 · 8 с

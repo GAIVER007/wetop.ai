@@ -1,0 +1,45 @@
+# Сквозные (e2e) · 13.10.2026 17:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 25a8873 (claude/booking-rules), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'экран настроек'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/food-ui/food.spec.ts:349:1 › правила брони: экран настроек сохраняет правила, закрывает и открывает день (16.9s)
+
+
+  1) tests/food-ui/food.spec.ts:349:1 › правила брони: экран настроек сохраняет правила, закрывает и открывает день 
+
+    TimeoutError: locator.selectOption: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByTestId('booking-rules').getByLabel('Перерыв между посадками за одним столом')
+
+
+      351 |   await page.goto('/restaurant-settings?section=bookings');
+      352 |   const rules = page.getByTestId('booking-rules');
+    > 353 |   await rules.getByLabel('Перерыв между посадками за одним столом').selectOption('30');
+          |                                                                     ^
+      354 |   await rules.getByLabel('Гостей в одной брони не больше').fill('6');
+      355 |   await rules.getByRole('button', { name: 'Сохранить правила' }).click();
+      356 |   await expect(rules.getByRole('status')).toContainText('Правила сохранены');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/food.spec.ts:353:69
+
+    Error Context: test-results/food-правила-брони-экран-н-f4049--закрывает-и-открывает-день/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-правила-брони-экран-н-f4049--закрывает-и-открывает-день/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-правила-брони-экран-н-f4049--закрывает-и-открывает-день/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:349:1 › правила брони: экран настроек сохраняет правила, закрывает и открывает день 
+
+# код выхода 1 · 24 с

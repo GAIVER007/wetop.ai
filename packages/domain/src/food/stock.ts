@@ -116,7 +116,7 @@ function stockUnit(v: unknown): IngredientUnit {
     throw new Error('Единица: г, мл или шт');
   return v as IngredientUnit;
 }
-function stockDate(v: unknown): string {
+export function stockDate(v: unknown): string {
   const d = foodText(v, 10);
   if (
     !/^\d{4}-\d{2}-\d{2}$/.test(d) ||

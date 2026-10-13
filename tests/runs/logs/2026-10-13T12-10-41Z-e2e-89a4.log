@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 13.10.2026 17:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 25a8873 (claude/booking-rules), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'правила брони'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:78206) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/food-ui/food.spec.ts:283:1 › правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется (930ms)
+
+
+  1) tests/food-ui/food.spec.ts:283:1 › правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 409
+    Received: 201
+
+      311 |   const refused = async (r: Promise<import('@playwright/test').APIResponse>, text: string) => {
+      312 |     const response = await r;
+    > 313 |     expect(response.status()).toBe(409);
+          |                               ^
+      314 |     expect((await response.json()).message).toContain(text);
+      315 |   };
+      316 |   await refused(res(`${date}T21:00:00+05:00`), 'занят');
+        at refused (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/food.spec.ts:313:31)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/food.spec.ts:316:3
+
+    Error Context: test-results/food-правила-брони-Q-REST--1e269-а-заметки-им-не-подчиняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-правила-брони-Q-REST--1e269-а-заметки-им-не-подчиняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-правила-брони-Q-REST--1e269-а-заметки-им-не-подчиняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:283:1 › правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется 
+
+# код выхода 1 · 8 с

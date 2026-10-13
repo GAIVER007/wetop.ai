@@ -34,6 +34,9 @@
   font-size: var(--text-lg);
   font-weight: 700;
   text-transform: capitalize;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 .calendar :global(.board-period-icon),
 .calendar :global(.board-period-caret) {

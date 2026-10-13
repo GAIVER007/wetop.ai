@@ -137,7 +137,9 @@ for (const theme of ['light', 'dark'] as const) {
     const preview = page.getByTestId('stay-preview');
     await expect(preview).toBeVisible();
     expect((await preview.boundingBox())!.width).toBeGreaterThan(360);
-    await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toBeVisible();
+    await expect(
+      preview.getByRole('link', { name: 'Редактировать бронь', exact: true }),
+    ).toBeVisible();
     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-390-preview.png` });
     await preview.getByRole('button', { name: 'Закрыть предпросмотр', exact: true }).tap();
     await page.getByLabel('Поиск в календаре').fill('');
@@ -193,7 +195,15 @@ for (const width of [360, 390, 430]) {
     await page.goto('/chessboard');
     const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
     await expect(stats).toBeVisible();
-    for (const id of ['arrivals', 'departures', 'free', 'occupied', 'occupancy', 'dirty', 'attention']) {
+    for (const id of [
+      'arrivals',
+      'departures',
+      'free',
+      'occupied',
+      'occupancy',
+      'dirty',
+      'attention',
+    ]) {
       await expect(stats.getByTestId(`day-${id}`)).toBeVisible();
     }
     const day = await (
@@ -255,6 +265,7 @@ test('календарь возвращает обе позиции после �
   await page.goBack();
   await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeCloseTo(position.x, 0);
   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBeCloseTo(position.y, 0);
+  await page.getByTestId('board-period-button').click();
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect
     .poll(() =>
@@ -316,7 +327,9 @@ for (const theme of ['light', 'dark'] as const) {
     await page.locator('[data-unit-code="R07"] .board__stay').first().click();
     const preview = page.getByTestId('stay-preview');
     await expect(preview.getByTestId('preview-dates')).toContainText('28 ночей');
-    await expect(preview.getByRole('link', { name: 'Редактировать бронь', exact: true })).toBeVisible();
+    await expect(
+      preview.getByRole('link', { name: 'Редактировать бронь', exact: true }),
+    ).toBeVisible();
     expect(await preview.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
     const guest = preview.getByTestId('preview-guest');
     expect((await guest.boundingBox())!.width).toBeLessThan(320);

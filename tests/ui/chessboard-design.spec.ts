@@ -30,7 +30,9 @@ test('статусы шахматки понятны без открытия и�
   await expect(page.getByTestId('board-legend')).toBeVisible();
   await expect(page.getByTestId('board-legend')).toContainText('подтверждена');
   await expect(page.getByTestId('board-legend')).toContainText('проживает');
-  // «Сегодня» стоит в полосе календаря (образец владельца 09.10.2026), и он ровно один
+  // Основная строка компактна, переход к сегодняшней дате внутри меню месяца.
+  await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toBeHidden();
+  await page.getByTestId('board-period-button').click();
   await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveCount(1);
 });
 

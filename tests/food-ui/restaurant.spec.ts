@@ -337,6 +337,11 @@ test('бронирования: шкала по столам, бронь пол�
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новая бронь' })).toBeVisible();
   await expect(dialog.locator('select[name="tableId"]')).toHaveValue(table.id);
+  // полоса шагов макета (экран 4): «Основное» заполнено датой, временем и периодом, «Стол» выбран кликом
+  const steps = dialog.getByRole('list', { name: 'Шаги брони' });
+  await expect(steps.getByRole('listitem').nth(0)).toHaveAttribute('data-done', 'true');
+  await expect(steps.getByRole('listitem').nth(2)).toHaveAttribute('data-done', 'true');
+  await expect(steps.getByRole('listitem').nth(1)).toHaveAttribute('aria-current', 'step');
   // подбор столов по макету (экран 4): на 19:00 стол 7 занят бронью Ольги, свободных нет
   await dialog.getByLabel('Время', { exact: true }).fill('19:00');
   await expect(dialog.getByRole('heading', { name: 'Доступные столы (0)' })).toBeVisible();

@@ -22,6 +22,7 @@ import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
 import { weekPeriod } from './week-period';
 import './board.css';
+import design from './calendar-design.module.css';
 import { hospitalityStatus } from '../../lib/status/hospitality';
 import { housekeepingStatus } from '../../lib/status/housekeeping';
 import { statusText } from '../../lib/status/types';
@@ -209,8 +210,7 @@ export default async function ChessboardPage({
 
   const lead = (
     <div className="board-nav" role="group" aria-label="Период календаря">
-      <BoardTodayLink />
-      <span className="board-nav-arrows">
+      <div className="board-nav-arrows">
         <Link
           href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
           className="icon-button"
@@ -220,6 +220,37 @@ export default async function ChessboardPage({
         >
           <Icon name="chevron" className="rotate-left" />
         </Link>
+        <BoardMenu
+          resetKey={`${board.from}-${board.to}`}
+          className="board-period-menu"
+          testId="board-period-button"
+          title={periodLabel}
+          summary={
+            <>
+              <Icon name="board" className="board-period-icon" />
+              <span className="board-period-label">
+                {isMonth
+                  ? new Intl.DateTimeFormat('ru-RU', {
+                      month: 'long',
+                      year: 'numeric',
+                      timeZone: 'UTC',
+                    }).format(new Date(`${from}T00:00:00Z`))
+                  : rangeTitle}
+              </span>
+              <Icon name="chevron" className="board-period-caret" />
+            </>
+          }
+        >
+          <div className="board-period-pop">
+            <form method="get" className="board-period-form">
+              <PeriodPicker from={board.from} to={board.to} fromName="from" toName="to" />
+              <Button tone="secondary" type="submit">
+                Применить
+              </Button>
+            </form>
+          </div>
+        </BoardMenu>
+
         <Link
           href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
           className="icon-button"
@@ -229,67 +260,47 @@ export default async function ChessboardPage({
         >
           <Icon name="chevron" />
         </Link>
-      </span>
+      </div>
       {/* Образец владельца 09.10.2026: «Октябрь 2026 ▾» раскрывает выбор дат («С» / «По»); ключ по
           периоду: после перехода раскрывашка закрыта, поля несут новые даты. */}
-      <BoardMenu
-        resetKey={`${board.from}-${board.to}`}
-        className="board-period-menu"
-        testId="board-period-button"
-        title={periodLabel}
-        summary={
-          <>
-            <Icon name="board" className="board-period-icon" />
-            <span className="board-period-label">{rangeTitle}</span>
-            <Icon name="chevron" className="board-period-caret" />
-          </>
-        }
-      >
-        <div className="board-period-pop">
-          <form method="get" className="board-period-form">
-            <PeriodPicker from={board.from} to={board.to} fromName="from" toName="to" />
-            <Button tone="secondary" type="submit">
-              Применить
-            </Button>
-          </form>
-        </div>
-      </BoardMenu>
-      <nav className="seg board-scale" aria-label="Масштаб календаря">
-        <Link
-          href={dayHref}
-          className={cx(isDay && 'is-on')}
-          aria-current={isDay ? 'page' : undefined}
-        >
-          День
-        </Link>
-        <Link
-          href={weekHref()}
-          className={cx(isWeek && 'is-on')}
-          aria-current={isWeek ? 'page' : undefined}
-        >
-          Неделя
-        </Link>
-        <Link
-          href={monthHref()}
-          className={cx(isMonth && 'is-on')}
-          aria-current={isMonth ? 'page' : undefined}
-        >
-          Месяц
-        </Link>
-      </nav>
+
       {/* Длина окна: 7 дней, календарная неделя, 14 и 30, от сегодня (ТЗ «Шахматка v2» §6–7).
           «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
       <BoardMenu
         resetKey={`${board.from}-${board.to}`}
         className="board-length-menu"
         testId="board-length-button"
+        title={lengthLabel}
         summary={
           <>
-            <span>{lengthLabel}</span>
+            <span>Вид</span>
             <Icon name="chevron" className="board-period-caret" />
           </>
         }
       >
+        <nav className="seg board-scale" aria-label="Масштаб календаря">
+          <Link
+            href={dayHref}
+            className={cx(isDay && 'is-on')}
+            aria-current={isDay ? 'page' : undefined}
+          >
+            День
+          </Link>
+          <Link
+            href={weekHref()}
+            className={cx(isWeek && 'is-on')}
+            aria-current={isWeek ? 'page' : undefined}
+          >
+            Неделя
+          </Link>
+          <Link
+            href={monthHref()}
+            className={cx(isMonth && 'is-on')}
+            aria-current={isMonth ? 'page' : undefined}
+          >
+            Месяц
+          </Link>
+        </nav>
         <nav className="board-length-pop" aria-label="Длина периода">
           <Link
             href={weekHref()}
@@ -314,6 +325,7 @@ export default async function ChessboardPage({
           </Link>
         </nav>
       </BoardMenu>
+      <BoardTodayLink />
     </div>
   );
   const actions = (
@@ -342,7 +354,11 @@ export default async function ChessboardPage({
 
   return (
     <CalendarWorkspace summary={null} nativeLayout>
-      <Page width="full" title="Календарь" className="page--board calendar-page">
+      <Page
+        width="full"
+        title="Календарь"
+        className={`page--board calendar-page ${design.calendar}`}
+      >
         {overbooked.length > 0 && (
           <Alert boxed data-testid="overbooked-callout">
             Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}

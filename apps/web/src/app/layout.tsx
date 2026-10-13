@@ -1,7 +1,6 @@
 // CSS первым: globals.css объявляет порядок слоёв каскада (DESIGN.md §20.6), и любой CSS,
 // импортированный компонентом выше, объявил бы свой слой раньше и перевернул порядок (MV8.5 DS0b).
 import './globals.css';
-import { AgentationPreview } from '../components/agentation-preview';
 import './components.css';
 import './workspace.css';
 import './tokens.css';
@@ -28,6 +27,7 @@ import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
 import { isPublicEntryPath } from '../lib/public-entry';
+import { DevAgentation } from '../components/dev-agentation';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
@@ -84,6 +84,7 @@ export default async function RootLayout({
           <ThemeProvider>
             <ToastProvider>{children}</ToastProvider>
           </ThemeProvider>
+          <DevAgentation />
         </body>
       </html>
     );
@@ -142,12 +143,7 @@ export default async function RootLayout({
         <Suspense fallback={null}>
           <WorkspaceAssistant desk={desk} />
         </Suspense>
-        <AgentationPreview
-          enabled={
-            process.env.NODE_ENV === 'development' &&
-            (process.env.APP_ALLOW_TEST_DATA === '1' || process.env.APP_DEMO_MODE === '1')
-          }
-        />
+        <DevAgentation />
       </body>
     </html>
   );

@@ -81,8 +81,8 @@ test('«Возможности» вкладками, три витрины пр�
   await tabs.nth(1).press('ArrowRight');
   await expect(tabs.nth(2)).toBeFocused();
   await expect(page.locator('#features').getByRole('tabpanel')).toContainText(/ИИ-продавец/);
-  // Чего нет в продукте, помечено «Скоро»
-  await expect(page.locator('#features .features__soon')).toHaveCount(4);
+  // По согласованному дизайну бейджи убраны, вкладки сохраняют все карточки.
+  await expect(page.locator('#features .features__soon')).toHaveCount(0);
   await expect(page.locator('#sales .growth__module')).toHaveCount(3);
   await expect(page.locator('#team .team-start__cards .card')).toHaveCount(3);
   await expect(page.locator('#start .step')).toHaveCount(4);
@@ -150,10 +150,11 @@ test('«Продажи, маркетинг, ИИ»: примеры подпис�
 
 test('первый экран: дашборд подписан примером и не имитирует кнопки', async ({ page }) => {
   await page.goto('/');
-  const preview = page.locator('.dash');
+  const preview = page.locator('.public-intro__figure img');
   await expect(preview).toBeVisible();
-  await expect(preview).toContainText('Сегодня');
-  await expect(preview.locator('a, button, [role="button"]')).toHaveCount(0);
+  await expect(preview).toHaveAttribute('alt', /Гостиница/);
+  await expect.poll(() => preview.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+  await expect(preview.locator('..').locator('a, button, [role="button"]')).toHaveCount(0);
   await expect(page.locator('.public-intro__figure')).toContainText(
     'Пример интерфейса. Данные вымышленные.',
   );
@@ -163,18 +164,17 @@ test('первый экран: мокап переключается между 
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const switcher = page.getByRole('group', { name: 'Показать экран для направления' });
-  const preview = page.locator('.dash');
+  const preview = page.locator('.public-intro__figure img');
   await expect(switcher.getByRole('button', { name: 'Гостиница' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(preview).toContainText('Ближайшие заезды');
+  await expect(preview).toHaveAttribute('src', '/design-only/hospitality.svg');
   await switcher.getByRole('button', { name: 'Салон' }).click();
   await expect(switcher.getByRole('button', { name: 'Салон' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(preview).toContainText('Ближайшие записи');
-  await expect(preview).toContainText('Загрузка мастеров');
-  await expect(preview).not.toContainText('Ближайшие заезды');
+  await expect(preview).toHaveAttribute('src', '/design-only/beauty.svg');
+  await expect(preview).toHaveAttribute('alt', /Салон/);
   await switcher.getByRole('button', { name: 'Ресторан' }).click();
-  await expect(preview).toContainText('Ближайшие брони столов');
-  // Пик графика подписан своим значением, а не числом другого направления
-  await expect(preview.locator('.dash__bar-tip')).toHaveText(/^94\s%$/);
+  await expect(preview).toHaveAttribute('src', '/design-only/restaurant.svg');
+  await expect(preview).toHaveAttribute('alt', /Ресторан/);
+  await expect.poll(() => preview.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
 });
 
 /**
@@ -232,6 +232,8 @@ test('карточка призыва и подвал: правовые стра
   await expect(final).toContainText('Контакты:');
   await expect(final).not.toContainText(/тысяч|клиентов уже/i);
   const footer = page.locator('.site-footer');
+  await expect(footer.locator('a[href="/calculator/"]')).toHaveCount(0);
+  await expect(footer.getByRole('navigation', { name: 'Правовая информация' })).toBeVisible();
   await expect(footer.getByRole('link', { name: 'Политика конфиденциальности' })).toHaveAttribute(
     'href',
     '/privacy/',

@@ -306,7 +306,7 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
     const dialog = page.getByRole('dialog');
     await expect(dialog.locator(`input[name="vertical"][value="${vertical}"]`)).toBeChecked();
     await expect(dialog).not.toContainText(/приглашению|пилот/i);
-    await expect(dialog).toContainText('откроется настройка бизнеса');
+    await expect(dialog).toContainText('Затем настройте свой бизнес.');
     await dialog.getByLabel('Имя', { exact: true }).fill('Мария Тестова');
     await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
     await dialog.getByLabel('Почта', { exact: true }).fill('maria@example.invalid');
@@ -322,16 +322,29 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
   });
 }
 
-test('registration: country sets the phone code, language is Russian only', async ({ page }) => {
-  await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
+test('registration: three countries, correct dial codes and English preference', async ({ page }) => {
+  const calls = await mockDesk(page, {
+    options: () => ({ status: 200, body: { registrationEnabled: true } }),
+    register: () => ({ status: 200, body: { email: 'owner@example.invalid', sent: true } }),
+  });
   await page.goto('/#register');
   const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Страна', { exact: true }).selectOption('UZ');
-  await expect(dialog.locator('.auth-phone__code')).toHaveText('+998');
-  // В подписи кода страны больше нет: страна выбирается отдельным списком
-  await expect(dialog.locator('.auth-phone select')).toHaveCount(0);
+  const country = dialog.getByLabel('Страна', { exact: true });
+  await expect(country.locator('option')).toHaveText(['Казахстан', 'ОАЭ (Дубай)', 'Катар']);
+  for (const [code, dial] of [['KZ', '+7'], ['AE', '+971'], ['QA', '+974']]) {
+    await country.selectOption(code!);
+    await expect(dialog.locator('.auth-phone__code')).toHaveText(dial!);
+  }
   const language = dialog.getByLabel('Язык системы');
-  await expect(language).toHaveValue('ru');
-  await expect(language.locator('option[value="kk"]')).toBeDisabled();
-  await expect(dialog).toContainText('Интерфейс на русском, казахский и английский на подходе.');
+  await expect(language.locator('option')).toHaveText(['Русский', 'English']);
+  await language.selectOption('en');
+  await dialog.getByLabel('Имя').fill('Тестовый владелец');
+  await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
+  await dialog.getByLabel('Телефон').fill('5550 1234');
+  await dialog.getByLabel('Почта').fill('owner@example.invalid');
+  await dialog.getByLabel('Пароль', { exact: true }).fill('test-password-123');
+  await dialog.getByRole('checkbox').check();
+  await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
+  await expect(dialog.getByTestId('auth-sent')).toBeVisible();
+  expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({ phoneCountry: 'QA', phone: '5550 1234', locale: 'en' });
 });

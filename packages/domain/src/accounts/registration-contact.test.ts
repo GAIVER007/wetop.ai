@@ -9,6 +9,11 @@ import {
 } from './registration-contact';
 
 describe('registrationPhone', () => {
+  it('Катар: местный номер и международный код без удвоения', () => {
+    expect(registrationPhone('QA', '5550 1234')).toBe('+97455501234');
+    expect(registrationPhone('QA', '+974 5550 1234')).toBe('+97455501234');
+    expect(defaultPhoneCountry([], 'Asia/Qatar')).toBe('QA');
+  });
   it('Казахстан: код +7 и десять цифр номера', () => {
     expect(registrationPhone('KZ', '701 555 44 33')).toBe('+77015554433');
   });

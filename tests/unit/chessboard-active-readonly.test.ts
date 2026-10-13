@@ -90,9 +90,7 @@ const board = {
   summary: Object.fromEntries(
     dates.map((date, index) => [
       date,
-      index < 3
-        ? { occupied: 1, blocked: 0, free: 0 }
-        : { occupied: 0, blocked: 0, free: 1 },
+      index < 3 ? { occupied: 1, blocked: 0, free: 0 } : { occupied: 0, blocked: 0, free: 1 },
     ]),
   ),
   byCategory: Object.fromEntries(
@@ -133,6 +131,7 @@ describe('шахматка: ACTIVE и READ_ONLY для многосуточно�
     expect(count(markup, 'data-testid="stay-cell"')).toBe(3);
     expect(markup).toContain('href="/reservations/FIXTURE-ACTIVE-001"');
     expect(count(markup, 'data-testid="free-cell"')).toBe(1);
+    expect(markup).toMatch(/<button\b[^>]*data-testid="free-cell"/);
     expect(markup).not.toContain('href="/reservations/new?arrival=2026-10-13');
     expect(count(markup, 'board-stay-resize')).toBe(0);
     expect(count(markup, 'draggable="true"')).toBe(0);

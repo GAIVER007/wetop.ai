@@ -292,7 +292,9 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня»', async ({ page }) => {
+test('MKT3: подтверждённый салон открывает общий маркетинг своего направления', async ({
+  page,
+}) => {
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -311,9 +313,13 @@ test('MKT3: хаб «Маркетинг» только для гостиницы
     .filter({ hasText: 'Студия MKT3' })
     .getByRole('button', { name: 'Открыть салон', exact: true })
     .click();
-  // салон (BEAUTY) и после слияния 09.10 садится на свой `/today`; на `/finance` едет только гостиница
+  // Принятый контракт main от 12.10: маркетинг доступен всем трём направлениям.
   await page.waitForURL('**/today');
   await page.goto('/marketing');
-  await expect(page).toHaveURL(/\/today$/);
-  await expect(page.getByTestId('beauty-today')).toBeVisible();
+  await expect(page).toHaveURL(/\/marketing$/);
+  const hub = page.getByTestId('business-marketing');
+  await expect(hub).toBeVisible();
+  await expect(page.getByTestId('marketing-hub')).toHaveCount(0);
+  for (const id of ['marketing-site', 'marketing-ads', 'marketing-content'])
+    await expect(hub.getByTestId(id)).toBeVisible();
 });

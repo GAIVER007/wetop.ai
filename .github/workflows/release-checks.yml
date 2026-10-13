@@ -403,7 +403,7 @@ jobs:
         env:
           UI_FIXTURE_PORT: '4371'
           UI_WEB_PORT: '3171'
-        run: npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-access.spec.ts tests/ui/ui-fix-01-kb.spec.ts tests/ui/hospitality-read-only.spec.ts tests/ui/team.spec.ts tests/ui/support-kb.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/chessboard-extend.spec.ts
+        run: npm run test:record -- e2e --config tests/ui/playwright.alt.config.ts --workers=1 tests/ui/ui-fix-01-access.spec.ts tests/ui/ui-fix-01-kb.spec.ts tests/ui/hospitality-read-only.spec.ts tests/ui/team.spec.ts tests/ui/support-kb.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/chessboard-extend.spec.ts tests/ui/chessboard-range.spec.ts
       - uses: actions/checkout@v4
         with:
           ref: 47b86b08fc0d7d1093fa835679b2d1f7134d2e3f

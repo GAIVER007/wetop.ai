@@ -494,7 +494,11 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
     });
     await page.goto('/today');
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: /^(Доброй ночи!|Доброе утро!|Добрый день!|Добрый вечер!)$/,
+      }),
+    ).toBeVisible();
     await expect(page.getByTestId('food-today')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Выбрать филиал' })).toContainText(
       `Филиал Runtime ${state.run}`,
@@ -560,7 +564,11 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
 
     await switchBranch(page, `Филиал Runtime ${state.run}`);
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: /^(Доброй ночи!|Доброе утро!|Добрый день!|Добрый вечер!)$/,
+      }),
+    ).toBeVisible();
     await expect(page.getByTestId('food-today')).toBeVisible();
   });
 

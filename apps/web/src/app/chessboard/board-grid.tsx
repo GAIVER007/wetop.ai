@@ -1181,7 +1181,11 @@ export function ChessboardGrid({
                           }
                         >
                           <span className="board-group-bar" aria-hidden="true">
-                            <span style={{ width: loadPct(g.code) }} /* slop-allow: inline-style доля занятых мест категории из данных */ />
+                            <span
+                              style={{
+                                width: loadPct(g.code),
+                              }} /* slop-allow: inline-style доля занятых мест категории из данных */
+                            />
                           </span>
                           <span className="board-group-ratio">
                             {groupLoad(g.code)
@@ -1274,6 +1278,11 @@ export function ChessboardGrid({
                               free={
                                 !readOnly && c.state === 'FREE'
                                   ? freeCellHandlers(row, index)
+                                  : undefined
+                              }
+                              onViewFree={
+                                readOnly && c.state === 'FREE'
+                                  ? (anchor) => openFreeMenu(row, index, index, anchor)
                                   : undefined
                               }
                               lifted={
@@ -1389,6 +1398,7 @@ function Cell({
   ghost,
   match,
   free,
+  onViewFree,
   lifted,
   selected,
   onPreview,
@@ -1413,6 +1423,7 @@ function Cell({
   /** §41: плашка подходит под поиск (подсвечена) или не подходит под поиск и условия (приглушена) */
   match: Match;
   free: FreeCellHandlers | undefined;
+  onViewFree: ((anchor: HTMLElement) => void) | undefined;
   /** Эту бронь сейчас тянут: плашка на старом месте бледнеет */
   lifted: boolean;
   /** Бронь открыта в правой панели: плашка обведена */
@@ -1705,10 +1716,16 @@ function Cell({
           )}
         </>
       ) : cell.state === 'FREE' && readOnly ? (
-        <span
-          className="board__free"
+        <button
+          type="button"
+          className="board__free board__free--link"
           data-testid="free-cell"
+          tabIndex={-1}
+          style={{ width: '100%', padding: 0, border: 0 }}
           aria-label={`Свободно: ${unitCode}, ${cell.date}`}
+          onClick={(event) =>
+            onViewFree?.(event.currentTarget.closest('td') ?? event.currentTarget)
+          }
         />
       ) : cell.state === 'FREE' ? (
         /*

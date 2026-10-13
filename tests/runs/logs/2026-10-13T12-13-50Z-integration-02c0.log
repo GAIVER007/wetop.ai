@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 13.10.2026 17:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 25a8873 (claude/booking-rules), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-13-50Z-integration-02c0.json' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 726ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  05:13:51
+   Duration  1.67s (tests 62%, transform 30%, import 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-13-50Z-integration-02c0.json
+
+# код выхода 0 · 3 с

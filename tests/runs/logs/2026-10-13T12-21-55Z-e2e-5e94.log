@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 13.10.2026 17:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 25a8873 (claude/booking-rules), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'marker guarded cleanup|оценка по QR|списание по заказу|правила брони'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+[WebServer] (node:85438) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/food.spec.ts:283:1 › правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется (746ms)
+  ✓  2 tests/food-ui/food.spec.ts:349:1 › правила брони: экран настроек сохраняет правила, закрывает и открывает день (4.4s)
+  ✓  3 tests/food-ui/food.spec.ts:735:1 › marker guarded cleanup (300ms)
+  ✘  4 tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (2.3s)
+  ✓  5 tests/food-ui/stock.spec.ts:211:1 › списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает (3.8s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('main')
+    Expected substring: "заказ № 2"
+    Error: strict mode violation: locator('main') resolved to 2 elements:
+        1) <main id="main-content" class="login-page login-page--single">…</main> aka getByRole('main')
+        2) <main id="main-content" class="login-page login-page--single">…</main> aka locator('#main-content').nth(1)
+
+    Call log:
+      - Expect "toContainText" locator('main') with timeout 5000ms
+      - waiting for locator('main')
+
+
+      582 |   const main = phone.locator('main');
+      583 |   await expect(main.getByRole('heading', { name: 'Как вас обслужили?' })).toBeVisible();
+    > 584 |   await expect(main).toContainText(`заказ № ${a.number}`);
+          |                      ^
+      585 |   await expect(main).toContainText('Иванова Анна');
+      586 |   await main.getByRole('button', { name: 'Отправить оценку' }).click();
+      587 |   await expect(main.getByRole('alert')).toContainText('Выберите от 1 до 5 звёзд');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/restaurant.spec.ts:584:22
+
+    Error Context: test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+  4 passed (22.8s)
+
+# код выхода 1 · 26 с

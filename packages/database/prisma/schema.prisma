@@ -89,6 +89,8 @@ model Location {
   bookingTrackedSite     TrackedSite?                   @relation("LocationBookingSite", fields: [bookingTrackedSiteId], references: [id], onDelete: SetNull)
   diningAreas            DiningArea[]
   servicePeriods         ServicePeriod[]
+  foodBookingRules       FoodBookingRules?
+  foodClosedDays         FoodClosedDay[]
   restaurantReservations RestaurantReservation[]
   restaurantOrders       RestaurantOrder[]
   kitchenStockLots       KitchenStockLot[]
@@ -3025,6 +3027,31 @@ model DiningTable {
 
   @@unique([areaId, name])
   @@map("dining_tables")
+}
+
+/// Правила брони столов филиала (§43); нет строки значит прежнее поведение
+model FoodBookingRules {
+  locationId    String   @id @map("location_id") @db.Uuid
+  bufferMinutes Int      @default(0) @map("buffer_minutes") @db.SmallInt
+  horizonDays   Int?     @map("horizon_days") @db.SmallInt
+  maxPartySize  Int?     @map("max_party_size") @db.SmallInt
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location      Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@map("food_booking_rules")
+}
+
+/// Закрытый для броней день филиала (§43)
+model FoodClosedDay {
+  id         String   @id @default(uuid()) @db.Uuid
+  locationId String   @map("location_id") @db.Uuid
+  day        DateTime @db.Date
+  reason     String?  @db.VarChar(200)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([locationId, day])
+  @@map("food_closed_days")
 }
 
 model ServicePeriod {

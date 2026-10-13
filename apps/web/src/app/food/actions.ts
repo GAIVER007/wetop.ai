@@ -1,5 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
+import type { BookingRules } from '@pms/domain';
 import { unstable_rethrow } from 'next/navigation';
 import { ApiError } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
@@ -96,3 +97,22 @@ export async function mutateFoodReservation(
     return failure(error);
   }
 }
+
+/** Правила брони столов и закрытые дни (§43) */
+export type BookingRulesCommand =
+  | { kind: 'rules'; rules: BookingRules }
+  | { kind: 'close'; day: string; reason: string | null }
+  | { kind: 'open'; id: string };
+export async function saveBookingRules(scopeKey: string, command: BookingRulesCommand): Promise<{ error: string | null }> {
+  try {
+    await scope(scopeKey);
+    if (command.kind === 'rules') await foodApi.setBookingRules(command.rules);
+    else if (command.kind === 'close') await foodApi.addClosedDay({ day: command.day, reason: command.reason });
+    else await foodApi.removeClosedDay(command.id);
+    revalidatePath('/restaurant-settings');
+    return { error: null };
+  } catch (error) {
+    return { error: failure(error).error };
+  }
+}
+

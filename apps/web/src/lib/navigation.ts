@@ -548,7 +548,8 @@ export const beautyMenuSections: MenuSection[] = [
   // «График» салона отдельной вкладкой (решение владельца №1 по плану DS2, 09.10.2026)
   direct('schedule', '/beauty/schedule', 'clock'),
   direct('services', '/services', 'rates', undefined, ['/beauty/services']),
-  direct('team', '/staff', 'guests', undefined, ['/team']),
+  // ссылка ведёт прямо на экран; старый `/staff` только перенаправляет сюда и подсвечивает тот же раздел (DS2 §14)
+  direct('team', '/team', 'guests', 'Сотрудники и доступ', ['/staff']),
   direct('sales', '/sales', 'rates', 'Продажи'),
   direct('marketing', '/marketing', 'send', 'Маркетинг'),
   direct('analytics', '/management/analytics', 'analytics'),
@@ -586,8 +587,9 @@ export const foodMenuSections: MenuSection[] = [
     id: 'team',
     label: 'Команда',
     icon: 'guests',
-    items: [menuItem('/employees', 'Сотрудники'), menuItem('/payroll'), menuItem('/staff')],
-    match: ['/team'],
+    // «Сотрудники и доступ» ведут прямо на `/team`; старый `/staff` только перенаправляет сюда (DS2 §14)
+    items: [menuItem('/employees', 'Сотрудники'), menuItem('/payroll'), menuItem('/team', 'Сотрудники и доступ')],
+    match: ['/staff'],
   },
   direct('sales', '/sales', 'rates', 'Продажи'),
   direct('marketing', '/marketing', 'send', 'Маркетинг'),

@@ -1,0 +1,17 @@
+# Типы (typecheck) · 11.10.2026 15:48 Алматы · MacBook-Air-Urij.local
+# коммит b67fdb7 (codex/ai-seller-wizard-generate-20261011), незакоммиченных файлов набора: 25
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 0 · 2 мин 42 с

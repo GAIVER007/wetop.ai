@@ -1,4 +1,4 @@
-import { FIXTURE_API, chooseBoardPeriod, expect, test } from './fixtures';
+import { FIXTURE_API, chooseBoardPeriod, expect, openFullCard, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 3 (ТЗ §18–§25, §58): карточка брони и быстрый предпросмотр.
@@ -44,7 +44,7 @@ test('одинарный клик — предпросмотр без ухода
 
 test('двойной клик открывает полную карточку брони', async ({ page }) => {
   await page.goto('/chessboard');
-  await page.getByTestId('stay-cell').first().dblclick();
+  await openFullCard(page.getByTestId('stay-cell').first());
   await expect(page.getByRole('dialog', { name: 'Бронирование', exact: true })).toBeVisible();
 });
 

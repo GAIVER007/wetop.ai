@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 11.10.2026 15:16 Алматы · MacBook-Air-Urij.local
+# коммит 0491010 (codex/ai-seller-wizard-scan-20261011), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-16-51Z-integration-5333.json' '--config' 'tests/wizard-scan.config.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ❯ |integration| tests/integration/wizard-scan.test.ts (6 tests | 1 failed) 471ms
+   ❯ isolated scan queue (6)
+     ✓ enqueues one scan for concurrent requests at the same revision 338ms
+     ✓ persists fields and FAQ after worker restart; concurrent workers claim only once 32ms
+     ✓ does not overwrite a manual edit while a scan is running 24ms
+     ✓ stops queued paid work while scan rollout is off 25ms
+     ✓ recovers abandoned lease with the same paid request id 16ms
+     × reads job and draft from one snapshot when the worker commits during status polling 26ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/wizard-scan.test.ts > isolated scan queue > reads job and draft from one snapshot when the worker commits during status polling
+AssertionError: expected 'stale' to be 'queued' // Object.is equality
+
+Expected: "queued"
+Received: "stale"
+
+ ❯ tests/integration/wizard-scan.test.ts:146:31
+    144|     const state = await new WizardService({ db: hooked } as unknown as…
+    145|     expect(fired).toBe(true);
+    146|     expect(state.scan?.state).toBe('queued');
+       |                               ^
+    147|     expect(state.draft.revision).toBe(1);
+    148|     expect((await service.scanStatus(token)).scan?.state).toBe('succee…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  14:16:52
+   Duration  1.65s (transform 47%, tests 31%, import 22%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-16-51Z-integration-5333.json
+
+# код выхода 1 · 3 с

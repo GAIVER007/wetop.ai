@@ -68,6 +68,7 @@ import { AnalyticsView, OverviewView } from './overview';
 import { ChannelsTable } from './channels';
 import { ScenariosView } from './scenarios';
 import '../ai-seller.css';
+import { Tabs } from '../../../components/tabs';
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; ADR-079; макет владельца 26.09.2026 — ADR-097). Четыре экрана:
@@ -148,18 +149,10 @@ export default async function AiSellerPage({
         ) : undefined
       }
     >
-      <nav className="settings-tabs seller-tabs" aria-label="ИИ-продавец">
-        {tabs.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={false}
-            aria-current={item.view === view ? 'page' : undefined}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <Tabs
+        label="ИИ-продавец"
+        items={tabs.map((item) => ({ href: item.href, label: item.label, current: item.view === view }))}
+      />
       <Suspense key={view} fallback={<LoadingState label="Спрашиваем продавца…" />}>
         <SellerScreen
           view={view}

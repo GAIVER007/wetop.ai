@@ -463,6 +463,11 @@
   .object-settings .obj-preview__open:hover {
     text-decoration: underline;
   }
+  @media (max-width: 600px) {
+    .object-settings .obj-preview__open {
+      min-height: 44px;
+    }
+  }
   .object-settings .obj-checklist,
   .object-settings .obj-links {
     display: grid;

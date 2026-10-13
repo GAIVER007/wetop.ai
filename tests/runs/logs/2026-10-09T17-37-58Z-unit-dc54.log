@@ -1,0 +1,18 @@
+# Модульные (unit) · 09.10.2026 22:37 Алматы · vm
+# коммит 2a84abe (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T17-37-58Z-unit-dc54.json' 'tests/unit/design-slop.test.ts' 'scripts/design'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| scripts/design/dead-css.test.ts (2 tests) 13ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 51ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 10ms
+
+ Test Files  3 passed (3)
+      Tests  35 passed (35)
+   Start at  17:37:59
+   Duration  588ms (transform 53%, import 38%, tests 8%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T17-37-58Z-unit-dc54.json
+
+# код выхода 0 · 2 с

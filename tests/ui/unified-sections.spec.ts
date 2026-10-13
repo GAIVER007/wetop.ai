@@ -28,7 +28,7 @@ test('настройки: основные поля и сохранение ви
 
 test('интеграции: незавершённая настройка не называется подключением', async ({ page }) => {
   await page.goto('/connections');
-  await expect(page.getByRole('navigation', { name: 'Интеграции' })).toContainText('Подключения');
+  await expect(page.getByRole('navigation', { name: 'Интеграции' })).toContainText('Подключённые');
   await expect(page.getByTestId('integration-environment')).toBeVisible();
 });
 

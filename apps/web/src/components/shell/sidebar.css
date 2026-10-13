@@ -198,7 +198,9 @@
   .branch-switcher__list {
     position: absolute;
     top: calc(100% - var(--space-2));
-    inset-inline: 0;
+    left: 0;
+    /* не уже 300 px: в узкой кнопке шапки название и адрес филиала не помещались */
+    width: max(100%, 300px);
     z-index: var(--layer-sidebar);
     max-height: calc(100dvh - 210px);
     overflow-y: auto;
@@ -264,7 +266,13 @@
     font-size: var(--text-sm);
   }
   .branch-switcher__options button > svg {
+    grid-column: 2;
+    grid-row: 1;
     color: var(--primary);
+  }
+  /* Подпись направления строкой под названием: во второй колонке (20 px под галочку) она ломалась по буквам */
+  .branch-switcher__options button > small {
+    grid-column: 1;
   }
   .branch-switcher__options button > span {
     grid-column: 1 / -1;

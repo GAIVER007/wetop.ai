@@ -195,10 +195,10 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('today-attention-no-table')).toContainText(
       String(m.withoutTable),
     );
-    // боковое меню (ADR-161) держит разделы в панели: открыть её и найти «Бронирования»
+    // Скрытое меню UI3.1 держит разделы в панели: открыть «Зал» и найти «Бронирования».
     const nav = page.getByRole('navigation', { name: 'Разделы' });
     await nav.locator('.sidenav__current').click();
-    await nav.getByRole('link', { name: 'Зал', exact: true }).focus();
+    await nav.getByRole('button', { name: 'Зал', exact: true }).focus();
     await expect(nav.getByRole('link', { name: 'Бронирования', exact: true }).first()).toBeVisible();
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);
@@ -327,7 +327,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     // выбора филиала уходит POST на `/finance`, а не на `/today`
     await page.goto('/finance');
     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
+    await page.locator('.sidenav__current').click();
     await expect(page.getByTestId('data-freshness')).toBeVisible();
+    await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
     await expect(page.getByRole('region', { name: 'Выбор филиала' })).toBeVisible();
     let release!: () => void;
@@ -440,6 +442,8 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const f = await prepare(request);
     await setScope(page, f.hotelScope);
     await page.goto('/today');
+    await expect(page).toHaveURL(/\/finance$/);
+    await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     await expect(page.getByRole('dialog')).toBeVisible();
     for (const [scope, testId] of [
       [f.salon, 'beauty-today'],

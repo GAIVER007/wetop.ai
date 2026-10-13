@@ -151,6 +151,55 @@ describe.skipIf(!url)('restaurant cash: database guards, grants and RLS', () => 
       expect(ops.rowCount).toBe(0);
     }));
 
+  it('pay journal only grows: the app cannot edit or delete premiums and fines (§33.4, Q-REST-7)', () =>
+    rollback(async () => {
+      await db.query('SET LOCAL ROLE wetop_app');
+      for (const sql of [
+        'UPDATE employee_pay_adjustments SET amount_minor = amount_minor WHERE false',
+        'DELETE FROM employee_pay_adjustments WHERE false',
+      ])
+        await savepoint(async () => {
+          await expect(db.query(sql)).rejects.toThrow(/permission denied/);
+        });
+    }));
+
+  it('floor layout: both coordinates or none, within the canvas, size and turn in range (§42)', () =>
+    rollback(async () => {
+      const a = await seed();
+      const area = randomUUID(),
+        table = randomUUID();
+      await db.query(`INSERT INTO dining_areas(id,location_id,name,updated_at) VALUES($1,$2,'Зал',now())`, [area, a.loc]);
+      await db.query(
+        `INSERT INTO dining_tables(id,area_id,name,capacity,updated_at) VALUES($1,$2,'7',4,now())`,
+        [table, area],
+      );
+      await db.query('UPDATE dining_tables SET pos_x=0, pos_y=1000, scale=200, rotation=90 WHERE id=$1', [table]);
+      for (const set of ['pos_x=10, pos_y=NULL', 'pos_x=1001', 'pos_y=-1', 'scale=49', 'scale=201', 'rotation=45'])
+        await savepoint(async () => {
+          await expect(db.query(`UPDATE dining_tables SET ${set} WHERE id=$1`, [table])).rejects.toThrow(
+            'dining_tables_layout',
+          );
+        });
+    }));
+
+  it('booking rules: ranges and one closed day per date (§43)', () =>
+    rollback(async () => {
+      const a = await seed();
+      await db.query(`INSERT INTO food_booking_rules(location_id,buffer_minutes,horizon_days,max_party_size,updated_at) VALUES($1,240,730,500,now())`, [a.loc]);
+      for (const set of ['buffer_minutes=241', 'buffer_minutes=-1', 'horizon_days=0', 'horizon_days=731', 'max_party_size=0', 'max_party_size=501'])
+        await savepoint(async () => {
+          await expect(db.query(`UPDATE food_booking_rules SET ${set} WHERE location_id=$1`, [a.loc])).rejects.toThrow(
+            'food_booking_rules_values',
+          );
+        });
+      await db.query(`INSERT INTO food_closed_days(id,location_id,day) VALUES(gen_random_uuid(),$1,'2026-12-31')`, [a.loc]);
+      await savepoint(async () => {
+        await expect(
+          db.query(`INSERT INTO food_closed_days(id,location_id,day) VALUES(gen_random_uuid(),$1,'2026-12-31')`, [a.loc]),
+        ).rejects.toThrow('food_closed_days_location_id_day_key');
+      });
+    }));
+
   it('guest rating: only a closed order, waiter snapshot must match, the app cannot edit or delete (§39)', () =>
     rollback(async () => {
       const a = await seed();

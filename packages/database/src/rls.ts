@@ -111,6 +111,9 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'restaurant_cash_operations',
   'restaurant_cash_reconciliations',
   'restaurant_order_ratings',
+  // Правила брони столов и закрытые дни (DATA_MODEL §43, миграция 20261013000101_food_booking_rules)
+  'food_booking_rules',
+  'food_closed_days',
   // MKT3: управляемый сайт филиала и его версии (DATA_MODEL §29, через Location → Business)
   'marketing_sites',
   'marketing_site_versions',
@@ -131,6 +134,9 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'site_builder_entitlements',
   'site_ai_runs',
   'marketing_site_version_bookmarks',
+  // МКТ-В1/В2: учёт бюджета и расходов маркетинга, через Location → Business (DATA_MODEL §41, миграция …097)
+  'marketing_expenses',
+  'marketing_budgets',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

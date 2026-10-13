@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 13.10.2026 18:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 507efb0 (claude/bar-location-api), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-01-38Z-integration-53af.json' 'tests/integration/bar-restaurant-cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ✓ |integration| tests/integration/bar-restaurant-cash.test.ts (3 tests) 383ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  06:01:39
+   Duration  2.07s (transform 50%, tests 27%, import 23%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-01-38Z-integration-53af.json
+
+# код выхода 0 · 3 с

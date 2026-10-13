@@ -175,16 +175,18 @@ export default async function FinanceReportPage({
       : isPreset(cal.month)
         ? ('month' as const)
         : ('custom' as const);
-  // деньги обзора: поступления и расходы кассовыми правилами (finance-cash-first), в BigInt
+  // деньги обзора: поступления, возвраты и расходы кассовыми правилами (finance-cash-first), в BigInt.
+  // Решение владельца 13.10.2026: возврат гостю не «расход», а отдельная строка «Возвраты»
   const income = periodOps ? BigInt(periodOps.paidMinor) + BigInt(periodOps.incomeMinor) : null;
-  const expense = periodOps
-    ? BigInt(periodOps.refundedMinor) + BigInt(periodOps.expenseMinor)
-    : null;
+  const refunds = periodOps ? BigInt(periodOps.refundedMinor) : null;
+  const expense = periodOps ? BigInt(periodOps.expenseMinor) : null;
   const sums = {
     income,
+    refunds,
     expense,
     prevIncome: prevOps ? BigInt(prevOps.paidMinor) + BigInt(prevOps.incomeMinor) : null,
-    prevExpense: prevOps ? BigInt(prevOps.refundedMinor) + BigInt(prevOps.expenseMinor) : null,
+    prevRefunds: prevOps ? BigInt(prevOps.refundedMinor) : null,
+    prevExpense: prevOps ? BigInt(prevOps.expenseMinor) : null,
     currency: periodOps?.currency ?? cashBalances?.currency ?? 'KZT',
   };
   // лента ниже по-прежнему начинается с двадцати строк; полный ответ остаётся графику и «Показать все»

@@ -311,6 +311,11 @@ type TableBase = TableHTMLAttributes<HTMLTableElement> & {
   size?: 'sm' | undefined;
   nowrap?: boolean | undefined;
   plain?: boolean | undefined;
+  /**
+   * На телефоне строка складывается в карточку: шапка скрыта, подпись колонки берётся из `data-label` ячейки
+   * (мастер-проход UI, этап 3). Без флага узкая таблица прокручивается вбок, как раньше
+   */
+  stack?: boolean | undefined;
 };
 /** Прежний вход: имя области общее, пока экран не переведён (DS4–DS7) */
 type LegacyTableProps = TableBase & {
@@ -343,6 +348,7 @@ export function Table(props: LegacyTableProps | CanonicalTableProps) {
     captionHidden,
     nowrap,
     plain,
+    stack,
     className,
     children,
     ...rest
@@ -365,6 +371,7 @@ export function Table(props: LegacyTableProps | CanonicalTableProps) {
           (sticky === 'column' || sticky === 'both') && 'tbl--sticky-column',
           nowrap && 'tbl--nowrap',
           plain && 'tbl--plain',
+          stack && 'tbl--stack',
           className,
         )}
         {...rest}

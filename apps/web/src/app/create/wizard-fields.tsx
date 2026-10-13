@@ -46,9 +46,7 @@ export function WizardFields({
         />
       </label>
       <label>
-        <span>
-          Название компании {mark('businessName')}
-        </span>
+        <span>Название компании {mark('businessName')}</span>
         <input
           required
           value={values.businessName}
@@ -99,9 +97,7 @@ export function WizardFields({
           value={values.goal}
           onChange={change('goal')}
           maxLength={1000}
-          placeholder={
-            values.botType === 'support' ? 'Ответить на вопросы гостей' : 'Помочь подобрать размещение'
-          }
+          placeholder={values.botType === 'support' ? S.review.supportGoal : S.review.salesGoal}
         />
       </label>
       <label className="guest-wizard__wide">

@@ -1,5 +1,8 @@
+import type { BookingRules, TableLayout } from '@pms/domain';
 import { getJsonPublic, sendJson } from './api';
 import type {
+  FoodShiftRow,
+  FoodShiftWeekDay,
   AreaInput,
   DiningArea,
   DiningTable,
@@ -50,6 +53,18 @@ export const foodApi = {
   createArea: (body: AreaInput) => sendJson<DiningArea>('POST', `${base}/areas`, body),
   updateArea: (id: string, body: Partial<AreaInput>) =>
     sendJson<DiningArea>('PATCH', idPath('areas', id), body),
+  /** Правила брони столов (§43): настройки и будущие закрытые дни */
+  bookingRules: () =>
+    getJsonPublic<{ rules: BookingRules; closedDays: Array<{ id: string; day: string; reason: string | null }> }>(
+      `${base}/booking-rules`,
+    ),
+  setBookingRules: (rules: BookingRules) => sendJson<BookingRules>('PUT', `${base}/booking-rules`, rules),
+  addClosedDay: (body: { day: string; reason: string | null }) =>
+    sendJson<{ id: string }>('POST', `${base}/closed-days`, body),
+  removeClosedDay: (id: string) => sendJson<{ ok: true }>('DELETE', idPath('closed-days', id), {}),
+  /** Схема зала (§42): расстановка зоны целиком */
+  setLayout: (areaId: string, tables: TableLayout[]) =>
+    sendJson<{ tables: TableLayout[] }>('PUT', `${idPath('areas', areaId)}/layout`, { tables }),
   tables: (cursor?: string) =>
     getJsonPublic<FoodPage<DiningTable>>(`${base}/tables${query(cursor)}`),
   createTable: (body: TableInput) => sendJson<DiningTable>('POST', `${base}/tables`, body),
@@ -110,6 +125,9 @@ export const restaurantApi = {
     sendJson<OrderView>('POST', `${idPath('orders', id)}/payments`, body),
   rateOrder: (id: string, body: { stars: number; comment: string | null }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/rating`, body),
+  /** Ссылка на оценку с телефона гостя (§40): ключ только в ответе, 72 часа */
+  ratingLink: (id: string) =>
+    sendJson<{ token: string; expiresAt: string }>('POST', `${idPath('orders', id)}/rating-link`, {}),
   voidPayment: (id: string, reason: string) =>
     sendJson<OrderView>('POST', `${idPath('payments', id)}/void`, { reason }),
   cash: () => getJsonPublic<FoodCashView>(`${base}/cash`),
@@ -132,6 +150,9 @@ export const restaurantApi = {
     id: string,
     body: { name?: string; phone?: string | null; email?: string | null; status?: string },
   ) => sendJson<FoodEmployee>('PATCH', idPath('employees', id), body),
+  shifts: () => getJsonPublic<{ employees: FoodShiftRow[] }>(`${base}/shifts`),
+  setShifts: (id: string, intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>) =>
+    sendJson<{ week: FoodShiftWeekDay[] }>('PUT', `${idPath('employees', id)}/working-hours`, { intervals }),
   payroll: (month: string) => getJsonPublic<PayrollView>(`${base}/payroll?month=${month}`),
   setPaySettings: (id: string, body: { model: PayModel; fixedMinor: number; percent: number }) =>
     sendJson<unknown>('PUT', `${idPath('employees', id)}/pay-settings`, body),

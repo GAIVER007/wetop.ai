@@ -1,4 +1,4 @@
-import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
+import { test, expect, type Page, type APIRequestContext } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
@@ -108,7 +108,10 @@ test('меню: категория и блюдо с экрана, переклю
   await page.getByRole('button', { name: '+ Категория' }).click();
   await page.getByLabel('Название категории').fill('Десерты');
   await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Десерты' })).toBeVisible();
+  // вкладка «Категории» по макету (экран 8)
+  await page.getByRole('button', { name: /^Категории/ }).click();
+  await expect(page.getByTestId('menu-board').locator('tbody')).toContainText('Десерты');
+  await page.getByRole('button', { name: /^Позиции/ }).click();
   await page.getByRole('button', { name: '+ Добавить блюдо' }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Название').fill('Тирамису');
@@ -259,7 +262,7 @@ test('кухня: колонки KDS и переходы кнопками', asyn
   await expect(cooking.getByRole('listitem')).toHaveText('Паста Карбонара×1');
   await cooking.getByRole('button', { name: 'Готово' }).click();
   const ready = page.getByRole('region', { name: 'Готово' });
-  await ready.getByRole('button', { name: 'Подать' }).click();
+  await ready.getByRole('button', { name: 'Отметить как выдано' }).click();
   await expect(newCol.getByText('Пусто')).toBeVisible();
   await expect(page.getByRole('region', { name: 'Задерживаются' })).toContainText('Кухня успевает');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
@@ -334,6 +337,11 @@ test('бронирования: шкала по столам, бронь пол�
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новая бронь' })).toBeVisible();
   await expect(dialog.locator('select[name="tableId"]')).toHaveValue(table.id);
+  // полоса шагов макета (экран 4): «Основное» заполнено датой, временем и периодом, «Стол» выбран кликом
+  const steps = dialog.getByRole('list', { name: 'Шаги брони' });
+  await expect(steps.getByRole('listitem').nth(0)).toHaveAttribute('data-done', 'true');
+  await expect(steps.getByRole('listitem').nth(2)).toHaveAttribute('data-done', 'true');
+  await expect(steps.getByRole('listitem').nth(1)).toHaveAttribute('aria-current', 'step');
   // подбор столов по макету (экран 4): на 19:00 стол 7 занят бронью Ольги, свободных нет
   await dialog.getByLabel('Время', { exact: true }).fill('19:00');
   await expect(dialog.getByRole('heading', { name: 'Доступные столы (0)' })).toBeVisible();
@@ -497,6 +505,7 @@ test('отчёт за период: выручка, средний чек, оп�
   expect(res.ok()).toBe(true);
   const r = await res.json();
   expect(r.ordersCount).toBe(2);
+  expect(r.guestsCount).toBe(4);
   expect(r.revenueMinor).toBe('266000');
   expect(r.averageCheckMinor).toBe('133000');
   expect(r.payments).toEqual([
@@ -533,6 +542,186 @@ test('отчёт за период: выручка, средний чек, оп�
   const fresh = await order([{ menuItemId: pasta.id, qty: 1 }]);
   expect((await rate(fresh.id, 5)).status()).toBe(409);
   expect((await rate(a.id, 6)).status()).toBe(400);
+});
+
+test('оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит', async ({
+  page,
+  browser,
+  request,
+}) => {
+  const { headers, table, pasta, waiter } = await seed(page, request);
+  const order = () =>
+    post(request, headers, '/food-service/orders', {
+      tableId: table.id,
+      waiterId: waiter.id,
+      guestCount: 2,
+      items: [{ menuItemId: pasta.id, qty: 1 }],
+    });
+  const link = (id: string) => request.post(`${api}/food-service/orders/${id}/rating-link`, { headers });
+  const open = await order();
+  expect((await link(open.id)).status()).toBe(409);
+  const a = await order();
+  await serveAndPay(request, headers, a);
+  // повторная выдача заменяет ключ: прежняя ссылка мертва
+  const first = await (await link(a.id)).json();
+  const second = await (await link(a.id)).json();
+  expect(second.token).toMatch(/^[A-Za-z0-9_-]{43}$/);
+  const publicGet = (token: string, ip?: string) =>
+    request.get(`${api}/public/order-rating/${token}`, ip ? { headers: { 'cf-connecting-ip': ip } } : {});
+  expect((await publicGet(first.token)).status()).toBe(404);
+  const preview = await (await publicGet(second.token)).json();
+  expect(preview).toMatchObject({ waiterName: 'Иванова Анна', orderNumber: a.number });
+  // мусорный ключ отвечает тем же текстом, что и мёртвый
+  const junk = await publicGet('x'.repeat(43));
+  expect([junk.status(), (await junk.json()).message]).toEqual([404, 'Ссылка недействительна']);
+
+  // гость: чистый браузер без входа и без кук стойки
+  const guest = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const phone = await guest.newPage();
+  await phone.goto(`/rate/${second.token}`);
+  // getByRole не видит скрытую потоковую копию страницы: у нового контекста нет обёртки goto фикстуры
+  const main = phone.getByRole('main');
+  await expect(main.getByRole('heading', { name: 'Как вас обслужили?' })).toBeVisible();
+  await expect(main).toContainText(`заказ № ${a.number}`);
+  await expect(main).toContainText('Иванова Анна');
+  await main.getByRole('button', { name: 'Отправить оценку' }).click();
+  await expect(main.getByRole('alert')).toContainText('Выберите от 1 до 5 звёзд');
+  await main.getByRole('radio', { name: '5 из 5' }).click();
+  await main.getByLabel('Комментарий, если хотите').fill('Очень внимательно');
+  const axe = await new AxeBuilder({ page: phone }).analyze();
+  expect(axe.violations).toEqual([]);
+  await main.getByRole('button', { name: 'Отправить оценку' }).click();
+  await expect(main.getByTestId('rate-done')).toContainText('Спасибо');
+  await phone.reload();
+  await expect(main.getByRole('heading', { name: 'Ссылка недействительна' })).toBeVisible();
+  await guest.close();
+
+  // оценка легла на заказ и на официанта; второй раз ни по ссылке, ни новой ссылкой
+  const again = await request.post(`${api}/public/order-rating/${second.token}`, { data: { stars: 1 } });
+  expect(again.status()).toBe(404);
+  expect((await link(a.id)).status()).toBe(409);
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const list = await (await request.get(`${api}/food-service/orders?date=${day}`, { headers })).json();
+  const rated = list.items.find((o: { id: string }) => o.id === a.id);
+  expect(rated.rating).toMatchObject({ stars: 5, comment: 'Очень внимательно' });
+
+  // смена видит QR-код в карточке закрытого заказа
+  const b = await order();
+  await serveAndPay(request, headers, b);
+  await page.goto('/orders');
+  await page.getByRole('button', { name: `№${b.number}`, exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'QR-код для гостя' }).click();
+  const qr = dialog.getByTestId('order-rating-qr');
+  await expect(qr.getByRole('img', { name: 'QR-код: оценка с телефона гостя' })).toBeVisible();
+  await expect(qr.getByRole('link')).toHaveAttribute('href', /\/rate\/[A-Za-z0-9_-]{43}$/);
+
+  // лимит по адресу посетителя: 120 в час, дальше 429 (свой адрес, чтобы не задеть соседние шаги)
+  const statuses: number[] = [];
+  // окно лимита живёт в памяти API час: свой адрес на прогон, иначе повтор теста упрётся в счётчик прошлого
+  const visitor = `198.51.100.${(Date.now() % 250) + 1}`;
+  for (let i = 0; i < 121; i++) statuses.push((await publicGet('y'.repeat(43), visitor)).status());
+  expect(statuses.slice(0, 120).every((s) => s === 404)).toBe(true);
+  expect(statuses[120]).toBe(429);
+});
+
+test('график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода', async ({ page, request }) => {
+  const { headers, waiter } = await seed(page, request);
+  const shifts = async () => (await (await request.get(`${api}/food-service/shifts`, { headers })).json()).employees;
+  const empty = (await shifts()).find((e: { id: string }) => e.id === waiter.id);
+  expect(empty.week).toHaveLength(7);
+  expect(empty.week.every((d: { intervals: unknown[] }) => d.intervals.length === 0)).toBe(true);
+  const bad = await request.put(`${api}/food-service/employees/${waiter.id}/working-hours`, {
+    headers,
+    data: { intervals: [{ weekday: 1, timeFrom: '18:00', timeTo: '10:00' }] },
+  });
+  expect(bad.status()).toBe(400);
+
+  await page.goto('/employees');
+  await page.getByRole('link', { name: 'График смен' }).click();
+  await expect(page).toHaveURL(/\/employees\/shifts$/);
+  const line = page.locator('tbody tr', { hasText: waiter.name });
+  await expect(line).toContainText('Выходной');
+  await line.getByRole('button', { name: 'Изменить график' }).click();
+  const dialog = page.getByRole('dialog');
+  const monday = dialog.getByRole('group', { name: 'Понедельник' });
+  await monday.getByRole('button', { name: 'Сделать рабочим' }).click();
+  await monday.getByLabel('Понедельник: начало').fill('10:00');
+  await monday.getByLabel('Понедельник: конец').fill('18:00');
+  await dialog.getByRole('button', { name: 'Сохранить график' }).click();
+  await expect(dialog.getByRole('status')).toContainText('График сохранён');
+  await page.keyboard.press('Escape');
+  await expect(line).toContainText('10:00–18:00');
+  const saved = (await shifts()).find((e: { id: string }) => e.id === waiter.id);
+  expect(saved.week[0]).toEqual({ weekday: 1, intervals: [{ timeFrom: '10:00', timeTo: '18:00' }] });
+  const axe = await new AxeBuilder({ page }).analyze();
+  expect(axe.violations).toEqual([]);
+});
+
+test('схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API', async ({
+  page,
+  request,
+}) => {
+  const { headers, area, table } = await seed(page, request);
+  const second = await post(request, headers, '/food-service/tables', {
+    areaId: area.id,
+    name: '8',
+    capacity: 2,
+    sortOrder: 1,
+    active: true,
+  });
+  const terrace = await post(request, headers, '/food-service/areas', { name: 'Терраса', sortOrder: 1, active: true });
+  const foreign = await post(request, headers, '/food-service/tables', {
+    areaId: terrace.id,
+    name: '20',
+    capacity: 2,
+    sortOrder: 0,
+    active: true,
+  });
+  const put = (tables: unknown[]) =>
+    request.put(`${api}/food-service/areas/${area.id}/layout`, { headers, data: { tables } });
+  const spot = (id: string, posX = 100) => ({ id, posX, posY: 100, shape: null, scale: 100, rotation: 0 });
+  expect((await put([spot(foreign.id)])).status()).toBe(400);
+  expect((await put([spot(table.id, 1001)])).status()).toBe(400);
+
+  await page.goto('/floor-plan');
+  await page.getByRole('button', { name: 'Расставить столы: Основной зал' }).click();
+  const editor = page.getByTestId('floor-layout-editor');
+  // клавиатура: стол 7 по порядку стоит в (100, 500), Shift+стрелка двигает на 50
+  const seven = editor.getByRole('button', { name: /^7: место/ });
+  await seven.focus();
+  for (let i = 0; i < 5; i++) await page.keyboard.press('Shift+ArrowRight');
+  await editor.getByLabel('Форма: 7').selectOption('ROUND');
+  await editor.getByLabel('Размер: 7').selectOption('130');
+  // мышь: стол 8 в точку 75 % по ширине, 25 % по высоте
+  const canvas = await editor.locator('.rest-fp__layout').boundingBox();
+  const eight = await editor.getByRole('button', { name: /^8: место/ }).boundingBox();
+  await page.mouse.move(eight!.x + eight!.width / 2, eight!.y + eight!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(canvas!.x + canvas!.width * 0.75, canvas!.y + canvas!.height * 0.25, { steps: 8 });
+  await page.mouse.up();
+  const axe = await new AxeBuilder({ page }).include('[data-testid="floor-layout-editor"]').analyze();
+  expect(axe.violations).toEqual([]);
+  await editor.getByRole('button', { name: 'Сохранить расстановку' }).click();
+  await expect(editor).toHaveCount(0);
+  await expect(page.locator('.rest-fp__layout .rest-fp__spot')).toHaveCount(2);
+
+  const tables = (await (await request.get(`${api}/food-service/tables`, { headers })).json()).items as Array<{
+    id: string;
+    posX: number;
+    posY: number;
+    shape: string | null;
+    scale: number;
+  }>;
+  const t7 = tables.find((t) => t.id === table.id)!;
+  const t8 = tables.find((t) => t.id === second.id)!;
+  expect(t7).toMatchObject({ posX: 350, posY: 500, shape: 'ROUND', scale: 130 });
+  expect(Math.abs(t8.posX - 750)).toBeLessThanOrEqual(10);
+  expect(Math.abs(t8.posY - 250)).toBeLessThanOrEqual(10);
+  // перезагрузка: схема стоит, стол чужой зоны своей зоне не мешает
+  await page.reload();
+  await expect(page.locator('.rest-fp__layout .rest-fp__spot')).toHaveCount(2);
+  expect(tables.find((t) => t.id === foreign.id)!.posX).toBeNull();
 });
 
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({
@@ -675,8 +864,10 @@ test('клиенты: вкладки, «Постоянный гость» от �
   await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');
   await expect(page.getByTestId('guest-marks').first()).toContainText('День рождения');
   await page.goto('/today');
-  await expect(page.getByTestId('today-attention-birthdays')).toContainText('1');
-  await expect(page.getByTestId('today-attention-vip')).toContainText('1');
+  // внутри видимого блока: потоковая отрисовка Next на миг держит копию куска страницы в скрытом div
+  const attention = page.getByRole('region', { name: 'Требуют внимания' });
+  await expect(attention.getByTestId('today-attention-birthdays')).toContainText('1');
+  await expect(attention.getByTestId('today-attention-vip')).toContainText('1');
 });
 
 test('навигация ресторана: пункты макета на месте и ведут на экраны', async ({
@@ -689,6 +880,68 @@ test('навигация ресторана: пункты макета на ме
   const hrefs = await page
     .locator('.sidenav a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
-  for (const path of ['/orders', '/kitchen', '/menu', '/customers', '/employees', '/payroll'])
+  for (const path of ['/orders', '/kitchen', '/drinks', '/menu', '/customers', '/employees', '/payroll', '/restaurant-finance', '/restaurant-settings'])
     expect(hrefs, path).toContain(path);
+});
+
+test('бар, финансы и настройки ресторана по макету (экраны 7, 12, 13)', async ({ page, request }) => {
+  const { headers, table, pasta } = await seed(page, request);
+  // бар: категория «Напитки» и напиток; плитка открывает заказ с этим напитком
+  const drinks = await post(request, headers, '/food-service/menu/categories', { name: 'Напитки' });
+  const mojito = await post(request, headers, '/food-service/menu/items', {
+    categoryId: drinks.id,
+    name: 'Мохито',
+    price: 55000,
+  });
+  const order = await post(request, headers, '/food-service/orders', {
+    tableId: table.id,
+    guestCount: 2,
+    items: [
+      { menuItemId: pasta.id, qty: 1 },
+      { menuItemId: mojito.id, qty: 2 },
+    ],
+  });
+  await page.goto('/drinks');
+  const current = page.getByRole('region', { name: /Текущие заказы/ });
+  await expect(current).toContainText(`№${order.number}`);
+  await expect(current).toContainText('Мохито×2');
+  await expect(current).not.toContainText('Паста');
+  await page.getByRole('button', { name: 'Новый заказ: Мохито, 550 ₸' }).click();
+  await expect(page.getByRole('dialog').getByTestId('order-draft-total')).toContainText('550 ₸');
+  await page.keyboard.press('Escape');
+  // финансы: оплата заказа это выручка, расход кассы со знаком минус
+  await serveAndPay(request, headers, order);
+  await post(request, headers, '/food-service/cash/operations', {
+    kind: 'EXPENSE',
+    method: 'CASH',
+    amount: 12_500,
+    note: 'Закупка продуктов',
+  });
+  await page.goto('/restaurant-finance');
+  const board = page.getByTestId('finance-board');
+  await expect(board.locator('tbody')).toContainText(`Оплата заказа №${order.number}`);
+  await expect(page.getByTestId('finance-total')).toContainText('1 490 ₸');
+  await board.getByRole('button', { name: 'Расходы' }).click();
+  await expect(board.locator('tbody')).toContainText('Закупка продуктов');
+  await expect(board.locator('tbody td[data-negative]')).toContainText('−125 ₸');
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+  // настройки: включённый день создаёт период, время сохраняется
+  await page.goto('/restaurant-settings');
+  await expect(page.getByRole('heading', { name: 'Часы работы' })).toBeVisible();
+  await page.getByRole('switch', { name: 'Понедельник: работаем' }).click();
+  // создание периода идёт через серверное действие и обновление страницы: под нагрузкой дольше 5 с
+  await expect(page.getByRole('switch', { name: 'Понедельник: работаем' })).toBeChecked({
+    timeout: 20_000,
+  });
+  const start = page.getByLabel('Понедельник, начало');
+  await expect(start).toBeEnabled();
+  await start.fill('11:00');
+  await start.blur();
+  await expect
+    .poll(async () => {
+      const r = await request.get(`${api}/food-service/service-periods?limit=100`, { headers });
+      return (await r.json()).items.find((p: { weekday: number }) => p.weekday === 1)?.timeFrom;
+    })
+    .toBe('11:00');
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
 });

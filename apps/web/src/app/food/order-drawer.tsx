@@ -2,7 +2,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Chip, ChipGroup } from '../../components/chip';
+import { IconField } from '../../components/icon-field';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, StatusBadge, Textarea } from '../../components/ui';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
@@ -18,7 +18,8 @@ import type {
 } from '../../lib/food-types';
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
-import { mutateOrder } from './restaurant-actions';
+import { mutateOrder, orderRatingLink } from './restaurant-actions';
+import { QrCode, StarsInput } from './rating-parts';
 
 export interface OrderContext {
   scopeKey: string;
@@ -32,7 +33,9 @@ export interface OrderContext {
   categories: MenuCategory[];
   menuItems: MenuItemView[];
 }
-export type OrderDraft = { kind: 'create'; tableId?: string } | { kind: 'view'; order: OrderView };
+export type OrderDraft =
+  | { kind: 'create'; tableId?: string; items?: OrderItemInput[] }
+  | { kind: 'view'; order: OrderView };
 
 const STATUS_ACTION: Record<OrderStatus, string> = {
   NEW: 'Вернуть в новые',
@@ -58,6 +61,7 @@ function RatingPanel({
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
+  const [link, setLink] = useState<{ url: string; expiresAt: string } | null>(null);
   if (order.status !== 'CLOSED') return null;
   if (order.rating)
     return (
@@ -86,32 +90,40 @@ function RatingPanel({
       }
     });
   }
+  function qr() {
+    start(async () => {
+      const result = await orderRatingLink(ctx.scopeKey, order.id);
+      if (result.error || !result.token) return setError(result.error ?? 'Ссылка не выдана');
+      setError('');
+      setLink({ url: `${window.location.origin}/rate/${result.token}`, expiresAt: result.expiresAt ?? '' });
+    });
+  }
   return (
     <section className="rest-rating" aria-label="Оцените обслуживание" data-testid="order-rating">
       {error && <Alert>{error}</Alert>}
       <strong>Оцените обслуживание{order.waiter ? `: ${order.waiter.name}` : ''}</strong>
-      <div className="rest-stars" role="radiogroup" aria-label="Звёзды">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            role="radio"
-            aria-checked={stars === n}
-            aria-label={`${n} из 5`}
-            className="rest-star"
-            data-on={n <= stars}
-            onClick={() => setStars(n)}
-          >
-            {n <= stars ? '★' : '☆'}
-          </button>
-        ))}
-      </div>
+      <StarsInput value={stars} onChange={setStars} />
       <Field label="Комментарий гостя">
         <Input value={comment} maxLength={500} onChange={(e) => setComment(e.target.value)} />
       </Field>
       <Button disabled={pending} onClick={send}>
         Отправить оценку
       </Button>
+      {link ? (
+        <div className="rest-qr-box" data-testid="order-rating-qr">
+          <QrCode text={link.url} label="QR-код: оценка с телефона гостя" />
+          <p className="muted">
+            Гость наводит камеру и ставит оценку сам. Ссылка одна на заказ и действует 72 часа.
+          </p>
+          <a href={link.url} target="_blank" rel="noreferrer" className="rest-qr-link">
+            {link.url}
+          </a>
+        </div>
+      ) : (
+        <Button tone="secondary" disabled={pending} onClick={qr}>
+          QR-код для гостя
+        </Button>
+      )}
     </section>
   );
 }
@@ -266,20 +278,32 @@ function DishPicker({
   };
   return (
     <div className="rest-pos-menu">
-      <ChipGroup label="Категория">
-        <Chip selected={!category} onClick={() => setCategory('')}>
+      <nav className="rest-utabs" aria-label="Категории меню">
+        <button type="button" aria-current={!category ? 'page' : undefined} onClick={() => setCategory('')}>
           Все блюда
-        </Chip>
+        </button>
         {ctx.categories
           .filter((c) => c.active)
           .map((c) => (
-            <Chip key={c.id} selected={category === c.id} onClick={() => setCategory(c.id)}>
+            <button
+              key={c.id}
+              type="button"
+              aria-current={category === c.id ? 'page' : undefined}
+              onClick={() => setCategory(c.id)}
+            >
               {c.name}
-            </Chip>
+            </button>
           ))}
-      </ChipGroup>
-      <Field label="Поиск блюда">
-        <Input type="search" value={query} onChange={(e) => setQuery(e.target.value)} />
+      </nav>
+      <Field label={<span className="sr-only">Поиск блюда</span>}>
+        <IconField icon="search">
+          <Input
+            type="search"
+            placeholder="Поиск блюда"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </IconField>
       </Field>
       {dishes.length === 0 ? (
         <p className="muted">Блюд не найдено</p>
@@ -391,7 +415,8 @@ export function OrderDrawer({
   const [items, setItems] = useState<OrderItemInput[]>(
     order?.items
       .filter((i) => i.menuItemId)
-      .map((i) => ({ menuItemId: i.menuItemId!, qty: i.qty, notes: i.notes })) ?? [],
+      .map((i) => ({ menuItemId: i.menuItemId!, qty: i.qty, notes: i.notes })) ??
+      (draft.kind === 'create' ? (draft.items ?? []) : []),
   );
   const areaName = useMemo(
     () => new Map(ctx.areas.map((a) => [a.id, a.name])),
@@ -590,7 +615,11 @@ export function OrderDrawer({
                 <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
               </Field>
               <div className="food-actions">
-                <Button disabled={pending || items.length === 0} onClick={submit}>
+                <Button
+                  className={order ? undefined : 'rest-btn-go'}
+                  disabled={pending || items.length === 0}
+                  onClick={submit}
+                >
                   {order ? 'Сохранить' : 'Отправить на кухню'}
                 </Button>
                 <Button

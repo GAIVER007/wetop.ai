@@ -69,13 +69,21 @@ export type Dictionary = {
       title: string;
       date: string;
       scope: string;
-      metrics: Array<{ name: string; value: string; delta: string }>;
-      arrivalsTitle: string;
-      arrivals: Array<{ time: string; name: string; detail: string; guests: string }>;
-      chartTitle: string;
+      /** Подпись переключателя направлений над мокапом (для читалки). */
+      switchLabel: string;
       chartDays: string[];
-      chartValues: number[];
-      chartPeak: string;
+      /** Один и тот же экран «Сегодня» глазами гостиницы, салона и ресторана. */
+      views: Array<{
+        id: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+        tab: string;
+        metrics: Array<{ name: string; value: string; delta: string }>;
+        listTitle: string;
+        rows: Array<{ time: string; name: string; detail: string; extra: string }>;
+        chartTitle: string;
+        chartValues: number[];
+        /** Всплывающие уведомления у мокапа на компьютере: пример жизни системы, не данные. */
+        toasts: Array<{ icon: IconName; title: string; text: string }>;
+      }>;
       showAll: string;
     };
   };
@@ -103,14 +111,33 @@ export type Dictionary = {
     eyebrow: string;
     title: string;
     lead: string;
-    items: Array<{ icon: IconName; title: string; text: string }>;
+    /** Пометка у возможности, которой в продукте ещё нет (§19.9: сайт не выдаёт план за готовое). */
+    soon: string;
+    groups: Array<{
+      title: string;
+      items: Array<{ icon: IconName; title: string; text: string; soon?: boolean }>;
+    }>;
   };
-  /** «Продажи и ИИ»: две большие карточки с примерами и полоса источников броней. */
+  /** «Продажи, маркетинг и ИИ»: три витрины, у каждой текст и пример экрана. */
   growth: {
     eyebrow: string;
     title: string;
     lead: string;
+    sales: {
+      kicker: string;
+      icon: IconName;
+      title: string;
+      text: string;
+      points: string[];
+      action: string;
+      feed: {
+        label: string;
+        title: string;
+        rows: Array<{ icon: IconName; source: string; guest: string; detail: string; value: string }>;
+      };
+    };
     market: {
+      kicker: string;
       icon: IconName;
       title: string;
       text: string;
@@ -126,6 +153,7 @@ export type Dictionary = {
       };
     };
     ai: {
+      kicker: string;
       icon: IconName;
       title: string;
       text: string;
@@ -140,11 +168,6 @@ export type Dictionary = {
         outbound: string;
         placeholder: string;
       };
-    };
-    sources: {
-      title: string;
-      lead: string;
-      items: Array<{ icon: IconName; title: string; text: string }>;
     };
   };
   /** «Команда и контроль доступа»: три карточки. */
@@ -394,7 +417,6 @@ export type Dictionary = {
     register: {
       title: string;
       lead: string;
-      pilotLead: string;
       submit: string;
       pending: string;
       terms: string;

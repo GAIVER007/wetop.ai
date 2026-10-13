@@ -27,18 +27,20 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
   const own = { org: randomUUID(), business: randomUUID(), location: randomUUID(), user: randomUUID() };
   const other = { org: randomUUID(), business: randomUUID(), location: randomUUID(), customer: randomUUID() };
 
-  // Будущий понедельник: API не возвращает уже закончившиеся отсутствия.
-  // 10:00 по Алматы остаётся 05:00 UTC, недельное расписание не меняется.
+  // Ближайший понедельник после сегодняшнего дня по Алматы; 10:00 по Алматы это 05:00 UTC. Дата была
+  // зашита как 2026-10-12, и с 13.10 отсутствие на этот день стало прошедшим: список отсутствий отдаёт только
+  // идущие и будущие (`schedule.ts`, `dateTo >= сегодня`), и снять его по списку тест уже не мог
   const DATE = (() => {
-    const date = new Date();
-    date.setUTCDate(date.getUTCDate() + 7 + ((8 - date.getUTCDay()) % 7));
-    return date.toISOString().slice(0, 10);
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+    const d = new Date(`${today}T00:00:00Z`);
+    do d.setUTCDate(d.getUTCDate() + 1);
+    while (d.getUTCDay() !== 1);
+    return d.toISOString().slice(0, 10);
   })();
   const at = (hhmm: string) => {
     const [h, m] = hhmm.split(':').map(Number);
-    const date = new Date(`${DATE}T00:00:00Z`);
-    date.setUTCHours((h as number) - 5, m);
-    return date.toISOString();
+    const [y, mo, d] = DATE.split('-').map(Number);
+    return new Date(Date.UTC(y as number, (mo as number) - 1, d, (h as number) - 5, m)).toISOString();
   };
 
   const as = <T>(role: 'OWNER' | 'STAFF', fn: () => Promise<T>) =>

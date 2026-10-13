@@ -18,6 +18,9 @@ const routes = [
   '/channels',
   // MKT2: вход в сайт через хаб «Маркетинг» (ADR-149)
   '/marketing',
+  // МКТ-В1/В2: «Бюджет» и «Аналитика» в группе «Маркетинг»
+  '/marketing/budget',
+  '/marketing/analytics',
   // «Показатели за период» (A1) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114): в меню их нет
   '/reports',
   '/finance',
@@ -224,7 +227,7 @@ test('«Гости и бронирования»: один пункт меню, 
   await page.goto('/guests');
   const main = page.getByRole('main');
   // подразделы левого меню (ADR-161): каждый адрес один раз, текущий помечен
-  const menu = page.locator('.sidenav__items');
+  const menu = page.locator('.sidenav__nav');
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
   await main.getByRole('link', { name: 'Список броней', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations$/);

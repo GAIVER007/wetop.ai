@@ -20,6 +20,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { SITE_ASSET_LIMITS } from '@pms/domain';
 import { SITE_ASSET_STORAGE, siteAssetStorageFromEnv } from '../marketing-site/asset-storage';
 import { MenuPhotoService } from './menu-photos';
+import { OrderRatingLinkController, OrderRatingLinkService } from './order-rating-link';
 import { Access } from '../auth/access.decorator';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { PrismaService } from '../database/prisma.provider';
@@ -36,6 +37,23 @@ export class FoodCatalogController {
   }
   @Post('areas') @Access('property') createArea(@Body() b: unknown) {
     return this.service.createCatalog('area', b);
+  }
+  // Правила брони столов (§43, ADR-177): смотрят все роли стойки, меняет право «объект»
+  @Get('booking-rules') bookingSettings() {
+    return this.service.bookingSettings();
+  }
+  @Put('booking-rules') @Access('property') setBookingRules(@Body() b: unknown) {
+    return this.service.setBookingRules(b);
+  }
+  @Post('closed-days') @Access('property') addClosedDay(@Body() b: unknown) {
+    return this.service.addClosedDay(b);
+  }
+  @Delete('closed-days/:id') @Access('property') removeClosedDay(@Param('id') id: string) {
+    return this.service.removeClosedDay(id);
+  }
+  // Схема зала (§42, ADR-174): расстановка зоны целиком
+  @Put('areas/:id/layout') @Access('property') layout(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.setLayout(id, b);
   }
   @Patch('areas/:id') @Access('property') updateArea(@Param('id') id: string, @Body() b: unknown) {
     return this.service.updateCatalog('area', id, b);
@@ -173,6 +191,9 @@ export class FoodOrdersController {
   @Post('orders/:id/rating') rate(@Param('id') id: string, @Body() b: unknown) {
     return this.service.rateOrder(id, b);
   }
+  @Post('orders/:id/rating-link') @HttpCode(200) ratingLink(@Param('id') id: string) {
+    return this.service.ratingLink(id);
+  }
   @Post('orders/:id/payments') pay(@Param('id') id: string, @Body() b: unknown) {
     return this.service.payOrder(id, b);
   }
@@ -222,6 +243,13 @@ export class FoodStaffController {
     @Body() b: unknown,
   ) {
     return this.service.updateEmployee(id, b);
+  }
+  // График смен (Q-REST-11): смотрят все роли стойки, меняет право «сотрудники»
+  @Get('shifts') shifts() {
+    return this.service.shifts();
+  }
+  @Put('employees/:id/working-hours') @Access('staff') setShifts(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.setShifts(id, b);
   }
   @Get('payroll') @Access('staff') payroll(@Query() q: Record<string, unknown>) {
     return this.service.payroll(q);
@@ -287,6 +315,7 @@ export class FoodStockController {
     FoodOrdersController,
     FoodStaffController,
     FoodStockController,
+    OrderRatingLinkController,
   ],
   providers: [
     PrismaService,
@@ -294,6 +323,7 @@ export class FoodStockController {
     RestaurantService,
     StockService,
     MenuPhotoService,
+    OrderRatingLinkService,
     { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
   ],
   exports: [FoodService, RestaurantService],

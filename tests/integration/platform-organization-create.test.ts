@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { ConflictException, ForbiddenException, HttpException } from '@nestjs/common';
+import { ConflictException, HttpException } from '@nestjs/common';
 import { createPrismaClient, type Db } from '@pms/database';
 import { hashSessionToken } from '@pms/domain';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
@@ -48,7 +48,6 @@ describe.skipIf(!url)('создание организации главным а
     return value;
   };
   const tokenOf = (letter: { text: string }) => decodeURIComponent(/token=([^\s]+)/.exec(letter.text)![1]!.replace(/\+/g, ' '));
-  const env = { ...process.env };
 
   beforeAll(async () => {
     db = createPrismaClient(url);
@@ -60,12 +59,9 @@ describe.skipIf(!url)('создание организации главным а
 
   afterEach(() => {
     mailer.failing = false;
-    delete process.env.REGISTRATION_BEAUTY_PILOT_EMAILS;
   });
 
   afterAll(async () => {
-    process.env.REGISTRATION_BEAUTY_PILOT_EMAILS = env.REGISTRATION_BEAUTY_PILOT_EMAILS;
-    if (env.REGISTRATION_BEAUTY_PILOT_EMAILS === undefined) delete process.env.REGISTRATION_BEAUTY_PILOT_EMAILS;
     if (!db) return;
     const users = (await db.user.findMany({ where: { email: { in: emails } }, select: { id: true } })).map((u) => u.id);
     await purgeAuditRows(db, { organizationId: { in: orgs } });
@@ -173,15 +169,8 @@ describe.skipIf(!url)('создание организации главным а
     expect(await db.organization.count({ where: { name: `хостел занят ${mark}` } })).toBe(0);
   });
 
-  it('салон без пилота: 403 и ничего не создано; почта из списка пилота: бизнес и филиал без объекта', async () => {
+  it('салон без списка пилота (ADR-172): бизнес и филиал без объекта', async () => {
     const owner = email('beauty');
-    await expect(
-      creation.create({ name: `Салон Лотос ${mark}`, ownerEmail: owner, vertical: 'BEAUTY', by: admin }),
-    ).rejects.toThrow(ForbiddenException);
-    expect(await db.organization.count({ where: { name: `Салон Лотос ${mark}` } })).toBe(0);
-    expect(await db.user.count({ where: { email: owner } })).toBe(0);
-
-    process.env.REGISTRATION_BEAUTY_PILOT_EMAILS = owner;
     const made = await creation.create({ name: `Салон Лотос ${mark}`, ownerEmail: owner, vertical: 'BEAUTY', by: admin });
     track(made.organizationId);
     expect(await db.business.count({ where: { organizationId: made.organizationId, vertical: 'BEAUTY' } })).toBe(1);

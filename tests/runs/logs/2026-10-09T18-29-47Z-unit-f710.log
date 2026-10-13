@@ -1,0 +1,139 @@
+# Модульные (unit) · 09.10.2026 23:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 31
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-29-47Z-unit-f710.json' 'apps/web/src/lib'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| apps/web/src/lib/status/status.test.ts (13 tests) 24ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 148ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 32ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 164ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (19 tests) 7ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 9ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 8ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 10ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 10ms
+ ❯ |unit| apps/web/src/lib/website-navigation.test.ts (9 tests | 1 failed) 20ms
+   ❯ сайт в меню — одно место (ADR-117) (6)
+     × «Маркетинг»: своя группа, первый пункт «Сайт и SEO» ведёт в хаб /marketing 9ms
+     ✓ в «Продажах» сайта больше нет 1ms
+     ✓ хаб и сайт открыты тем же правом, что и раньше сайт (settings), своего права нет 0ms
+     ✓ отдельных «Аналитики сайта» и «Настроек сайта» больше нет 3ms
+     ✓ «Интеграции» не обещают счётчик и модуль бронирования 0ms
+     ✓ вкладки модуля подсвечивают один пункт меню: «Сайт и SEO» группы «Маркетинг» 1ms
+   ✓ старые адреса ведут в модуль (1)
+     ✓ временная переадресация: /analytics → аналитика, /analytics/setup → настройки 1ms
+   ✓ хаб «Маркетинг» и выбор филиала (2)
+     ✓ один гостиничный филиал: после выбора человек возвращается на /marketing и /website/* 4ms
+     ✓ салон и ресторан на гостиничный хаб не возвращаются; филиалов несколько: выбор, нет: настройка 0ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (29 tests) 13ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 5ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 5ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 12ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests) 203ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 38ms
+ ✓ |unit| apps/web/src/lib/report-query.test.ts (12 tests) 11ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 904ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 891ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 81ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 161ms
+ ❯ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests | 1 failed) 48ms
+   × organizes the menu by tasks: desk screens first, groups only for multi-screen areas 44ms
+   ✓ phone bottom bar: the four leading tabs, every one a direct tab 0ms
+   ✓ guests and bookings are one menu tab: the reservations list has no tab of its own 1ms
+ ✓ |unit| apps/web/src/lib/food-data.test.ts (4 tests) 9ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 1386ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 1071ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/lib/line-geometry.test.ts (5 tests) 29ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 17ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 183ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/food-api.test.ts (1 test) 2ms
+ ✓ |unit| apps/web/src/lib/donut.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 111ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/lib/occupancy-kinds.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/branch-report-api.test.ts (2 tests) 78ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 8ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 62ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 2ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 96ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 11ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 31ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 3ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 9ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 12ms
+ ✓ |unit| apps/web/src/lib/registration-context-client.test.ts (1 test) 290ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/website-navigation.test.ts > сайт в меню — одно место (ADR-117) > «Маркетинг»: своя группа, первый пункт «Сайт и SEO» ведёт в хаб /marketing
+AssertionError: expected [ Array(2) ] to deeply equal [ [ '/marketing', 'Сайт и SEO' ] ]
+
+- Expected
++ Received
+
+  [
+    [
+      "/marketing",
+      "Сайт и SEO",
+    ],
++   [
++     "/marketing/budget",
++     "Бюджет",
++   ],
+  ]
+
+ ❯ apps/web/src/lib/website-navigation.test.ts:22:69
+     20|     expect(marketing?.label).toBe('Маркетинг');
+     21|     expect(marketing?.direct).toBeUndefined();
+     22|     expect(marketing?.items.map((item) => [item.href, item.label])).to…
+       |                                                                     ^
+     23|       ['/marketing', 'Сайт и SEO'],
+     24|     ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/workspace-organization.test.ts > organizes the menu by tasks: desk screens first, groups only for multi-screen areas
+AssertionError: expected [ '/marketing', '/marketing/budget' ] to deeply equal [ '/marketing' ]
+
+- Expected
++ Received
+
+  [
+    "/marketing",
++   "/marketing/budget",
+  ]
+
+ ❯ apps/web/src/lib/workspace-organization.test.ts:29:84
+     27|     '/ai-agents',
+     28|   ]);
+     29|   expect(menuSections.find((s) => s.id === 'marketing')?.items.map((i)…
+       |                                                                                    ^
+     30|     '/marketing',
+     31|   ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 53 passed (55)
+      Tests  2 failed | 401 passed (403)
+   Start at  11:29:48
+   Duration  5.64s (transform 54%, import 26%, tests 17%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-29-47Z-unit-f710.json
+
+# код выхода 1 · 7 с

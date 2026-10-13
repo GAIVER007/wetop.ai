@@ -88,7 +88,16 @@ model Location {
 
   bookingTrackedSite     TrackedSite?                   @relation("LocationBookingSite", fields: [bookingTrackedSiteId], references: [id], onDelete: SetNull)
   diningAreas            DiningArea[]
+  barCategories          BarCategory[]
+  barProducts            BarProduct[]
+  barSuppliers           BarSupplier[]
+  barReceipts            BarReceipt[]
+  barStockLots           BarStockLot[]
+  barStockMovements      BarStockMovement[]
+  barSales               BarSale[]
   servicePeriods         ServicePeriod[]
+  foodBookingRules       FoodBookingRules?
+  foodClosedDays         FoodClosedDay[]
   restaurantReservations RestaurantReservation[]
   restaurantOrders       RestaurantOrder[]
   kitchenStockLots       KitchenStockLot[]
@@ -107,6 +116,8 @@ model Location {
   appointments           Appointment[]
   /// MKT9.2: один филиал, один сайт навсегда (полный UNIQUE location_id, архив не освобождает филиал)
   marketingSite          MarketingSite?
+  marketingExpenses      MarketingExpense[]
+  marketingBudgets       MarketingBudget[]
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
@@ -140,6 +151,61 @@ model PropertyMedia {
 
   @@index([propertyId, kind])
   @@map("property_media")
+}
+
+/// Каналы продвижения (ТЗ «Модуль Маркетинг» §4, DATA_MODEL §41)
+enum MarketingPlatform {
+  META
+  GOOGLE
+  TIKTOK
+  INSTAGRAM
+  YOUTUBE
+  WHATSAPP
+  SITE
+  PHONE
+  OTHER
+}
+
+/// §41.1 (v2.24, ADR-MKT-B1): журнал расходов на маркетинг филиала. Деньги BigInt в minor units (ADR-008):
+/// amount в валюте ввода, base_amount в валюте отчётности организации по курсу fx_rate, зафиксированному
+/// на дату операции (ТЗ §8.3). Правки и удаления пишутся в журнал организации (аудит, ТЗ §8.7).
+model MarketingExpense {
+  id              String            @id @default(uuid()) @db.Uuid
+  locationId      String            @map("location_id") @db.Uuid
+  date            DateTime          @db.Date
+  platform        MarketingPlatform
+  campaign        String?           @db.VarChar(200)
+  category        String            @db.VarChar(100)
+  description     String?           @db.VarChar(500)
+  amount          BigInt
+  currency        String            @db.Char(3)
+  fxRate          Decimal           @map("fx_rate") @db.Decimal(14, 6)
+  baseAmount      BigInt            @map("base_amount")
+  countedInBudget Boolean           @default(true) @map("counted_in_budget")
+  createdById     String?           @map("created_by_id") @db.Uuid
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([locationId, date])
+  @@map("marketing_expenses")
+}
+
+/// §41.2 (v2.24, ADR-MKT-B1): план бюджета маркетинга филиала на месяц, в валюте отчётности организации.
+model MarketingBudget {
+  id         String   @id @default(uuid()) @db.Uuid
+  locationId String   @map("location_id") @db.Uuid
+  month      DateTime @db.Date
+  amount     BigInt
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([locationId, month])
+  @@map("marketing_budgets")
 }
 
 model Property {
@@ -1056,22 +1122,27 @@ enum BarSaleStatus {
 
 model BarCategory {
   id                 String   @id @default(uuid()) @db.Uuid
-  propertyId         String   @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId         String   @map("location_id") @db.Uuid
+  propertyId         String?  @map("property_id") @db.Uuid
   name               String
   defaultMarkupBasis Int      @map("default_markup_basis")
   active             Boolean  @default(true)
   createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  property Property     @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location Location     @relation(fields: [locationId], references: [id], onDelete: Restrict)
   products BarProduct[]
 
-  @@unique([propertyId, name])
+  @@unique([locationId, name])
   @@map("bar_categories")
 }
 
 model BarProduct {
   id                String   @id @default(uuid()) @db.Uuid
-  propertyId        String   @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId        String   @map("location_id") @db.Uuid
+  propertyId        String?  @map("property_id") @db.Uuid
   categoryId        String?  @map("category_id") @db.Uuid
   code              String
   name              String
@@ -1084,22 +1155,25 @@ model BarProduct {
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property     Property           @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property     Property?          @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location     Location           @relation(fields: [locationId], references: [id], onDelete: Restrict)
   category     BarCategory?       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   receiptLines BarReceiptLine[]
   lots         BarStockLot[]
   movements    BarStockMovement[]
   saleLines    BarSaleLine[]
 
-  @@unique([propertyId, code])
-  @@unique([propertyId, barcode])
-  @@index([propertyId, active])
+  @@unique([locationId, code])
+  @@unique([locationId, barcode])
+  @@index([locationId, active])
   @@map("bar_products")
 }
 
 model BarSupplier {
   id         String   @id @default(uuid()) @db.Uuid
-  propertyId String   @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId String   @map("location_id") @db.Uuid
+  propertyId String?  @map("property_id") @db.Uuid
   name       String
   phone      String?
   email      String?
@@ -1108,16 +1182,19 @@ model BarSupplier {
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property Property     @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location Location     @relation(fields: [locationId], references: [id], onDelete: Restrict)
   receipts BarReceipt[]
 
-  @@unique([propertyId, name])
+  @@unique([locationId, name])
   @@map("bar_suppliers")
 }
 
 model BarReceipt {
   id             String           @id @default(uuid()) @db.Uuid
-  propertyId     String           @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId     String           @map("location_id") @db.Uuid
+  propertyId     String?          @map("property_id") @db.Uuid
   supplierId     String           @map("supplier_id") @db.Uuid
   documentNumber String           @map("document_number")
   documentDate   DateTime         @map("document_date") @db.Date
@@ -1132,13 +1209,14 @@ model BarReceipt {
   createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property Property             @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property Property?            @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location Location             @relation(fields: [locationId], references: [id], onDelete: Restrict)
   supplier BarSupplier          @relation(fields: [supplierId], references: [id], onDelete: Restrict)
   lines    BarReceiptLine[]
   payments BarSupplierPayment[]
 
-  @@unique([propertyId, supplierId, documentNumber])
-  @@index([propertyId, receivedDate])
+  @@unique([locationId, supplierId, documentNumber])
+  @@index([locationId, receivedDate])
   @@map("bar_receipts")
 }
 
@@ -1162,7 +1240,9 @@ model BarReceiptLine {
 
 model BarStockLot {
   id             String    @id @default(uuid()) @db.Uuid
-  propertyId     String    @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId     String    @map("location_id") @db.Uuid
+  propertyId     String?   @map("property_id") @db.Uuid
   productId      String    @map("product_id") @db.Uuid
   receiptLineId  String    @unique @map("receipt_line_id") @db.Uuid
   receivedUnits  BigInt    @map("received_units")
@@ -1171,18 +1251,21 @@ model BarStockLot {
   receivedAt     DateTime  @map("received_at") @db.Timestamptz(6)
   expiresOn      DateTime? @map("expires_on") @db.Date
 
-  property    Property           @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property    Property?          @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location    Location           @relation(fields: [locationId], references: [id], onDelete: Restrict)
   product     BarProduct         @relation(fields: [productId], references: [id], onDelete: Restrict)
   receiptLine BarReceiptLine     @relation(fields: [receiptLineId], references: [id], onDelete: Restrict)
   movements   BarStockMovement[]
 
-  @@index([propertyId, productId, receivedAt])
+  @@index([locationId, productId, receivedAt])
   @@map("bar_stock_lots")
 }
 
 model BarStockMovement {
   id          String               @id @default(uuid()) @db.Uuid
-  propertyId  String               @map("property_id") @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId  String               @map("location_id") @db.Uuid
+  propertyId  String?              @map("property_id") @db.Uuid
   productId   String               @map("product_id") @db.Uuid
   lotId       String?              @map("lot_id") @db.Uuid
   kind        BarStockMovementKind
@@ -1194,54 +1277,64 @@ model BarStockMovement {
   createdById String?              @map("created_by_id") @db.Uuid
   createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  property Property     @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location Location     @relation(fields: [locationId], references: [id], onDelete: Restrict)
   product  BarProduct   @relation(fields: [productId], references: [id], onDelete: Restrict)
   lot      BarStockLot? @relation(fields: [lotId], references: [id], onDelete: Restrict)
 
   @@unique([sourceType, sourceId, productId, lotId])
-  @@index([propertyId, productId, createdAt])
+  @@index([locationId, productId, createdAt])
   @@map("bar_stock_movements")
 }
 
 model BarSupplierPayment {
-  id              String   @id @default(uuid()) @db.Uuid
-  receiptId       String   @map("receipt_id") @db.Uuid
-  cashOperationId String   @unique @map("cash_operation_id") @db.Uuid
-  amount          BigInt
-  paidAt          DateTime @map("paid_at") @db.Timestamptz(6)
-  createdById     String?  @map("created_by_id") @db.Uuid
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id                        String   @id @default(uuid()) @db.Uuid
+  receiptId                 String   @map("receipt_id") @db.Uuid
+  /// касса ресторана (§45): ровно одна касса у оплаты
+  restaurantCashOperationId String?  @unique @map("restaurant_cash_operation_id") @db.Uuid
+  cashOperationId           String?  @unique @map("cash_operation_id") @db.Uuid
+  amount                    BigInt
+  paidAt                    DateTime @map("paid_at") @db.Timestamptz(6)
+  createdById               String?  @map("created_by_id") @db.Uuid
+  createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  receipt       BarReceipt    @relation(fields: [receiptId], references: [id], onDelete: Restrict)
-  cashOperation CashOperation @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
+  receipt                 BarReceipt               @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  cashOperation           CashOperation?           @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
+  restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
 
   @@index([receiptId, paidAt])
   @@map("bar_supplier_payments")
 }
 
 model BarSale {
-  id              String        @id @default(uuid()) @db.Uuid
-  propertyId      String        @map("property_id") @db.Uuid
-  folioId         String?       @map("folio_id") @db.Uuid
-  cashOperationId String?       @unique @map("cash_operation_id") @db.Uuid
-  chargeId        String?       @unique @map("charge_id") @db.Uuid
-  idempotencyKey  String        @map("idempotency_key")
-  status          BarSaleStatus @default(POSTED)
-  currency        String        @db.Char(3)
-  totalRevenue    BigInt        @map("total_revenue")
-  totalCost       BigInt        @map("total_cost")
-  createdById     String?       @map("created_by_id") @db.Uuid
-  reversedAt      DateTime?     @map("reversed_at") @db.Timestamptz(6)
-  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  id                        String        @id @default(uuid()) @db.Uuid
+  /// бар на филиале (§44): объект только у бара гостиницы
+  locationId                String        @map("location_id") @db.Uuid
+  propertyId                String?       @map("property_id") @db.Uuid
+  folioId                   String?       @map("folio_id") @db.Uuid
+  /// касса ресторана (§45); у одной продажи не больше одной кассы
+  restaurantCashOperationId String?       @unique @map("restaurant_cash_operation_id") @db.Uuid
+  cashOperationId           String?       @unique @map("cash_operation_id") @db.Uuid
+  chargeId                  String?       @unique @map("charge_id") @db.Uuid
+  idempotencyKey            String        @map("idempotency_key")
+  status                    BarSaleStatus @default(POSTED)
+  currency                  String        @db.Char(3)
+  totalRevenue              BigInt        @map("total_revenue")
+  totalCost                 BigInt        @map("total_cost")
+  createdById               String?       @map("created_by_id") @db.Uuid
+  reversedAt                DateTime?     @map("reversed_at") @db.Timestamptz(6)
+  createdAt                 DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  property      Property       @relation(fields: [propertyId], references: [id], onDelete: Restrict)
-  folio         Folio?         @relation(fields: [folioId], references: [id], onDelete: Restrict)
-  cashOperation CashOperation? @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
-  charge        Charge?        @relation(fields: [chargeId], references: [id], onDelete: Restrict)
-  lines         BarSaleLine[]
+  property                Property?                @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  location                Location                 @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  folio                   Folio?                   @relation(fields: [folioId], references: [id], onDelete: Restrict)
+  cashOperation           CashOperation?           @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
+  restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
+  charge                  Charge?                  @relation(fields: [chargeId], references: [id], onDelete: Restrict)
+  lines                   BarSaleLine[]
 
-  @@unique([propertyId, idempotencyKey])
-  @@index([propertyId, createdAt])
+  @@unique([locationId, idempotencyKey])
+  @@index([locationId, createdAt])
   @@map("bar_sales")
 }
 
@@ -2207,6 +2300,7 @@ model User {
   sitePublications             MarketingSitePublication[]
   siteAssetsCreated            SiteAsset[]
   propertyMedia                PropertyMedia[]
+  marketingExpensesCreated     MarketingExpense[]
   siteAiRunsRequested          SiteAiRun[]
   siteBookmarksCreated         MarketingSiteVersionBookmark[]
   siteBuilderEntitlementEdits  SiteBuilderEntitlement[]
@@ -2938,6 +3032,13 @@ model DiningArea {
   @@map("dining_areas")
 }
 
+/// Форма стола на схеме зала (§42)
+enum DiningTableShape {
+  ROUND
+  SQUARE
+  RECT
+}
+
 model DiningTable {
   id            String            @id @default(uuid()) @db.Uuid
   areaId        String            @map("area_id") @db.Uuid
@@ -2946,6 +3047,12 @@ model DiningTable {
   sortOrder     Int               @default(0) @map("sort_order")
   active        Boolean           @default(true)
   needsCleaning Boolean           @default(false) @map("needs_cleaning")
+  /// схема зала (§42): центр на полотне зоны 0–1000, пусто значит «не расставлен»
+  posX          Int?              @map("pos_x") @db.SmallInt
+  posY          Int?              @map("pos_y") @db.SmallInt
+  shape         DiningTableShape?
+  scale         Int               @default(100) @db.SmallInt
+  rotation      Int               @default(0) @db.SmallInt
   createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
   area          DiningArea        @relation(fields: [areaId], references: [id])
@@ -2954,6 +3061,31 @@ model DiningTable {
 
   @@unique([areaId, name])
   @@map("dining_tables")
+}
+
+/// Правила брони столов филиала (§43); нет строки значит прежнее поведение
+model FoodBookingRules {
+  locationId    String   @id @map("location_id") @db.Uuid
+  bufferMinutes Int      @default(0) @map("buffer_minutes") @db.SmallInt
+  horizonDays   Int?     @map("horizon_days") @db.SmallInt
+  maxPartySize  Int?     @map("max_party_size") @db.SmallInt
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location      Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@map("food_booking_rules")
+}
+
+/// Закрытый для броней день филиала (§43)
+model FoodClosedDay {
+  id         String   @id @default(uuid()) @db.Uuid
+  locationId String   @map("location_id") @db.Uuid
+  day        DateTime @db.Date
+  reason     String?  @db.VarChar(200)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([locationId, day])
+  @@map("food_closed_days")
 }
 
 model ServicePeriod {
@@ -3098,32 +3230,35 @@ model MenuItemIngredient {
 
 /// Заказ: номер по филиалу, статусная машина §33.2, `total` — снимок суммы строк
 model RestaurantOrder {
-  id             String                 @id @default(uuid()) @db.Uuid
-  locationId     String                 @map("location_id") @db.Uuid
-  number         Int
-  tableId        String?                @map("table_id") @db.Uuid
-  waiterId       String?                @map("waiter_id") @db.Uuid
-  guestCount     Int                    @default(1) @map("guest_count")
-  status         RestaurantOrderStatus  @default(NEW)
-  notes          String?
-  total          BigInt                 @default(0)
-  currency       String                 @db.Char(3)
-  openedAt       DateTime               @default(now()) @map("opened_at") @db.Timestamptz(6)
-  cookingAt      DateTime?              @map("cooking_at") @db.Timestamptz(6)
-  readyAt        DateTime?              @map("ready_at") @db.Timestamptz(6)
-  servedAt       DateTime?              @map("served_at") @db.Timestamptz(6)
-  closedAt       DateTime?              @map("closed_at") @db.Timestamptz(6)
-  createdById    String?                @map("created_by_id") @db.Uuid
-  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
-  location       Location               @relation(fields: [locationId], references: [id])
-  table          DiningTable?           @relation(fields: [tableId], references: [id], onDelete: Restrict)
-  waiter         Employee?              @relation(fields: [waiterId], references: [id], onDelete: Restrict)
-  createdBy      User?                  @relation(fields: [createdById], references: [id])
-  items          RestaurantOrderItem[]
-  payments       RestaurantPayment[]
-  stockMovements KitchenStockMovement[]
-  rating         RestaurantOrderRating?
+  id                   String                 @id @default(uuid()) @db.Uuid
+  locationId           String                 @map("location_id") @db.Uuid
+  number               Int
+  tableId              String?                @map("table_id") @db.Uuid
+  waiterId             String?                @map("waiter_id") @db.Uuid
+  guestCount           Int                    @default(1) @map("guest_count")
+  status               RestaurantOrderStatus  @default(NEW)
+  notes                String?
+  total                BigInt                 @default(0)
+  currency             String                 @db.Char(3)
+  openedAt             DateTime               @default(now()) @map("opened_at") @db.Timestamptz(6)
+  cookingAt            DateTime?              @map("cooking_at") @db.Timestamptz(6)
+  readyAt              DateTime?              @map("ready_at") @db.Timestamptz(6)
+  servedAt             DateTime?              @map("served_at") @db.Timestamptz(6)
+  closedAt             DateTime?              @map("closed_at") @db.Timestamptz(6)
+  /// SHA-256 ключа ссылки на оценку с телефона гостя (§40); ключ в базе не хранится
+  ratingTokenHash      String?                @unique @map("rating_token_hash") @db.Char(64)
+  ratingTokenExpiresAt DateTime?              @map("rating_token_expires_at") @db.Timestamptz(6)
+  createdById          String?                @map("created_by_id") @db.Uuid
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location             Location               @relation(fields: [locationId], references: [id])
+  table                DiningTable?           @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  waiter               Employee?              @relation(fields: [waiterId], references: [id], onDelete: Restrict)
+  createdBy            User?                  @relation(fields: [createdById], references: [id])
+  items                RestaurantOrderItem[]
+  payments             RestaurantPayment[]
+  stockMovements       KitchenStockMovement[]
+  rating               RestaurantOrderRating?
 
   @@unique([locationId, number])
   @@index([locationId, openedAt])
@@ -3324,10 +3459,12 @@ model RestaurantCashOperation {
   voidedById  String?           @map("voided_by_id") @db.Uuid
   createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  location  Location  @relation(fields: [locationId], references: [id])
-  employee  Employee? @relation(fields: [employeeId], references: [id], onDelete: Restrict)
-  createdBy User?     @relation("RestaurantCashOpCreatedBy", fields: [createdById], references: [id])
-  voidedBy  User?     @relation("RestaurantCashOpVoidedBy", fields: [voidedById], references: [id])
+  location           Location            @relation(fields: [locationId], references: [id])
+  employee           Employee?           @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  createdBy          User?               @relation("RestaurantCashOpCreatedBy", fields: [createdById], references: [id])
+  barSale            BarSale?
+  barSupplierPayment BarSupplierPayment?
+  voidedBy           User?               @relation("RestaurantCashOpVoidedBy", fields: [voidedById], references: [id])
 
   @@index([locationId, occurredAt])
   @@index([employeeId, period])

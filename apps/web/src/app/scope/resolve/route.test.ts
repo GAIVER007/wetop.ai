@@ -5,7 +5,7 @@ import { ApiError } from '../../../lib/api-error';
 const jar = vi.hoisted(() => ({
   set: vi.fn(),
   delete: vi.fn(),
-  get: vi.fn(() => undefined),
+  get: vi.fn((name: string): { value: string } | undefined => (name ? undefined : undefined)),
 }));
 vi.mock('next/headers', () => ({ cookies: async () => jar }));
 vi.mock('next/navigation', () => ({
@@ -31,6 +31,8 @@ const run = async (next: string) => {
 beforeEach(() => {
   jar.set.mockClear();
   jar.delete.mockClear();
+  jar.get.mockReset();
+  jar.get.mockReturnValue(undefined);
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -64,4 +66,19 @@ it('без сессии: на вход, указатель не ставится
   vi.spyOn(branchesApi, 'list').mockRejectedValue(new ApiError(401, 'Сессия истекла'));
   expect(await run('/today')).toMatch(/#login$/);
   expect(jar.set).not.toHaveBeenCalled();
+});
+
+it('несколько филиалов: последний выбранный на этом устройстве выбирается сам и запоминается снова', async () => {
+  const L2 = '33333333-3333-4333-8333-333333333333';
+  vi.spyOn(branchesApi, 'list').mockResolvedValue({
+    items: [item('HOSPITALITY'), item('BEAUTY', L2)],
+  } as never);
+  jar.get.mockImplementation((name: string) => (name === 'wetop_last_branch' ? { value: L } : undefined));
+  expect(await run('/finance')).toBe('/finance');
+  expect(jar.set).toHaveBeenCalledWith('wetop_scope', `business=${B};location=${L}`, expect.any(Object));
+  expect(jar.set).toHaveBeenCalledWith(
+    'wetop_last_branch',
+    L,
+    expect.objectContaining({ httpOnly: true, path: '/', maxAge: expect.any(Number) }),
+  );
 });

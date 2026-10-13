@@ -6,6 +6,7 @@ import {
   milliOf,
   milliText,
   parseInventory,
+  surplusUnitCost,
   parseKitchenProduct,
   parseKitchenReceipt,
   parseWriteOff,
@@ -110,3 +111,25 @@ describe('разбор форм склада', () => {
     expect(parseInventory({ productId: id(1), actualQty: '0' }).actualQty).toBe(0n);
   });
 });
+
+describe('излишек при инвентаризации (Q-KITCHEN-9, ADR-175)', () => {
+  it('цена: средняя по остатку партий, взвешенная количеством; без остатка нет', () => {
+    expect(
+      surplusUnitCost([
+        { remaining: 2_000_000n, unitCost: 600_000n },
+        { remaining: 1_000_000n, unitCost: 700_000n },
+      ]),
+    ).toBe(633_333n);
+    expect(surplusUnitCost([])).toBeNull();
+    expect(surplusUnitCost([{ remaining: 0n, unitCost: 600_000n }])).toBeNull();
+    // самая дешёвая партия не даёт нулевой цены: в базе цена партии больше нуля
+    expect(surplusUnitCost([{ remaining: 1n, unitCost: 1n }, { remaining: 1_000_000n, unitCost: 0n }])).toBe(1n);
+  });
+  it('ручная цена в инвентаризации необязательна и в тех же единицах, что у прихода', () => {
+    const id = '00000000-0000-4000-8000-000000000001';
+    expect(parseInventory({ productId: id, actualQty: '100' }).unitCost).toBeNull();
+    expect(parseInventory({ productId: id, actualQty: '100', unitCost: 500_000 }).unitCost).toBe(500_000n);
+    expect(() => parseInventory({ productId: id, actualQty: '100', unitCost: 0 })).toThrow();
+  });
+});
+

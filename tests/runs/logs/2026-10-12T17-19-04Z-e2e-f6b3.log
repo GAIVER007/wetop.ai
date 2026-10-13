@@ -1,0 +1,18 @@
+# Сквозные (e2e) · 12.10.2026 22:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1853a26 (claude/food-ui-redirect), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '--repeat-each=2' 'tests/food-ui/food.spec.ts:328' 'tests/food-ui/food.spec.ts:593' 'tests/food-ui/food.spec.ts:606'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/food-ui/food.spec.ts:593:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается (3.5s)
+  ✓  2 tests/food-ui/food.spec.ts:593:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается (2.3s)
+
+  2 passed (13.9s)
+
+# код выхода 0 · 15 с

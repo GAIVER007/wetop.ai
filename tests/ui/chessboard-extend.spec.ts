@@ -15,6 +15,9 @@ async function openAroundCheckout(page: Page, request: APIRequestContext, reserv
   const from = new Date(`${stay.departureDate}T12:00:00Z`);
   from.setUTCDate(from.getUTCDate() - 7);
   await page.goto(`/chessboard?from=${from.toISOString().slice(0, 10)}`);
+  // Сетка оживлена: с UI3.1 постоянной правой сводки нет (поручение владельца 11.10.2026), и `data-docked`
+  // ставится только у открытой брони, поэтому ждём оживления самой сетки, а не появления сводки.
+  await hydrated(page.locator('.board-stage'));
 }
 
 test.beforeEach(async ({ request }) => {
@@ -52,7 +55,7 @@ test('мышь: правый край добавляет две ночи тол�
   targetDate.setUTCDate(targetDate.getUTCDate() + 2);
   const target = row.locator(`td[data-date="${targetDate.toISOString().slice(0, 10)}"]`);
   await hydrated(handle);
-  await page.evaluate("document.fonts.ready");
+  await page.evaluate('document.fonts.ready');
   await target.scrollIntoViewIfNeeded();
   await handle.scrollIntoViewIfNeeded();
   const from = (await handle.boundingBox())!;

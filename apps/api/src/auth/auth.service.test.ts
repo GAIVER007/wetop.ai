@@ -812,15 +812,17 @@ describe('MV2 registration vertical validation', () => {
       expect(organizations).toHaveLength(before);
     },
   );
-  it.each(['BEAUTY', 'FOOD_SERVICE'])('keeps %s pilot closed by default', async (vertical) => {
-    const { auth, organizations } = service();
-    const before = organizations.length;
-    await expect(auth.register({ ...input, vertical } as never, NOW)).rejects.toThrow(/пилот/);
-    expect(organizations).toHaveLength(before);
-  });
+  it.each(['BEAUTY', 'FOOD_SERVICE'])(
+    'registers %s without any allowlist (Q-UI-TRIAL, ADR-172)',
+    async (vertical) => {
+      const { auth, businesses } = service();
+      await auth.register({ ...input, vertical } as never, NOW);
+      expect(businesses.at(-1)).toMatchObject({ vertical });
+    },
+  );
 });
 
-describe('MV2 pilot allowlist and first chain', () => {
+describe('MV2 first chain for every vertical', () => {
   const input = {
     email: 'pilot@example.invalid',
     name: 'Мария Тестова',
@@ -832,7 +834,6 @@ describe('MV2 pilot allowlist and first chain', () => {
   };
   afterEach(() => vi.unstubAllEnvs());
   it.each(['BEAUTY', 'FOOD_SERVICE'])('persists %s without creating a hotel', async (vertical) => {
-    vi.stubEnv(`REGISTRATION_${vertical}_PILOT_EMAILS`, ' PILOT@example.invalid ');
     const { auth, businesses, locations, properties } = service();
     await auth.register({ ...input, vertical } as never, NOW);
     expect(businesses).toHaveLength(1);
@@ -840,12 +841,5 @@ describe('MV2 pilot allowlist and first chain', () => {
     expect(locations).toHaveLength(1);
     expect(locations[0]!.businessId).toBe(businesses[0]!.id);
     expect(properties).toHaveLength(0);
-  });
-  it('a Beauty allowlist cannot open Food signup', async () => {
-    vi.stubEnv('REGISTRATION_BEAUTY_PILOT_EMAILS', input.email);
-    const { auth } = service();
-    await expect(
-      auth.register({ ...input, vertical: 'FOOD_SERVICE' } as never, NOW),
-    ).rejects.toThrow(/пилот/);
   });
 });

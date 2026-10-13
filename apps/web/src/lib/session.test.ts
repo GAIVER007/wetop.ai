@@ -8,17 +8,25 @@ it('выход снимает и сессию, и указатель филиа�
   await clearSessionCookie();
   expect(jar.delete).toHaveBeenCalledWith('wetop_session');
   expect(jar.delete).toHaveBeenCalledWith('wetop_scope');
+  // Подсказка «последний филиал» не стирается: это не право, сервер сверяет её со своим списком при входе
+  expect(jar.delete).not.toHaveBeenCalledWith('wetop_last_branch');
 });
 
 it('указатель ставится одним помощником с теми же признаками, что сессия', async () => {
   vi.stubEnv('APP_URL', 'https://app.wetop.ai');
-  await setScopeCookie('business=b;location=l');
-  expect(jar.set).toHaveBeenCalledWith('wetop_scope', 'business=b;location=l', {
+  await setScopeCookie('business=11111111-1111-4111-8111-111111111111;location=22222222-2222-4222-8222-222222222222');
+  expect(jar.set).toHaveBeenCalledWith('wetop_scope', 'business=11111111-1111-4111-8111-111111111111;location=22222222-2222-4222-8222-222222222222', {
     httpOnly: true,
     sameSite: 'lax',
     secure: true,
     path: '/',
   });
+  // Выбор запоминается на устройстве: следующий вход сам откроет этот филиал, если он ещё доступен
+  expect(jar.set).toHaveBeenCalledWith(
+    'wetop_last_branch',
+    '22222222-2222-4222-8222-222222222222',
+    expect.objectContaining({ httpOnly: true, secure: true, path: '/', maxAge: expect.any(Number) }),
+  );
   jar.delete.mockClear();
   await clearScopeCookie();
   expect(jar.delete).toHaveBeenCalledWith('wetop_scope');

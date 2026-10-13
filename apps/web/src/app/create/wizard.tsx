@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { ScanChallenge } from './scan-challenge';
 import { useState } from 'react';
 import { BuildStep } from './build-step';
 import { guessRegional } from './regional';
@@ -8,7 +9,6 @@ import {
   PROGRESS_INDEX,
   S,
   SCENARIOS,
-  SITE_SCAN_READY,
   SOON_WORD,
   STEP_NAME,
   type BotType,
@@ -25,6 +25,16 @@ function normalizeUrl(raw: string): string {
 
 export function GuestWizard() {
   const {
+    sendMessage,
+    generationState,
+    generationPolling,
+    generate,
+    resumeGeneration,
+    scanSiteKey,
+    scanning,
+    scanPhase,
+    scanSite,
+    useManual,
     values,
     setValues,
     step,
@@ -45,8 +55,8 @@ export function GuestWizard() {
     claim,
   } = useGuestDraft();
   const [urlError, setUrlError] = useState('');
-  // пока O3 не дал поддержке свой промпт, сценарий один: что бы ни лежало в черновике, это продавец
-  const botType: BotType = 'sales';
+  const [challenge, setChallenge] = useState('');
+  const botType: BotType = values.botType === 'support' ? 'support' : 'sales';
   const scenario = SCENARIOS.find((item) => item.value === botType);
   const canContinue = values.businessName.trim() !== '' && values.niche.trim() !== '';
 
@@ -59,7 +69,11 @@ export function GuestWizard() {
     setUrlError('');
     if (url) void track('source_submitted');
     const regional = url ? guessRegional(url, undefined) : null;
-    void save('review', { siteUrl: url, ...(regional ?? {}) });
+    const patch = { siteUrl: url, ...(regional ?? {}) };
+    if (url && scanSiteKey) {
+      void scanSite(patch, challenge);
+      setChallenge('');
+    } else void save('review', patch);
   };
   const edit = (key: keyof typeof values, value: string) => {
     setValues((v) => {
@@ -97,12 +111,26 @@ export function GuestWizard() {
           {error && (
             <div role="alert" className="guest-wizard__error">
               {error}
+              {scanSiteKey && step === 'review' && !scanning && (
+                <button
+                  type="button"
+                  className="btn btn--secondary"
+                  disabled={busy}
+                  onClick={() => void save('source')}
+                >
+                  {S.scan.retry}
+                </button>
+              )}
             </div>
           )}
           {ready && resumed && step !== 'source' && (
             <div role="status" className="guest-wizard__resume">
               <span>{S.resume(STEP_NAME[step])}</span>
-              <button type="button" className="btn btn--secondary" onClick={() => setResumed(false)}>
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={() => setResumed(false)}
+              >
                 {S.resumeClose}
               </button>
             </div>
@@ -125,6 +153,13 @@ export function GuestWizard() {
                 </div>
               )}
             </>
+          ) : scanning ? (
+            <div role="status">
+              <h1>{scanPhase === 'running' ? S.scan.running : S.scan.queued}</h1>
+              <button type="button" className="btn btn--secondary" onClick={() => void useManual()}>
+                {S.scan.manual}
+              </button>
+            </div>
           ) : step === 'source' ? (
             <form
               onSubmit={(e) => {
@@ -137,23 +172,28 @@ export function GuestWizard() {
               <p>{S.source.lead}</p>
               <fieldset className="guest-wizard__scenario">
                 <legend>{S.source.scenario}</legend>
-                <div className="guest-wizard__chips" role="radiogroup" aria-label={S.source.scenario}>
+                <div
+                  className="guest-wizard__chips"
+                  role="radiogroup"
+                  aria-label={S.source.scenario}
+                >
                   {SCENARIOS.map((item) => (
                     <button
                       key={item.value}
                       type="button"
                       role="radio"
                       aria-checked={botType === item.value}
-                      disabled={item.soon === true}
+                      disabled={item.value === 'support' && !generationState.generateSiteKey}
                       onClick={() => edit('botType', item.value)}
                     >
                       {item.label}
-                      {item.soon ? ` (${SOON_WORD})` : ''}
+                      {item.value === 'support' && !generationState.generateSiteKey
+                        ? ` (${SOON_WORD})`
+                        : ''}
                     </button>
                   ))}
                 </div>
                 <p className="guest-wizard__note">{scenario?.hint}</p>
-                <p className="guest-wizard__note">{SCENARIOS.find((item) => item.soon)?.hint}</p>
               </fieldset>
               <label className="guest-wizard__url">
                 <span>{S.source.url}</span>
@@ -181,9 +221,9 @@ export function GuestWizard() {
                 <button
                   className="btn"
                   type="submit"
-                  disabled={busy || values.siteUrl.trim() === ''}
+                  disabled={busy || values.siteUrl.trim() === '' || (!!scanSiteKey && !challenge)}
                 >
-                  {S.source.cta(botType)}
+                  {S.source.cta(botType, !!scanSiteKey)}
                 </button>
                 <button
                   type="button"
@@ -194,7 +234,13 @@ export function GuestWizard() {
                   {S.source.manual}
                 </button>
               </div>
-              {SITE_SCAN_READY ? (
+              {scanSiteKey && (
+                <>
+                  <ScanChallenge siteKey={scanSiteKey} onToken={setChallenge} />
+                  <p className="guest-wizard__note">{S.scan.challenge}</p>
+                </>
+              )}
+              {scanSiteKey ? (
                 <p className="guest-wizard__note">
                   {S.source.consent}{' '}
                   <a href="https://wetop.ai/privacy/" target="_blank" rel="noopener noreferrer">
@@ -238,9 +284,22 @@ export function GuestWizard() {
             </>
           ) : (
             <BuildStep
+              onMessage={sendMessage}
               onAnswers={(answers) => void sendSurvey(answers)}
               onClaim={() => void claim()}
-              claimDisabled={busy || dirty}
+              claimDisabled={
+                busy ||
+                dirty ||
+                !!generationState.generated ||
+                generationPolling ||
+                ['queued', 'running'].includes(generationState.generation?.state ?? '')
+              }
+              generationState={generationState}
+              generationPolling={generationPolling}
+              busy={busy || dirty}
+              onGenerate={(token) => void generate(token)}
+              onRefresh={resumeGeneration}
+              onEdit={() => void save('review')}
             />
           )}
           <p role="status" className="guest-wizard__save-state">

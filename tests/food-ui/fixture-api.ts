@@ -231,6 +231,8 @@ app.use(
                 await tx.diningTable.deleteMany({ where: { area: { location: { business: b } } } });
                 await tx.diningArea.deleteMany({ where: { location: { business: b } } });
                 await tx.servicePeriod.deleteMany({ where: { location: { business: b } } });
+                await tx.foodBookingRules.deleteMany({ where: { location: { business: b } } });
+                await tx.foodClosedDay.deleteMany({ where: { location: { business: b } } });
                 await tx.appointment.deleteMany({ where: { location: { business: b } } });
                 await tx.timeOff.deleteMany({ where: { employee: { business: b } } });
                 await tx.workingHours.deleteMany({ where: { employee: { business: b } } });

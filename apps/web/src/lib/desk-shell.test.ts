@@ -35,6 +35,8 @@ describe('оболочка стойки: кто вошёл', () => {
   it('`/auth/me` не ответил — меню как у администратора, «Платформы» нет, а роль помечена неизвестной', async () => {
     me.mockRejectedValue(new ApiError(504, 'API не ответил'));
     const { deskShell } = await import('./desk-shell');
+    // Нет связи с API — это не «выберите филиал»: шапка честно говорит, что филиал недоступен
+    expect((await deskShell()).branchNeeded).toBeUndefined();
     expect((await deskShell()).access).toEqual({
       aiSeller: false,
       platform: false,
@@ -60,6 +62,8 @@ describe('verified shell scope before domain reads', () => {
       expect(shell.access.unknown).toBe(true);
       expect(shell.person?.name).toBe(user.name);
       expect(shell.scopeKey).toBeUndefined();
+      // Вошёл, но филиал не выбран: шапка зовёт выбрать филиал, а не пишет «недоступен» (13.10.2026)
+      expect(shell.branchNeeded).toBe(true);
     },
   );
   it('valid scope provides the Business/Location identity', async () => {

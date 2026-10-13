@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { displayDate } from '../../../lib/display-date';
 import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../lib/api';
@@ -28,16 +29,16 @@ export default async function BarReceiptsPage() {
     <p className="bar-accounting-note"><b>Как учитываются деньги:</b> проведение прихода увеличивает склад и фиксирует закупку. Расход в кассе появляется только после оплаты поставщику, включая частичную оплату.</p>
     {receipts.value.length === 0
       ? <EmptyState icon={<Icon name="receipt" />} title="Приходов пока нет">Занесите первую счёт-фактуру: кнопка «Новый приход».</EmptyState>
-      : <Table density="compact" sticky="header" aria-label="Приходы бара">
+      : <Table density="compact" sticky="header" stack aria-label="Приходы бара">
           <thead><tr><th>Документ</th><th>Поставщик</th><th>Позиций</th><th>Сумма</th><th>Оплачено</th><th>Долг</th><th>Статус</th><th /></tr></thead>
           <tbody>{receipts.value.map((receipt) => <tr key={receipt.id}>
-            <td><b>{receipt.documentNumber}</b><small>{receipt.receivedDate.slice(0, 10)}</small></td>
-            <td>{receipt.supplier.name}</td>
-            <td>{receipt._count.lines}</td>
-            <td>{formatMoney(receipt.totalAmount)}</td>
-            <td>{formatMoney(receipt.paidAmount)}</td>
-            <td>{formatMoney(receipt.dueAmount)}</td>
-            <td><Badge tone={receipt.status === 'POSTED' ? 'ok' : 'neutral'}>{receipt.status === 'POSTED' ? 'Проведён' : 'Черновик'}</Badge></td>
+            <td data-label="Документ"><b>{receipt.documentNumber}</b> <small>{displayDate(receipt.receivedDate.slice(0, 10))}</small></td>
+            <td data-label="Поставщик">{receipt.supplier.name}</td>
+            <td data-label="Позиций">{receipt._count.lines}</td>
+            <td data-label="Сумма">{formatMoney(receipt.totalAmount)}</td>
+            <td data-label="Оплачено">{formatMoney(receipt.paidAmount)}</td>
+            <td data-label="Долг">{formatMoney(receipt.dueAmount)}</td>
+            <td data-label="Статус"><Badge tone={receipt.status === 'POSTED' ? 'ok' : 'neutral'}>{receipt.status === 'POSTED' ? 'Проведён' : 'Черновик'}</Badge></td>
             <td>{!canMutate ? null : receipt.status === 'DRAFT'
               ? <form action={postBarReceiptAction}><input type="hidden" name="id" value={receipt.id} /><Button size="xs" type="submit">Провести</Button></form>
               : BigInt(receipt.dueAmount) > 0n

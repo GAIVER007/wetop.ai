@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guardWords, heldForWords, incidentOrder, repeatWords } from './incident-view';
+import { incidentHeadline, guardWords, heldForWords, incidentOrder, repeatWords } from './incident-view';
 
 const view = (over: Partial<Parameters<typeof incidentOrder>[0]> = {}) => ({
   kind: 'stay.unassigned',
@@ -94,5 +94,26 @@ describe('repeatWords — повторы у ошибок API, время у ос
   });
   it('свежая неисправность ничего лишнего не говорит', () => {
     expect(repeatWords(view())).toBe('');
+  });
+});
+
+describe('incidentHeadline', () => {
+  it('сообщение сторожа: заголовок до тире, технические подробности отдельно', () => {
+    const title =
+      'Падает набор тестов «unit»: упавших 7 — scripts/design/build-tokens.test.ts: AssertionError: expected [] at file:///home/user/x.js:1:2';
+    expect(incidentHeadline(title)).toEqual({
+      headline: 'Падает набор тестов «unit»: упавших 7',
+      details: title,
+    });
+  });
+  it('короткий заголовок без технической части остаётся как есть', () => {
+    expect(incidentHeadline('API не отвечает')).toEqual({ headline: 'API не отвечает', details: null });
+  });
+  it('длинный текст без тире обрезается до понятной строки, полностью в подробностях', () => {
+    const title = 'x'.repeat(300);
+    const view = incidentHeadline(title);
+    expect(view.headline.length).toBeLessThanOrEqual(121);
+    expect(view.headline.endsWith('…')).toBe(true);
+    expect(view.details).toBe(title);
   });
 });

@@ -100,6 +100,10 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--plate-block',
       '--plate-block-ink',
       '--tl-hours', // food/restaurant.css: число часов шкалы броней, задаётся на .rest-tl__grid
+      '--spot-x', // food/restaurant.css: место стола на схеме зала (§42), задаётся на .rest-fp__spot
+      '--spot-y',
+      '--spot-scale',
+      '--spot-turn',
       '--share-fill', // components.css: цвет полосы ShareBar по тону, объявлен в .share-bar (DS1c)
       '--share-track', // components.css: дорожка ShareBar по тону, там же
       '--module-fill', // marketing.css: плитка значка модуля хаба по модулю, объявлена в .marketing-module (MKT10)

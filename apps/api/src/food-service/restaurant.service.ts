@@ -15,6 +15,10 @@ import {
   orderNext,
   orderPayment,
   parseOrderRating,
+  parseWorkingHoursWeek,
+  weekTemplate,
+  hashSessionToken,
+  newSessionToken,
   ratingSummary,
   foodCostSummary,
   milliText,
@@ -46,6 +50,8 @@ import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } fro
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { StockService } from './stock.service';
 
+/** Срок ссылки на оценку с телефона гостя (§40) */
+const RATING_LINK_TTL_MS = 72 * 3_600_000;
 const OPEN_STATUSES: OrderStatus[] = ['NEW', 'COOKING', 'READY', 'SERVED'];
 const orderInclude = {
   table: { include: { area: { select: { name: true } } } },
@@ -878,6 +884,63 @@ export class RestaurantService {
     );
   }
 
+  // ─── График смен (Q-REST-11): недельный шаблон в `working_hours`, как у мастеров салона (§19.1) ───
+
+  /** Неделя каждого действующего сотрудника этого филиала */
+  async shifts() {
+    foodMay('desk');
+    const s = await foodScope(this.prisma.db);
+    const rows = await this.prisma.db.employee.findMany({
+      where: { businessId: s.businessId, status: 'ACTIVE', locations: { some: { locationId: s.locationId } } },
+      include: {
+        workingHours: {
+          where: { locationId: s.locationId },
+          orderBy: [{ weekday: 'asc' }, { timeFrom: 'asc' }],
+          select: { weekday: true, timeFrom: true, timeTo: true },
+        },
+      },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+    });
+    return {
+      employees: rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        week: weekTemplate(
+          r.workingHours.map((h) => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: clockText(h.timeTo) })),
+        ),
+      })),
+    };
+  }
+
+  /** Неделя целиком: список заменяет прежний график сотрудника в этом филиале */
+  async setShifts(idRaw: string, raw: unknown) {
+    return this.write('staff', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      const week = parseWorkingHoursWeek(raw);
+      if (!week.ok) throw new BadRequestException(week.reason);
+      const employee = await tx.employee.findFirst({
+        where: { id, businessId: s.businessId, locations: { some: { locationId: s.locationId } } },
+        select: { id: true },
+      });
+      if (!employee) throw new NotFoundException('Сотрудник не найден');
+      await tx.workingHours.deleteMany({ where: { employeeId: id, locationId: s.locationId } });
+      if (week.value.length)
+        await tx.workingHours.createMany({
+          data: week.value.map((i) => ({
+            employeeId: id,
+            locationId: s.locationId,
+            weekday: i.weekday,
+            timeFrom: new Date(`1970-01-01T${i.timeFrom}:00Z`),
+            timeTo: new Date(`1970-01-01T${i.timeTo}:00Z`),
+          })),
+        });
+      await this.audit(tx, s, 'employee', id, 'food.employee.working_hours.set', {
+        intervals: week.value.map((i) => `${i.weekday} ${i.timeFrom}-${i.timeTo}`),
+      });
+      return { week: weekTemplate(week.value) };
+    });
+  }
+
   async createEmployee(raw: unknown) {
     return this.write('staff', async (tx, s) => {
       const b = parsed(() => foodObject(raw, ['name', 'phone', 'email']));
@@ -949,6 +1012,29 @@ export class RestaurantService {
       });
       const row = await tx.restaurantOrder.findUniqueOrThrow({ where: { id: r.id }, include: orderInclude });
       return orderView(row);
+    });
+  }
+
+  /**
+   * Ссылка на оценку с телефона гостя (§40, ADR-170): ключ 256 бит уходит только в ответ и QR-код, в базе его SHA-256;
+   * живёт 72 часа, повторная выдача заменяет прежнюю
+   */
+  async ratingLink(idRaw: string) {
+    return this.write('desk', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      await tx.$queryRaw`SELECT id FROM restaurant_orders WHERE id=${id}::uuid AND location_id=${s.locationId}::uuid FOR UPDATE`;
+      const r = await tx.restaurantOrder.findFirst({ where: { id, locationId: s.locationId }, include: { rating: true } });
+      if (!r) throw new NotFoundException('Заказ не найден');
+      if (r.status !== 'CLOSED') throw new ConflictException('Оценку гость ставит после оплаты заказа');
+      if (r.rating) throw new ConflictException('Заказ уже оценён');
+      const token = newSessionToken();
+      const expiresAt = new Date(Date.now() + RATING_LINK_TTL_MS);
+      await tx.restaurantOrder.update({
+        where: { id: r.id },
+        data: { ratingTokenHash: hashSessionToken(token), ratingTokenExpiresAt: expiresAt },
+      });
+      await this.audit(tx, s, 'restaurant_order', r.id, 'food.order.rating_link', { expiresAt: expiresAt.toISOString() });
+      return { token, expiresAt: expiresAt.toISOString() };
     });
   }
 
@@ -1249,7 +1335,11 @@ export class RestaurantService {
       closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
     };
     const [orders, payments, items, waiters, closedDays] = await Promise.all([
-      db.restaurantOrder.aggregate({ where: closedWhere, _count: { _all: true }, _sum: { total: true } }),
+      db.restaurantOrder.aggregate({
+        where: closedWhere,
+        _count: { _all: true },
+        _sum: { total: true, guestCount: true },
+      }),
       db.restaurantPayment.groupBy({
         by: ['method'],
         where: { locationId: s.locationId, status: 'COMPLETED', paidAt: { gte: w.fromUtc, lt: w.toUtcExclusive } },
@@ -1339,6 +1429,8 @@ export class RestaurantService {
         qty: milliText(x.milli),
       })),
       ordersCount: count,
+      // гости закрытых заказов периода (макет «Аналитика», плитка «Гостей»)
+      guestsCount: orders._sum.guestCount ?? 0,
       revenueMinor: revenue.toString(),
       averageCheckMinor: count ? ((revenue + BigInt(count) / 2n) / BigInt(count)).toString() : null,
       payments: payments

@@ -225,6 +225,7 @@ function QtyDrawer({
   close: () => void;
 }) {
   const save = useSave(close);
+  const empty = mode === 'inventory' && Number(product.onHand) === 0;
   return (
     <Overlay
       open
@@ -241,20 +242,31 @@ function QtyDrawer({
           const f = new FormData(e.currentTarget);
           const qty = String(f.get('qty')).replace(',', '.');
           const reason = String(f.get('reason')).trim();
-          save.run(() =>
-            mutateStock(
+          save.run(() => {
+            // пустой склад: излишек принимается по цене, которую называет человек (Q-KITCHEN-9)
+            const price = empty ? { unitCost: tenge(String(f.get('price')), 'Цена излишка') } : {};
+            return mutateStock(
               ctx.scopeKey,
               mode === 'write-off'
                 ? { kind: 'write-off', body: { productId: product.id, qty, reason } }
-                : { kind: 'inventory', body: { productId: product.id, actualQty: qty, reason: reason || null } },
-            ),
-          );
+                : { kind: 'inventory', body: { productId: product.id, actualQty: qty, reason: reason || null, ...price } },
+            );
+          });
         }}
       >
         <p className="muted">По учёту: {qtyText(product.onHand, product.unit)}</p>
         <Field label={mode === 'write-off' ? `Списать, ${product.unit}` : `Фактически на складе, ${product.unit}`}>
           <Input name="qty" required inputMode="decimal" />
         </Field>
+        {empty && (
+          <Field
+            label={`Цена излишка за ${PRICE_UNIT[product.unit as keyof typeof PRICE_UNIT]}, ₸`}
+            hint="На складе пусто: найденное примем по этой цене"
+            controlId="stock-surplus-price"
+          >
+            <Input name="price" required inputMode="decimal" />
+          </Field>
+        )}
         <Field label={mode === 'write-off' ? 'Причина' : 'Комментарий'}>
           <Input name="reason" required={mode === 'write-off'} maxLength={500} />
         </Field>
@@ -468,11 +480,12 @@ export function StockBoard({
             </Button>
           )}
           {ctx.canDesk && products.some((p) => p.active) && (
-            <Button onClick={() => setDraft({ kind: 'receipt' })}>+ Приход</Button>
+            <Button onClick={() => setDraft({ kind: 'receipt' })}>+ Приход товара</Button>
           )}
         </div>
       </div>
       <Tabs
+        className="rest-tabs-line"
         label="Склад"
         panels={[
           { id: 'stock', label: 'Остатки', content: stockTable },

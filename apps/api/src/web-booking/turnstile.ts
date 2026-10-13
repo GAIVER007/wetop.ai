@@ -47,6 +47,8 @@ export function turnstileMode(env: Env = process.env): TurnstileMode {
 }
 
 export interface TurnstileContext {
+  action?: string;
+  requireBinding?: boolean;
   /** Адрес посетителя: Cloudflare учитывает его при оценке; нигде не сохраняется */
   ip?: string | null;
   /** Домены сайта: страница, на которой решили проверку, должна быть одной из них */
@@ -122,13 +124,18 @@ export class TurnstileService {
 
     // Токен решён на странице сайта, а не на чужой: хост из ответа Cloudflare — один из доменов сайта
     const hostname = data['hostname'];
+    if (
+      ctx.requireBinding &&
+      (typeof hostname !== 'string' || !hostname || data['action'] !== ctx.action)
+    )
+      return { ok: false, reason: 'invalid' };
     if (typeof hostname === 'string' && hostname) {
       const host = normalizeHost(hostname);
       if (!(ctx.ownHost && host === ctx.ownHost) && !hostMatches(ctx.allowedHosts, host))
         return { ok: false, reason: 'invalid' };
     }
     const action = data['action'];
-    if (typeof action === 'string' && action && action !== TURNSTILE_ACTION)
+    if (typeof action === 'string' && action && action !== (ctx.action ?? TURNSTILE_ACTION))
       return { ok: false, reason: 'invalid' };
     return { ok: true };
   }

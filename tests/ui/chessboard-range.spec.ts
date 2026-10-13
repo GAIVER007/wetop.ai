@@ -29,6 +29,9 @@ async function openWeek(page: Page, request: APIRequestContext): Promise<string>
   };
   const from = add(stay.arrivalDate, -1);
   await page.goto(`/chessboard?from=${from}&to=${add(from, 6)}`);
+  // Сетка оживлена: с UI3.1 постоянной правой сводки нет (поручение владельца 11.10.2026), и `data-docked`
+  // ставится только у открытой брони, поэтому ждём оживления самой сетки, а не появления сводки.
+  await hydrated(page.locator('.board-stage'));
   return stay.arrivalDate;
 }
 
@@ -38,7 +41,7 @@ const cell = (page: Page, unit: string, date: string) =>
 /** Прижать мышь на одной клетке и провести до другой (обычные события указателя, не HTML5 drag) */
 async function sweep(page: Page, from: Locator, to: Locator) {
   await hydrated(from);
-  await page.evaluate("document.fonts.ready");
+  await page.evaluate('document.fonts.ready');
   await to.scrollIntoViewIfNeeded();
   await from.scrollIntoViewIfNeeded();
   const a = (await from.boundingBox())!;

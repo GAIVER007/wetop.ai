@@ -17,6 +17,7 @@
  */
 import { test as base, expect, type Locator, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { settleNextRedirect } from '../tools/next-redirect';
 
 const STREAM_GRACE_MS = 700;
 
@@ -36,32 +37,6 @@ export async function settleStreaming(page: Page): Promise<void> {
       timeout: STREAM_GRACE_MS,
     })
     .catch(() => undefined);
-}
-
-/**
- * Потоковый редирект Next. Корневой `app/loading.tsx` начинает отдачу раньше, чем страница зовёт `redirect()`, и тогда
- * Next кладёт в документ `<meta id="__next-page-redirect" http-equiv="refresh">`: браузер уходит на цель уже ПОСЛЕ
- * `load`. Пока этот переход висит, следующий `goto` им обрывается (`net::ERR_ABORTED`; гостиничное `/today` → `/finance`,
- * профиль, роли, техподдержка, 12.10.2026). Обёртка ждёт его до своего перехода (до фиксации) и после (как просил
- * сам `goto`): страница отдаётся конечной.
- */
-const REDIRECT_GRACE_MS = 20_000;
-
-async function settleRedirect(
-  page: Page,
-  waitUntil: 'load' | 'domcontentloaded' | 'commit',
-): Promise<void> {
-  for (let hop = 0; hop < 3; hop++) {
-    const from = page.url();
-    // контекст разрушен посреди проверки: переход уже идёт, его и ждём
-    const pending = await page
-      .evaluate("document.getElementById('__next-page-redirect') !== null")
-      .catch(() => true);
-    if (!pending) return;
-    await page
-      .waitForURL((url) => url.href !== from, { waitUntil, timeout: REDIRECT_GRACE_MS })
-      .catch(() => undefined);
-  }
 }
 
 /**
@@ -187,19 +162,19 @@ export const test = base.extend<{ tour: boolean }>({
     const goto = page.goto.bind(page);
     page.goto = async (url, options) => {
       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
-      await settleRedirect(page, 'commit');
+      await settleNextRedirect(page, 'commit');
       const response = await goto(url, options);
       const until = options?.waitUntil ?? 'load';
-      await settleRedirect(page, until === 'networkidle' ? 'load' : until);
+      await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
       await settleStreaming(page);
       return response;
     };
     const reload = page.reload.bind(page);
     page.reload = async (options) => {
-      await settleRedirect(page, 'commit');
+      await settleNextRedirect(page, 'commit');
       const response = await reload(options);
       const until = options?.waitUntil ?? 'load';
-      await settleRedirect(page, until === 'networkidle' ? 'load' : until);
+      await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
       await settleStreaming(page);
       return response;
     };
@@ -226,6 +201,18 @@ const fixturePort = process.env['FIXTURE_PORT'];
 export const FIXTURE_API =
   process.env['UI_FIXTURE_API'] ??
   (fixturePort ? `http://127.0.0.1:${fixturePort}` : 'http://127.0.0.1:4311');
+
+/**
+ * Полная карточка брони двойным щелчком по плашке календаря. Событие подаётся плашке напрямую, а не двумя
+ * щелчками мыши: от 1280 px первый щелчок открывает панель брони рядом с сеткой, сетка сужается и плашка
+ * уезжает из-под курсора, поэтому второй щелчок попадает в панель. Плашка «заезд сегодня» стоит правее
+ * середины недели по субботам и воскресеньям (выходные по Алматы), и в эти дни гейт краснел сам по себе.
+ */
+export async function openFullCard(stay: Locator) {
+  // событие, поданное до оживления React, пропадает так же, как щелчок: сначала дожидаемся обработчиков
+  await hydrated(stay);
+  await stay.dispatchEvent('dblclick');
+}
 
 /**
  * Окошко «Фильтры» календаря. С 09.10.2026 (образец владельца) категория и «Места» живут в нём, а не

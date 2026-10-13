@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 /*
  * Блок «Маркетинг и ИИ» на лендингах направлений (11.10.2026). Правило §19.9: живые карточки только о том,
  * что есть в продукте; ИИ-продавец, сайт с ИИ и анализ конкурентов есть только у гостиниц, у салонов и
- * ресторанов они идут с пометкой «Скоро».
+ * ресторанов сохраняется data-soon. По согласованному дизайну видимый бейдж убран.
  */
 const PAGES = [
   { path: '/for/hotels/', soon: 1 },
@@ -21,14 +21,15 @@ const PAGES = [
 ];
 
 for (const page of PAGES) {
-  test(`${page.path}: блок «Маркетинг и ИИ», «Скоро» только у того, чего нет`, async ({ page: p }) => {
+  test(`${page.path}: блок «Маркетинг и ИИ», карточки сохраняют статус без бейджей`, async ({ page: p }) => {
     await p.goto(page.path);
     const block = p.locator('#marketing');
     await expect(block).toContainText('Маркетинг и ИИ');
     await expect(block.locator('.card')).toHaveCount(6);
     const soon = block.locator('.card[data-soon]');
     await expect(soon).toHaveCount(page.soon);
-    for (const card of await soon.all()) await expect(card).toContainText('Скоро');
+    await expect(block.locator('.tag')).toHaveCount(0);
+    await expect(block).not.toContainText('Скоро');
     const live = await block.locator('.card:not([data-soon])').allInnerTexts();
     expect(live.join(' ')).toMatch(/Отчётность за каждый день/);
     if (page.soon > 1) {

@@ -166,6 +166,8 @@ export type Dictionary = {
         online: string;
         inbound: string;
         outbound: string;
+        confirmation: string;
+        booked: string;
         placeholder: string;
       };
     };

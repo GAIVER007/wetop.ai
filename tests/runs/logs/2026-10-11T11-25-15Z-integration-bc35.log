@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 11.10.2026 16:25 Алматы · MacBook-Air-Urij.local
+# коммит 540d721 (codex/ai-seller-wizard-chat-20261011), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-25-15Z-integration-bc35.json' '--config' 'tests/wizard-scan.config.ts' 'tests/integration/wizard-chat.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ✓ |integration| tests/integration/wizard-chat.test.ts (3 tests) 1312ms
+   ✓ guest chat quota and delivery (3)
+     ✓ last slot has one winner; replay costs nothing and changed text conflicts 688ms
+     ✓ workers deduplicate, persist history and release a technical failure exactly once 456ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  15:25:18
+   Duration  4.09s (transform 48%, tests 34%, import 18%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-25-15Z-integration-bc35.json
+
+# код выхода 0 · 8 с

@@ -1,0 +1,40 @@
+# Модульные (unit) · 12.10.2026 20:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e8d6b5 (claude/order-rating-qr), незакоммиченных файлов набора: 22
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-07-48Z-unit-753e.json' 'apps/web/src/lib/public-entry.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |unit| apps/web/src/lib/public-entry.test.ts (1 test | 1 failed) 3ms
+   ❯ isPublicEntryPath (1)
+     × гость открывает оценку по QR без входа, рабочие экраны остаются закрытыми 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/public-entry.test.ts > isPublicEntryPath > гость открывает оценку по QR без входа, рабочие экраны остаются закрытыми
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/web/src/lib/public-entry.test.ts:6:44
+      4| describe('isPublicEntryPath', () => {
+      5|   it('гость открывает оценку по QR без входа, рабочие экраны остаются …
+      6|     expect(isPublicEntryPath('/rate/abc')).toBe(true);
+       |                                            ^
+      7|     expect(isPublicEntryPath('/invite/abc')).toBe(true);
+      8|     expect(isPublicEntryPath('/orders')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  08:07:49
+   Duration  77ms (transform 54%, import 21%, tests 17%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-07-48Z-unit-753e.json
+
+# код выхода 1 · 1 с

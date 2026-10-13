@@ -1,0 +1,160 @@
+# Сквозные (e2e) · 12.10.2026 20:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e8d6b5 (claude/order-rating-qr), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/food.spec.ts:587' 'tests/food-ui/restaurant.spec.ts:315' 'tests/food-ui/stock.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests (1.5m)
+[WebServer] (node:18346) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  2 tests/food-ui/restaurant.spec.ts:315:1 › сотрудники: список с продажами, добавление и правка (12.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '164053570'
+[WebServer] }
+  ✘  3 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (34.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '164053570'
+[WebServer] }
+  ✘  4 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (37.1s)
+  ✓  5 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9 (57.6s)
+  ✓  6 tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет (34.3s)
+  ✓  7 tests/food-ui/stock.spec.ts:136:1 › роли: администратор работает со складом, но не правит справочник; только чтение (9.3s)
+  ✘  8 tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 (1.6m)
+  ✓  9 tests/food-ui/stock.spec.ts:185:1 › списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает (19.4s)
+
+
+  1) tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  "http://127.0.0.1:55843/bar"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:55843/bar"
+      - Test timeout of 90000ms exceeded.
+
+
+      611 |     await page.goto(route);
+      612 |     // первый заход на маршрут компилируется dev-сервером; под нагрузкой редирект дольше 5 секунд
+    > 613 |     await expect(page).toHaveURL(/\/today$/, { timeout: 15000 });
+          |                        ^
+      614 |   }
+      615 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      616 |   expect(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/food-ui/food.spec.ts:613:24
+
+    Error Context: test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByRole('dialog')
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        9 × locator resolved to <dialog open="" aria-labelledby="_r_0_" class="ui-overlay ui-drawer  food-drawer">…</dialog>
+          - unexpected value "visible"
+
+
+      57 |   await dialog.getByLabel('Минимальный остаток').fill('500');
+      58 |   await dialog.getByRole('button', { name: 'Создать', exact: true }).click();
+    > 59 |   await expect(dialog).not.toBeVisible();
+         |                            ^
+      60 |   await expect(row(page, 'Соль морская')).toContainText('Нет на складе');
+      61 |   await page.getByRole('button', { name: '+ Приход', exact: true }).click();
+      62 |   await dialog.getByLabel('Поставщик').fill('Тестовый поставщик');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/food-ui/stock.spec.ts:59:28
+
+    Error Context: test-results/stock-пустой-склад-ингреди-85fb9--экрана-остаток-и-стоимость/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-пустой-склад-ингреди-85fb9--экрана-остаток-и-стоимость/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-пустой-склад-ингреди-85fb9--экрана-остаток-и-стоимость/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя ──
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByRole('dialog')
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        12 × locator resolved to <dialog open="" aria-labelledby="_r_0_" class="ui-overlay ui-drawer  food-drawer">…</dialog>
+           - unexpected value "visible"
+
+
+      89 |   await dialog.getByLabel('Списать, г').fill('2500');
+      90 |   await dialog.getByRole('button', { name: 'Списать', exact: true }).click();
+    > 91 |   await expect(dialog).not.toBeVisible();
+         |                            ^
+      92 |   // осталось 500 г второй партии по 7 000 ₸/кг = 3 500 ₸; ниже минимума 1 кг
+      93 |   await expect(row(page, 'Говядина Рибай')).toContainText('500 г');
+      94 |   await expect(row(page, 'Говядина Рибай')).toContainText('3 500 ₸');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/food-ui/stock.spec.ts:91:28
+
+    Error Context: test-results/stock-списание-по-FIFO-сна-dcb36-няя-партия-ниже-нуля-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-списание-по-FIFO-сна-dcb36-няя-партия-ниже-нуля-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-списание-по-FIFO-сна-dcb36-няя-партия-ниже-нуля-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 ───────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error Context: test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests 
+    tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость 
+    tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя ───
+    tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 ────────────────────
+  5 passed (7.3m)
+
+# код выхода 1 · 7 мин 21 с

@@ -1,0 +1,51 @@
+# Модульные (unit) · 12.10.2026 14:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 961b74a (claude/restaurant-food-cost), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-49-53Z-unit-8a87.json' 'packages/domain/src/food/consumption.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |unit| packages/domain/src/food/consumption.test.ts (5 tests | 2 failed) 3ms
+   ✓ расход заказа по техкартам (2)
+     ✓ норма × количество блюд, одинаковые продукты складываются, строки без склада пропускаются 1ms
+     ✓ пустой заказ ничего не списывает 0ms
+   ✓ нехватка остатка (Q-KITCHEN-6 А) (1)
+     ✓ списать весь остаток, разницу в недостачу 0ms
+   ❯ фудкост за период по ленте склада (§38) (2)
+     × себестоимость = расход минус возвраты, недостача нетто по продукту, проценты от выручки 1ms
+     × без выручки процента нет 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/food/consumption.test.ts > фудкост за период по ленте склада (§38) > себестоимость = расход минус возвраты, недостача нетто по продукту, проценты от выручки
+TypeError: foodCostSummary is not a function
+ ❯ packages/domain/src/food/consumption.test.ts:36:15
+     34| describe('фудкост за период по ленте склада (§38)', () => {
+     35|   it('себестоимость = расход минус возвраты, недостача нетто по продук…
+     36|     const r = foodCostSummary(1_000_000n, [
+       |               ^
+     37|       { kind: 'CONSUMPTION', lotId: 'a', productId: 'beef', qty: '-600…
+     38|       { kind: 'CONSUMPTION', lotId: 'a', productId: 'beef', qty: '-300…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/food/consumption.test.ts > фудкост за период по ленте склада (§38) > без выручки процента нет
+TypeError: foodCostSummary is not a function
+ ❯ packages/domain/src/food/consumption.test.ts:50:12
+     48|   });
+     49|   it('без выручки процента нет', () => {
+     50|     expect(foodCostSummary(0n, []).foodCostPct).toBeNull();
+       |            ^
+     51|   });
+     52| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  02:49:54
+   Duration  107ms (transform 66%, import 20%, tests 8%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-49-53Z-unit-8a87.json
+
+# код выхода 1 · 1 с

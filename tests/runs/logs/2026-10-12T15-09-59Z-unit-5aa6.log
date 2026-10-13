@@ -1,0 +1,68 @@
+# Модульные (unit) · 12.10.2026 20:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e8d6b5 (claude/order-rating-qr), незакоммиченных файлов набора: 22
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-09-59Z-unit-5aa6.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/db-restore-prod.test.ts' 'tests/unit/guard-run.test.ts' 'apps/api/src/platform/support.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 204ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 13239ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 3912ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 1640ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1408ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 2654ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 2115ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 1485ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 1 failed) 20798ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ без --yes-replace-production ничего не делает 49ms
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 4501ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 2695ms
+     × схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 5361ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 3613ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 2259ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 2311ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 41688ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 3913ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1206ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 2520ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 3799ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 4830ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 2396ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 3302ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 3290ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 1776ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 1913ms
+     ✓ локальные правки в клоне — не затирает их 1040ms
+     ✓ историю ветки переписали — не выкладывает поверх 2621ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 3044ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 2467ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 2516ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1042ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:126:3
+    124|   });
+    125|
+    126|   it('схема public из копии не пересоздаётся: её записи вычеркнуты из …
+       |   ^
+    127|     const s = sandbox();
+    128|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 50 passed (51)
+   Start at  08:10:02
+   Duration  42.06s (tests 93%, transform 4%, import 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-09-59Z-unit-5aa6.json
+
+# код выхода 1 · 46 с

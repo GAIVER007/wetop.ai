@@ -1,0 +1,111 @@
+# Сквозные (e2e) · 09.10.2026 22:19 Алматы · vm
+# коммит 2a84abe (claude/sharp-dirac-6s46fw)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-blocks.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-gate.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-week.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+  ✘   1 tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом (4.0s)
+  ✓   2 tests/ui/chessboard-blocks.spec.ts:46:1 › блокировка «с X до X+1» закрывает одну ночь X, как API; пустой период стенд отклоняет (2.3s)
+  ✓   3 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (2.3s)
+  ✓   4 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (6.8s)
+  ✓   5 tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: light, компактное управление и доступная сетка (17.7s)
+  ✓   6 tests/ui/chessboard-design.spec.ts:62:3 › дизайн шахматки: dark, компактное управление и доступная сетка (19.1s)
+  ✓   7 tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (5.3s)
+  ✓   8 tests/ui/chessboard-gate.spec.ts:81:1 › гейт: тёмная тема — полный экран и верх (5.8s)
+  ✓   9 tests/ui/chessboard-gate.spec.ts:106:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (10.8s)
+  ✓  10 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (5.9s)
+  ✓  11 tests/ui/chessboard-month.spec.ts:29:1 › все 31 день помещаются по ширине окна (5.9s)
+  ✓  12 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (10.7s)
+  ✓  13 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (8.4s)
+  ✓  14 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (7.9s)
+  ✓  15 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (7.3s)
+  ✓  16 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (8.1s)
+  ✓  17 tests/ui/chessboard-month.spec.ts:94:1 › 30 дней: окно от сегодня, длина окна в раскрывашке, масштаб «День / Неделя / Месяц» в полосе (6.6s)
+  ✓  18 tests/ui/chessboard-month.spec.ts:132:1 › в месяце открываются брони, свободные даты и группы номеров (14.2s)
+  ✓  19 tests/ui/chessboard-month.spec.ts:176:3 › месячная сетка: light, читаемость и адаптивность (37.0s)
+  ✓  20 tests/ui/chessboard-month.spec.ts:176:3 › месячная сетка: dark, читаемость и адаптивность (34.0s)
+  ✓  21 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (3.1s)
+  ✓  22 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (2.9s)
+  ✓  23 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (3.1s)
+  ✓  24 tests/ui/chessboard-statistics.spec.ts:56:1 › today statistics stay available when the calendar shows another month (6.9s)
+  ✓  25 tests/ui/chessboard-statistics.spec.ts:70:1 › empty booking base shows zero occupancy and no urgent bookings (2.1s)
+  ✓  26 tests/ui/chessboard-statistics.spec.ts:84:3 › daily widgets light: accessible labels and contrasts (3.8s)
+  ✓  27 tests/ui/chessboard-statistics.spec.ts:84:3 › daily widgets dark: accessible labels and contrasts (4.1s)
+  ✓  28 tests/ui/chessboard-statistics.spec.ts:101:3 › desktop daily widgets light: accessible pointer targets (3.9s)
+  ✓  29 tests/ui/chessboard-statistics.spec.ts:101:3 › desktop daily widgets dark: accessible pointer targets (4.2s)
+  ✓  30 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (3.3s)
+  ✘  31 tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (3.2s)
+  ✓  32 tests/ui/chessboard-week.spec.ts:85:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (3.8s)
+  ✓  33 tests/ui/chessboard-week.spec.ts:117:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (7.0s)
+  ✓  34 tests/ui/chessboard-week.spec.ts:117:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (6.3s)
+  ✓  35 tests/ui/chessboard-week.spec.ts:117:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (6.6s)
+  ✓  36 tests/ui/chessboard-week.spec.ts:137:1 › в неделе работают бронь, категории и создание на воскресенье (5.4s)
+  ✓  37 tests/ui/chessboard-week.spec.ts:177:3 › неделя помещается на экране: light, обе панели и телефон (20.9s)
+  ✓  38 tests/ui/chessboard-week.spec.ts:177:3 › неделя помещается на экране: dark, обе панели и телефон (20.7s)
+  ✓  39 tests/ui/chessboard-week.spec.ts:216:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (3.0s)
+
+
+  1) tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "repeating-linear-gradient"
+    Received string:    "none"
+
+      33 |       ).getComputedStyle(el).backgroundImage,
+      34 |   );
+    > 35 |   expect(image).toContain('repeating-linear-gradient');
+         |                 ^
+      36 |   // тип блокировки — словом, как на карточке ячейки; сырого кода нет
+      37 |   await expect(link).toHaveAttribute('aria-label', /неисправна: нет матраса/);
+      38 |   await expect(link).not.toHaveAttribute('aria-label', /OUT_OF_ORDER/);
+        at /home/user/wetop.ai/tests/ui/chessboard-blocks.spec.ts:35:17
+
+    Error Context: test-results/chessboard-blocks-клетка-б-a0540-ована-и-называет-тип-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-blocks-клетка-б-a0540-ована-и-называет-тип-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-blocks-клетка-б-a0540-ована-и-называет-тип-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px ───
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 44
+    Received:    38
+
+      51 |       await expect(control).toBeVisible();
+      52 |       const box = await control.boundingBox();
+    > 53 |       expect(box!.height).toBeGreaterThanOrEqual(44);
+         |                           ^
+      54 |       expect(box!.width).toBeGreaterThanOrEqual(44);
+      55 |     }
+      56 |     await expect(page.locator('.board-period-pop').getByText('С', { exact: true })).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:53:27
+
+    Error Context: test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-C1-мобильн-ee081--и-фильтры-имеют-цели-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом ─
+    tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px ────
+  37 passed (5.8m)
+
+# код выхода 1 · 5 мин 50 с

@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.10.2026 21:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9b1e4c3 (codex/organizations-card-editor), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T16-10-36Z-unit-0a98.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 3ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  09:10:37
+   Duration  253ms (import 88%, transform 10%, tests 1%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T16-10-36Z-unit-0a98.json
+
+# код выхода 0 · 1 с

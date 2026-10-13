@@ -1,5 +1,8 @@
 import type { SVGProps } from 'react';
 import {
+  Scissors,
+  Layers,
+  List,
   LogIn,
   LogOut,
   BedDouble,
@@ -102,6 +105,9 @@ const icons = {
   departure: LogOut,
   bed: BedDouble,
   check: Check,
+  beauty: Scissors,
+  layers: Layers,
+  list: List,
   clock: Clock3,
   chevron: ChevronRight,
   back: ChevronLeft,

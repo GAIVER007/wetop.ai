@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 13.10.2026 20:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 351d584 (codex/organizations-card-editor), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/organization-card-workflow.spec.ts' '--workers=1'
+[WebServer] (node:33727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33759) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33763) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33797) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:33800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/organization-card-workflow.spec.ts:3:1 › business metadata and branch archive survive reload; second brand keeps its identity (5.1s)
+
+
+  1) tests/ui/organization-card-workflow.spec.ts:3:1 › business metadata and branch archive survive reload; second brand keeps its identity 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 4
+    Received:    16
+
+      13 |   await page.goto('/branches');
+      14 |   const first = page.locator('.org-card').first();
+    > 15 |   expect(await first.locator('.org-business-kind').evaluate((element) => parseFloat(getComputedStyle(element).marginTop))).toBeLessThanOrEqual(4);
+         |                                                                                                                            ^
+      16 |   const originalBranch = await first.locator('.org-branch-rows strong').first().innerText();
+      17 |   await first.getByRole('button', { name: /^Редактировать:/ }).click();
+      18 |   const editor = page.getByRole('dialog', { name: 'Редактировать карточку', exact: true });
+        at /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/tests/ui/organization-card-workflow.spec.ts:15:124
+
+    Error Context: test-results/organization-card-workflow-46e6b-nd-brand-keeps-its-identity/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/organization-card-workflow-46e6b-nd-brand-keeps-its-identity/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/organization-card-workflow-46e6b-nd-brand-keeps-its-identity/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/organization-card-workflow.spec.ts:3:1 › business metadata and branch archive survive reload; second brand keeps its identity 
+
+# код выхода 1 · 11 с

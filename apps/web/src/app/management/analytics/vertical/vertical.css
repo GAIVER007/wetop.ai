@@ -46,3 +46,28 @@
     }
   }
 }
+
+@layer sections {
+  /* ресторан: четыре плитки слева направо, как на макете (экран 10) */
+  .vertical-food__kpis .stat {
+    justify-content: flex-start;
+    text-align: left;
+    min-height: 0;
+  }
+  .vertical-food__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    margin: 0;
+  }
+  .vertical-food__facts dt {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .vertical-food__facts dd {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+}

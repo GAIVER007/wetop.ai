@@ -2996,6 +2996,13 @@ model DiningArea {
   @@map("dining_areas")
 }
 
+/// Форма стола на схеме зала (§42)
+enum DiningTableShape {
+  ROUND
+  SQUARE
+  RECT
+}
+
 model DiningTable {
   id            String            @id @default(uuid()) @db.Uuid
   areaId        String            @map("area_id") @db.Uuid
@@ -3004,6 +3011,12 @@ model DiningTable {
   sortOrder     Int               @default(0) @map("sort_order")
   active        Boolean           @default(true)
   needsCleaning Boolean           @default(false) @map("needs_cleaning")
+  /// схема зала (§42): центр на полотне зоны 0–1000, пусто значит «не расставлен»
+  posX          Int?              @map("pos_x") @db.SmallInt
+  posY          Int?              @map("pos_y") @db.SmallInt
+  shape         DiningTableShape?
+  scale         Int               @default(100) @db.SmallInt
+  rotation      Int               @default(0) @db.SmallInt
   createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
   area          DiningArea        @relation(fields: [areaId], references: [id])

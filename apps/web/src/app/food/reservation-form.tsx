@@ -33,6 +33,9 @@ export function ReservationForm({
   const [error, setError] = useState('');
   const [key] = useState(() => crypto.randomUUID());
   const [mode, setMode] = useState(data.customers.length ? 'existing' : 'new');
+  // заполненность разделов для полосы шагов макета (экран 4): только отображение, форма одна
+  const [guestPicked, setGuestPicked] = useState('');
+  const [guestName, setGuestName] = useState('');
   const [party, setParty] = useState(reservation?.partySize ?? 2);
   const local = reservation
     ? localInput(reservation.startsAt, data.timezone)
@@ -132,6 +135,30 @@ export function ReservationForm({
       }}
     >
       {!reservation && (
+        <ol className="rest-steps" aria-label="Шаги брони">
+          {(
+            [
+              ['Основное', !!(date && clockValue && period)],
+              ['Гость', mode === 'existing' ? !!guestPicked : !!guestName.trim()],
+              ['Стол', !!table],
+              ['Подтверждение', false],
+            ] as const
+          ).map(([label, done], i, all) => {
+            // текущий шаг: первый незаполненный обязательный раздел; «Стол» необязателен
+            const current = i === [0, 1, 3].find((n) => !all[n]![1]);
+            return (
+              <li key={label} data-done={done || undefined} aria-current={current ? 'step' : undefined}>
+                <span className="rest-steps__n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                {label}
+                {done && <span className="sr-only">, заполнено</span>}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      {!reservation && (
         <>
           <fieldset>
             <legend>Клиент</legend>
@@ -158,7 +185,12 @@ export function ReservationForm({
           </fieldset>
           {mode === 'existing' ? (
             <Field label="Выбор клиента">
-              <Select name="customerId" required defaultValue="">
+              <Select
+                name="customerId"
+                required
+                defaultValue=""
+                onChange={(e) => setGuestPicked(e.target.value)}
+              >
                 <option value="">Выберите клиента</option>
                 {data.customers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -172,7 +204,12 @@ export function ReservationForm({
             <>
               <div className="food-form-row">
                 <Field label="Имя">
-                  <Input name="firstName" required maxLength={100} />
+                  <Input
+                    name="firstName"
+                    required
+                    maxLength={100}
+                    onChange={(e) => setGuestName(e.target.value)}
+                  />
                 </Field>
                 <Field label="Фамилия">
                   <Input name="lastName" maxLength={100} />

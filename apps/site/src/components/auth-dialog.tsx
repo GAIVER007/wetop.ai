@@ -546,7 +546,7 @@ export function AuthDialog({ texts, urls }: Props) {
                 <form className="auth-form" onSubmit={submitRegister} noValidate>
                   <h2 className="auth-dialog__title">{texts.register.title}</h2>
                   <p className="auth-dialog__lead">
-                    {vertical === 'HOSPITALITY' ? texts.register.lead : texts.register.pilotLead}
+                    {texts.register.lead}
                   </p>
                   {choosable ? (
                     <fieldset className="auth-verticals">
@@ -565,7 +565,7 @@ export function AuthDialog({ texts, urls }: Props) {
                             />
                             <Icon name={VERTICAL_TILES[id].icon} size={22} />
                             <span>{VERTICAL_TILES[id].label}</span>
-                            <small>{id === 'HOSPITALITY' ? 'Доступно' : 'По приглашению'}</small>
+                            <small>Доступно</small>
                           </label>
                         ))}
                       </div>
@@ -577,7 +577,7 @@ export function AuthDialog({ texts, urls }: Props) {
                       </span>
                       <span>
                         {verticalDefinition(vertical).label}
-                        <small>{vertical === 'HOSPITALITY' ? 'Доступно' : 'По приглашению'}</small>
+                        <small>Доступно</small>
                       </span>
                     </p>
                   )}

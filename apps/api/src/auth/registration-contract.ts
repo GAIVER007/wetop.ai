@@ -1,5 +1,5 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
-import { normalizeEmail, parseBusinessVertical, type BusinessVertical } from '@pms/domain';
+import { BadRequestException } from '@nestjs/common';
+import { parseBusinessVertical, type BusinessVertical } from '@pms/domain';
 
 export interface RegistrationBusinessInput {
   vertical?: unknown;
@@ -24,19 +24,4 @@ export function registrationBusiness(input: RegistrationBusinessInput): {
   )
     throw new BadRequestException('Укажите одно название бизнеса');
   return { vertical, name: input.businessName ?? input.hotelName ?? '' };
-}
-
-/** Exact server allowlists never travel to the browser. Empty lists deny pilot signup. */
-export function assertRegistrationVertical(
-  vertical: BusinessVertical,
-  email: string,
-  env: Record<string, string | undefined> = process.env,
-): void {
-  if (vertical === 'HOSPITALITY') return;
-  const allowed = (env[`REGISTRATION_${vertical}_PILOT_EMAILS`] ?? '')
-    .split(',')
-    .map(normalizeEmail)
-    .filter(Boolean);
-  if (!allowed.includes(normalizeEmail(email)))
-    throw new ForbiddenException('Направление пока доступно только участникам пилота');
 }

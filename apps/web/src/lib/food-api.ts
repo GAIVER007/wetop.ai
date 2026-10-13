@@ -1,5 +1,8 @@
+import type { TableLayout } from '@pms/domain';
 import { getJsonPublic, sendJson } from './api';
 import type {
+  FoodShiftRow,
+  FoodShiftWeekDay,
   AreaInput,
   DiningArea,
   DiningTable,
@@ -50,6 +53,9 @@ export const foodApi = {
   createArea: (body: AreaInput) => sendJson<DiningArea>('POST', `${base}/areas`, body),
   updateArea: (id: string, body: Partial<AreaInput>) =>
     sendJson<DiningArea>('PATCH', idPath('areas', id), body),
+  /** Схема зала (§42): расстановка зоны целиком */
+  setLayout: (areaId: string, tables: TableLayout[]) =>
+    sendJson<{ tables: TableLayout[] }>('PUT', `${idPath('areas', areaId)}/layout`, { tables }),
   tables: (cursor?: string) =>
     getJsonPublic<FoodPage<DiningTable>>(`${base}/tables${query(cursor)}`),
   createTable: (body: TableInput) => sendJson<DiningTable>('POST', `${base}/tables`, body),
@@ -135,6 +141,9 @@ export const restaurantApi = {
     id: string,
     body: { name?: string; phone?: string | null; email?: string | null; status?: string },
   ) => sendJson<FoodEmployee>('PATCH', idPath('employees', id), body),
+  shifts: () => getJsonPublic<{ employees: FoodShiftRow[] }>(`${base}/shifts`),
+  setShifts: (id: string, intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>) =>
+    sendJson<{ week: FoodShiftWeekDay[] }>('PUT', `${idPath('employees', id)}/working-hours`, { intervals }),
   payroll: (month: string) => getJsonPublic<PayrollView>(`${base}/payroll?month=${month}`),
   setPaySettings: (id: string, body: { model: PayModel; fixedMinor: number; percent: number }) =>
     sendJson<unknown>('PUT', `${idPath('employees', id)}/pay-settings`, body),

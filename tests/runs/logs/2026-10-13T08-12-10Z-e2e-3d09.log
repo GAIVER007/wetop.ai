@@ -1,0 +1,146 @@
+# Сквозные (e2e) · 13.10.2026 13:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9dbbda7 (claude/restaurant-design-mockup), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' 'tests/food-ui/stock.spec.ts' 'tests/food-ui/ds1c-date-bar.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1297ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 23 tests using 1 worker
+
+  ✓   1 tests/food-ui/ds1c-date-bar.spec.ts:10:1 › ресторан: день по прежним адресам, форма брони с обязательными датой и временем (5.7s)
+  ✓   2 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (12.7s)
+  ✓   3 tests/food-ui/restaurant.spec.ts:152:1 › фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление (12.1s)
+[WebServer] (node:849) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   4 tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (44.9s)
+  ✓   5 tests/food-ui/restaurant.spec.ts:248:1 › кухня: колонки KDS и переходы кнопками (6.5s)
+  ✓   6 tests/food-ui/restaurant.spec.ts:272:1 › главная: плитки, последние заказы и выручка после закрытия (8.5s)
+  ✓   7 tests/food-ui/restaurant.spec.ts:293:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол (2.6s)
+  ✓   8 tests/food-ui/restaurant.spec.ts:353:1 › план зала: заказ занимает стол, уборка включается и видна легенда (3.3s)
+  ✓   9 tests/food-ui/restaurant.spec.ts:392:1 › сотрудники: список с продажами, добавление и правка (3.2s)
+  ✓  10 tests/food-ui/restaurant.spec.ts:414:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (24.5s)
+  ✓  11 tests/food-ui/restaurant.spec.ts:479:1 › отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты (13.5s)
+  ✘  12 tests/food-ui/restaurant.spec.ts:542:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (41.1s)
+  ✓  13 tests/food-ui/restaurant.spec.ts:620:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (51.1s)
+  ✓  14 tests/food-ui/restaurant.spec.ts:679:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (1.5m)
+  ✓  15 tests/food-ui/restaurant.spec.ts:766:1 › навигация ресторана: пункты макета на месте и ведут на экраны (14.4s)
+  ✘  16 tests/food-ui/restaurant.spec.ts:780:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) (1.6m)
+  ✓  17 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (14.3s)
+  ✓  18 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (14.8s)
+  ✓  19 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается, излишек отклонён до решения Q-KITCHEN-9 (30.5s)
+  ✓  20 tests/food-ui/stock.spec.ts:122:1 › сторно: нетронутая партия сторнируется, начатая нет (40.3s)
+  ✓  21 tests/food-ui/stock.spec.ts:136:1 › роли: администратор работает со складом, но не правит справочник; только чтение (8.5s)
+  ✘  22 tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 (1.6m)
+  ✓  23 tests/food-ui/stock.spec.ts:185:1 › списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает (22.8s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:542:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').getByTestId('order-rating-qr').getByRole('img', { name: 'QR-код: оценка с телефона гостя' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').getByTestId('order-rating-qr').getByRole('img', { name: 'QR-код: оценка с телефона гостя' }) with timeout 5000ms
+      - waiting for getByRole('dialog').getByTestId('order-rating-qr').getByRole('img', { name: 'QR-код: оценка с телефона гостя' })
+
+
+      608 |   await dialog.getByRole('button', { name: 'QR-код для гостя' }).click();
+      609 |   const qr = dialog.getByTestId('order-rating-qr');
+    > 610 |   await expect(qr.getByRole('img', { name: 'QR-код: оценка с телефона гостя' })).toBeVisible();
+          |                                                                                  ^
+      611 |   await expect(qr.getByRole('link')).toHaveAttribute('href', /\/rate\/[A-Za-z0-9_-]{43}$/);
+      612 |
+      613 |   // лимит по адресу посетителя: 120 в час, дальше 429 (свой адрес, чтобы не задеть соседние шаги)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/restaurant.spec.ts:610:82
+
+    Error Context: test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/restaurant.spec.ts:780:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:55823/restaurant-settings", waiting until "load"
+
+
+       at ../tools/next-redirect.ts:38
+
+      36 |   page.goto = async (url, options) => {
+      37 |     await settleNextRedirect(page, 'commit');
+    > 38 |     const response = await goto(url, options);
+         |                            ^
+      39 |     await settleNextRedirect(page, until(options?.waitUntil));
+      40 |     return response;
+      41 |   };
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/tools/next-redirect.ts:38:28)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/restaurant.spec.ts:822:3
+
+    Error Context: test-results/restaurant-бар-финансы-и-н-3e1bc-а-по-макету-экраны-7-12-13-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-бар-финансы-и-н-3e1bc-а-по-макету-экраны-7-12-13-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-бар-финансы-и-н-3e1bc-а-по-макету-экраны-7-12-13-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 ───────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Переключить тему', exact: true })
+        - locator resolved to <button aria-label="Переключить тему" title="Светлая / тёмная тема" class="icon-button theme-switch">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+
+
+      164 |       const themeButton = page.getByRole('button', { name: 'Переключить тему', exact: true });
+      165 |       const initial = await page.locator('html').getAttribute('data-theme');
+    > 166 |       await themeButton.click();
+          |                         ^
+      167 |       await expect(page.locator('html')).toHaveAttribute('data-theme', initial === 'dark' ? 'light' : 'dark');
+      168 |       if ((await page.locator('html').getAttribute('data-theme')) !== theme) await themeButton.click();
+      169 |       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/tests/food-ui/stock.spec.ts:166:25
+
+    Error Context: test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stock-снимки-и-axe-в-двух-темах-на-1440-и-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/food-ui/restaurant.spec.ts:542:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+    tests/food-ui/restaurant.spec.ts:780:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) 
+    tests/food-ui/stock.spec.ts:156:1 › снимки и axe в двух темах на 1440 и 390 ────────────────────
+  20 passed (11.6m)
+
+# код выхода 1 · 11 мин 42 с

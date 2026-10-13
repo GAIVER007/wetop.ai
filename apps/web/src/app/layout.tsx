@@ -43,6 +43,7 @@ export const viewport = {
 
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
   const shell = await deskShell();
+  if (shell.branchNeeded) return field === 'name' ? 'Выберите филиал' : 'Откройте список филиалов';
   if (shell.access.unknown) return 'Филиал недоступен';
   if (shell.vertical !== 'HOSPITALITY') {
     const branch = await selectedWorkspaceBranch().catch(() => null);

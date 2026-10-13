@@ -13,6 +13,21 @@ export function scopeCookieOptions(env: Record<string, string | undefined>) {
   return { httpOnly: true, sameSite: 'lax' as const, secure: cookieSecure(env), path: '/' };
 }
 
+/**
+ * Подсказка «последний выбранный филиал» на этом устройстве (13.10.2026: владелец с четырьмя филиалами после каждого
+ * входа оставался без выбора, шапка писала «Филиал недоступен» и урезала меню). Это не право и не указатель:
+ * `/scope/resolve` выбирает филиал по подсказке, только если он есть в ответе сервера `GET /branches` для текущей
+ * сессии. Поэтому выход её не стирает, а чужой человек на этом устройстве по ней не откроет ничего чужого.
+ */
+export const LAST_BRANCH_COOKIE = 'wetop_last_branch';
+
+/** Полгода: выбор переживает выход и истечение сессии */
+const LAST_BRANCH_MAX_AGE = 60 * 60 * 24 * 180;
+
+export function lastBranchCookieOptions(env: Record<string, string | undefined>) {
+  return { ...scopeCookieOptions(env), maxAge: LAST_BRANCH_MAX_AGE };
+}
+
 /** `Set-Cookie`, снимающий указатель, для обработчиков, которые собирают ответ сами (вход с сайта, резервная форма). */
 export function clearScopeCookieHeader(env: Record<string, string | undefined>): string {
   const parts = [`${SCOPE_COOKIE}=`, 'Path=/', 'HttpOnly', 'SameSite=Lax', 'Max-Age=0'];
@@ -36,6 +51,16 @@ const MAX_POINTER_LENGTH = 200;
  */
 const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const POINTER = new RegExp(`^business=${UUID}(;location=${UUID})?$`, 'i');
+
+/** Филиал из правильного указателя (`business=…;location=…`); иначе `null` */
+export function pointerLocation(pointer: string): string | null {
+  return POINTER.test(pointer) ? (/;location=([0-9a-f-]+)$/i.exec(pointer)?.[1] ?? null) : null;
+}
+
+/** Значение подсказки, если это UUID; кука чужой ввод, всё прочее отбрасывается */
+export function lastBranchValue(cookieValue: string | undefined): string | null {
+  return cookieValue && new RegExp(`^${UUID}$`, 'i').test(cookieValue) ? cookieValue : null;
+}
 
 export function scopeHeader(cookieValue: string | undefined): Record<string, string> {
   if (!cookieValue || cookieValue.length > MAX_POINTER_LENGTH) return {};

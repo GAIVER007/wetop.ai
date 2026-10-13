@@ -20,6 +20,11 @@ export interface DeskPerson {
 export interface DeskShell {
   /** Verified Business/Location identity for branch switching. */
   scopeKey?: string;
+  /**
+   * Человек вошёл, но рабочий филиал не выбран (13.10.2026): шапка зовёт «Выберите филиал», а не пишет
+   * «Филиал недоступен». При отказе API признака нет: тогда филиал действительно недоступен.
+   */
+  branchNeeded?: true;
   access: NavigationAccess;
   person: DeskPerson | null;
   /** «Пробный период: ещё N дн.» — только у организации на пробном сроке (ТЗ ux-retention п. 2.7) */

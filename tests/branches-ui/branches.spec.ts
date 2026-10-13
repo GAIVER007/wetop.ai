@@ -225,7 +225,7 @@ test('restaurant-only organization keeps financial widgets without lower panels'
     await page.goto('/branches');
     await expect(page.locator('.org-reference--service')).toBeVisible();
     await expect(page.locator('.org-bottom, .org-object-results')).toHaveCount(0);
-    await expect(page.getByText('Выручка (оплаты)', { exact: true })).toBeVisible();
+    await expect(page.getByText('Доход от оплат', { exact: true })).toBeVisible();
   } finally {
     await request.post(`${api}/__test/control`, { data: { org: 'A' } });
     await request.post(`${api}/__test/cleanup`);

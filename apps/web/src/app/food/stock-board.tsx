@@ -2,6 +2,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
+import { IconField } from '../../components/icon-field';
 import { Tabs } from '../../components/tabs';
 import {
   Alert,
@@ -354,8 +355,12 @@ export function StockBoard({
     products.length === 0 ? (
       <EmptyState title="Добавьте первый ингредиент" />
     ) : (
-      <>
-        <Input aria-label="Поиск по ингредиентам" placeholder="Поиск по ингредиентам" value={query} onChange={(e) => setQuery(e.target.value)} />
+      <div className="rest-card">
+        <div className="rest-card__tools">
+          <IconField icon="search">
+            <Input aria-label="Поиск по ингредиентам" placeholder="Поиск по ингредиентам" value={query} onChange={(e) => setQuery(e.target.value)} />
+          </IconField>
+        </div>
         {shown.length === 0 ? (
           <EmptyState title="Ничего не найдено" />
         ) : (
@@ -372,10 +377,10 @@ export function StockBoard({
             </thead>
             <tbody>
               {shown.map((p) => (
-                <tr key={p.id}>
+                <tr key={p.id} data-low={(p.active && (p.low || p.onHand === '0')) || undefined}>
                   <td>{p.name}</td>
-                  <td>{qtyText(p.onHand, p.unit)}</td>
-                  <td>{qtyText(p.minQty, p.unit)}</td>
+                  <td className="rest-stock-qty">{qtyText(p.onHand, p.unit)}</td>
+                  <td className="rest-stock-qty">{qtyText(p.minQty, p.unit)}</td>
                   <td>{wholeTenge(p.valueMinor, ctx.currency)}</td>
                   <td>{p.nearestExpiry ? <time dateTime={p.nearestExpiry}>{dateText(p.nearestExpiry)}</time> : 'Нет'}</td>
                   <td>
@@ -416,7 +421,7 @@ export function StockBoard({
             </tbody>
           </Table>
         )}
-      </>
+      </div>
     );
 
   const movementTable =
@@ -450,13 +455,12 @@ export function StockBoard({
 
   return (
     <div className="food-workspace">
-      <Stats>
+      <Stats min={170} className="rest-kpis">
         <Stat label="Ингредиентов" value={String(products.filter((p) => p.active).length)} />
         <Stat label="Стоимость остатка" value={wholeTenge(total.toString(), ctx.currency)} tone="info" testId="stock-value" />
         <Stat label="Мало на складе" value={String(low)} tone={low > 0 ? 'warn' : undefined} testId="stock-low" />
       </Stats>
-      <div className="food-section-heading">
-        <p className="muted">Остатки этого филиала, себестоимость по партиям FIFO</p>
+      <div className="food-section-heading rest-actions-end">
         <div className="food-inline-actions">
           {ctx.canProperty && (
             <Button tone="secondary" onClick={() => setDraft({ kind: 'product', product: null })}>

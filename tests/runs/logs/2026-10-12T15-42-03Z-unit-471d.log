@@ -1,0 +1,19 @@
+# Модульные (unit) · 12.10.2026 20:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит c2c2347 (codex/growth-reference-design), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-42-03Z-unit-471d.json' 'apps/web/src/app/growth/business-screen.test.ts' 'apps/web/src/lib/navigation-growth.test.ts' 'apps/web/src/lib/sales.test.ts' 'tests/unit/design-primitive-owner.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/owner-all-directions/WETOP
+
+ ✓ |unit| apps/web/src/lib/sales.test.ts (5 tests) 30ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 180ms
+ ✓ |unit| apps/web/src/lib/navigation-growth.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/app/growth/business-screen.test.ts (7 tests) 74ms
+
+ Test Files  4 passed (4)
+      Tests  20 passed (20)
+   Start at  08:42:10
+   Duration  2.66s (transform 69%, import 22%, tests 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T15-42-03Z-unit-471d.json
+
+# код выхода 0 · 10 с

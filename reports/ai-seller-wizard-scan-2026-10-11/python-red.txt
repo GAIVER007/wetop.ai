@@ -1,0 +1,61 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_________ test_scan_rejects_other_credentials_before_parsing[headers0] _________
+
+client = <starlette.testclient.TestClient object at 0x10defb620>, headers = {}
+
+    @pytest.mark.parametrize('headers', [{}, {'x-service-key': 'wrong'}, {'x-internal-key': 'test-key'}])
+    def test_scan_rejects_other_credentials_before_parsing(client, headers):
+        response = client.post('/internal/wizard/scan', content=b'not json', headers=headers)
+>       assert response.status_code == 403
+E       assert 404 == 403
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_scan.py:8: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+2026-10-11 13:58:47,561 | WARNING | - | src.main | Виджет: домены сайта не заданы, проверка Origin выключена
+------------------------------ Captured log setup ------------------------------
+ERROR    src.main:main.py:218 Панель не подключена: путь панели не задан: заполните DASHBOARD_PATH_PREFIX
+ERROR    src.main:main.py:218 Панель не подключена: путь панели не задан: заполните DASHBOARD_PATH_PREFIX
+WARNING  src.main:main.py:88 Виджет: домены сайта не заданы, проверка Origin выключена
+_________ test_scan_rejects_other_credentials_before_parsing[headers1] _________
+
+client = <starlette.testclient.TestClient object at 0x10dfc4050>
+headers = {'x-service-key': 'wrong'}
+
+    @pytest.mark.parametrize('headers', [{}, {'x-service-key': 'wrong'}, {'x-internal-key': 'test-key'}])
+    def test_scan_rejects_other_credentials_before_parsing(client, headers):
+        response = client.post('/internal/wizard/scan', content=b'not json', headers=headers)
+>       assert response.status_code == 403
+E       assert 404 == 403
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_scan.py:8: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+2026-10-11 13:58:47,615 | WARNING | - | src.main | Виджет: домены сайта не заданы, проверка Origin выключена
+------------------------------ Captured log setup ------------------------------
+ERROR    src.main:main.py:218 Панель не подключена: путь панели не задан: заполните DASHBOARD_PATH_PREFIX
+WARNING  src.main:main.py:88 Виджет: домены сайта не заданы, проверка Origin выключена
+_________ test_scan_rejects_other_credentials_before_parsing[headers2] _________
+
+client = <starlette.testclient.TestClient object at 0x10dfc5a90>
+headers = {'x-internal-key': 'test-key'}
+
+    @pytest.mark.parametrize('headers', [{}, {'x-service-key': 'wrong'}, {'x-internal-key': 'test-key'}])
+    def test_scan_rejects_other_credentials_before_parsing(client, headers):
+        response = client.post('/internal/wizard/scan', content=b'not json', headers=headers)
+>       assert response.status_code == 403
+E       assert 404 == 403
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_scan.py:8: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+2026-10-11 13:58:47,623 | WARNING | - | src.main | Виджет: домены сайта не заданы, проверка Origin выключена
+------------------------------ Captured log setup ------------------------------
+ERROR    src.main:main.py:218 Панель не подключена: путь панели не задан: заполните DASHBOARD_PATH_PREFIX
+WARNING  src.main:main.py:88 Виджет: домены сайта не заданы, проверка Origin выключена
+=========================== short test summary info ============================
+FAILED tests/test_wizard_scan.py::test_scan_rejects_other_credentials_before_parsing[headers0]
+FAILED tests/test_wizard_scan.py::test_scan_rejects_other_credentials_before_parsing[headers1]
+FAILED tests/test_wizard_scan.py::test_scan_rejects_other_credentials_before_parsing[headers2]
+3 failed in 1.68s

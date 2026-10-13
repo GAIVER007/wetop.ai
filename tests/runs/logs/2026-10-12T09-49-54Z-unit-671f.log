@@ -1,0 +1,16 @@
+# Модульные (unit) · 12.10.2026 14:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 961b74a (claude/restaurant-food-cost), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-49-54Z-unit-671f.json' 'packages/domain/src/food/consumption.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| packages/domain/src/food/consumption.test.ts (5 tests) 2ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  02:49:55
+   Duration  93ms (transform 70%, import 21%, tests 5%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T09-49-54Z-unit-671f.json
+
+# код выхода 0 · 1 с

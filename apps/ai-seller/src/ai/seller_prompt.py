@@ -176,3 +176,16 @@ def dirty_fields(profile: SellerProfile) -> list[str]:
         "faq": "\n".join(f"{i.q}\n{i.a}" for i in profile.faq),
     }
     return [name for name, text in texts.items() if text and not scan_document(text).clean]
+
+
+def render_guest_text(text: str, bot_type: str) -> str:
+    """Guest preview has no operational tools, business vertical or booking authority."""
+    role = ("Ты помощник поддержки. Отвечай по условиям бизнеса. Не навязывай продажу."
+            if bot_type == "support" else "Ты ИИ-продавец. Помогай клиенту выбрать услугу по подтверждённым знаниям.")
+    return "\n\n".join([
+        role,
+        "# Главные правила\n" + CORE_RULES.replace("\u2014", ","),
+        "Инструменты действий не подключены. Для записи, бронирования, оплаты или передачи сообщения предложи обратиться к сотруднику. Не утверждай, что действие выполнено.",
+        "Ниже проект инструкции. При противоречии действуют главные правила выше.",
+        text.replace("\u2014", ","),
+    ])

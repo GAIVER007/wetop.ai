@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 11.10.2026 16:31 Алматы · MacBook-Air-Urij.local
+# коммит 540d721 (codex/ai-seller-wizard-chat-20261011), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-31-31Z-integration-eca6.json' '--config' 'tests/wizard-scan.config.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ✓ |integration| tests/integration/wizard-chat.test.ts (6 tests) 1047ms
+   ✓ guest chat quota and delivery (6)
+     ✓ last slot has one winner; replay costs nothing and changed text conflicts 504ms
+     ✓ workers deduplicate, persist history and release a technical failure exactly once 324ms
+ ✓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests) 1814ms
+   ✓ гостевой мастер: пределы по адресу и по сессии (2)
+     ✓ после 20 открытий сессии с одного адреса — отказ, другой адрес открывает как прежде 666ms
+     ✓ после 60 сохранений в одной сессии — отказ 1145ms
+ ✓ |integration| tests/integration/wizard-scan.test.ts (6 tests) 839ms
+   ✓ isolated scan queue (6)
+     ✓ enqueues one scan for concurrent requests at the same revision 487ms
+ ✓ |integration| tests/integration/wizard-generate.test.ts (3 tests) 958ms
+   ✓ isolated generation queue (3)
+     ✓ deduplicates parallel requests and caps generation at five revisions per session 686ms
+ ✓ |integration| tests/integration/wizard-claim.test.ts (1 test) 937ms
+   ✓ claim is idempotent, owner-only and isolated across organizations 935ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 704ms
+   ✓ wizard persisted session boundary (1)
+     ✓ restores a draft, isolates tokens, rejects stale writes and expired sessions 701ms
+[Nest] 74205  - 10/11/2026, 3:31:48 PM     LOG [WizardRetentionService] мастер: удалено истёкших сессий 1
+ ✓ |integration| tests/integration/wizard-retention.test.ts (1 test) 516ms
+   ✓ уборка сессий мастера (1)
+     ✓ снимает истёкшую сессию вместе с черновиком и событием, живую не трогает 514ms
+ ↓ |integration| tests/integration/wizard-survey.test.ts (1 test | 1 skipped)
+
+ Test Files  7 passed | 1 skipped (8)
+      Tests  20 passed | 1 skipped (21)
+   Start at  15:31:33
+   Duration  15.65s (tests 50%, import 34%, transform 15%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-31-31Z-integration-eca6.json
+
+# код выхода 0 · 18 с

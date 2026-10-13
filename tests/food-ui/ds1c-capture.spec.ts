@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 /**
  * MV8.5 DS1c: снимки «до» и «после» дневной навигации ресторана (общий DateBar) и формы брони стола

@@ -1,0 +1,50 @@
+# Модульные (unit) · 12.10.2026 19:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит ec99ea7 (claude/profile-menu-spec), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-14-54Z-unit-bb9c.json' 'apps/web/src/lib/scope-resolve.test.ts' 'apps/web/src/app/scope'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |unit| apps/web/src/lib/scope-resolve.test.ts (8 tests | 1 failed) 7ms
+   ✓ нет доступных филиалов: прежний путь настройки, указатель не ставится 1ms
+   ✓ один филиал: выбирается сам, указатель только из ответа сервера 0ms
+   ✓ несколько филиалов: никогда не выбирается первый, человек выбирает на /branches 0ms
+   ✓ next чужого направления заменяется стартовой страницей направления 0ms
+   × /today общий для всех направлений: сохраняется у салона и ресторана (MV8) 4ms
+   ✓ next своего направления и общие разделы сохраняются 0ms
+   ✓ next только безопасный локальный путь 0ms
+   ✓ устаревший указатель: кука есть, а /auth/me не подтвердил ни Business, ни филиал 0ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (4 tests) 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/scope-resolve.test.ts > /today общий для всех направлений: сохраняется у салона и ресторана (MV8)
+AssertionError: expected { kind: 'select', …(2) } to match object { target: '/today' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "target": "/today",
++   "target": "/finance",
+  }
+
+ ❯ apps/web/src/lib/scope-resolve.test.ts:45:48
+     43| it('/today общий для всех направлений: сохраняется у салона и ресторан…
+     44|   for (const v of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)
+     45|     expect(decideScope([branch(v)], '/today')).toMatchObject({ target:…
+       |                                                ^
+     46| });
+     47|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 11 passed (12)
+   Start at  07:14:55
+   Duration  161ms (transform 69%, import 18%, tests 11%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T14-14-54Z-unit-bb9c.json
+
+# код выхода 1 · 1 с

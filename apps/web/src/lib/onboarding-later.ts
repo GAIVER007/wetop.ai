@@ -17,6 +17,7 @@ const SKIP = [
   '/login',
   '/register',
   '/invite',
+  '/rate',
   '/password-reset',
   '/profile/access',
   '/status',

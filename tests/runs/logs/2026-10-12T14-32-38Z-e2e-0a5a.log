@@ -1,0 +1,194 @@
+# Сквозные (e2e) · 12.10.2026 19:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит ec99ea7 (claude/profile-menu-spec), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/password-reset.spec.ts' 'tests/ui/sales-hub.spec.ts' 'tests/ui/system-screens.spec.ts' 'tests/ui/assistant-widget.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1606ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1869ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/apps/site/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 29 tests using 1 worker
+
+  ✓   1 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (35.3s)
+  ✘   2 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (46.7s)
+  ✓   3 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (11.9s)
+  ✓   4 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (1.4s)
+  ✓   5 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (1.3s)
+  ✓   6 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (1.0s)
+  ✓   7 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (673ms)
+  ✓   8 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (4.0s)
+  ✓   9 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (4.8s)
+  ✓  10 tests/ui/profile-menu-readiness.spec.ts:52:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (7.9s)
+  ✓  11 tests/ui/profile-menu-readiness.spec.ts:69:1 › после готовности меню открывается обычным кликом (8.3s)
+  ✓  12 tests/ui/profile-menu-readiness.spec.ts:82:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (16.0s)
+  ✓  13 tests/ui/sales-hub.spec.ts:47:1 › пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету (11.2s)
+  ✓  14 tests/ui/sales-hub.spec.ts:68:1 › три карточки: конкуренты, ИИ-продавец, рекомендации; кнопки ведут в модули (8.3s)
+  ✓  15 tests/ui/sales-hub.spec.ts:88:1 › нет конкурентов: рекомендации зовут добавить, плитки не рисуют нули (5.3s)
+  ✓  16 tests/ui/sales-hub.spec.ts:97:1 › нет предложений: конверсия это знак пропуска, а не 0 % (14.3s)
+  ✓  17 tests/ui/sales-hub.spec.ts:107:1 › сводка не посчиталась: сказано словами, плитки броней и конкурентов это пропуск, карточки живы (9.7s)
+  ✓  18 tests/ui/sales-hub.spec.ts:120:1 › период: «7 дней» меняет адрес, неверные даты в адресе возвращают 30 дней (6.0s)
+  ✓  19 tests/ui/sales-hub.spec.ts:131:1 › расширение «ИИ-продавец» выключено: плитки диалогов это пропуск с причиной, карточка объясняет (7.2s)
+  ✓  20 tests/ui/sales-hub.spec.ts:144:1 › администратор смены открывает хаб (37.0s)
+  ✓  21 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: light, 1440px (26.6s)
+  ✘  22 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: light, 390px (51.1s)
+  ✓  23 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: dark, 1440px (34.8s)
+  ✘  24 tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: dark, 390px (49.9s)
+  ✘  25 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (47.9s)
+  ✓  26 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (24.7s)
+  ✓  27 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (43.6s)
+  ✓  28 tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (21.8s)
+  ✘  29 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (45.8s)
+
+
+  1) tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/finance/
+    Received string:  "http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        17 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="manrope_e43ac67-module__aAKcTW__variable ibm_plex_sans_6979dae1-module__07KeAq__variable ibm_plex_mono_ed86ef51-module__ntsEZG__variable">…</html>
+           - unexpected value "http://127.0.0.1:3002/?next=%2Ftoday&password=<скрыто>"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      39 |   await page.getByLabel('Пароль', { exact: true }).fill('zhanga-parol-2026');
+      40 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 41 |   await expect(page).toHaveURL(/\/finance/);
+         |                      ^
+      42 | });
+      43 |
+      44 | test('второй раз та же ссылка не работает', async ({ page }) => {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/password-reset.spec.ts:41:22
+
+    Error Context: test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/password-reset-по-ссылке-и-c99fe-т-пароль-сам-и-входит-с-ним/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: light, 390px ─────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Target page, context or browser has been closed
+
+       at fixtures.ts:91
+
+      89 |   const page = (this as unknown as { page: Page }).page;
+      90 |   await page.evaluate(SETTLE_MOTION).catch(() => undefined);
+    > 91 |   return axeAnalyze.call(this);
+         |                     ^
+      92 | };
+      93 |
+      94 | export * from '@playwright/test';
+        at AxeBuilder.call (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/node_modules/@axe-core/playwright/dist/index.mjs:201:16)
+        at AxeBuilder.analyze (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/fixtures.ts:91:21)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/sales-hub.spec.ts:165:20
+
+    Error Context: test-results/sales-hub-доступность-и-снимки-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sales-hub-доступность-и-снимки-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sales-hub-доступность-и-снимки-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: dark, 390px ──────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 45000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      163 |       await page.goto('/sales');
+      164 |       await expect(page.getByTestId('sales-kpis')).toBeVisible();
+    > 165 |       const scan = await new AxeBuilder({ page }).analyze();
+          |                    ^
+      166 |       expect(scan.violations.map((v) => v.id)).toEqual([]);
+      167 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      168 |       mkdirSync(SHOTS, { recursive: true });
+        at AxeBuilder.analyze (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/sales-hub.spec.ts:165:20
+
+    Error Context: test-results/sales-hub-доступность-и-снимки-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sales-hub-доступность-и-снимки-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sales-hub-доступность-и-снимки-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/system-screens-журнал-выбо-cb24f-пустой-результат-с-причиной/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-журнал-выбо-cb24f-пустой-результат-с-причиной/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-журнал-выбо-cb24f-пустой-результат-с-причиной/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('invite-loading')
+    Expected substring: "Проверяем приглашение"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('invite-loading') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('invite-loading')
+
+
+      336 |   });
+      337 |   await page.goto('/invite/fixture-invite-token', { waitUntil: 'commit' });
+    > 338 |   await expect(main.getByTestId('invite-loading')).toContainText('Проверяем приглашение');
+          |                                                    ^
+      339 |   await expect(main).toContainText('Вас приглашают', { timeout: 15_000 });
+      340 |   await request.post(`${fixture}/__test/control`, { data: {} });
+      341 |   // профиль: «Доступ» говорит правду о входе, а не «появится после подключения авторизации»
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/system-screens.spec.ts:338:52
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним 
+    tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: light, 390px ──────────────────────────
+    tests/ui/sales-hub.spec.ts:159:5 › доступность и снимки: dark, 390px ───────────────────────────
+    tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной 
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+  24 passed (12.6m)
+
+# код выхода 1 · 12 мин 48 с

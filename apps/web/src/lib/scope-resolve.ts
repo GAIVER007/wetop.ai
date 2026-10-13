@@ -47,6 +47,8 @@ function compatible(path: string, vertical: WebVertical): boolean {
  */
 function targetFor(vertical: WebVertical, rawNext: string | null): string {
   const next = rawNext ? safeReturnPath(rawNext) : null;
+  // у гостиницы `/today` сам уводит в «Финансы»: ведём туда сразу, второй переход обрывал следующую навигацию
+  if (next && vertical === 'HOSPITALITY' && next.split('?')[0] === '/today') return landingForVertical(vertical);
   if (next && compatible(next, vertical)) return next;
   return vertical === 'HOSPITALITY' ? landingForVertical(vertical) : '/register/setup';
 }

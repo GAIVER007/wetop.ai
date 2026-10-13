@@ -31,3 +31,18 @@
     }
   }
 }
+
+@layer sections {
+  /* ресторан: выручка по дням и продажи по категориям рядом, как на макете (экран 10) */
+  .vertical-food__charts {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  @media (max-width: 960px) {
+    .vertical-food__charts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

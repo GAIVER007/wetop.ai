@@ -1,0 +1,20 @@
+# Модульные (unit) · 11.10.2026 23:17 Алматы · MacBook-Air-Urij.local
+# коммит 1d6bcbe (codex/ai-seller-wizard-chat-20261011)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T18-17-51Z-unit-49ca.json' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (25 tests) 3187ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 2493ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 505ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 60ms
+
+ Test Files  2 passed (2)
+      Tests  28 passed (28)
+   Start at  22:17:55
+   Duration  5.81s (tests 36%, import 36%, transform 28%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T18-17-51Z-unit-49ca.json
+
+# код выхода 0 · 10 с

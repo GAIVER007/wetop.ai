@@ -185,9 +185,8 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     expect(m.activeTables).toBe(3);
     // «Главная» ресторана по макету (ADR-159): счётчик дня и плитка занятости вместо прежних четырёх плиток
     await expect(value(page, 'today-planned'), 'today-planned').toHaveText(String(m.planned));
-    await expect(value(page, 'today-tables'), 'today-tables').toHaveText(
-      `${m.activeTables - m.freeNow} / ${m.activeTables}`,
-    );
+    // плитка «Свободные столы» по макету ресторана (экран 1)
+    await expect(value(page, 'today-tables'), 'today-tables').toHaveText(String(m.freeNow));
     for (const [id, n] of [
       ['today-attention-unconfirmed', m.awaitingConfirmation],
       ['today-attention-no-show', m.noShow],
@@ -443,6 +442,8 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     const f = await prepare(request);
     await setScope(page, f.hotelScope);
     await page.goto('/today');
+    await expect(page).toHaveURL(/\/finance$/);
+    await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     await expect(page.getByRole('dialog')).toBeVisible();
     for (const [scope, testId] of [
       [f.salon, 'beauty-today'],

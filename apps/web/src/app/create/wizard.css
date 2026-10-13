@@ -92,6 +92,7 @@
     gap: var(--space-2);
     font-size: var(--text-sm);
   }
+  .guest-wizard__chat textarea,
   .guest-wizard__fields input,
   .guest-wizard__fields textarea,
   .guest-wizard__fields select {
@@ -285,5 +286,39 @@
     .guest-wizard__header {
       flex-wrap: wrap;
     }
+  }
+}
+
+@layer sections {
+  .guest-wizard__generated-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+@layer sections {
+  .guest-wizard__chat {
+    margin-top: var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+  .guest-wizard__chat-form {
+    display: grid;
+    gap: var(--space-4);
+    margin: var(--space-4) 0;
+  }
+  .guest-wizard__chat label {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .guest-wizard__chat article {
+    padding: var(--space-4);
+    margin: var(--space-2) 0;
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .guest-wizard__chat article h3 {
+    margin: 0;
+    font-size: var(--text-sm);
   }
 }

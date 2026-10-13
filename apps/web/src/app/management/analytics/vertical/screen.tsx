@@ -11,6 +11,7 @@ import { BEAUTY_LABELS, FOOD_LABELS, moneyText, periodDates } from './metrics';
 import { loadBranchPeriod } from './load';
 import { FoodPeriodPanel } from './food-period';
 import './vertical.css';
+import { Tabs } from '../../../../components/tabs';
 const path = '/management/analytics';
 export async function VerticalAnalytics({ sp }: { sp: Record<string, string | undefined> }) {
   const shell = await deskShell();
@@ -71,17 +72,13 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
         }
       >
         <div className="vertical-report" data-testid="vertical-analytics">
-          <nav className="settings-tabs" aria-label="Область отчёта">
-            <Link href={`${path}?${q}`} aria-current={!organization ? 'page' : undefined}>
-              Выбранный филиал
-            </Link>
-            <Link
-              href={`${path}?${q}&scope=organization`}
-              aria-current={organization ? 'page' : undefined}
-            >
-              Все филиалы
-            </Link>
-          </nav>
+          <Tabs
+            label="Область отчёта"
+            items={[
+              { href: `${path}?${q}`, label: 'Выбранный филиал', current: !organization },
+              { href: `${path}?${q}&scope=organization`, label: 'Все филиалы', current: organization },
+            ]}
+          />
           <form className="vertical-report-period" action={path}>
             <label>
               С даты

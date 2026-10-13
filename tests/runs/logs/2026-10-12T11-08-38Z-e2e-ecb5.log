@@ -1,0 +1,32 @@
+# Сквозные (e2e) · 12.10.2026 16:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 47b86b0 (claude/restaurant-design-mockup), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 206ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (4.2s)
+  ✓   2 tests/food-ui/restaurant.spec.ts:148:1 › фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление (3.0s)
+[WebServer] (node:62387) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   3 tests/food-ui/restaurant.spec.ts:187:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (6.3s)
+  ✓   4 tests/food-ui/restaurant.spec.ts:244:1 › кухня: колонки KDS и переходы кнопками (2.2s)
+  ✓   5 tests/food-ui/restaurant.spec.ts:266:1 › главная: плитки, последние заказы и выручка после закрытия (1.8s)
+  ✓   6 tests/food-ui/restaurant.spec.ts:287:1 › план зала: заказ занимает стол, уборка включается и видна легенда (1.9s)
+  ✓   7 tests/food-ui/restaurant.spec.ts:317:1 › сотрудники: список с продажами, добавление и правка (1.7s)
+  ✓   8 tests/food-ui/restaurant.spec.ts:339:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (3.7s)
+  ✓   9 tests/food-ui/restaurant.spec.ts:404:1 › отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты (195ms)
+  ✓  10 tests/food-ui/restaurant.spec.ts:450:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (2.4s)
+  ✓  11 tests/food-ui/restaurant.spec.ts:509:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (3.2s)
+  ✓  12 tests/food-ui/restaurant.spec.ts:594:1 › навигация ресторана: пункты макета на месте и ведут на экраны (446ms)
+
+  12 passed (42.9s)
+
+# код выхода 0 · 46 с

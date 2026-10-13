@@ -15,6 +15,8 @@ import {
   orderNext,
   orderPayment,
   parseOrderRating,
+  hashSessionToken,
+  newSessionToken,
   ratingSummary,
   foodCostSummary,
   milliText,
@@ -46,6 +48,8 @@ import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } fro
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { StockService } from './stock.service';
 
+/** Срок ссылки на оценку с телефона гостя (§40) */
+const RATING_LINK_TTL_MS = 72 * 3_600_000;
 const OPEN_STATUSES: OrderStatus[] = ['NEW', 'COOKING', 'READY', 'SERVED'];
 const orderInclude = {
   table: { include: { area: { select: { name: true } } } },
@@ -152,8 +156,11 @@ function monthParam(v: unknown): { from: string; to: string; month: string } {
   });
 }
 function previousDay(date: string): string {
+  return shiftDay(date, -1);
+}
+function shiftDay(date: string, days: number): string {
   const d = new Date(`${date}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() - 1);
+  d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
 const clockText = (d: Date) => d.toISOString().slice(11, 16);
@@ -949,6 +956,29 @@ export class RestaurantService {
     });
   }
 
+  /**
+   * Ссылка на оценку с телефона гостя (§40, ADR-170): ключ 256 бит уходит только в ответ и QR-код, в базе его SHA-256;
+   * живёт 72 часа, повторная выдача заменяет прежнюю
+   */
+  async ratingLink(idRaw: string) {
+    return this.write('desk', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      await tx.$queryRaw`SELECT id FROM restaurant_orders WHERE id=${id}::uuid AND location_id=${s.locationId}::uuid FOR UPDATE`;
+      const r = await tx.restaurantOrder.findFirst({ where: { id, locationId: s.locationId }, include: { rating: true } });
+      if (!r) throw new NotFoundException('Заказ не найден');
+      if (r.status !== 'CLOSED') throw new ConflictException('Оценку гость ставит после оплаты заказа');
+      if (r.rating) throw new ConflictException('Заказ уже оценён');
+      const token = newSessionToken();
+      const expiresAt = new Date(Date.now() + RATING_LINK_TTL_MS);
+      await tx.restaurantOrder.update({
+        where: { id: r.id },
+        data: { ratingTokenHash: hashSessionToken(token), ratingTokenExpiresAt: expiresAt },
+      });
+      await this.audit(tx, s, 'restaurant_order', r.id, 'food.order.rating_link', { expiresAt: expiresAt.toISOString() });
+      return { token, expiresAt: expiresAt.toISOString() };
+    });
+  }
+
   // ─── Оплата заказа и касса филиала (§35) ───
 
   /** Остатки кассы филиала по способам; внутри транзакции филиал уже заперт `foodTransaction` */
@@ -1245,7 +1275,7 @@ export class RestaurantService {
       status: 'CLOSED' as const,
       closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
     };
-    const [orders, payments, items, waiters] = await Promise.all([
+    const [orders, payments, items, waiters, closedDays] = await Promise.all([
       db.restaurantOrder.aggregate({ where: closedWhere, _count: { _all: true }, _sum: { total: true } }),
       db.restaurantPayment.groupBy({
         by: ['method'],
@@ -1255,7 +1285,12 @@ export class RestaurantService {
       }),
       db.restaurantOrderItem.findMany({
         where: { order: closedWhere },
-        select: { name: true, price: true, qty: true },
+        select: {
+          name: true,
+          price: true,
+          qty: true,
+          menuItem: { select: { category: { select: { name: true } } } },
+        },
       }),
       db.restaurantOrder.groupBy({
         by: ['waiterId'],
@@ -1263,8 +1298,24 @@ export class RestaurantService {
         _sum: { total: true },
         _count: { _all: true },
       }),
+      db.restaurantOrder.findMany({ where: closedWhere, select: { closedAt: true, total: true } }),
     ]);
     const count = orders._count._all;
+    // выручка по дням периода (по поясу филиала): каждый день периода есть в ответе, пустой с нулём
+    const byDay = new Map<string, { revenue: bigint; orders: number }>();
+    for (let d = from; d <= to; d = shiftDay(d, 1)) byDay.set(d, { revenue: 0n, orders: 0 });
+    for (const o of closedDays) {
+      const day = byDay.get(foodLocal(o.closedAt!, s.timezone).date);
+      if (!day) continue;
+      day.revenue += o.total;
+      day.orders += 1;
+    }
+    // продажи по категориям меню из строк закрытых заказов; блюдо без карточки уходит в «Без категории»
+    const categories = new Map<string, bigint>();
+    for (const i of items) {
+      const name = i.menuItem?.category.name ?? 'Без категории';
+      categories.set(name, (categories.get(name) ?? 0n) + i.price * BigInt(i.qty));
+    }
     const revenue = orders._sum.total ?? 0n;
     const dishes = new Map<string, { qty: number; revenue: bigint }>();
     for (const i of items) {
@@ -1324,6 +1375,14 @@ export class RestaurantService {
         .map(([name, d]) => ({ name, qty: d.qty, revenueMinor: d.revenue.toString() }))
         .sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name, 'ru'))
         .slice(0, 10),
+      revenueByDay: [...byDay.entries()].map(([date, d]) => ({
+        date,
+        revenueMinor: d.revenue.toString(),
+        orders: d.orders,
+      })),
+      categories: [...categories.entries()]
+        .map(([name, v]) => ({ name, revenueMinor: v.toString() }))
+        .sort((a, b) => Number(BigInt(b.revenueMinor) - BigInt(a.revenueMinor)) || a.name.localeCompare(b.name, 'ru')),
       waiters: waiters
         .map((x) => ({
           name: names.get(x.waiterId!) ?? '—',

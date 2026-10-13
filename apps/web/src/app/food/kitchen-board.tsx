@@ -8,7 +8,7 @@ import { mutateOrder } from './restaurant-actions';
 
 const COLUMNS = [
   { id: 'NEW', title: 'Новые', action: 'COOKING' as OrderStatus, button: 'Принять' },
-  { id: 'COOKING', title: 'В работе', action: 'READY' as OrderStatus, button: 'Готово' },
+  { id: 'COOKING', title: 'Готовятся', action: 'READY' as OrderStatus, button: 'Готово' },
   { id: 'READY', title: 'Готово', action: 'SERVED' as OrderStatus, button: 'Подать' },
 ] as const;
 
@@ -16,7 +16,7 @@ function minutesAgo(iso: string, now: number) {
   return Math.max(0, Math.round((now - Date.parse(iso)) / 60000));
 }
 
-/** Экран кухни (KDS) по макету: Новые, В работе, Готово, Задерживаются; обновляется раз в 30 секунд */
+/** Экран кухни (KDS) по макету (экран 6): Новые, Готовятся, Готово, Задерживаются; обновляется раз в 30 секунд */
 export function KitchenBoard({
   scopeKey,
   timezone,
@@ -65,23 +65,32 @@ export function KitchenBoard({
       key={o.id}
     >
       <div className="rest-kds-head">
-        <strong>{o.table ? `Стол ${o.table.name}` : `Заказ №${o.number}`}</strong>
-        <small>
-          {clock(o.openedAt)}, №{o.number}
-        </small>
+        <strong>№{o.number}</strong>
+        <time dateTime={o.openedAt} data-late={o.delayed || undefined}>
+          {clock(o.openedAt)}
+        </time>
       </div>
+      <span className="rest-kds-table">{o.table ? `Стол ${o.table.name}` : 'Без стола'}</span>
       <ul className="rest-kds-items">
         {o.items.map((i) => (
           <li key={i.id}>
-            {i.name} ×{i.qty}
-            {i.notes ? `, ${i.notes}` : ''}
+            <span>
+              {i.name}
+              {i.notes && <small>{i.notes}</small>}
+            </span>
+            <b>×{i.qty}</b>
           </li>
         ))}
       </ul>
-      <small>{minutesAgo(o.openedAt, now)} мин в работе</small>
+      <small className="muted">{minutesAgo(o.openedAt, now)} мин в работе</small>
       {o.delayed && <Badge tone="danger">Задерживается</Badge>}
       {write && action && (
-        <Button disabled={pending} onClick={() => transition(o, action.status)}>
+        <Button
+          size="sm"
+          tone={o.status === 'READY' ? 'primary' : 'secondary'}
+          disabled={pending}
+          onClick={() => transition(o, action.status)}
+        >
           {action.button}
         </Button>
       )}
@@ -94,20 +103,17 @@ export function KitchenBoard({
         {COLUMNS.map((col) => {
           const list = orders.filter((o) => o.status === col.id && !delayed.includes(o));
           return (
-            <section className="rest-kds-col" key={col.id} aria-label={col.title}>
+            <section className="rest-kds-col" data-col={col.id} key={col.id} aria-label={col.title}>
               <h2>
-                {col.title} <Badge>{list.length}</Badge>
+                {col.title} ({list.length})
               </h2>
               {list.map((o) => card(o, { status: col.action, button: col.button }))}
               {list.length === 0 && <p className="muted">Пусто</p>}
             </section>
           );
         })}
-        <section className="rest-kds-col" aria-label="Задерживаются">
-          <h2>
-            Задерживаются{' '}
-            <Badge tone={delayed.length ? 'danger' : 'neutral'}>{delayed.length}</Badge>
-          </h2>
+        <section className="rest-kds-col" data-col="DELAYED" aria-label="Задерживаются">
+          <h2>Задерживаются ({delayed.length})</h2>
           {delayed.map((o) =>
             card(
               o,

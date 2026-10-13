@@ -25,7 +25,6 @@ describe('меню салона', () => {
       '/channels',
       '/hotel-settings',
       '/website',
-      '/marketing',
       '/finance',
       '/bar',
     ]) {
@@ -45,6 +44,8 @@ describe('меню салона', () => {
       '/beauty/schedule',
       '/services',
       '/staff',
+      '/sales',
+      '/marketing',
       '/management/analytics',
       '/journal',
       '/help',

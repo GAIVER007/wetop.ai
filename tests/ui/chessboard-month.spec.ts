@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, openFullCard, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -139,7 +139,7 @@ test('в месяце открываются брони, свободные да
   const stay = page.getByTestId('stay-cell').first();
   const number = await stay.getAttribute('data-number');
   // одинарный клик — предпросмотр, полная карточка — двойным (ТЗ «Шахматка v2» §24)
-  await stay.dblclick();
+  await openFullCard(stay);
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer.getByRole('heading', { level: 1 })).toContainText(number!);
   await page.keyboard.press('Escape');

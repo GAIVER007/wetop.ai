@@ -52,7 +52,15 @@ test('публикация, пауза, возобновление, новая �
   await control(request, { revisions: 1 });
   await page.goto('/marketing/site');
   const m = main(page);
+  // публикация открывает сайт посетителям: сначала вопрос, «Оставить как есть» ничего не публикует
   await m.getByTestId('publication-publish').click();
+  const confirm = page.getByRole('dialog');
+  await expect(confirm).toContainText('Опубликовать ревизию 1?');
+  await expect(confirm).toContainText('luxx-aparts.sites.test');
+  await confirm.getByRole('button', { name: 'Оставить как есть', exact: true }).click();
+  await expect(m.getByTestId('publication-status')).toHaveText('Черновик');
+  await m.getByTestId('publication-publish').click();
+  await confirm.getByRole('button', { name: 'Опубликовать', exact: true }).click();
   await expect(m.getByTestId('publication-message')).toHaveText('Версия опубликована');
   await expect(m.getByTestId('publication-status')).toHaveText('Опубликован');
   await expect(m.getByTestId('publication-published')).toHaveText('ревизия 1');
@@ -68,6 +76,9 @@ test('публикация, пауза, возобновление, новая �
   await page.reload();
   await expect(m.getByTestId('publication-latest')).toHaveText('ревизия 2');
   await m.getByTestId('publication-publish').click();
+  // повторная публикация говорит, что заменит
+  await expect(confirm).toContainText('вместо ревизии 1');
+  await confirm.getByRole('button', { name: 'Опубликовать', exact: true }).click();
   await expect(m.getByTestId('publication-published')).toHaveText('ревизия 2');
 
   // откат на ревизию 1 с вопросом; голова черновика остаётся ревизией 2
@@ -88,11 +99,15 @@ test('без тарифа брони публикация отказывает �
   await control(request, { rateRequired: true });
   await page.goto('/marketing/site');
   const m = main(page);
-  await m.getByTestId('publication-publish').click();
+  const publish = async () => {
+    await m.getByTestId('publication-publish').click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Опубликовать', exact: true }).click();
+  };
+  await publish();
   await expect(m.getByTestId('publication-error')).toContainText('Выберите тариф');
   await expect(m.getByTestId('publication-status')).toHaveText('Черновик');
   await m.getByLabel('Тариф брони').selectOption({ label: 'Сайт' });
-  await m.getByTestId('publication-publish').click();
+  await publish();
   await expect(m.getByTestId('publication-status')).toHaveText('Опубликован');
 });
 
@@ -120,6 +135,11 @@ for (const theme of ['light', 'dark'] as const) {
     });
     await page.goto('/marketing/site');
     await main(page).getByTestId('publication-publish').click();
+    // окно подтверждения публикации тоже без нарушений доступности
+    const confirm = page.getByRole('dialog');
+    await expect(confirm).toBeVisible();
+    expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()).violations).toEqual([]);
+    await confirm.getByRole('button', { name: 'Опубликовать', exact: true }).click();
     await expect(main(page).getByTestId('publication-status')).toHaveText('Опубликован');
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });

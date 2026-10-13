@@ -1,0 +1,45 @@
+# Сквозные (e2e) · 12.10.2026 22:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1853a26 (claude/food-ui-redirect), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'потоковым редиректом'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/food-ui/food.spec.ts:593:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается (3.1s)
+
+
+  1) tests/food-ui/food.spec.ts:593:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "/today"
+    Received: "/calendar"
+
+      598 |   await seed(page, request);
+      599 |   await page.goto('/calendar');
+    > 600 |   expect(new URL(page.url()).pathname).toBe('/today');
+          |                                        ^
+      601 |   await expect(page.locator('meta#__next-page-redirect')).toHaveCount(0);
+      602 |   await page.goto('/orders');
+      603 |   await expect(page).toHaveURL(/\/orders$/);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/food.spec.ts:600:40
+
+    Error Context: test-results/food-чужой-маршрут-с-поток-2f714-ледующий-goto-не-обрывается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-чужой-маршрут-с-поток-2f714-ледующий-goto-не-обрывается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-чужой-маршрут-с-поток-2f714-ледующий-goto-не-обрывается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/food.spec.ts:593:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается 
+
+# код выхода 1 · 13 с

@@ -19,6 +19,7 @@ import {
   TechDetails,
 } from './connection-parts';
 import './integrations.css';
+import { Tabs } from '../../components/tabs';
 
 /**
  * «Интеграции» v2, срез INT1 (ADR-116, план `plans/integrations-int1-2026-09-27.md`): внешние подключения объекта,
@@ -55,14 +56,13 @@ export default async function ConnectionsPage({
           : 'Подключения внешних сервисов объекта.'
       }
     >
-      <nav className="settings-tabs" aria-label="Интеграции">
-        <Link href={tabHref('connected')} aria-current={tab === 'connected' ? 'page' : undefined}>
-          Подключения <span className="integration-tab__count">{connected.length}</span>
-        </Link>
-        <Link href={tabHref('available')} aria-current={tab === 'available' ? 'page' : undefined}>
-          Доступные <span className="integration-tab__count">{available.length}</span>
-        </Link>
-      </nav>
+      <Tabs
+        label="Интеграции"
+        items={[
+          { href: tabHref('connected'), label: 'Подключённые', current: tab === 'connected', count: connected.length },
+          { href: tabHref('available'), label: 'Доступные', current: tab === 'available', count: available.length },
+        ]}
+      />
       {tab === 'connected' ? (
         connected.length ? (
           <div className="integration-list" data-testid="integrations-connected">

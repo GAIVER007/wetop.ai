@@ -1,0 +1,178 @@
+EEEEEEEEEEEEEEF                                                          [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_two_passes_and_replay[sales-\u041e\u0442\u0435\u043b\u044c] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d1a29e0>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+_ ERROR at setup of test_two_passes_and_replay[sales-\u0420\u0435\u0441\u0442\u043e\u0440\u0430\u043d] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d1bf650>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+____ ERROR at setup of test_two_passes_and_replay[sales-\u0411\u0430\u0440] ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d2557b0>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+_ ERROR at setup of test_two_passes_and_replay[sales-\u0421\u0430\u043b\u043e\u043d \u043a\u0440\u0430\u0441\u043e\u0442\u044b] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d2d0350>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+_ ERROR at setup of test_two_passes_and_replay[sales-\u0414\u0440\u0443\u0433\u043e\u0435] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d25ba70>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+_ ERROR at setup of test_two_passes_and_replay[support-\u041e\u0442\u0435\u043b\u044c] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d247cb0>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+_ ERROR at setup of test_two_passes_and_replay[support-\u0420\u0435\u0441\u0442\u043e\u0440\u0430\u043d] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d228f50>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+___ ERROR at setup of test_two_passes_and_replay[support-\u0411\u0430\u0440] ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d2a6af0>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+_ ERROR at setup of test_two_passes_and_replay[support-\u0421\u0430\u043b\u043e\u043d \u043a\u0440\u0430\u0441\u043e\u0442\u044b] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d2af750>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+_ ERROR at setup of test_two_passes_and_replay[support-\u0414\u0440\u0443\u0433\u043e\u0435] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d297ec0>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+________ ERROR at setup of test_unknown_usage_never_starts_second_pass _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d276b50>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+________________ ERROR at setup of test_changed_input_conflicts ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d21bd20>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+______________ ERROR at setup of test_injection_never_calls_model ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d21a660>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+____________ ERROR at setup of test_schema_rejects_tool_assignment _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d21a740>
+
+    @pytest.fixture
+    async def env(monkeypatch):
+>       from src import wizard_generate_router as generator
+E       ImportError: cannot import name 'wizard_generate_router' from 'src' (/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/src/__init__.py)
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:17: ImportError
+=================================== FAILURES ===================================
+________________________ test_service_auth_before_parse ________________________
+
+client = <starlette.testclient.TestClient object at 0x10e513cb0>
+
+    async def test_service_auth_before_parse(client):
+>       assert client.post('/internal/wizard/generate', content=b'not json').status_code == 403
+E       AssertionError: assert 404 == 403
+E        +  where 404 = <Response [404 Not Found]>.status_code
+E        +    where <Response [404 Not Found]> = post('/internal/wizard/generate', content=b'not json')
+E        +      where post = <starlette.testclient.TestClient object at 0x10e513cb0>.post
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:73: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+2026-10-11 14:36:39,398 | WARNING | - | src.main | Виджет: домены сайта не заданы, проверка Origin выключена
+------------------------------ Captured log setup ------------------------------
+ERROR    src.main:main.py:220 Панель не подключена: путь панели не задан: заполните DASHBOARD_PATH_PREFIX
+ERROR    src.main:main.py:220 Панель не подключена: путь панели не задан: заполните DASHBOARD_PATH_PREFIX
+WARNING  src.main:main.py:88 Виджет: домены сайта не заданы, проверка Origin выключена
+=========================== short test summary info ============================
+FAILED apps/ai-seller/tests/test_wizard_generate.py::test_service_auth_before_parse
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[sales-\u041e\u0442\u0435\u043b\u044c]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[sales-\u0420\u0435\u0441\u0442\u043e\u0440\u0430\u043d]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[sales-\u0411\u0430\u0440]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[sales-\u0421\u0430\u043b\u043e\u043d \u043a\u0440\u0430\u0441\u043e\u0442\u044b]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[sales-\u0414\u0440\u0443\u0433\u043e\u0435]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[support-\u041e\u0442\u0435\u043b\u044c]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[support-\u0420\u0435\u0441\u0442\u043e\u0440\u0430\u043d]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[support-\u0411\u0430\u0440]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[support-\u0421\u0430\u043b\u043e\u043d \u043a\u0440\u0430\u0441\u043e\u0442\u044b]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_two_passes_and_replay[support-\u0414\u0440\u0443\u0433\u043e\u0435]
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_unknown_usage_never_starts_second_pass
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_changed_input_conflicts
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_injection_never_calls_model
+ERROR apps/ai-seller/tests/test_wizard_generate.py::test_schema_rejects_tool_assignment
+1 failed, 14 errors in 2.95s

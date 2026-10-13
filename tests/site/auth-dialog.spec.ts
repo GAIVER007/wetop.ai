@@ -294,29 +294,30 @@ test('снимки окна регистрации: светлая и тёмна
 });
 
 for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
-  test(`MV2 selector preselects ${vertical} without granting pilot access`, async ({ page }) => {
+  test(`${vertical} registers like a hotel: no invitation, «Проверьте почту» (ADR-172)`, async ({ page }) => {
     const calls = await mockDesk(page, {
       options: () => ({ status: 200, body: { registrationEnabled: true } }),
-      register: () => ({
-        status: 403,
-        body: { message: 'Направление пока доступно только участникам пилота' },
+      register: (body) => ({
+        status: 200,
+        body: { email: (body as { email: string }).email, sent: true },
       }),
     });
     await page.goto(`/?vertical=${vertical}#register`);
     const dialog = page.getByRole('dialog');
     await expect(dialog.locator(`input[name="vertical"][value="${vertical}"]`)).toBeChecked();
-    await expect(dialog).toContainText('Подключение по приглашению');
+    await expect(dialog).not.toContainText(/приглашению|пилот/i);
+    await expect(dialog).toContainText('откроется настройка бизнеса');
     await dialog.getByLabel('Имя', { exact: true }).fill('Мария Тестова');
-    await dialog.getByLabel('Название бизнеса').fill('Тестовый пилот');
-    await dialog.getByLabel('Почта', { exact: true }).fill('pilot@example.invalid');
+    await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
+    await dialog.getByLabel('Почта', { exact: true }).fill('maria@example.invalid');
     await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password-2026');
     await dialog.getByLabel('Телефон').fill('7015554433');
     await dialog.getByRole('checkbox').check();
     await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
-    await expect(dialog.getByRole('alert')).toContainText('только участникам пилота');
+    await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
     expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({
       vertical,
-      businessName: 'Тестовый пилот',
+      businessName: 'Тестовый бизнес',
     });
   });
 }

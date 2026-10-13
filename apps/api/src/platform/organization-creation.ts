@@ -10,7 +10,6 @@ import {
   trialEndsAt,
   type BusinessVertical,
 } from '@pms/domain';
-import { assertRegistrationVertical } from '../auth/registration-contract';
 import type { Mailer } from '../auth/password-reset.service';
 import { PrismaService } from '../database/prisma.provider';
 
@@ -54,8 +53,6 @@ export class OrganizationCreation {
   ) {}
 
   async create(input: OrganizationCreateInput, now = new Date()): Promise<OrganizationCreateResult> {
-    // направление салона и ресторана только для почт из списка пилота, как при самостоятельной регистрации
-    assertRegistrationVertical(input.vertical, input.ownerEmail);
     if (input.vertical === 'HOSPITALITY') {
       const namesake = await this.prisma.db.property.findFirst({
         where: { name: { equals: input.name, mode: 'insensitive' } },

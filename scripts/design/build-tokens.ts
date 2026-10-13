@@ -176,7 +176,10 @@ export function cssColor(v: Json): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 const fontFamily = (v: Json): string =>
-  (Array.isArray(v) ? v : [v]).map((f) => (/\s/.test(String(f)) ? `'${f}'` : String(f))).join(', ');
+  (Array.isArray(v) ? v : [v])
+    // `var(--x, запасной)`: ссылка на переменную, а не имя гарнитуры: в кавычки не берётся (шрифт стойки, 13.10.2026)
+    .map((f) => (/\s/.test(String(f)) && !String(f).startsWith('var(') ? `'${f}'` : String(f)))
+    .join(', ');
 const shadow = (v: Json): string => {
   const one = (s: Json) => {
     if (!isObject(s)) throw new Error('тень: ожидался объект');

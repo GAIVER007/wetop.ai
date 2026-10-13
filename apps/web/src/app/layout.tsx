@@ -28,6 +28,7 @@ import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
 import { isPublicEntryPath } from '../lib/public-entry';
 import { DevAgentation } from '../components/dev-agentation';
+import { inter } from './fonts';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
@@ -75,7 +76,7 @@ export default async function RootLayout({
   // при включённом замке уводят на `/login` раньше, чем токен подтверждения дойдёт до API.
   if (isPublicEntryPath(path)) {
     return (
-      <html lang="ru" suppressHydrationWarning>
+      <html lang="ru" className={inter.variable} suppressHydrationWarning>
         <head>
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         </head>
@@ -95,7 +96,7 @@ export default async function RootLayout({
   // уход на вход здесь не решаются: их решает заголовок объекта ниже, а часам хватит пояса платформы
   const timezone = workspaceTimezone().catch(() => FALLBACK_TIMEZONE);
   return (
-    <html lang="ru" suppressHydrationWarning>
+    <html lang="ru" className={inter.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

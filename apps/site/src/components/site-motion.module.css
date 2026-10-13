@@ -1,0 +1,68 @@
+.motion {
+  --public-section-space: 48px;
+}
+.motion :global(.section-heading) {
+  margin-bottom: 24px;
+}
+.motion :global(.landing) {
+  gap: 48px;
+}
+.motion :global(.public-intro) {
+  padding-block: 48px;
+}
+.motion :global(.public-intro__figure) {
+  margin-top: 24px;
+}
+.motion :global(.verticals__card),
+.motion :global(.btn),
+.motion :global(.blog-card) {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .motion :global(.verticals__card:hover),
+  .motion :global(.blog-card:hover) {
+    transform: translateY(-4px);
+    border-color: var(--public-accent);
+  }
+  .motion :global(.btn:hover) {
+    transform: translateY(-2px);
+  }
+  .motion :global(.btn:active) {
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .motion :global([data-site-enter]) {
+    animation: enter 280ms ease-out;
+  }
+}
+@keyframes enter {
+  from {
+    transform: translateY(12px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@media (max-width: 40rem) {
+  .motion {
+    --public-section-space: 32px;
+  }
+  .motion :global(.landing) {
+    gap: 32px;
+  }
+  .motion :global(.public-intro) {
+    padding-block: 32px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion :global([data-site-enter]),
+  .motion :global(.verticals__card),
+  .motion :global(.btn),
+  .motion :global(.blog-card) {
+    animation: none;
+    transition: none;
+  }
+}

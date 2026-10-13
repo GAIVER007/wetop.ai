@@ -3,15 +3,20 @@
 import { useState } from 'react';
 import type { Dictionary } from '../../i18n/types';
 import { Icon } from '../icon';
-import { DashMock } from './dash-mock';
+import Image from 'next/image';
+import styles from './hero-preview.module.css';
 
 type Dash = Dictionary['hero']['dash'];
 
+const PREVIEWS = {
+  HOSPITALITY: '/design-only/hospitality.svg',
+  BEAUTY: '/design-only/beauty.svg',
+  FOOD_SERVICE: '/design-only/restaurant.svg',
+} as const;
+
 /*
- * Мокап экрана «Сегодня» на первом экране (пометка владельца 13.10.2026: показать, что система не только
- * для отелей). Переключатель над мокапом меняет показатели, список дня и график на гостиницу, салон
- * или ресторан. Переключатель стоит вне `.dash`: внутри мокапа кнопок нет, он не имитирует интерфейс.
- * Все данные вымышленные, подпись примера под мокапом.
+ * Иллюстрации рабочих экранов на вымышленных данных. Существующий переключатель
+ * выбирает шахматку, расписание мастеров или план зала. Общий DashMock не меняется.
  */
 export function HeroDash({ dash }: { dash: Dash }) {
   const [active, setActive] = useState(0);
@@ -32,8 +37,16 @@ export function HeroDash({ dash }: { dash: Dash }) {
           </button>
         ))}
       </div>
-      <div aria-live="polite">
-        <DashMock dash={dash} view={view} />
+      <div aria-live="polite" className={styles.preview}>
+        <Image
+          className={styles.image}
+          src={PREVIEWS[view.id]}
+          alt={`${view.tab}. ${dash.label}`}
+          width={720}
+          height={540}
+          loading="eager"
+          unoptimized
+        />
       </div>
       {view.toasts.map((toast, i) => (
         <div className={`dash-toast dash-toast--${i + 1}`} key={`${view.id}-${toast.title}`} aria-hidden="true">

@@ -1,0 +1,31 @@
+.segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.segments a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-sm);
+  background: var(--public-surface);
+  color: var(--public-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.segments a:hover {
+  border-color: var(--public-accent);
+  background: var(--public-selected);
+  color: var(--public-accent);
+}
+
+.segments a:focus-visible {
+  outline: 2px solid var(--public-accent);
+  outline-offset: 3px;
+}

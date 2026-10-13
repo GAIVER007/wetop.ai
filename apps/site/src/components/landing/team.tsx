@@ -1,4 +1,5 @@
 import { getDictionary } from '../../i18n';
+import styles from './team-preview.module.css';
 import { Icon } from '../icon';
 import { typo } from '../typo';
 
@@ -11,7 +12,7 @@ export function TeamAndStart() {
   return (
     <section id="team" className="section team-start" aria-labelledby="team-title">
       <div className="container team-start__layout">
-        <div>
+        <div className={styles.team}>
           <div className="section-heading">
             <p className="eyebrow">{t.team.eyebrow}</p>
             <h2 id="team-title" className="section-heading__title">
@@ -19,8 +20,8 @@ export function TeamAndStart() {
             </h2>
             <p className="section-heading__lead">{typo(t.team.lead)}</p>
           </div>
-          <ul className="card-grid team-start__cards">
-            {t.team.items.map((item) => (
+          <ul className={`card-grid team-start__cards ${styles.cards}`}>
+            {t.team.items.map((item, index) => (
               <li key={item.title} className="card card--compact glass">
                 <span className="icon-tile icon-tile--sm">
                   <Icon name={item.icon} size={20} />
@@ -29,6 +30,9 @@ export function TeamAndStart() {
                   <h3 className="card__title">{typo(item.title)}</h3>
                   <p className="card__text">{typo(item.text)}</p>
                 </div>
+                <span className={styles.index} aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
               </li>
             ))}
           </ul>

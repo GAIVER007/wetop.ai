@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import styles from './audience-segments.module.css';
 import { getDictionary } from '../../i18n';
 import { subtypesOf } from '../../lib/landings';
 import { Icon } from '../icon';
@@ -71,7 +72,7 @@ export function Audience() {
                   <Icon name="arrowRight" size={16} />
                 </a>
                 {/* Типы бизнеса направления из общего списка лендингов (lib/landings.ts) */}
-                <div className="verticals__segments">
+                <div className={`verticals__segments ${styles.segments}`}>
                   {subtypesOf(direction).map((slug) => (
                     <Link key={slug} href={`/for/${slug}/`}>
                       {t.segments.items[slug].metaTitle}

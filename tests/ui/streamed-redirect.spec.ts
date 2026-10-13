@@ -16,7 +16,7 @@ test('goto на адрес с потоковым редиректом отдаё
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page.locator('main')).toBeVisible();
+  await expect(page.locator('main:not([aria-busy="true"])')).toBeVisible();
   await page.goto('/today');
   // без автоожидания: адрес сразу после goto
   expect(new URL(page.url()).pathname).toBe('/finance');

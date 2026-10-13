@@ -1,0 +1,18 @@
+# Модульные (unit) · 13.10.2026 12:13 Алматы · vm
+# коммит 009ad92 (claude/stoic-darwin-hjb5x3), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-13T07-13-45Z-unit-af8f.json' 'apps/web/src/lib/scope-resolve.test.ts' 'apps/web/src/app/scope/resolve/route.test.ts' 'apps/web/src/app/login/verify-registration.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (8 tests) 8ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (4 tests) 61ms
+ ✓ |unit| apps/web/src/app/login/verify-registration.test.ts (4 tests) 6ms
+
+ Test Files  3 passed (3)
+      Tests  16 passed (16)
+   Start at  07:13:48
+   Duration  1.52s (transform 80%, import 15%, tests 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-13T07-13-45Z-unit-af8f.json
+
+# код выхода 0 · 5 с

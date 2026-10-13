@@ -1,0 +1,71 @@
+# Сквозные (e2e) · 13.10.2026 12:08 Алматы · vm
+# коммит 832df32 (claude/stoic-darwin-hjb5x3)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/unified-auth.spec.ts' 'tests/ui/login-access.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 280ms. If /home/user/wetop.ai/apps/site/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (3.5s)
+  ✓   2 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (8.5s)
+  ✓   3 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (2.2s)
+  ✓   4 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (3.6s)
+  ✓   5 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (3.5s)
+  ✓   6 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (8.9s)
+  ✓   7 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (9.1s)
+  ✓   8 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.7s)
+  ✓   9 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (7.6s)
+  ✓  10 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (2.3s)
+  ✓  11 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (1.7s)
+  ✘  12 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (19.3s)
+  ✓  13 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (909ms)
+  ✓  14 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (3.0s)
+  ✓  15 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (2.9s)
+
+
+  1) tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3100/finance"
+    Received: "http://127.0.0.1:3100/scope/resolve?next=%2Ftoday"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        5 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/login/verify?token=<скрыто>"
+        28 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/scope/resolve?next=%2Ftoday"
+
+
+      168 |   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
+      169 |   await page.goto('/login/verify?token=<скрыто>');
+    > 170 |   await expect(page).toHaveURL(APP + '/finance');
+          |                      ^
+      171 |   expect((await context.cookies(APP)).find((c) => c.name === 'wetop_session')?.httpOnly).toBe(true);
+      172 | });
+      173 | test('негодная ссылка подтверждения показывает отказ и возможность повтора', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:170:22
+
+    Error Context: test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-до-подтвержде-a549c-т-и-создаёт-HttpOnly-cookie/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie 
+  14 passed (2.0m)
+
+# код выхода 1 · 2 мин 27 с

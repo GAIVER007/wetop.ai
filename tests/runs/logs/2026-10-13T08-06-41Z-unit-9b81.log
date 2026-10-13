@@ -1,0 +1,45 @@
+# Модульные (unit) · 13.10.2026 13:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 763f56d (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-06-41Z-unit-9b81.json' 'apps/web/src/app/login/verify-registration.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ❯ |unit| apps/web/src/app/login/verify-registration.test.ts (4 tests | 1 failed) 6ms
+   ✓ verification establishes explicit BEAUTY context from server data 2ms
+   ✓ verification establishes explicit FOOD_SERVICE context from server data 0ms
+   × verification without registration context goes through branch resolution, not straight to /today 3ms
+   ✓ Hospitality verification retains its current destination 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/login/verify-registration.test.ts > verification without registration context goes through branch resolution, not straight to /today
+AssertionError: expected undefined to deeply equal { error: null, …(1) }
+
+- Expected:
+{
+  "error": null,
+  "redirectTo": "/scope/resolve?next=%2Ftoday",
+}
+
++ Received:
+undefined
+
+ ❯ apps/web/src/app/login/verify-registration.test.ts:56:18
+     54|   // `/scope/resolve` это обработчик маршрута: redirect() из серверног…
+     55|   // остаётся `/scope/resolve` при содержимом «Финансов» (гейт main 38…
+     56|   expect(result).toEqual({ error: null, redirectTo: '/scope/resolve?ne…
+       |                  ^
+     57|   expect(redirect).not.toHaveBeenCalled();
+     58| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  01:06:42
+   Duration  438ms (transform 80%, import 17%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-06-41Z-unit-9b81.json
+
+# код выхода 1 · 2 с

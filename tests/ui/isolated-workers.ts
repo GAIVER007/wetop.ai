@@ -278,6 +278,8 @@ export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
     link(join(repoRoot, 'packages'), join(workerRoot, 'packages'));
     link(join(repoRoot, 'scripts'), join(workerRoot, 'scripts'));
     link(join(repoRoot, 'tests/e2e'), join(workerRoot, 'tests/e2e'));
+    // fixtures.ts импортирует tests/tools/next-redirect (main 12.10)
+    link(join(repoRoot, 'tests/tools'), join(workerRoot, 'tests/tools'));
     manifests.push({
       index,
       files,

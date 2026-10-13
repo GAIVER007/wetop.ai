@@ -1,0 +1,59 @@
+# Сквозные (e2e) · 13.10.2026 13:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит 763f56d (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts' '--workers=1' 'tests/ui/login-lock.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1418ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/test-results/auth-runtime-0/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/login-lock.spec.ts:33:3 › без входа /today уводит на канонический экран входа (12.0s)
+  ✓  2 tests/ui/login-lock.spec.ts:33:3 › без входа /chessboard уводит на канонический экран входа (2.6s)
+  ✓  3 tests/ui/login-lock.spec.ts:33:3 › без входа /reservations уводит на канонический экран входа (1.8s)
+  ✓  4 tests/ui/login-lock.spec.ts:43:1 › после входа рабочее место открывается, обычный выход снова закрывает доступ (7.1s)
+  ✘  5 tests/ui/login-lock.spec.ts:59:1 › ссылка из письма подтверждает почту при включенном замке (26.5s)
+
+
+  1) tests/ui/login-lock.spec.ts:59:1 › ссылка из письма подтверждает почту при включенном замке ───
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3102/finance"
+    Received: "http://127.0.0.1:3102/scope/resolve?next=%2Ftoday"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        6 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3102/login/verify?token=<скрыто>"
+        22 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3102/scope/resolve?next=%2Ftoday"
+
+
+      75 |
+      76 |   await page.goto(`${APP}/login/verify?token=<скрыто>;
+    > 77 |   await expect(page).toHaveURL(`${APP}/finance`); // гостиница садится на «Обзор бизнеса» (vertical-landing.ts)
+         |                      ^
+      78 |   await page.reload();
+      79 |   await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
+      80 | });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/ui/login-lock.spec.ts:77:22
+
+    Error Context: tests/ui/test-results/auth/login-lock-ссылка-из-письм-1bad1--почту-при-включенном-замке/error-context.md
+
+  1 failed
+    tests/ui/login-lock.spec.ts:59:1 › ссылка из письма подтверждает почту при включенном замке ────
+  4 passed (1.6m)
+
+# код выхода 1 · 1 мин 40 с

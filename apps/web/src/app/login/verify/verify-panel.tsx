@@ -23,6 +23,7 @@ export function VerifyPanel({ token }: { token: string }) {
     start(async () => {
       const result = await verifyEmailAction(token);
       setError(result.error);
+      if (result.redirectTo) window.location.assign(result.redirectTo);
     });
 
   // Один раз при открытии страницы: повторный запуск в строгом режиме отсекает ref, а не токен

@@ -72,7 +72,7 @@ test('выход через меню снимает сессию и снова �
   page,
   context,
 }) => {
-  await page.goto('/login');
+  await page.goto(`${APP}/login`);
   await login(page);
   await expect(page).toHaveURL(`${APP}/finance`);
   await openProfileMenu(page);

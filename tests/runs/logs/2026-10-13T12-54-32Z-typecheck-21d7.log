@@ -1,0 +1,29 @@
+# Типы (typecheck) · 13.10.2026 17:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4335d2f (claude/bar-location-model), незакоммиченных файлов набора: 9
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/bar-location.test.ts(71,33): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/bar-location.test.ts(89,31): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/bar-location.test.ts(91,33): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/bar-location.test.ts(103,38): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/bar-location.test.ts(133,22): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/bar-location.test.ts(138,29): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 17 с

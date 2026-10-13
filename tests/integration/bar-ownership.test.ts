@@ -107,7 +107,8 @@ const propertyTables: BarTable[] = [
   'bar_sales',
 ];
 const roles = ['wetop_app', 'wetop_service'] as const;
-const deny = /BAR .*ownership|BAR property_id is immutable|row-level security/i;
+// §44: при смене объекта с поставщиком чужого объекта первым отказывает сверка поставщика по филиалу
+const deny = /BAR .*ownership|BAR property_id is immutable|row-level security|Supplier belongs to another property/i;
 
 describe('BAR ownership: invoker guards apply to app and BYPASSRLS service', () => {
   let client: pg.Client;

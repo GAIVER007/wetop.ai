@@ -149,10 +149,9 @@ test('переключатель филиалов сохраняет разде�
   const mobile = page.locator('.mobile-navigation');
   await mobile.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
   // в кнопке между названием и адресом подписано направление (#403): «Филиал Север Гостиничный бизнес Тестовая улица…»
-  await expect(mobile.getByRole('button', { name: /Филиал Север .*Тестовая улица/ })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
+  await expect(
+    mobile.getByRole('button', { name: /Филиал Север .*Тестовая улица/ }),
+  ).toHaveAttribute('aria-pressed', 'true');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: 'reports/branches-2026-10-01/switcher-mobile.png' });
 });

@@ -333,6 +333,67 @@ export function ChessboardGrid({
     setPreview(null);
     router.push(href);
   };
+  /*
+   * Двойной щелчок по плашке. От 1280 px первый щелчок открывает панель брони рядом с сеткой, сетка сужается,
+   * и плашка уезжает из-под курсора: второй щелчок попадает в панель или в другую плашку, а у плашки своего
+   * `dblclick` нет. Второй щелчок рядом с первым по месту и времени, пришедшийся не на ту же плашку, считаем
+   * двойным щелчком по первой: открываем её карточку, а то, что оказалось под курсором, щелчка не получает.
+   */
+  const openCardRef = useRef(openCard);
+  useEffect(() => {
+    openCardRef.current = openCard;
+  });
+  useEffect(() => {
+    let last: { key: string; number: string; x: number; y: number; at: number } | null = null;
+    const plateOf = (event: MouseEvent) =>
+      event.target instanceof Element
+        ? event.target.closest<HTMLElement>('[data-testid="stay-cell"]')
+        : null;
+    // второй щелчок двойного, пришедший не на ту же плашку
+    const isMissedSecond = (event: MouseEvent) => {
+      if (!last || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)
+        return false;
+      const hit = plateOf(event);
+      if (hit && `${hit.dataset['number']}|${hit.dataset['itemId']}` === last.key) return false;
+      return (
+        event.timeStamp - last.at <= DOUBLE_CLICK_MS &&
+        Math.hypot(event.clientX - last.x, event.clientY - last.y) <= DOUBLE_CLICK_PX
+      );
+    };
+    // нажатие второго щелчка не должно начать выделение свободных ночей и закрыть панель раньше времени
+    const onPointerDown = (event: PointerEvent) => {
+      if (isMissedSecond(event)) event.stopPropagation();
+    };
+    const onClick = (event: MouseEvent) => {
+      // детали 0: щелчок с клавиатуры или программный, координат у него нет
+      if (event.detail === 0) return;
+      if (last && isMissedSecond(event)) {
+        const number = last.number;
+        last = null;
+        event.preventDefault();
+        event.stopPropagation();
+        void openCardRef.current(`/reservations/${encodeURIComponent(number)}`);
+        return;
+      }
+      const hit = plateOf(event);
+      last =
+        hit && hit.dataset['number']
+          ? {
+              key: `${hit.dataset['number']}|${hit.dataset['itemId']}`,
+              number: hit.dataset['number'],
+              x: event.clientX,
+              y: event.clientY,
+              at: event.timeStamp,
+            }
+          : null;
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('click', onClick, true);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('click', onClick, true);
+    };
+  }, []);
   // другой период или фильтр: показанной брони в новой сетке может не быть, панель закрываем
   const periodKey = `${board.dates[0]}..${board.dates[board.dates.length - 1]}`;
   useEffect(() => {
@@ -1764,6 +1825,9 @@ function unitDot(row: ChessboardRow, date: string): { state: string; title: stri
 
 /** Ширина, с которой карточка брони встаёт панелью справа от сетки; ниже — окно у плашки */
 const DOCK_QUERY = '(min-width: 1280px)';
+/** Двойной щелчок: второе нажатие не позже 500 мс и не дальше 6 px от первого (пороги систем) */
+const DOUBLE_CLICK_MS = 500;
+const DOUBLE_CLICK_PX = 6;
 function useDockedPreview() {
   return useSyncExternalStore(
     (notify) => {

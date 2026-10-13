@@ -1,0 +1,60 @@
+# Интеграционные (integration) · 11.10.2026 15:39 Алматы · MacBook-Air-Urij.local
+# коммит b67fdb7 (codex/ai-seller-wizard-generate-20261011), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-39-29Z-integration-a1b1.json' '--config' 'tests/wizard-scan.config.ts' 'tests/integration/wizard-generate.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ❯ |integration| tests/integration/wizard-generate.test.ts (3 tests | 3 failed) 4003ms
+   ❯ isolated generation queue (3)
+     × deduplicates parallel requests and caps generation at five revisions per session 3645ms
+     × persists both outputs without changing the input revision; never returns stale output 122ms
+     × discards delayed generation after an edit; recovers a lease using the same request id 136ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/wizard-generate.test.ts > isolated generation queue > deduplicates parallel requests and caps generation at five revisions per session
+TypeError: service.generate is not a function
+ ❯ tests/integration/wizard-generate.test.ts:33:76
+     31|   it('deduplicates parallel requests and caps generation at five revis…
+     32|     const token = await draft();
+     33|     const same = await Promise.all(Array.from({ length: 4 }, () => ser…
+       |                                                                            ^
+     34|     expect(new Set(same.map(r => r.id)).size).toBe(1);
+     35|     for (let revision = 2; revision <= 6; revision++) {
+ ❯ tests/integration/wizard-generate.test.ts:33:42
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/wizard-generate.test.ts > isolated generation queue > persists both outputs without changing the input revision; never returns stale output
+Error: Cannot find module '/apps/api/src/wizard/wizard-generate-worker' imported from /Users/urijzapojnov/wetop-ai-seller-20261011/tests/integration/wizard-generate.test.ts
+ ❯ tests/integration/wizard-generate.test.ts:44:38
+     42|   });
+     43|   it('persists both outputs without changing the input revision; never…
+     44|     const { WizardGenerateWorker } = await import('../../apps/api/src/…
+       |                                      ^
+     45|     const token = await draft();
+     46|     await service.generate(token, { revision: 1 }, 'a'.repeat(64));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/wizard-generate.test.ts > isolated generation queue > discards delayed generation after an edit; recovers a lease using the same request id
+Error: Cannot find module '/apps/api/src/wizard/wizard-generate-worker' imported from /Users/urijzapojnov/wetop-ai-seller-20261011/tests/integration/wizard-generate.test.ts
+ ❯ tests/integration/wizard-generate.test.ts:66:38
+     64|   });
+     65|   it('discards delayed generation after an edit; recovers a lease usin…
+     66|     const { WizardGenerateWorker } = await import('../../apps/api/src/…
+       |                                      ^
+     67|     const token = await draft();
+     68|     const job = await service.generate(token, { revision: 1 }, 'a'.rep…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  14:39:39
+   Duration  9.03s (tests 46%, transform 30%, import 23%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T10-39-29Z-integration-a1b1.json
+
+# код выхода 1 · 21 с

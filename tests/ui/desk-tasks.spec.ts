@@ -130,3 +130,25 @@ for (const theme of ['light', 'dark'] as const) {
     await page.screenshot({ path: `${SHOTS}/${theme}-390.png` });
   });
 }
+
+// Таблица карточками на телефоне (`Table stack`, мастер-проход UI, этап 3): шапки нет, подпись колонки у ячейки,
+// страница не прокручивается вбок. До правки таблица задач уезжала вправо на 390 px
+test('на телефоне задача — карточка с подписями колонок, без прокрутки вбок', async ({ page }) => {
+  await page.goto('/tasks');
+  await page.getByTestId('task-new').click();
+  const form = page.getByTestId('task-form');
+  await form.getByTestId('task-title').fill('Проверить кондиционер в номере');
+  await form.getByTestId('task-save').click();
+  const row = page.getByTestId('tasks-today').getByTestId('task-row');
+  await expect(row).toContainText('Проверить кондиционер');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByTestId('tasks-today').locator('thead')).toBeHidden();
+  await expect(row.locator('td[data-label="Срок"]')).toBeVisible();
+  const label = await row
+    .locator('td[data-label="Срок"]')
+    .evaluate((td) => getComputedStyle(td, '::before').content);
+  expect(label).toBe('"Срок"');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+});

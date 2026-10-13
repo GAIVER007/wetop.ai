@@ -35,11 +35,22 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   }).toPass({ timeout: 15_000 });
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
   await expect(menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ })).toBeFocused();
+  // МКТ-В1/В2: в группе три пункта, поэтому → уводит фокус в подразделы, как у остальных групп меню
   await page.keyboard.press('ArrowRight');
   const item = menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ });
-  const siteLink = menu.locator('.sidenav__items a[href="/marketing"]');
+  const items = menu.locator('.sidenav__items');
+  const siteLink = items.getByRole('link', { name: 'Сайт и SEO', exact: true });
   await expect(item).toHaveAttribute('aria-expanded', 'true');
   await expect(siteLink).toBeFocused();
+  await expect(siteLink).toHaveAttribute('href', '/marketing');
+  await expect(items.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
+    'href',
+    '/marketing/budget',
+  );
+  await expect(items.getByRole('link', { name: 'Аналитика', exact: true })).toHaveAttribute(
+    'href',
+    '/marketing/analytics',
+  );
   // Escape закрывает панель и возвращает фокус на кнопку
   await page.keyboard.press('Escape');
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -81,7 +92,7 @@ test('/website/* подсвечивает «Маркетинг», а не «Пр
   }
 });
 
-test('хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных', async ({
+test('хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных', async ({
   page,
   request,
 }) => {
@@ -99,10 +110,10 @@ test('хаб Marketing 2.0: три модуля с кнопкой «Открыт
   await expect(hub.locator('.page__subtitle')).toHaveText(
     'Привлекайте гостей, автоматизируйте рекламу и развивайте бренд с помощью ИИ.',
   );
-  // три модуля одного вида, по порядку
+  // четыре модуля одного вида, по порядку (МКТ-В1: «Бюджет» живой, работает с базой)
   const modules = hub.getByTestId('marketing-module');
-  await expect(modules).toHaveCount(3);
-  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Реклама', 'Контент']);
+  await expect(modules).toHaveCount(4);
+  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет', 'Реклама', 'Контент']);
 
   // «Сайт и SEO»: рабочий модуль, главная кнопка ведёт в конструктор, остальное в меню «⋯»
   const site = hub.getByTestId('marketing-site');
@@ -121,6 +132,19 @@ test('хаб Marketing 2.0: три модуля с кнопкой «Открыт
   await expect(menu.getByRole('menuitem', { name: 'Бронирование и аналитика' })).toHaveAttribute('href', '/website');
   await page.keyboard.press('Escape');
   await expect(more).toBeFocused();
+
+  // «Бюджет»: живой модуль учёта расходов, главная кнопка в раздел, в меню «⋯» журнал и аналитика
+  const budget = hub.getByTestId('marketing-budget');
+  await expect(budget.getByTestId('marketing-budget-status')).toHaveText('Доступно');
+  await expect(budget.getByRole('link', { name: 'Открыть: Бюджет', exact: true })).toHaveAttribute(
+    'href',
+    '/marketing/budget',
+  );
+  const budgetMore = budget.getByRole('button', { name: 'Ещё действия: Бюджет', exact: true });
+  await budgetMore.click();
+  const budgetMenu = budget.getByRole('menu');
+  await expect(budgetMenu.getByRole('menuitem')).toHaveText(['Расходы', 'Аналитика маркетинга']);
+  await page.keyboard.press('Escape');
 
   // реклама и контент ещё не построены: «Скоро», одна кнопка «Открыть» на свой экран, без «Подключено» и меню
   for (const [testId, title, href] of [
@@ -319,12 +343,19 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(page).toHaveURL(/\/marketing$/);
   const hub = main(page).getByTestId('business-marketing');
   await expect(hub).toBeVisible();
-  await expect(hub.getByTestId('marketing-module')).toHaveCount(3);
+  // МКТ-В1/В2: «Бюджет» четвёртым модулем; его экраны только у гостиницы, салону «Скоро» без ссылки
+  await expect(hub.getByTestId('marketing-module')).toHaveCount(4);
   await expect(hub.getByTestId('marketing-site-status')).toHaveText('Скоро');
+  await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Скоро');
   await expect(
     hub.getByTestId('marketing-site').getByRole('button', { name: 'Скоро' }),
   ).toBeDisabled();
-  await expect(hub.locator('a[href^="/website"], a[href^="/marketing/site"]')).toHaveCount(0);
+  await expect(
+    hub.getByTestId('marketing-budget').getByRole('button', { name: 'Скоро' }),
+  ).toBeDisabled();
+  await expect(
+    hub.locator('a[href^="/website"], a[href^="/marketing/site"], a[href^="/marketing/budget"]'),
+  ).toHaveCount(0);
   for (const screen of ['ads', 'content'] as const) {
     await hub
       .getByRole('link', { name: screen === 'ads' ? 'Открыть: Реклама' : 'Открыть: Контент' })

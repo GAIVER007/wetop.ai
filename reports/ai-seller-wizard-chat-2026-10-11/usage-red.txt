@@ -1,0 +1,17 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________________ test_usage_reports_both_generation_passes ___________________
+
+env = (<fakeredis._clients._async.FakeRedis(<redis.asyncio.connection.ConnectionPool(<fakeredis._clients._async.FakeAsyncRed...socket_timeout=5,orig_socket_connect_timeout=5)>)>)>, namespace(wizard_daily_tokens=1000), <AsyncMock id='4464702000'>)
+
+    async def test_usage_reports_both_generation_passes(env):
+        redis, settings, model = env
+        _, result = await generator.generate(settings, redis, body())
+>       assert result['usage']['input'] == 200
+               ^^^^^^^^^^^^^^^
+E       KeyError: 'usage'
+
+/Users/urijzapojnov/wetop-ai-seller-20261011/apps/ai-seller/tests/test_wizard_generate.py:140: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_wizard_generate.py::test_usage_reports_both_generation_passes
+1 failed, 20 deselected in 1.85s

@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 13.10.2026 11:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 789517d (worktree-marketing-module-b1), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/marketing.spec.ts:24'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (24.1s)
+
+
+  1) tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('.sidenav').locator('.sidenav__section').filter({ hasText: /^Маркетинг$/ })
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('.sidenav').locator('.sidenav__section').filter({ hasText: /^Маркетинг$/ }) with timeout 15000ms
+      - waiting for locator('.sidenav').locator('.sidenav__section').filter({ hasText: /^Маркетинг$/ })
+        33 × locator resolved to <a href="/marketing" data-tour="section-marketing" class="sidenav__section is-shown">…</a>
+           - unexpected value "inactive"
+
+
+      38 |   await page.keyboard.press('ArrowRight');
+      39 |   const item = menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ });
+    > 40 |   await expect(item).toBeFocused();
+         |                      ^
+      41 |   await expect(item).toHaveAttribute('href', '/marketing');
+      42 |   // МКТ-В1: рядом пункт «Бюджет»; состав группы целиком сверяют юниты навигации
+      43 |   await expect(menu.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing.spec.ts:40:22
+
+    Error Context: test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+
+# код выхода 1 · 43 с

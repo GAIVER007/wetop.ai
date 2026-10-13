@@ -64,7 +64,7 @@ export function TaskBoard({
               {rows.length === 0 ? (
                 <p className="muted">{empty}</p>
               ) : (
-                <Table className="settings-table" data-testid={`tasks-table-${bucket}`}>
+                <Table className="settings-table" stack data-testid={`tasks-table-${bucket}`}>
                   <thead>
                     <tr>
                       <th aria-label="Сделано" />
@@ -85,7 +85,7 @@ export function TaskBoard({
                             aria-label={`Сделано: ${t.title}`}
                           />
                         </td>
-                        <td>
+                        <td data-label="Задача">
                           <b>{t.title}</b>
                           {t.priority === 'HIGH' ? <Badge tone="warn">{PRIORITY.HIGH}</Badge> : null}
                           <span className="cell-sub">
@@ -97,11 +97,13 @@ export function TaskBoard({
                             ) : null}
                           </span>
                         </td>
-                        <td>
+                        <td data-label="Срок">
                           {displayDate(t.dueDate)}
                           <span className="cell-sub">{t.dueTime ?? 'весь день'}</span>
                         </td>
-                        <td className="settings-col-wide">{t.assigneeName ?? 'не назначен'}</td>
+                        <td className="settings-col-wide" data-label="Ответственный">
+                          {t.assigneeName ?? '—'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

@@ -513,7 +513,8 @@ function DayStats({
                 title="К вчерашнему дню, процентных пунктов"
               >
                 <Icon name="arrow" className={trend > 0 ? 'rotate-up' : 'rotate-down'} />
-                {trend > 0 ? `+${trend}%` : `${trend}%`}
+                {/* разница загрузки в процентных пунктах (DESIGN.md §14), минус настоящий */}
+                {trend > 0 ? `+${trend} п.п.` : `−${Math.abs(trend)} п.п.`}
               </span>
             )}
           </span>
@@ -559,7 +560,8 @@ function DayStats({
       <Link
         className="board-kpi board-kpi--free"
         href={availabilityHref}
-        aria-label="Поиск свободных мест"
+        // видимая подпись входит в имя ссылки (WCAG 2.5.3), дальше куда она ведёт
+        aria-label={`Свободно мест: ${n(free)}. Поиск свободных мест`}
       >
         <span className="board-kpi__icon" aria-hidden="true">
           <Icon name="inventory" />
@@ -589,7 +591,7 @@ function DayStats({
       <Link
         className="board-kpi board-kpi--attention"
         href="/chessboard?stays=debt"
-        aria-label="Неоплаченные"
+        aria-label={`Требует внимания: ${attention}. Неоплаченные брони`}
       >
         <span className="board-kpi__icon" aria-hidden="true">
           <Icon name="incidents" />

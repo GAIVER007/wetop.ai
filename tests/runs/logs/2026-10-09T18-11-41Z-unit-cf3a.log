@@ -1,0 +1,16 @@
+# Модульные (unit) · 09.10.2026 23:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-11-41Z-unit-cf3a.json' 'apps/web/src/app/marketing/budget/derive.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| apps/web/src/app/marketing/budget/derive.test.ts (8 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  11:11:55
+   Duration  379ms (transform 72%, import 12%, worker 11%, tests 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T18-11-41Z-unit-cf3a.json
+
+# код выхода 0 · 15 с

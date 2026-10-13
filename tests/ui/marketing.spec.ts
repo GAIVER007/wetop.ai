@@ -325,17 +325,15 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await page.waitForURL('**/finance');
   await page.goto('/branches');
   const body = main(page);
-  await body.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await body.getByRole('radio', { name: 'Салон красоты или студия' }).check();
-  await body.getByLabel('Название филиала').fill('Студия MKT3');
-  await body.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
-  await expect(body.getByRole('status')).toContainText('Салон создан');
+  await body.getByRole('button', { name: 'Добавить', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+  await creation.getByLabel('Новый бизнес или бренд').check();
+  await creation.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+  await creation.getByLabel('Название бизнеса', { exact: true }).fill('Студия MKT3');
+  await creation.getByRole('button', { name: /Создать бизнес/ }).click();
+  await expect(creation.getByRole('status')).toContainText('Салон создан');
   await page.reload();
-  await main(page)
-    .locator('.branches-grid section')
-    .filter({ hasText: 'Студия MKT3' })
-    .getByRole('button', { name: 'Открыть салон', exact: true })
-    .click();
+  await main(page).getByRole('button', { name: 'Открыть объект: Студия MKT3', exact: true }).click();
   // салон (BEAUTY) и после слияния 09.10 садится на свой `/today`; на `/finance` едет только гостиница
   await page.waitForURL('**/today');
   await expect(page.getByTestId('beauty-today')).toBeVisible();

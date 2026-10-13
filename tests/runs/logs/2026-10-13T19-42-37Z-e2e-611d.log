@@ -1,0 +1,138 @@
+# Сквозные (e2e) · 14.10.2026 00:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5f24598 (codex/organizations-card-editor)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/product-tour.spec.ts' 'tests/ui/marketing.spec.ts' '--workers' '1' '--grep' 'размеры целей шапки|видимый поиск в календаре|MKT3: салон'
+[WebServer] (node:21939) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21971) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21972) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21974) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22011) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:22103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:22110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/marketing.spec.ts:320:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (45.3s)
+(node:22289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии (19.8s)
+(node:22317) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/ui31-shell.spec.ts:111:1 › UI3.1: размеры целей шапки и мобильной поверхности (45.2s)
+
+
+  1) tests/ui/marketing.spec.ts:320:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().locator('summary').filter({ hasText: 'Добавить филиал' })
+
+
+      326 |   await page.goto('/branches');
+      327 |   const body = main(page);
+    > 328 |   await body.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
+          |                                                                        ^
+      329 |   await body.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+      330 |   await body.getByLabel('Название филиала').fill('Студия MKT3');
+      331 |   await body.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
+        at /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/tests/ui/marketing.spec.ts:328:72
+
+    Error Context: test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.tour__hole')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.tour__hole') with timeout 15000ms
+      - waiting for locator('.tour__hole')
+
+
+      77 |   // Подсветка сохраняется там, где кнопка поиска видима.
+      78 |   const hole = page.locator('.tour__hole');
+    > 79 |   await expect(hole).toBeVisible();
+         |                      ^
+      80 |   await page.waitForTimeout(400); // Перемещение выреза занимает 180 мс.
+      81 |   const [holeBox, searchBox] = await Promise.all([
+      82 |     hole.boundingBox(),
+        at /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/tests/ui/product-tour.spec.ts:79:22
+
+    Error Context: test-results/product-tour-видимый-поиск-96452-тся-с-сохранением-геометрии/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/product-tour-видимый-поиск-96452-тся-с-сохранением-геометрии/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/product-tour-видимый-поиск-96452-тся-с-сохранением-геометрии/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ui31-shell.spec.ts:111:1 › UI3.1: размеры целей шапки и мобильной поверхности ────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.boundingBox: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Найти гостя или бронь', exact: true })
+
+
+      115 |     await page.setViewportSize({ width, height: 640 });
+      116 |     for (const name of ['Открыть меню', 'Переключить тему', 'Найти гостя или бронь']) {
+    > 117 |       const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
+          |                                                                          ^
+      118 |       expect(box.width, name).toBeGreaterThanOrEqual(44);
+      119 |       expect(box.height, name).toBeGreaterThanOrEqual(44);
+      120 |     }
+        at /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/tests/ui/ui31-shell.spec.ts:117:74
+
+    Error Context: test-results/ui31-shell-UI3-1-размеры-целей-шапки-и-мобильной-поверхности/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-размеры-целей-шапки-и-мобильной-поверхности/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-размеры-целей-шапки-и-мобильной-поверхности/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/marketing.spec.ts:320:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен 
+    tests/ui/product-tour.spec.ts:68:1 › видимый поиск в календаре подсвечивается с сохранением геометрии 
+    tests/ui/ui31-shell.spec.ts:111:1 › UI3.1: размеры целей шапки и мобильной поверхности ─────────
+
+# код выхода 1 · 2 мин 4 с

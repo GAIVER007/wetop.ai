@@ -1859,7 +1859,7 @@ body:has(.org-reference) .topmenu {
 .org-reference .org-branch-rows button:hover { border-color: var(--primary); }
 .org-reference .org-branch-rows button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-@media (min-width: 600px) {
+@media (min-width: 601px) {
   .org-cards:has(> .org-card:only-child) {
     align-items: start;
     align-content: start;
@@ -1872,7 +1872,7 @@ body:has(.org-reference) .topmenu {
     max-height: 256px;
   }
 }
-@media (min-width: 600px) and (max-width: 1279px) {
+@media (min-width: 601px) and (max-width: 1279px) {
   .branches-reference-page:has(.org-card:only-child) {
     padding-bottom: var(--space-4);
   }

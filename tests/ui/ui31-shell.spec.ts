@@ -113,11 +113,21 @@ test('UI3.1: размеры целей шапки и мобильной пове
   await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toBeEnabled();
   for (const width of [1440, 360]) {
     await page.setViewportSize({ width, height: 640 });
-    for (const name of ['Открыть меню', 'Переключить тему', 'Найти гостя или бронь']) {
+    await expect(page.getByRole('button', { name: 'Найти гостя или бронь', exact: true })).toHaveCount(0);
+    for (const name of ['Открыть меню', 'Переключить тему']) {
       const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
       expect(box.width, name).toBeGreaterThanOrEqual(44);
       expect(box.height, name).toBeGreaterThanOrEqual(44);
     }
+  }
+  await page.goto('/finance');
+  for (const width of [1440, 360]) {
+    await page.setViewportSize({ width, height: 640 });
+    const search = page.getByRole('button', { name: 'Найти гостя или бронь', exact: true });
+    await expect(search).toBeVisible();
+    const box = (await search.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
   }
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });

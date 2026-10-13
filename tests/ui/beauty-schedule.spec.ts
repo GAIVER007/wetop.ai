@@ -20,14 +20,23 @@ async function settled(panel: ReturnType<Page['getByRole']>) {
   });
 }
 
-async function addBranch(page: Page, name: string) {
+async function addBranch(page: Page, name: string, business?: string) {
   await page.goto('/branches');
   const main = page.getByRole('main');
-  await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await main.getByRole('radio', { name: 'Салон красоты или студия' }).check();
-  await main.getByLabel('Название филиала').fill(name);
-  await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
-  await expect(main.getByRole('status')).toContainText('Салон создан');
+  await main.getByRole('button', { name: 'Добавить', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+  if (business) {
+    await creation.getByLabel('Филиал существующего бизнеса').check();
+    await creation.getByRole('combobox', { name: /^Бизнес/ }).selectOption({ label: business });
+    await creation.getByLabel('Название объекта', { exact: true }).fill(name);
+    await creation.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
+  } else {
+    await creation.getByLabel('Новый бизнес или бренд').check();
+    await creation.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+    await creation.getByLabel('Название бизнеса', { exact: true }).fill(name);
+    await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+  }
+  await expect(creation.getByRole('status')).toContainText('Салон создан');
 }
 
 async function openSalon(page: Page, request: APIRequestContext, second = false) {
@@ -38,14 +47,9 @@ async function openSalon(page: Page, request: APIRequestContext, second = false)
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/finance');
   await addBranch(page, 'Студия Айна');
-  if (second) await addBranch(page, 'Студия на Абая');
+  if (second) await addBranch(page, 'Студия на Абая', 'Студия Айна');
   await page.reload();
-  await page
-    .getByRole('main')
-    .locator('.branches-grid section')
-    .filter({ hasText: 'Студия Айна' })
-    .getByRole('button', { name: 'Открыть салон', exact: true })
-    .click();
+  await page.getByRole('main').getByRole('button', { name: 'Открыть объект: Студия Айна', exact: true }).click();
   // MV8: открытый салон начинает с общего рабочего экрана дня
   await page.waitForURL('**/today');
   await page.goto('/calendar');

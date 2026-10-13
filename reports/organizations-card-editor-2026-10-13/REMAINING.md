@@ -71,3 +71,15 @@ The owner explicitly authorized agent commit, push, merge into main and standard
 - CUA: 1440x900 and 1024x900, scrollHeight=900 and footer visible. At 390px, scrollWidth=390. Screenshots design-final-1440.png, design-final-1024.png, design-final-390.png, design-menu-final.png. Private preview figures are synthetic, not production evidence.
 - Cover v2 keeps Luxx Aparts readable inside a shallow central crop. Production upload is still unavailable.
 - Review: scoped UI delta, validated branch selection and safe destination, partial totals, menu close/focus reviewed. No blocking issue identified in this delta. Full release gate and live domain remain separate checks.
+
+## Release gate correction after PR492
+
+PR492 merged into main as dae7250c95e05a1483612f50b99c579b556c49c0. Its exact-SHA release-checks 38456363644 failed the design guard: the added min-width 600 must be min-width 601. Release and production remain 6d8b6d8acc06a1a4484c9b7f5dcc89b14ba9b45d; API/web healthy.
+
+- Guard red: 2026-10-13T19-49-11Z-unit-5446. Corrected only the two new minimum breakpoints. Green: 2026-10-13T19-51-18Z-unit-46e2, 43/43.
+- Existing UI checks still used the old Organization summary form and calendar header search removed by prior code. Reproduced: 2026-10-13T19-42-37Z-e2e-611d, 3 failed; beauty helper red 2026-10-13T19-53-17Z-e2e-cf6b.
+- Updated test entry steps to the existing business/branch dialog; kept two salon locations in the same business, marketing access checks and all business assertions. No Beauty, Marketing, Calendar or Tour product code changed. No CI/CD configuration, timeouts, retries or exclusions changed.
+- Green UI4: 2026-10-13T19-51-20Z-e2e-e333. Dependent UI run 2026-10-13T19-55-09Z-e2e-0088 had 30 passed and one obsolete exact combobox label; that selector was corrected, final multi-location scenario passed in 2026-10-13T20-00-32Z-e2e-3689. This is combined scenario evidence, not a green full 31-case run.
+- Tour retains precise spotlight geometry for visible search in Finance and checks the centered explanation when search is absent in Calendar. Final green: 2026-10-13T20-10-15Z-e2e-f61c.
+- Two full local unit runs are NOT green: 2026-10-13T19-55-39Z-unit-2a7f (guard-run timeout) and 2026-10-13T20-02-29Z-unit-051d (web-booking socket hang up), each 4741 passed, 1 failed, 4 skipped. Both previously failed files and the design guard passed isolated, 67/67, in 2026-10-13T20-08-38Z-unit-d0d3 without source changes. Full GitHub gate remains mandatory before publication. Web typecheck and targeted ESLint passed.
+- Production storage is disabled. The generated cover remains local; requested owner information about an existing Kazakhstan bucket. No production data changes, backups, migrations or deployment performed yet.

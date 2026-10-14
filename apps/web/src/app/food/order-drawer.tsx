@@ -19,6 +19,7 @@ import type {
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 import { mutateOrder, orderRatingLink } from './restaurant-actions';
+import { useConfirm } from '../../components/use-confirm';
 import { QrCode, StarsInput } from './rating-parts';
 
 export interface OrderContext {
@@ -397,6 +398,7 @@ export function OrderDrawer({
   close: () => void;
 }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [saved, setSaved] = useState<OrderView | null>(null);
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -458,8 +460,19 @@ export function OrderDrawer({
       }
     });
   }
-  function transition(status: OrderStatus) {
+  async function transition(status: OrderStatus) {
     if (!order) return;
+    // отмена необратима: заказ уходит в терминальный статус, состав замораживается (ADR-182, DESIGN.md §14)
+    if (
+      status === 'CANCELLED' &&
+      !(await ask({
+        title: `Отменить заказ №${order.number}?`,
+        body: 'Заказ станет отменённым, вернуть его в работу нельзя. Кухня готовить не будет.',
+        confirmLabel: 'Отменить заказ',
+        tone: 'danger',
+      }))
+    )
+      return;
     setError('');
     start(async () => {
       const result = await mutateOrder(ctx.scopeKey, {
@@ -493,6 +506,7 @@ export function OrderDrawer({
       trapFocus
     >
       <div className="food-detail" data-testid="order-drawer">
+        {dialog}
         {error && <Alert>{error}</Alert>}
         {order && !editing ? (
           <>

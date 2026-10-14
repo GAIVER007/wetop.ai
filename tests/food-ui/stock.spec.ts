@@ -154,6 +154,8 @@ test('сторно: нетронутая партия сторнируется, 
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('button', { name: 'Сторнировать приход от 01.10.2026' })).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Сторнировать приход от 05.10.2026' }).click();
+  // сторно только через подтверждение (ADR-182)
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Сторнировать', exact: true }).click();
   await expect(dialog.getByText('Сторнирован')).toBeVisible();
   await dialog.getByRole('button', { name: /Закрыть/ }).click();
   await expect(row(page, 'Говядина Рибай')).toContainText('1900 г');

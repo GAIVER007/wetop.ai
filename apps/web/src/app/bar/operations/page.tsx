@@ -5,9 +5,9 @@ import { mayAccess } from '../../../lib/navigation';
 import { barApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { Page } from '../../../components/page';
-import { Badge, Button, EmptyState, SectionTitle, Table } from '../../../components/ui';
+import { Badge, EmptyState, SectionTitle, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
-import { reverseBarSaleAction } from '../actions';
+import { BarReturnButtons } from '../return-buttons';
 import { WriteOffForm } from '../write-off-form';
 import { InventoryCountForm } from '../inventory-count-form';
 import { BarTabs } from '../tabs';
@@ -60,10 +60,7 @@ export default async function BarOperationsPage() {
             <td>{formatMoney(sale.totalCost)}</td>
             <td>{formatMoney(BigInt(sale.totalRevenue) - BigInt(sale.totalCost))}</td>
             <td><Badge tone={sale.status === 'POSTED' ? 'ok' : 'neutral'}>{sale.status === 'POSTED' ? 'Продано' : 'Возврат'}</Badge></td>
-            <td>{sale.status === 'POSTED' && canReverse && <div className="bar-return">
-              <form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="true" /><input type="hidden" name="reason" value="Возврат гостя, товар пригоден" /><Button type="submit" tone="ghost" size="xs">Вернуть на склад</Button></form>
-              <form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="false" /><input type="hidden" name="reason" value="Возврат гостя, товар непригоден" /><Button type="submit" tone="ghost" size="xs">Без возврата на склад</Button></form>
-            </div>}</td>
+            <td>{sale.status === 'POSTED' && canReverse && <BarReturnButtons saleId={sale.id} amountText={formatMoney(sale.totalRevenue)} />}</td>
           </tr>)}</tbody>
         </Table>}
     <SectionTitle>Движения</SectionTitle>

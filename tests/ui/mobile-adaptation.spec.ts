@@ -126,6 +126,10 @@ test('телефон: кнопки, поля и вкладки разделов 
     const small = await page.evaluate(() =>
       [...document.querySelectorAll('button, select, input, a.btn')]
         .filter((el) => {
+          // закрытый <details> прячет содержимое, но Chrome сохраняет его геометрию:
+          // скрытые цели (календарь выбора периода) не считаются
+          if (!(el as HTMLElement).checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }))
+            return false;
           const r = el.getBoundingClientRect();
           return r.height > 0 && r.width > 0 && r.height < 44;
         })
@@ -163,6 +167,9 @@ test('телефон: поля не мельче 16 px — иначе iOS зум
     const small = await page.evaluate(() =>
       [...document.querySelectorAll('input, select, textarea')]
         .filter((el) => {
+          // скрытые поля (календарь периода в закрытом <details>) не считаются: Chrome хранит их геометрию
+          if (!(el as HTMLElement).checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }))
+            return false;
           const r = el.getBoundingClientRect();
           const type = (el as HTMLInputElement).type;
           if (['checkbox', 'radio', 'hidden'].includes(type)) return false;

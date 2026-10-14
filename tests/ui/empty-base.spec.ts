@@ -22,7 +22,8 @@ const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
   { route: '/rooms', title: /номер/i },
   { route: '/rooms/categories', title: /Категории/ },
   { route: '/rooms/availability', title: /Свободные места/ },
-  { route: '/finance', title: /Обзор бизнеса/ },
+  { route: '/today', title: /Главная/ },
+  { route: '/finance', title: /Финансы/ },
   { route: '/management/analytics', title: /Аналитика/, says: /Недостаточно данных/ },
   { route: '/management/analytics/occupancy', title: /Аналитика/ },
   { route: '/journal', title: /Журнал/ },
@@ -57,11 +58,15 @@ test('пустая база: шахматка показывает все мес
   await expect(main.getByTestId('unassigned-stays')).toHaveCount(0);
 });
 
-test('пустая база: финансы говорят про ноль словами, а не пустыми плитками', async ({ page }) => {
+test('пустая база: финансы и главная говорят про ноль словами, а не пустыми плитками', async ({
+  page,
+}) => {
   await page.goto('/finance');
   const main = page.getByRole('main');
   await expect(main.getByTestId('cash-period-income')).toHaveText('0 ₸');
   await expect(main.getByTestId('cash-period-expense')).toHaveText('0 ₸');
+  // загрузка и прогноз на «Главной» (ADR-180)
+  await page.goto('/today');
   await expect(main.getByTestId('c-occupancy')).toHaveText('0 %');
   await expect(main.getByTestId('c-free')).toHaveText('88');
   await expect(main.getByTestId('owner-outlook-chart').getByRole('listitem')).toHaveCount(7);

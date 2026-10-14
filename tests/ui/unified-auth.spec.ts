@@ -48,7 +48,7 @@ test('сессия работает в новой вкладке; выход в�
 }) => {
   await page.goto('/login');
   await login(page);
-  await expect(page).toHaveURL(`${APP}/finance`);
+  await expect(page).toHaveURL(`${APP}/today`);
   const tab = await context.newPage();
   await tab.goto(`${APP}/profile/access`);
   await expect(
@@ -67,7 +67,7 @@ test('выход через меню снимает сессию и снова �
 }) => {
   await page.goto('/login');
   await login(page);
-  await expect(page).toHaveURL(`${APP}/finance`);
+  await expect(page).toHaveURL(`${APP}/today`);
   await openProfileMenu(page);
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти', exact: true }).click();
   await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
@@ -94,9 +94,9 @@ test('регистрация на главной → письмо → подтв
   await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
   await page.goto(`${APP}/login/verify?token=ui-verify-1`);
-  await expect(page).toHaveURL(`${APP}/finance`);
+  await expect(page).toHaveURL(`${APP}/today`);
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
 });
 test('резервный вход без JavaScript сохраняет сессию и возвращает на исходный экран', async ({
   browser,

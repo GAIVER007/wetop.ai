@@ -248,7 +248,7 @@ test('администратор (без права settings): вкладки «
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await request.post(`${fixture}/__test/control`, { data: { role: 'STAFF' } });
   await page.goto('/finance');
   const menu = menuOf(page);
@@ -322,7 +322,7 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await page.goto('/branches');
   const body = main(page);
   await body.getByRole('button', { name: 'Добавить', exact: true }).click();

@@ -21,7 +21,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
 }
 
 test('первый вход: обучение открывается само, идёт по шагам и больше само не открывается', async ({
@@ -35,7 +35,7 @@ test('первый вход: обучение открывается само, �
 
   await tour.getByRole('button', { name: 'Далее' }).click();
   await expect(tour.getByRole('heading', { name: 'Поиск по всей стойке' })).toBeVisible();
-  // С 09.10 стартовый экран — «Обзор бизнеса» с обычной шапкой: поиск виден и подсвечивается вырезом.
+  // С 13.10 стартовый экран «Главная» (ADR-180) с обычной шапкой: поиск виден и подсвечивается вырезом.
   await expect(page.locator('[data-tour="search"]')).toBeVisible();
   await expect(page.locator('.tour__hole')).toBeVisible();
   await expect(page.locator('.tour__card--center')).toHaveCount(0);

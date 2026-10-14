@@ -1,0 +1,190 @@
+# Модульные (unit) · 13.10.2026 22:52 Алматы · MacBook-Air-Urij.local
+# коммит 3041cf6 (claude/ui46-finance-20261013), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T17-52-26Z-unit-fd08.json' 'apps/web/src'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract
+
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (10 tests) 6ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 53ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 317ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 32ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 715ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 707ms
+ ❯ |unit| apps/web/src/lib/navigation-roles.test.ts (20 tests | 1 failed) 22ms
+   ❯ меню по ролям (8)
+     ✓ у каждого пункта меню записано право — пункта «для всех по умолчанию» нет 3ms
+     × администратор: работа с гостями, продавец (диалоги), финансы и статистика, неисправности 7ms
+     ✓ «Бар»: пункт группы «Финансы», своей вкладки нет (ADR-157) 1ms
+     ✓ управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора 1ms
+     ✓ «Организации» главного администратора лежат в «Настройках», отдельной вкладки «Платформа» нет 1ms
+     ✓ никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется 0ms
+     ✓ «Маркетинг» по праву settings: владелец и управляющий видят группу, администратор нет (MKT2) 2ms
+     ✓ пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего 1ms
+   ✓ страница по адресу: какое право её открывает (4)
+     ✓ разделы меню и их вложенные адреса 1ms
+     ✓ адреса вне меню: настройки продавца и его агенты 0ms
+     ✓ первичная настройка не закрыта: туда гейт ведёт и администратора, страница говорит, кто настраивает 0ms
+     ✓ карточка ячейки и брони — работа смены, отдельного права нет 0ms
+   ✓ право вошедшего (4)
+     ✓ по роли; никто не вошёл — открыто, как в API без человека за запросом 0ms
+     ✓ роль не узнали (сбой `/auth/me`): меню и кнопки — как у администратора 0ms
+     ✓ страница по адресу: нет права — закрыта; роль не узнали — открыта, решает API, а не «нет доступа» 0ms
+     ✓ роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет 0ms
+   ✓ «ИИ-агенты» (S0) (3)
+     ✓ пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела 0ms
+     ✓ страницы продавца подсвечивают пункт «ИИ-агенты», право у них прежнее 0ms
+     ✓ каталог не открывает продавца тем, у кого его не было: вкладки требуют расширение, карточка WETOP Support — только платформу 0ms
+   ✓ сотрудники доступны в настройках только владельцу и управляющему 0ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 39ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 882ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 837ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (36 tests) 86ms
+ ✓ |unit| apps/web/src/lib/registration-context-client.test.ts (1 test) 28ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 31ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (8 tests) 22ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 21ms
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 15ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 22ms
+ ✓ |unit| apps/web/src/app/market/chart-data.test.ts (10 tests) 5ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (5 tests) 29ms
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (13 tests) 22ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 24ms
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (16 tests) 22ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 32ms
+ ✓ |unit| apps/web/src/lib/branch-report-api.test.ts (2 tests) 31ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 5ms
+ ✓ |unit| apps/web/src/lib/navigation-place.test.ts (23 tests) 9ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 34ms
+ ✓ |unit| apps/web/src/app/growth/business-screen.test.ts (7 tests) 62ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 25ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests) 25ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests) 23ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 22ms
+ ✓ |unit| apps/web/src/app/finance/debts-csv.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/app/journal/journal-view.test.ts (7 tests) 3ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 29ms
+ ✓ |unit| apps/web/src/components/date-range-popover.test.ts (3 tests) 26ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (11 tests) 47ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 51ms
+ ✓ |unit| apps/web/src/app/ai-seller/actions.test.ts (2 tests) 45ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (4 tests) 17ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 5ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 7ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/app/guests/guest-stay.test.ts (17 tests) 6ms
+ ✓ |unit| apps/web/src/app/incidents/incident-view.test.ts (17 tests) 4ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 21ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 8ms
+ ✓ |unit| apps/web/src/app/market/derive.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/status/status.test.ts (13 tests) 10ms
+ ✓ |unit| apps/web/src/app/chessboard/board-filters.test.ts (12 tests) 16ms
+ ✓ |unit| apps/web/src/lib/food-data.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/lib/navigation-growth.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (30 tests) 6ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/app/login/verify-registration.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 15ms
+ ✓ |unit| apps/web/src/app/reservations/filters.test.ts (8 tests) 5ms
+ ✓ |unit| apps/web/src/app/guests/filters.test.ts (11 tests) 30ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 3ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/sales.test.ts (5 tests) 30ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 8ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 5ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (9 tests) 6ms
+ ✓ |unit| apps/web/src/lib/line-geometry.test.ts (5 tests) 4ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/food-api.test.ts (1 test) 4ms
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests) 5ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/app/website/actions.test.ts (8 tests) 11ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 4ms
+ ✓ |unit| apps/web/src/app/management/analytics/params.test.ts (12 tests) 6ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 8ms
+ ✓ |unit| apps/web/src/lib/report-query.test.ts (12 tests) 10ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (10 tests) 3ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 9ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (15 tests) 5ms
+ ✓ |unit| apps/web/src/lib/donut.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/app/marketing/budget/derive.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 10ms
+ ✓ |unit| apps/web/src/app/management/analytics/channels/query.test.ts (7 tests) 8ms
+ ✓ |unit| apps/web/src/app/reservations/reservations-csv.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 4ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (12 tests) 5ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/channels/mapping.test.ts (5 tests) 8ms
+ ✓ |unit| apps/web/src/lib/public-entry.test.ts (1 test) 3ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 4ms
+ ✓ |unit| apps/web/src/app/chessboard/range-plan.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/app/finance/services-csv.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/app/reservations/finance-state.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/next-rethrow.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/channels/format.test.ts (5 tests) 4ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/phone-mask.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/app/finance/csv.test.ts (10 tests) 4ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/app/team/scope-model.test.ts (5 tests) 3ms
+ ✓ |unit| apps/web/src/app/channels/channel-list.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/occupancy-kinds.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/finance/operations-csv.test.ts (5 tests) 3ms
+ ✓ |unit| apps/web/src/app/market/competitor-status.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests) 2ms
+ ✓ |unit| apps/web/src/app/bar/stock-status.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/app/create/regional.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/food/guest-marks.test.ts (2 tests) 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > меню по ролям > администратор: работа с гостями, продавец (диалоги), финансы и статистика, неисправности
+AssertionError: expected [ 'today', 'finance', …(5) ] to deeply equal [ 'finance', 'chessboard', …(4) ]
+
+- Expected
++ Received
+
+@@ -1,6 +1,7 @@
+  [
++   "today",
+    "finance",
+    "chessboard",
+    "guests",
+    "sales",
+    "reports",
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:55:63
+     53|       '/incidents',
+     54|     ]);
+     55|     expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
+       |                                                               ^
+     56|       'finance',
+     57|       'chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 119 passed (120)
+      Tests  1 failed | 904 passed (905)
+   Start at  21:52:27
+   Duration  4.39s (transform 43%, import 35%, tests 20%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T17-52-26Z-unit-fd08.json
+
+# код выхода 1 · 6 с

@@ -71,11 +71,11 @@ describe('Food workspace isolation', () => {
         '/floor-plan',
       );
       if (v === 'HOSPITALITY') {
-        // первая вкладка гостиницы — группа «Финансы» (ADR-157): первый пункт «Оплаты и касса»
-        expect(menuSectionsFor(owner, v)[0]!.label).toBe('Календарь');
+        // «Главная» первой (ADR-180, 13.10.2026), затем «Календарь» (порядок #501)
+        expect(menuSectionsFor(owner, v)[0]!.label).toBe('Главная');
         expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({
-          href: '/chessboard',
-          label: 'Календарь',
+          href: '/today',
+          label: 'Главная',
         });
       }
     }
@@ -84,7 +84,7 @@ describe('Food workspace isolation', () => {
     // MV8: рабочий экран дня салона и ресторана; гостиница стартует с единых «Финансов» (09.10.2026)
     expect(landingForVertical('FOOD_SERVICE')).toBe('/today');
     expect(landingForVertical('BEAUTY')).toBe('/today');
-    expect(landingForVertical('HOSPITALITY')).toBe('/finance');
+    expect(landingForVertical('HOSPITALITY')).toBe('/today');
     expect(
       deskShellOf({
         user: { email: 'synthetic@example.invalid', name: null },

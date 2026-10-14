@@ -19,7 +19,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
 }
 
 const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF') =>
@@ -38,12 +38,13 @@ test('администратор: в меню — работа с гостями
   await expect
     .poll(() => menuLinks(page))
     .toEqual([
-      // группа «Финансы» (ADR-157): «Оплаты и касса» и «Бар» подряд
-      '/finance',
-      '/bar',
+      // «Главная» первой (ADR-180), дальше порядок владельца 13.10 (#501); «Бар» в группе «Финансы» (ADR-157)
+      '/today',
       '/chessboard',
       // «Гости и бронирования» (поручение владельца 09.10.2026): одна вкладка на месте «Броней» и «Гостей»
       '/guests',
+      '/finance',
+      '/bar',
       '/sales',
       '/market',
       '/ai-agents',

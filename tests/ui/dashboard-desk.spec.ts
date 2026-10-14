@@ -3,7 +3,7 @@ import { FIXTURE_API, expect, test, type Locator } from './fixtures';
 /**
  * Разбор «Главной» 23.09.2026 — критика по DESIGN.md, находки 1–9 (отчёт и снимки —
  * `reports/desk-critique-2026-09-23/`). Каждый тест держит одну находку и был красным на коде до правки.
- * С 09.10.2026 блоки владельца живут на едином экране «Финансы» (plans/finance-home-merge-2026-10-09.md).
+ * С 13.10.2026 блоки владельца снова на «Главной» `/today` (ADR-180).
  *
  * Данные фикстуры на сегодня: заезды без заселения — TESTAA, TEST1, TEST2; не заехал вовремя — TEST8;
  * уезжает и ещё живёт — TEST3; уже выселен, но с долгом 16 000 ₸ — TEST4; живут — TEST5, TEST6, TEST7.
@@ -19,7 +19,7 @@ const fontSize = (loc: Locator) => loc.evaluate((el) => getComputedStyle(el).fon
 test('3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез', async ({
   page,
 }) => {
-  await page.goto('/finance?from=2027-06-01&to=2027-06-30');
+  await page.goto('/today');
   await expect(page.getByTestId('owner-risks')).toBeVisible();
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await expect(page.locator('#day-attention')).toHaveCount(1);
@@ -29,7 +29,7 @@ test('3. одна очередь внимания в панели; выбор ф
 test('5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди', async ({
   page,
 }) => {
-  await page.goto('/finance');
+  await page.goto('/today');
   await expect(page.getByTestId('c-debt')).toHaveText('0 ₸');
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await expect(page.locator('#day-attention')).toContainText('20260913-TEST4');
@@ -37,14 +37,14 @@ test('5. долг у выезжающих отдельно от финансов
 test('6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка', async ({
   page,
 }) => {
-  await page.goto('/finance');
+  await page.goto('/today');
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const list = page.locator('#day-attention .attention-list');
   await expect(list).toBeVisible();
   expect(await list.evaluate((el) => getComputedStyle(el).overflowY)).toBe('visible');
 });
 test('7. краткие подписи без декоративных разделителей', async ({ page }) => {
-  await page.goto('/finance');
+  await page.goto('/today');
   expect(await page.getByTestId('owner-dashboard').innerText()).not.toContain(' · ');
 });
 test('8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title', async ({
@@ -101,7 +101,7 @@ test('9. размеры шрифта на главной и в «Аналити�
     }, scale);
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto('/finance');
+    await page.goto('/today');
     const main = page.getByRole('main');
     await expect(main.getByTestId('owner-risks')).toBeVisible();
 
@@ -132,11 +132,11 @@ test('10. заголовок страницы и панели брони — п�
     [390, '26px'],
   ] as const) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto('/finance');
+    await page.goto('/today');
     expect(await title(), `ширина ${width}`).toBe(size);
   }
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/finance');
+  await page.goto('/today');
   // с 03.10 быстрых действий на экране владельца нет: бронь открывается из очереди «Требуют внимания»
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   await page

@@ -1,5 +1,4 @@
 import { requireVertical } from '../../lib/vertical-guard';
-import { FundTabs } from './fund-tabs';
 import './fund.css';
 import Link from 'next/link';
 import { api, inventoryEditorApi } from '../../lib/api';
@@ -9,7 +8,7 @@ import { pluralRu } from '../../lib/plural';
 import { AddMenu } from './add-menu';
 import { channelMarks } from './channel-marks';
 import { InventoryCatalog } from './inventory-catalog';
-import { InventorySummaryTiles } from './summary-tiles';
+import { InventoryPeriodSelect, InventorySummaryTiles } from './summary-tiles';
 import './inventory.css';
 
 /** Состав фонда из API; занятость и команды остаются в календаре и карточке места. */
@@ -39,6 +38,7 @@ export default async function InventoryPage({
       }
       actions={
         <>
+          <InventoryPeriodSelect days={days} />
           <AddMenu categories={categories} />
           <Link href="/rooms/categories" className="btn btn--secondary">
             <Icon name="rates" />
@@ -51,7 +51,6 @@ export default async function InventoryPage({
         </>
       }
     >
-      <FundTabs active="inventory" />
       {!summary.totalUnits && (
         <section className="fund-empty">
           <h2>Создайте свой номерной фонд</h2>
@@ -62,7 +61,7 @@ export default async function InventoryPage({
           </ol>
         </section>
       )}
-      <InventorySummaryTiles units={units} trend={trend} days={days} />
+      <InventorySummaryTiles units={units} trend={trend} />
       <InventoryCatalog
         units={units}
         categories={summary.byCategory}

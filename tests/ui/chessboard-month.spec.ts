@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, openFullCard, test, devNoise } from './fixtures';
+import { FIXTURE_API, chooseBoardPeriod, expect, openFullCard, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -12,14 +12,10 @@ test('месяц: с первого по последнее число, вклю
   today.setUTCMonth(today.getUTCMonth() + 1, 0);
   const last = today.toISOString().slice(0, 10);
   await page.goto('/chessboard');
-  // Образец владельца 09.10: «День / Неделя / Месяц» стоят в полосе, длина окна (7, 14, 30 дней) в
-  // раскрывашке «7 дней ▾». Ссылки стоят в перерисовываемой форме, поэтому после перехода на 14 дней
-  // дожидаемся его конца, иначе клик попадает в старый узел.
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: '14 дней', exact: true }).click();
+  // Оба диапазона применяются через один контрол периода.
+  await chooseBoardPeriod(page, '14 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(14);
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: 'Месяц', exact: true }).click();
+  await chooseBoardPeriod(page, 'Текущий месяц');
   await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue(first);
   await expect(page.getByLabel('Период: по', { exact: true })).toHaveValue(last);
   await expect(page.getByTestId('date-col')).toHaveCount(Number(last.slice(8)));
@@ -60,12 +56,7 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
     await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue(expectedFrom);
     await expect(page.getByLabel('Период: по', { exact: true })).toHaveValue(expectedTo);
     await expect(page.getByTestId('date-col')).toHaveCount(Number(expectedTo.slice(8)));
-    // Текущий масштаб отмечен в меню вида.
-    await page.getByTestId('board-length-button').click();
-    await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    await expect(page.getByTestId('board-length-button')).toHaveCount(0);
     await page.reload();
     await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', expectedFrom);
   });
@@ -74,8 +65,7 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
 test('7 дней, 14 дней, произвольный период и возврат к месяцу', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByTestId('date-col')).toHaveCount(7);
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: '14 дней', exact: true }).click();
+  await chooseBoardPeriod(page, '14 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(14);
   await expect(page.getByRole('link', { name: 'Следующий период', exact: true })).toBeVisible();
   await page.getByTestId('board-period-button').click();
@@ -83,39 +73,31 @@ test('7 дней, 14 дней, произвольный период и возв
   await page.getByLabel('Период: по', { exact: true }).fill('2028-02-20');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(11);
-  await page.getByTestId('board-length-button').click();
-  const month = page.getByRole('link', { name: 'Месяц', exact: true });
-  await month.click();
-  await expect(page.getByTestId('date-col')).toHaveCount(29);
-  await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', '2028-02-01');
-  await page.getByTestId('board-period-button').click();
+  await chooseBoardPeriod(page, 'Текущий месяц');
+  const currentMonth = new Date(Date.now() + 5 * 3600_000);
+  const monthStart = `${currentMonth.toISOString().slice(0, 7)}-01`;
+  currentMonth.setUTCMonth(currentMonth.getUTCMonth() + 1, 0);
+  await expect(page.getByTestId('date-col')).toHaveCount(currentMonth.getUTCDate());
+  await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', monthStart);
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
   await expect(page.locator('th.is-today')).toHaveCount(1);
 });
 
-test('30 дней: окно от сегодня, длина окна в раскрывашке, масштаб «День / Неделя / Месяц» в меню вида', async ({
-  page,
-}) => {
+test('30 дней: окно от сегодня и шаг стрелки равен диапазону', async ({ page }) => {
   const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
   await page.goto('/chessboard');
-  // Масштаб и длина окна доступны в одном меню вида.
-  await page.getByTestId('board-length-button').click();
-  await expect(
-    page.getByRole('navigation', { name: 'Масштаб календаря' }).getByRole('link'),
-  ).toHaveText(['День', 'Неделя', 'Месяц']);
-  await expect(
-    page.getByRole('navigation', { name: 'Длина периода' }).getByRole('link'),
-  ).toHaveText(['7 дней', '14 дней', '30 дней']);
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  await expect(page.getByRole('navigation', { name: 'Масштаб календаря' })).toHaveCount(0);
+  await chooseBoardPeriod(page, '30 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', today);
-  await page.getByTestId('board-length-button').click();
-  await expect(page.getByRole('link', { name: '30 дней', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
+  await page.getByTestId('board-period-button').click();
+  await expect(page.getByRole('button', { name: '30 дней', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
   );
+  await page.keyboard.press('Escape');
   // стрелка шагает ровно на 30 дней
   await page.getByRole('link', { name: 'Следующий период', exact: true }).click();
   const next = new Date(`${today}T00:00:00Z`);
@@ -125,7 +107,6 @@ test('30 дней: окно от сегодня, длина окна в раск
     next.toISOString().slice(0, 10),
   );
   await expect(page.getByTestId('date-col')).toHaveCount(30);
-  await page.getByTestId('board-period-button').click();
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(7);
 });
@@ -133,14 +114,12 @@ test('30 дней: окно от сегодня, длина окна в раск
 test('в месяце открываются брони, свободные даты и группы номеров', async ({ page }) => {
   await page.setViewportSize({ width: 812, height: 1000 });
   await page.goto('/chessboard');
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: '14 дней', exact: true }).click();
+  await chooseBoardPeriod(page, '14 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(14);
-  await page.getByTestId('board-length-button').click();
-  await page.getByRole('link', { name: 'Месяц', exact: true }).click();
+  await chooseBoardPeriod(page, 'Текущий месяц');
   const stay = page.getByTestId('stay-cell').first();
   const number = await stay.getAttribute('data-number');
-  // одинарный клик : предпросмотр, полная карточка : двойным (ТЗ «Шахматка v2» §24)
+  // одинарный клик — предпросмотр, полная карточка — двойным (ТЗ «Шахматка v2» §24)
   await openFullCard(stay);
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer.getByRole('heading', { level: 1 })).toContainText(number!);
@@ -159,7 +138,7 @@ test('в месяце открываются брони, свободные да
   const href = await lastFree.getAttribute('href');
   const expected = new URL(href!, 'http://127.0.0.1:3100');
   await lastFree.click();
-  // PR 5 (ТЗ v2 §32): щелчок открывает окошко свободной клетки, форма : по «Новая бронь»
+  // PR 5 (ТЗ v2 §32): щелчок открывает окошко свободной клетки, форма — по «Новая бронь»
   await page
     .getByTestId('free-menu')
     .getByRole('link', { name: 'Новая бронь', exact: true })
@@ -184,11 +163,9 @@ for (const theme of ['light', 'dark'] as const) {
       if (!devNoise.test(error.message)) errors.push(error.message);
     });
     await page.goto('/chessboard');
-    await page.getByTestId('board-length-button').click();
-    await page.getByRole('link', { name: '14 дней', exact: true }).click();
+    await chooseBoardPeriod(page, '14 дней');
     await expect(page.getByTestId('date-col')).toHaveCount(14);
-    await page.getByTestId('board-length-button').click();
-    await page.getByRole('link', { name: 'Месяц', exact: true }).click();
+    await chooseBoardPeriod(page, 'Текущий месяц');
     const report = [];
     // Next обновляет метаданные потоком: axe запускается после завершения перехода в месяц.
     await expect(page.getByRole('main').getByTestId('chessboard')).toHaveClass(/board--month/);
@@ -207,7 +184,7 @@ for (const theme of ['light', 'dark'] as const) {
       });
       expect(layout.content).toBeLessThanOrEqual(width + 1);
       // target-size (2.5.8) в месячном зуме не выполним геометрически: 31 ночь по 24px и колонка мест
-      // шире узких окон, а «все дни без прокрутки» : требование этого же теста. Месяц : плотная карта
+      // шире узких окон, а «все дни без прокрутки» — требование этого же теста. Месяц — плотная карта
       // занятости (исключение «essential»); те же брони доступны целями ≥24px в неделе, поиске и списке.
       const result = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])

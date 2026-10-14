@@ -1,0 +1,9 @@
+# Сквозные (e2e) · 13.10.2026 22:53 Алматы · MacBook-Air-Urij.local
+# коммит 3041cf6 (claude/ui46-finance-20261013), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/accessibility.spec.ts tests/ui/branches.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-resilience.spec.ts tests/ui/design-refresh.spec.ts tests/ui/desk-tasks.spec.ts tests/ui/desktop-compact.spec.ts tests/ui/empty-base.spec.ts tests/ui/finance-card-actions.spec.ts tests/ui/finance-cash-first.spec.ts tests/ui/finance-cash.spec.ts tests/ui/finance-compact.spec.ts tests/ui/finance-f1.spec.ts tests/ui/finance-f2.spec.ts tests/ui/finance-home-merge.spec.ts tests/ui/finance-services.spec.ts tests/ui/finance-units-design.spec.ts tests/ui/login-access.spec.ts tests/ui/login-lock.spec.ts tests/ui/mobile-adaptation.spec.ts tests/ui/navigation.spec.ts tests/ui/onboarding.spec.ts tests/ui/owner-dashboard-interactions.spec.ts tests/ui/owner-dashboard.spec.ts tests/ui/product-tour.spec.ts tests/ui/quality.spec.ts tests/ui/real-data.spec.ts tests/ui/requests.spec.ts tests/ui/roles.spec.ts tests/ui/side-nav.spec.ts tests/ui/today-attention.spec.ts tests/ui/today-operations.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/ui31-shell.spec.ts tests/ui/ux-retention.spec.ts tests/ui/workspace.spec.ts ' '--workers=1'
+Error: No tests found.
+Make sure that arguments are regular expressions matching test files.
+You may need to escape symbols like "$" or "*" and quote the arguments.
+
+
+# код выхода 1 · 3 с

@@ -21,6 +21,7 @@ export function DateBar({ date, path }: { date: string; path: string }) {
       onNext={() => router.push(shift(1))}
       onDateChange={(next) => router.push(`${path}?date=${next}`)}
       inputProps={{ 'data-testid': 'beauty-day-date' }}
+      compact
     />
   );
 }

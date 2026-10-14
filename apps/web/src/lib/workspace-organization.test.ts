@@ -3,7 +3,8 @@ import { activeMenuRoute, menuSections, phoneNavigation } from './navigation';
 // Строка вкладок (ADR-134): работа смены одним щелчком, группы только там, где экранов несколько
 it('organizes the menu by tasks: desk screens first, groups only for multi-screen areas', () => {
   expect(menuSections.map((s) => s.id)).toEqual([
-    // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
+    // «Главная» первой (ADR-180, 13.10.2026); дальше порядок #501
+    'today',
     'chessboard',
     'guests',
     'inventory',
@@ -44,10 +45,15 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
   expect(menuSections.find((s) => s.id === 'settings')?.items.at(-1)?.href).toBe('/platform');
 });
 it('phone bottom bar: the four leading tabs; a group tab opens its first item under the group name', () => {
-  expect(phoneNavigation.map((i) => i.href)).toEqual(['/chessboard', '/guests', '/inventory', '/finance']);
-  // Группы на панели зовутся именем группы, не первым пунктом (ADR-157): «Финансы» и «Продажи»
-  expect(phoneNavigation[0]!.label).toBe('Календарь');
-  expect(phoneNavigation[3]!.label).toBe('Финансы');
+  expect(phoneNavigation.map((i) => i.href)).toEqual([
+    '/today',
+    '/chessboard',
+    '/guests',
+    '/inventory',
+  ]);
+  // «Главная» первой (ADR-180); группы на панели зовутся именем группы (ADR-157)
+  expect(phoneNavigation[0]!.label).toBe('Главная');
+  expect(phoneNavigation[1]!.label).toBe('Календарь');
 });
 
 // «Гости и бронирования» (поручение владельца 09.10.2026): вместо вкладок «Брони» и «Гости» одна вкладка меню,

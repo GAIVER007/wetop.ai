@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 13.10.2026 17:48 Алматы · MacBook-Air-Urij.local
+# коммит 4335d2f (claude/ui42-chessboard-20261013), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ui42-visual.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/ui42-visual.spec.ts:39:1 › UI4.2: съёмка шахматки на ширинах и темах (19.2s)
+
+  1 passed (30.4s)
+
+# код выхода 0 · 33 с

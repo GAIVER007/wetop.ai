@@ -44,13 +44,13 @@ test('все разделы, карточки и печать открывают
     if (message.type() === 'error' && !devNoise.test(message.text())) errors.push(message.text());
   });
   const routes: Array<[string, string]> = [
-    ['/today', 'Обзор бизнеса'],
+    ['/today', 'Главная'],
     ['/chessboard', 'Календарь'],
     ['/guests?q=Тест', 'Гости'],
     ['/guests/ui-guest', 'Гость'],
     [`/reservations/${booking}`, `Бронь ${booking}`],
     ['/reservations/new?unit=M03', 'Новая бронь'],
-    ['/finance', 'Обзор бизнеса'],
+    ['/finance', 'Финансы'],
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
@@ -86,8 +86,6 @@ test('все разделы, карточки и печать открывают
   // Старые адреса — redirect(): у экрана загрузки «Настроек объекта» тот же заголовок, что у цели (ADR-115), поэтому
   // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
   const redirects: Record<string, RegExp> = {
-    // гостиничный /today слился с «Финансами» (plans/finance-home-merge-2026-10-09.md)
-    '/today': /\/finance$/,
     '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
     '/hotel-settings/penalties': /\/hotel-settings$/,
     '/management/dashboard': /\/management\/analytics$/,
@@ -630,7 +628,7 @@ test('обзор: очередь «Требуют внимания» ведёт 
 }) => {
   // компактный дашборд владельца (ea9dd3c): очередь A3 живёт за кнопкой «Требуют внимания» в панели,
   // полосы «День стойки» и «Сегодня на стойке» сняты тем же срезом; с 09.10 блоки живут в «Финансах»
-  await page.goto('/finance');
+  await page.goto('/today');
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const tasks = page.getByRole('dialog', { name: 'Требуют внимания', exact: true });
   const departureDebt = tasks.locator('[data-event="departure-debt"] .attention-item').first();
@@ -677,10 +675,10 @@ test('ошибка буфера обмена видна, код остаётся
 
 test('финансы: неверные даты можно исправить без падения страницы', async ({ page }) => {
   await page.goto('/finance?from=2026-09-30&to=2026-09-01');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Обзор бизнеса');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Финансы');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Проверьте даты');
   await expect(page.getByTestId('charged')).toHaveCount(0);
-  await page.locator('input[name="to"]').fill('2026-09-30');
+  await page.locator('#finance-filters input[name="to"]').fill('2026-09-30');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   // Во время перехода Next держит в DOM уходящую страницу: смотрим ту, что видит человек
   await expect(page.getByRole('main').getByTestId('cash-summary')).toBeVisible();
@@ -867,7 +865,7 @@ test('кнопки Channex отправляют команды один раз �
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   await page.goto('/connections');
   await page
     .getByTestId('integration-channex')
@@ -955,9 +953,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
   await page.goto('/finance');
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-    'Обзор бизнеса',
-  );
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Финансы');
   await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/debts' } });
   await page.goto('/finance');
@@ -1243,7 +1239,7 @@ test('деньги за период: период длиннее года об�
   await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше года');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('366');
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
-  await expect(page.locator('input[name="from"]')).toHaveValue('2020-01-01');
+  await expect(page.locator('#finance-filters input[name="from"]')).toHaveValue('2020-01-01');
   // отчёт не запрашивался: чисел за период на экране нет
   await expect(page.getByTestId('charged')).toHaveCount(0);
 });
@@ -1569,9 +1565,8 @@ test('финансы F1: период в подзаголовке, четыре 
 }) => {
   await page.goto('/finance?from=2026-09-01&to=2026-09-30');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('finance-period')).toHaveText(
-    'За период с 01.09.2026 по 30.09.2026',
-  );
+  // один контрол периода (ADR-180): подпись отрезка на кнопке
+  await expect(main.getByTestId('finance-period')).toContainText('1–30 сентября 2026');
   await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const kpis = main.getByTestId('finance-kpis');

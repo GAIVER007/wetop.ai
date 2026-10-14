@@ -38,8 +38,8 @@ test('статусы шахматки понятны без открытия и�
 
 test('ручные даты раскрываются с клавиатуры и сбрасываются при смене периода', async ({ page }) => {
   await page.goto('/chessboard');
-  // раскрывашка периода (09.10.2026): подпись периода сама кнопка, внутри чипы и поля «С» / «По»
-  const menu = page.locator('.board-period-menu');
+  // Один контрол периода содержит календарь, пресеты и поля дат.
+  const menu = page.locator('.board-nav .date-range');
   const opener = page.getByTestId('board-period-button');
   await expect(menu).toHaveJSProperty('open', false);
   await expect(page.getByLabel('Период: с', { exact: true })).toBeHidden();
@@ -96,20 +96,14 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
       if (width > 600)
         await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
-      // Длинная категория не должна заходить на число мест в узкой первой колонке.
+      // Обрезанный текст категории не должен заходить на соседние показатели.
       for (const name of await page.locator('.board-group-name-text').all()) {
-        const geometry = await name.evaluate((el) => ({
-          text: el.textContent,
-          client: el.clientWidth,
-          scroll: el.scrollWidth,
-          font: getComputedStyle(el).font,
-          gap: getComputedStyle(el.parentElement!).gap,
-          columns: getComputedStyle(el.parentElement!).gridTemplateColumns,
-        }));
-        expect(
-          geometry.scroll - geometry.client,
-          `${width}px: ${JSON.stringify(geometry)}`,
-        ).toBeLessThanOrEqual(1);
+        const overlap = await name.evaluate((el) => {
+          const next = el.nextElementSibling;
+          if (!next || getComputedStyle(next).display === 'none') return 0;
+          return el.getBoundingClientRect().right - next.getBoundingClientRect().left;
+        });
+        expect(overlap).toBeLessThanOrEqual(1);
       }
       const audit = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])

@@ -1,0 +1,16 @@
+# Модульные (unit) · 14.10.2026 11:55 Алматы · MacBook-Air-Urij.local
+# коммит 199c8f4 (claude/ui4-master-20261013), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T06-55-18Z-unit-e848.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract
+
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  10:55:21
+   Duration  733ms (import 90%, transform 8%, tests 1%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T06-55-18Z-unit-e848.json
+
+# код выхода 0 · 4 с

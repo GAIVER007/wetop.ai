@@ -40,7 +40,7 @@ it('несколько филиалов: тот, что человек выби�
   expect(decideScope(items, null, L1)).toEqual({
     kind: 'select',
     pointer: `business=${B1};location=${L1}`,
-    target: '/finance',
+    target: '/today',
   });
 });
 
@@ -52,7 +52,7 @@ it('запомненный филиал, которого нет в ответе
 });
 
 it('next чужого направления заменяется стартовой страницей направления', () => {
-  expect(decideScope([branch('HOSPITALITY')], '/calendar')).toMatchObject({ target: '/finance' });
+  expect(decideScope([branch('HOSPITALITY')], '/calendar')).toMatchObject({ target: '/today' });
   expect(decideScope([branch('FOOD_SERVICE')], '/chessboard')).toMatchObject({
     target: '/register/setup',
   });
@@ -82,7 +82,7 @@ it('next только безопасный локальный путь', () => {
   // небезопасная строка падает в общий «/today» (safeReturnPath), гостиницу оттуда уводит редирект в «Финансы»
   for (const next of ['//evil.invalid', 'https://evil.invalid/today', '/login', '/\\evil'])
     expect(decideScope([branch('HOSPITALITY')], next)).toMatchObject({ target: '/today' });
-  expect(decideScope([branch('HOSPITALITY')], null)).toMatchObject({ target: '/finance' });
+  expect(decideScope([branch('HOSPITALITY')], null)).toMatchObject({ target: '/today' });
 });
 
 it('устаревший указатель: кука есть, а /auth/me не подтвердил ни Business, ни филиал', () => {

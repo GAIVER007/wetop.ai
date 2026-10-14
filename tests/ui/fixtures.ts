@@ -228,6 +228,17 @@ export async function openBoardFilters(page: Page) {
   return pop;
 }
 
+/** Выбирает утверждённый пресет в едином контроле и применяет его к шахматке. */
+export async function chooseBoardPeriod(
+  page: Page,
+  preset: 'Сегодня' | '7 дней' | '14 дней' | '30 дней' | 'Текущий месяц',
+) {
+  await page.getByTestId('board-period-button').click();
+  const menu = page.locator('.board-nav .date-range');
+  await menu.getByRole('button', { name: preset, exact: true }).click();
+  await menu.getByRole('button', { name: 'Применить', exact: true }).click();
+}
+
 /** Выбрать категорию и/или состояние места в окошке «Фильтры» и применить */
 export async function boardFilter(page: Page, pick: { category?: string; state?: string }) {
   const pop = await openBoardFilters(page);

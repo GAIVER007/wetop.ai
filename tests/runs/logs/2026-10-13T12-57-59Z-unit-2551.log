@@ -1,0 +1,20 @@
+# Модульные (unit) · 13.10.2026 17:57 Алматы · MacBook-Air-Urij.local
+# коммит 4335d2f (claude/ui42-chessboard-20261013), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T12-57-59Z-unit-2551.json' 'scripts/design/build-tokens.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/design-scale.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract
+
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 16ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 316ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 302ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 9ms
+
+ Test Files  3 passed (3)
+      Tests  38 passed (38)
+   Start at  16:58:03
+   Duration  1.75s (transform 58%, import 29%, tests 12%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T12-57-59Z-unit-2551.json
+
+# код выхода 0 · 6 с

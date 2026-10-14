@@ -1,0 +1,19 @@
+# Модульные (unit) · 13.10.2026 23:57 Алматы · MacBook-Air-Urij.local
+# коммит dededa1 (claude/ui4-master-20261013)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T18-57-25Z-unit-a68d.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-scale.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/design-rules.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract
+
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 5ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 88ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 292ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 5ms
+
+ Test Files  4 passed (4)
+      Tests  55 passed (55)
+   Start at  22:57:27
+   Duration  536ms (tests 41%, import 40%, transform 18%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T18-57-25Z-unit-a68d.json
+
+# код выхода 0 · 2 с

@@ -40,13 +40,30 @@ export function JournalBoard({
   const columns = calendarColumns(day, employees);
   const [panel, setPanel] = useState<Panel>(null);
   const [chosen, setSelected] = useState(columns[0]?.id ?? '');
+  // отборы эталона владельца (13.10.2026): мастер в колонке слева, услуга и статус в строке над сеткой
+  const [master, setMaster] = useState('');
+  const [service, setService] = useState('');
+  const [status, setStatus] = useState('');
   const selected = columns.some((column) => column.id === chosen) ? chosen : (columns[0]?.id ?? '');
   const router = useRouter();
   const from = Math.floor(day.bounds.fromMinutes / STEP) * STEP;
   const to = Math.ceil(day.bounds.toMinutes / STEP) * STEP;
   const slots = Array.from({ length: (to - from) / STEP }, (_, i) => from + i * STEP);
   const height = (to - from) * PX_PER_MIN;
-  const live = day.appointments.filter((a) => a.status !== 'CANCELLED');
+  const live = day.appointments.filter(
+    (a) =>
+      a.status !== 'CANCELLED' &&
+      (!service || a.serviceId === service) &&
+      (!status || a.status === status),
+  );
+  const shown = master ? columns.filter((c) => c.id === master) : columns;
+  const initials = (name: string) =>
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(-2)
+      .map((w) => w.charAt(0).toUpperCase())
+      .join('');
   const done = () => {
     setPanel(null);
     router.refresh();
@@ -143,6 +160,38 @@ export function JournalBoard({
   return (
     <>
       <div className="beauty-bar">
+        <div className="beauty-filters">
+          <Select
+            aria-label="Мастер"
+            value={master}
+            onChange={(e) => setMaster(e.target.value)}
+          >
+            <option value="">Все мастера</option>
+            {columns.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
+          <Select aria-label="Услуга" value={service} onChange={(e) => setService(e.target.value)}>
+            <option value="">Все услуги</option>
+            {day.services.map((sv) => (
+              <option key={sv.id} value={sv.id}>
+                {sv.name}
+              </option>
+            ))}
+          </Select>
+          <Select aria-label="Статус записи" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="">Все статусы</option>
+            {Object.entries(beautyStatus)
+              .filter(([key]) => key !== 'CANCELLED')
+              .map(([key, st]) => (
+                <option key={key} value={key}>
+                  {st.label}
+                </option>
+              ))}
+          </Select>
+        </div>
         <DateBar date={day.date} path="/calendar" />
         <Button
           disabled={readOnly || !day.columns.length || !day.services.length}
@@ -163,7 +212,46 @@ export function JournalBoard({
           {!columns.length && <Link href="/employees">Добавить мастера</Link>}
         </p>
       )}
-      <>
+      <div className="beauty-layout">
+        {!!columns.length && (
+          <aside className="beauty-masters" aria-label="Мастера">
+            <h2 className="beauty-masters__title">Мастера</h2>
+            <ul>
+              <li>
+                <button type="button" aria-pressed={!master} onClick={() => setMaster('')}>
+                  <span className="beauty-avatar beauty-avatar--all" aria-hidden="true">
+                    {columns.length}
+                  </span>
+                  <span>
+                    Все мастера <small>({columns.length})</small>
+                  </span>
+                </button>
+              </li>
+              {columns.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    aria-pressed={master === c.id}
+                    onClick={() => setMaster(master === c.id ? '' : c.id)}
+                  >
+                    <span className="beauty-avatar" aria-hidden="true">
+                      {initials(c.name)}
+                    </span>
+                    <span>
+                      {c.name}
+                      <small>
+                        {c.timeOff
+                          ? c.timeOffReason || 'Отсутствие'
+                          : c.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') || 'Выходной'}
+                      </small>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )}
+        <div className="beauty-board">
         <div
           className="beauty-grid-day"
           data-testid="beauty-grid"
@@ -171,12 +259,12 @@ export function JournalBoard({
           aria-label="Расписание дня"
           tabIndex={0}
           style={{
-            gridTemplateColumns: `56px repeat(${Math.max(1, columns.length)}, minmax(180px, 1fr))`,
+            gridTemplateColumns: `56px repeat(${Math.max(1, shown.length)}, minmax(180px, 1fr))`,
           }}
         >
           <div aria-hidden="true" />
           {!columns.length && <h2 className="beauty-col-head">Расписание дня</h2>}
-          {columns.map((e) => (
+          {shown.map((e) => (
             <h2 key={e.id} className="beauty-col-head">
               {e.name}
               <small>
@@ -192,7 +280,7 @@ export function JournalBoard({
           ))}
           {hours}
           {!columns.length && emptyTimeline}
-          {columns.map((e) => (
+          {shown.map((e) => (
             <div key={e.id}>{column(e)}</div>
           ))}
         </div>
@@ -231,7 +319,19 @@ export function JournalBoard({
               </div>
             ))}
         </div>
-      </>
+        </div>
+      </div>
+      <ul className="beauty-legend" aria-label="Статусы записей">
+        <li className="beauty-legend__title" aria-hidden="true">
+          Легенда:
+        </li>
+        {Object.entries(beautyStatus).map(([key, st]) => (
+          <li key={key}>
+            <span className={`beauty-legend__dot beauty-tile--${key.toLowerCase()}`} aria-hidden="true" />
+            {st.label}
+          </li>
+        ))}
+      </ul>
       <Overlay
         open={panel !== null}
         onClose={() => setPanel(null)}

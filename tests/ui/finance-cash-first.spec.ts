@@ -13,9 +13,7 @@ test('касса: простой вход, фильтры применяются
   request,
 }) => {
   await page.goto('/finance');
-  await expect(
-    page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 })).toBeVisible();
   await expect(page.getByTestId('cash-summary')).toBeVisible();
   await expect(page.getByTestId('finance-operations')).not.toBeVisible();
   await expect(page.getByTestId('finance-kpis')).not.toBeVisible();
@@ -125,7 +123,7 @@ test('касса: визуальная иерархия итогов и спок
   const expense = await page.getByTestId('cash-period-expense').boundingBox();
   expect(Math.abs(expense!.y - income!.y)).toBeLessThanOrEqual(1);
   expect(expense!.x).toBeGreaterThan(income!.x);
-  await expect(page.getByTestId('finance-period')).toContainText('→');
+  await expect(page.getByTestId('finance-period')).toContainText(/\d+–\d+ [а-яё]+ \d{4}/);
   expect(
     await page.getByTestId('cash-summary').evaluate((el) => getComputedStyle(el).backgroundColor),
   ).not.toBe('rgba(0, 0, 0, 0)');

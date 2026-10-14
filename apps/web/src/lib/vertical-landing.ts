@@ -1,10 +1,10 @@
 export type WebVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
 /**
- * Стартовый экран направления: салон и ресторан видят «Сегодня» (MV8); гостиница с 09.10.2026 живёт
- * одним разделом «Финансы» (plans/finance-home-merge-2026-10-09.md), `/today` ведёт туда редиректом.
+ * Стартовый экран направления: салон и ресторан видят «Сегодня» (MV8), гостиница свою «Главную» на том же
+ * `/today` (с 13.10.2026 снова отдельно от «Финансов», решение владельца поверх ADR-152).
  */
 const LANDING: Record<WebVertical, string> = {
-  HOSPITALITY: '/finance',
+  HOSPITALITY: '/today',
   BEAUTY: '/today',
   FOOD_SERVICE: '/today',
 };

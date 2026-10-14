@@ -14,6 +14,7 @@ import {
   Table,
 } from '../../components/ui';
 import { IconField } from '../../components/icon-field';
+import { Icon } from '../../components/icon';
 import { Segmented } from '../../components/segmented';
 import { Tabs } from '../../components/tabs';
 import { pluralRu } from '../../lib/plural';
@@ -269,9 +270,17 @@ export function WorkspaceBoard({
                   aria-pressed={area === a.id}
                   onClick={() => setArea(a.id)}
                 >
-                  <span>{a.name}</span>
-                  <span className="rest-fp__count">
-                    {a.id ? activeTables.filter((t) => t.areaId === a.id).length : activeTables.length}
+                  <span className="rest-fp__zone-icon" aria-hidden="true">
+                    <Icon name={a.id ? 'board' : 'inventory'} width={18} height={18} />
+                  </span>
+                  <span className="rest-fp__zone-text">
+                    {a.name}
+                    <small>
+                      {pluralRu(
+                        a.id ? activeTables.filter((t) => t.areaId === a.id).length : activeTables.length,
+                        ['стол', 'стола', 'столов'],
+                      )}
+                    </small>
                   </span>
                 </button>
               ))}

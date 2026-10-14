@@ -14,7 +14,7 @@ import {
   type ReactNode,
 } from 'react';
 import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../lib/api';
-import { Alert, Button, EmptyState, Input, cx } from '../../components/ui';
+import { Alert, Button, EmptyState, Input, Select, cx } from '../../components/ui';
 import { messengerLinks } from '../../lib/format';
 import { guestNames, isGuestPseudonym, sourceBadge, stayLabels } from './stay-labels';
 import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
@@ -1009,6 +1009,8 @@ export function ChessboardGrid({
   const dayWidth = board.dates.length > 14 ? 72 : 104;
   return (
     <>
+      {/* эталон 13.10.2026 (UI4.2): плитки дня над полосой фильтров */}
+      <Fragment key="kpis">{kpis}</Fragment>
       <div className="board-toolbar">
         {/* блоки с сервера кладём под ключ: без него React в разработке ругается на безключевых соседей */}
         <Fragment key="lead">{lead}</Fragment>
@@ -1017,7 +1019,7 @@ export function ChessboardGrid({
           <Input
             type="search"
             aria-label="Поиск в календаре"
-            placeholder="Гость, телефон, бронь, номер, койка"
+            placeholder="Гость, телефон, бронь, номер"
             // Ctrl/Cmd+K шапки ставит курсор сюда, а не в общий поиск (§40)
             data-page-search=""
             value={query}
@@ -1031,6 +1033,33 @@ export function ChessboardGrid({
             }}
           />
         </label>
+        {/* Эталон 13.10.2026: категория и статус места выбором прямо в полосе; остальное в «Фильтрах» */}
+        <Select
+          className="board-quick"
+          aria-label="Категория"
+          value={filters.category}
+          onChange={(e) => patchFilters({ category: e.target.value })}
+        >
+          <option value="">Все категории</option>
+          {allGroups.map((g) => (
+            <option key={g.code} value={g.code}>
+              {g.name}
+            </option>
+          ))}
+        </Select>
+        <Select
+          className="board-quick"
+          aria-label="Статус места"
+          title={stateLabel}
+          value={filters.state}
+          onChange={(e) => patchFilters({ state: e.target.value as UnitState })}
+        >
+          {stateOptions.map(([value, label]) => (
+            <option key={value} value={value}>
+              {value === 'all' ? 'Все статусы' : label}
+            </option>
+          ))}
+        </Select>
         <button
           ref={filtersButton}
           type="button"
@@ -1081,7 +1110,6 @@ export function ChessboardGrid({
           )}
         </div>
       </div>
-      <Fragment key="kpis">{kpis}</Fragment>
       {filtersAnchor && (
         <BoardFiltersPopover
           anchor={filtersAnchor}
@@ -1150,7 +1178,7 @@ export function ChessboardGrid({
                     ? 'var(--month-unit-width)'
                     : fitWeek
                       ? 'var(--week-unit-width)'
-                      : 190,
+                      : 'var(--board-unit-col, 190px)',
                 }}
               />
               {board.dates.map((date) => (
@@ -1161,6 +1189,9 @@ export function ChessboardGrid({
               <tr>
                 <th className="board__unit-head">
                   Номера и койки{' '}
+                  <span className="board-unit-head__status" aria-hidden="true">
+                    Статус
+                  </span>
                   <div className="board-overview-controls">
                     <button
                       type="button"
@@ -1197,8 +1228,11 @@ export function ChessboardGrid({
                     className={cx(d === today && 'is-today', isWeekend(d) && 'is-we')}
                   >
                     <div className="board-day-date">
-                      <div className="board__d">{d.slice(8)}</div>
                       <div className="board__wd">{weekday(d)}</div>
+                      <div className="board__dm">
+                        <span className="board__d">{d.slice(8)}</span>{' '}
+                        <span className="board__m">{monthShort(d)}</span>
+                      </div>
                     </div>
                   </th>
                 ))}
@@ -1301,6 +1335,14 @@ export function ChessboardGrid({
                                 status={row.unit.housekeepingStatus}
                               />
                             )}
+                            {/* Статус места словом на день сетки (эталон 13.10.2026, колонка «Статус») */}
+                            <span
+                              className="board-unit-state"
+                              data-testid="unit-state"
+                              data-state={unitState(row, loadDate).state}
+                            >
+                              {unitState(row, loadDate).label}
+                            </span>
                             {/* Точка состояния места справа, как на образце владельца (09.10.2026) */}
                             <span
                               className="board-unit-dot"
@@ -1816,6 +1858,19 @@ function MoveBody({ question: q }: { question: MoveQuestion }) {
  * Состояние места на дату сверки: закрыто (ремонт или другое), требует уборки, убрано и ждёт проверки,
  * иначе проверено и доступно. Только показ уже загруженных данных: правил тут нет.
  */
+/**
+ * Занятость места на день сетки словом (эталон владельца 13.10.2026): свободно, занято (живут),
+ * заезд сегодня, бронь, блок. Только из ячейки доски, правил брони не знает.
+ */
+function unitState(row: ChessboardRow, date: string): { state: string; label: string } {
+  const cell = row.cells.find((c) => c.date === date);
+  if (!cell || cell.state === 'FREE') return { state: 'free', label: 'Свободно' };
+  if (cell.state === 'BLOCKED') return { state: 'blocked', label: blockTypeLabel(cell.blockType) };
+  if (cell.itemStatus === 'CHECKED_IN') return { state: 'living', label: 'Занято' };
+  if (cell.isArrival) return { state: 'arrival', label: 'Заезд сегодня' };
+  return { state: 'booked', label: 'Бронь' };
+}
+
 function unitDot(row: ChessboardRow, date: string): { state: string; title: string } {
   const cell = row.cells.find((c) => c.date === date);
   if (cell?.state === 'BLOCKED')
@@ -1863,6 +1918,8 @@ function groupByCategory(rows: ChessboardRow[]) {
   return order.map((c) => byCode.get(c)!);
 }
 
+/** «13 окт» в шапке дня: та же короткая форма месяца, что на плашках (MONTHS_SHORT ниже) */
+const monthShort = (d: string) => MONTHS_SHORT[Number(d.slice(5, 7)) - 1] ?? '';
 const weekday = (d: string) =>
   ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(`${d}T00:00:00Z`).getUTCDay()];
 const isWeekend = (d: string) => {

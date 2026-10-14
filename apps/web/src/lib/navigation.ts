@@ -160,7 +160,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'desk',
         label: 'Сегодня',
         icon: 'today',
-        description: 'Рабочий экран дня салона и ресторана; гостиницу ведёт в «Финансы».',
+        description: 'Главная: загрузка, события дня и задачи объекта; у салона и ресторана их рабочий день.',
       },
       {
         href: '/chessboard',
@@ -253,7 +253,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'reports',
         label: 'Финансы',
         icon: 'money',
-        description: 'Касса и день объекта: загрузка, поступления, расходы, операции и отчёты.',
+        description: 'Доходы, поступления, расходы, прибыль, операции, касса и отчёты.',
       },
       {
         href: '/bar',
@@ -492,6 +492,8 @@ function direct(
 // Порядок гостиничного меню утверждён владельцем 13.10.2026: календарь, гости, фонд,
 // финансы, продажи, маркетинг, отчёты и настройки. Адреса и права сохраняются.
 export const menuSections: MenuSection[] = [
+  // «Главная» первой (решение владельца 13.10.2026, ADR-180); дальше порядок #501
+  direct('today', '/today', 'today', 'Главная'),
   // задачи смены открываются из панели «Сегодня» календаря (ADR-145): раздел тот же
   direct('chessboard', '/chessboard', 'board', undefined, ['/tasks']),
   // Одна вкладка вместо «Брони» и «Гости» (поручение владельца 09.10.2026): экран `/guests` по макету; список

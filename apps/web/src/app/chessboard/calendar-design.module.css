@@ -241,7 +241,7 @@
   overflow-wrap: anywhere;
   pointer-events: none;
 }
-.bookingTooltip strong { font-size: var(--text-base); }
+.bookingTooltip strong { font-size: var(--text-lg); }
 .caption :global(.board-stay-source) { flex-shrink: 0; }
 
 .bookingTooltip[data-below] { transform: translateY(var(--space-2)); }

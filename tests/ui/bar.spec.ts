@@ -53,13 +53,15 @@ test('обзор как на макете: шапка, семь плиток, п
   await expect(cola).toContainText('В норме');
   await expect(board.locator('tbody tr', { hasText: "Чипсы Lay's 90г" })).toContainText('Нет в наличии');
   await expect(board.locator('tbody tr', { hasText: 'Red Bull 0.25' })).toContainText('Заканчивается');
-  // карточка первого товара открыта справа сразу, как на макете
+  // Карточка открывается по выбору товара, первый экран остаётся компактным.
+  await board.getByRole('button', {name:'Coca-Cola 0.5',exact:true}).click();
   const card = m.getByRole('complementary', { name: 'Карточка товара Coca-Cola 0.5' });
   await expect(card).toBeVisible();
   await expect(card.getByRole('tab', { name: 'Информация' })).toHaveAttribute('aria-selected', 'true');
   await expect(card.getByLabel('Поставщик')).toHaveValue('FoodMaster');
   await expect(card.getByLabel('Артикул (SKU)')).toHaveValue('CC-050');
-  // нижний ряд
+  // Дополнительные сведения доступны по раскрытию.
+  await m.getByText('Приходы и популярные товары',{exact:true}).click();
   const receipts = m.getByRole('region', { name: 'Последние приходы поставщиков' });
   await expect(receipts.locator('tbody tr')).toHaveCount(4);
   await expect(receipts.locator('tbody tr', { hasText: 'П-000122' })).toContainText('Не оплачен');
@@ -75,7 +77,7 @@ test('быстрая продажа одной строкой и фильтры 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
-  const sale = m.locator('#bar-quick-sale');
+  const sale = m.locator('#bar-quick-sale').getByRole('tabpanel',{name:'Продажа напрямую',exact:true});
   await expect(sale.getByLabel('Количество, шт.')).toHaveValue('1');
   await sale.getByLabel('Товар').selectOption({ index: 1 });
   await sale.getByRole('button', { name: 'Продать' }).click();

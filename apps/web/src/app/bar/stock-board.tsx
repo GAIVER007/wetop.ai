@@ -337,16 +337,19 @@ function NewProductCard({ categories, onClose }: { categories: BarCategoryRow[];
             </Select>
           </CardField>
           <CardField label="Артикул (SKU)" htmlFor={id('code')}><Input id={id('code')} name="code" value={code} onChange={(event) => { setCode(event.target.value); setCodeTouched(true); }} required /></CardField>
-          <CardField label="Штрихкод" htmlFor={id('barcode')}><Input id={id('barcode')} name="barcode" inputMode="numeric" /></CardField>
+
           <CardField label="Цена продажи" htmlFor={id('price')}><Affix suffix="₸"><Input id={id('price')} name="salePrice" inputMode="decimal" required /></Affix></CardField>
+        </div>
+        <details className="bar-details"><summary>Дополнительные параметры</summary><div className="bar-card-grid">
+          <CardField label="Штрихкод" htmlFor={id('barcode')}><Input id={id('barcode')} name="barcode" inputMode="numeric" /></CardField>
           <CardField label="Наценка" htmlFor={id('markup')}><Affix suffix="%"><Input id={id('markup')} name="markup" inputMode="decimal" placeholder="из категории" /></Affix></CardField>
           <CardField label="Мин. остаток" htmlFor={id('min')}><Input id={id('min')} name="minimumStockUnits" inputMode="numeric" defaultValue="0" required /></CardField>
           <CardField label="Штук в упаковке" htmlFor={id('units')}><Input id={id('units')} name="unitsPerPackage" inputMode="numeric" defaultValue="1" required /></CardField>
-        </div>
+        </div></details>
         <p className="bar-muted">Остаток появится с первым приходом: «Приход» в шапке или фото накладной.</p>
         {state.error && <p role="alert" className="bar-error">{state.error}</p>}
         {state.message && <p role="status" className="bar-success">{state.message}</p>}
-        <Button type="submit" className="bar-card-save" disabled={pending}>{pending ? 'Сохраняю…' : 'Сохранить'}</Button>
+        <div className="bar-form-actions"><Button type="button" tone="secondary" onClick={onClose}>Отмена</Button><Button type="submit" className="bar-card-save" disabled={pending}>{pending ? 'Сохраняю…' : 'Сохранить'}</Button></div>
       </form>
     </>
   );

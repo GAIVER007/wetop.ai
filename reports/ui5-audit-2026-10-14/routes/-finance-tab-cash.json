@@ -2,7 +2,7 @@
  "/finance?tab=cash": {
   "390": {
    "overflowX": 0,
-   "minFont": 12,
+   "minFont": 13,
    "h1": "Финансы",
    "mainEmpty": false,
    "smallTargets": [
@@ -16,20 +16,20 @@
     "A:20260913-TEST7 110x20",
     "A:Все расходы 102x20",
     "A:Подробнее 78x21",
-    "A:80 000 ₸ к сбору — 5 броней 175x18",
-    "A:1 бронь с просроченным долгом  312x36"
+    "A:80 000 ₸ к сбору — 5 броней 190x20",
+    "A:1 бронь с просроченным долгом  312x39"
    ]
   },
   "768": {
    "overflowX": 0,
-   "minFont": 12,
+   "minFont": 13,
    "h1": "Финансы",
    "mainEmpty": false,
    "smallTargets": []
   },
   "1440": {
    "overflowX": 0,
-   "minFont": 12,
+   "minFont": 13,
    "h1": "Финансы",
    "mainEmpty": false,
    "smallTargets": []

@@ -1,0 +1,9 @@
+{
+ "/today → Все задачи": {
+  "opener": true,
+  "name": "Требуют внимания",
+  "closeButton": true,
+  "escapeCloses": true,
+  "focusReturned": true
+ }
+}

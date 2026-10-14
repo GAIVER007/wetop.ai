@@ -1511,15 +1511,6 @@ body:has(.org-reference) .topmenu {
   color: var(--primary);
   background: var(--surface);
 }
-/* телефон: контролы месяца и «Архив» — цель касания 44 px (аудит UI5) */
-@media (max-width: 600px) {
-  .org-month a,
-  .org-month button,
-  .org-archive-open {
-    min-height: var(--touch-target);
-  }
-}
-
 .org-month svg {
   width: 16px;
   height: 16px;
@@ -2080,5 +2071,16 @@ body:has(.org-reference) .topmenu {
     bottom: 0;
     background: var(--surface);
     padding-block: var(--space-2);
+  }
+}
+
+/* телефон: контролы месяца и «Архив» — цель касания 44 px; хвостом файла, позже правила ~1742 (аудит UI5) */
+@media (max-width: 600px) {
+  .org-month a,
+  .org-month button,
+  .org-month input,
+  .org-archive-open {
+    height: auto;
+    min-height: var(--touch-target);
   }
 }

@@ -28,12 +28,8 @@
    "mainEmpty": false,
    "smallTargets": []
   },
-  "axe-light": [
-   "link-in-text-block×4"
-  ],
-  "axe-dark": [
-   "link-in-text-block×4"
-  ],
+  "axe-light": [],
+  "axe-dark": [],
   "console": []
  }
 }

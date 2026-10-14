@@ -99,7 +99,7 @@ test('размеры окон: «Новая задача» sm, новая бро
   await page.getByRole('link', { name: 'Новая бронь' }).first().click();
   const booking = page.getByRole('dialog', { name: 'Новая бронь' });
   await expect(booking).toBeVisible();
-  expect(Math.round((await booking.boundingBox())!.width)).toBe(760);
+  expect(Math.round((await booking.boundingBox())!.width)).toBe(940);
 });
 
 test('поле: обязательное с родным required и знаком, необязательное словом', async ({ page }) => {

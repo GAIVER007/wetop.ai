@@ -23,7 +23,7 @@
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .motion :global(.verticals__card:hover),
   .motion :global(.blog-card:hover) {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     border-color: var(--public-accent);
   }
   .motion :global(.btn:hover) {

@@ -910,9 +910,12 @@
 }
 
 @layer sections {
-  .bar-page .bar-kpi { grid-template-columns: minmax(0,1fr); }
+  .bar-page .bar-kpi { grid-template-columns: minmax(0,1fr); align-content: start; }
+  .bar-page .bar-kpi-body, .bar-page .bar-kpi-hint { grid-column: 1; }
+  .bar-page .bar-kpi-body { grid-row: 1; }
+  .bar-page .bar-kpi-hint { grid-row: 2; line-height: 1.4; }
   .bar-page .bar-kpi-icon { display: none; }
-  .bar-page .bar-kpi-label { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+  .bar-page .bar-kpi-label { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: normal; line-height: 1.4; }
   .bar-page .bar-kpi-value { font-size: var(--text-lg); }
   .bar-sales .bar-select-search { min-width: 0; }
 }

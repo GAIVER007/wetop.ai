@@ -121,3 +121,5 @@ New owner request: investigate the merge error and put remaining work in order. 
 
 - Canonical Linux workflow38512475820 succeeded on a38f29d51, snapshot branchci/ui-snapshots-25 (053620f8). Reviewed visual samples for buttons, action menu, dark tokens, form grid, table and toasts; checked all23 image dimensions (same or1px rounding difference). State structure, colours and component implementation remain intact. Accepted canonical clean references without changing comparison tolerances.
 - Full local unit2026-10-14T04-39-49Z-unit-c53f is NOT green:4741 passed,1 socket hang up in the AI-seller disconnected-catalogue test,4 existing skips. The unchanged AI-seller file passed isolated74/74 in2026-10-14T04-43-04Z-unit-5b62. This does not promote the failed full run to green.
+
+- Final full local unit2026-10-14T04-43-46Z-unit-ede1:4742 passed,4 existing skips,0 failures (492 passed files,1 skipped). No AI-seller test or product changes were required. Production deployed marker remains6d8b6d8; API/web bothhealthy, verified via the existing hostinger SSH profile.

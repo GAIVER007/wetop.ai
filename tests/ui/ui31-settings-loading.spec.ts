@@ -9,7 +9,7 @@ test('UI3.1: переход в настройки показывает загр�
   try {
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
     const panel = page.locator('.sidenav__panel');
-    await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
+    await panel.getByRole('button', { name: 'Настройки', exact: true }).click();
     await panel.getByRole('link', { name: 'Объект', exact: true }).click();
     await expect(page.getByTestId('settings-loading')).toBeVisible();
     await expect(page).toHaveURL(/\/hotel-settings$/);

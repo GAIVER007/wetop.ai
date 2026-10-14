@@ -16,8 +16,8 @@ test('касса: простой вход, фильтры применяются
   await expect(page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 })).toBeVisible();
   await expect(page.getByTestId('cash-summary')).toBeVisible();
   await expect(page.getByTestId('finance-operations')).not.toBeVisible();
-  await expect(page.getByTestId('finance-kpis')).not.toBeVisible();
-  await expect(page.getByTestId('finance-attention')).not.toBeVisible();
+  await expect(page.getByTestId('finance-kpis')).toBeVisible();
+  await expect(page.getByTestId('finance-attention')).toBeVisible();
   const params = new URLSearchParams(
     await page
       .getByTestId('period-form')
@@ -59,7 +59,7 @@ test('касса: простой вход, фильтры применяются
   await expect(page.getByLabel('Тип операции', { exact: true })).toHaveValue('');
   await expect(page.getByLabel('Способ оплаты', { exact: true })).toHaveValue('');
   await expect(page.getByLabel('Источник', { exact: true })).toHaveValue('');
-  await page.getByRole('tab', { name: 'Начисления', exact: true }).click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(page.getByTestId('finance-kpis')).toBeVisible();
 });
 
@@ -101,7 +101,7 @@ test('касса: первый экран без лишних кнопок, де
   await page.getByRole('tab',{name:'Операции',exact:true}).click();
   await expect(page.getByRole('link', { name: 'Вчера', exact: true })).toBeVisible();
   const todayHref = await page
-    .getByRole('navigation', { name: 'Период обзора' })
+    .getByRole('navigation', { name: 'Готовые периоды' })
     .getByRole('link', { name: 'Сегодня', exact: true })
     .getAttribute('href');
   const today = new URL(todayHref!, 'http://localhost').searchParams.get('from')!;

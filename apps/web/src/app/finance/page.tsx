@@ -538,6 +538,7 @@ export default async function FinanceReportPage({
                   <SectionTitle first>По видам начислений</SectionTitle>
                   <MoneyTable
                     testId="charges-table"
+                    label="Начисления по видам"
                     head={['Вид', 'Штук', 'Сумма']}
                     cur={cur}
                     rows={KINDS.map(([kind, label]) => {
@@ -556,6 +557,7 @@ export default async function FinanceReportPage({
                     <summary>Проживание по категориям</summary>
                     <MoneyTable
                       testId="category-table"
+                      label="Проживание по категориям"
                       head={['Категория', 'Проживаний', 'Сумма']}
                       cur={cur}
                       empty="Начислений за проживание за период нет"
@@ -571,6 +573,7 @@ export default async function FinanceReportPage({
                   <SectionTitle first>Оплаты по способам</SectionTitle>
                   <MoneyTable
                     testId="payments-table"
+                    label="Оплаты по способам"
                     head={['Способ', 'Операций', 'Сумма']}
                     cur={cur}
                     empty="Оплат за период нет"
@@ -1188,6 +1191,7 @@ function Operations({
 
 function MoneyTable({
   head,
+  label,
   rows,
   cur,
   testId,
@@ -1195,6 +1199,7 @@ function MoneyTable({
   total,
 }: {
   head: [string, string, string];
+  label: string;
   rows: Array<{ label: string; count: number; amountMinor: string; href?: string }>;
   cur: string;
   testId: string;
@@ -1203,7 +1208,7 @@ function MoneyTable({
   total?: string | undefined;
 }) {
   return (
-    <Table size="sm" data-testid={testId}>
+    <Table size="sm" data-testid={testId} aria-label={label}>
       <thead>
         <tr>
           {head.map((h, i) => (

@@ -1,0 +1,42 @@
+# Сквозные (e2e) · 15.10.2026 00:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a9aa68 (codex/release-gate-market-20261014), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/market.spec.ts' 'tests/ui/bar-reference.spec.ts' '--grep' 'форма конкурента|clear KPI|direct sale visible' '--workers=1'
+[WebServer] (node:73252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:73795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:73822) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75631) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1634ms. If /private/tmp/wetop-release-gate-market-20261014/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+(node:76924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 light (11.7s)
+  ✓   2 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 dark (4.1s)
+  ✓   3 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 light (5.3s)
+  ✓   4 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 dark (3.5s)
+  ✓   5 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 light (10.8s)
+  ✓   6 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 dark (5.4s)
+  ✓   7 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 1333 (10.8s)
+  ✓   8 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 390 (4.7s)
+  ✓   9 tests/ui/market.spec.ts:356:3 › форма конкурента: подписи слева и детали свёрнуты (390) (4.7s)
+  ✓  10 tests/ui/market.spec.ts:356:3 › форма конкурента: подписи слева и детали свёрнуты (1440) (5.2s)
+
+  10 passed (1.5m)
+
+# код выхода 0 · 1 мин 37 с

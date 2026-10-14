@@ -1917,6 +1917,7 @@ body:has(.org-reference) .topmenu {
 
 @media (min-width: 601px) {
   .org-cards:has(> .org-card:only-child) {
+    justify-content: center;
     align-items: start;
     align-content: start;
   }

@@ -5339,13 +5339,23 @@ function fixtureCards(items: Array<Record<string, unknown>>) {
         updatedAt: new Date().toISOString(),
       });
   }
-  return [...fixtureBusinessCards.values()].map((card) => ({
-    ...card,
-    coverUrl: null,
-    hasCover: false,
-    canEdit: uiRole === 'OWNER',
-    canUpload: false,
-  }));
+  return [...fixtureBusinessCards.values()]
+    .filter((card) => {
+      const locations = items.filter(
+        (item) => (item.location as { businessId: string }).businessId === card.id,
+      );
+      return (
+        !locations.length ||
+        locations.some((item) => !fixtureArchivedLocations.has(String(item.locationId)))
+      );
+    })
+    .map((card) => ({
+      ...card,
+      coverUrl: null,
+      hasCover: false,
+      canEdit: uiRole === 'OWNER',
+      canUpload: false,
+    }));
 }
 
 /**

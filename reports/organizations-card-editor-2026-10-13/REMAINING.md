@@ -174,3 +174,14 @@ Updated only six test files: keep every queue count/severity/link assertion, rea
 - Initial synthetic UI2026-10-14T10-07-53Z-e2e-18a0:19/20. Mobile nav uses the existing TopNav dialog, not hidden desktop SideNav; final UX2026-10-14T10-13-35Z-e2e-ed02:6/6, codeChangedDuringRun=false.
 - Real local PostgreSQL55613, pmslocal/pms_test with synthetic seed. Production build succeeded. First DB run10-17-24Z-e2e-6a65 reached booking/queue/analytics, then failed because both old lower and new upper money-period forms matched. Scoped period values to the top page-actions control.
 - Final real DB E2E10-21-07Z-e2e-563c:3/3 including schema guard and authenticated setup; codeChangedDuringRun=false. No external workers or production writes. Types10-23-16Z-typecheck-b56a passed and targeted ESLint passed. Generated Next declarations restored to tracked state, not published.
+
+## Final active-card cleanup
+
+PR507 was closed as a duplicate after parallel PR506 entered main6b03be47. Our already-red925085f4 run38543956284 was cancelled; no foreign run cancelled. Main6b03be47 failed only the orphan guard after removing a duplicate calendar item. Reproduced10-56-12Z-unit-6bd4; deletion gives33/33 in10-57-34Z-unit-0baf. The same cleanup was already included in upstream404c4296/5023b8df, so no duplicate deletion published. Integrated upstream changes preserving their tests and source.
+
+Active-card cleanup uses the existing Location ACTIVE/ARCHIVED states in a read-only query. It does not archive/delete businesses or change any financial calculation. New projects with no locations remain visible. A branch restore makes the same card visible again.
+
+- Red real PostgreSQL regression11-24-17Z-integration-f9f4:1 failed/5 passed; all-archived business wrongly visible.
+- Green11-29-24Z-integration-b74b:6/6; both location rows and ACTIVE business preserved, empty new project shown, mixed/restore cases shown, cross-tenant/metadata/audit/cover cases preserved.
+- UI11-34-19Z-e2e-e31a:4/4 with persisted metadata, archive disappearing card, restore/reload and a separate second brand. Strict900px desktop and no horizontal overflow preserved.
+- Unit11-35-35Z-unit-f122:41/41. Types11-35-40Z-typecheck-3f2e and targeted ESLint passed. No new migrations.

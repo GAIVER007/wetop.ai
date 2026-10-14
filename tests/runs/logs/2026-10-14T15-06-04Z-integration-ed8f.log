@@ -1,0 +1,100 @@
+# Интеграционные (integration) · 14.10.2026 20:06 Алматы · MacBook-Air-Urij.local
+# коммит ecd2127 (claude/food-fix-02-20261014), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T15-06-04Z-integration-ed8f.json' 'tests/integration/food-fix-02-revenue.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02
+
+ ❯ |integration| tests/integration/food-fix-02-revenue.test.ts (4 tests | 4 failed) 460ms
+   ❯ выручка бара в отчётах (ADR-182), настоящая PostgreSQL (4)
+     × отчёт периода: выручка заказов и бара раздельно, каждый филиал видит своё 94ms
+     × границы дня по поясу филиала: 23:59 в день 13, 00:01 в день 14 18ms
+     × сторно исключает продажу бара из выручки задним числом 12ms
+     × сводка организации: поступления ресторана = оплаты заказов + бар, без ручных приходов и сторно 31ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/food-fix-02-revenue.test.ts > выручка бара в отчётах (ADR-182), настоящая PostgreSQL > отчёт периода: выручка заказов и бара раздельно, каждый филиал видит своё
+AssertionError: expected [ '100000', undefined ] to deeply equal [ '100000', '20000' ]
+
+- Expected
++ Received
+
+  [
+    "100000",
+-   "20000",
++   undefined,
+  ]
+
+ ❯ tests/integration/food-fix-02-revenue.test.ts:137:49
+    135|     const a = await period(location1, '2026-09-01', '2026-09-30');
+    136|     const b = await period(location2, '2026-09-01', '2026-09-30');
+    137|     expect([a.revenueMinor, a.barRevenueMinor]).toEqual(['100000', '20…
+       |                                                 ^
+    138|     expect([b.revenueMinor, b.barRevenueMinor]).toEqual(['50000', '300…
+    139|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/food-fix-02-revenue.test.ts > выручка бара в отчётах (ADR-182), настоящая PostgreSQL > границы дня по поясу филиала: 23:59 в день 13, 00:01 в день 14
+AssertionError: expected undefined to be '1000' // Object.is equality
+
+- Expected:
+"1000"
+
++ Received:
+undefined
+
+ ❯ tests/integration/food-fix-02-revenue.test.ts:146:35
+    144|     const day13 = await period(location1, '2026-09-13', '2026-09-13');
+    145|     const day14 = await period(location1, '2026-09-14', '2026-09-14');
+    146|     expect(day13.barRevenueMinor).toBe('1000');
+       |                                   ^
+    147|     expect(day14.barRevenueMinor).toBe('2000');
+    148|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| tests/integration/food-fix-02-revenue.test.ts > выручка бара в отчётах (ADR-182), настоящая PostgreSQL > сторно исключает продажу бара из выручки задним числом
+AssertionError: expected undefined to be '5000' // Object.is equality
+
+- Expected:
+"5000"
+
++ Received:
+undefined
+
+ ❯ tests/integration/food-fix-02-revenue.test.ts:152:83
+    150|   it('сторно исключает продажу бара из выручки задним числом', async (…
+    151|     await barSale(location1, 5_000n, '2026-09-10T12:00:00+05:00');
+    152|     expect((await period(location1, '2026-09-10', '2026-09-10')).barRe…
+       |                                                                                   ^
+    153|     await db.barSale.updateMany({
+    154|       where: { locationId: location1 },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| tests/integration/food-fix-02-revenue.test.ts > выручка бара в отчётах (ADR-182), настоящая PostgreSQL > сводка организации: поступления ресторана = оплаты заказов + бар, без ручных приходов и сторно
+AssertionError: expected '100000' to be '120000' // Object.is equality
+
+Expected: "120000"
+Received: "100000"
+
+ ❯ tests/integration/food-fix-02-revenue.test.ts:186:42
+    184|     };
+    185|     const row = (id: string) => out.rows.find((l) => l.id === id)!.cur…
+    186|     expect(row(location1).receiptsMinor).toBe('120000');
+       |                                          ^
+    187|     expect(row(location2).receiptsMinor).toBe('80000');
+    188|     // средний чек остаётся по оплатам заказов, бар его не раздувает
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  19:06:05
+   Duration  2.90s (transform 52%, import 25%, tests 23%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T15-06-04Z-integration-ed8f.json
+
+# код выхода 1 · 4 с

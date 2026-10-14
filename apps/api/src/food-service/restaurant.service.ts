@@ -1355,7 +1355,7 @@ export class RestaurantService {
       status: 'CLOSED' as const,
       closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
     };
-    const [orders, payments, items, waiters, closedDays] = await Promise.all([
+    const [orders, payments, items, waiters, closedDays, barSales] = await Promise.all([
       db.restaurantOrder.aggregate({
         where: closedWhere,
         _count: { _all: true },
@@ -1383,6 +1383,11 @@ export class RestaurantService {
         _count: { _all: true },
       }),
       db.restaurantOrder.findMany({ where: closedWhere, select: { closedAt: true, total: true } }),
+      // выручка бара каноном самого бара (ADR-182, §45): POSTED по дате продажи, сторно исключает
+      db.barSale.aggregate({
+        where: { locationId: s.locationId, status: 'POSTED', createdAt: { gte: w.fromUtc, lt: w.toUtcExclusive } },
+        _sum: { totalRevenue: true },
+      }),
     ]);
     const count = orders._count._all;
     // выручка по дням периода (по поясу филиала): каждый день периода есть в ответе, пустой с нулём
@@ -1453,6 +1458,8 @@ export class RestaurantService {
       // гости закрытых заказов периода (макет «Аналитика», плитка «Гостей»)
       guestsCount: orders._sum.guestCount ?? 0,
       revenueMinor: revenue.toString(),
+      // отдельным полем, не внутри revenueMinor: канон выручки заказов (ADR-181) не меняется
+      barRevenueMinor: (barSales._sum.totalRevenue ?? 0n).toString(),
       averageCheckMinor: count ? ((revenue + BigInt(count) / 2n) / BigInt(count)).toString() : null,
       payments: payments
         .map((p) => ({ method: p.method, amountMinor: (p._sum.amount ?? 0n).toString(), count: p._count._all }))

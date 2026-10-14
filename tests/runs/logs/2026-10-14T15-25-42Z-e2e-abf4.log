@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 14.10.2026 20:25 Алматы · MacBook-Air-Urij.local
+# коммит ecd2127 (claude/food-fix-02-20261014), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/bar.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные (5.7s)
+  ✓   2 tests/ui/bar.spec.ts:76:1 › быстрая продажа одной строкой и фильтры доски (3.8s)
+  ✓   3 tests/ui/bar.spec.ts:100:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (2.7s)
+  ✓   4 tests/ui/bar.spec.ts:133:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (3.5s)
+  ✓   5 tests/ui/bar.spec.ts:150:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (2.5s)
+  ✓   6 tests/ui/bar.spec.ts:164:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.7s)
+  ✓   7 tests/ui/bar.spec.ts:176:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (3.8s)
+  ✓   8 tests/ui/bar.spec.ts:205:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.5s)
+  ✓   9 tests/ui/bar.spec.ts:217:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (3.2s)
+  ✓  10 tests/ui/bar.spec.ts:241:1 › операции: списание с причиной, журнал продаж и лента движений (3.3s)
+  ✓  11 tests/ui/bar.spec.ts:264:3 › доступность и телефон: light (8.2s)
+  ✓  12 tests/ui/bar.spec.ts:264:3 › доступность и телефон: dark (5.1s)
+
+  12 passed (1.4m)
+
+# код выхода 0 · 1 мин 25 с

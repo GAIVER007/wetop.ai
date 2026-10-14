@@ -6,9 +6,9 @@ import { barApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { Tabs } from '../../../components/tabs';
 import { Page } from '../../../components/page';
-import { Badge, Button, EmptyState, SectionTitle, Table } from '../../../components/ui';
+import { Badge, EmptyState, SectionTitle, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
-import { reverseBarSaleAction } from '../actions';
+import { BarReturnButtons } from '../return-buttons';
 import { WriteOffForm } from '../write-off-form';
 import { InventoryCountForm } from '../inventory-count-form';
 import { BarTabs } from '../tabs';
@@ -33,7 +33,7 @@ const MOVEMENT_LABEL: Record<string, string> = {
 
 /** Операции бара (ADR-157): списание, инвентаризация, журнал продаж с возвратами и лента движений. */
 export default async function BarOperationsPage() {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const [stock, sales, movements, shell] = await Promise.all([
     settle(barApi.stock()),
     settle(barApi.sales()),
@@ -99,32 +99,10 @@ export default async function BarOperationsPage() {
                           </td>
                           <td>
                             {sale.status === 'POSTED' && canReverse && (
-                              <div className="bar-return">
-                                <form action={reverseBarSaleAction}>
-                                  <input type="hidden" name="id" value={sale.id} />
-                                  <input type="hidden" name="restock" value="true" />
-                                  <input
-                                    type="hidden"
-                                    name="reason"
-                                    value="Возврат гостя, товар пригоден"
-                                  />
-                                  <Button type="submit" tone="ghost" size="xs">
-                                    Вернуть на склад
-                                  </Button>
-                                </form>
-                                <form action={reverseBarSaleAction}>
-                                  <input type="hidden" name="id" value={sale.id} />
-                                  <input type="hidden" name="restock" value="false" />
-                                  <input
-                                    type="hidden"
-                                    name="reason"
-                                    value="Возврат гостя, товар непригоден"
-                                  />
-                                  <Button type="submit" tone="ghost" size="xs">
-                                    Без возврата на склад
-                                  </Button>
-                                </form>
-                              </div>
+                              <BarReturnButtons
+                                saleId={sale.id}
+                                amountText={formatMoney(sale.totalRevenue)}
+                              />
                             )}
                           </td>
                         </tr>

@@ -24,6 +24,7 @@ import type {
   StockUnit,
 } from '../../lib/food-types';
 import { loadLots, mutateStock } from './stock-actions';
+import { useConfirm } from '../../components/use-confirm';
 
 /** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS) */
 export interface StockCtx {
@@ -279,6 +280,7 @@ function QtyDrawer({
 
 function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProductView; close: () => void }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [lots, setLots] = useState<StockLotView[] | null>(null);
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -293,6 +295,7 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
   return (
     <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={`Партии: ${product.name}`}>
       <div className="food-form">
+        {dialog}
         {error && <Alert tone="warning">{error}</Alert>}
         {lots === null ? (
           <p role="status">Загружаем партии…</p>
@@ -318,7 +321,17 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
                     size="sm"
                     disabled={pending}
                     aria-label={`Сторнировать приход от ${dateText(l.receivedOn)}`}
-                    onClick={() =>
+                    onClick={async () => {
+                      // сторно пишет обратное движение в ленту, которая только дописывается (§34)
+                      if (
+                        !(await ask({
+                          title: `Сторнировать приход от ${dateText(l.receivedOn)}?`,
+                          body: `${product.name}: партия на ${qtyText(l.receivedQty, product.unit)} уйдёт из остатка, в ленте появится «Сторно прихода». Отменить сторно нельзя.`,
+                          confirmLabel: 'Сторнировать',
+                          tone: 'danger',
+                        }))
+                      )
+                        return;
                       start(async () => {
                         const r = await mutateStock(ctx.scopeKey, { kind: 'reverse', id: l.id });
                         if (r.error) setError(r.error);
@@ -326,8 +339,8 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
                           await reload();
                           router.refresh();
                         }
-                      })
-                    }
+                      });
+                    }}
                   >
                     Сторно
                   </Button>

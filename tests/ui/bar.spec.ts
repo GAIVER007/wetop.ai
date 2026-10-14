@@ -252,6 +252,15 @@ test('операции: списание с причиной, журнал пр�
   await expect(writeOff.getByRole('status')).toContainText('Товар списан');
   await m.getByRole('tab',{name:'Продажи',exact:true}).click();
   await expect(m.getByRole('region', { name: 'Продажи бара' })).toContainText('Coca-Cola 0.5');
+  // возврат продажи только через подтверждение (ADR-182): отказ ничего не меняет
+  const saleRow = m.getByRole('region', { name: 'Продажи бара' }).locator('tbody tr').first();
+  await saleRow.getByRole('button', { name: 'Вернуть на склад' }).click();
+  const confirm = page.getByTestId('confirm-dialog');
+  await confirm.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(saleRow).toContainText('Продано');
+  await saleRow.getByRole('button', { name: 'Вернуть на склад' }).click();
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Вернуть на склад' }).click();
+  await expect(m.getByRole('region', { name: 'Продажи бара' }).locator('tbody tr').first()).toContainText('Возврат');
   await m.getByRole('tab',{name:'Движения',exact:true}).click();
   await expect(m.getByRole('region', { name: 'Движения остатка бара' })).toContainText('Приход');
 });

@@ -39,23 +39,23 @@ export function BranchArchiveButton({
           dialog.current?.showModal();
         }}
       >
-        {restore ? 'Восстановить' : 'Архивировать'}
+        {restore ? 'Восстановить' : 'Удалить филиал'}
       </button>
       <dialog
         ref={dialog}
-        className="org-archive-dialog"
+        className={restore ? 'org-archive-dialog' : 'org-archive-dialog org-archive-dialog--delete'}
         aria-labelledby={title}
         onCancel={(e) => {
           e.stopPropagation();
           if (pending) e.preventDefault();
         }}
       >
-        <h2 id={title}>{restore ? 'Восстановить объект?' : 'Архивировать объект?'}</h2>
+        <h2 id={title}>{restore ? 'Восстановить объект?' : 'Удалить филиал?'}</h2>
         <strong>{name}</strong>
         <p>
           {restore
             ? 'Объект вернётся в активный список с прежними настройками и данными.'
-            : 'Объект будет скрыт из активного списка. Бронирования, платежи и настройки сохранятся. Его можно восстановить из архива.'}
+            : 'Филиал переместится в архив и исчезнет из активного списка. Бронирования, платежи и настройки сохранятся. Вы сможете восстановить его в разделе «Архив».'}
         </p>
         {error && <p role="alert">{error}</p>}
         <footer>
@@ -63,7 +63,7 @@ export function BranchArchiveButton({
             Отмена
           </button>
           <button type="button" disabled={pending} onClick={submit}>
-            {pending ? 'Сохраняем…' : restore ? 'Восстановить' : 'Архивировать'}
+            {pending ? 'Сохраняем…' : restore ? 'Восстановить' : 'Удалить филиал'}
           </button>
         </footer>
       </dialog>

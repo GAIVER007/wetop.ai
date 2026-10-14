@@ -72,3 +72,17 @@ describe('гейт: у организации нет объекта', () => {
       ).toBe(false);
   });
 });
+
+it('existing empty hotel can edit its settings before room setup', () => {
+  for (const path of ['/hotel-settings', '/hotel-settings/stay']) {
+    expect(needsOnboardingRedirect({ path, needsOnboarding: true, postponed: false })).toBe(false);
+    expect(
+      needsOnboardingRedirect({
+        path,
+        needsOnboarding: true,
+        postponed: false,
+        propertyMissing: true,
+      }),
+    ).toBe(true);
+  }
+});

@@ -34,10 +34,11 @@ test('филиалы: создание, сохранение после reload �
   await main.getByRole('button', { name: 'Добавить', exact: true }).click();
   const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
   await expect(creation).toBeVisible();
-  // организация пуста, окно предлагает новый бизнес (ADR-ORG-ADAPTIVE): филиал станет его первым объектом
+  // Existing businesses remain after reset. Explicitly create a new brand and its first branch.
+  await creation.getByLabel('Новый бизнес или бренд').check();
   await creation.getByLabel('Название бизнеса', { exact: true }).fill('Тестовый бизнес у парка');
   await creation
-    .getByLabel('Название первого объекта', { exact: true })
+    .getByRole('textbox', { name: /^Название первого объекта/ })
     .fill('Тестовый филиал у парка');
   await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
   await expect(creation.getByRole('status')).toContainText(/создан/);
@@ -52,7 +53,9 @@ test('филиалы: создание, сохранение после reload �
       true,
     );
     if (width >= 1024) {
-      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
+      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(
+        900,
+      );
       const footer = await main.locator('.org-card-footer').first().boundingBox();
       expect(footer).not.toBeNull();
       expect(footer!.y + footer!.height).toBeLessThanOrEqual(900);

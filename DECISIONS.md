@@ -6996,3 +6996,11 @@ Problem: Calendar toolbar acquired extra vertical whitespace and category wrappi
 Decision: retain approved940px reservation drawer, verify its exact width and no horizontal overflow. Keep the <=56px toolbar and six-widget layout bounds; compare visible control centres with1px tolerance. Remove extra toolbar padding and wrap category names at word boundaries. Exclude only manual Agentation from the existing APP_UI_TEST fixture environment; normal local preview and production rules remain unchanged. Do not change snapshot tolerances, skip checks or CI configuration.
 
 Consequence: product business rules, schema, permissions and financial calculations are unchanged. Red-before-green evidence and the full exact-SHA gate remain required before deployment.
+
+## Organization editor usability (14.10.2026)
+
+Problem: Organization cards stretched into empty columns; the metadata dialog stacked all fields and cover into a tall form. Branch actions had equal primary emphasis. Existing empty hotels could not reach metadata settings because the onboarding gate overrode the explicit settings destination.
+
+Decision: cards occupy their content height; desktop metadata and cover use two columns with a single-column mobile layout. Branch editing uses a secondary action and deletion a clearly marked danger action. The label "Удалить филиал" retains the approved recoverable archive operation and confirmation explicitly explains retention and restoration. Existing empty hotels may open hotel settings; a missing property still requires onboarding. Keep private S3 storage requirements and do not substitute local reference images for persisted tenant covers.
+
+Consequence: no schema, financial, booking or permission changes. Photo upload remains unavailable until the documented storage is provisioned. Test the settings gate red then green and verify metadata save, archive/restore and mobile layout on synthetic data before publication.

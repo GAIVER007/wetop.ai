@@ -203,8 +203,8 @@ export class FoodOrdersController {
   ) {
     return this.service.voidPayment(id, b);
   }
-  @Get('cash') cash() {
-    return this.service.cash();
+  @Get('cash') cash(@Query() q: Record<string, unknown>) {
+    return this.service.cash(q);
   }
   @Post('cash/operations') cashOperation(@Body() b: unknown) {
     return this.service.cashOperation(b);

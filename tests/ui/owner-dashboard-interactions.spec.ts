@@ -13,6 +13,8 @@ test('forecast details expose availability and open the selected calendar day', 
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/today');
+  // прогноз свёрнут по умолчанию (ADR-180): раскрыть перед работой с «Загрузкой по дням»
+  await page.getByText('Прогноз загрузки', { exact: true }).click();
   const trigger = page.getByRole('button', { name: 'Загрузка по дням', exact: true });
   await trigger.click();
   const dialog = page.getByRole('dialog', { name: 'Ближайшие 7 дней', exact: true });
@@ -39,6 +41,7 @@ test('forecast can recover in place after a temporary API failure', async ({ pag
   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '/desk/dashboard' } });
   await page.goto('/today');
   const load = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
+  await load.getByText('Прогноз загрузки', { exact: true }).click();
   await expect(load.getByText('Прогноз загрузки недоступен', { exact: false })).toBeVisible();
   // отказ аналитики не трогает очередь внимания: она живёт своими запросами
   await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
@@ -97,6 +100,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.setViewportSize({ width: 320, height: 740 });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     await page.goto('/today');
+    await page.getByText('Прогноз загрузки', { exact: true }).click();
     await page.getByRole('button', { name: 'Загрузка по дням', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: 'Ближайшие 7 дней', exact: true });
     await expect(dialog).toBeVisible();
@@ -120,6 +124,7 @@ for (const theme of ['light', 'dark'] as const) {
 test('weekly outlook opens a calendar day directly', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/today');
+  await page.getByText('Прогноз загрузки', { exact: true }).click();
   const days = page.getByTestId('owner-outlook-chart').getByRole('link');
   await expect(days).toHaveCount(7);
   const day = days.nth(2);
@@ -133,6 +138,7 @@ test('weekly outlook opens a calendar day directly', async ({ page }) => {
 test('compact owner summary fits a 360 by 800 phone first screen', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto('/today');
+  await page.getByText('Прогноз загрузки', { exact: true }).click();
   await expect(page.getByTestId('owner-outlook-chart').getByRole('link')).toHaveCount(7);
   // загрузка начинает первый экран; события дня ниже, достижимы прокруткой (ADR-180)
   await expect(page.getByTestId('c-occupancy')).toBeInViewport();

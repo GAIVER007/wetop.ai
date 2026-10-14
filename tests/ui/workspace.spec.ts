@@ -1091,7 +1091,6 @@ test('кнопки называют своё действие: гость зав
 
   // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
   await page.goto('/finance');
-  // список долгов с кнопками оплаты находится в сворачиваемом блоке
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();
@@ -1594,6 +1593,7 @@ test('финансы F1: период в подзаголовке, четыре 
   await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(
     /is-active/,
   );
+  // компактная подпись контрола периода (ADR-180): дата словами, без «За период с»
   await expect(main.getByTestId('finance-period')).toContainText(`${Number(day.slice(8))} ${month} ${day.slice(0, 4)}`);
   // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });

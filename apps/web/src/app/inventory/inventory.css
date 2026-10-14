@@ -1055,6 +1055,12 @@
     width: auto;
     min-height: var(--control-h);
   }
+  /* телефон: цель касания не ниже 44 px (DESIGN.md §6), правило выше перебивало общее 44 из workspace.css */
+  @media (max-width: 600px) {
+    .page__actions .inv-period .inp {
+      min-height: var(--touch-target);
+    }
+  }
   .inventory-toolbar .inp,
   .inventory-toolbar .inventory-search .inp,
   .inventory-filter .inp {

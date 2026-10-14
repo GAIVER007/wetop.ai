@@ -58,6 +58,7 @@ test('филиалы: создание, сохранение после reload �
       );
       const footer = await main.locator('.org-card-footer').first().boundingBox();
       expect(footer).not.toBeNull();
+      // Compact cards remain within the approved first-screen bound, including multiple businesses.
       expect(footer!.y + footer!.height).toBeLessThanOrEqual(900);
     }
     await page.screenshot({

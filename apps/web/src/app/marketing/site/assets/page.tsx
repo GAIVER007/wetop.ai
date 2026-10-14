@@ -15,7 +15,7 @@ import '../../marketing.css';
  * в MKT9. Право `settings` и строгий scope филиала проверяет API.
  */
 export default async function SiteAssetsPage() {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const shell = await deskShell();
   const loaded = await siteAssetsApi
     .list()

@@ -117,7 +117,7 @@
   }
   .journal-changes {
     margin: 8px 0;
-    font-size: 12px;
+    font-size: var(--text-xs);
     min-width: 0;
   }
   .journal-change {

@@ -1,0 +1,28 @@
+{
+ "/profile": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Настройки рабочего места",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Настройки рабочего места",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Настройки рабочего места",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

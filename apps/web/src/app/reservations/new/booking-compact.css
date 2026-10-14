@@ -36,7 +36,7 @@
     border-radius: var(--radius-control);
   }
   .booking-create .placement-fields legend {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .booking-create__dates {
     display: grid;
@@ -79,7 +79,7 @@
   }
   .booking-create .booking-footer__digest {
     flex-basis: 100%;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .booking-drawer .booking-create {
     padding: 16px;
@@ -177,7 +177,13 @@
   .booking-create__quick .btn {
     min-height: 32px;
     padding: 4px 8px;
-    font-size: 12px;
+    font-size: var(--text-xs);
+  }
+  /* телефон: цель касания не ниже 44 px (DESIGN.md §6) */
+  @media (max-width: 600px) {
+    .booking-create__quick .btn {
+      min-height: var(--touch-target);
+    }
   }
   .booking-create__quick [aria-pressed='true'] {
     color: var(--primary);

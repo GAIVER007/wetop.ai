@@ -1,0 +1,1915 @@
+{
+ "/ai-agents": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "ИИ-продавцы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "ИИ-продавцы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "ИИ-продавцы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/ai-seller": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "ИИ-продавец",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:А*** 34x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "ИИ-продавец",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "ИИ-продавец",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/bar/operations": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар: операции",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар: операции",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар: операции",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/bar/products": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 11.6667,
+   "h1": "Бар: товары",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 11.6667,
+   "h1": "Бар: товары",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 11.6667,
+   "h1": "Бар: товары",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/bar/receipts/new": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12.5,
+   "h1": "Новый приход",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:← Приходы 79x21",
+    "INPUT: 20x20"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12.5,
+   "h1": "Новый приход",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12.5,
+   "h1": "Новый приход",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/bar/receipts": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 11.6667,
+   "h1": "Бар: приходы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 11.6667,
+   "h1": "Бар: приходы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 11.6667,
+   "h1": "Бар: приходы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/bar/suppliers": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар: поставщики",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар: поставщики",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар: поставщики",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/bar": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар",
+   "mainEmpty": false,
+   "smallTargets": [
+    "INPUT:Отметить все товары 16x16",
+    "INPUT:Отметить Coca-Cola 0.5 16x16",
+    "BUTTON:CCoca-Cola 0.5 119x24",
+    "INPUT:Отметить Red Bull 0.25 16x16",
+    "BUTTON:RRed Bull 0.25 111x24",
+    "INPUT:Отметить Вода BonAqua 0.5 16x16",
+    "BUTTON:ВВода BonAqua 0.5 146x24",
+    "INPUT:Отметить Сок Rich 0.2 16x16",
+    "BUTTON:ССок Rich 0.2 108x24",
+    "INPUT:Отметить Чипсы Lay's 90г 16x16",
+    "BUTTON:ЧЧипсы Lay's 90г 135x24",
+    "INPUT:Отметить Шоколад Snickers 16x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бар",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/branches": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Организация",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Предыдущий месяц 40x40",
+    "INPUT: 152x40",
+    "BUTTON:Показать 82x40",
+    "A:Следующий месяц 40x40",
+    "BUTTON:Архив (0) 87x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Организация",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Организация",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/channel-manager": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Каналы продаж",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Каналы продаж",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Каналы продаж",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/channels/events": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "События",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:← Каналы продаж 126x21",
+    "SELECT:все статусыобработаноошибкапол 143x36",
+    "SELECT:все типыновая броньизменениеот 146x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "События",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "События",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/channels": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Каналы продаж",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Каналы продаж",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Каналы продаж",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/chessboard": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Календарь",
+   "mainEmpty": false,
+   "smallTargets": [
+    "BUTTON:Свернуть категории 132x24",
+    "A:R01 33x29",
+    "A:Гость ТестовыйГость Т.ГТ14 окт 103x34",
+    "A:Гость Тестовый · 20260913-TEST 103x34",
+    "A:R02 33x29",
+    "A:Клиент ПримерКлиент П.КП14 окт 103x34",
+    "A:Клиент Пример · 20260913-TEST1 103x34",
+    "A:R03 33x29",
+    "A:Гость УчебныйГость У.ГУ14 окт  103x34",
+    "A:Гость Учебный · 20260913-TEST2 103x34",
+    "A:R04 33x29",
+    "A:Посетитель ДемоПосетитель Д.ПД 103x34"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Календарь",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Календарь",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/connections/channex": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Подключение каналов",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:← Подключения 113x21",
+    "A:«Подключения» 104x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Подключение каналов",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Подключение каналов",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/connections": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Подключения",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Открыть настройку 124x20"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Подключения",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Подключения",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/design-system": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Дизайн-система",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Неделя 66x36",
+    "A:14 дней 67x36",
+    "A:Месяц 60x36",
+    "INPUT: 13x13",
+    "A:Ақбота Әбдіғаппарова 103x38",
+    "A:Гость Стойка 92x17",
+    "A:Посетитель Отменённый 89x38",
+    "BUTTON:Закрыть уведомление 24x24",
+    "BUTTON:Предыдущий месяц 32x32",
+    "BUTTON:Следующий месяц 32x32",
+    "BUTTON:31 40x36",
+    "BUTTON:1 40x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Дизайн-система",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Дизайн-система",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/finance?tab=cash": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Финансы",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Все операции 96x21",
+    "A:20260913-TEST1 110x20",
+    "A:20260913-TEST2 110x20",
+    "A:20260913-TEST3 110x20",
+    "A:20260913-TEST4 110x20",
+    "A:20260913-TEST5 110x20",
+    "A:20260913-TEST6 110x20",
+    "A:20260913-TEST7 110x20",
+    "A:Все расходы 102x20",
+    "A:Подробнее 78x21",
+    "A:80 000 ₸ к сбору — 5 броней 175x18",
+    "A:1 бронь с просроченным долгом  312x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Финансы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Финансы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/finance": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Финансы",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Все операции 96x21",
+    "A:20260913-TEST1 110x20",
+    "A:20260913-TEST2 110x20",
+    "A:20260913-TEST3 110x20",
+    "A:20260913-TEST4 110x20",
+    "A:20260913-TEST5 110x20",
+    "A:20260913-TEST6 110x20",
+    "A:20260913-TEST7 110x20",
+    "A:Все расходы 102x20",
+    "A:Подробнее 78x21",
+    "A:80 000 ₸ к сбору — 5 броней 175x18",
+    "A:1 бронь с просроченным долгом  312x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Финансы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Финансы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/guests/birthdays": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Дни рождения",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Дни рождения",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Дни рождения",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/guests?q=Тест": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гости и бронирования",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Сбросить фильтры 129x21",
+    "A:ГТГость ТестовыйНовый гость 170x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гости и бронирования",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гости и бронирования",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/guests/ui-guest": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гость Тестовый",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:← Гости и бронирования 171x21",
+    "A:14 окт. → 17 окт. 2026 147x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гость Тестовый",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гость Тестовый",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/guests": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гости и бронирования",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:ГТГость ТестовыйНовый гость 170x36",
+    "A:ГУГость УчебныйНовый гость 170x36",
+    "A:КПКлиент ПримерНовый гость 170x36",
+    "A:ПДПосетитель ДемоНовый гость 170x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гости и бронирования",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гости и бронирования",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/help": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Помощь",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Проверьте категории номеров 227x19",
+    "A:Проверьте номерной фонд 199x19",
+    "A:Создайте первую бронь 178x19",
+    "A:календаре 78x19",
+    "A:Подключите каналы продаж 210x19",
+    "A:«Сотрудники и доступ» 174x19"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Помощь",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Помощь",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [
+   "link-in-text-block×4"
+  ],
+  "axe-dark": [
+   "link-in-text-block×4"
+  ],
+  "console": []
+ },
+ "/hotel-settings/services": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/hotel-settings/stay": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Настроить 92x21",
+    "A:«Категории номеров» 152x17"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/hotel-settings": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Настроить 92x21"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/incidents": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Неисправности",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Неисправности",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Неисправности",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/inventory": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Номерной фонд",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Номерной фонд",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Номерной фонд",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/journal": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Журнал операций",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:20260913-TESTAA 119x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Журнал операций",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Журнал операций",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/management/analytics/channels": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": [
+    "INPUT: 13x13"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/management/analytics/occupancy": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Двухместный номер 146x17",
+    "A:Мужской общий номер 162x17",
+    "A:Женский общий номер 161x17"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/management/analytics/units": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:R01 24x17",
+    "A:R02 27x17",
+    "A:R03 27x17",
+    "A:R04 27x17",
+    "A:R05 27x17",
+    "A:R06 27x17",
+    "A:R07 26x17",
+    "A:R08 27x17",
+    "A:R09 27x17",
+    "A:R10 24x17",
+    "A:R11 21x17",
+    "A:R12 24x17"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/management/analytics": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Все категории 111x36",
+    "A:Двухместный номер 153x36",
+    "A:Мужской общий номер 169x36",
+    "A:Женский общий номер 167x36",
+    "A:По дням 73x36",
+    "A:По неделям 95x36",
+    "A:По месяцам 97x36",
+    "A:Открыть календарь 126x20",
+    "A:«Оплаты» 63x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/market": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Анализ конкурентов",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Анализ конкурентов",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Анализ конкурентов",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/marketing/ads": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Реклама",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Реклама",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Реклама",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/marketing/analytics": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/marketing/budget/analytics": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/marketing/budget/expenses": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Расходы на маркетинг",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Расходы на маркетинг",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Расходы на маркетинг",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/marketing/budget": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бюджет маркетинга",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Все расходы 94x23"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бюджет маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бюджет маркетинга",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/marketing/content": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Контент",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Контент",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Контент",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/marketing": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Маркетинг",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Аналитика сайта 265x38"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Маркетинг",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Маркетинг",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/profile/access": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Управляйте бронированиями, клиентами и командой из одного окна",
+   "mainEmpty": false,
+   "smallTargets": [
+    "BUTTON:Гостиницы 124x40",
+    "BUTTON:Салоны красоты 162x40",
+    "BUTTON:Рестораны 125x40",
+    "A:Все статьи 141x42"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Управляйте бронированиями, клиентами и командой из одного окна",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Управляйте бронированиями, клиентами и командой из одного окна",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/profile": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Настройки рабочего места",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Настройки рабочего места",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Настройки рабочего места",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/reports/finance": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:«Оплаты» 63x16",
+    "A:«Документы» 89x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/reports/form-910": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Доход для формы 910",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Июль 39x17",
+    "A:Август 47x17",
+    "A:Сентябрь 67x17",
+    "A:Октябрь 58x17",
+    "A:Ноябрь 52x17",
+    "A:Декабрь 61x17"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Доход для формы 910",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Доход для формы 910",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/reports/occupancy": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Двухместный номер 146x17",
+    "A:Мужской общий номер 162x17",
+    "A:Женский общий номер 161x17"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/reports/overview": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Все категории 111x36",
+    "A:Двухместный номер 153x36",
+    "A:Мужской общий номер 169x36",
+    "A:Женский общий номер 167x36",
+    "A:По дням 73x36",
+    "A:По неделям 95x36",
+    "A:По месяцам 97x36",
+    "A:Открыть календарь 126x20",
+    "A:«Оплаты» 63x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/reports/units": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:R01 24x17",
+    "A:R02 27x17",
+    "A:R03 27x17",
+    "A:R04 27x17",
+    "A:R05 27x17",
+    "A:R06 27x17",
+    "A:R07 26x17",
+    "A:R08 27x17",
+    "A:R09 27x17",
+    "A:R10 24x17",
+    "A:R11 21x17",
+    "A:R12 24x17"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/reports": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Сегодня 74x30",
+    "A:7 дней 62x30",
+    "A:Этот месяц 95x30",
+    "A:Прошлый месяц 130x30"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/reservations/20260913-TESTAA": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бронь 20260913-TESTAA",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:← Брони 60x21",
+    "A:Гость Тестовый 118x19"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бронь 20260913-TESTAA",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бронь 20260913-TESTAA",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/reservations/new?unit=M03": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 11.6667,
+   "h1": "Новая бронь",
+   "mainEmpty": false,
+   "smallTargets": [
+    "BUTTON:Сегодня 68x36",
+    "BUTTON:Завтра 59x36",
+    "BUTTON:1 ночь 54x36",
+    "BUTTON:2 ночи 57x36",
+    "BUTTON:3 ночи 57x36",
+    "BUTTON:7 ночей 64x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 11.6667,
+   "h1": "Новая бронь",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 11.6667,
+   "h1": "Новая бронь",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/reservations": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Брони",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Брони",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Брони",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/rooms/availability": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Свободные места",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Сегодня 61x23",
+    "A:Завтра 51x23",
+    "A:Выходные 76x23",
+    "A:7 дней 48x23",
+    "BUTTON:Только доступные 141x36",
+    "BUTTON:Все категории 116x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Свободные места",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Свободные места",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/rooms/categories": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Категории номеров",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Категории номеров",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Категории номеров",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/sales": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Продажи",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Продажи",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Продажи",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/status": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Состояние WETOP",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Состояние WETOP",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Состояние WETOP",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/tasks": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Задачи",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Задачи",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Задачи",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/team/roles": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Сотрудники и доступ",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Сотрудники и доступ",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Сотрудники и доступ",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/team": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Сотрудники и доступ",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Сотрудники и доступ",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Сотрудники и доступ",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/today": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Главная",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Подробнее 78x24"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Главная",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Главная",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/units/R01": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Ячейка R01",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:← Номерной фонд 127x21",
+    "A:20260913-TESTAA 74x38"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Ячейка R01",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Ячейка R01",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/website/analytics": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Добавить домен 326x38",
+    "A:Открыть в «Бронях» 150x19",
+    "A:настройках сайта 113x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/website/booking": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Добавить домен 115x17",
+    "INPUT: 13x13"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/website/settings": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/website": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 14,
+   "h1": "Сайт и онлайн-бронирование",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

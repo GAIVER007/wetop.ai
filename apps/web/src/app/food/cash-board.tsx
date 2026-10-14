@@ -18,6 +18,7 @@ import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
 import { FOOD_PAYMENT_METHODS, type FoodCashView, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 import { mutateCash } from './restaurant-actions';
+import { useConfirm } from '../../components/use-confirm';
 
 type Kind = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 const KIND_LABEL: Record<Kind, string> = { INCOME: 'Приход', EXPENSE: 'Расход', TRANSFER: 'Перевод' };
@@ -61,6 +62,7 @@ export function CashBoard({
   cash: FoodCashView;
 }) {
   const router = useRouter();
+  const { ask, dialog } = useConfirm();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
   const [kind, setKind] = useState<Kind>('INCOME');
@@ -144,7 +146,21 @@ export function CashBoard({
                   <Button
                     tone="ghost"
                     disabled={pending}
-                    onClick={() => run(() => mutateCash(scopeKey, { kind: 'void', id: o.id }), () => {})}
+                    onClick={async () => {
+                      // деньги гаснут безвозвратно: аннулированная операция не воскресает (§35.2)
+                      if (
+                        !(await ask({
+                          title: `Аннулировать операцию на ${wholeTenge(o.amountMinor, cash.currency)}?`,
+                          body: o.employee
+                            ? `Выплата (${o.employee}) вернётся в «осталось», сама операция останется в журнале аннулированной.`
+                            : 'Операция останется в журнале аннулированной, остаток способа пересчитается.',
+                          confirmLabel: 'Аннулировать',
+                          tone: 'danger',
+                        }))
+                      )
+                        return;
+                      run(() => mutateCash(scopeKey, { kind: 'void', id: o.id }), () => {});
+                    }}
                   >
                     Аннулировать
                   </Button>
@@ -209,6 +225,7 @@ export function CashBoard({
     );
   return (
     <div className="food-workspace" data-testid="cash-board">
+      {dialog}
       {error && <Alert>{error}</Alert>}
       <Stats min={170}>
         <Stat label="Всего в кассе" value={wholeTenge(String(total), cash.currency)} tone="info" testId="cash-total" />

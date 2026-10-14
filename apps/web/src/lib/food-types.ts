@@ -436,6 +436,8 @@ export interface FoodPeriodReport {
   /** гости закрытых заказов периода */
   guestsCount?: number;
   revenueMinor: string;
+  /** выручка бара периода отдельным полем (ADR-182): POSTED-продажи по дате продажи */
+  barRevenueMinor?: string;
   averageCheckMinor: string | null;
   payments: Array<{ method: string; amountMinor: string; count: number }>;
   topDishes: Array<{ name: string; qty: number; revenueMinor: string }>;

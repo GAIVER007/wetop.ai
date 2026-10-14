@@ -23,7 +23,7 @@ describe('Food workspace isolation', () => {
       '/cashbox',
       '/employees',
       '/payroll',
-      '/staff',
+      '/team',
       '/sales',
       '/marketing',
       '/management/analytics',

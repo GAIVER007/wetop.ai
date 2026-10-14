@@ -236,6 +236,21 @@ test('заказы: создание с экрана, оплата частям�
   await page.getByRole('button', { name: 'Закрыты' }).click();
   await expect(page.locator('tbody tr')).toHaveCount(1);
   await expect(page.locator('tbody tr').first()).toContainText('Оплачен');
+  // отмена заказа только через подтверждение (ADR-182): «Оставить как есть» ничего не меняет
+  await page.getByRole('button', { name: 'Все' }).first().click();
+  await page.getByRole('button', { name: '+ Новый заказ' }).click();
+  const second = page.getByRole('dialog');
+  await second.getByRole('button', { name: 'Добавить: Паста Карбонара, 390 ₸' }).click();
+  await second.getByRole('button', { name: 'Отправить на кухню' }).click();
+  await expect(second.getByTestId('order-total')).toContainText('390 ₸');
+  await second.getByRole('button', { name: 'Отменить заказ' }).click();
+  const confirm = page.getByTestId('confirm-dialog');
+  await confirm.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(second.getByText('Новый', { exact: true })).toBeVisible();
+  await second.getByRole('button', { name: 'Отменить заказ' }).click();
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Отменить заказ' }).click();
+  await expect(second.getByText('Отменён', { exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
   // рейтинг официанта по оценкам гостей на экране «Сотрудники»
@@ -777,6 +792,8 @@ test('касса: остатки по способам, расход не уво
   // аннулирование перевода возвращает остатки
   await page.getByRole('tab', { name: 'Операции' }).click();
   await page.getByRole('tabpanel').getByRole('button', { name: 'Аннулировать' }).click();
+  // аннулирование только через подтверждение (ADR-182)
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Аннулировать' }).click();
   await expect(page.getByTestId('cash-KASPI')).toContainText('300 ₸');
   await expect(page.getByTestId('cash-CASH')).toContainText('0 ₸');
   const axe = await new AxeBuilder({ page }).include('main').analyze();

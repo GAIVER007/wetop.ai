@@ -13,7 +13,7 @@ import { Icon, type IconName } from '../../components/icon';
 import { SaleForm } from './sale-form';
 import { FolioSaleForm } from './folio-sale-form';
 import { StockBoard } from './stock-board';
-import { sharePercent, stockStatusOf } from './stock-status';
+import { stockStatusOf } from './stock-status';
 import { AnalyticsDisclosure } from './analytics-disclosure';
 import { SaleDisclosure } from './sale-disclosure';
 import { BarAnalytics } from './bar-analytics';
@@ -56,58 +56,16 @@ function popularOf(report: BarReport, sales: BarSaleRow[]): Array<{ name: string
 }
 
 /** Плитка показателя по макету: цветная иконка слева, подпись, число, подсказка или прирост к прошлому месяцу */
-function Kpi({
-  icon,
-  tone,
-  label,
-  value,
-  hint,
-  growth,
-  alarm,
-  unavailable,
-}: {
-  icon: IconName;
-  tone: 'primary' | 'success' | 'warning' | 'danger' | 'info';
-  label: string;
-  value: string;
-  hint?: string;
-  growth?: number | null;
-  alarm?: boolean;
-  unavailable?: boolean;
+function Kpi({icon, tone, label, value, hint, alarm, children}: {
+  icon: IconName; tone: 'primary' | 'success' | 'warning' | 'danger' | 'info';
+  label: string; value: string; hint: string; alarm?: boolean; children?: import('react').ReactNode;
 }) {
-  return (
-    <div
-      className={cx('bar-kpi', alarm && 'bar-kpi--alarm', unavailable && 'bar-kpi--unavailable')}
-    >
-      <span className={`bar-kpi-icon bar-kpi-icon--${tone}`}>
-        <Icon name={icon} width={24} height={24} />
-      </span>
-      <div className="bar-kpi-body">
-        <div className="bar-kpi-label" title={label}>
-          {label}
-        </div>
-        <div className="bar-kpi-value">{value}</div>
-      </div>
-      {growth !== undefined && growth !== null ? (
-        <div
-          className={cx(
-            'bar-kpi-hint',
-            'bar-kpi-hint--wide',
-            growth >= 0 ? 'bar-kpi-hint--up' : 'bar-kpi-hint--down',
-          )}
-        >
-          <span className="bar-kpi-delta">
-            <Icon name={growth >= 0 ? 'up' : 'downArrow'} width={14} height={14} />{' '}
-            {growth >= 0 ? '+' : '−'}
-            {Math.abs(growth)}%
-          </span>{' '}
-          к прошлому месяцу
-        </div>
-      ) : (
-        hint && <div className="bar-kpi-hint">{hint}</div>
-      )}
-    </div>
-  );
+  return <div className={cx('bar-kpi',alarm && 'bar-kpi--alarm')}>
+    <span className={`bar-kpi-icon bar-kpi-icon--${tone}`}><Icon name={icon} width={24} height={24} /></span>
+    <div className="bar-kpi-body"><div className="bar-kpi-label">{label}</div><div className="bar-kpi-value">{value}</div></div>
+    <div className="bar-kpi-hint">{hint}</div>
+    {children}
+  </div>;
 }
 
 /**
@@ -152,12 +110,11 @@ export default async function BarPage({
     return null;
   const r = report.value;
   const active = stock.value.filter((item) => item.active);
-  const unitsTotal = active.reduce((sum, item) => sum + BigInt(item.availableUnits), 0n);
-  const lowCount = active.filter((item) => stockStatusOf(item) !== 'ok').length;
+  const lowStock = active.filter((item) => stockStatusOf(item) !== 'ok');
+  const lowCount = lowStock.length;
   const timezone = await propertyTimezone();
   const monthRevenue = BigInt(r.month?.revenueMinor ?? r.revenueMinor);
   const monthProfit = BigInt(r.month?.grossProfitMinor ?? r.grossProfitMinor);
-  const margin = sharePercent(monthProfit, monthRevenue);
   const lastReceipts = receipts.value.slice(0, 4);
   const popular = popularOf(r, sales.value);
   const bottom = (
@@ -282,52 +239,13 @@ export default async function BarPage({
       </nav>
       <BarTabs current="overview" />
       <section className="bar-kpis" aria-label="Показатели бара">
-        <Kpi
-          icon="chart"
-          tone="primary"
-          label="Выручка"
-          value={formatMoney(monthRevenue)}
-          growth={r.month?.revenueGrowth ?? null}
-          hint="за текущий месяц"
-        />
-        <Kpi
-          icon="receipt"
-          tone="primary"
-          label="Продаж"
-          value="Нет данных"
-          unavailable
-          hint="за текущий месяц"
-        />
-        <Kpi
-          icon="cart"
-          tone="info"
-          label="Средний чек"
-          value="Нет данных"
-          unavailable
-          hint="за текущий месяц"
-        />
-        <Kpi
-          icon="coins"
-          tone="success"
-          label="Валовая прибыль"
-          value={formatMoney(monthProfit)}
-          hint={margin === null ? 'продаж за месяц нет' : `маржинальность ${margin}%`}
-        />
-        <Kpi
-          icon="stock"
-          tone="primary"
-          label="Остаток на складе"
-          value={`${unitsTotal} шт.`}
-          hint={`на сумму ${formatMoney(r.stockCostMinor)}`}
-        />
-        <Kpi
-          icon="incidents"
-          tone="danger"
-          label="Заканчиваются"
-          value={String(lowCount)}
-          hint={pluralRu(lowCount, ['товар', 'товара', 'товаров'], false)}
-          alarm={lowCount > 0}
-        />
+        <Kpi icon="cart" tone="info" label="Сумма закупок" value={formatMoney(r.month?.purchasesMinor ?? r.purchasesMinor)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
+        <Kpi icon="chart" tone="primary" label="Выручка бара" value={formatMoney(monthRevenue)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
+        <Kpi icon="coins" tone="success" label="Прибыль от продаж" value={formatMoney(monthProfit)} hint={r.month ? 'Текущий месяц, без прочих расходов' : 'За всё время, без прочих расходов'} />
+        <Kpi icon="truck" tone="warning" label="Долг поставщикам" value={formatMoney(r.supplierDebtMinor)} hint="Осталось оплатить" />
+        <Kpi icon="incidents" tone="danger" label="Заканчиваются" value={String(lowCount)} hint={lowCount ? pluralRu(lowCount,['товар','товара','товаров'],false) : 'Нет предупреждений'} alarm={lowCount > 0}>
+          {lowCount > 0 && <details className="bar-kpi-list"><summary>Список товаров</summary><ul>{lowStock.map(item => <li key={item.id}><Link href={`/bar?product=${item.id}`} prefetch={false}>{item.name}</Link><b>{item.availableUnits} шт.</b></li>)}</ul></details>}
+        </Kpi>
       </section>
       <AnalyticsDisclosure>
         <BarAnalytics

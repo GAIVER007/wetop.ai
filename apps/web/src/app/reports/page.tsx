@@ -32,7 +32,7 @@ export default async function ReportsHubPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const from = sp.from || cal.month.from;

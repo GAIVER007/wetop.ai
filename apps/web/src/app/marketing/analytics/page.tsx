@@ -35,7 +35,7 @@ export default async function MarketingAnalyticsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const loaded = await loadBudget(await searchParams);
   const subtitle = 'Полная картина эффективности маркетинга: от источников до продаж.';
   if (loaded.chooseLocation || loaded.error)

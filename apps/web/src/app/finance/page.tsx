@@ -96,7 +96,7 @@ export default async function FinanceReportPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const yesterday = new Date(`${cal.today}T00:00:00Z`);

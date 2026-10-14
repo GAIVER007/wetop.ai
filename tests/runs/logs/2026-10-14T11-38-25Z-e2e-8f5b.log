@@ -1,0 +1,166 @@
+# Сквозные (e2e) · 14.10.2026 16:38 Алматы · MacBook-Air-Urij.local
+# коммит 8e69022 (claude/site-photos-20261014), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'site-shots'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/branches-ui/site-shots.spec.ts:42:1 › день салона и план зала для лендингов (4.6s)
+
+
+  1) tests/branches-ui/site-shots.spec.ts:42:1 › день салона и план зала для лендингов ─────────────
+
+    Error: expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "Тестов"
+    Received string:        "К содержимому
+    Календарь
+    W
+    WETOP.AI
+    Демо-салон
+    Салон
+    Поиск записи или клиента
+    ⌘ K
+    ТВ
+    Тестовый владелец
+    Владелец
+    Календарь
+    Расписание мастеров и услуг салона, Демо-салон
+    Все мастера
+    Анна
+    Вера
+    Дана
+    Все услуги
+    Маникюр
+    Окрашивание
+    Стрижка
+    Все статусы
+    Записан
+    Подтверждена
+    Завершена
+    Не пришёл
+    Сегодня
+    Дата
+    + Новая запись
+    
+    Записей: 9
+    
+    Мастера
+    3
+    Все мастера
+    (3)
+    А
+    Анна
+    10:00–21:00
+    В
+    Вера
+    10:00–21:00
+    Д
+    Дана
+    10:00–21:00
+    Анна
+    10:00–21:00
+    Вера
+    10:00–21:00
+    Дана
+    10:00–21:00
+    08:00
+    08:30
+    09:00
+    09:30
+    10:00
+    10:30
+    11:00
+    11:30
+    12:00
+    12:30
+    13:00
+    13:30
+    14:00
+    14:30
+    15:00
+    15:30
+    16:00
+    16:30
+    17:00
+    17:30
+    18:00
+    18:30
+    19:00
+    19:30
+    20:00
+    20:30
+    13:30–14:30
+    Алия К.
+    Стрижка
+    12 000 ₸ / Завершена
+    17:00–18:00
+    Алия К.
+    Стрижка
+    12 000 ₸ / Записан
+    19:00–20:30
+    Мади Т.
+    Окрашивание
+    25 000 ₸ / Подтверждена
+    14:30–15:30
+    Алия К.
+    Стрижка
+    12 000 ₸ / Не пришёл
+    18:30–19:30
+    Алия К.
+    Стрижка
+    12 000 ₸ / Подтверждена
+    20:00–21:00
+    Мади Т.
+    Маникюр
+    9 000 ₸ / Записан
+    15:00–16:00
+    Алия К.
+    Маникюр
+    9 000 ₸ / Завершена
+    17:30–18:30
+    Мади Т.
+    Стрижка
+    12 000 ₸ / Подтверждена
+    19:00–20:30
+    Алия К.
+    Окрашивание
+    25 000 ₸ / Записан
+    Легенда:
+    Записан
+    Подтверждена
+    Завершена
+    Не пришёл
+    Отменена"
+
+      35 |     await ready();
+      36 |     // Служебные имена сида на маркетинговый снимок не попадают (и шапка тоже)
+    > 37 |     expect(await page.locator('body').innerText()).not.toContain('Тестов');
+         |                                                        ^
+      38 |     await page.screenshot({ caret: 'initial', path: `${dir}/${name}-${theme}.png` });
+      39 |   }
+      40 | }
+        at shoot (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/branches-ui/site-shots.spec.ts:37:56)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/branches-ui/site-shots.spec.ts:172:3
+
+    Error Context: test-results/site-shots-день-салона-и-план-зала-для-лендингов/error-context.md
+
+    Error Context: test-results/site-shots-день-салона-и-план-зала-для-лендингов/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-shots-день-салона-и-план-зала-для-лендингов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-shots-день-салона-и-план-зала-для-лендингов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/site-shots.spec.ts:42:1 › день салона и план зала для лендингов ──────────────
+
+# код выхода 1 · 17 с

@@ -5,6 +5,7 @@ import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
+import { JsonLd, faqLd } from '../../../components/json-ld';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -137,8 +138,33 @@ export default function SalonLandingPage() {
             </div>
           </section>
 
+          {/* Настоящий экран продукта: день салона с демо-данными, светлая и тёмная темы */}
+          <section className="hotel-shot" aria-labelledby="salon-shot-title">
+            <div className="section-heading section-heading--center">
+              <p className="eyebrow">{t.salon.shot.eyebrow}</p>
+              <h2 id="salon-shot-title" className="section-heading__title">
+                {typo(t.salon.shot.title)}
+              </h2>
+              <p className="section-heading__lead">{typo(t.salon.shot.lead)}</p>
+            </div>
+            <figure className="hotel-shot__frame">
+              <picture>
+                <source srcSet="/screens/salon-day-dark.png" media="(prefers-color-scheme: dark)" />
+                <img
+                  src="/screens/salon-day-light.png"
+                  alt={t.salon.shot.alt}
+                  width={1440}
+                  height={1000}
+                  loading="lazy"
+                />
+              </picture>
+              <figcaption>{t.salon.shot.note}</figcaption>
+            </figure>
+          </section>
+
           <SubtypeLinks direction="salons" title={t.segments.typesTitle.salons} />
 
+          {s.faq.length ? <JsonLd data={faqLd(s.faq)} /> : null}
           <MarketingBlock
             id="marketing"
             copy={t.marketing.salon}

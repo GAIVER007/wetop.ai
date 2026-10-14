@@ -25,7 +25,6 @@ describe('меню салона', () => {
       '/channels',
       '/hotel-settings',
       '/website',
-      '/bar',
     ]) {
       expect(items, href).not.toContain(href);
     }
@@ -43,6 +42,7 @@ describe('меню салона', () => {
       '/beauty/schedule',
       '/services',
       '/finance',
+      '/bar',
       '/team',
       '/sales',
       '/ai-agents',

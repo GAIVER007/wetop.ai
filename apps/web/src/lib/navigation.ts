@@ -576,7 +576,7 @@ export const beautyMenuSections: MenuSection[] = [
     id: 'money',
     label: 'Финансы',
     icon: 'money' as IconName,
-    items: [menuItem('/finance', 'Оплаты и касса')],
+    items: [menuItem('/finance', 'Оплаты и касса'), menuItem('/bar', 'Бар')],
   },
   {
     id: 'team',
@@ -649,6 +649,7 @@ export const foodMenuSections: MenuSection[] = [
     ],
   },
   direct('customers', '/customers', 'guests', 'Клиенты'),
+  direct('guests', '/guests', 'guests', 'Гости', ['/reservations']),
   {
     id: 'money',
     label: 'Финансы',

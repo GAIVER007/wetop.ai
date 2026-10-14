@@ -67,3 +67,18 @@ for (const theme of ['light', 'dark']) {
     await expect(tooltip).toBeHidden();
   });
 }
+
+
+test('home tasks stay separate from a past financial period', async ({page}) => {
+  await page.goto('/');
+  await expect(page).toHaveURL(/\/today$/);
+  await expect(page.getByRole('heading', {name: 'Главная', exact: true})).toBeVisible();
+  await expect(page.getByTestId('owner-risks')).toBeVisible();
+  await page.goto('/finance?from=2026-08-15&to=2026-08-15');
+  await expect(page.getByRole('heading', {name: 'Финансы', exact: true})).toBeVisible();
+  await expect(page.getByTestId('period-form').getByLabel('Период: с', {exact: true})).toHaveValue('2026-08-15');
+  await expect(page.getByTestId('period-form').getByLabel('Период: по', {exact: true})).toHaveValue('2026-08-15');
+  await expect(page.getByTestId('owner-risks')).toHaveCount(0);
+  await page.goto('/today');
+  await expect(page.getByTestId('owner-risks')).toBeVisible();
+});

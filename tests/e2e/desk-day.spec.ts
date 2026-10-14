@@ -13,24 +13,24 @@ const plus = (n: number) => {
 /** Дашборд: операции всегда за сегодня, финансовый период выбирается отдельно.
  * Новая бронь должна изменить счётчик и задачи; аналитика читает ту же базу.
  */
-test('финансы открываются с корня; заезд на дату виден в счётчике и в «Требуют внимания»', async ({
+test('главная открывается с корня; заезд на дату виден в «Требуют внимания»', async ({
   page,
   request,
 }) => {
   await page.goto('/');
-  // гостиница с 09.10 живёт единым разделом «Финансы» (plans/finance-home-merge-2026-10-09.md)
-  await expect(page).toHaveURL(/\/finance$/);
-  await expect(page.getByRole('heading', { name: 'Обзор бизнеса' })).toBeVisible();
-  // деньги по умолчанию за месяц, риски внизу всегда о сегодняшнем дне
+  // ADR-180: задачи и события дня на Главной, денежный период на Финансах.
+  await expect(page).toHaveURL(/\/today$/);
+  await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+  await page.goto('/finance');
+  await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
   await expect(
-    page
-      .getByRole('navigation', { name: 'Период обзора', exact: true })
+    page.getByRole('navigation', { name: 'Готовые периоды', exact: true })
       .getByRole('link', { name: 'Месяц', exact: true }),
-  ).toHaveAttribute('aria-current', 'page');
+  ).toHaveClass(/is-active/);
 
   // Заводим заезд на выбранную дату и проверяем рост очереди «Требуют внимания».
   const day = plus(0);
-  await page.goto(`/finance?from=${day}&to=${day}`);
+  await page.goto('/today');
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   // A3: брони без ячейки — одна строка очереди с числом; брони под ней — первые три
   const tasks = page.getByRole('region', { name: 'Требуют внимания' });
@@ -57,7 +57,7 @@ test('финансы открываются с корня; заезд на да�
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
 
-  await page.goto(`/finance?from=${day}&to=${day}`);
+  await page.goto('/today');
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   // бронь без ячейки — в очереди критичным, стойка видит причину
   await expect(unassigned).toHaveAttribute('data-count', String(unassignedBefore + 1));
@@ -68,7 +68,7 @@ test('финансы открываются с корня; заезд на да�
     );
   // Риски относятся к сегодняшнему дню.
   await expect(page.getByTestId('owner-risks')).toBeVisible();
-  await expect(page.getByRole('main').getByLabel('Период: с', { exact: true })).toHaveValue(day);
+  await expect(page.getByRole('heading', {name: 'Главная', exact: true})).toBeVisible();
 
   await page.screenshot({ path: 'reports/screenshots/desk-today.png', fullPage: true });
 
@@ -93,12 +93,16 @@ test('финансы открываются с корня; заезд на да�
     page.getByRole('main').getByTestId('statistics-table').locator('tbody tr').first(),
   ).toBeVisible();
 
-  // Прошлый финансовый период не меняет текущую полосу рисков.
+  // Прошлый финансовый период не меняет задачи текущего дня на Главной.
   await page.goto('/finance?from=2026-08-15&to=2026-08-15');
-  await expect(page.getByRole('heading', { name: 'Обзор бизнеса' })).toBeVisible();
-  await expect(page.getByRole('main').getByLabel('Период: с', { exact: true })).toHaveValue('2026-08-15');
-  await expect(page.getByRole('main').getByLabel('Период: по', { exact: true })).toHaveValue('2026-08-15');
+  await expect(page.getByRole('heading', { name: 'Финансы' })).toBeVisible();
+  await expect(page.getByTestId('period-form').getByLabel('Период: с', { exact: true })).toHaveValue('2026-08-15');
+  await expect(page.getByTestId('period-form').getByLabel('Период: по', { exact: true })).toHaveValue('2026-08-15');
+  await expect(page.getByRole('main').getByTestId('owner-risks')).toHaveCount(0);
+  await page.goto('/today');
   await expect(page.getByRole('main').getByTestId('owner-risks')).toBeVisible();
+  await page.getByRole('button', {name: 'Все задачи', exact: true}).click();
+  await expect(unassigned).toHaveAttribute('data-count', String(unassignedBefore + 1));
   await page.goto('/management/analytics?date=2026-08-15');
   await expect(page.getByRole('main').getByTestId('pa-period')).toContainText('15 августа');
 });

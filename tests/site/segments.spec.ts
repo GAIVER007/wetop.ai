@@ -46,6 +46,48 @@ const SEGMENTS = [
     ...HOTEL,
   },
   {
+    path: '/for/guest-houses/',
+    title: /гостев/i,
+    mustHave: /гостевого дома/i,
+    photo: '/photos/guest-houses.jpg',
+    ...HOTEL,
+  },
+  {
+    path: '/for/resorts/',
+    title: /баз(а|ы) отдыха/i,
+    mustHave: /домик/i,
+    photo: '/photos/resorts.jpg',
+    ...HOTEL,
+  },
+  {
+    path: '/for/daily-rentals/',
+    title: /посуточно/i,
+    mustHave: /квартир/i,
+    photo: '/photos/daily-rentals.jpg',
+    ...HOTEL,
+  },
+  {
+    path: '/for/glamping/',
+    title: /глэмпинг/i,
+    mustHave: /купол|шатр/i,
+    photo: '/photos/glamping.jpg',
+    ...HOTEL,
+  },
+  {
+    path: '/for/sanatoriums/',
+    title: /санатори/i,
+    mustHave: /заезд/i,
+    photo: '/photos/sanatoriums.jpg',
+    ...HOTEL,
+  },
+  {
+    path: '/for/capsule-hotels/',
+    title: /капсульн/i,
+    mustHave: /капсул/i,
+    photo: '/photos/capsule-hotels.jpg',
+    ...HOTEL,
+  },
+  {
     path: '/for/beauty-salons/',
     title: /салон красоты/i,
     mustHave: /косметолог/i,
@@ -67,8 +109,92 @@ const SEGMENTS = [
     photo: '/photos/nails.jpg',
     ...BEAUTY,
   },
+  {
+    path: '/for/hair-salons/',
+    title: /парикмахерск/i,
+    mustHave: /окрашивани/i,
+    photo: '/photos/hair-salons.jpg',
+    ...BEAUTY,
+  },
+  {
+    path: '/for/massage/',
+    title: /массаж/i,
+    mustHave: /кабинет/i,
+    photo: '/photos/massage.jpg',
+    ...BEAUTY,
+  },
+  {
+    path: '/for/cosmetology/',
+    title: /косметологи/i,
+    mustHave: /пилинг/i,
+    photo: '/photos/cosmetology.jpg',
+    ...BEAUTY,
+  },
+  {
+    path: '/for/brows-lashes/',
+    title: /брови/i,
+    mustHave: /ресниц/i,
+    photo: '/photos/brows-lashes.jpg',
+    ...BEAUTY,
+  },
+  {
+    path: '/for/epilation/',
+    title: /эпиляци/i,
+    mustHave: /лазерн/i,
+    photo: '/photos/epilation.jpg',
+    ...BEAUTY,
+  },
+  {
+    path: '/for/tattoo/',
+    title: /тату/i,
+    mustHave: /пирсинг/i,
+    photo: '/photos/tattoo.jpg',
+    ...BEAUTY,
+  },
   { path: '/for/cafes/', title: /кафе/i, mustHave: /техкарт/i, photo: '/photos/cafe.jpg', ...FOOD },
   { path: '/for/bars/', title: /бар/i, mustHave: /коктейл/i, photo: '/photos/bar.jpg', ...FOOD },
+  {
+    path: '/for/coffee-shops/',
+    title: /кофейн/i,
+    mustHave: /бариста/i,
+    photo: '/photos/coffee-shops.jpg',
+    ...FOOD,
+  },
+  {
+    path: '/for/hookah-lounges/',
+    title: /кальянн/i,
+    mustHave: /лаунж/i,
+    photo: '/photos/hookah-lounges.jpg',
+    ...FOOD,
+  },
+  {
+    path: '/for/karaoke/',
+    title: /караоке/i,
+    mustHave: /комнат/i,
+    photo: '/photos/karaoke.jpg',
+    ...FOOD,
+  },
+  {
+    path: '/for/pizzerias/',
+    title: /пиццери/i,
+    mustHave: /печ/i,
+    photo: '/photos/pizzerias.jpg',
+    ...FOOD,
+  },
+  {
+    path: '/for/canteens/',
+    title: /столов/i,
+    mustHave: /раздач/i,
+    photo: '/photos/canteens.jpg',
+    ...FOOD,
+  },
+  {
+    path: '/for/banquet-halls/',
+    title: /банкетн/i,
+    mustHave: /мероприяти/i,
+    photo: '/photos/banquet-halls.jpg',
+    ...FOOD,
+  },
 ];
 
 for (const segment of SEGMENTS) {
@@ -96,10 +222,11 @@ for (const segment of SEGMENTS) {
     await expect(hero.getByText('Источники бронирований', { exact: true })).toHaveCount(0);
 
     expect((await page.request.get((await photo.getAttribute('src')) ?? '')).status()).toBe(200);
+    // Сетка возможностей 3 в ряд: карточек не меньше шести, чтобы ряды были полными
     expect(
       await page.locator('#segment-features .card').count(),
       'карточек возможностей',
-    ).toBeGreaterThanOrEqual(5);
+    ).toBeGreaterThanOrEqual(6);
     // Настоящий экран продукта своей вертикали: календарь размещений, день салона, план зала
     await expect(page.locator('.hotel-shot img')).toHaveAttribute(
       'src',
@@ -112,12 +239,12 @@ for (const segment of SEGMENTS) {
       '',
     );
     expect(ld, 'FAQPage в структурированных данных').toContain('"FAQPage"');
-    // «Смотрите также»: соседние типы бизнеса и страница направления карточками, без ссылки на себя
-    const siblings = SEGMENTS.filter((s) => s.direction === segment.direction && s !== segment);
-    for (const sibling of siblings)
-      await expect(page.locator(`main .card a[href="${sibling.path}"]`)).toHaveCount(1);
-    await expect(page.locator(`main .card a[href="${segment.path}"]`)).toHaveCount(0);
-    await expect(page.locator(`main .card a[href="${segment.direction}"]`)).toHaveCount(1);
+    // «Смотрите также»: карточка направления и три соседних типа по кругу, без ссылки на себя
+    const dirKey = segment.direction.split('/')[2];
+    const also = page.locator(`section[aria-labelledby="${dirKey}-types-title"]`);
+    await expect(also.locator('.card a')).toHaveCount(4);
+    await expect(also.locator(`a[href="${segment.path}"]`)).toHaveCount(0);
+    await expect(also.locator(`a[href="${segment.direction}"]`)).toHaveCount(1);
     await expect(page.locator('.faq details')).toHaveCount(6);
     await expect(page.locator('.cta [data-auth="register"]')).toBeVisible();
     await expect(page.locator(`.cta a[href="${segment.secondary}"]`)).toBeVisible();
@@ -156,14 +283,8 @@ test('карточки направлений на главной ведут н�
 });
 
 test('страницы направлений ведут карточками на свои типы бизнеса', async ({ page }) => {
-  for (const [direction, types] of [
-    ['/for/hotels/', ['/for/hostels/', '/for/mini-hotels/', '/for/apart-hotels/']],
-    [
-      '/for/salons/',
-      ['/for/beauty-salons/', '/for/barbershops/', '/for/spa/', '/for/nail-studios/'],
-    ],
-    ['/for/restaurants/', ['/for/cafes/', '/for/bars/']],
-  ] as const) {
+  for (const direction of ['/for/hotels/', '/for/salons/', '/for/restaurants/'] as const) {
+    const types = SEGMENTS.filter((s) => s.direction === direction).map((s) => s.path);
     await page.goto(direction);
     for (const path of types)
       await expect(page.locator(`main .card a[href="${path}"]`)).toHaveCount(1);

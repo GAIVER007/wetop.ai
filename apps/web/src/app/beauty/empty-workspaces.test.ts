@@ -34,6 +34,21 @@ const day = {
 } satisfies BeautyDay;
 
 describe('Пустые рабочие экраны салона', () => {
+  it('разрешает перенос мышью открытой записи, но запрещает его в режиме чтения', () => {
+    const populated = {
+      ...day,
+      columns: [{ id: 'master', name: 'Тестовый мастер', intervals: [{ timeFrom: '09:00', timeTo: '18:00' }], timeOff: false, timeOffReason: null, serviceIds: ['service'] }],
+      appointments: [{ id: 'appointment', employeeId: 'master', serviceId: 'service', serviceName: 'Тестовая услуга',
+        customer: { id: 'customer', name: 'Тестовый клиент', phone: null },
+        startsAt: '2026-10-11T05:00:00Z', endsAt: '2026-10-11T06:00:00Z',
+        startMinutes: 600, endMinutes: 660, status: 'BOOKED' as const, next: [],
+        priceMinor: '800000', currency: 'KZT', notes: null }],
+    } satisfies BeautyDay;
+    const editable = renderToStaticMarkup(createElement(JournalBoard, { day: populated, customers: [], employees: [], readOnly: false }));
+    expect(editable).toContain('draggable="true"');
+    const locked = renderToStaticMarkup(createElement(JournalBoard, { day: populated, customers: [], employees: [], readOnly: true }));
+    expect(locked).not.toContain('draggable="true"');
+  });
   it('показывает часы и сетку без мастеров и услуг, не разрешая запись', () => {
     const html = renderToStaticMarkup(
       createElement(JournalBoard, { day, customers: [], employees: [], readOnly: false }),

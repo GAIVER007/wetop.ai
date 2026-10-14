@@ -32,7 +32,15 @@ export function SubtypeLinks({
   withDirection?: boolean;
 }) {
   const t = getDictionary();
-  const slugs = subtypesOf(direction).filter((slug) => slug !== exclude);
+  const all = subtypesOf(direction);
+  // На странице типа показываются три соседних типа по кругу реестра, чтобы блок не разрастался
+  // с каталогом, а ссылочный вес расходился по всем страницам направления равномерно.
+  const slugs = exclude
+    ? Array.from(
+        { length: Math.min(3, all.length - 1) },
+        (_, i) => all[(all.indexOf(exclude) + 1 + i) % all.length]!,
+      )
+    : all;
   const own = DIRECTION_CARD[direction];
   const count = slugs.length + (withDirection ? 1 : 0);
   return (

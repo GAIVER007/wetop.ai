@@ -1,0 +1,30 @@
+{
+ "/management/analytics/channels": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": [
+    "INPUT: 13x13"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

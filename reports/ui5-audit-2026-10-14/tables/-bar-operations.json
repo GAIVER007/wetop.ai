@@ -1,0 +1,50 @@
+{
+ "/bar/operations": {
+  "390": [
+   {
+    "cols": 7,
+    "noHead": false,
+    "rows": 1,
+    "rowHeights": [
+     100
+    ],
+    "widerThanViewport": true,
+    "hasOwnScroll": true
+   },
+   {
+    "cols": 6,
+    "noHead": false,
+    "rows": 2,
+    "rowHeights": [
+     50,
+     51
+    ],
+    "widerThanViewport": true,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 7,
+    "noHead": false,
+    "rows": 1,
+    "rowHeights": [
+     38
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   },
+   {
+    "cols": 6,
+    "noHead": false,
+    "rows": 2,
+    "rowHeights": [
+     29,
+     30
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

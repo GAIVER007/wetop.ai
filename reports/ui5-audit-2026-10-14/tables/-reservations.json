@@ -1,0 +1,32 @@
+{
+ "/reservations": {
+  "390": [
+   {
+    "cols": 6,
+    "noHead": false,
+    "rows": 9,
+    "rowHeights": [
+     212,
+     235,
+     236
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 6,
+    "noHead": false,
+    "rows": 9,
+    "rowHeights": [
+     68,
+     69,
+     85
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": false
+   }
+  ]
+ }
+}

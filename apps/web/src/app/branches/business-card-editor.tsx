@@ -101,7 +101,9 @@ export function BusinessCardEditor({
                     ) : (
                       <div>
                         <Icon name="image" />
-                        <span>Обложка не выбрана</span>
+                        <span>
+                          {business.hasCover ? 'Обложка временно недоступна' : 'Обложка не выбрана'}
+                        </span>
                       </div>
                     )}
                   </div>

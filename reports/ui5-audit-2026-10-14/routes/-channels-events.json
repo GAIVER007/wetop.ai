@@ -1,0 +1,31 @@
+{
+ "/channels/events": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "События",
+   "mainEmpty": false,
+   "smallTargets": [
+    "SELECT:все статусыобработаноошибкапол 143x36",
+    "SELECT:все типыновая броньизменениеот 146x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "События",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "События",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

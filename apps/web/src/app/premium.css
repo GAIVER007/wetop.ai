@@ -1062,6 +1062,15 @@
     padding-top: 20px;
     text-align: center;
   }
+  /* телефон: «Войти» под формой — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .login-preview a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+    }
+  }
+
   .login-preview span {
     display: block;
     color: var(--muted);

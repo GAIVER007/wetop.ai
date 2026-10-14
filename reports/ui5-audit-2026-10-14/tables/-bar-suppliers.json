@@ -1,0 +1,31 @@
+{
+ "/bar/suppliers": {
+  "390": [
+   {
+    "cols": 7,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     52,
+     53,
+     101
+    ],
+    "widerThanViewport": true,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 7,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     38,
+     39
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

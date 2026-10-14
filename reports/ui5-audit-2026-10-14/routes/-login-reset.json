@@ -1,0 +1,30 @@
+{
+ "/login/reset": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Забыли пароль?  Это решаемо.",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:WWETOP.AI 342x32"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Забыли пароль?  Это решаемо.",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Забыли пароль?  Это решаемо.",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

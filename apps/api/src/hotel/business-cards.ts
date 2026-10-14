@@ -152,7 +152,11 @@ export class BusinessCardsService {
       ? Prisma.empty
       : Prisma.sql`AND id IN (${Prisma.join(ids.map((id) => Prisma.sql`${id}::uuid`))})`;
     const rows = await this.prisma.db.$queryRaw<Row[]>(
-      Prisma.sql`SELECT ${ROW} FROM businesses WHERE organization_id=${organizationId}::uuid AND status='ACTIVE' ${scope} ORDER BY name,id`,
+      Prisma.sql`SELECT ${ROW} FROM businesses
+        WHERE organization_id=${organizationId}::uuid AND status='ACTIVE' ${scope}
+        AND (EXISTS (SELECT 1 FROM locations l WHERE l.business_id=businesses.id AND l.status='ACTIVE')
+          OR NOT EXISTS (SELECT 1 FROM locations l WHERE l.business_id=businesses.id))
+        ORDER BY name,id`,
     );
     return Promise.all(rows.map((row) => this.view(row)));
   }

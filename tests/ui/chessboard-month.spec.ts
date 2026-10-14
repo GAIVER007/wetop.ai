@@ -79,9 +79,9 @@ test('7 дней, 14 дней, произвольный период и возв
   currentMonth.setUTCMonth(currentMonth.getUTCMonth() + 1, 0);
   await expect(page.getByTestId('date-col')).toHaveCount(currentMonth.getUTCDate());
   await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', monthStart);
-  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
-  await expect(page.getByTestId('date-col')).toHaveCount(7);
-  await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
+  await chooseBoardPeriod(page, 'Сегодня');
+  await expect(page.getByTestId('date-col')).toHaveCount(1);
+  await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10));
   await expect(page.locator('th.is-today')).toHaveCount(1);
 });
 
@@ -107,8 +107,9 @@ test('30 дней: окно от сегодня и шаг стрелки рав�
     next.toISOString().slice(0, 10),
   );
   await expect(page.getByTestId('date-col')).toHaveCount(30);
-  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
-  await expect(page.getByTestId('date-col')).toHaveCount(7);
+  await chooseBoardPeriod(page, 'Сегодня');
+  await expect(page.getByTestId('date-col')).toHaveCount(1);
+  await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', today);
 });
 
 test('в месяце открываются брони, свободные даты и группы номеров', async ({ page }) => {

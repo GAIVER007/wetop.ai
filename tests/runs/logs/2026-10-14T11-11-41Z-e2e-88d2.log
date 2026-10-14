@@ -1,0 +1,57 @@
+# Сквозные (e2e) · 14.10.2026 16:11 Алматы · MacBook-Air-Urij.local
+# коммит 86290d2 (claude/ui5-fullpass-20261014), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ui5-modals-audit.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/ui5-modals-audit.spec.ts:21:5 › диалог: /branches → Добавить (3.3s)
+  ✘  2 tests/ui/ui5-modals-audit.spec.ts:21:5 › диалог: /bar → Добавить товар (19.0s)
+  ✓  3 tests/ui/ui5-modals-audit.spec.ts:21:5 › диалог: /today → Все задачи (2.3s)
+  ✓  4 tests/ui/ui5-modals-audit.spec.ts:21:5 › диалог: /inventory → Добавить в номерной фонд (3.1s)
+  ✓  5 tests/ui/ui5-modals-audit.spec.ts:21:5 › диалог: /team → Пригласить сотрудника (2.5s)
+
+
+  1) tests/ui/ui5-modals-audit.spec.ts:21:5 › диалог: /bar → Добавить товар ────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog').first() with timeout 15000ms
+      - waiting for getByRole('dialog').first()
+
+
+      31 |         await opener.click();
+      32 |         const dialog = page.getByRole('dialog').first();
+    > 33 |         await expect(dialog).toBeVisible();
+         |                              ^
+      34 |         r['name'] = await dialog.evaluate(
+      35 |           (el) => el.ariaLabel || document.getElementById(el.getAttribute('aria-labelledby') || '')?.textContent || null,
+      36 |         );
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/ui5-modals-audit.spec.ts:33:30
+
+    Error Context: test-results/ui5-modals-audit-диалог-bar-→-Добавить-товар/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui5-modals-audit-диалог-bar-→-Добавить-товар/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui5-modals-audit-диалог-bar-→-Добавить-товар/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ui5-modals-audit.spec.ts:21:5 › диалог: /bar → Добавить товар ─────────────────────────
+  4 passed (44.1s)
+
+# код выхода 1 · 46 с

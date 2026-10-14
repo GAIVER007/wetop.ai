@@ -176,7 +176,7 @@
   }
   .integrations-page .integration-card .note {
     margin: 0;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .integration-environment {
     margin: 0;

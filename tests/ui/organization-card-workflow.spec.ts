@@ -59,7 +59,7 @@ test('business metadata and branch archive survive reload; second brand keeps it
   await expect(archive).not.toBeVisible();
   await editor.getByRole('button', { name: 'Закрыть редактор' }).click();
   await page.reload();
-  await expect(card.locator('.org-branch-rows')).not.toContainText(originalBranch);
+  await expect(card).toHaveCount(0);
   await page.getByRole('button', { name: /^Архив \(/ }).click();
   const archived = page.getByRole('dialog', { name: 'Архив объектов', exact: true });
   await archived

@@ -7004,3 +7004,11 @@ Problem: Organization cards stretched into empty columns; the metadata dialog st
 Decision: cards occupy their content height; desktop metadata and cover use two columns with a single-column mobile layout. Branch editing uses a secondary action and deletion a clearly marked danger action. The label "Удалить филиал" retains the approved recoverable archive operation and confirmation explicitly explains retention and restoration. Existing empty hotels may open hotel settings; a missing property still requires onboarding. Keep private S3 storage requirements and do not substitute local reference images for persisted tenant covers.
 
 Consequence: no schema, financial, booking or permission changes. Photo upload remains unavailable until the documented storage is provisioned. Test the settings gate red then green and verify metadata save, archive/restore and mobile layout on synthetic data before publication.
+
+## Active business cards with archived branches (14.10.2026)
+
+Problem: archiving the last branch left a large empty active card for test businesses. Owner requested removing test salon/restaurant cards while keeping history and a new organization usable without branches.
+
+Decision: the read model lists active businesses with an active location or with no locations ever created. A business whose locations are all archived is hidden from active cards. Restore of a location makes its card visible again. Business status, identities, scope rules, history and financial queries are unchanged. A singleton card is centered; cover metadata that exists but has no readable URL is labelled temporarily unavailable.
+
+Validation: real PostgreSQL regression red then green, record counts and business status preserved, empty-new-project and restore cases; synthetic UI metadata/archive/reload/restore checks. No migration or additional write endpoint.

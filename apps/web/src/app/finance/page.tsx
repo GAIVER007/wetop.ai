@@ -51,7 +51,7 @@ import {
   dailyFlow,
 } from './finance-board';
 import './finance-board.css';
-import { PaymentMethods, RecentOperations } from './overview';
+import { MoneyOverview, RecentOperations } from './overview';
 import { FinanceWorkspace } from './workspace';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { operationFilter } from './operation-filter';
@@ -293,9 +293,15 @@ export default async function FinanceReportPage({
           <ExpenseCategories ops={periodOps} allHref={opsHref({ op: 'expense' })} />
         </div>
         <div className="fin-row fin-row--three">
-          <PaymentMethods
-            report={r}
-            opsHref={(method) => opsHref(method ? { op: 'payment', method } : { op: 'payment' })}
+          {/* «Платежи и транзакции» эталона: «Финансовый обзор» с возвратами отдельной строкой
+              (ADR-176) и «Остатком на счетах» по способам */}
+          <MoneyOverview
+            sums={sums}
+            ops={periodOps}
+            from={from}
+            to={to}
+            cash={cashBalances}
+            detailsHref={`${period}&show=1#operations`}
           />
           <FinanceReports exportHref={`/finance/export?${exportQuery}`} from={from} to={to} />
           <AnalyticsCta />

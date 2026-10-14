@@ -35,7 +35,7 @@ test('первый вход: обучение открывается само, �
 
   await tour.getByRole('button', { name: 'Далее' }).click();
   await expect(tour.getByRole('heading', { name: 'Поиск по всей стойке' })).toBeVisible();
-  // С 09.10 стартовый экран — «Обзор бизнеса» с обычной шапкой: поиск виден и подсвечивается вырезом.
+  // С 13.10 стартовый экран «Главная» (ADR-180) с обычной шапкой: поиск виден и подсвечивается вырезом.
   await expect(page.locator('[data-tour="search"]')).toBeVisible();
   await expect(page.locator('.tour__hole')).toBeVisible();
   await expect(page.locator('.tour__card--center')).toHaveCount(0);

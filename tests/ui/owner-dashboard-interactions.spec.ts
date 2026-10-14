@@ -1,8 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API, expect, test } from './fixtures';
 
-/* Раскрытие прогноза, повтор после отказов и телефонные размеры блоков владельца
-   на едином экране «Финансы» (plans/finance-home-merge-2026-10-09.md). */
+/* Раскрытие прогноза, повтор после отказов и телефонные размеры блоков владельца на «Главной» `/today` (ADR-180). */
 const SHOTS = 'reports/finance-home-merge-2026-10-09';
 
 test.beforeEach(async ({ request }) => {
@@ -13,7 +12,7 @@ test('forecast details expose availability and open the selected calendar day', 
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/finance');
+  await page.goto('/today');
   const trigger = page.getByRole('button', { name: 'Загрузка по дням', exact: true });
   await trigger.click();
   const dialog = page.getByRole('dialog', { name: 'Ближайшие 7 дней', exact: true });
@@ -38,7 +37,7 @@ test('forecast details expose availability and open the selected calendar day', 
 
 test('forecast can recover in place after a temporary API failure', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '/desk/dashboard' } });
-  await page.goto('/finance');
+  await page.goto('/today');
   const load = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(load.getByText('Прогноз загрузки недоступен', { exact: false })).toBeVisible();
   // отказ аналитики не трогает деньги: сводка кассы живёт своими запросами
@@ -51,7 +50,7 @@ test('forecast can recover in place after a temporary API failure', async ({ pag
 
 test('unavailable inventory stays explicit and can be retried', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '/chessboard' } });
-  await page.goto('/finance');
+  await page.goto('/today');
   const load = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(load.getByTestId('c-occupancy')).toHaveText('Нет данных');
   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '' } });
@@ -64,7 +63,7 @@ test('slow inventory keeps daily events usable and shows a stable loading card',
   request,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/finance');
+  await page.goto('/today');
   const readyCard = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(readyCard).toBeVisible();
   const ready = await readyCard.boundingBox();
@@ -97,7 +96,7 @@ for (const theme of ['light', 'dark'] as const) {
   test(`forecast drawer stays accessible at 320 px in ${theme} theme`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 740 });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
-    await page.goto('/finance');
+    await page.goto('/today');
     await page.getByRole('button', { name: 'Загрузка по дням', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: 'Ближайшие 7 дней', exact: true });
     await expect(dialog).toBeVisible();
@@ -120,7 +119,7 @@ for (const theme of ['light', 'dark'] as const) {
 
 test('weekly outlook opens a calendar day directly', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/finance');
+  await page.goto('/today');
   const days = page.getByTestId('owner-outlook-chart').getByRole('link');
   await expect(days).toHaveCount(7);
   const day = days.nth(2);
@@ -133,7 +132,7 @@ test('weekly outlook opens a calendar day directly', async ({ page }) => {
 
 test('compact owner summary fits a 360 by 800 phone first screen', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
-  await page.goto('/finance');
+  await page.goto('/today');
   await expect(page.getByTestId('cash-period-income')).toBeVisible();
   await expect(page.getByTestId('owner-outlook-chart').getByRole('link')).toHaveCount(7);
   // плитки показателей начинают первый экран; деньги ниже, достижимы прокруткой

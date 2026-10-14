@@ -227,3 +227,13 @@
     }
   }
 }
+
+@layer sections {
+  /* «Финансовый обзор» в узкой карточке третьего ряда: сетка сумм в одну колонку */
+  .fin-row--three .biz-money {
+    min-width: 0;
+  }
+  .fin-row--three .biz-money__sums {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -1,7 +1,6 @@
 import { FIXTURE_API, expect, test } from './fixtures';
 
-/* Блоки владельца на едином экране «Финансы»: загрузка, деньги кассы и события дня
-   (plans/finance-home-merge-2026-10-09.md; прежняя компактная Главная владельца). */
+/* Блоки владельца на «Главной» `/today` (ADR-180, 13.10.2026): загрузка, события дня и внимание. */
 const fixture = FIXTURE_API;
 const SHOTS = 'reports/finance-home-merge-2026-10-09';
 
@@ -10,7 +9,7 @@ test.beforeEach(async ({ request }) => {
 });
 test('owner blocks: compact metrics and operational widgets on finance', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/finance');
+  await page.goto('/today');
   const main = page.getByRole('main');
   // блок «Деньги» с заглушками не переехал: деньги показывает сводка кассы
   for (const id of ['owner-net-cash', 'owner-refunds', 'owner-paid', 'owner-expenses'])
@@ -36,7 +35,7 @@ test('owner blocks: compact metrics and operational widgets on finance', async (
   });
 });
 test('period changes through cash presets and mobile retains content', async ({ page }) => {
-  await page.goto('/finance');
+  await page.goto('/today');
   await page.getByRole('link', { name: 'Неделя', exact: true }).click();
   await expect(page).toHaveURL(/from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
   await expect(page.getByTestId('cash-period-income')).toBeVisible();
@@ -50,7 +49,7 @@ test('attention and cash stay available when dashboard API fails', async ({ page
   await request.post(`${fixture}/__test/control`, {
     data: { failPath: '/desk/dashboard' },
   });
-  await page.goto('/finance');
+  await page.goto('/today');
   await expect(page.getByText('Прогноз загрузки недоступен', { exact: false })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
   await expect(page.getByTestId('cash-summary')).toBeVisible();
@@ -59,7 +58,7 @@ test('attention and cash stay available when dashboard API fails', async ({ page
 test('owner blocks dark desktop and mobile remain usable', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/finance');
+  await page.goto('/today');
   await expect(page.getByTestId('cash-period-income')).toBeVisible();
   await page.screenshot({
     caret: 'initial',
@@ -89,7 +88,7 @@ test('owner blocks dark desktop and mobile remain usable', async ({ page }) => {
 
 test('owner mobile summary fits the first screen and omits removed metrics', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/finance');
+  await page.goto('/today');
   await expect(page.getByTestId('cash-period-income')).toContainText('₸');
   for (const id of ['owner-refunds', 'owner-cash', 'owner-total'])
     await expect(page.getByTestId(id)).toHaveCount(0);
@@ -106,7 +105,7 @@ test('owner mobile summary fits the first screen and omits removed metrics', asy
 test('owner summary stays usable at narrow widths and custom dates remain accessible', async ({
   page,
 }) => {
-  await page.goto('/finance');
+  await page.goto('/today');
   for (const width of [320, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(
@@ -126,7 +125,7 @@ test('approved owner concept groups forecast with occupancy and matches attentio
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/finance');
+  await page.goto('/today');
   const load = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(load.getByTestId('owner-outlook-chart')).toBeVisible();
   await expect(load.getByTestId('c-occupancy')).toBeVisible();

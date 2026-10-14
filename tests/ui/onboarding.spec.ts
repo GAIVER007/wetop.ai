@@ -89,9 +89,9 @@ test('после запуска отеля «Финансы» без «Перв�
   await main.getByLabel('Название категории').fill('Двухместный номер');
   await main.getByLabel(/Цена за ночь/).fill('21000');
   await main.getByRole('button', { name: 'Запустить отель' }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
 
-  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
   await expect(page.getByText('Первые шаги')).toHaveCount(0);
   await expect(main.getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
@@ -100,8 +100,8 @@ test('после запуска отеля «Финансы» без «Перв�
 
 test('у работающего отеля с бронями «Первых шагов» нет', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { onboardingNeeded: false } });
-  await page.goto('/finance');
-  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', level: 1 })).toBeVisible();
+  await page.goto('/today');
+  await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
 });
 
@@ -123,11 +123,11 @@ test('«Заполнить позже»: стойка открывается, г
   await page.screenshot({ path: 'test-results/onboarding-later-1-form.png', fullPage: true });
   await main.getByTestId('onboarding-later').click();
 
-  await page.waitForURL('**/finance');
-  await expect(page.getByRole('heading', { name: 'Обзор бизнеса', level: 1 })).toBeVisible();
+  await page.waitForURL('**/today');
+  await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
   // «Первые шаги» сняты 29.09.2026 (слово владельца): подсказки «Настроить отель» больше нет
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
-  await page.screenshot({ path: 'test-results/onboarding-later-2-finance.png' });
+  await page.screenshot({ path: 'test-results/onboarding-later-2-home.png' });
 
   // другой рабочий экран тоже не уводит
   await page.goto('/reservations');

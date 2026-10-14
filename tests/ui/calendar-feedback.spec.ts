@@ -65,3 +65,10 @@ test('calendar has one search and keeps local filtering', async ({ page }) => {
     page.getByRole('button', { name: 'Найти гостя или бронь', exact: true }),
   ).toBeVisible();
 });
+
+test('automated fixture pages exclude the manual annotation toolbar', async ({ page }) => {
+  await page.goto('/design-system');
+  await expect(page.getByRole('heading', { level: 1, name: 'Дизайн-система' })).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('agentation-toolbar')).toHaveCount(0);
+});

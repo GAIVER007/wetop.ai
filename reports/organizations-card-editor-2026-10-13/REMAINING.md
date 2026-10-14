@@ -106,3 +106,15 @@ PR494 merged as 10d02d565985e7aa7265e019048d46eea498103b. Full release-checks 38
 - Production is still the previously verified6d8b6d8 version. No backup, production migration, data cleanup, cover upload or deployment performed in this iteration.
 
 - ui-snapshots38469619188 succeeded on exact main10d02d56. Reviewed light/dark icon images and accepted only these two icon references from ci/ui-snapshots-24 (d2d88dc5). Did not accept the other24 changed references, including unrelated dark tokens. Snapshot tolerance, assertions and product code are unchanged.
+
+## Follow-up: reported503 and remaining gate failures (13.10.2026)
+
+PR495 is MERGED, main03653e49. Local3152/branches and production /branches both return200. Latest full gate38470261319 failed UI part1; the aggregate UI job only reports that failure. Other mandatory jobs passed. The503 line in this run belongs to the synthetic channel API error path, not a failed merge.
+
+New owner request: investigate the merge error and put remaining work in order. Corrected the scoped UI blockers without schema, financial or other business logic changes:
+
+- Retain <=56px Calendar toolbar by removing extra vertical padding; category names wrap at word boundaries. Preserve strict six-card/grid/height assertions, verify visible control centres with1px alignment tolerance.
+- Retain approved940px reservation drawer from41ac6c7fd; update stale760px expectation and additionally assert no horizontal overflow.
+- Manual Agentation overlays contaminated automated reference screenshots. Regression red2026-10-14T04-35-16Z-e2e-9601: one agentation-toolbar instead of zero. Exclude this manual tool only from the already existing APP_UI_TEST environment. Normal local annotation tooling remains enabled. No CI configuration changes, tolerance widening or skipped checks.
+- Green2026-10-14T04-36-01Z-e2e-6ae6:18/18 scenarios, including all seven prior blockers, both themes, month navigation, preview, mobile booking cancel and the new toolbar isolation check. CSS intermediate run2026-10-14T04-32-25Z-e2e-312e had14 passed/3 failed before correcting the alignment metric.
+- Design guard2026-10-14T04-38-04Z-unit-778e:15/15. Targeted ESLint and web typecheck passed. Source decisions recorded. Full GitHub gate and live deployment remain separate, mandatory steps.

@@ -29,11 +29,13 @@ test('филиалы: создание, сохранение после reload �
   await main.getByRole('button', { name: 'Добавить', exact: true }).click();
   const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
   await expect(creation).toBeVisible();
-  // окно по умолчанию предлагает новый бизнес (ADR-ORG-ADAPTIVE): для филиала сначала переключатель
-  await creation.getByRole('radio', { name: 'Филиал существующего бизнеса' }).check();
-  await creation.getByLabel('Название объекта', { exact: true }).fill('Тестовый филиал у парка');
-  await creation.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
-  await expect(creation.getByRole('status')).toContainText('Филиал создан');
+  // организация пуста, окно предлагает новый бизнес (ADR-ORG-ADAPTIVE): филиал станет его первым объектом
+  await creation.getByLabel('Название бизнеса', { exact: true }).fill('Тестовый бизнес у парка');
+  await creation
+    .getByLabel('Название первого объекта', { exact: true })
+    .fill('Тестовый филиал у парка');
+  await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+  await expect(creation.getByRole('status')).toContainText(/создан/);
   await page.reload();
   await expect(
     main.getByRole('button').filter({ hasText: 'Тестовый филиал у парка' }),

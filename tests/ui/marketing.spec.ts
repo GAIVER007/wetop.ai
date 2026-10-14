@@ -92,7 +92,7 @@ test('/website/* подсвечивает «Маркетинг», а не «Пр
   }
 });
 
-test('хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных', async ({
+test('хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», из данных только бюджет месяца', async ({
   page,
   request,
 }) => {
@@ -102,13 +102,14 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   const hits = (await (await request.get(`${fixture}/__test/hits`)).json()) as {
     byPath: Record<string, number>;
   };
+  // единая система (14.10.2026): хаб читает один источник, бюджет филиала за месяц («Потрачено на рекламу»)
   const business = Object.keys(hits.byPath).filter((path) => !SHELL.has(path));
-  expect(business, `хаб спросил данные: ${JSON.stringify(hits.byPath)}`).toEqual([]);
+  expect(business, `хаб спросил данные: ${JSON.stringify(hits.byPath)}`).toEqual(['/marketing/budget']);
 
   const hub = main(page);
   await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
   await expect(hub.locator('.page__subtitle')).toHaveText(
-    'Привлекайте гостей, автоматизируйте рекламу и развивайте бренд с помощью ИИ.',
+    'Привлекайте гостей, ведите рекламный бюджет и развивайте бренд гостиницы с помощью ИИ.',
   );
   // четыре модуля одного вида, по порядку (МКТ-В1: «Бюджет» живой, работает с базой)
   const modules = hub.getByTestId('marketing-module');
@@ -164,14 +165,13 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
     '/marketing/site/editor',
   );
 
-  // результаты: источник есть только у сайта, и хаб его не читает; вместо нулей «Нет данных» с причиной
+  // результаты: расход из бюджета месяца (пустой бюджет это 0 ₸), остальное без источника: «Нет данных»
   const results = hub.getByTestId('marketing-results');
-  await expect(results.getByRole('heading', { level: 2 })).toHaveText('Результаты за 30 дней');
+  await expect(results.getByRole('heading', { level: 2 })).toHaveText(/^Результаты за [а-я]+$/);
   const rows = results.getByTestId('marketing-result');
   await expect(rows).toHaveCount(4);
   await expect(rows.locator('dt')).toHaveText(['Переходы на сайт', 'Заявки на бронирование', 'Потрачено на рекламу', 'Доход с рекламы']);
-  await expect(rows.locator('dd')).toHaveText(Array(4).fill('Нет данных'));
-  await expect(results.locator('dl')).not.toContainText(/\d/);
+  await expect(rows.locator('dd')).toHaveText(['Нет данных', 'Нет данных', /^0\s₸$/, 'Нет данных']);
   await expect(results.getByRole('link', { name: 'Аналитика сайта', exact: true })).toHaveAttribute('href', '/website/analytics');
 
   // вторичный путь в прежний раздел сайта работает и подсвечивает «Маркетинг»
@@ -341,19 +341,19 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(page).toHaveURL(/\/marketing$/);
   const hub = main(page).getByTestId('business-marketing');
   await expect(hub).toBeVisible();
-  // МКТ-В1/В2: «Бюджет» четвёртым модулем; его экраны только у гостиницы, салону «Скоро» без ссылки
+  // единая система (14.10.2026): бюджет ведётся по филиалу любого направления; конструктор сайта API пока
+  // принимает только у гостиницы, поэтому у салона он «Скоро» без ссылки
   await expect(hub.getByTestId('marketing-module')).toHaveCount(4);
   await expect(hub.getByTestId('marketing-site-status')).toHaveText('Скоро');
-  await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Скоро');
+  await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   await expect(
     hub.getByTestId('marketing-site').getByRole('button', { name: 'Скоро' }),
   ).toBeDisabled();
+  await expect(hub.locator('a[href^="/website"], a[href^="/marketing/site"]')).toHaveCount(0);
   await expect(
-    hub.getByTestId('marketing-budget').getByRole('button', { name: 'Скоро' }),
-  ).toBeDisabled();
-  await expect(
-    hub.locator('a[href^="/website"], a[href^="/marketing/site"], a[href^="/marketing/budget"]'),
-  ).toHaveCount(0);
+    hub.getByTestId('marketing-budget').getByRole('link', { name: 'Открыть: Бюджет', exact: true }),
+  ).toHaveAttribute('href', '/marketing/budget');
+  await expect(hub).not.toContainText('гостиниц');
   for (const screen of ['ads', 'content'] as const) {
     await hub
       .getByRole('link', { name: screen === 'ads' ? 'Открыть: Реклама' : 'Открыть: Контент' })

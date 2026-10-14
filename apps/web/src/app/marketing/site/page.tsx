@@ -17,7 +17,7 @@ import '../marketing.css';
  * ИИ-продавца (Q-275) и архив. Право `settings` и строгий scope филиала проверяет API.
  */
 export default async function MarketingSitePage() {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  await requireVertical(['HOSPITALITY']);
   const shell = await deskShell();
   // журнал и источник брони есть только у существующего сайта: без него страница показывает пустое состояние
   const loaded = await marketingSiteApi

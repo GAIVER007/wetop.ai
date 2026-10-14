@@ -2,6 +2,17 @@
 import { useEffect, useState, useTransition } from 'react';
 import type { TelegramStatusView } from '../../../lib/api';
 import { telegramAction } from './actions';
+/** ID тестировщиков: только числа, без повторов, не больше 20 (как обещает подсказка у поля) */
+export const MAX_TESTERS = 20;
+export function parseTesterIds(raw: string): { ids: string[]; error: string | null } {
+  const parts = raw.split(/[\s,;]+/).filter(Boolean);
+  const bad = parts.filter((p) => !/^\d{3,15}$/.test(p));
+  if (bad.length)
+    return { ids: [], error: `Это не числовой Telegram ID: ${bad.slice(0, 3).join(', ')}. Узнать ID поможет бот @userinfobot.` };
+  const ids = [...new Set(parts)];
+  if (ids.length > MAX_TESTERS) return { ids: [], error: `Тестировщиков не больше ${MAX_TESTERS}, указано ${ids.length}.` };
+  return { ids, error: null };
+}
 const words: Record<TelegramStatusView['state'], string> = {
   NOT_CONNECTED: 'Не подключён',
   CONFIGURED: 'Приём остановлен',
@@ -40,7 +51,12 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
   const run = (action: 'status' | 'check' | 'connect' | 'disconnect') =>
     start(async () => {
       setMessage('');
-      const result = await telegramAction(id, action, token, ids.split(/[\s,;]+/).filter(Boolean));
+      const testers = parseTesterIds(ids);
+      if (action === 'connect' && testers.error) {
+        setMessage(testers.error);
+        return;
+      }
+      const result = await telegramAction(id, action, token.trim(), testers.ids);
       if (!result.ok) {
         setMessage(result.error);
         return;
@@ -65,8 +81,8 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
       }
     });
   return (
-    <section className="card" aria-labelledby="telegram-heading" style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+    <section className="panel agent-telegram" aria-labelledby="telegram-heading">
+      <div className="agent-telegram__head">
         <div>
           <h2 id="telegram-heading">Тест агента в Telegram</h2>
           <p>Подключите своего бота. Ответы доступны только указанным тестировщикам.</p>
@@ -95,13 +111,7 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
           </>
         )}
       </p>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
-          gap: 16,
-        }}
-      >
+      <div className="agent-telegram__fields">
         <label>
           Токен из @BotFather
           <input
@@ -125,6 +135,8 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
             disabled={pending || readOnly}
             onChange={(e) => setIds(e.target.value)}
             placeholder="123456789, 987654321"
+            inputMode="numeric"
+            aria-invalid={ids.trim() !== '' && parseTesterIds(ids).error !== null}
           />
           <small>Числовые ID, не @имена. До 20 человек.</small>
         </label>
@@ -134,7 +146,7 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
         возвращается в поле после перезагрузки. Токен хранится на сервере в зашифрованном виде. Для
         замены настроек введите его снова. Тестовый канал пока не создаёт брони.
       </p>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <div className="agent-telegram__actions">
         <button
           className="btn btn--secondary"
           disabled={pending || readOnly || !token.trim()}
@@ -166,10 +178,10 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
         </p>
       )}
       {status?.lastReceivedAt && (
-        <p>Последнее входящее: {new Date(status.lastReceivedAt).toLocaleString('ru-RU')}</p>
+        <p className="muted">Последнее входящее: {new Date(status.lastReceivedAt).toLocaleString('ru-RU')}</p>
       )}
       {status?.lastSentAt && (
-        <p>Последний ответ: {new Date(status.lastSentAt).toLocaleString('ru-RU')}</p>
+        <p className="muted">Последний ответ: {new Date(status.lastSentAt).toLocaleString('ru-RU')}</p>
       )}
     </section>
   );

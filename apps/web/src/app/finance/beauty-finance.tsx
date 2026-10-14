@@ -1,116 +1,114 @@
+import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import { beautyApi } from '../../lib/api';
+import { beautyApi, type BeautyAppointmentRow, type BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
-import { pluralRu } from '../../lib/plural';
-import { Panel, Stat, Stats, SectionTitle, Table, EmptyState } from '../../components/ui';
-import { selectedWorkspaceBranch } from '../../lib/workspace-context';
-import { localInput } from '../beauty/time';
+import { EmptyState, Panel, SectionTitle, Table } from '../../components/ui';
+import { KpiTile } from '../../components/kpi-tile';
 import './finance.css';
+import '../sales/sales.css';
 
 /**
- * «Финансы» салона красоты: выручка из завершённых записей (DONE), расходы и итоги за период.
- * Выручка считается как сумма снимков цен записей со статусом DONE (Q-252).
- * Более сложные финансы (касса, зарплата, расходы) — этап Beauty v2.
+ * «Финансы» салона (единая навигация всех направлений): деньги из записей салона, без выдуманных чисел.
+ * Источник один: `GET /beauty/appointments?date=` (день филиала), запрашивается по дням недели.
+ * - выручка: снимки цен записей в статусе DONE (Q-252);
+ * - ожидается: BOOKED и CONFIRMED (ещё не оказано);
+ * - потери: NO_SHOW и CANCELLED.
+ * Касса и расходы салона отдельной моделью пока не ведутся: экран говорит об этом прямо.
  */
+const DAYS = 7;
 
-interface AppointmentRow {
-  id: string;
-  date: string;
-  time: string;
-  customer: { name: string } | null;
-  employee: { name: string } | null;
-  service: { name: string } | null;
-  priceMinor: string;
-  currency: string;
-  status: string;
+function shiftDate(iso: string, delta: number): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + delta);
+  return d.toISOString().slice(0, 10);
 }
 
-async function loadBeautyFinance(from: string, to: string) {
-  const branch = await selectedWorkspaceBranch();
-  if (!branch) throw new Error('Выбранный филиал недоступен');
+const sum = (rows: BeautyAppointmentRow[]) =>
+  rows.reduce((acc, a) => acc + BigInt(a.priceMinor || '0'), 0n);
 
-  // Загружаем записи за период
-  const day = await beautyApi.day();
-  const appointments: AppointmentRow[] = (day.appointments ?? []).filter(
-    (a: AppointmentRow) => a.status === 'DONE',
-  );
+interface DayTotals {
+  date: string;
+  done: number;
+  revenue: bigint;
+}
 
-  const currency = day.location?.currency ?? 'KZT';
-  const totalMinor = appointments.reduce(
-    (sum: bigint, a: AppointmentRow) => sum + BigInt(a.priceMinor || '0'),
-    0n,
-  );
+export interface BeautyFinanceView {
+  today: string;
+  from: string;
+  currency: string;
+  timezone: string;
+  revenue: bigint;
+  expected: bigint;
+  lost: bigint;
+  done: BeautyAppointmentRow[];
+  doneByDate: Map<string, string>;
+  days: DayTotals[];
+  masters: Array<{ name: string; count: number; revenue: bigint }>;
+}
 
+/** Чистая сборка вида из ответов по дням: проверяется тестом без сети */
+export function buildBeautyFinance(days: BeautyDay[]): BeautyFinanceView {
+  const sorted = [...days].sort((a, b) => a.date.localeCompare(b.date));
+  const today = sorted.at(-1)?.date ?? '';
+  const currency = sorted.at(-1)?.location.currency ?? 'KZT';
+  const names = new Map<string, string>();
+  for (const day of sorted) for (const c of day.columns) names.set(c.id, c.name);
+  const all = sorted.flatMap((d) => d.appointments.map((a) => ({ a, date: d.date })));
+  const done = all.filter((x) => x.a.status === 'DONE');
+  const masters = new Map<string, { name: string; count: number; revenue: bigint }>();
+  for (const { a } of done) {
+    const m = masters.get(a.employeeId) ?? {
+      name: names.get(a.employeeId) ?? 'Мастер',
+      count: 0,
+      revenue: 0n,
+    };
+    m.count += 1;
+    m.revenue += BigInt(a.priceMinor || '0');
+    masters.set(a.employeeId, m);
+  }
   return {
-    appointments,
+    today,
+    from: sorted[0]?.date ?? today,
     currency,
-    totalMinor: totalMinor.toString(),
-    count: appointments.length,
-    branchName: branch.name,
-    from,
-    to,
+    // пояс филиала приходит в каждом ответе дня; без ответов строк нет и пояс не нужен
+    timezone: sorted.at(-1)?.location.timezone ?? 'UTC',
+    revenue: sum(done.map((x) => x.a)),
+    expected: sum(
+      all.filter((x) => x.a.status === 'BOOKED' || x.a.status === 'CONFIRMED').map((x) => x.a),
+    ),
+    lost: sum(
+      all.filter((x) => x.a.status === 'NO_SHOW' || x.a.status === 'CANCELLED').map((x) => x.a),
+    ),
+    done: done.map((x) => x.a).sort((p, q) => q.startsAt.localeCompare(p.startsAt)),
+    doneByDate: new Map(done.map((x) => [x.a.id, x.date])),
+    days: sorted.map((d) => {
+      const rows = d.appointments.filter((a) => a.status === 'DONE');
+      return { date: d.date, done: rows.length, revenue: sum(rows) };
+    }),
+    masters: [...masters.values()].sort((p, q) => (q.revenue > p.revenue ? 1 : -1)),
   };
 }
 
+async function loadWeek(): Promise<BeautyFinanceView> {
+  // Первый запрос без даты: сервер сам знает «сегодня» филиала в его часовом поясе
+  const first = await beautyApi.day();
+  const rest = await Promise.all(
+    Array.from({ length: DAYS - 1 }, (_, i) => beautyApi.day(shiftDate(first.date, -(i + 1)))),
+  );
+  return buildBeautyFinance([first, ...rest]);
+}
+
+const timeOf = (iso: string, timeZone: string) =>
+  new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone }).format(new Date(iso));
+
 export async function BeautyFinanceScreen() {
-  const branch = await selectedWorkspaceBranch().catch(() => null);
-  const now = new Date().toISOString();
-  const date = branch ? localInput(now, branch.timezone).slice(0, 10) : now.slice(0, 10);
-  const from = `${date.slice(0, 8)}01`;
-
+  let view: BeautyFinanceView;
   try {
-    const data = await loadBeautyFinance(from, date);
-    return (
-      <Page
-        title="Финансы"
-        subtitle={`Выручка салона за ${displayDate(from)} — ${displayDate(date)}`}
-      >
-        <Stats testId="beauty-finance-stats">
-          <Stat
-            label="Выручка"
-            value={formatMoney(data.totalMinor, data.currency)}
-            testId="beauty-revenue"
-          />
-          <Stat
-            label="Оказано услуг"
-            value={`${data.count} ${pluralRu(data.count, 'услуга', 'услуги', 'услуг')}`}
-            testId="beauty-services-count"
-          />
-        </Stats>
-
-        <SectionTitle>Завершённые записи</SectionTitle>
-        {data.appointments.length === 0 ? (
-          <EmptyState
-            title="Нет завершённых записей"
-            text="Завершённые записи с суммами появятся здесь"
-          />
-        ) : (
-          <Panel>
-            <Table
-              columns={[
-                { key: 'time', label: 'Время' },
-                { key: 'customer', label: 'Клиент' },
-                { key: 'employee', label: 'Мастер' },
-                { key: 'service', label: 'Услуга' },
-                { key: 'price', label: 'Сумма' },
-              ]}
-              rows={data.appointments.map((a) => ({
-                key: a.id,
-                time: a.time?.slice(0, 5) ?? '—',
-                customer: a.customer?.name ?? '—',
-                employee: a.employee?.name ?? '—',
-                service: a.service?.name ?? '—',
-                price: formatMoney(a.priceMinor, a.currency),
-              }))}
-            />
-          </Panel>
-        )}
-      </Page>
-    );
+    view = await loadWeek();
   } catch (error: unknown) {
     unstable_rethrow(error);
     return (
@@ -119,4 +117,126 @@ export async function BeautyFinanceScreen() {
       </Page>
     );
   }
+  const avg = view.done.length ? view.revenue / BigInt(view.done.length) : 0n;
+  const money = (v: bigint) => formatMoney(v, view.currency);
+  return (
+    <Page
+      title="Финансы"
+      subtitle={`Деньги салона за ${displayDate(view.from)} — ${displayDate(view.today)}`}
+    >
+      <div data-testid="beauty-finance">
+        <div className="kpi-row" data-testid="beauty-finance-kpis">
+          <KpiTile icon="money" label="Выручка за 7 дней" value={money(view.revenue)} caption="выполненные записи" testId="beauty-revenue" />
+          <KpiTile
+            icon="check"
+            label="Оказано услуг"
+            value={String(view.done.length)}
+            caption="выполнено за 7 дней"
+            testId="beauty-services-count"
+            href="/appointments"
+          />
+          <KpiTile icon="receipt" label="Средний чек" value={money(avg)} caption="по выполненным записям" testId="beauty-avg" />
+          <KpiTile
+            icon="booking"
+            label="Ожидается по записям"
+            value={money(view.expected)}
+            caption="записи без отметки «Выполнено»"
+            testId="beauty-expected"
+            href="/calendar"
+          />
+          <KpiTile
+            icon="incidents"
+            label="Потери"
+            value={money(view.lost)}
+            caption="неявки и отмены"
+            testId="beauty-lost"
+          />
+        </div>
+
+        <SectionTitle>По дням</SectionTitle>
+        <Panel>
+          <Table>
+            <thead>
+              <tr>
+                <th>День</th>
+                <th>Услуг</th>
+                <th>Выручка</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...view.days].reverse().map((d) => (
+                <tr key={d.date}>
+                  <td>{displayDate(d.date)}</td>
+                  <td>{d.done}</td>
+                  <td>{money(d.revenue)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Panel>
+
+        <SectionTitle>По мастерам</SectionTitle>
+        {view.masters.length === 0 ? (
+          <EmptyState title="Пока нет оказанных услуг">
+            Выручка по мастерам появится, когда записи отметят как выполненные в{' '}
+            <Link href="/calendar">календаре</Link>.
+          </EmptyState>
+        ) : (
+          <Panel>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Мастер</th>
+                  <th>Услуг</th>
+                  <th>Выручка</th>
+                </tr>
+              </thead>
+              <tbody>
+                {view.masters.map((m) => (
+                  <tr key={m.name}>
+                    <td>{m.name}</td>
+                    <td>{m.count}</td>
+                    <td>{money(m.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Panel>
+        )}
+
+        <SectionTitle>Оказанные услуги</SectionTitle>
+        {view.done.length === 0 ? (
+          <EmptyState title="Нет выполненных записей за неделю" />
+        ) : (
+          <Panel>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Время</th>
+                  <th>Клиент</th>
+                  <th>Услуга</th>
+                  <th>Сумма</th>
+                </tr>
+              </thead>
+              <tbody>
+                {view.done.map((a) => (
+                  <tr key={a.id}>
+                    <td>{displayDate(view.doneByDate.get(a.id) ?? view.today)}</td>
+                    <td>{timeOf(a.startsAt, view.timezone)}</td>
+                    <td>{a.customer.name}</td>
+                    <td>{a.serviceName}</td>
+                    <td>{formatMoney(a.priceMinor, a.currency)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Panel>
+        )}
+        <p className="settings-note beauty-finance__note">
+          Касса, расходы и зарплата салона ведутся отдельно: сейчас здесь деньги только из записей.
+        </p>
+      </div>
+    </Page>
+  );
 }

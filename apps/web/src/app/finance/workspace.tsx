@@ -1,12 +1,11 @@
 'use client';
 
-import { useSyncExternalStore, useState, type ReactNode } from 'react';
+import { useSyncExternalStore, type ReactNode } from 'react';
 
-import { Icon } from '../../components/icon';
-
-type View = 'overview' | 'operations' | 'debts' | 'services' | 'cash';
+type View = 'dashboard' | 'overview' | 'operations' | 'debts' | 'services' | 'cash';
 const tabs = [
-  { id: 'overview', label: 'Обзор', hash: '#charges' },
+  { id: 'dashboard', label: 'Обзор', hash: '#overview' },
+  { id: 'overview', label: 'Начисления', hash: '#charges' },
   { id: 'operations', label: 'Операции', hash: '#operations' },
   { id: 'debts', label: 'Долги', hash: '#debts' },
   // REP2: отчёт по услугам — свод начислений-услуг периода
@@ -25,6 +24,9 @@ function subscribe(notify: () => void) {
 /** Existing bookmarked drill-down links keep opening the corresponding panel. */
 export function FinanceWorkspace({
   initialView,
+  dashboard,
+  filters,
+  periodEditor,
   overview,
   operations,
   debts,
@@ -32,6 +34,9 @@ export function FinanceWorkspace({
   cash,
 }: {
   initialView: View | null;
+  dashboard: ReactNode;
+  filters: ReactNode;
+  periodEditor: ReactNode;
   overview: ReactNode;
   operations: ReactNode;
   debts: ReactNode;
@@ -43,30 +48,20 @@ export function FinanceWorkspace({
     () => window.location.hash,
     () => '',
   );
-  const active = tabs.find((tab) => tab.hash === hash)?.id ?? initialView;
-  const viewKey = `${initialView ?? ''}:${hash}`;
-  const [disclosure, setDisclosure] = useState<{ key: string; open: boolean } | null>(null);
-  const expanded = disclosure?.key === viewKey ? disclosure.open : active !== null;
+  const active =
+    hash === '#finance-filters'
+      ? 'operations'
+      : (tabs.find((tab) => tab.hash === hash)?.id ?? initialView ?? 'dashboard');
   const choose = (index: number) => {
     const tab = tabs[index]!;
     window.history.pushState(null, '', tab.hash);
     window.dispatchEvent(new Event('hashchange'));
     document.getElementById(`finance-tab-${tab.id}`)?.focus();
   };
-  const panels = { overview, operations, debts, services, cash };
+  const panels = { dashboard, overview, operations, debts, services, cash };
   return (
     <div className="finance-workspace finance-more">
-      <button
-        type="button"
-        className="finance-more__trigger"
-        aria-expanded={expanded}
-        aria-controls="finance-details"
-        onClick={() => setDisclosure({ key: viewKey, open: !expanded })}
-      >
-        <Icon name="chevron" />
-        Отчёты и управление
-      </button>
-      <div id="finance-details" hidden={!expanded}>
+      <div id="finance-details">
         <div className="finance-tabs" role="tablist" aria-label="Детализация финансов">
           {tabs.map((tab, index) => (
             <button
@@ -99,6 +94,19 @@ export function FinanceWorkspace({
             </button>
           ))}
         </div>
+        <div hidden={active !== 'operations'}>{filters}</div>
+        {active !== 'operations' && active !== 'cash' && (
+          <details className="finance-period-editor">
+            <summary>Свои даты</summary>
+            <form
+              method="get"
+              action={`/finance${tabs.find((tab) => tab.id === active)?.hash ?? '#overview'}`}
+              className="finance-toolbar"
+            >
+              {periodEditor}
+            </form>
+          </details>
+        )}
         {tabs.map((tab) => (
           <div
             key={tab.id}

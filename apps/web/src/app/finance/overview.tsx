@@ -94,8 +94,7 @@ export async function BizKpis({
     prevIncome !== null && prevRefunds !== null && prevExpense !== null
       ? prevIncome - prevRefunds - prevExpense
       : null;
-  const money = (v: bigint | null) =>
-    v === null ? '—' : formatMoney(v.toString(), currency);
+  const money = (v: bigint | null) => (v === null ? '—' : formatMoney(v.toString(), currency));
   return (
     <section className="biz-kpis" aria-label="Ключевые показатели">
       <Stat
@@ -237,71 +236,75 @@ export function MoneyOverview({
           {deltaLine(moneyDelta(expense, prevExpense))}
         </div>
       </div>
-      <div className="biz-money__body">
-        <div className="biz-money__chart">
-          <h3>Движение денег по дням</h3>
-          {flow ? (
-            <>
-              <ol className="biz-flow" data-testid="cash-flow-chart">
-                {flow.map((day) => (
-                  <li
-                    key={day.date}
-                    aria-label={`${displayDate(day.date, 'full')}: поступления ${formatMoney(day.income.toString(), currency)}, расходы ${formatMoney(day.expense.toString(), currency)}`}
-                  >
-                    <span className="biz-flow__bars" aria-hidden="true">
-                      {/* slop-allow: inline-style высота столбика из данных дня */}
-                      <i
-                        className="biz-flow__in"
-                        style={{ height: `${Math.max(2, height(day.income))}%` }}
-                      />
-                      {/* slop-allow: inline-style высота столбика из данных дня */}
-                      <i
-                        className="biz-flow__out"
-                        style={{ height: `${Math.max(2, height(day.expense))}%` }}
-                      />
-                    </span>
-                  </li>
-                ))}
-              </ol>
-              <div className="biz-flow__axis" aria-hidden="true">
-                <span>{displayDate(from)}</span>
-                <span>{displayDate(to)}</span>
-              </div>
-              <p className="biz-card__note">
-                <span className="biz-dot biz-dot--income" aria-hidden="true" /> поступления
-                {'  '}
-                <span className="biz-dot biz-dot--expense" aria-hidden="true" /> возвраты и расходы
-                {ops?.truncated ? '; лента обрезана, график по последним операциям периода' : ''}
-              </p>
-            </>
-          ) : (
-            <p className="biz-card__note">
-              {ops
-                ? 'Период длиннее двух месяцев: по дням смотрите короткий отрезок'
-                : 'Операции за период не загрузились'}
-            </p>
-          )}
-        </div>
-        <div className="biz-money__accounts">
-          <h3>Остаток на счетах</h3>
-          <strong data-testid="cash-balance">
-            {cash ? formatMoney(cash.totalMinor, cash.currency) : 'Нет данных'}
-          </strong>
-          {cash && (
-            <dl>
-              {cash.balances.map((balance, i) => (
-                <div key={balance.method}>
-                  <dt>
-                    <span className={`biz-dot biz-dot--${(i % 4) + 1}`} aria-hidden="true" />
-                    {METHOD_RU[balance.method] ?? balance.method}
-                  </dt>
-                  <dd>{formatMoney(balance.balanceMinor, cash.currency)}</dd>
+      <details className="finance-disclosure">
+        <summary>График и остатки по счетам</summary>
+        <div className="biz-money__body">
+          <div className="biz-money__chart">
+            <h3>Движение денег по дням</h3>
+            {flow ? (
+              <>
+                <ol className="biz-flow" data-testid="cash-flow-chart">
+                  {flow.map((day) => (
+                    <li
+                      key={day.date}
+                      aria-label={`${displayDate(day.date, 'full')}: поступления ${formatMoney(day.income.toString(), currency)}, расходы ${formatMoney(day.expense.toString(), currency)}`}
+                    >
+                      <span className="biz-flow__bars" aria-hidden="true">
+                        {/* slop-allow: inline-style высота столбика из данных дня */}
+                        <i
+                          className="biz-flow__in"
+                          style={{ height: `${Math.max(2, height(day.income))}%` }}
+                        />
+                        {/* slop-allow: inline-style высота столбика из данных дня */}
+                        <i
+                          className="biz-flow__out"
+                          style={{ height: `${Math.max(2, height(day.expense))}%` }}
+                        />
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+                <div className="biz-flow__axis" aria-hidden="true">
+                  <span>{displayDate(from)}</span>
+                  <span>{displayDate(to)}</span>
                 </div>
-              ))}
-            </dl>
-          )}
+                <p className="biz-card__note">
+                  <span className="biz-dot biz-dot--income" aria-hidden="true" /> поступления
+                  {'  '}
+                  <span className="biz-dot biz-dot--expense" aria-hidden="true" /> возвраты и
+                  расходы
+                  {ops?.truncated ? '; лента обрезана, график по последним операциям периода' : ''}
+                </p>
+              </>
+            ) : (
+              <p className="biz-card__note">
+                {ops
+                  ? 'Период длиннее двух месяцев: по дням смотрите короткий отрезок'
+                  : 'Операции за период не загрузились'}
+              </p>
+            )}
+          </div>
+          <div className="biz-money__accounts">
+            <h3>Остаток на счетах</h3>
+            <strong data-testid="cash-balance">
+              {cash ? formatMoney(cash.totalMinor, cash.currency) : 'Нет данных'}
+            </strong>
+            {cash && (
+              <dl>
+                {cash.balances.map((balance, i) => (
+                  <div key={balance.method}>
+                    <dt>
+                      <span className={`biz-dot biz-dot--${(i % 4) + 1}`} aria-hidden="true" />
+                      {METHOD_RU[balance.method] ?? balance.method}
+                    </dt>
+                    <dd>{formatMoney(balance.balanceMinor, cash.currency)}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </div>
         </div>
-      </div>
+      </details>
     </section>
   );
 }

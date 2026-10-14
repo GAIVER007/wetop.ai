@@ -152,15 +152,18 @@ export async function OwnerLoad({ date }: { date: string }) {
           <DashboardRefresh label="Повторить" />
         </div>
       )}
-      <Suspense
-        fallback={
-          <div className="owner-outlook">
-            <OwnerPlaceholder variant="outlook" label="Загружаем прогноз…" />
-          </div>
-        }
-      >
-        <OwnerOutlook today={date} />
-      </Suspense>
+      <details className="finance-disclosure">
+        <summary>Прогноз загрузки</summary>
+        <Suspense
+          fallback={
+            <div className="owner-outlook">
+              <OwnerPlaceholder variant="outlook" label="Загружаем прогноз…" />
+            </div>
+          }
+        >
+          <OwnerOutlook today={date} />
+        </Suspense>
+      </details>
     </section>
   );
 }

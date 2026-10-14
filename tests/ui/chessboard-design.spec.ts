@@ -98,7 +98,18 @@ for (const theme of ['light', 'dark'] as const) {
         await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
       // Длинная категория не должна заходить на число мест в узкой первой колонке.
       for (const name of await page.locator('.board-group-name-text').all()) {
-        expect(await name.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+        const geometry = await name.evaluate((el) => ({
+          text: el.textContent,
+          client: el.clientWidth,
+          scroll: el.scrollWidth,
+          font: getComputedStyle(el).font,
+          gap: getComputedStyle(el.parentElement!).gap,
+          columns: getComputedStyle(el.parentElement!).gridTemplateColumns,
+        }));
+        expect(
+          geometry.scroll - geometry.client,
+          `${width}px: ${JSON.stringify(geometry)}`,
+        ).toBeLessThanOrEqual(1);
       }
       const audit = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])

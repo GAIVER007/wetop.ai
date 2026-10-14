@@ -1,0 +1,30 @@
+{
+ "/bar/products": {
+  "390": [
+   {
+    "cols": 8,
+    "noHead": false,
+    "rows": 6,
+    "rowHeights": [
+     52,
+     53
+    ],
+    "widerThanViewport": true,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 8,
+    "noHead": false,
+    "rows": 6,
+    "rowHeights": [
+     49,
+     50
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

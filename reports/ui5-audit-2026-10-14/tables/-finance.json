@@ -1,0 +1,91 @@
+{
+ "/finance": {
+  "390": [
+   {
+    "cols": 3,
+    "noHead": false,
+    "rows": 31,
+    "rowHeights": [
+     22
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": false
+   },
+   {
+    "cols": 6,
+    "noHead": false,
+    "rows": 7,
+    "rowHeights": [
+     265
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   },
+   {
+    "cols": 3,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     36,
+     37
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   },
+   {
+    "cols": 3,
+    "noHead": false,
+    "rows": 1,
+    "rowHeights": [
+     36
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 3,
+    "noHead": false,
+    "rows": 31,
+    "rowHeights": [
+     22
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": false
+   },
+   {
+    "cols": 6,
+    "noHead": false,
+    "rows": 7,
+    "rowHeights": [
+     42,
+     43
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   },
+   {
+    "cols": 3,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     36,
+     37
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   },
+   {
+    "cols": 3,
+    "noHead": false,
+    "rows": 1,
+    "rowHeights": [
+     36
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

@@ -424,6 +424,12 @@
       padding-top: 0;
       flex-wrap: wrap;
     }
+    /* цель касания 44 px у ссылок-пресетов (аудит UI5) */
+    .fund-presets a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+    }
     .fund-availability article {
       padding: 16px;
     }

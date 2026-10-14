@@ -325,7 +325,7 @@
   }
   .finance-kpis .stat__hint {
     margin-top: 4px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .finance-tabs {
     display: flex;
@@ -373,7 +373,7 @@
     min-height: 32px;
     padding: 8px 8px;
     border-left-width: 1px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .finance-workspace .finance-block {
     padding: 16px;
@@ -390,10 +390,10 @@
   .finance-workspace th,
   .finance-workspace td {
     padding: 8px 8px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .finance-category-details {
-    font-size: 12px;
+    font-size: var(--text-xs);
     margin-top: 8px;
   }
   .finance-category-details summary {
@@ -402,7 +402,7 @@
   }
   .page:has(.finance-workspace) > .context-help {
     margin-top: 8px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   @media (min-width: 1000px) {
     .finance-workspace th,

@@ -3053,6 +3053,12 @@
     min-height: var(--space-6);
     font-size: var(--text-xs);
   }
+  /* телефон: «Свернуть категории» — цель касания 44 px (DESIGN.md §6, аудит UI5) */
+  @media (max-width: 600px) {
+    .calendar-page .board__unit-head .board-overview-controls .btn {
+      min-height: var(--touch-target);
+    }
+  }
   .calendar-page .board .board__d {
     font-size: var(--text-lg);
   }

@@ -5,9 +5,7 @@
    "minFont": 13,
    "h1": "Настройки объекта",
    "mainEmpty": false,
-   "smallTargets": [
-    "A:Настроить 92x21"
-   ]
+   "smallTargets": []
   },
   "768": {
    "overflowX": 0,

@@ -25,6 +25,13 @@
 .form :global(.booking-create__quick button) {
   min-height: 36px;
 }
+/* телефон: быстрые даты — цель касания 44 px (модуль вне слоёв перебивал sections; аудит UI5) */
+@media (max-width: 600px) {
+  .form :global(.booking-create__quick button) {
+    height: auto;
+    min-height: var(--touch-target);
+  }
+}
 .form :global(.field) {
   gap: var(--space-2);
   font-size: var(--text-sm);

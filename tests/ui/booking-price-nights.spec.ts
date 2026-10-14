@@ -51,12 +51,12 @@ for (const width of [1280, 1366, 1440]) {
       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
     expect(tops).toHaveLength(6);
     expect(new Set(tops).size).toBe(1);
-    // период, «Сегодня» и «Новая бронь» на одной линии с заголовком
+    // период и «Новая бронь» на одной линии с заголовком; ярлык «Сегодня» снят в #506 (пресет внутри периода)
     const lineTops = await page
       .locator('main > .page__head')
       .locator('.board-period, .board-nav > .btn, .board-new')
       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 8)));
-    expect(lineTops).toHaveLength(3);
+    expect(lineTops).toHaveLength(2);
     expect(new Set(lineTops).size).toBe(1);
     await expect(panel.getByTestId('day-free')).toBeVisible();
     await expect(panel.getByTestId('day-units')).toHaveCount(0);

@@ -1,0 +1,31 @@
+{
+ "/reports/finance": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:«Оплаты» 63x16",
+    "A:«Документы» 89x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Отчёты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

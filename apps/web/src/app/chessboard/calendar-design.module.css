@@ -1,6 +1,6 @@
 .calendar :global(.board-toolbar) {
   gap: var(--space-4);
-  padding-block: var(--space-4);
+  padding-block: 0;
   align-items: center;
 }
 .calendar :global(.board-nav) {
@@ -63,7 +63,7 @@
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   line-height: 1.35;
   font-weight: 700;
   font-size: var(--text-xs);

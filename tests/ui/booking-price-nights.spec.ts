@@ -48,14 +48,20 @@ for (const width of [1280, 1366, 1440]) {
       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
     expect(tops).toHaveLength(6);
     expect(new Set(tops).size).toBe(1);
-    // все шесть элементов полосы на одной линии
-    const barTops = await page
+    // Видимые элементы полосы выровнены по центру, независимо от высоты рамки периода.
+    const barCenters = await page
       .locator('.board-toolbar')
       .locator(
         ':scope > .board-nav > *, :scope > .board-search, :scope > .board-filters-open, :scope > .board-new',
       )
-      .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 8)));
-    expect(new Set(barTops).size).toBe(1);
+      .evaluateAll((els) =>
+        els
+          .map((e) => e.getBoundingClientRect())
+          .filter((r) => r.width > 0 && r.height > 0)
+          .map((r) => r.top + r.height / 2),
+      );
+    expect(barCenters.length).toBeGreaterThanOrEqual(4);
+    expect(Math.max(...barCenters) - Math.min(...barCenters)).toBeLessThanOrEqual(1);
     await expect(panel.getByTestId('day-free')).toBeVisible();
     await expect(panel.getByTestId('day-units')).toHaveCount(0);
     await page.screenshot({

@@ -218,7 +218,10 @@ async function SellerScreen({
         </Alert>
       )}
       {view === 'overview' && <OverviewView status={status.value} />}
-      {view === '' && <SetupView status={status.value} />}
+      {view === '' && <Stack>
+        <OverviewView status={status.value} />
+        <details className="seller-setup-disclosure"><summary>Настройка продавца</summary><SetupView status={status.value} /></details>
+      </Stack>}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} q={q} channel={channel} />}
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'connections' && <ConnectionsView status={status.value} summary />}
@@ -261,24 +264,6 @@ async function SetupView({ status }: { status: SellerStatus }) {
     <Stack>
       {banner.tone === 'alarm' && <Alert data-testid="seller-state-reason">{banner.text}</Alert>}
       <SetupWizard>
-        <Panel>
-          <SectionTitle first>Данные вашего объекта</SectionTitle>
-          <p>
-            Продавец использует номера, тарифы и правила проживания из WETOP. Не нужно переписывать
-            их в инструкцию.
-          </p>
-          <Row>
-            <Badge tone={status.facts.applied ? 'ok' : 'warn'}>
-              {status.facts.applied ? 'Данные переданы продавцу' : 'Данные ещё не переданы'}
-            </Badge>
-          </Row>
-          <p>
-            <Link href="/hotel-settings">Проверить объект и правила проживания</Link>
-          </p>
-          <p>
-            <Link href="/ai-seller/knowledge">Посмотреть данные и дополнительные знания</Link>
-          </p>
-        </Panel>
         <Stack>
         <Panel data-testid="seller-setup" aria-labelledby="seller-prompt-title">
           <SectionTitle first id="seller-prompt-title">

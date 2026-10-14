@@ -42,6 +42,11 @@ export async function OverviewView({ status }: { status: SellerStatus }) {
   const why = !readable ? 'Продавец не подключён' : 'Нет данных от продавца';
   return (
     <div className="seller-overview" data-testid="seller-overview">
+      <div className="seller-overview__actions" aria-label="Действия продавца">
+        <Link className="btn btn--secondary" href="/ai-seller/dialogs">Диалоги</Link>
+        <Link className="btn btn--secondary" href="/ai-seller/knowledge">База знаний</Link>
+        <Link className="btn btn--secondary" href="/ai-seller/connections">Подключения</Link>
+      </div>
       {!s && (
         <Alert tone="warning" role="alert" data-testid="seller-overview-sales-error">
           Не удалось посчитать брони из чата. Остальное показано как есть, обновите страницу.

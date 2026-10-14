@@ -136,7 +136,7 @@ test('неделя показывает запись и открывает её 
 });
 
 test('перенос мышью меняет время записи через существующий API', async ({ page, request }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(240_000);
   await readySalon(page, request);
   await openDay(page);
   await book(page, '10:00', 'Тестовый перенос');

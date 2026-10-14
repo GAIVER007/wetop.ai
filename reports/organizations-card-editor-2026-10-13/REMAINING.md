@@ -132,3 +132,7 @@ Exact-SHA1930e9df gate38513294586 passed main/unit/site, bot, database, branches
 - Red2026-10-14T05-27-43Z-e2e-03de:2/2 failed. Narrow gap change alone did not solve it (2026-10-14T05-28-44Z-e2e-c194). Diagnostics in2026-10-14T05-30-15Z-e2e-5e36 showed390px, label91px versus first word93px.
 - Allocate more mobile label width using4px side padding and4px icon gap; preserve normal word wrapping with break-word only for overlong tokens. Keep every1px/no-overflow/whole-word/accessibility assertion. Added useful failing-category geometry to the existing test.
 - Green2026-10-14T05-31-50Z-e2e-defa:8/8, both themes across1440/1024/768/390/320, mobile whole-word checks360/390/430, desktop toolbar1280/1366/1440. Targeted ESLint and design guard passed. Production still requires a green exact-SHA gate, approved migrations and runtime/domain verification.
+
+## Baseline decrease after PR497
+
+The earlier current-maincc9b2892 run38514092816 failed only the CSS baseline check: fund.css violations had decreased27 to26, but the old count remained. Reproduced on current fa803ca0 in2026-10-14T05-37-24Z-unit-3920. Updated exactly one JSON value27 to26; no rule or allowance increased. Green2026-10-14T05-37-55Z-unit-d920:33/33 design guards. Stopped only own obsolete fa803ca0 run38517495901, which contained the reproduced baseline mismatch; separate UI4 candidate remains untouched.

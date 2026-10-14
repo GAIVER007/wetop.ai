@@ -73,7 +73,7 @@ function Menu({
   const root = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
-  const shown = sections.find((s) => s.id === hovered) ?? current ?? sections[0];
+  const shown = sections.find((s) => s.id === hovered);
   useEffect(() => setReady(true), []);
   useEffect(() => {
     setOpen(false);
@@ -101,7 +101,7 @@ function Menu({
       (el) => el.getClientRects().length,
     );
   const focusIn = (column: string, index = 0) =>
-    controls(root.current?.querySelector(`[data-column="${column}"]`))[index]?.focus();
+    controls([...(root.current?.querySelectorAll<HTMLElement>(`[data-column="${column}"]`) ?? [])].find((element) => element.getClientRects().length))[index]?.focus();
   const show = () => {
     flushSync(() => {
       setHovered(current?.id);
@@ -126,23 +126,22 @@ function Menu({
     const target = event.target as HTMLElement;
     const column = target.closest<HTMLElement>('[data-column]');
     if (!column) return;
-    const items = controls(column);
+    const items = controls(root.current?.querySelector('[data-column="sections"]'));
     const index = items.indexOf(target);
     const actions: Record<string, () => void> = {
       ArrowDown: () => items[(index + 1) % items.length]?.focus(),
       ArrowUp: () => items[(index - 1 + items.length) % items.length]?.focus(),
       Home: () => items[0]?.focus(),
       End: () => items.at(-1)?.focus(),
-      ArrowRight: () => column.dataset.column === 'sections' && focusIn('items'),
-      ArrowLeft: () =>
-        column.dataset.column === 'items' &&
-        focusIn(
-          'sections',
-          Math.max(
-            0,
-            sections.findIndex((s) => s.id === shown?.id),
-          ),
-        ),
+      ArrowRight: () => {
+        if (column.dataset.column !== 'sections' || !target.hasAttribute('aria-expanded')) return;
+        flushSync(() => setHovered(target.dataset.tour?.replace('section-', '')));
+        focusIn('items');
+      },
+      ArrowLeft: () => {
+        if (column.dataset.column === 'items')
+          target.closest('.sidenav__section-group')?.querySelector<HTMLButtonElement>('button')?.focus();
+      },
     };
     if (actions[event.key]) {
       event.preventDefault();
@@ -215,63 +214,57 @@ function Menu({
                 section.id === current?.id && 'has-current-page',
               ),
               'data-tour': `section-${section.id}`,
-              onPointerEnter: () => setHovered(section.id),
-              onFocus: () => setHovered(section.id),
             };
-            return single ? (
-              <Link
-                key={section.id}
-                {...props}
-                href={single.href}
-                prefetch={false}
-                aria-current={single.href === active ? 'page' : undefined}
-                onClick={navigate}
-              >
-                {contents}
-              </Link>
-            ) : (
-              <button
-                key={section.id}
-                {...props}
-                type="button"
-                aria-expanded={shown?.id === section.id}
-                aria-controls={`${id}-${section.id}`}
-                onClick={() => setHovered(section.id)}
-              >
-                {contents}
-              </button>
+            return (
+              <div className="sidenav__section-group" key={section.id}>
+                {single ? (
+                  <Link
+                    {...props}
+                    href={single.href}
+                    prefetch={false}
+                    aria-current={single.href === active ? 'page' : undefined}
+                    onClick={navigate}
+                  >
+                    {contents}
+                  </Link>
+                ) : (
+                  <>
+                    <button
+                      {...props}
+                      type="button"
+                      aria-expanded={shown?.id === section.id}
+                      aria-controls={`${id}-${section.id}`}
+                      onClick={() => setHovered(shown?.id === section.id ? undefined : section.id)}
+                    >
+                      {contents}
+                    </button>
+                    <div
+                      id={`${id}-${section.id}`}
+                      className="sidenav__items"
+                      data-column="items"
+                      role="group"
+                      aria-label={section.label}
+                      hidden={shown?.id !== section.id}
+                    >
+                      {section.items.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          prefetch={false}
+                          className={cx('sidenav__link', item.href === active && 'is-active')}
+                          aria-current={item.href === active ? 'page' : undefined}
+                          onClick={navigate}
+                        >
+                          <Icon name={item.icon} />
+                          <span>{item.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             );
           })}
-        </div>
-        <div className="sidenav__items" data-column="items" role="group" aria-label="Подразделы">
-          {shown?.direct && (
-            <div>
-              <p className="sidenav__title">{shown.label}</p>
-              <p className="sidenav__hint">{shown.items[0]?.description}</p>
-            </div>
-          )}
-          {sections.map((section) => (
-            <div
-              key={section.id}
-              id={`${id}-${section.id}`}
-              hidden={section.id !== shown?.id || !!section.direct}
-            >
-              <p className="sidenav__title">{section.label}</p>
-              {section.items.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  prefetch={false}
-                  className={cx('sidenav__link', item.href === active && 'is-active')}
-                  aria-current={!section.direct && item.href === active ? 'page' : undefined}
-                  onClick={navigate}
-                >
-                  <Icon name={item.icon} />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
-            </div>
-          ))}
         </div>
         <div className="sidenav__bottom">
           {trial && (

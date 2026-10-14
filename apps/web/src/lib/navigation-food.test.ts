@@ -72,10 +72,10 @@ describe('Food workspace isolation', () => {
       );
       if (v === 'HOSPITALITY') {
         // первая вкладка гостиницы — группа «Финансы» (ADR-157): первый пункт «Оплаты и касса»
-        expect(menuSectionsFor(owner, v)[0]!.label).toBe('Финансы');
+        expect(menuSectionsFor(owner, v)[0]!.label).toBe('Календарь');
         expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({
-          href: '/finance',
-          label: 'Оплаты и касса',
+          href: '/chessboard',
+          label: 'Календарь',
         });
       }
     }

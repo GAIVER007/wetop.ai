@@ -2,6 +2,27 @@
    Цвет клетки — уровень спроса (Q-258): высокий от 85 %, слабый до 50 %; текст всегда `--text`, цвет только фоном,
    а слово уровня есть в подсказке клетки и в легенде. */
 @layer sections {
+  /* Форма может открываться из EmptyState: его центрирование не наследуется панелью. */
+  .market-competitor-drawer { text-align: left; }
+  .market-competitor-drawer .overlay-content { padding-bottom: 0; }
+  .market-competitor-form { gap: var(--space-4); }
+  .market-competitor-form .field { align-items: stretch; text-align: left; min-width: 0; }
+  .market-competitor-form .settings-note { text-align: left; font-size: var(--text-sm); }
+  .market-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  .market-form-wide { grid-column: 1 / -1; }
+  .market-competitor-form .market-monitoring { margin-top: 0; display: grid; gap: var(--space-3); }
+  .market-form-details { border-top: 1px solid var(--border-soft); padding-top: var(--space-3); }
+  .market-form-details summary { cursor: pointer; min-height: 44px; display: list-item; font-weight: var(--weight-medium); }
+  .market-form-details[open] .market-form-grid { margin-top: var(--space-2); }
+  .market-competitor-form .settings-service-actions {
+    position: sticky; bottom: 0; z-index: 1; background: var(--surface);
+    border-top: 1px solid var(--border-soft); padding: var(--space-3) 0;
+  }
+  @media (max-width: 480px) {
+    .market-form-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+    .market-competitor-form .settings-service-actions > button { flex: 1; min-height: 44px; }
+  }
+
   /* Список конкурентов (SALES2.3b): шапка с отбором и таблица со свежестью данных */
   .market-list {
     margin: var(--space-6) 0;

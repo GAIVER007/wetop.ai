@@ -2,24 +2,23 @@
  "/bar/receipts/new": {
   "390": {
    "overflowX": 0,
-   "minFont": 12.5,
+   "minFont": 13,
    "h1": "Новый приход",
    "mainEmpty": false,
    "smallTargets": [
-    "A:← Приходы 79x21",
     "INPUT: 20x20"
    ]
   },
   "768": {
    "overflowX": 0,
-   "minFont": 12.5,
+   "minFont": 13,
    "h1": "Новый приход",
    "mainEmpty": false,
    "smallTargets": []
   },
   "1440": {
    "overflowX": 0,
-   "minFont": 12.5,
+   "minFont": 13,
    "h1": "Новый приход",
    "mainEmpty": false,
    "smallTargets": []

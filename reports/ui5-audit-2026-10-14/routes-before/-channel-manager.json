@@ -1,0 +1,28 @@
+{
+ "/channel-manager": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Каналы продаж",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Каналы продаж",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Каналы продаж",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

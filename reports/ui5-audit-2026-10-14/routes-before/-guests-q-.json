@@ -1,0 +1,31 @@
+{
+ "/guests?q=Тест": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гости и бронирования",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Сбросить фильтры 129x21",
+    "A:ГТГость ТестовыйНовый гость 170x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гости и бронирования",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Гости и бронирования",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

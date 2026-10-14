@@ -5,9 +5,7 @@
    "minFont": 13,
    "h1": "Бюджет маркетинга",
    "mainEmpty": false,
-   "smallTargets": [
-    "A:Все расходы 94x23"
-   ]
+   "smallTargets": []
   },
   "768": {
    "overflowX": 0,

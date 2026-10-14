@@ -2,28 +2,21 @@
  "/reservations/new?unit=M03": {
   "390": {
    "overflowX": 0,
-   "minFont": 11.6667,
+   "minFont": 13,
    "h1": "Новая бронь",
    "mainEmpty": false,
-   "smallTargets": [
-    "BUTTON:Сегодня 68x36",
-    "BUTTON:Завтра 59x36",
-    "BUTTON:1 ночь 54x36",
-    "BUTTON:2 ночи 57x36",
-    "BUTTON:3 ночи 57x36",
-    "BUTTON:7 ночей 64x36"
-   ]
+   "smallTargets": []
   },
   "768": {
    "overflowX": 0,
-   "minFont": 11.6667,
+   "minFont": 13,
    "h1": "Новая бронь",
    "mainEmpty": false,
    "smallTargets": []
   },
   "1440": {
    "overflowX": 0,
-   "minFont": 11.6667,
+   "minFont": 13,
    "h1": "Новая бронь",
    "mainEmpty": false,
    "smallTargets": []

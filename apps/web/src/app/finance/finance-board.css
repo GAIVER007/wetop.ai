@@ -119,6 +119,15 @@
     width: var(--space-4);
     height: var(--space-4);
   }
+  /* телефон: ссылка шапки карточки — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .fin-card__head a,
+    .biz-card__head .card-heading__link {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+    }
+  }
 
   .fin-expenses__list {
     display: grid;

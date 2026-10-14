@@ -1,0 +1,30 @@
+{
+ "/connections": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Подключения",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Открыть настройку 124x20"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Подключения",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Подключения",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

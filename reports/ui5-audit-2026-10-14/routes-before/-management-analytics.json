@@ -1,0 +1,38 @@
+{
+ "/management/analytics": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Все категории 111x36",
+    "A:Двухместный номер 153x36",
+    "A:Мужской общий номер 169x36",
+    "A:Женский общий номер 167x36",
+    "A:По дням 73x36",
+    "A:По неделям 95x36",
+    "A:По месяцам 97x36",
+    "A:Открыть календарь 126x20",
+    "A:«Оплаты» 63x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

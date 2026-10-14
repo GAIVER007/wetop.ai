@@ -48,6 +48,9 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     const { locationId, ...context } = { ...actor, ...patch };
     return withSignedInUser({ ...context, ...(locationId ? { locationId } : {}) }, fn);
   };
+  // отсутствие для проверки removeTimeOff: только будущая дата, список timeOffs отдаёт лишь
+  // не прошедшие (schedule.ts: dateTo >= today); вшитая «2026-10-13» протухла 14.10 и валила тест
+  const timeOffDay = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
   const input = (hour = '10:00') => ({
     employeeId: employee,
     serviceId: service,
@@ -354,7 +357,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     const day = await run(() => appointments.create(input()));
     const id = day.appointments[0]!.id;
     const off = await run(() =>
-      schedule.addTimeOff(employee, { dateFrom: '2026-10-13', dateTo: '2026-10-13' }),
+      schedule.addTimeOff(employee, { dateFrom: timeOffDay, dateTo: timeOffDay }),
     );
     const count = await db.auditLog.count({ where: { organizationId: org } });
     await db.organization.update({ where: { id: org }, data: { status: 'READ_ONLY' } });
@@ -367,7 +370,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
         () => catalog.updateEmployee(employee, { active: false }),
         () => catalog.setEmployeeServices(employee, { serviceIds: [] }),
         () => schedule.setWorkingHours(employee, { intervals: [] }),
-        () => schedule.addTimeOff(employee, { dateFrom: '2026-10-13', dateTo: '2026-10-13' }),
+        () => schedule.addTimeOff(employee, { dateFrom: timeOffDay, dateTo: timeOffDay }),
         () => schedule.removeTimeOff(employee, off.timeOffs[0]!.id),
         () => schedule.setLocations(employee, { locationIds: [] }),
         () => appointments.create(input('12:00')),

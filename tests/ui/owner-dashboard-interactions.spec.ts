@@ -40,8 +40,8 @@ test('forecast can recover in place after a temporary API failure', async ({ pag
   await page.goto('/today');
   const load = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(load.getByText('Прогноз загрузки недоступен', { exact: false })).toBeVisible();
-  // отказ аналитики не трогает деньги: сводка кассы живёт своими запросами
-  await expect(page.getByTestId('cash-period-income')).toBeVisible();
+  // отказ аналитики не трогает очередь внимания: она живёт своими запросами
+  await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
   await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '' } });
   await load.getByRole('button', { name: 'Повторить', exact: true }).click();
   await expect(load.getByTestId('owner-outlook-chart')).toBeVisible();
@@ -70,7 +70,7 @@ test('slow inventory keeps daily events usable and shows a stable loading card',
   await request.post(`${FIXTURE_API}/__test/control`, {
     data: { delayPath: '/chessboard', delayMs: 6000 },
   });
-  await page.goto('/finance', { waitUntil: 'commit' });
+  await page.goto('/today', { waitUntil: 'commit' });
   await expect(page.getByTestId('owner-dashboard')).toBeVisible();
   const loading = page.getByRole('status', { name: 'Загружаем загрузку…', exact: true });
   await expect(loading).toBeVisible({ timeout: 2000 });
@@ -133,10 +133,9 @@ test('weekly outlook opens a calendar day directly', async ({ page }) => {
 test('compact owner summary fits a 360 by 800 phone first screen', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto('/today');
-  await expect(page.getByTestId('cash-period-income')).toBeVisible();
   await expect(page.getByTestId('owner-outlook-chart').getByRole('link')).toHaveCount(7);
-  // плитки показателей начинают первый экран; деньги ниже, достижимы прокруткой
-  await expect(page.getByTestId('biz-revenue')).toBeInViewport();
-  await expect(page.getByTestId('cash-summary')).toBeVisible();
+  // загрузка начинает первый экран; события дня ниже, достижимы прокруткой (ADR-180)
+  await expect(page.getByTestId('c-occupancy')).toBeInViewport();
+  await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeAttached();
   await page.screenshot({ path: `${SHOTS}/mobile-360.png` });
 });

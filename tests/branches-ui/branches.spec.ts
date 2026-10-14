@@ -136,7 +136,7 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     expect(await scopeCookie(page)).toBe(`business=${f.business};location=${f.locations[1]}`);
     await choose(page, 'Тестовый отель');
-    await expect(page).toHaveURL(/\/finance$/);
+    await expect(page).toHaveURL(/\/today$/);
     // Гостиница уходит с общего /today на единые «Финансы»: ждём выбранный филиал перед переключателем.
     await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText(
       'Тестовый отель',
@@ -202,7 +202,7 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   await page.goto('/calendar');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
   await choose(page, 'Тестовый отель');
-  await expect(page).toHaveURL(/\/finance$/);
+  await expect(page).toHaveURL(/\/today$/);
   // The accepted branch action preserves a safe Hospitality collection or falls back to the landing.
   await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
   expect(

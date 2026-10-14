@@ -6,6 +6,8 @@ import { mkdirSync } from 'node:fs';
  * Mobile использует отдельное окно навигации без нижней панели.
  */
 const routes = [
+  // «Главная» (ADR-180, 13.10.2026)
+  '/today',
   '/ai-agents',
   '/chessboard',
   '/guests',
@@ -29,6 +31,8 @@ const routes = [
 ];
 
 const SECTIONS = [
+  // «Главная» первой (ADR-180)
+  'Главная',
   'Финансы',
   'Календарь',
   'Гости и бронирования',
@@ -244,7 +248,8 @@ test('кнопка текущего раздела находится в шап�
     .locator('.workspace-header')
     .getByRole('button', { name: 'Открыть меню', exact: true });
   await expect(button).toBeEnabled();
-  await expect(button).toHaveText('Финансы');
+  // /today гостиницы — «Главная» (ADR-180)
+  await expect(button).toHaveText('Главная');
   await button.click();
   await expect(sideNav(page).locator('.sidenav__panel')).toBeVisible();
 });

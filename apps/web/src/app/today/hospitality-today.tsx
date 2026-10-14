@@ -1,7 +1,5 @@
 import { Suspense } from 'react';
-import Link from 'next/link';
 import { Page } from '../../components/page';
-import { Icon } from '../../components/icon';
 import { financeApi } from '../../lib/api';
 import { hotelToday } from '../../lib/hotel-api';
 import { periods } from '../../lib/report-periods';
@@ -26,20 +24,8 @@ export async function HospitalityToday() {
       title="Главная"
       subtitle="Загрузка, события дня и задачи объекта"
       width="full"
-      actions={
-        <>
-          <Link className="btn btn--secondary" href="/chessboard">
-            <Icon name="board" />
-            Календарь
-          </Link>
-          <Link className="btn" href="/reservations/new">
-            <Icon name="plus" />
-            Новая бронь
-          </Link>
-        </>
-      }
     >
-      <div className="biz-overview" data-testid="hospitality-home">
+      <div className="biz-overview" data-testid="owner-dashboard">
         <div className="biz-row biz-row--two">
           <Suspense
             fallback={

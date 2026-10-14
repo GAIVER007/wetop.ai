@@ -35,8 +35,8 @@ test('пустой отель: рабочий экран уводит на он�
   await main.getByRole('button', { name: 'Запустить отель' }).click();
 
   // отель настроен → на рабочее место (единые «Финансы»), гейт больше не уводит
-  await page.waitForURL('**/finance');
-  await expect(page).toHaveURL(/\/finance/);
+  await page.waitForURL('**/today');
+  await expect(page).toHaveURL(/\/today/);
 });
 
 test('администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107)', async ({
@@ -49,7 +49,7 @@ test('администратор в ненастроенном отеле: не 
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
 
   await request.post(`${fixture}/__test/control`, {
     data: { onboardingNeeded: true, role: 'STAFF' },
@@ -75,7 +75,7 @@ test('пустая категория без цены — форма проси�
 /**
  * «Первые шаги» сняты с Главной по слову владельца 29.09.2026 («не нравится, убери»): после «Запустить отель» рабочий
  * экран открывается без панели-подсказки. С 03.10.2026 кнопки «Новая бронь» там нет: бронь заводится в «Календаре»;
- * с 09.10.2026 рабочее место гостиницы это единые «Финансы» (plans/finance-home-merge-2026-10-09.md).
+ * с 13.10.2026 рабочее место гостиницы снова «Главная» /today (ADR-180), деньги на «Финансах»
  */
 test('после запуска отеля «Финансы» без «Первых шагов» и без кнопки брони', async ({
   page,
@@ -95,6 +95,8 @@ test('после запуска отеля «Финансы» без «Перв�
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
   await expect(page.getByText('Первые шаги')).toHaveCount(0);
   await expect(main.getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
+  // деньги на «Финансах» (ADR-180)
+  await page.goto('/finance');
   await expect(main.getByTestId('cash-summary')).toBeVisible();
 });
 

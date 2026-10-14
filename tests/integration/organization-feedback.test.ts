@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { isLocalDatabase } from '../tools/seed-local';
 import { randomUUID } from 'node:crypto';
 import { beforeAll, afterAll, expect, it } from 'vitest';
 import { createPrismaClient } from '@pms/database';
@@ -27,7 +28,8 @@ const input = (id = randomUUID()) => ({
 });
 let hotelA: string, hotelB: string, foreignBusiness: string;
 beforeAll(async () => {
-  if (!process.env.DATABASE_URL?.includes('127.0.0.1:55613'))
+  // как в соседних наборах: любая своя петлевая база, а не один вшитый порт (гейт поднимает свой)
+  if (!isLocalDatabase(process.env.DATABASE_URL ?? ''))
     throw new Error('Isolated local database required');
   await db.user.create({
     data: { id: user, email: `feedback-${user}@example.invalid`, name: 'Тестовый владелец' },

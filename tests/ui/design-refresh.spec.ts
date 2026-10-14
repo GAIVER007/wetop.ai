@@ -6,26 +6,26 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
-test('финансы: деньги на первом экране, кнопки брони нет', async ({ page }) => {
+test('финансы: деньги на первом экране; главная без кнопок брони, внимание достижимо', async ({
+  page,
+}) => {
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
+    // «Финансы» (ADR-180): плитки денег первым экраном, кнопки брони нет
     await page.goto('/finance');
     await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-    await expect(page.getByTestId('biz-revenue')).toBeInViewport();
+    await expect(page.getByTestId('fin-income')).toBeInViewport();
+    // «Главная» (/today): риски и «Все задачи» живут здесь
+    await page.goto('/today');
+    await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
     const risks = page.getByTestId('owner-risks');
     await expect(risks).toBeAttached();
     const attention = page
       .getByTestId('owner-dashboard')
       .getByRole('button', { name: 'Все задачи', exact: true });
     await expect(attention).toBeAttached();
-    if (width === 1440) {
-      // по макету 09.10 карточка внимания стоит третьим рядом: на первом экране деньги и загрузка,
-      // внимание частично видно и достижимо прокруткой; с левым меню (ADR-161) плитки рядами 4 + 3, карточка у края экрана
-      await expect(page.getByTestId('cash-summary')).toBeInViewport();
-      await expect(risks).toBeInViewport();
-      await attention.scrollIntoViewIfNeeded();
-      await expect(attention).toBeInViewport();
-    }
+    await attention.scrollIntoViewIfNeeded();
+    await expect(attention).toBeInViewport();
   }
 });
 
@@ -34,10 +34,11 @@ test('период «Финансов» и «Аналитики» на теле�
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  // период денег: даты «С / По» и готовые отрезки кассы (plans/finance-home-merge-2026-10-09.md)
+  // период денег: даты «С / По» нижних отборов (ADR-180); в шапке свой контрол периода
+  const filters = page.locator('#finance-filters');
   for (const control of [
-    page.getByLabel('Период: с', { exact: true }),
-    page.getByLabel('Период: по', { exact: true }),
+    filters.getByLabel('Период: с', { exact: true }),
+    filters.getByLabel('Период: по', { exact: true }),
     page.getByTestId('period-form').getByRole('button', { name: 'Показать', exact: true }),
     page
       .getByRole('navigation', { name: 'Готовые периоды' })
@@ -76,18 +77,19 @@ test('период «Финансов» и «Аналитики» на теле�
 test('финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике»', async ({
   page,
 }) => {
-  // from/to задают деньги, полоса рисков всегда о сегодняшнем дне
+  // from/to задают деньги; месяц по умолчанию виден в нижних отборах
   await page.goto('/finance');
   await expect(
     page
       .getByRole('navigation', { name: 'Готовые периоды' })
       .getByRole('link', { name: 'Месяц', exact: true }),
   ).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByTestId('period-caption')).toHaveCount(0);
+  // полоса рисков и «Сегодня» всегда о сегодняшнем дне и живут на «Главной» (ADR-180)
+  await page.goto('/today');
   await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible();
   await expect(page.getByTestId('owner-risks')).toBeVisible();
-  await expect(page.getByTestId('period-caption')).toHaveCount(0);
-  // месячные показатели в «Аналитике → Обзор» (ADR-114), оплаты в «Оплатах», ADR и RevPAR у типа фонда.
-  // Четыре плитки сразу, ночи, средний чек и цена у типа фонда в свёрнутых «Подробностях» (01.10.2026)
+  // месячные показатели в «Аналитике → Обзор» (ADR-114), оплаты в «Оплатах», ADR и RevPAR у типа фонда
   await page.goto('/management/analytics?period=month');
   await expect(page.getByTestId('pa-period')).toContainText(/(28|29|30|31) д/);
   for (const id of ['occupancy', 'revenue', 'bookings', 'cancelled'])

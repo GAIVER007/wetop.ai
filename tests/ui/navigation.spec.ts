@@ -8,6 +8,8 @@ import { mkdirSync } from 'node:fs';
 // С 10.10.2026 (ADR-161) на компьютере разделы в левом меню с панелью (tests/ui/side-nav.spec.ts),
 // здесь: меню телефона и планшета «Навигация» из того же реестра и обход всех пунктов по страницам.
 const routes = [
+  // «Главная» (ADR-180, 13.10.2026)
+  '/today',
   '/ai-agents',
   '/chessboard',
   // «Гости и бронирования» с 09.10.2026: один пункт на месте «Броней» и «Гостей», список броней открывается кнопкой
@@ -34,8 +36,10 @@ const routes = [
   '/incidents',
 ];
 
-// «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
+// «Главная» первой (ADR-180, 13.10.2026), дальше прежний порядок (plans/finance-home-merge-2026-10-09.md)
 const SECTIONS = [
+  // «Главная» снова первой (ADR-180, 13.10.2026)
+  'Главная',
   'Финансы',
   'Календарь',
   'Гости и бронирования',
@@ -128,7 +132,7 @@ test('все пункты меню открывают существующие �
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/finance');
+  await page.waitForURL('**/today');
   const menu = sideNav(page);
   for (const section of SECTIONS) {
     const items = await openSection(page, section);

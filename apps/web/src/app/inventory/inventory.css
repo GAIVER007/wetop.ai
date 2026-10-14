@@ -1072,3 +1072,16 @@
     font-size: var(--text-xs);
   }
 }
+
+@layer sections {
+  /* телефон: поля не мельче 16 px, иначе iOS зумит страницу при фокусе (§6) */
+  @media (max-width: 600px) {
+    .inventory-toolbar .inp,
+    .inventory-toolbar .inventory-search .inp,
+    .inventory-filter .inp {
+      height: auto;
+      min-height: var(--touch-target);
+      font-size: 16px;
+    }
+  }
+}

@@ -57,7 +57,7 @@
     font-size: 14px;
   }
   .agent-wizard__step small {
-    font-size: 12px;
+    font-size: var(--text-xs);
     color: var(--muted);
   }
   .agent-wizard__step[aria-current] {

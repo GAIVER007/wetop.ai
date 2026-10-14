@@ -29,8 +29,17 @@
     color: var(--primary);
     text-decoration: none;
   }
+  /* UI5: голый <small> давал 0.833em ≈ 11.7 px — мельче порога §6; всюду ровно --text-xs */
+  small {
+    font-size: var(--text-xs);
+  }
   a:hover {
     text-decoration: underline;
+  }
+  /* UI5: ссылка внутри сплошного текста различима не только цветом (axe link-in-text-block) */
+  main :is(p, li) > a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
   button,
   input,

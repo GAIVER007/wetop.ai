@@ -1,0 +1,30 @@
+{
+ "/hotel-settings": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Настроить 92x21"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

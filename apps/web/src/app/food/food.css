@@ -16,6 +16,14 @@
   .food-section-heading {
     justify-content: space-between;
   }
+  /* телефон: ссылка «Все …» в шапке карточки — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .food-section-heading > a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+    }
+  }
   .food-section-heading h2 {
     margin: 0;
     font-size: 18px;
@@ -182,7 +190,7 @@
       gap: 16px;
     }
     .food-summary span {
-      font-size: 12px;
+      font-size: var(--text-xs);
       gap: 4px;
     }
     .food-summary strong {

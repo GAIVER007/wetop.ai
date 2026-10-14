@@ -1,0 +1,84 @@
+# Сквозные (e2e) · 14.10.2026 15:30 Алматы · MacBook-Air-Urij.local
+# коммит 8cfb5e4 (claude/ui5-fullpass-20261014)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/ui5-audit.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /today (3.7s)
+  ✓   2 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule (2.4s)
+  ✓   3 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /appointments (2.1s)
+  ✓   4 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /services (2.0s)
+  ✓   5 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees (2.1s)
+  ✘   6 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts (1.5s)
+  ✓   7 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /customers (2.0s)
+  ✓   8 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /finance (2.2s)
+  ✓   9 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /team (1.9s)
+  ✓  10 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /help (2.0s)
+  ✓  11 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /branches (3.7s)
+  ✘  12 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports (1.5s)
+
+
+  1) tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts ───────────────────────
+
+    Error: page.evaluate: Execution context was destroyed, most likely because of a navigation
+
+       at ../ui5-audit-core.ts:11
+
+       9 |
+      10 | export async function ui5Facts(page: Page, isPhone: boolean) {
+    > 11 |   return page.evaluate((phone) => {
+         |               ^
+      12 |     const main = document.querySelector('main');
+      13 |     const below: string[] = [];
+      14 |     let minFont = 99;
+        at ui5Facts (/Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui5-audit-core.ts:11:15)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/beauty-ui/ui5-audit.spec.ts:40:27
+
+    Error Context: test-results/ui5-audit-аудит-beauty-employees-shifts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui5-audit-аудит-beauty-employees-shifts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui5-audit-аудит-beauty-employees-shifts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports ────────────────────────────────
+
+    Error: page.evaluate: Execution context was destroyed, most likely because of a navigation
+
+       at ../ui5-audit-core.ts:11
+
+       9 |
+      10 | export async function ui5Facts(page: Page, isPhone: boolean) {
+    > 11 |   return page.evaluate((phone) => {
+         |               ^
+      12 |     const main = document.querySelector('main');
+      13 |     const below: string[] = [];
+      14 |     let minFont = 99;
+        at ui5Facts (/Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui5-audit-core.ts:11:15)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/beauty-ui/ui5-audit.spec.ts:40:27
+
+    Error Context: test-results/ui5-audit-аудит-beauty-reports/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui5-audit-аудит-beauty-reports/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui5-audit-аудит-beauty-reports/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts ────────────────────────
+    tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports ─────────────────────────────────
+  10 passed (41.4s)
+
+# код выхода 1 · 43 с

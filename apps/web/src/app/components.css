@@ -1975,6 +1975,12 @@
     text-decoration: none;
     cursor: pointer;
   }
+  /* телефон: сегмент — контрол, цель касания 44 px (DESIGN.md §6, аудит UI5) */
+  @media (max-width: 600px) {
+    .seg :is(a, .seg__item) {
+      min-height: var(--touch-target);
+    }
+  }
   .seg :is(a, .seg__item):hover {
     background: var(--row-hover);
     color: var(--text);

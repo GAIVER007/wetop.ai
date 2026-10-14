@@ -20,20 +20,20 @@
     line-height: 1.25;
   }
   .channels-overview .state-bar__summary {
-    font-size: 12px;
+    font-size: var(--text-xs);
     margin-top: 4px;
   }
   .channels-overview .state-bar__facts {
     gap: 16px;
   }
   .channels-overview .state-bar__facts dt {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-overview .state-bar__facts dd {
     font-size: 15px;
   }
   .channels-overview .state-bar__sub {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-report {
     gap: 8px;
@@ -43,7 +43,7 @@
     font-size: 17px;
   }
   .channels-report .note {
-    font-size: 12px;
+    font-size: var(--text-xs);
     margin: 0;
   }
   .channels-period {
@@ -65,7 +65,7 @@
     }
   }
   .channels-period label {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-report .stats {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -76,7 +76,7 @@
     text-align: left;
   }
   .channels-report .stat__label {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-report .stat__value {
     font-size: 24px;
@@ -84,22 +84,22 @@
     margin: 4px 0;
   }
   .channels-report .stat__hint {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-report .dir-table th {
     padding: 8px 16px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-report .dir-table td {
     padding: 8px 16px;
     font-size: 13px;
   }
   .channels-report .cell-sub {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-overview .context-help {
     margin: 0;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-overview .context-help > summary {
     padding: 8px 0;
@@ -139,7 +139,7 @@
   }
   .channels-overview > .alert {
     padding: 8px 16px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-report > .section-title {
     margin: 0;
@@ -204,7 +204,7 @@
   }
   .channels-overview .fact__label {
     margin: 0;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .channels-overview .state-bar__state {
     min-height: 0;

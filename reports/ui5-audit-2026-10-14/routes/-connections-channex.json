@@ -1,0 +1,31 @@
+{
+ "/connections/channex": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Подключение каналов",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:← Подключения 113x21",
+    "A:«Подключения» 104x16"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Подключение каналов",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Подключение каналов",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

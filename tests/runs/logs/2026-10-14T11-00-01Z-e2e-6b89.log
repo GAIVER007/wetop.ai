@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 14.10.2026 16:00 Алматы · MacBook-Air-Urij.local
+# коммит e77a5d9 (claude/ui5-fullpass-20261014), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ui5-forms-audit.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/ui5-forms-audit.spec.ts:24:5 › формы: /reservations/new?unit=M03 (3.5s)
+  ✓  2 tests/ui/ui5-forms-audit.spec.ts:24:5 › формы: /team → Пригласить сотрудника (1.6s)
+  ✓  3 tests/ui/ui5-forms-audit.spec.ts:24:5 › формы: /bar/receipts/new (1.6s)
+  ✓  4 tests/ui/ui5-forms-audit.spec.ts:24:5 › формы: /bar → Добавить товар (2.3s)
+  ✓  5 tests/ui/ui5-forms-audit.spec.ts:24:5 › формы: /finance?tab=cash → Расход (4.3s)
+  ✓  6 tests/ui/ui5-forms-audit.spec.ts:24:5 › формы: /hotel-settings (3.8s)
+  ✓  7 tests/ui/ui5-forms-audit.spec.ts:24:5 › формы: /branches → Добавить (11.1s)
+  ✓  8 tests/ui/ui5-forms-audit.spec.ts:24:5 › формы: /guests/ui-guest (4.7s)
+
+  8 passed (45.1s)
+
+# код выхода 0 · 47 с

@@ -15,12 +15,30 @@ export type SegmentSlug =
   | 'hostels'
   | 'mini-hotels'
   | 'apart-hotels'
+  | 'guest-houses'
+  | 'resorts'
+  | 'daily-rentals'
+  | 'glamping'
+  | 'sanatoriums'
+  | 'capsule-hotels'
   | 'beauty-salons'
   | 'barbershops'
   | 'spa'
   | 'nail-studios'
+  | 'hair-salons'
+  | 'massage'
+  | 'cosmetology'
+  | 'brows-lashes'
+  | 'epilation'
+  | 'tattoo'
   | 'cafes'
   | 'bars'
+  | 'coffee-shops'
+  | 'hookah-lounges'
+  | 'karaoke'
+  | 'pizzerias'
+  | 'canteens'
+  | 'banquet-halls'
   | 'hotels'
   | 'salons'
   | 'restaurants';
@@ -133,7 +151,13 @@ export type Dictionary = {
       feed: {
         label: string;
         title: string;
-        rows: Array<{ icon: IconName; source: string; guest: string; detail: string; value: string }>;
+        rows: Array<{
+          icon: IconName;
+          source: string;
+          guest: string;
+          detail: string;
+          value: string;
+        }>;
       };
     };
     market: {
@@ -332,7 +356,13 @@ export type Dictionary = {
     featuresLead: string;
     soon: string;
     /** Модули для владельца: пункты внутри и пометка «Скоро» у того, чего у ресторана ещё нет. */
-    features: Array<{ icon: IconName; title: string; text: string; points: string[]; soon?: boolean }>;
+    features: Array<{
+      icon: IconName;
+      title: string;
+      text: string;
+      points: string[];
+      soon?: boolean;
+    }>;
     growth: {
       badge: string;
       title: string;

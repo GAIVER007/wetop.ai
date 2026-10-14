@@ -1243,6 +1243,12 @@
     align-items: center;
     gap: var(--space-2);
   }
+  /* телефон: полоса дат и итога переносится, страница не тянется вбок (аудит UI5: перелив 45 px) */
+  @media (max-width: 600px) {
+    .rest-card__tools {
+      flex-wrap: wrap;
+    }
+  }
   .rest-card__tools .field {
     gap: 0;
   }
@@ -1359,6 +1365,19 @@
     cursor: pointer;
     box-shadow: inset 0 -2px 0 transparent;
   }
+  /* телефон: вкладка — цель касания 44 px; полоса прокручивается сама и не тянет страницу (аудит UI5) */
+  @media (max-width: 600px) {
+    .rest-utabs {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    .rest-utabs > a,
+    .rest-utabs > button {
+      flex: none;
+      min-height: var(--touch-target);
+    }
+  }
+
   .rest-utabs > [aria-current='page'] {
     color: var(--primary);
     font-weight: var(--weight-semibold);
@@ -1401,6 +1420,13 @@
     font-size: var(--text-sm);
     text-decoration: none;
   }
+  /* телефон: пункт раздела настроек — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .rest-settings__nav a {
+      min-height: var(--touch-target);
+    }
+  }
+
   .rest-settings__nav a:hover {
     background: var(--surface-muted);
   }

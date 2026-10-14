@@ -39,6 +39,7 @@ test('касса: плитки остатков — оплаты гостей п
     await expect(cash.getByTestId(m)).toBeVisible();
   // гостевые оплаты в кассу не дублируются — остаток уже содержит оплату фикстуры (наличные)
   expect(await tenge(page, 'cash-CASH')).toBeGreaterThan(0);
+  await cash.getByText('Как считается остаток', {exact: true}).click();
   await expect(cash.getByTestId('cash-ops-link')).toBeVisible();
   const axe = await new AxeBuilder({ page }).include('[data-testid="finance-cash"]').analyze();
   expect(axe.violations).toEqual([]);
@@ -89,6 +90,7 @@ test('перевод с комиссией: остатки обоих спосо
   expect(await tenge(page, 'cash-KASPI')).toBe(1000);
 
   // общая лента с отбором «Касса»: перевод «Наличные → Kaspi» и комиссия расходом с минусом
+  await page.getByTestId('finance-cash').getByText('Как считается остаток', {exact: true}).click();
   await page.getByTestId('cash-ops-link').click();
   await expect(page).toHaveURL(/src=cash#operations$/);
   const rows = page.getByTestId('op-row');
@@ -193,6 +195,7 @@ test('сверка (§21.4): «по системе» в панели, недос
   await expect(status).toContainText('Наличные');
   await expect(status).toContainText('−500');
   // поправка видна в ленте кассы со статьёй «Недостача кассы»
+  await page.getByTestId('finance-cash').getByText('Как считается остаток', {exact: true}).click();
   await page.getByTestId('cash-ops-link').click();
   const fee = page.getByTestId('op-row').filter({ hasText: 'Недостача кассы' });
   await expect(fee).toHaveCount(1);

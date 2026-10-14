@@ -22,6 +22,8 @@ import { ScopeAware } from '../auth/scope-aware.decorator';
 type Currency = {
   currency: string;
   receiptsMinor: string;
+  /** оплаты заказов без продаж бара (ADR-182): основа среднего чека */
+  paidMinor?: string;
   expensesMinor: string;
   orders: number;
   averageMinor: string | null;
@@ -97,6 +99,7 @@ export class OrganizationSummaryService {
         let payments: Array<{ currency: string; _sum: { amount: bigint | null } }>;
         let paidOrders: PaidOrders[];
         const expenses = new Map<string, bigint>();
+        const barReceipts = new Map<string, bigint>();
         if (l.business.vertical === 'HOSPITALITY' && l.property) {
           const propertyId = l.property.id;
           const groupedPayments = await this.prisma.db.payment.groupBy({
@@ -120,6 +123,14 @@ export class OrganizationSummaryService {
             _sum: { amount: true },
           });
           payments = groupedPayments;
+          // продажи бара: деньги пришли в кассу при продаже, но restaurant_payments не создаются;
+          // без них поступления занижены, при том что оплаты поставщикам бара в расходах уже есть (ADR-182)
+          const barSales = await this.prisma.db.barSale.groupBy({
+            by: ['currency'],
+            where: { locationId: l.id, status: 'POSTED', createdAt: paidAt },
+            _sum: { totalRevenue: true },
+          });
+          for (const b of barSales) barReceipts.set(b.currency, b._sum.totalRevenue ?? 0n);
           const cost = await this.prisma.db.restaurantCashOperation.groupBy({
             by: ['currency'],
             where: { locationId: l.id, status: 'COMPLETED', kind: 'EXPENSE', occurredAt: paidAt },
@@ -132,21 +143,28 @@ export class OrganizationSummaryService {
         }
         const orderIds = new Set(paidOrders.flatMap((p) => p.orderIds ?? []));
         for (const id of orderIds) allOrders.add(`${l.business.vertical}:${id}`);
-        const currencies = new Set([...payments.map((p) => p.currency), ...expenses.keys()]);
+        const currencies = new Set([
+          ...payments.map((p) => p.currency),
+          ...expenses.keys(),
+          ...barReceipts.keys(),
+        ]);
         if (!currencies.size) currencies.add(l.currency);
         const values = [...currencies].map((currency) => {
-          const receipt = payments.find((p) => p.currency === currency)?._sum.amount ?? 0n;
+          const paid = payments.find((p) => p.currency === currency)?._sum.amount ?? 0n;
+          // поступления = оплаты заказов (или гостиничные payments) + продажи бара; средний чек
+          // по-прежнему от оплат заказов, бар в него не входит (ADR-182)
+          const receipt = paid + (barReceipts.get(currency) ?? 0n);
           const orders = paidOrders.find((p) => p.currency === currency);
           const count = Number(orders?.orders ?? 0n);
           return {
             currency,
             receiptsMinor: receipt.toString(),
+            // оплаты заказов без бара: из них считается средний чек, в том числе итоговый
+            paidMinor: paid.toString(),
             expensesMinor: (expenses.get(currency) ?? 0n).toString(),
             orders: count,
             averageMinor:
-              count > 0 && orders?.allocated === receipt
-                ? (receipt / BigInt(count)).toString()
-                : null,
+              count > 0 && orders?.allocated === paid ? (paid / BigInt(count)).toString() : null,
           };
         });
         rows.push({
@@ -170,22 +188,25 @@ export class OrganizationSummaryService {
     }
     const totals = new Map<
       string,
-      { received: bigint; expenses: bigint; orders: number; averageKnown: boolean }
+      { received: bigint; paid: bigint; expenses: bigint; orders: number; averageKnown: boolean }
     >();
     for (const row of rows.filter((r) => r.state === 'READY'))
       for (const c of row.currencies) {
         const total = totals.get(c.currency) ?? {
           received: 0n,
+          paid: 0n,
           expenses: 0n,
           orders: 0,
           averageKnown: true,
         };
+        const paid = BigInt(c.paidMinor ?? c.receiptsMinor);
         total.received += BigInt(c.receiptsMinor);
+        total.paid += paid;
         total.expenses += BigInt(c.expensesMinor);
         total.orders += c.orders;
+        // средний чек считается из оплат заказов (ADR-182): бар поступления растит, а чек нет
         total.averageKnown =
-          total.averageKnown &&
-          (c.orders === 0 ? BigInt(c.receiptsMinor) === 0n : c.averageMinor !== null);
+          total.averageKnown && (c.orders === 0 ? paid === 0n : c.averageMinor !== null);
         totals.set(c.currency, total);
       }
     return {
@@ -201,8 +222,7 @@ export class OrganizationSummaryService {
         receiptsMinor: t.received.toString(),
         expensesMinor: t.expenses.toString(),
         orders: t.orders,
-        averageMinor:
-          t.orders && t.averageKnown ? (t.received / BigInt(t.orders)).toString() : null,
+        averageMinor: t.orders && t.averageKnown ? (t.paid / BigInt(t.orders)).toString() : null,
       })),
     };
   }

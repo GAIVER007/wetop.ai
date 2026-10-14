@@ -20,7 +20,7 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('обзор как на макете: шесть KPI, графики, компактная доска и подробности', async ({ page }) => {
+test('обзор как на макете: пять KPI, графики, компактная доска и подробности', async ({ page }) => {
   mkdirSync(SHOTS, { recursive: true });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
@@ -33,16 +33,15 @@ test('обзор как на макете: шесть KPI, графики, ко�
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
   await expect(m.getByRole('navigation',{name:'Разделы бара'})).toBeVisible();
   await expect(m.getByRole('navigation', { name: 'Разделы бара' }).getByRole('link')).toHaveCount(5);
-  // Шесть плиток текущего макета, без выдуманных данных.
+  // Пять плиток текущего макета, без выдуманных данных.
   const kpis = m.getByRole('region', { name: 'Показатели бара' });
   await expect(kpis.locator('.bar-kpi-label')).toHaveText([
-    'Выручка', 'Продаж', 'Средний чек', 'Валовая прибыль', 'Остаток на складе', 'Заканчиваются',
+    'Сумма закупок', 'Выручка бара', 'Прибыль от продаж', 'Долг поставщикам', 'Заканчиваются',
   ]);
-  await expect(kpis.locator('.bar-kpi', { hasText: 'Остаток на складе' })).toContainText('107 шт.');
-  await expect(kpis.locator('.bar-kpi', { hasText: 'Средний чек' })).toContainText('Нет данных');
+  await expect(kpis.locator('.bar-kpi',{hasText:'Сумма закупок'})).toContainText('412 800 ₸');
   await expect(m.getByRole('heading', {name:'Продажи по дням',exact:true})).toBeVisible();
-  await expect(kpis.locator('.bar-kpi', { hasText: 'Выручка' })).toContainText('+18% к прошлому месяцу');
-  await expect(kpis.locator('.bar-kpi', { hasText: 'Валовая прибыль' })).toContainText('маржинальность 50%');
+  await expect(kpis.locator('.bar-kpi', { hasText: 'Выручка бара' })).toContainText('1 245 600 ₸');
+  await expect(kpis.locator('.bar-kpi', { hasText: 'Прибыль от продаж' })).toContainText('623 400 ₸');
   await expect(kpis.locator('.bar-kpi--alarm')).toContainText('2');
   // доска: шесть товаров макета, поставщик и фактическая наценка, статус словом
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });

@@ -34,11 +34,11 @@ test('филиалы: создание, сохранение после reload �
   await main.getByRole('button', { name: 'Добавить', exact: true }).click();
   const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
   await expect(creation).toBeVisible();
-  // окно адаптивное (ADR-ORG-ADAPTIVE): при живом бизнесе по умолчанию «Филиал», новый бренд выбирается явно
-  await creation.getByRole('radio', { name: 'Новый бизнес или бренд' }).check();
+  // Existing businesses remain after reset. Explicitly create a new brand and its first branch.
+  await creation.getByLabel('Новый бизнес или бренд').check();
   await creation.getByLabel('Название бизнеса', { exact: true }).fill('Тестовый бизнес у парка');
   await creation
-    .getByLabel('Название первого объекта')
+    .getByRole('textbox', { name: /^Название первого объекта/ })
     .fill('Тестовый филиал у парка');
   await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
   await expect(creation.getByRole('status')).toContainText(/создан/);
@@ -53,12 +53,13 @@ test('филиалы: создание, сохранение после reload �
       true,
     );
     if (width >= 1024) {
-      // карточек теперь две (сидовый филиал и созданный бизнес): страница растёт законно,
-      // «первый экран» держит подвал первой карточки ниже
+      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(
+        900,
+      );
       const footer = await main.locator('.org-card-footer').first().boundingBox();
       expect(footer).not.toBeNull();
-      // ряд тянется по самой высокой карточке: созданный рядом бизнес добавляет первой ~6 px
-      expect(footer!.y + footer!.height).toBeLessThanOrEqual(920);
+      // Compact cards remain within the approved first-screen bound, including multiple businesses.
+      expect(footer!.y + footer!.height).toBeLessThanOrEqual(900);
     }
     await page.screenshot({
       path: `reports/branches-2026-10-01/branches-${width}.png`,

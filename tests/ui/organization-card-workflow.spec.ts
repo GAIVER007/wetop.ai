@@ -17,9 +17,26 @@ test('business metadata and branch archive survive reload; second brand keeps it
       .locator('.org-business-kind')
       .evaluate((element) => parseFloat(getComputedStyle(element).marginTop)),
   ).toBeLessThanOrEqual(4);
+  expect(await first.evaluate((element) => element.getBoundingClientRect().height)).toBeLessThan(
+    720,
+  );
   const originalBranch = await first.locator('.org-branch-rows strong').first().innerText();
   await first.getByRole('button', { name: /^Редактировать:/ }).click();
   const editor = page.getByRole('dialog', { name: 'Редактировать карточку', exact: true });
+  await expect(editor.getByRole('region', { name: 'Обложка бизнеса' })).toBeVisible();
+  expect(await editor.evaluate((element) => element.scrollHeight <= element.clientHeight)).toBe(
+    true,
+  );
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await page.screenshot({
+      path: `reports/organizations-card-editor-2026-10-13/editor-polish-${width}.png`,
+    });
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await editor.getByLabel('Название бизнеса', { exact: true }).fill('Acceptance Brand');
   await editor.getByRole('textbox', { name: /^Описание/ }).fill('Persisted business description');
   await editor.getByRole('button', { name: 'Сохранить изменения' }).click();
@@ -34,10 +51,11 @@ test('business metadata and branch archive survive reload; second brand keeps it
   await editor
     .locator('li')
     .filter({ hasText: originalBranch })
-    .getByRole('button', { name: 'Архивировать', exact: true })
+    .getByRole('button', { name: 'Удалить филиал', exact: true })
     .click();
-  const archive = page.getByRole('dialog', { name: 'Архивировать объект?', exact: true });
-  await archive.getByRole('button', { name: 'Архивировать', exact: true }).click();
+  const archive = page.getByRole('dialog', { name: 'Удалить филиал?', exact: true });
+  await expect(archive).toContainText('Филиал переместится в архив');
+  await archive.getByRole('button', { name: 'Удалить филиал', exact: true }).click();
   await expect(archive).not.toBeVisible();
   await editor.getByRole('button', { name: 'Закрыть редактор' }).click();
   await page.reload();

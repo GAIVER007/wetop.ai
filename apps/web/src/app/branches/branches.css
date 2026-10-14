@@ -654,7 +654,7 @@ body:has(.org-reference) .topmenu {
   outline-offset: 2px;
 }
 .org-editor {
-  width: min(560px, calc(100vw - 32px));
+  width: min(720px, calc(100vw - 32px));
   max-height: calc(100dvh - 32px);
   overflow: auto;
   border: 1px solid var(--border);
@@ -1108,7 +1108,8 @@ body:has(.org-reference) .topmenu {
     flex: none;
   }
   .org-cards {
-    flex: 1;
+    flex: none;
+    align-content: start;
     min-height: 0;
     overflow: auto;
     scrollbar-width: thin;
@@ -1849,15 +1850,60 @@ body:has(.org-reference) .topmenu {
   }
 }
 
-.org-reference .org-branch-rows { display: flex; flex-direction: column; gap: var(--space-2); }
-.org-reference .org-branch-rows button { height: auto; min-height: 64px; padding: var(--space-2); align-items: center; }
-.org-branch-symbol { display: flex; align-items: center; justify-content: center; flex: none; width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--primary-soft); color: var(--primary); }
-.org-reference .org-branch-rows strong { display: block; font-size: var(--text-sm); font-weight: 600; line-height: 1.35; }
-.org-reference .org-branch-rows .org-branch-address { margin-top: var(--space-1); line-height: 1.35; }
-.org-branch-capacity { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); margin-top: var(--space-1); color: var(--muted); font-size: var(--text-xs); line-height: 1.35; }
-.org-reference .org-branch-rows button > svg { flex: none; width: 16px; height: 16px; color: var(--muted); }
-.org-reference .org-branch-rows button:hover { border-color: var(--primary); }
-.org-reference .org-branch-rows button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.org-reference .org-branch-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.org-reference .org-branch-rows button {
+  height: auto;
+  min-height: 64px;
+  padding: var(--space-2);
+  align-items: center;
+}
+.org-branch-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.org-reference .org-branch-rows strong {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.org-reference .org-branch-rows .org-branch-address {
+  margin-top: var(--space-1);
+  line-height: 1.35;
+}
+.org-branch-capacity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin-top: var(--space-1);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  line-height: 1.35;
+}
+.org-reference .org-branch-rows button > svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+.org-reference .org-branch-rows button:hover {
+  border-color: var(--primary);
+}
+.org-reference .org-branch-rows button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
 
 @media (min-width: 601px) {
   .org-cards:has(> .org-card:only-child) {
@@ -1873,35 +1919,156 @@ body:has(.org-reference) .topmenu {
   }
 }
 @media (min-width: 601px) and (max-width: 1279px) {
-  .branches-reference-page:has(.org-card:only-child) {
+  .branches-reference-page {
     padding-bottom: var(--space-4);
   }
-  .org-reference:has(.org-card:only-child) .org-heading,
-  .org-reference:has(.org-card:only-child) .org-kpis {
+  .org-reference .org-heading,
+  .org-reference .org-kpis {
     margin-bottom: var(--space-2);
   }
-  .org-reference:has(.org-card:only-child) .org-cover {
+  .org-reference .org-cover {
     height: 112px;
     min-height: 112px;
   }
-  .org-reference:has(.org-card:only-child) .org-kpis > div {
+  .org-reference .org-kpis > div {
     padding: var(--space-2);
     min-height: 0;
     gap: var(--space-2);
   }
-  .org-reference:has(.org-card:only-child) .org-kpis .org-symbol {
+  .org-reference .org-kpis .org-symbol {
     width: 40px;
     height: 40px;
   }
-  .org-reference:has(.org-card:only-child) .org-kpis p,
-  .org-reference:has(.org-card:only-child) .org-kpis small {
+  .org-reference .org-kpis p,
+  .org-reference .org-kpis small {
     line-height: 1.3;
   }
-  .org-reference:has(.org-card:only-child) .org-card-body {
+  .org-reference .org-card-body {
     padding: var(--space-2);
   }
-  .org-reference:has(.org-card:only-child) .org-description {
+  .org-reference .org-description {
     min-height: 0;
     margin-bottom: var(--space-2);
+  }
+}
+
+/* Organization editor and cards share a compact, consistent action hierarchy. */
+.org-cards {
+  align-content: start;
+}
+.org-editor-form {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+}
+.org-editor-fields,
+.org-editor-cover {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.org-editor-cover h3 {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+.org-editor-form > footer,
+.org-editor-form > .org-editor-error {
+  grid-column: 1 / -1;
+}
+.org-editor-form > footer {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
+}
+.org-editor header > button {
+  padding: var(--space-2);
+  flex: none;
+}
+.org-editor .tabs-local {
+  margin-top: var(--space-4);
+}
+.org-editor input[type='file'] {
+  font-size: var(--text-xs);
+}
+.org-editor input[type='file']::file-selector-button {
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  background: var(--primary-soft);
+  color: var(--primary);
+  margin-right: var(--space-2);
+  cursor: pointer;
+}
+.org-editor-branches li {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  margin-bottom: var(--space-2);
+}
+.org-editor-branch-info {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.org-editor-branch-info strong {
+  display: block;
+}
+.org-editor-branch-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.org-editor .org-editor-branch-actions form {
+  display: contents;
+}
+.org-editor button.org-editor-settings {
+  background: var(--surface);
+  color: var(--primary);
+}
+.org-editor .org-archive {
+  color: var(--danger);
+  margin-left: auto;
+}
+.org-archive-dialog--delete footer button:last-child {
+  background: var(--danger);
+  color: var(--on-primary);
+}
+@media (max-width: 600px) {
+  .org-editor-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .org-editor footer {
+    flex-wrap: wrap;
+  }
+  .org-editor-branch-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .org-editor .org-archive {
+    margin-left: 0;
+  }
+}
+
+.org-editor .tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.org-editor .tabs__item {
+  white-space: normal;
+  justify-content: center;
+  padding-inline: var(--space-2);
+}
+@media (max-width: 600px) {
+  .org-editor {
+    max-height: calc(100dvh - 128px);
+  }
+  .org-editor .tabs__item {
+    font-size: var(--text-sm);
+  }
+  .org-editor-form > footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--surface);
+    padding-block: var(--space-2);
   }
 }

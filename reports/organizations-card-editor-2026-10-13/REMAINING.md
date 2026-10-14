@@ -136,3 +136,29 @@ Exact-SHA1930e9df gate38513294586 passed main/unit/site, bot, database, branches
 ## Baseline decrease after PR497
 
 The earlier current-maincc9b2892 run38514092816 failed only the CSS baseline check: fund.css violations had decreased27 to26, but the old count remained. Reproduced on current fa803ca0 in2026-10-14T05-37-24Z-unit-3920. Updated exactly one JSON value27 to26; no rule or allowance increased. Green2026-10-14T05-37-55Z-unit-d920:33/33 design guards. Stopped only own obsolete fa803ca0 run38517495901, which contained the reproduced baseline mismatch; separate UI4 candidate remains untouched.
+
+## Production verification, 14.10.2026
+
+- Full exact-SHA release-checks38517851997 succeeded for13d3210d4137d1eb9682fa6a51f059f795c363b0. Standard auto-release advanced release to this checked ancestor of main.
+- Fresh backup wetop-20261014T072638Z.dump,708401 bytes,121 TABLE DATA entries. Restored successfully into a private network-disabled ephemeral PostgreSQL17 with btree_gist preinstalled:121 public tables. Temporary container removed.
+- Prisma status confirmed exactly101 food_booking_rules,102 bar_location,103 bar_restaurant_cash,104 business_card pending. Applied only those four approved migrations; subsequent status:Database schema is up to date.
+- Standard wetop-auto-deploy --migrations-applied13d3210d invoked. SSH build session disconnected, but fresh independent check confirmed deployed marker and repository HEAD13d3210d; API/web running healthy on image11d5cd6f95fff87a56d24e9cf6464a17d80cf242eac5294064a2b4e063d5dd18.
+- Authenticated owner browser on https://app.wetop.ai/branches shows new Organization, expense-to-income KPIs, monthly controls, no old filters/bottom panels. Existing Luxx Aparts preserved88 units/5 categories; existing Luxx Aparts2 preserved with0 units/0 categories. No duplicate created.
+- Owner card editor opened, name/description controls present. Cover control disabled truthfully because production photo storage is not connected. Generated cover remains local.
+- Luxx Aparts2 settings selection led to first-time onboarding, not completed hotel settings. No room, category, price or booking invented. This route requires follow-up verification/correction.
+- WETOP Salon and WETOP Restaurant, identified by owner as test objects, archived through normal owner UI. Archive count2 confirmed; history retained. Empty business cards remain because business archiving is not implemented. No physical deletion or direct SQL performed.
+- Actual production screenshot:/private/tmp/wetop-production-organizations-20261014.png. Publication is verified; cover storage, empty business-card cleanup and Luxx Aparts2 settings redirect remain explicit limitations. Do not label the entire original request complete.
+
+## Editor polish requested14.10.2026
+
+- Keep natural card heights instead of stretching into the available desktop screen. Apply the existing compact tablet spacing to multi-business views as well as singleton views.
+- Two-column desktop metadata/cover editor; one column on mobile. Mobile tabs wrap and sticky actions stay above the bottom navigation. Secondary branch settings and a clearly labelled danger deletion action; deletion retains approved archive/restore semantics.
+- Settings gate red2026-10-14T08-56-42Z-unit-1ca7, then green9/9. Missing properties still require onboarding. Existing empty hotels can edit metadata before adding rooms.
+- UI2026-10-14T09-00-15Z-e2e-8fcd and09-03-08Z-e2e-e7c7:3/4, old creation spec incorrectly assumed no existing business. Sequential reproduction disproved the initial cross-talk hypothesis. Explicitly select new brand, target the accessible textbox name including helper text. Do not weaken persistence/layout assertions.
+- Red height947px vs900 at tablet in09-08-26Z-e2e-dbe0. Corrected tablet spacing. Final UI2026-10-14T09-11-09Z-e2e-d5e6:4/4, metadata save/archive/restore/reload, distinct second business, 1440/1024/390 no overflow, desktop first-screen bounds. Reviewed editor screenshots at1440 and390.
+- CSS baseline27/27 including onboarding test in09-12-14Z-unit-a42f. Additional design guard/onboarding24/24 in09-13-55Z-unit-41cd. Web typecheck and targeted ESLint passed.
+- Read-only production configuration check: storage disabled and all five SITE_ASSET_S3 configuration keys absent. Owner confirmed storage has not been created. Generated cover was local synthetic preview content; no persisted production cover has been removed. Provisioning remains blocked on documented provider setup; no disk/R2/public-reference fallback introduced.
+
+- Integrated current maina3dad0346 via076435ee2, retaining stricter900px viewport and footer checks instead of widening to920px. Main already fixed missing text-base token; no duplicate Calendar change.
+- Full unit09-15-53Z-unit-8aec:4742 passed/4 failed (three service-script timeouts and one upstream undefined token). Reduced concurrent workers without changing timeouts:09-18-15Z-unit-8e20 had4745 passed/one upstream-token failure. After integrating the existing main correction:09-25-09Z-unit-4b22,4746 passed/4 existing skips/zero failures.
+- Final combined lint09-30-48Z-lint-5cc8 and typecheck09-31-49Z-typecheck-0931 green. Organization UI09-32-39Z-e2e-c971:4/4. Last visual hierarchy correction (secondary settings button): CSS guard09-35-00Z-unit-473e18/18; workflow09-35-04Z-e2e-c1111/1. No new migrations compared with deployed13d3210d.

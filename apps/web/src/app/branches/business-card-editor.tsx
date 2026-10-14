@@ -69,87 +69,92 @@ export function BusinessCardEditor({
             id: 'business-card',
             label: 'Карточка бизнеса',
             content: (
-              <form onSubmit={submit}>
-                <label>
-                  Название бизнеса
-                  <input
-                    name="name"
-                    required
-                    maxLength={200}
-                    defaultValue={business.name}
-                    disabled={pending}
-                  />
-                </label>
-                <label>
-                  Описание
-                  <textarea
-                    name="description"
-                    maxLength={1000}
-                    rows={4}
-                    defaultValue={business.description ?? ''}
-                    disabled={pending}
-                  />
-                  <small>До 1000 символов</small>
-                </label>
-                <div className="org-editor-photo">
-                  {preview ? (
-                    <img src={preview} alt="Предпросмотр обложки" />
-                  ) : (
-                    <div>
-                      <Icon name="image" />
-                      <span>Обложка не выбрана</span>
-                    </div>
-                  )}
+              <form onSubmit={submit} className="org-editor-form">
+                <div className="org-editor-fields">
+                  <label>
+                    Название бизнеса
+                    <input
+                      name="name"
+                      required
+                      maxLength={200}
+                      defaultValue={business.name}
+                      disabled={pending}
+                    />
+                  </label>
+                  <label>
+                    Описание
+                    <textarea
+                      name="description"
+                      maxLength={1000}
+                      rows={3}
+                      defaultValue={business.description ?? ''}
+                      disabled={pending}
+                    />
+                    <small>До 1000 символов</small>
+                  </label>
                 </div>
-                <label>
-                  Изменить фото
-                  <input
-                    type="file"
-                    name="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    disabled={pending || !business.canUpload}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      if (file.size > 5 * 1024 * 1024) {
-                        setError('Фото должно быть не больше 5 МБ.');
-                        e.target.value = '';
-                        return;
-                      }
-                      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-                        setError('Выберите JPEG, PNG или WebP.');
-                        e.target.value = '';
-                        return;
-                      }
-                      if (localUrl.current) URL.revokeObjectURL(localUrl.current);
-                      localUrl.current = URL.createObjectURL(file);
-                      setPreview(localUrl.current);
-                      setRemoveCover(false);
-                      setError('');
-                    }}
-                  />
-                  <small>
-                    {business.canUpload
-                      ? 'JPEG, PNG или WebP, до 5 МБ'
-                      : 'Хранилище фото не подключено. Название и описание можно изменить.'}
-                  </small>
-                </label>
-                {(preview || business.hasCover) && !removeCover && (
-                  <button
-                    type="button"
-                    className="org-remove-photo"
-                    disabled={pending}
-                    onClick={() => {
-                      setRemoveCover(true);
-                      setPreview(null);
-                      const input =
-                        dialog.current?.querySelector<HTMLInputElement>('input[type=file]');
-                      if (input) input.value = '';
-                    }}
-                  >
-                    Убрать обложку
-                  </button>
-                )}
+                <section className="org-editor-cover" aria-label="Обложка бизнеса">
+                  <h3>Обложка бизнеса</h3>
+                  <div className="org-editor-photo">
+                    {preview ? (
+                      <img src={preview} alt="Предпросмотр обложки" />
+                    ) : (
+                      <div>
+                        <Icon name="image" />
+                        <span>Обложка не выбрана</span>
+                      </div>
+                    )}
+                  </div>
+                  <label>
+                    Выбрать обложку
+                    <input
+                      type="file"
+                      name="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      disabled={pending || !business.canUpload}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 5 * 1024 * 1024) {
+                          setError('Фото должно быть не больше 5 МБ.');
+                          e.target.value = '';
+                          return;
+                        }
+                        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                          setError('Выберите JPEG, PNG или WebP.');
+                          e.target.value = '';
+                          return;
+                        }
+                        if (localUrl.current) URL.revokeObjectURL(localUrl.current);
+                        localUrl.current = URL.createObjectURL(file);
+                        setPreview(localUrl.current);
+                        setRemoveCover(false);
+                        setError('');
+                      }}
+                    />
+                    <small>
+                      {business.canUpload
+                        ? 'JPEG, PNG или WebP, до 5 МБ'
+                        : 'Загрузка фото недоступна: хранилище ещё не подключено.'}
+                    </small>
+                  </label>
+                  {(preview || business.hasCover) && !removeCover && (
+                    <button
+                      type="button"
+                      className="org-remove-photo"
+                      disabled={pending}
+                      onClick={() => {
+                        setRemoveCover(true);
+                        setPreview(null);
+                        const input =
+                          dialog.current?.querySelector<HTMLInputElement>('input[type=file]');
+                        if (input) input.value = '';
+                      }}
+                    >
+                      Убрать обложку
+                    </button>
+                  )}
+                </section>
                 {error && (
                   <p role="alert" className="org-editor-error">
                     {error}
@@ -174,27 +179,31 @@ export function BusinessCardEditor({
               <section className="org-editor-branches">
                 <h3>Объекты и филиалы</h3>
                 <p>
-                  Название, фото и описание выше относятся к бизнесу. Данные каждого объекта
-                  остаются отдельными.
+                  Откройте филиал для работы или измените его настройки. Удалённый филиал можно
+                  восстановить из архива.
                 </p>
                 {branches.length ? (
                   <ul>
                     {branches.map((branch) => (
                       <li key={branch.locationId}>
-                        <div>
+                        <div className="org-editor-branch-info">
                           <strong>{branch.name}</strong>
                           <small>{branch.address || 'Адрес не указан'}</small>
                         </div>
                         <div className="org-editor-branch-actions">
                           <form action={selectBranch}>
                             <input type="hidden" name="id" value={branch.id} />
-                            <button type="submit">Открыть объект</button>
+                            <button type="submit" className="org-editor-open">
+                              Открыть филиал
+                            </button>
                           </form>
                           {branch.vertical === 'HOSPITALITY' && (
                             <form action={selectBranch}>
                               <input type="hidden" name="id" value={branch.id} />
                               <input type="hidden" name="returnTo" value="/hotel-settings" />
-                              <button type="submit">Настройки объекта</button>
+                              <button type="submit" className="org-editor-settings">
+                                Редактировать филиал
+                              </button>
                             </form>
                           )}
                           <BranchArchiveButton id={branch.locationId} name={branch.name} />

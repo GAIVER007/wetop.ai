@@ -19,11 +19,11 @@ export default async function BarReceiptsPage() {
   await requireVertical(['HOSPITALITY']);
   const receipts = await settle(barApi.receipts());
   if (!receipts.ok) throw receipts.error;
-  return <Page width="wide" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={
+  return <Page width="wide" className="bar-subpage" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={
     <Link className="btn" href="/bar/receipts/new" prefetch={false}>Новый приход</Link>
   }>
     <BarTabs current="receipts" />
-    <p className="bar-accounting-note"><b>Как учитываются деньги:</b> проведение прихода увеличивает склад и фиксирует закупку. Расход в кассе появляется только после оплаты поставщику, включая частичную оплату.</p>
+    <details className="bar-details"><summary>Как учитываются деньги</summary><p className="bar-accounting-note"> проведение прихода увеличивает склад и фиксирует закупку. Расход в кассе появляется только после оплаты поставщику, включая частичную оплату.</p></details>
     {receipts.value.length === 0
       ? <EmptyState icon={<Icon name="receipt" />} title="Приходов пока нет">Занесите первую счёт-фактуру: кнопка «Новый приход».</EmptyState>
       : <Table density="compact" sticky="header" stack aria-label="Приходы бара">

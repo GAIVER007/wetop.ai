@@ -32,12 +32,12 @@ export default async function BarSuppliersPage() {
   }
   const rows = [...suppliers.value].sort((a, b) =>
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
-  return <Page width="wide" title="Бар: поставщики" subtitle="Контакты и расчёты: закуплено, оплачено и долг по каждому поставщику.">
+  return <Page width="wide" className="bar-subpage" title="Бар: поставщики" subtitle="Контакты и расчёты: закуплено, оплачено и долг по каждому поставщику.">
     <BarTabs current="suppliers" />
-    <section className="panel bar-supplier-panel">
-      <h3>Новый поставщик</h3>
+    <details className="panel bar-supplier-panel bar-details">
+      <summary>Новый поставщик</summary>
       <SupplierForm />
-    </section>
+    </details>
     <section className="bar-suppliers-table">
       <SectionTitle>Поставщики и расчёты</SectionTitle>
       {rows.length === 0

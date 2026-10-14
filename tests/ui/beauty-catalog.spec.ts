@@ -109,9 +109,14 @@ test('мастер добавляется, умения ставятся и сн
   await panel.getByRole('button', { name: 'Сохранить мастера', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('Мастер добавлен');
   await page.goto('/beauty/masters');
-  const row = main.getByRole('row').filter({ hasText: 'Дина' });
+  // карточки вместо таблицы (ТЗ салона 09.10.2026): умения и филиалы остаются на виду
+  const row = main.getByRole('listitem').filter({ hasText: 'Дина' });
   await expect(row).toContainText('Маникюр, Стрижка');
   await expect(row).toContainText('Студия Айна');
+  // у нового мастера нет графика на сегодня: карточка честно говорит «Выходной» и «0 записей»
+  await expect(row).toContainText('Выходной');
+  await expect(row).toContainText('0 записей сегодня');
+  await expect(row).toContainText('Сегодня не работает');
   await page.screenshot({ path: `${SNAPSHOTS}/masters-1440.png`, fullPage: true });
 
   // снятая галочка должна сниматься, а не копиться
@@ -122,8 +127,10 @@ test('мастер добавляется, умения ставятся и сн
   await edit.getByRole('button', { name: 'Сохранить мастера', exact: true }).click();
   await expect(edit.getByRole('status')).toContainText('Мастер сохранён');
   await page.goto('/beauty/masters');
-  await expect(main.getByRole('row').filter({ hasText: 'Дина' })).toContainText('Маникюр');
-  await expect(main.getByRole('row').filter({ hasText: 'Дина' })).not.toContainText('Стрижка');
+  await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).toContainText('Маникюр');
+  await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).not.toContainText(
+    'Стрижка',
+  );
 });
 
 test('каталог салона на телефоне: без прокрутки вбок', async ({ page, request }) => {

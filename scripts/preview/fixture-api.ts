@@ -5339,13 +5339,23 @@ function fixtureCards(items: Array<Record<string, unknown>>) {
         updatedAt: new Date().toISOString(),
       });
   }
-  return [...fixtureBusinessCards.values()].map((card) => ({
-    ...card,
-    coverUrl: null,
-    hasCover: false,
-    canEdit: uiRole === 'OWNER',
-    canUpload: false,
-  }));
+  return [...fixtureBusinessCards.values()]
+    .filter((card) => {
+      const locations = items.filter(
+        (item) => (item.location as { businessId: string }).businessId === card.id,
+      );
+      return (
+        !locations.length ||
+        locations.some((item) => !fixtureArchivedLocations.has(String(item.locationId)))
+      );
+    })
+    .map((card) => ({
+      ...card,
+      coverUrl: null,
+      hasCover: false,
+      canEdit: uiRole === 'OWNER',
+      canUpload: false,
+    }));
 }
 
 /**
@@ -6398,11 +6408,25 @@ createServer(async (req, res) => {
           overridden: own.priceOverrideMinor !== null || own.durationOverrideMinutes !== null,
         };
       };
-      const serviceList = () => ({
-        locationId,
-        locationCurrency,
-        items: fixtureBeautyServices.map((s) => ({ ...s, effective: effective(s) })),
-      });
+      const serviceList = () => {
+        const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+        const start = new Date(`${today}T12:00:00Z`);
+        start.setUTCDate(start.getUTCDate() - 29);
+        const from = start.toISOString().slice(0, 10);
+        const completed = fixtureAppointments.filter((a) => a.locationId === locationId &&
+          a.status === 'DONE' && a.date >= from && a.date <= today);
+        return {
+          locationId,
+          locationCurrency,
+          items: fixtureBeautyServices.map((s) => ({
+            ...s, effective: effective(s),
+            popularity: locationId ? {
+              completedVisits: completed.filter((a) => a.serviceId === s.id).length,
+              totalCompletedVisits: completed.length,
+            } : null,
+          })),
+        };
+      };
       if (path === '/beauty/services' && req.method === 'GET') return send(200, serviceList());
       if (path === '/beauty/services' && req.method === 'POST') {
         const name = String(body['name'] ?? '').trim();
@@ -6748,21 +6772,25 @@ createServer(async (req, res) => {
         };
       };
       if (path === '/beauty/customers' && req.method === 'GET') {
-        const customers = new Map(
-          fixtureAppointments
-            .filter((a) => a.locationId === locationId)
-            .map((a) => [
-              a.customer.id,
-              {
-                id: a.customer.id,
-                firstName: a.customer.name,
-                lastName: null,
-                phone: a.customer.phone,
-                status: 'ACTIVE',
-              },
-            ]),
-        );
-        return send(200, { items: [...customers.values()] });
+        // как настоящий API: визиты, последний визит и средний чек по DONE (снимки цен, Q-252)
+        const mine = fixtureAppointments.filter((a) => a.locationId === locationId);
+        const customers = new Map(mine.map((a) => [a.customer.id, {
+          id: a.customer.id, firstName: a.customer.name, lastName: null,
+          phone: a.customer.phone, status: 'ACTIVE' }]));
+        const items = [...customers.values()].map((c) => {
+          const done = mine.filter((a) => a.customer.id === c.id && a.status === 'DONE');
+          const sum = done.reduce((t, a) => t + BigInt(a.priceMinor), 0n);
+          const last = done.map((a) => a.date).sort().at(-1) ?? null;
+          return {
+            ...c,
+            visits: done.length,
+            lastVisitAt: last ? `${last}T12:00:00.000Z` : null,
+            lastVisitLocalDate: last,
+            avgCheckMinor: done.length ? (sum / BigInt(done.length)).toString() : null,
+            avgCheckCurrency: done.length ? done[0]!.currency : null,
+          };
+        });
+        return send(200, { items });
       }
       if (path === '/beauty/appointments' && req.method === 'GET')
         // без даты день филиала «сегодня» в его поясе, как у настоящего API (`beauty/appointments.ts`, todayIn)
@@ -6819,12 +6847,18 @@ createServer(async (req, res) => {
           .join(' ');
         if (!String(body['customerId'] ?? '') && !name)
           return send(400, { message: 'Выберите клиента или впишите имя' });
+        const customerId = String(body['customerId'] ?? '');
+        const existingCustomer = customerId ? fixtureAppointments.find(
+          (a) => a.locationId === locationId && a.customer.id === customerId,
+        )?.customer : null;
+        if (customerId && !existingCustomer)
+          return send(404, { message: 'Клиент не найден' });
         fixtureAppointments.push({
           id: `apt-${fixtureAppointments.length + 1}-0000-4000-8000-000000000000`,
           locationId: String(locationId),
           employeeId: employee.id,
           serviceId: svc.id,
-          customer: {
+          customer: existingCustomer ?? {
             id: `cus-${fixtureAppointments.length + 1}-0000-4000-8000-000000000000`,
             name: name || 'Клиент',
             phone: String(body['phone'] ?? '').trim() || null,

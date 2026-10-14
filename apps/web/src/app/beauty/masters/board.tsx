@@ -2,7 +2,8 @@
 import { useActionState, useRef, useState, useTransition } from 'react';
 import { parseEmployeeInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
-import { Alert, Badge, Button, Field, Input, Table } from '../../../components/ui';
+import { Alert, Badge, Button, Field, Input } from '../../../components/ui';
+import { pluralRu } from '../../../lib/plural';
 import type {
   BeautyEmployeeRow,
   BeautyServiceRow,
@@ -18,6 +19,16 @@ import { loadBeautySchedule, saveBeautyEmployee } from '../actions';
  * Умения приходят одним списком, чтобы снятая галочка снималась, а не копилась.
  */
 type Editing = { mode: 'new' } | { mode: 'edit'; row: BeautyEmployeeRow } | null;
+
+/** Инициалы для кружка карточки: первые буквы первых двух слов имени */
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join('');
+}
 
 export function MastersBoard({
   items,
@@ -77,55 +88,70 @@ export function MastersBoard({
           </Button>
         )}
       </div>
-      <Table className="beauty-operational-table">
-        <thead>
-          <tr>
-            <th>Мастер</th>
-            <th className="beauty-col-wide">Контакты</th>
-            <th className="beauty-col-wide">Филиалы</th>
-            <th className="beauty-col-wide">Сегодня</th>
-            <th>Что умеет</th>
-            <th className="sr-only">Действия</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((row) => (
-            <tr key={row.id}>
-              <td data-label="Мастер">
-                {row.name}
-                {!row.active && <Badge>В архиве</Badge>}
-              </td>
-              <td data-label="Контакты" className="beauty-col-wide">
-                {[row.phone, row.email].filter(Boolean).join(', ') || 'Не указаны'}
-              </td>
-              <td data-label="Филиалы" className="beauty-col-wide">
-                {locations
-                  .filter((l) => row.locationIds.includes(l.id))
-                  .map((l) => l.name)
-                  .join(', ') || 'Не назначены'}
-              </td>
-              <td data-label="Сегодня" className="beauty-col-wide">
-                {today.columns.some((e) => e.id === row.id && !e.timeOff && e.intervals.length > 0)
-                  ? 'Работает'
-                  : 'Не работает'}
-              </td>
-              <td data-label="Что умеет">
+      <ul className="beauty-master-cards">
+        {items.map((row) => {
+          const column = today.columns.find((e) => e.id === row.id);
+          const onShift = !!column && !column.timeOff && column.intervals.length > 0;
+          const hours = column?.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ');
+          const appointments = today.appointments.filter(
+            (a) => a.employeeId === row.id && a.status !== 'CANCELLED',
+          ).length;
+          const categories = [
+            ...new Set(
+              row.serviceIds
+                .map((id) => services.find((s) => s.id === id)?.category)
+                .filter((c): c is string => Boolean(c)),
+            ),
+          ];
+          return (
+            <li key={row.id} className="beauty-master-card">
+              <div className="beauty-master-card__head">
+                <span className="beauty-card-avatar" aria-hidden="true">
+                  {initials(row.name)}
+                </span>
+                <div className="beauty-master-card__name">
+                  <b>{row.name}</b>
+                  <span className="beauty-note">
+                    {categories.join(', ') || 'Специализация не указана'}
+                  </span>
+                </div>
+              </div>
+              <div className="beauty-master-card__state">
+                {!row.active ? (
+                  <Badge>В архиве</Badge>
+                ) : onShift ? (
+                  <Badge tone="ok">На смене</Badge>
+                ) : (
+                  <Badge>Выходной</Badge>
+                )}
+                {row.active && (
+                  <span className="beauty-note">
+                    {pluralRu(appointments, ['запись', 'записи', 'записей'])} сегодня
+                  </span>
+                )}
+              </div>
+              <p className="beauty-note">{onShift ? `Сегодня ${hours}` : 'Сегодня не работает'}</p>
+              <p className="beauty-master-card__skills">
                 {row.serviceIds.length === 0
                   ? 'Услуги не выбраны'
                   : row.serviceIds
                       .map((id) => names.get(id))
                       .filter(Boolean)
                       .join(', ')}
-              </td>
-              <td data-label="Действия">
-                <Button type="button" size="sm" tone="secondary" onClick={() => open(row)}>
-                  Открыть
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+              </p>
+              <p className="beauty-note">
+                {locations
+                  .filter((l) => row.locationIds.includes(l.id))
+                  .map((l) => l.name)
+                  .join(', ') || 'Филиалы не назначены'}
+              </p>
+              <Button type="button" size="sm" tone="secondary" onClick={() => open(row)}>
+                Открыть
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
       <Overlay
         open={editing !== null}
         onClose={() => {

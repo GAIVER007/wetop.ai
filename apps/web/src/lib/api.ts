@@ -3629,6 +3629,7 @@ export interface BeautyTimeOff {
 
 /** График мастера в филиале: мастера бизнеса, неделя выбранного, его отсутствия и филиалы (срез B4) */
 export interface BeautySchedule {
+  businessName?: string;
   location: { id: string; name: string | null; timezone: string | null } | null;
   employees: Array<{ id: string; name: string; active: boolean; worksHere: boolean }>;
   employee: {

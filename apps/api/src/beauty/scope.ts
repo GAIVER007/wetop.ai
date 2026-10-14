@@ -19,6 +19,7 @@ export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 export interface BeautyScope {
   organizationId: string;
   businessId: string;
+  businessName?: string;
   /** Филиал из указателя запроса; его нет при просмотре каталога бизнеса */
   locationId: string | null;
   locationName: string | null;
@@ -49,7 +50,7 @@ export async function beautyScope(
       status: 'ACTIVE',
       id: pointed,
     },
-    select: { id: true },
+    select: { id: true, name: true },
   });
   if (!business) throw new NotFoundException('Салон в этой организации не настроен');
 
@@ -67,6 +68,7 @@ export async function beautyScope(
   return {
     organizationId,
     businessId: business.id,
+    ...(typeof business.name === 'string' ? {businessName:business.name} : {}),
     locationId: location?.id ?? null,
     locationName: location?.name ?? null,
     locationCurrency: location?.currency ?? null,

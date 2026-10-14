@@ -22,6 +22,7 @@ import { isLocalDatabase } from '../tools/seed-local';
 
 if (!isLocalDatabase(process.env.DATABASE_URL ?? ''))
   throw new Error('Own local database required');
+process.env.SESSION_SECRET ??= 'synthetic-beauty-ui-replay-key-not-production';
 const db = createPrismaClient(process.env.DATABASE_URL, 'pms_test');
 const prisma = { db } as unknown as PrismaService;
 const onboarding = new SharedOnboardingService(prisma);

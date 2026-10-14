@@ -44,6 +44,8 @@ export function MastersBoard({
   locations,
   scopeKey = '',
   initialEmployeeId = '',
+  businessName,
+  locationName,
   unavailable = false,
 }: {
   items: BeautyEmployeeRow[];
@@ -53,6 +55,8 @@ export function MastersBoard({
   locations: BeautySchedule['locations'];
   scopeKey?: string;
   initialEmployeeId?: string;
+  businessName?: string;
+  locationName?: string;
   unavailable?: boolean;
 }) {
   const router = useRouter();
@@ -60,6 +64,7 @@ export function MastersBoard({
   const editing = selection;
   const [epoch, setEpoch] = useState(0);
   const [notice, setNotice] = useState('');
+  const [openingCreated, setOpeningCreated] = useState<string | null>(null);
   const guard = useRef<(action: () => void) => void>((action) => action());
   const registerGuard = useCallback((request: (action: () => void) => void) => {
     guard.current = request;
@@ -70,10 +75,6 @@ export function MastersBoard({
   const itemsRef = useRef(items);
   itemsRef.current = items;
   const generation = useRef(0);
-  const createdNavigation = useRef<string | null>(null);
-  useEffect(() => {
-    if (initialEmployeeId === createdNavigation.current) createdNavigation.current = null;
-  }, [initialEmployeeId]);
   const setAddress = (id: string | null, push = false) => {
     const url = new URL(location.href);
     if (id) {
@@ -230,6 +231,17 @@ export function MastersBoard({
     await refreshSchedule();
   };
   const lastSubmit = useRef<HTMLFormElement | null>(null);
+  useEffect(() => {
+    if (!openingCreated || initialEmployeeId !== openingCreated) return;
+    const version = ++generation.current;
+    load(async () => {
+      const result = await loadBeautySchedule(openingCreated);
+      if (version !== generation.current) return;
+      if (result.data) setSchedule(result.data);
+      else setLoadError(result.error ?? 'Не удалось загрузить график');
+      setOpeningCreated(null);
+    });
+  }, [openingCreated, initialEmployeeId]);
   const savedProfile = (row: BeautyEmployeeRow) => {
     const created = editing?.mode === 'new';
     setEditing({ mode: 'edit', row });
@@ -237,32 +249,20 @@ export function MastersBoard({
       setSchedule(null);
       setLoadError('');
       setNotice('Мастер создан');
+      setOpeningCreated(row.id);
       const url = new URL(location.href);
       url.searchParams.set('employee', row.id);
       url.hash = 'profile';
-      createdNavigation.current = row.id;
-      router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+      router.replace(`${url.pathname}${url.search}${url.hash}`, {scroll:false});
       focusedEmployee.current = row.id;
-      const version = ++generation.current;
-      load(async () => {
-        const result = await loadBeautySchedule(row.id);
-        if (version !== generation.current) return;
-        if (result.data) {
-          setSchedule(result.data);
-          setLoadError('');
-        }
-      });
     } else setNotice('Профиль сохранён');
   };
   const close = () => {
     generation.current++;
     focusedEmployee.current = null;
     setEditing(null);
+    setOpeningCreated(null);
     setAddress(null);
-    if (createdNavigation.current) {
-      createdNavigation.current = null;
-      router.replace(`${location.pathname}${location.search}`, { scroll: false });
-    }
   };
   const refreshSchedule = async () => {
     if (editing?.mode !== 'edit') return;
@@ -386,14 +386,22 @@ export function MastersBoard({
             }}
           >
             {editing?.mode === 'new' && (
+              <>
+              <section aria-label="Бизнес и филиал" className="employee-workspace-heading">
+                <p>Бизнес: {businessName ?? 'Название недоступно'}</p>
+                <p>Филиал: {locationName ?? locations.find(item=>item.id===scopeKey)?.name ?? 'Название недоступно'}</p>
+              </section>
               <EmployeeProfile
                 row={null}
+                onCancelCreate={() => guard.current(close)}
                 scopeKey={scopeKey}
                 canEdit={canEdit}
                 onSaved={savedProfile}
               />
+              </>
             )}
-            {editing?.mode === 'edit' && (
+            {editing?.mode === 'edit' && openingCreated && <p role="status">Открываем сохранённый профиль…</p>}
+            {editing?.mode === 'edit' && !openingCreated && (
               <>
                 <header className="employee-workspace-heading">
                   <strong>{editing.row.name}</strong>
@@ -550,7 +558,7 @@ function MasterForm({
   }, [state?.message, state?.revision]);
   const chosen = new Set(selected);
   return (
-    <form ref={formRef} action={action} className="beauty-form">
+    <form ref={formRef} action={action} className="beauty-form" onReset={(event) => event.preventDefault()}>
       <input type="hidden" name="id" value={row.id} />
       <input type="hidden" name="section" value="skills" />
       <input type="hidden" name="scopeKey" value={scopeKey} />

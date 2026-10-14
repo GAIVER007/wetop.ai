@@ -1,4 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
+import { mkdirSync } from 'node:fs';
+mkdirSync('tests/runs/screenshots/employee-workspace', { recursive: true });
 import { expect, test, type Page, type APIRequestContext } from '@playwright/test';
 const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
 async function theme(page: Page, value: string) {
@@ -96,7 +98,7 @@ test('minimal create, saved ID, reload and actual desktop/mobile themes', async 
       expect(
         await dialog(page).evaluate((element) => element.scrollWidth <= element.clientWidth + 1),
       ).toBe(true);
-      await page.screenshot({ path: `.people-work/evidence/profile-${width}-${mode}.png` });
+      await page.screenshot({ path: `tests/runs/screenshots/employee-workspace/profile-${width}-${mode}.png` });
     }
   }
 });
@@ -124,7 +126,7 @@ test('two stale forms keep the second draft and show the current profile', async
     '+0000000001',
   );
   expect((await read(request, f.headers))[0]!.phone).toBe('+0000000001');
-  await dialog(second).getByRole('button', { name: 'Отмена', exact: true }).click();
+  await dialog(second).getByRole('button', { name: 'Отменить черновик и загрузить профиль', exact: true }).click();
   await expect(dialog(second).getByLabel(/^Телефон/)).toHaveValue('+0000000001');
   await second.close();
 });

@@ -101,6 +101,7 @@ export class BeautyScheduleService {
         ? await this.weekSnapshot(this.prisma.db, chosen.id, scope.locationId)
         : { intervals: [], revision: null };
     return {
+      businessName: scope.businessName,
       location:
         scope.locationId === null
           ? null

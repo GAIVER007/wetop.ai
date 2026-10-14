@@ -57,6 +57,8 @@ export default async function BeautyMastersPage({
       </p>
       <MastersBoard
         key={employees.locationId ?? 'business'}
+        {...(schedule.businessName !== undefined ? { businessName: schedule.businessName } : {})}
+        {...(typeof schedule.location?.name === 'string' ? { locationName: schedule.location.name } : {})}
         scopeKey={employees.locationId ?? ''}
         items={employees.items}
         services={services.items}

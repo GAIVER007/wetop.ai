@@ -83,8 +83,7 @@ export function EmployeeBasicForm({
             <dd>{current.active ? 'Работает' : 'В архиве'}</dd>
           </dl>
           <p>
-            Ваш ввод остаётся ниже. Обновите форму через «Отмена», затем внесите нужные изменения
-            заново.
+            Ваш ввод остаётся ниже. Отмените черновик и загрузите сохранённый профиль, затем внесите изменения заново.
           </p>
         </section>
       )}
@@ -117,7 +116,7 @@ export function EmployeeBasicForm({
           </Button>
         )}
         <Button type="button" tone="secondary" disabled={pending} onClick={onCancel}>
-          Отмена
+          {current ? 'Отменить черновик и загрузить профиль' : 'Отмена'}
         </Button>
       </div>
     </form>

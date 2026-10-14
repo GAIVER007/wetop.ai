@@ -21,11 +21,13 @@ export function EmployeeProfile({
   scopeKey,
   canEdit,
   onSaved,
+  onCancelCreate,
 }: {
   row: BeautyEmployeeRow | null;
   scopeKey: string;
   canEdit: boolean;
   onSaved: (row: BeautyEmployeeRow) => void;
+  onCancelCreate?: () => void;
 }) {
   const [original, setOriginal] = useState(() => fields(row));
   const [draft, setDraft] = useState(original);
@@ -147,19 +149,25 @@ export function EmployeeProfile({
     }
     setPending(true);
     const version = ++requestVersion.current;
-    const result = await loadBeautyEmployee(row.id);
-    if (!alive.current || version !== requestVersion.current) return;
-    setPending(false);
-    if (!result.employee || result.locationId !== scopeKey) {
-      setError(result.error || 'Филиал изменён. Откройте профиль в текущем филиале.');
-      return;
+    try {
+      const result = await loadBeautyEmployee(row.id);
+      if (!alive.current || version !== requestVersion.current) return;
+      if (!result.employee || result.locationId !== scopeKey) {
+        setError(result.error || 'Филиал изменён. Откройте профиль в текущем филиале.');
+        return;
+      }
+      setDraft(fields(result.employee));
+      setOriginal(fields(result.employee));
+      setRevision(result.employee.profileRevision);
+      setCurrent(null);
+      setError(null);
+      finish(true, fields(result.employee));
+    } catch {
+      if (alive.current && version === requestVersion.current)
+        setError('Не удалось обновить профиль. Черновик сохранён, повторите загрузку.');
+    } finally {
+      if (alive.current && version === requestVersion.current) setPending(false);
     }
-    setDraft(fields(result.employee));
-    setOriginal(fields(result.employee));
-    setRevision(result.employee.profileRevision);
-    setCurrent(null);
-    setError(null);
-    finish(true, fields(result.employee));
   };
   return (
     <>
@@ -171,7 +179,8 @@ export function EmployeeProfile({
           void save();
         }}
         onCancel={() => {
-          void cancel();
+          if (!row && onCancelCreate) onCancelCreate();
+          else void cancel();
         }}
         creating={!row}
         pending={pending}

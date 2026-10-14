@@ -5,9 +5,24 @@ import { expect, test } from '@playwright/test';
  * карточки возможностей, призыв к регистрации и ссылка на главную; с главной на них ведут карточки «Направлений».
  * Текст только из продукта: цифр клиентов и цен нет (DESIGN.md §19.9).
  */
-const HOTEL = { vertical: 'HOSPITALITY', secondary: '/calculator/', calendar: true };
-const BEAUTY = { vertical: 'BEAUTY', secondary: '/for/salons/', calendar: false };
-const FOOD = { vertical: 'FOOD_SERVICE', secondary: '/for/restaurants/', calendar: false };
+const HOTEL = {
+  vertical: 'HOSPITALITY',
+  secondary: '/calculator/',
+  shot: '/screens/calendar-week',
+  direction: '/for/hotels/',
+};
+const BEAUTY = {
+  vertical: 'BEAUTY',
+  secondary: '/for/salons/',
+  shot: '/screens/salon-day',
+  direction: '/for/salons/',
+};
+const FOOD = {
+  vertical: 'FOOD_SERVICE',
+  secondary: '/for/restaurants/',
+  shot: '/screens/restaurant-floor',
+  direction: '/for/restaurants/',
+};
 const SEGMENTS = [
   {
     path: '/for/hostels/',
@@ -85,14 +100,25 @@ for (const segment of SEGMENTS) {
       await page.locator('#segment-features .card').count(),
       'карточек возможностей',
     ).toBeGreaterThanOrEqual(5);
-    // Экран календаря размещений есть только у гостиниц: у салона и ресторана другой продукт
-    if (segment.calendar)
-      await expect(page.locator('.hotel-shot img')).toHaveAttribute(
-        'src',
-        '/screens/calendar-week-light.png',
-      );
-    else await expect(page.locator('.hotel-shot')).toHaveCount(0);
-    await expect(page.locator('.faq details')).toHaveCount(4);
+    // Настоящий экран продукта своей вертикали: календарь размещений, день салона, план зала
+    await expect(page.locator('.hotel-shot img')).toHaveAttribute(
+      'src',
+      `${segment.shot}-light.png`,
+    );
+    for (const theme of ['light', 'dark'])
+      expect((await page.request.get(`${segment.shot}-${theme}.png`)).status()).toBe(200);
+    // Разметка FAQPage для поисковиков
+    const ld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join(
+      '',
+    );
+    expect(ld, 'FAQPage в структурированных данных').toContain('"FAQPage"');
+    // «Смотрите также»: соседние типы бизнеса и страница направления карточками, без ссылки на себя
+    const siblings = SEGMENTS.filter((s) => s.direction === segment.direction && s !== segment);
+    for (const sibling of siblings)
+      await expect(page.locator(`main .card a[href="${sibling.path}"]`)).toHaveCount(1);
+    await expect(page.locator(`main .card a[href="${segment.path}"]`)).toHaveCount(0);
+    await expect(page.locator(`main .card a[href="${segment.direction}"]`)).toHaveCount(1);
+    await expect(page.locator('.faq details')).toHaveCount(6);
     await expect(page.locator('.cta [data-auth="register"]')).toBeVisible();
     await expect(page.locator(`.cta a[href="${segment.secondary}"]`)).toBeVisible();
     const text = await page.locator('body').innerText();

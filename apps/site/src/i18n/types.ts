@@ -248,6 +248,8 @@ export type Dictionary = {
     secondary: string;
     /** Чипы под кнопками героя: «7 дней бесплатно» и т.п. (ADR-098). */
     chips: string[];
+    /** Снимок настоящего дня салона с демо-данными (светлая и тёмная темы). */
+    shot: { eyebrow: string; title: string; lead: string; alt: string; note: string };
     /** Мокап-календарь записей по мастерам: только вымышленные данные, подпись примера обязательна. */
     mock: {
       label: string;
@@ -323,6 +325,8 @@ export type Dictionary = {
     secondary: string;
     chips: string[];
     photoAlt: string;
+    /** Снимок настоящего плана зала с демо-данными (светлая и тёмная темы). */
+    shot: { eyebrow: string; title: string; lead: string; alt: string; note: string };
     facts: Array<{ value: string; text: string }>;
     featuresTitle: string;
     featuresLead: string;
@@ -352,6 +356,9 @@ export type Dictionary = {
     dayTitle: string;
     day: Record<'hotels' | 'salons' | 'restaurants', Array<{ title: string; text: string }>>;
     typesTitle: Record<'hotels' | 'salons' | 'restaurants', string>;
+    /** Блок «Смотрите также» на странице типа: заголовок и текст карточки родительского направления. */
+    alsoTitle: string;
+    directionCards: Record<'hotels' | 'salons' | 'restaurants', string>;
     items: Record<
       /** У салонов своя страница со своим словарём (`salon`), общего шаблона у них нет. */
       Exclude<SegmentSlug, 'salons'>,

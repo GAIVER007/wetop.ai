@@ -538,7 +538,7 @@ export const menuSections: MenuSection[] = [
     id: 'reports',
     label: 'Отчёты',
     icon: 'analytics',
-    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics')],
+    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
     match: ['/management'],
   },
   {
@@ -572,10 +572,26 @@ export const beautyMenuSections: MenuSection[] = [
   // «График» салона отдельной вкладкой (решение владельца №1 по плану DS2, 09.10.2026)
   direct('schedule', '/beauty/schedule', 'clock'),
   direct('services', '/services', 'rates', undefined, ['/beauty/services']),
-  // ссылка ведёт прямо на экран; старый `/staff` только перенаправляет сюда и подсвечивает тот же раздел (DS2 §14)
-  direct('team', '/team', 'guests', 'Сотрудники и доступ', ['/staff']),
-  direct('finance', '/finance', 'money', 'Финансы'),
-  direct('sales', '/sales', 'rates', 'Продажи'),
+  {
+    id: 'money',
+    label: 'Финансы',
+    icon: 'money' as IconName,
+    items: [menuItem('/finance', 'Оплаты и касса')],
+  },
+  {
+    id: 'team',
+    label: 'Команда',
+    icon: 'guests' as IconName,
+    items: [menuItem('/team', 'Сотрудники и доступ')],
+    match: ['/staff'],
+  },
+  {
+    id: 'sales',
+    label: 'Продажи',
+    icon: 'rates' as IconName,
+    items: [menuItem('/sales'), menuItem('/ai-agents')],
+    match: ['/ai-seller'],
+  },
   {
     id: 'marketing',
     label: 'Маркетинг',
@@ -587,11 +603,23 @@ export const beautyMenuSections: MenuSection[] = [
     ],
     match: ['/website'],
   },
-  direct('reports', '/reports', 'analytics', 'Отчёты'),
-  direct('analytics', '/management/analytics', 'analytics'),
-  direct('ai-agents', '/ai-agents', 'chat', 'ИИ-продавцы'),
-  direct('connections', '/connections', 'channels', 'Подключения'),
-  direct('journal', '/journal', 'journal'),
+  {
+    id: 'reports',
+    label: 'Отчёты',
+    icon: 'analytics' as IconName,
+    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
+    match: ['/management'],
+  },
+  {
+    id: 'settings',
+    label: 'Настройки',
+    icon: 'settings' as IconName,
+    items: [
+      menuItem('/connections'),
+      menuItem('/journal'),
+      menuItem('/incidents'),
+    ],
+  },
   direct('help', '/help', 'help'),
   direct('profile', '/profile', 'guests'),
 ];
@@ -656,7 +684,7 @@ export const foodMenuSections: MenuSection[] = [
     id: 'reports',
     label: 'Отчёты',
     icon: 'analytics' as IconName,
-    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics')],
+    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics', 'Аналитика бизнеса')],
     match: ['/management'],
   },
   {

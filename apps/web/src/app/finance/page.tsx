@@ -96,7 +96,17 @@ export default async function FinanceReportPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  // Ресторан и салон: свои финансовые экраны (restaurant-finance, cashbox); общий /finance перенаправляет
+  if (me.context?.vertical === 'FOOD_SERVICE') {
+    const { redirect } = await import('next/navigation');
+    redirect('/restaurant-finance');
+  }
+  if (me.context?.vertical === 'BEAUTY') {
+    // Салон пока не имеет собственного финансового модуля: показываем упрощённый экран выручки из записей
+    const { BeautyFinanceScreen } = await import('./beauty-finance');
+    return <BeautyFinanceScreen />;
+  }
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const yesterday = new Date(`${cal.today}T00:00:00Z`);

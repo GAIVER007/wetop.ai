@@ -32,7 +32,17 @@ export default async function ReportsHubPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  // Ресторан: перенаправление на финансы ресторана (выручка, расходы — основной отчёт)
+  if (me.context?.vertical === 'FOOD_SERVICE') {
+    const { redirect } = await import('next/navigation');
+    redirect('/restaurant-finance');
+  }
+  // Салон: упрощённый хаб отчётов
+  if (me.context?.vertical === 'BEAUTY') {
+    const { redirect } = await import('next/navigation');
+    redirect('/management/analytics');
+  }
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const from = sp.from || cal.month.from;

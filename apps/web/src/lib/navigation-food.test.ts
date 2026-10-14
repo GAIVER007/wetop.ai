@@ -21,14 +21,21 @@ describe('Food workspace isolation', () => {
       '/customers',
       '/restaurant-finance',
       '/cashbox',
+      '/finance',
       '/employees',
       '/payroll',
       '/team',
       '/sales',
+      '/ai-agents',
       '/marketing',
+      '/marketing/budget',
+      '/marketing/analytics',
+      '/reports',
       '/management/analytics',
       '/restaurant-settings',
+      '/connections',
       '/journal',
+      '/incidents',
       '/help',
       '/profile',
     ]);
@@ -42,13 +49,12 @@ describe('Food workspace isolation', () => {
       'Команда',
       'Продажи',
       'Маркетинг',
-      'Аналитика',
+      'Отчёты',
       'Настройки',
-      'Журнал операций',
       'Помощь',
       'Профиль',
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 2, 3]);
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 3, 3, 2, 3, 2, 4]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],

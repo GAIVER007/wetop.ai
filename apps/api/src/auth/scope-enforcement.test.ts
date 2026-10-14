@@ -4,13 +4,17 @@ import { Reflector } from '@nestjs/core';
 import { of } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import {
+  RESTRICTED_GUESTS_MESSAGE,
   RESTRICTED_ORGANIZATION_MESSAGE,
   SCOPE_CHOOSE_MESSAGE,
+  SCOPE_REJECTED_MESSAGE,
   SCOPE_FORBIDDEN_MESSAGE,
   type ScopeAssignment,
 } from '@pms/domain';
 import { Access } from './access.decorator';
 import { AuthorInterceptor } from './author.interceptor';
+import { OrganizationLevel } from './organization-level.decorator';
+import { Public } from './public.decorator';
 import { RoleGuard } from './role.guard';
 import { ScopeAware } from './scope-aware.decorator';
 import { currentAssignments, currentLocationId, currentRole } from './request-context';
@@ -45,6 +49,12 @@ class Demo {
   @Get('me') @Access('self') me() {}
   @Get('list') @Access('desk') @ScopeAware() list() {}
   @Get('team') @Access('staff') team() {}
+  @Get('guests') @Access('desk') @OrganizationLevel(RESTRICTED_GUESTS_MESSAGE) guests() {}
+  @Get('seller') @Access('seller') seller() {}
+  @Get('dialogs') @Access('dialogs') dialogs() {}
+  @Get('platform') @Access('platform') platform() {}
+  @Get('service') @Access('service') service() {}
+  @Get('pub') @Public() pub() {}
 }
 
 const user = (role: SignedInUser['role'], scopes?: ScopeAssignment[]) =>
@@ -146,5 +156,106 @@ describe('замок ролей: организационные разделы �
 
   it('обычные разделы замок не трогает: место проверит перехватчик', () => {
     expect(can('board', user('STAFF', staffAtL1))).toBe(true);
+  });
+});
+
+describe('замок ролей: ИИ-продавец и гости организационные (O2=A, O3=A)', () => {
+  const guard = new RoleGuard(new Reflector());
+  const can = (method: keyof Demo, u: SignedInUser) =>
+    guard.canActivate({
+      getHandler: () => Demo.prototype[method],
+      getClass: () => Demo,
+      switchToHttp: () => ({ getRequest: () => ({ user: u }) }),
+    } as never);
+
+  it('ограниченному закрыты настройки и диалоги ИИ-продавца, роль в филиале не важна', () => {
+    for (const method of ['seller', 'dialogs'] as const) {
+      expect(() => can(method, user('MANAGER', mixed))).toThrow(
+        new ForbiddenException(RESTRICTED_ORGANIZATION_MESSAGE),
+      );
+      expect(() => can(method, user('STAFF', staffAtL1))).toThrow(ForbiddenException);
+    }
+  });
+
+  it('без назначений права ролей прежние: управляющий настраивает, администратор видит диалоги, но не настройки', () => {
+    expect(can('seller', user('MANAGER'))).toBe(true);
+    expect(can('dialogs', user('STAFF'))).toBe(true);
+    expect(() => can('seller', user('STAFF'))).toThrow(ForbiddenException);
+    expect(can('seller', user('OWNER', staffAtL1))).toBe(true);
+  });
+
+  it('метка организационного маршрута (гости): ограниченному 403 со своим текстом, остальным открыто', () => {
+    expect(() => can('guests', user('STAFF', staffAtL1))).toThrow(
+      new ForbiddenException(RESTRICTED_GUESTS_MESSAGE),
+    );
+    expect(can('guests', user('STAFF'))).toBe(true);
+    expect(can('guests', user('MANAGER'))).toBe(true);
+    expect(can('guests', user('OWNER', staffAtL1))).toBe(true);
+    // обычный маршрут того же права не задет
+    expect(can('board', user('STAFF', staffAtL1))).toBe(true);
+  });
+});
+
+describe('перехватчик: отклонённый указатель области — 403 (O4=A, fail-closed)', () => {
+  const REJECTED = {
+    'чужой бизнес': { 'x-wetop-scope': `business=99999999-9999-4999-8999-999999999999;location=${L1}` },
+    'филиал не из бизнеса': { 'x-wetop-scope': `business=${B};location=99999999-9999-4999-8999-999999999999` },
+    'битый указатель': { 'x-wetop-scope': 'garbage' },
+    'не uuid': { 'x-wetop-scope': 'business=1' },
+    'филиал без бизнеса': { 'x-wetop-scope': `location=${L1}` },
+  } as const;
+  const owner = user('MANAGER');
+
+  it.each(Object.entries(REJECTED))('%s: обычный маршрут человека отвечает 403, обработчик не выполнен', async (_name, headers) => {
+    await expect(run('board', owner, { ...headers })).rejects.toThrow(new ForbiddenException(SCOPE_REJECTED_MESSAGE));
+    await expect(run('refund', user('OWNER'), { ...headers })).rejects.toThrow(
+      new ForbiddenException(SCOPE_REJECTED_MESSAGE),
+    );
+    await expect(run('board', user('STAFF', staffAtL1), { ...headers })).rejects.toThrow(
+      new ForbiddenException(SCOPE_REJECTED_MESSAGE),
+    );
+    await expect(run('team', owner, { ...headers })).rejects.toThrow(ForbiddenException);
+  });
+
+  it.each(Object.entries(REJECTED))('%s: личные, платформенные, служебные, публичные и ScopeAware маршруты работают', async (_name, headers) => {
+    for (const method of ['me', 'list', 'platform', 'service', 'pub'] as const)
+      expect((await run(method, owner, { ...headers })).scopes, method).toBe(0);
+  });
+
+  it('заголовка нет, пустой или из пробелов — это не отклонение: организация, как раньше', async () => {
+    expect((await run('board', owner, {})).scopes).toBe(0);
+    expect((await run('board', owner, { 'x-wetop-scope': '' })).scopes).toBe(0);
+    expect((await run('board', owner, { 'x-wetop-scope': '   ' })).scopes).toBe(0);
+  });
+
+  it('принятый указатель работает', async () => {
+    expect((await run('board', owner, at(L1))).location).toBe(L1);
+    expect((await run('board', owner, { 'x-wetop-scope': `business=${B}` })).location).toBeNull();
+  });
+
+  it('служебный ходок без человека не отклоняется: ему указатель не нужен', async () => {
+    const next = { handle: () => of('ok') };
+    const anonymous = {
+      switchToHttp: () => ({ getRequest: () => ({ headers: { 'x-wetop-scope': 'garbage' } }) }),
+      getHandler: () => Demo.prototype.board,
+      getClass: () => Demo,
+    } as never;
+    await expect(new AuthorInterceptor(prisma).intercept(anonymous, next as never)).resolves.toBeDefined();
+  });
+
+  it('модуль без базы не отклоняет разобранный указатель, но битый отклоняет и без базы', async () => {
+    const next = { handle: () => of('ok') };
+    const ctxFor = (headers: Record<string, string>) =>
+      ({
+        switchToHttp: () => ({ getRequest: () => ({ user: owner, headers }) }),
+        getHandler: () => Demo.prototype.board,
+        getClass: () => Demo,
+      }) as never;
+    await expect(
+      new AuthorInterceptor().intercept(ctxFor({ 'x-wetop-scope': `business=${B};location=${L1}` }), next as never),
+    ).resolves.toBeDefined();
+    await expect(
+      new AuthorInterceptor().intercept(ctxFor({ 'x-wetop-scope': 'garbage' }), next as never),
+    ).rejects.toThrow(ForbiddenException);
   });
 });

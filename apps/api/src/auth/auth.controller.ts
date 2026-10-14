@@ -195,6 +195,9 @@ export class AuthController {
             locationId: ctx.locationId ?? undefined,
           })
         : null;
+    // указатель на место без назначения не подтверждаем: любой маршрут ответил бы ему 403, а стойка по пустому
+    // context.businessId видит устаревший выбор и ведёт на выбор филиала (CORE-SECURITY-FIX-01, восстановление указателя)
+    const unassigned = restricted && ctx.businessId !== null && place === null;
     return {
       ...signedIn,
       user: restricted
@@ -202,7 +205,9 @@ export class AuthController {
         : signedIn.user,
       access: { aiSeller: await this.extensions.aiSeller(signedIn.user.organizationId) },
       // фактический scope запроса (Platform P2, К1; план P2 §4б): по нему переключатель P3 покажет, что выбрано
-      context: scopeView(),
+      context: unassigned
+        ? { scope: 'ORGANIZATION' as const, businessId: null, locationId: null, vertical: null }
+        : ctx,
     };
   }
 
@@ -212,7 +217,11 @@ export class AuthController {
     const token = tokenFromHeaders(headers);
     const signedIn = token ? await this.auth.whoami(token) : null;
     if (!signedIn) throw new UnauthorizedException();
-    return this.auth.registrationContext(signedIn.user.organizationId);
+    // человеку с областью доступа называем только назначенные бизнес и филиал, а не самые ранние в организации (A3/F6)
+    return this.auth.registrationContext(signedIn.user.organizationId, {
+      role: signedIn.user.role,
+      ...(signedIn.user.scopes ? { scopes: signedIn.user.scopes } : {}),
+    });
   }
 
   @Public()

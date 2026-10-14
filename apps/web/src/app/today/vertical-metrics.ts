@@ -39,15 +39,46 @@ export interface BeautyUpcoming {
   status: BeautyAppointmentRow['status'];
 }
 
+/** Мастер на смене сегодня: часы из графика и счёт записей (плитка и список макета «Главная») */
+export interface BeautyShiftMaster {
+  id: string;
+  name: string;
+  hours: string;
+  appointments: number;
+}
+
 export function beautyToday(day: BeautyDay, currentLocalMinute: number) {
   const masters = new Map(day.columns.map((c) => [c.id, c.name]));
   const rows = day.appointments;
   const count = (status: BeautyAppointmentRow['status']) =>
     rows.filter((r) => r.status === status).length;
+  const live = rows.filter((r) => r.status !== 'CANCELLED');
+  // выручка дня: сумма снимков цен DONE, BigInt по валютам; валюта филиала первой, курсов нет (Q-252)
+  const sums = new Map<string, bigint>();
+  for (const r of rows)
+    if (r.status === 'DONE') sums.set(r.currency, (sums.get(r.currency) ?? 0n) + BigInt(r.priceMinor));
+  const revenue = [...sums.entries()]
+    .sort(([a], [b]) =>
+      a === day.location.currency ? -1 : b === day.location.currency ? 1 : a.localeCompare(b),
+    )
+    .map(([currency, minor]) => ({ currency, minor: minor.toString() }));
+  const onShiftColumns = day.columns.filter((c) => !c.timeOff && c.intervals.length > 0);
   const ahead = rows
     .filter((r) => ACTIVE_BEAUTY.has(r.status) && r.endMinutes > currentLocalMinute)
     .sort((a, b) => a.startMinutes - b.startMinutes || a.id.localeCompare(b.id));
   return {
+    total: live.length,
+    revenue,
+    clients: new Set(live.map((r) => r.customer.id)).size,
+    onShift: onShiftColumns.length,
+    shift: onShiftColumns.map(
+      (c): BeautyShiftMaster => ({
+        id: c.id,
+        name: c.name,
+        hours: c.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', '),
+        appointments: live.filter((r) => r.employeeId === c.id).length,
+      }),
+    ),
     planned: count('BOOKED') + count('CONFIRMED'),
     confirmed: count('CONFIRMED'),
     done: count('DONE'),

@@ -33,7 +33,7 @@ test('статусы шахматки понятны без открытия и�
   // Основная строка компактна, переход к сегодняшней дате внутри меню месяца.
   await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toBeHidden();
   await page.getByTestId('board-period-button').click();
-  await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Сегодня', exact: true })).toBeVisible();
 });
 
 test('ручные даты раскрываются с клавиатуры и сбрасываются при смене периода', async ({ page }) => {
@@ -56,8 +56,11 @@ test('ручные даты раскрываются с клавиатуры и 
   await page.getByRole('link', { name: 'Следующая неделя', exact: true }).click();
   await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue('2026-10-12');
   await opener.click();
-  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
-  await expect(page).toHaveURL('/chessboard');
+  await page.getByRole('button', { name: 'Сегодня', exact: true }).click();
+  const today = await page.getByLabel('Период: с', {exact: true}).inputValue();
+  await expect(page.getByLabel('Период: по', {exact: true})).toHaveValue(today);
+  await page.getByRole('button', {name: 'Применить', exact: true}).click();
+  await expect(page).toHaveURL(`/chessboard?from=${today}&to=${today}`);
 });
 
 for (const theme of ['light', 'dark'] as const) {

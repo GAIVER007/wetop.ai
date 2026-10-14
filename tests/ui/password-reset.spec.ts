@@ -38,7 +38,7 @@ test('по ссылке из письма сотрудник задаёт пар
   await page.getByLabel('Почта', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('zhanga-parol-2026');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page).toHaveURL(/\/finance/);
+  await expect(page).toHaveURL(/\/today/);
 });
 
 test('второй раз та же ссылка не работает', async ({ page }) => {

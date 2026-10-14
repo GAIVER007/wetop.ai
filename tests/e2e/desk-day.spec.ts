@@ -13,15 +13,20 @@ const plus = (n: number) => {
 /** Дашборд: операции всегда за сегодня, финансовый период выбирается отдельно.
  * Новая бронь должна изменить счётчик и задачи; аналитика читает ту же базу.
  */
-test('главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания»', async ({
+test('главная открывается с корня; заезд на дату виден в «Требуют внимания»', async ({
   page,
   request,
 }) => {
   await page.goto('/');
-  // ADR-180: operational Home is separate from Finance.
+  // ADR-180: задачи и события дня на Главной, денежный период на Финансах.
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
-  await expect(page.getByTestId('c-occupancy')).toBeVisible();
+  await page.goto('/finance');
+  await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('navigation', { name: 'Готовые периоды', exact: true })
+      .getByRole('link', { name: 'Месяц', exact: true }),
+  ).toHaveClass(/is-active/);
 
   // Заводим заезд на выбранную дату и проверяем рост очереди «Требуют внимания».
   const day = plus(0);
@@ -63,7 +68,7 @@ test('главная открывается с корня; заезд на да�
     );
   // Риски относятся к сегодняшнему дню.
   await expect(page.getByTestId('owner-risks')).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', {name: 'Главная', exact: true})).toBeVisible();
 
   await page.screenshot({ path: 'reports/screenshots/desk-today.png', fullPage: true });
 
@@ -88,23 +93,16 @@ test('главная открывается с корня; заезд на да�
     page.getByRole('main').getByTestId('statistics-table').locator('tbody tr').first(),
   ).toBeVisible();
 
-  // Прошлый финансовый период не меняет текущую полосу рисков.
+  // Прошлый финансовый период не меняет задачи текущего дня на Главной.
   await page.goto('/finance?from=2026-08-15&to=2026-08-15');
-  await expect(page.getByRole('heading', { name: 'Финансы', exact: true })).toBeVisible();
-  await page.getByTestId('finance-period').click();
-  await expect(
-    page
-      .getByRole('navigation', { name: 'Действия страницы', exact: true })
-      .getByLabel('Период: с', { exact: true }),
-  ).toHaveValue('2026-08-15');
-  await expect(
-    page
-      .getByRole('navigation', { name: 'Действия страницы', exact: true })
-      .getByLabel('Период: по', { exact: true }),
-  ).toHaveValue('2026-08-15');
+  await expect(page.getByRole('heading', { name: 'Финансы' })).toBeVisible();
+  await expect(page.getByTestId('period-form').getByLabel('Период: с', { exact: true })).toHaveValue('2026-08-15');
+  await expect(page.getByTestId('period-form').getByLabel('Период: по', { exact: true })).toHaveValue('2026-08-15');
   await expect(page.getByRole('main').getByTestId('owner-risks')).toHaveCount(0);
   await page.goto('/today');
-  await expect(page.getByTestId('owner-risks')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('owner-risks')).toBeVisible();
+  await page.getByRole('button', {name: 'Все задачи', exact: true}).click();
+  await expect(unassigned).toHaveAttribute('data-count', String(unassignedBefore + 1));
   await page.goto('/management/analytics?date=2026-08-15');
   await expect(page.getByRole('main').getByTestId('pa-period')).toContainText('15 августа');
 });

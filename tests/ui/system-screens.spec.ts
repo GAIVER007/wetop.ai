@@ -311,8 +311,9 @@ test('вход и профиль: «Вы вошли» без точек, при�
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  // ADR-180: hospitality signs in to Home. Await navigation before opening access settings.
-  await expect(page).toHaveURL(/\/today$/);
+  // Вход ведёт на Главную /today (ADR-180): ждём конечную страницу,
+  // иначе следующий переход обрывается на середине второго (ERR_ABORTED, гейт 12.10.2026)
+  await expect(page).toHaveURL(/\/today/);
   await page.goto('/profile/access');
   await expect(main).toContainText('как Дана Тестова, admin@wetop.test');
   await expect(main).not.toContainText(' · ');
@@ -342,7 +343,9 @@ test('вход и профиль: «Вы вошли» без точек, при�
   await main.getByRole('tab', { name: 'Доступ' }).click();
   // права даёт должность (ADR-107), приглашения в «Сотрудниках и доступе»; прежняя фраза «на стойке все равны»
   // устарела с ролями и снята мастер-проходом UI 11.10.2026
-  await expect(main.getByTestId('profile-access')).toContainText('Права зависят от должности');
+  await expect(main.getByTestId('profile-access')).toContainText(
+    'Права зависят от должности',
+  );
   await expect(main).not.toContainText('появится после подключения авторизации');
   await expect(main.getByRole('link', { name: 'Управление доступом' })).toHaveAttribute(
     'href',

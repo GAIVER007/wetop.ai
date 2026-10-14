@@ -1,6 +1,6 @@
 import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
-/** ADR-180: operations stay on Home; Finance keeps monetary indicators and period controls. */
+/** События дня на Главной: заезды, выезды, долг дня и риски (ADR-180). */
 const fixture = FIXTURE_API;
 
 type Row = {
@@ -27,24 +27,20 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('Главная показывает загрузку и события; Финансы остаются денежным экраном', async ({
-  page,
-}) => {
+test('операционные карточки убраны, а риски дня остались', async ({ page }) => {
   const d = await day(page);
-  await page.goto('/finance');
+  await page.goto('/today');
   for (const name of ['Загрузка на сегодня', 'Гости сегодня', 'Состояние номеров'])
     await expect(page.getByRole('article', { name })).toHaveCount(0);
-  await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toHaveCount(0);
-  await expect(page.getByTestId('cash-period-income')).toBeVisible();
-  await page.goto('/today');
-  await expect(page.getByTestId('c-occupancy')).toBeVisible();
   await expect(page.getByTestId('c-debt')).toContainText(tenge(d.debtMinor));
   await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
 });
 
 test('события дня совпадают с /desk/today и не зависят от периода кассы', async ({ page }) => {
   const d = await day(page);
-  await page.goto('/today?from=2027-06-01&to=2027-06-30');
+  await page.goto('/finance?from=2027-06-01&to=2027-06-30');
+  await expect(page.getByTestId('owner-risks')).toHaveCount(0);
+  await page.goto('/today');
   const today = page.getByRole('region', { name: 'Сегодня', exact: true });
   await expect(today.getByRole('link', { name: /^Заезды/ })).toContainText(
     String(d.counts.arrivals),
@@ -62,7 +58,7 @@ test('события дня совпадают с /desk/today и не завис
 test('сбой сторожа не скрывает показатели и действия', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/guard/status' } });
   await page.goto('/today');
-  await expect(page.getByTestId('c-occupancy')).toBeVisible();
+  await expect(page.getByTestId('c-debt')).toBeVisible();
   await expect(page.getByTestId('owner-risks')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
 });

@@ -954,12 +954,12 @@
   .bar-category-chart text.bar-donut-caption { font-size:var(--text-xs); font-weight:var(--weight-regular); }
   .bar-category-chart ul { padding:0; margin:0; list-style:none; display:grid; gap:var(--space-2); font-size:var(--text-xs); }
   .bar-category-chart li { display:grid; grid-template-columns:8px minmax(0,1fr) auto; align-items:center; gap:var(--space-1); }
-  .bar-category-chart li i { width:8px; height:8px; border-radius:50%; background:var(--chart-tone); }
-  .bar-chart-tone-0 { --chart-tone:var(--primary); stroke:var(--primary); }
-  .bar-chart-tone-1 { --chart-tone:var(--success); stroke:var(--success); }
-  .bar-chart-tone-2 { --chart-tone:var(--warning); stroke:var(--warning); }
-  .bar-chart-tone-3 { --chart-tone:var(--danger); stroke:var(--danger); }
-  .bar-chart-tone-4 { --chart-tone:var(--muted); stroke:var(--muted); }
+  .bar-category-chart li i { width:8px; height:8px; border-radius:50%; background:currentColor; }
+  .bar-chart-tone-0 { color:var(--primary); stroke:var(--primary); }
+  .bar-chart-tone-1 { color:var(--success); stroke:var(--success); }
+  .bar-chart-tone-2 { color:var(--warning); stroke:var(--warning); }
+  .bar-chart-tone-3 { color:var(--danger); stroke:var(--danger); }
+  .bar-chart-tone-4 { color:var(--muted); stroke:var(--muted); }
   .bar-top-products ol { list-style:none; counter-reset:product; padding:0; margin:0; display:grid; gap:var(--space-1); }
   .bar-top-products li { display:grid; grid-template-columns:18px 24px minmax(0,1fr) auto; align-items:center; gap:var(--space-2); min-height:36px; border-bottom:1px solid var(--border-soft); font-size:var(--text-xs); }
   .bar-top-products li::before { counter-increment:product; content:counter(product); color:var(--muted); }

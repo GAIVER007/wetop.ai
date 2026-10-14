@@ -8,7 +8,7 @@ for (const theme of ['light', 'dark'] as const) {
     await request.post(`${FIXTURE_API}/__test/design-seed`);
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     await page.goto('/chessboard?from=2026-10-01&to=2026-10-31');
-    await expect(page.getByTestId('board-period-button')).toContainText('октябрь 2026');
+    await expect(page.getByTestId('board-period-button')).toContainText('1–31 октября 2026');
     await page.getByRole('link', { name: 'Следующий месяц', exact: true }).click();
     await expect(page).toHaveURL(/from=2026-11-01&to=2026-11-30/);
     await page.getByRole('link', { name: 'Предыдущий месяц', exact: true }).click();

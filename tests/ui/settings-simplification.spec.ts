@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, openSection } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -12,10 +12,7 @@ test('короткое меню настроек ведёт в единый об
 }) => {
   await page.goto('/hotel-settings');
   const sidebar = page.locator('.sidenav');
-  // подразделы раздела в панели левого меню (ADR-161): в разметке и при закрытой панели
-  const group = sidebar
-    .locator('.sidenav__items > div')
-    .filter({ has: page.locator('.sidenav__title', { hasText: /^Настройки$/ }) });
+  const group = await openSection(page, 'Настройки');
   // Сайт объекта в «Маркетинг → Сайт и SEO» (MKT2; до 06.10 в «Продажах», ADR-117), в «Настройках» его больше нет
   await expect(group.locator('a')).toHaveText([
     'Объект',
@@ -24,7 +21,8 @@ test('короткое меню настроек ведёт в единый об
     'Журнал операций',
     'Неисправности',
   ]);
-  await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
+  await sidebar.getByRole('button', {name: 'Закрыть меню', exact: true}).click();
+  await expect(page.getByTestId('stored-property').getByLabel('Название объекта', {exact: true})).toHaveValue('Luxx Aparts');
   const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });
   await tabs.getByRole('link', { name: 'Услуги', exact: true }).click();
   await expect(page.getByTestId('services-table')).toBeVisible();

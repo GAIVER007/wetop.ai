@@ -53,13 +53,14 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   // расширение выключено, а пункт остаётся (ADR-090): закрытый доступ объясняет сам раздел
   expect(await menuLinks(page)).toContain('/ai-agents');
   await expect(page.locator('.sidenav__section')).toHaveText([
-    'Финансы',
+    'Главная',
     'Календарь',
     'Гости и бронирования',
+    'Номерной фонд',
+    'Финансы',
     'Продажи',
     'Маркетинг',
     'Отчёты',
-    'Номерной фонд',
     'Настройки',
   ]);
   await expect(footer).toContainText('Владелец · главный администратор');
@@ -101,11 +102,12 @@ test('срок вышел: всё видно, но менять, отвечат�
   await page.goto('/ai-seller');
   const main = page.getByRole('main');
   await expect(main.getByTestId('seller-state')).toContainText('срок вышел');
+  await main.getByText('Настройка продавца', { exact: true }).click();
   const setup = main.getByTestId('seller-setup');
   await expect(setup.getByTestId('seller-read-only')).toContainText('Срок расширения вышел');
-  // окно инструкции — на шаге «Инструкция» степпера; клик до гидрации теряется — повторяем
+  // Инструкция находится в раскрываемой настройке продавца.
   await expect(async () => {
-    await main.getByRole('button', { name: 'Инструкция' }).click();
+    await main.getByRole('navigation', {name: 'Шаги настройки продавца'}).getByRole('button', {name: '1 Инструкция', exact: true}).click();
     await expect(setup.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeVisible({
       timeout: 1_000,
     });
@@ -114,6 +116,7 @@ test('срок вышел: всё видно, но менять, отвечат�
   await expect(main.getByTestId('seller-prompt-save')).toHaveCount(0);
   // список «До запуска» — тому, кто может его выполнить: после срока его нет
   await expect(main.getByTestId('seller-checklist')).toHaveCount(0);
+  await main.getByRole('navigation', {name: 'Шаги настройки продавца'}).getByRole('button', {name: '3 Проверка', exact: true}).click();
   await expect(main.getByTestId('seller-check').getByTestId('seller-action-closed')).toContainText(
     'Проверка — при действующем расширении',
   );
@@ -167,9 +170,10 @@ test('управляющий настраивает продавца нарав�
   await control(request, { role: 'MANAGER' });
   await page.goto('/ai-seller');
   const main = page.getByRole('main');
-  // окно инструкции — на шаге «Инструкция» степпера; клик до гидрации теряется — повторяем
+  // Инструкция находится в раскрываемой настройке продавца.
+  await main.getByText('Настройка продавца', {exact: true}).click();
   await expect(async () => {
-    await main.getByRole('button', { name: 'Инструкция' }).click();
+    await main.getByRole('navigation', {name: 'Шаги настройки продавца'}).getByRole('button', {name: '1 Инструкция', exact: true}).click();
     await expect(main.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeVisible({
       timeout: 1_000,
     });

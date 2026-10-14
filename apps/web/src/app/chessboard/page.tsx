@@ -11,7 +11,6 @@ import { Toolbar } from '../../components/toolbar';
 import { DateInput } from '../../components/date-field';
 import { DateRangePopover } from '../../components/date-range-popover';
 import { ChessboardGrid } from './board-grid';
-import { BoardTodayLink } from './board-today-link';
 import { BoardMenu } from './board-menu';
 import { BoardZoom } from './board-zoom';
 import { displayDate } from '../../lib/display-date';
@@ -207,7 +206,6 @@ export default async function ChessboardPage({
           <Icon name="chevron" />
         </Link>
       </div>
-      <BoardTodayLink />
     </div>
   );
   const actions = (

@@ -79,7 +79,7 @@ test('очередь: каждое событие дня с числом, важ
   request,
 }) => {
   const events = await expected(request);
-  await page.goto('/finance');
+  await page.goto('/today');
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   for (const [key, e] of Object.entries(events)) {
@@ -120,7 +120,7 @@ test('незаезд ведёт в бронь, долг — в счёт; бро�
   request,
 }) => {
   const day: Day = await (await request.get(`${fixture}/desk/today`, asClient)).json();
-  await page.goto('/finance');
+  await page.goto('/today');
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   const noShow = block.locator('[data-event="no-show"]');
@@ -139,7 +139,7 @@ test('сторож не ответил — строк инцидентов не�
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/guard/status' } });
-  await page.goto('/finance');
+  await page.goto('/today');
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(
@@ -150,6 +150,8 @@ test('сторож не ответил — строк инцидентов не�
 
 test('финансовый период в будущем не скрывает текущие задачи гостиницы', async ({ page }) => {
   await page.goto('/finance?from=2027-06-01&to=2027-06-30');
+  await expect(page.getByTestId('owner-risks')).toHaveCount(0);
+  await page.goto('/today');
   await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(block).not.toContainText('Всё в порядке');
@@ -161,7 +163,7 @@ test('финансовый период в будущем не скрывает 
  * отдельно в натуральную величину. Высокое окно вместо склейки: закреплённые меню и шапка на склейке «плывут».
  * Данные — подставного API; на реальных данных Luxx снимает владелец на своём стенде (ADR-018).
  */
-test('снимки панелей единых «Финансов»', async ({ page }) => {
+test('снимки панелей Главной', async ({ page }) => {
   const dir = 'reports/finance-home-merge-2026-10-09';
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
@@ -172,7 +174,7 @@ test('снимки панелей единых «Финансов»', async ({ p
     for (const theme of ['light', 'dark'] as const) {
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
-      await page.goto('/finance');
+      await page.goto('/today');
       await page.getByRole('button', { name: 'Все задачи', exact: true }).click();
       const block = page.getByRole('region', { name: 'Требуют внимания' });
       await expect(block.getByTestId('attention-event').first()).toBeVisible();

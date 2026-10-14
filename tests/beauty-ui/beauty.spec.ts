@@ -141,7 +141,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await expect(panel.getByRole('status')).toContainText('Мастер добавлен');
   await page.reload();
   await page
-    .getByRole('row')
+    .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('button', { name: 'Открыть' })
     .click();
@@ -376,7 +376,7 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
   const f = await seed(page, request);
   await page.goto('/employees');
   await page
-    .getByRole('row')
+    .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('button', { name: 'Открыть' })
     .click();
@@ -448,7 +448,7 @@ test('Beauty onboarding completion opens Today and resumes there', async ({ page
   // MV8: рабочий экран дня один на все направления
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByTestId('beauty-today')).toBeVisible();
-  await expect(page.getByTestId('today-masters')).toHaveText('0');
+  await expect(page.getByTestId('today-shift')).toHaveText('0 из 0');
   await page.goto('/calendar');
   await expectEmptyCalendar(page);
   await page.goto('/register/setup');

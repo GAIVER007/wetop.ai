@@ -32,29 +32,27 @@ export default async function BarSuppliersPage() {
   }
   const rows = [...suppliers.value].sort((a, b) =>
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
-  return <Page width="wide" title="Бар: поставщики" subtitle="Контакты и расчёты: закуплено, оплачено и долг по каждому поставщику.">
+  return <Page width="wide" className="bar-subpage" title="Бар: поставщики" subtitle="Контакты и расчёты: закуплено, оплачено и долг по каждому поставщику.">
     <BarTabs current="suppliers" />
-    <section className="panel bar-supplier-panel">
-      <h3>Новый поставщик</h3>
+    <details className="panel bar-supplier-panel bar-details">
+      <summary>Новый поставщик</summary>
       <SupplierForm />
-    </section>
+    </details>
     <section className="bar-suppliers-table">
       <SectionTitle>Поставщики и расчёты</SectionTitle>
       {rows.length === 0
         ? <EmptyState icon={<Icon name="guests" />} title="Поставщиков пока нет">Добавьте первого в форме выше: без поставщика не завести приход.</EmptyState>
         : <Table density="compact" sticky="header" aria-label="Поставщики бара">
-            <thead><tr><th>Поставщик</th><th>Контакты</th><th>Приходов</th><th>Закуплено</th><th>Оплачено</th><th>Долг</th><th /></tr></thead>
+            <thead><tr><th>Поставщик</th><th>Контакты</th><th>Долг</th><th>Расчёты</th><th>Действия</th></tr></thead>
             <tbody>{rows.map((supplier) => {
               const total = totals.get(supplier.id);
               return <tr key={supplier.id} className={supplier.active ? undefined : 'is-void'}>
                 <td><b>{supplier.name}</b></td>
                 <td>{[supplier.phone, supplier.email].filter(Boolean).join(', ') || 'нет'}</td>
-                <td>{total?.documents ?? 0}</td>
-                <td>{formatMoney((total?.purchased ?? 0n).toString())}</td>
-                <td>{formatMoney((total?.paid ?? 0n).toString())}</td>
                 <td>{total && total.due > 0n
                   ? <Badge tone="warn">{formatMoney(total.due.toString())}</Badge>
                   : formatMoney('0')}</td>
+                <td><details className="bar-row-details"><summary>Расчёты</summary><p>Приходов: {total?.documents ?? 0}</p><p>Закуплено: {formatMoney((total?.purchased ?? 0n).toString())}</p><p>Оплачено: {formatMoney((total?.paid ?? 0n).toString())}</p></details></td>
                 <td className="bar-supplier-actions">
                   {total && total.due > 0n && <Link className="btn btn--secondary btn--xs" href="/bar/receipts" prefetch={false}>К оплате</Link>}
                   <form action={toggleBarCatalogAction}>

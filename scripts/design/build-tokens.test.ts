@@ -78,6 +78,8 @@ describe('tokens.css генерируется из design/tokens.json', () => {
     // переменные, которые страницы объявляют сами: локальные размеры сетки и цвет точки бейджа
     const local = new Set([
       '--dot',
+      '--chart-tone', // bar.css: local category color declared by .bar-chart-tone-*
+
       '--min',
       '--week-unit-width',
       '--month-unit-width',

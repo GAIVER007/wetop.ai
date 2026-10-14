@@ -1,0 +1,98 @@
+# Сквозные (e2e) · 14.10.2026 18:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1b16daa (codex/beauty-calendar-popularity)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/local-check.config.ts' '--workers=1' '--grep-invert' 'empty setup'
+[WebServer] (node:74172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74205) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74213) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74249) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:74250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 27 tests using 1 worker
+
+(node:74266) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/beauty-ui/beauty.spec.ts:192:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (14.8s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:229:1 › existing customer can be selected for another appointment without duplication (4.0s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (1.9m)
+  ✓   4 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (43.0s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 light, keyboard, axe, no overflow (1.6m)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (20.3s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:338:1 › archived service and employee preserve historical calendar appointments (5.6s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:372:1 › TimeOff from employee drawer, server denial and timezone persisted (11.4s)
+  ✓   9 tests/beauty-ui/beauty.spec.ts:424:1 › DS1c: day navigation keeps the previous addresses (3.9s)
+  ✘  10 tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there (45.9s)
+  -  11 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -  12 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -  13 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -  14 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+  -  15 tests/beauty-ui/ref-capture.spec.ts:14:1 › салон: календарь на ширинах и темах
+  -  16 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /today
+  -  17 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule
+  -  18 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /appointments
+  -  19 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /services
+  -  20 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees
+  -  21 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts
+  -  22 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /customers
+  -  23 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /finance
+  -  24 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /team
+  -  25 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /help
+  -  26 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /branches
+  -  27 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports
+
+
+  1) tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('today-masters')
+    Expected: "0"
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('today-masters') with timeout 30000ms
+      - waiting for getByTestId('today-masters')
+
+
+      449 |   await expect(page).toHaveURL(/\/today$/);
+      450 |   await expect(page.getByTestId('beauty-today')).toBeVisible();
+    > 451 |   await expect(page.getByTestId('today-masters')).toHaveText('0');
+          |                                                   ^
+      452 |   await page.goto('/calendar');
+      453 |   await expectEmptyCalendar(page);
+      454 |   await page.goto('/register/setup');
+        at /Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/beauty-ui/beauty.spec.ts:451:51
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/beauty-ui/beauty.spec.ts (6.0m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there 
+  17 skipped
+  9 passed (6.2m)
+
+# код выхода 1 · 6 мин 13 с

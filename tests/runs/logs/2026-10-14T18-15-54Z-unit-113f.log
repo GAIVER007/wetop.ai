@@ -1,0 +1,60 @@
+# Модульные (unit) · 14.10.2026 23:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 495c106 (codex/beauty-ci-selectors)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T18-15-54Z-unit-113f.json' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP
+
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 1 failed) 251ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 1ms
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 2ms
+     ✓ design/contrast.md совпадает с расчётом 2ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 241ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 1ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 0ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 0ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 0ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 1ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--chart-tone', …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--chart-tone",
++   "--weight-normal",
++   "--z-floating",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:119:21
+    117|     ]);
+    118|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+    119|     expect(missing).toEqual([]);
+       |                     ^
+    120|   });
+    121| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  11:15:57
+   Duration  432ms (tests 78%, transform 15%, import 5%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T18-15-54Z-unit-113f.json
+
+# код выхода 1 · 4 с

@@ -1,0 +1,34 @@
+{
+ "/branches": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Организация",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Предыдущий месяц 40x40",
+    "INPUT: 152x40",
+    "BUTTON:Показать 82x40",
+    "A:Следующий месяц 40x40",
+    "BUTTON:Архив (0) 87x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Организация",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Организация",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "/management/analytics/units": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:R01 24x17",
+    "A:R02 27x17",
+    "A:R03 27x17",
+    "A:R04 27x17",
+    "A:R05 27x17",
+    "A:R06 27x17",
+    "A:R07 26x17",
+    "A:R08 27x17",
+    "A:R09 27x17",
+    "A:R10 24x17",
+    "A:R11 21x17",
+    "A:R12 24x17"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Аналитика",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

@@ -3,8 +3,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Icon } from '../../../components/icon';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
+import { JsonLd, faqLd } from '../../../components/json-ld';
 import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
+import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import type { SegmentSlug } from '../../../i18n/types';
@@ -69,6 +71,13 @@ export default async function SegmentPage({ params }: Props) {
   const own = BY_DIRECTION[type.direction];
   const parent = t[own.parent];
   const register = registerLink(undefined, type.vertical).href;
+  // Экран продукта по вертикали: файл из public/screens и подписи словаря
+  const shot =
+    type.vertical === 'HOSPITALITY'
+      ? { base: '/screens/calendar-week', copy: t.hotel.calendar, height: 1000 }
+      : type.vertical === 'BEAUTY'
+        ? { base: '/screens/salon-day', copy: t.salon.shot, height: 1000 }
+        : { base: '/screens/restaurant-floor', copy: t.restaurant.shot, height: 640 };
   const secondary =
     type.direction === 'hotels'
       ? { href: '/calculator/', label: t.calculator.link }
@@ -180,44 +189,46 @@ export default async function SegmentPage({ params }: Props) {
             </ol>
           </section>
 
-          {type.vertical === 'HOSPITALITY' ? (
-            <section className="hotel-shot" aria-labelledby="segment-calendar-title">
-              <div className="section-heading section-heading--center">
-                <p className="eyebrow">{t.hotel.calendar.eyebrow}</p>
-                <h2 id="segment-calendar-title" className="section-heading__title">
-                  {typo(t.hotel.calendar.title)}
-                </h2>
-                <p className="section-heading__lead">{typo(t.hotel.calendar.lead)}</p>
-              </div>
-              <figure className="hotel-shot__frame">
-                <picture>
-                  <source
-                    srcSet="/screens/calendar-week-dark.png"
-                    media="(prefers-color-scheme: dark)"
-                  />
-                  <img
-                    src="/screens/calendar-week-light.png"
-                    alt={t.hotel.calendar.alt}
-                    width={1440}
-                    height={1000}
-                    loading="lazy"
-                  />
-                </picture>
-                <figcaption>{t.hotel.calendar.note}</figcaption>
-              </figure>
-            </section>
-          ) : null}
+          {/* Настоящий экран продукта своей вертикали: календарь размещений, день салона, план зала */}
+          <section className="hotel-shot" aria-labelledby="segment-calendar-title">
+            <div className="section-heading section-heading--center">
+              <p className="eyebrow">{shot.copy.eyebrow}</p>
+              <h2 id="segment-calendar-title" className="section-heading__title">
+                {typo(shot.copy.title)}
+              </h2>
+              <p className="section-heading__lead">{typo(shot.copy.lead)}</p>
+            </div>
+            <figure className="hotel-shot__frame">
+              <picture>
+                <source srcSet={`${shot.base}-dark.png`} media="(prefers-color-scheme: dark)" />
+                <img
+                  src={`${shot.base}-light.png`}
+                  alt={shot.copy.alt}
+                  width={1440}
+                  height={shot.height}
+                  loading="lazy"
+                />
+              </picture>
+              <figcaption>{shot.copy.note}</figcaption>
+            </figure>
+          </section>
 
           {item.about ? (
-            <section className="section section--tight" aria-labelledby="segment-about-title">
-              <div className="section-heading section-heading--center">
-                <h2 id="segment-about-title" className="section-heading__title">
+            /* Фотополоса «о формате»: свой снимок подтипа (из public/photos, KIE) и текст рядом.
+               Блок .hotel-growth уже в реестре DESIGN.md §19.5, новых стилей нет. */
+            <section className="hotel-growth glass" aria-labelledby="segment-about-title">
+              <div className="hotel-growth__art hotel-growth__art--photo">
+                <img src={type.photo} alt="" loading="lazy" width={1184} height={864} />
+              </div>
+              <div>
+                <p className="eyebrow">{item.metaTitle}</p>
+                <h2 id="segment-about-title" className="hotel-growth__title">
                   {typo(item.about.title)}
                 </h2>
-              </div>
-              <div className="prose prose--center">
                 {item.about.text.map((paragraph) => (
-                  <p key={paragraph.slice(0, 32)}>{typo(paragraph)}</p>
+                  <p key={paragraph.slice(0, 32)} className="hotel-growth__text">
+                    {typo(paragraph)}
+                  </p>
                 ))}
               </div>
             </section>
@@ -230,6 +241,14 @@ export default async function SegmentPage({ params }: Props) {
             soon={t.marketing.soon}
           />
 
+          <SubtypeLinks
+            direction={type.direction}
+            title={t.segments.alsoTitle}
+            exclude={slug}
+            withDirection
+          />
+
+          {item.faq?.length ? <JsonLd data={faqLd(item.faq)} /> : null}
           <LandingFinal
             faq={{ title: t.hotel.faqTitle, items: item.faq ?? [] }}
             cta={{

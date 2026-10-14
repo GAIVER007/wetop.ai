@@ -1,0 +1,412 @@
+# Сквозные (e2e) · 14.10.2026 17:47 Алматы · MacBook-Air-Urij.local
+# коммит 519326e (claude/food-fix-01-20261014), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 62 tests using 2 workers
+
+  -   1 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони light 1440
+  -   2 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони light 390
+  -   3 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони dark 1440
+  -   4 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони dark 390
+  ✓   5 tests/food-ui/ds1c-date-bar.spec.ts:10:1 › ресторан: день по прежним адресам, форма брони с обязательными датой и временем (7.8s)
+  -   7 tests/food-ui/ref-capture.spec.ts:15:1 › ресторан: зал на ширинах и темах
+  ✓   8 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (10.7s)
+  ✓   9 tests/food-ui/restaurant.spec.ts:152:1 › фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление (5.6s)
+  ✘   6 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (24.5s)
+[WebServer] (node:89488) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  11 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (4.1s)
+  ✘  10 tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (8.4s)
+  ✓  13 tests/food-ui/restaurant.spec.ts:248:1 › кухня: колонки KDS и переходы кнопками (4.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3987765496'
+[WebServer] }
+  ✓  14 tests/food-ui/restaurant.spec.ts:272:1 › главная: плитки, последние заказы и выручка после закрытия (5.3s)
+  ✓  15 tests/food-ui/restaurant.spec.ts:293:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол (4.0s)
+  ✓  16 tests/food-ui/restaurant.spec.ts:358:1 › план зала: заказ занимает стол, уборка включается и видна легенда (3.2s)
+  ✓  17 tests/food-ui/restaurant.spec.ts:397:1 › сотрудники: список с продажами, добавление и правка (3.1s)
+  ✓  18 tests/food-ui/restaurant.spec.ts:419:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (7.0s)
+  ✓  19 tests/food-ui/restaurant.spec.ts:484:1 › отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты (2.4s)
+  ✘  12 tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe (35.1s)
+  ✘  20 tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (6.8s)
+  ✓  22 tests/food-ui/restaurant.spec.ts:628:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода (6.6s)
+  ✘  21 tests/food-ui/food.spec.ts:227:1 › overlap and archived catalog preserve creation draft and idempotency key (10.3s)
+  ✓  24 tests/food-ui/food.spec.ts:283:1 › правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется (536ms)
+  ✘  23 tests/food-ui/restaurant.spec.ts:661:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API (8.8s)
+  ✘  25 tests/food-ui/food.spec.ts:349:1 › правила брони: экран настроек сохраняет правила, закрывает и открывает день (8.2s)
+  ✓  27 tests/food-ui/food.spec.ts:372:1 › stale token refreshes drawer without automatic mutation retry (2.6s)
+  ✓  28 tests/food-ui/food.spec.ts:396:1 › READ_ONLY and STAFF permissions on real API (2.3s)
+  ✘  26 tests/food-ui/restaurant.spec.ts:727:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (7.2s)
+[WebServer] ⨯ Error: Филиал недоступен. Обновите список.
+[WebServer]     at selectBranch (src/app/branches/actions.ts:12:22)
+[WebServer]   10 |   const { items } = await branchesApi.list();
+[WebServer]   11 |   const branch = items.find((item) => item.id === String(form.get('id')));
+[WebServer] > 12 |   if (!branch) throw new Error('Филиал недоступен. Обновите список.');
+[WebServer]      |                      ^
+[WebServer]   13 |   await setScopeCookie(`business=${branch.location.businessId};location=${branch.locationId}`);
+[WebServer]   14 |   revalidatePath('/', 'layout');
+[WebServer]   15 |   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19) {
+[WebServer]   digest: '1888533000'
+[WebServer] }
+  ✓  30 tests/food-ui/restaurant.spec.ts:786:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (11.6s)
+  ✓  31 tests/food-ui/restaurant.spec.ts:873:1 › навигация ресторана: пункты макета на месте и ведут на экраны (3.5s)
+  ✓  32 tests/food-ui/restaurant.spec.ts:887:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) (12.1s)
+  ✓  33 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (5.1s)
+  ✓  34 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (2.8s)
+  ✓  35 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается FIFO, излишек приходуется по средней (Q-KITCHEN-9) (3.1s)
+  ✓  36 tests/food-ui/stock.spec.ts:133:1 › инвентаризация пустого склада: излишек только с ценой, введённой вручную (1.8s)
+  ✓  37 tests/food-ui/stock.spec.ts:148:1 › сторно: нетронутая партия сторнируется, начатая нет (1.8s)
+  ✓  38 tests/food-ui/stock.spec.ts:162:1 › роли: администратор работает со складом, но не правит справочник; только чтение (1.4s)
+  ✓  39 tests/food-ui/stock.spec.ts:182:1 › снимки и axe в двух темах на 1440 и 390 (17.3s)
+  ✓  40 tests/food-ui/stock.spec.ts:211:1 › списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает (2.5s)
+  -  41 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /today
+  -  42 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /floor-plan
+  -  43 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /dining-areas
+  -  44 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /table-reservations
+  -  45 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /orders
+  -  46 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /kitchen
+  -  47 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /menu
+  -  48 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /stock
+  -  49 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /drinks
+  -  50 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /customers
+  -  51 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /restaurant-finance
+  -  52 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /restaurant-settings
+  -  53 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /payroll
+  -  54 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /help
+  -  55 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /reports
+  ✘  29 tests/food-ui/food.spec.ts:423:1 › server branch switch isolates Food businesses and locations and other verticals (1.5m)
+  ✓  56 tests/food-ui/food.spec.ts:474:1 › pagination beyond 100 and previous local day keep table occupied after reload (4.9s)
+  ✓  57 tests/food-ui/food.spec.ts:542:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (7.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3987765496'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3987765496'
+[WebServer] }
+  ✓  58 tests/food-ui/food.spec.ts:644:1 › API unavailable renders LoadError instead of free tables (643ms)
+  ✓  59 tests/food-ui/food.spec.ts:652:1 › creation 503 keeps the draft and retry key; invalid period stays inline (1.6s)
+  ✓  60 tests/food-ui/food.spec.ts:682:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается (3.2s)
+  ✓  61 tests/food-ui/food.spec.ts:694:1 › Food excludes every registered foreign workspace route before API requests (32.6s)
+  ✘  62 tests/food-ui/food.spec.ts:735:1 › marker guarded cleanup (129ms)
+
+
+  1) tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow ──
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '+ Новая бронь', exact: true })
+
+
+       95 |   await page
+       96 |     .getByRole('button', { name: walkIn ? 'Посадить без брони' : '+ Новая бронь', exact: true })
+    >  97 |     .click();
+          |      ^
+       98 |   const dialog = page.getByRole('dialog');
+       99 |   await dialog.getByRole('radio', { name: 'Новый', exact: true }).check();
+      100 |   await dialog.getByLabel('Имя', { exact: true }).fill('Анна');
+        at create (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/food.spec.ts:97:6)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/food.spec.ts:121:18
+
+    Error Context: test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe ─────────────────────
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Стол 7, Подтверждено' })
+
+
+      201 |       }
+      202 |       await page.goto(`/floor-plan?date=${date}&time=19:00`);
+    > 203 |       await page.getByRole('button', { name: 'Стол 7, Подтверждено' }).click();
+          |                                                                        ^
+      204 |       await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
+      205 |       await expect(page.getByRole('dialog', { name: 'Бронирование' })).toBeVisible();
+      206 |       await settled(page);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/food.spec.ts:203:72
+
+    Error Context: test-results/food-real-API-screenshots-keyboard-and-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/food.spec.ts:227:1 › overlap and archived catalog preserve creation draft and idempotency key 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main')
+    Expected substring: "Клиенты появятся после первого бронирования"
+    Received string:    "Организация. Управляйте бизнесами и объектами в одном месте.Локальный просмотр, вымышленные данныеПериод отчётаПоказатьРасходыНет данныхУчтённые расходы за месяцСредний чекНет данныхОплаты / число заказовОплаченные заказыНет данныхБронирования и заказыДоход от оплатНет данныхПоступившие оплаты за месяцФинансовая сводка сейчас недоступна. Суммы не заменяются примерными значениями.Один объектТестовый отельГостиничный бизнесАдрес не указанДобавьте описание бизнеса в настройках карточки.Финансовые данные сейчас недоступныВаш объектТестовый отельАдрес не указанНомеров и коек: 0Категорий: 0Открыть Один объектТестовый салонСалон красотыАдрес не указанДобавьте описание бизнеса в настройках карточки.Финансовые данные сейчас недоступныВаш объектТестовый салонАдрес не указанОткрыть Объектов: 2Тестовый филиал ЦентрРесторанный бизнесАдрес не указанДобавьте описание бизнеса в настройках карточки.Финансовые данные сейчас недоступныОбъекты (2)Тестовый филиал ЦентрАдрес не указанТестовый филиал ПаркАдрес не указанОткрыть Один объектДругой тестовый бизнесРесторанный бизнесАдрес не указанДобавьте описание бизнеса в настройках карточки.Финансовые данные сейчас недоступныВаш объектДругой тестовый бизнесАдрес не указанОткрыть "
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main') with timeout 5000ms
+      - waiting for getByRole('main')
+        13 × locator resolved to <main id="main-content" class="branches-reference-page">…</main>
+           - unexpected value "Организация. Управляйте бизнесами и объектами в одном месте.Локальный просмотр, вымышленные данныеПериод отчётаПоказатьРасходыНет данныхУчтённые расходы за месяцСредний чекНет данныхОплаты / число заказовОплаченные заказыНет данныхБронирования и заказыДоход от оплатНет данныхПоступившие оплаты за месяцФинансовая сводка сейчас недоступна. Суммы не заменяются примерными значениями.Один объектТестовый отельГостиничный бизнесАдрес не указанДобавьте описание бизнеса в настройках карточки.Финансовые данные сейчас недоступныВаш объектТестовый отельАдрес не указанНомеров и коек: 0Категорий: 0Открыть Один объектТестовый салонСалон красотыАдрес не указанДобавьте описание бизнеса в настройках карточки.Финансовые данные сейчас недоступныВаш объектТестовый салонАдрес не указанОткрыть Объектов: 2Тестовый филиал ЦентрРесторанный бизнесАдрес не указанДобавьте описание бизнеса в настройках карточки.Финансовые данные сейчас недоступныОбъекты (2)Тестовый филиал ЦентрАдрес не указанТестовый филиал ПаркАдрес не указанОткрыть Один объектДругой тестовый бизнесРесторанный бизнесАдрес не указанДобавьте описание бизнеса в настройках карточки.Финансовые данные сейчас недоступныВаш объектДругой тестовый бизнесАдрес не указанОткрыть "
+
+
+      279 |   await scope(page, f.otherBusiness, f.locations[2]!);
+      280 |   await page.goto('/customers');
+    > 281 |   await expect(page.getByRole('main')).toContainText('Клиенты появятся после первого бронирования');
+          |                                        ^
+      282 | });
+      283 | test('правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется', async ({
+      284 |   page,
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/food.spec.ts:281:40
+
+    Error Context: test-results/food-overlap-and-archived--1a467-n-draft-and-idempotency-key/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-overlap-and-archived--1a467-n-draft-and-idempotency-key/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-overlap-and-archived--1a467-n-draft-and-idempotency-key/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/food-ui/food.spec.ts:349:1 › правила брони: экран настроек сохраняет правила, закрывает и открывает день 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: []
+    Received: undefined
+
+      367 |   await rules.getByRole('button', { name: `Открыть день ${shown}` }).click();
+      368 |   await expect(rules).toContainText('Закрытых дней впереди нет');
+    > 369 |   expect((await api_()).closedDays).toEqual([]);
+          |                                     ^
+      370 | });
+      371 |
+      372 | test('stale token refreshes drawer without automatic mutation retry', async ({ page, request }) => {
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/food.spec.ts:369:37
+
+    Error Context: test-results/food-правила-брони-экран-н-f4049--закрывает-и-открывает-день/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-правила-брони-экран-н-f4049--закрывает-и-открывает-день/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-правила-брони-экран-н-f4049--закрывает-и-открывает-день/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/food-ui/food.spec.ts:423:1 › server branch switch isolates Food businesses and locations and other verticals 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 90000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      431 |   await page.getByRole('button', { name: /Тестовый филиал Парк/ }).click();
+      432 |   // MV8: выбор филиала ведёт на общий рабочий экран дня
+    > 433 |   await page.waitForURL('**/today');
+          |              ^
+      434 |   await expect(page.getByTestId('food-today')).toBeVisible();
+      435 |   await page.goto('/floor-plan');
+      436 |   await expect(page.getByRole('main')).not.toContainText('Основной зал');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/food.spec.ts:433:14
+
+    Error Context: test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/food-ui/food.spec.ts:735:1 › marker guarded cleanup ─────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      734 | });
+      735 | test('marker guarded cleanup', async ({ request }) => {
+    > 736 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      737 | });
+      738 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/food.spec.ts:736:62
+
+    Error Context: test-results/food-marker-guarded-cleanup/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-marker-guarded-cleanup/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-marker-guarded-cleanup/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByTestId('order-total')
+    Expected substring: "780 ₸"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByTestId('order-total') with timeout 5000ms
+      - waiting for getByRole('dialog').getByTestId('order-total')
+
+
+      205 |   await dialog.getByRole('button', { name: 'Отправить на кухню' }).click();
+      206 |   // заказ в панели: статусная цепочка
+    > 207 |   await expect(dialog.getByTestId('order-total')).toContainText('780 ₸');
+          |                                                   ^
+      208 |   for (const action of ['Принять в работу', 'Готово', 'Подать']) {
+      209 |     await dialog.getByRole('button', { name: action, exact: false }).click();
+      210 |   }
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/restaurant.spec.ts:207:51
+
+    Error Context: test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 409
+    Received: 403
+
+      600 |   const again = await request.post(`${api}/public/order-rating/${second.token}`, { data: { stars: 1 } });
+      601 |   expect(again.status()).toBe(404);
+    > 602 |   expect((await link(a.id)).status()).toBe(409);
+          |                                       ^
+      603 |   const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+      604 |   const list = await (await request.get(`${api}/food-service/orders?date=${day}`, { headers })).json();
+      605 |   const rated = list.items.find((o: { id: string }) => o.id === a.id);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/restaurant.spec.ts:602:39
+
+    Error Context: test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/food-ui/restaurant.spec.ts:661:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('floor-layout-editor')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('floor-layout-editor') with timeout 5000ms
+      - waiting for getByTestId('floor-layout-editor')
+        13 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      704 |   expect(axe.violations).toEqual([]);
+      705 |   await editor.getByRole('button', { name: 'Сохранить расстановку' }).click();
+    > 706 |   await expect(editor).toHaveCount(0);
+          |                        ^
+      707 |   await expect(page.locator('.rest-fp__layout .rest-fp__spot')).toHaveCount(2);
+      708 |
+      709 |   const tables = (await (await request.get(`${api}/food-service/tables`, { headers })).json()).items as Array<{
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/restaurant.spec.ts:706:24
+
+    Error Context: test-results/restaurant-схема-зала-Q-RE-09402-ю-форма-и-размер-отказы-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-схема-зала-Q-RE-09402-ю-форма-и-размер-отказы-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-схема-зала-Q-RE-09402-ю-форма-и-размер-отказы-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/food-ui/restaurant.spec.ts:727:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('alert')
+    Expected substring: "меньше этой суммы"
+    Received string:    "Выбран другой ресторан. Откройте форму заново."
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('main').getByRole('alert')
+        10 × locator resolved to <div role="alert" class="alert">Выбран другой ресторан. Откройте форму заново.</div>
+           - unexpected value "Выбран другой ресторан. Откройте форму заново."
+
+
+      759 |   await ops.getByLabel('Сумма, ₸').fill('100');
+      760 |   await ops.getByRole('button', { name: 'Провести' }).click();
+    > 761 |   await expect(page.getByRole('main').getByRole('alert')).toContainText('меньше этой суммы');
+          |                                                           ^
+      762 |   // перевод Kaspi → наличные
+      763 |   await ops.getByRole('button', { name: 'Перевод' }).click();
+      764 |   // поле оборачивает список подписью, и «Куда» входит в «Откуда»: берём списки по порядку
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/tests/food-ui/restaurant.spec.ts:761:59
+
+    Error Context: test-results/restaurant-касса-остатки-п-5f5bf-евод-сверка-и-аннулирование/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-касса-остатки-п-5f5bf-евод-сверка-и-аннулирование/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-касса-остатки-п-5f5bf-евод-сверка-и-аннулирование/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow ───
+    tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe ──────────────────────
+    tests/food-ui/food.spec.ts:227:1 › overlap and archived catalog preserve creation draft and idempotency key 
+    tests/food-ui/food.spec.ts:349:1 › правила брони: экран настроек сохраняет правила, закрывает и открывает день 
+    tests/food-ui/food.spec.ts:423:1 › server branch switch isolates Food businesses and locations and other verticals 
+    tests/food-ui/food.spec.ts:735:1 › marker guarded cleanup ──────────────────────────────────────
+    tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+    tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+    tests/food-ui/restaurant.spec.ts:661:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API 
+    tests/food-ui/restaurant.spec.ts:727:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование 
+  20 skipped
+  32 passed (4.2m)
+
+# код выхода 1 · 4 мин 16 с

@@ -381,7 +381,7 @@ export class PrismaMarketRepository implements MarketRepository {
     return true;
   }
 
-  private async targets(where: { id?: string }): Promise<CollectorTarget[]> {
+  private async targets(where: { id?: string; autoRefresh?: boolean; monitoring?: { in: CompetitorMonitoring[] } }): Promise<CollectorTarget[]> {
     const rows = await this.prisma.db.competitor.findMany({
       where: { ...where, active: true },
       orderBy: [{ propertyId: 'asc' }, { name: 'asc' }],
@@ -407,7 +407,7 @@ export class PrismaMarketRepository implements MarketRepository {
   }
 
   collectorTargets(): Promise<CollectorTarget[]> {
-    return this.targets({});
+    return this.targets({ autoRefresh: true, monitoring: { in: ['OCCUPANCY', 'BOTH'] } });
   }
 
   async collectorTarget(id: string): Promise<CollectorTarget | null> {

@@ -15,12 +15,30 @@ export type SegmentSlug =
   | 'hostels'
   | 'mini-hotels'
   | 'apart-hotels'
+  | 'guest-houses'
+  | 'resorts'
+  | 'daily-rentals'
+  | 'glamping'
+  | 'sanatoriums'
+  | 'capsule-hotels'
   | 'beauty-salons'
   | 'barbershops'
   | 'spa'
   | 'nail-studios'
+  | 'hair-salons'
+  | 'massage'
+  | 'cosmetology'
+  | 'brows-lashes'
+  | 'epilation'
+  | 'tattoo'
   | 'cafes'
   | 'bars'
+  | 'coffee-shops'
+  | 'hookah-lounges'
+  | 'karaoke'
+  | 'pizzerias'
+  | 'canteens'
+  | 'banquet-halls'
   | 'hotels'
   | 'salons'
   | 'restaurants';
@@ -133,7 +151,13 @@ export type Dictionary = {
       feed: {
         label: string;
         title: string;
-        rows: Array<{ icon: IconName; source: string; guest: string; detail: string; value: string }>;
+        rows: Array<{
+          icon: IconName;
+          source: string;
+          guest: string;
+          detail: string;
+          value: string;
+        }>;
       };
     };
     market: {
@@ -248,6 +272,8 @@ export type Dictionary = {
     secondary: string;
     /** Чипы под кнопками героя: «7 дней бесплатно» и т.п. (ADR-098). */
     chips: string[];
+    /** Снимок настоящего дня салона с демо-данными (светлая и тёмная темы). */
+    shot: { eyebrow: string; title: string; lead: string; alt: string; note: string };
     /** Мокап-календарь записей по мастерам: только вымышленные данные, подпись примера обязательна. */
     mock: {
       label: string;
@@ -323,12 +349,20 @@ export type Dictionary = {
     secondary: string;
     chips: string[];
     photoAlt: string;
+    /** Снимок настоящего плана зала с демо-данными (светлая и тёмная темы). */
+    shot: { eyebrow: string; title: string; lead: string; alt: string; note: string };
     facts: Array<{ value: string; text: string }>;
     featuresTitle: string;
     featuresLead: string;
     soon: string;
     /** Модули для владельца: пункты внутри и пометка «Скоро» у того, чего у ресторана ещё нет. */
-    features: Array<{ icon: IconName; title: string; text: string; points: string[]; soon?: boolean }>;
+    features: Array<{
+      icon: IconName;
+      title: string;
+      text: string;
+      points: string[];
+      soon?: boolean;
+    }>;
     growth: {
       badge: string;
       title: string;
@@ -352,6 +386,9 @@ export type Dictionary = {
     dayTitle: string;
     day: Record<'hotels' | 'salons' | 'restaurants', Array<{ title: string; text: string }>>;
     typesTitle: Record<'hotels' | 'salons' | 'restaurants', string>;
+    /** Блок «Смотрите также» на странице типа: заголовок и текст карточки родительского направления. */
+    alsoTitle: string;
+    directionCards: Record<'hotels' | 'salons' | 'restaurants', string>;
     items: Record<
       /** У салонов своя страница со своим словарём (`salon`), общего шаблона у них нет. */
       Exclude<SegmentSlug, 'salons'>,

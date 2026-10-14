@@ -1,0 +1,16 @@
+# Сквозные (e2e) · 14.10.2026 17:46 Алматы · MacBook-Air-Urij.local
+# коммит 519326e (claude/food-fix-01-20261014), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts'
+[WebServer] ⨯ Another next dev server is already running.
+[WebServer] 
+[WebServer] - Local:        http://127.0.0.1:55833
+[WebServer] - PID:          92280
+[WebServer] - Dir:          /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01/apps/web
+[WebServer] - Log:          .next/dev/logs/next-development.log
+[WebServer] 
+[WebServer] You can access the existing server at http://127.0.0.1:55833,
+[WebServer] or run kill 92280 to stop it and start a new one.
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 15 с

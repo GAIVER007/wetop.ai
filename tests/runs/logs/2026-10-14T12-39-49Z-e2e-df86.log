@@ -1,0 +1,705 @@
+# Сквозные (e2e) · 14.10.2026 17:39 Алматы · MacBook-Air-Urij.local
+# коммит 84a7397 (claude/site-photos-20261014), незакоммиченных файлов набора: 36
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'segments.spec'
+
+Running 29 tests using 1 worker
+
+  ✘   1 tests/site/segments.spec.ts:201:3 › /for/hostels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.8s)
+  ✘   2 tests/site/segments.spec.ts:201:3 › /for/mini-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.3s)
+  ✘   3 tests/site/segments.spec.ts:201:3 › /for/apart-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.4s)
+  ✘   4 tests/site/segments.spec.ts:201:3 › /for/guest-houses/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.1s)
+  ✘   5 tests/site/segments.spec.ts:201:3 › /for/resorts/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.1s)
+  ✘   6 tests/site/segments.spec.ts:201:3 › /for/daily-rentals/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.2s)
+  ✘   7 tests/site/segments.spec.ts:201:3 › /for/glamping/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.2s)
+  ✘   8 tests/site/segments.spec.ts:201:3 › /for/sanatoriums/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.3s)
+  ✘   9 tests/site/segments.spec.ts:201:3 › /for/capsule-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.2s)
+  ✓  10 tests/site/segments.spec.ts:201:3 › /for/beauty-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (489ms)
+  ✓  11 tests/site/segments.spec.ts:201:3 › /for/barbershops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (219ms)
+  ✓  12 tests/site/segments.spec.ts:201:3 › /for/spa/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (221ms)
+  ✓  13 tests/site/segments.spec.ts:201:3 › /for/nail-studios/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (254ms)
+  ✘  14 tests/site/segments.spec.ts:201:3 › /for/hair-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.1s)
+  ✘  15 tests/site/segments.spec.ts:201:3 › /for/massage/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.5s)
+  ✘  16 tests/site/segments.spec.ts:201:3 › /for/cosmetology/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.5s)
+  ✘  17 tests/site/segments.spec.ts:201:3 › /for/brows-lashes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.6s)
+  ✘  18 tests/site/segments.spec.ts:201:3 › /for/epilation/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.3s)
+  ✘  19 tests/site/segments.spec.ts:201:3 › /for/tattoo/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.4s)
+  ✘  20 tests/site/segments.spec.ts:201:3 › /for/cafes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (11.0s)
+  ✘  21 tests/site/segments.spec.ts:201:3 › /for/bars/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (11.2s)
+  ✘  22 tests/site/segments.spec.ts:201:3 › /for/coffee-shops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.3s)
+  ✘  23 tests/site/segments.spec.ts:201:3 › /for/hookah-lounges/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.4s)
+  ✘  24 tests/site/segments.spec.ts:201:3 › /for/karaoke/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.3s)
+  ✘  25 tests/site/segments.spec.ts:201:3 › /for/pizzerias/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.3s)
+  ✘  26 tests/site/segments.spec.ts:201:3 › /for/canteens/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.1s)
+  ✘  27 tests/site/segments.spec.ts:201:3 › /for/banquet-halls/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.3s)
+  ✘  28 tests/site/segments.spec.ts:271:1 › карточки направлений на главной ведут на страницы по типам объектов (11.3s)
+  ✘  29 tests/site/segments.spec.ts:284:1 › страницы направлений ведут карточками на свои типы бизнеса (11.2s)
+
+
+  1) tests/site/segments.spec.ts:201:3 › /for/hostels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('section[aria-labelledby="hotels-types-title"]').locator('.card a')
+    Expected: 4
+    Received: 3
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('section[aria-labelledby="hotels-types-title"]').locator('.card a') with timeout 10000ms
+      - waiting for locator('section[aria-labelledby="hotels-types-title"]').locator('.card a')
+        24 × locator resolved to 3 elements
+           - unexpected value "3"
+
+
+      242 |     const dirKey = segment.direction.split('/')[2];
+      243 |     const also = page.locator(`section[aria-labelledby="${dirKey}-types-title"]`);
+    > 244 |     await expect(also.locator('.card a')).toHaveCount(4);
+          |                                           ^
+      245 |     await expect(also.locator(`a[href="${segment.path}"]`)).toHaveCount(0);
+      246 |     await expect(also.locator(`a[href="${segment.direction}"]`)).toHaveCount(1);
+      247 |     await expect(page.locator('.faq details')).toHaveCount(6);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:244:43
+
+    Error Context: test-results/segments--for-hostels-—-ге-f7cd0-и-призыв-своего-направления/error-context.md
+
+  2) tests/site/segments.spec.ts:201:3 › /for/mini-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('section[aria-labelledby="hotels-types-title"]').locator('.card a')
+    Expected: 4
+    Received: 3
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('section[aria-labelledby="hotels-types-title"]').locator('.card a') with timeout 10000ms
+      - waiting for locator('section[aria-labelledby="hotels-types-title"]').locator('.card a')
+        24 × locator resolved to 3 elements
+           - unexpected value "3"
+
+
+      242 |     const dirKey = segment.direction.split('/')[2];
+      243 |     const also = page.locator(`section[aria-labelledby="${dirKey}-types-title"]`);
+    > 244 |     await expect(also.locator('.card a')).toHaveCount(4);
+          |                                           ^
+      245 |     await expect(also.locator(`a[href="${segment.path}"]`)).toHaveCount(0);
+      246 |     await expect(also.locator(`a[href="${segment.direction}"]`)).toHaveCount(1);
+      247 |     await expect(page.locator('.faq details')).toHaveCount(6);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:244:43
+
+    Error Context: test-results/segments--for-mini-hotels--ca822-и-призыв-своего-направления/error-context.md
+
+  3) tests/site/segments.spec.ts:201:3 › /for/apart-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('section[aria-labelledby="hotels-types-title"]').locator('.card a')
+    Expected: 4
+    Received: 3
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('section[aria-labelledby="hotels-types-title"]').locator('.card a') with timeout 10000ms
+      - waiting for locator('section[aria-labelledby="hotels-types-title"]').locator('.card a')
+        24 × locator resolved to 3 elements
+           - unexpected value "3"
+
+
+      242 |     const dirKey = segment.direction.split('/')[2];
+      243 |     const also = page.locator(`section[aria-labelledby="${dirKey}-types-title"]`);
+    > 244 |     await expect(also.locator('.card a')).toHaveCount(4);
+          |                                           ^
+      245 |     await expect(also.locator(`a[href="${segment.path}"]`)).toHaveCount(0);
+      246 |     await expect(also.locator(`a[href="${segment.direction}"]`)).toHaveCount(1);
+      247 |     await expect(page.locator('.faq details')).toHaveCount(6);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:244:43
+
+    Error Context: test-results/segments--for-apart-hotels-f8efa-и-призыв-своего-направления/error-context.md
+
+  4) tests/site/segments.spec.ts:201:3 › /for/guest-houses/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /гостев/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-guest-houses-04c42-и-призыв-своего-направления/error-context.md
+
+  5) tests/site/segments.spec.ts:201:3 › /for/resorts/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /баз(а|ы) отдыха/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-resorts-—-ге-7d574-и-призыв-своего-направления/error-context.md
+
+  6) tests/site/segments.spec.ts:201:3 › /for/daily-rentals/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /посуточно/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-daily-rental-9164c-и-призыв-своего-направления/error-context.md
+
+  7) tests/site/segments.spec.ts:201:3 › /for/glamping/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /глэмпинг/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-glamping-—-г-9ec49-и-призыв-своего-направления/error-context.md
+
+  8) tests/site/segments.spec.ts:201:3 › /for/sanatoriums/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /санатори/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-sanatoriums--01b1b-и-призыв-своего-направления/error-context.md
+
+  9) tests/site/segments.spec.ts:201:3 › /for/capsule-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /капсульн/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-capsule-hote-4c0dc-и-призыв-своего-направления/error-context.md
+
+  10) tests/site/segments.spec.ts:201:3 › /for/hair-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /парикмахерск/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-hair-salons--8bc82-и-призыв-своего-направления/error-context.md
+
+  11) tests/site/segments.spec.ts:201:3 › /for/massage/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /массаж/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-massage-—-ге-00b24-и-призыв-своего-направления/error-context.md
+
+  12) tests/site/segments.spec.ts:201:3 › /for/cosmetology/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /косметологи/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-cosmetology--1ef1e-и-призыв-своего-направления/error-context.md
+
+  13) tests/site/segments.spec.ts:201:3 › /for/brows-lashes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /брови/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-brows-lashes-b80f3-и-призыв-своего-направления/error-context.md
+
+  14) tests/site/segments.spec.ts:201:3 › /for/epilation/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /эпиляци/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-epilation-—--fd77d-и-призыв-своего-направления/error-context.md
+
+  15) tests/site/segments.spec.ts:201:3 › /for/tattoo/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /тату/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-tattoo-—-гер-75b2b-и-призыв-своего-направления/error-context.md
+
+  16) tests/site/segments.spec.ts:201:3 › /for/cafes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('section[aria-labelledby="restaurants-types-title"]').locator('.card a')
+    Expected: 4
+    Received: 2
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('section[aria-labelledby="restaurants-types-title"]').locator('.card a') with timeout 10000ms
+      - waiting for locator('section[aria-labelledby="restaurants-types-title"]').locator('.card a')
+        24 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      242 |     const dirKey = segment.direction.split('/')[2];
+      243 |     const also = page.locator(`section[aria-labelledby="${dirKey}-types-title"]`);
+    > 244 |     await expect(also.locator('.card a')).toHaveCount(4);
+          |                                           ^
+      245 |     await expect(also.locator(`a[href="${segment.path}"]`)).toHaveCount(0);
+      246 |     await expect(also.locator(`a[href="${segment.direction}"]`)).toHaveCount(1);
+      247 |     await expect(page.locator('.faq details')).toHaveCount(6);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:244:43
+
+    Error Context: test-results/segments--for-cafes-—-геро-9bb80-и-призыв-своего-направления/error-context.md
+
+  17) tests/site/segments.spec.ts:201:3 › /for/bars/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('section[aria-labelledby="restaurants-types-title"]').locator('.card a')
+    Expected: 4
+    Received: 2
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('section[aria-labelledby="restaurants-types-title"]').locator('.card a') with timeout 10000ms
+      - waiting for locator('section[aria-labelledby="restaurants-types-title"]').locator('.card a')
+        24 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      242 |     const dirKey = segment.direction.split('/')[2];
+      243 |     const also = page.locator(`section[aria-labelledby="${dirKey}-types-title"]`);
+    > 244 |     await expect(also.locator('.card a')).toHaveCount(4);
+          |                                           ^
+      245 |     await expect(also.locator(`a[href="${segment.path}"]`)).toHaveCount(0);
+      246 |     await expect(also.locator(`a[href="${segment.direction}"]`)).toHaveCount(1);
+      247 |     await expect(page.locator('.faq details')).toHaveCount(6);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:244:43
+
+    Error Context: test-results/segments--for-bars-—-герой-55fab-и-призыв-своего-направления/error-context.md
+
+  18) tests/site/segments.spec.ts:201:3 › /for/coffee-shops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /кофейн/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-coffee-shops-aa3ca-и-призыв-своего-направления/error-context.md
+
+  19) tests/site/segments.spec.ts:201:3 › /for/hookah-lounges/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /кальянн/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-hookah-loung-d8181-и-призыв-своего-направления/error-context.md
+
+  20) tests/site/segments.spec.ts:201:3 › /for/karaoke/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /караоке/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-karaoke-—-ге-5797f-и-призыв-своего-направления/error-context.md
+
+  21) tests/site/segments.spec.ts:201:3 › /for/pizzerias/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /пиццери/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-pizzerias-—--4c7ff-и-призыв-своего-направления/error-context.md
+
+  22) tests/site/segments.spec.ts:201:3 › /for/canteens/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /столов/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-canteens-—-г-9c267-и-призыв-своего-направления/error-context.md
+
+  23) tests/site/segments.spec.ts:201:3 › /for/banquet-halls/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /банкетн/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      203 |   }) => {
+      204 |     await page.goto(segment.path);
+    > 205 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+          |                                                           ^
+      206 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      207 |     const hero = page.locator('.hotel-hero');
+      208 |     await expect(hero.locator('[data-auth="register"]')).toHaveAttribute(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:205:59
+
+    Error Context: test-results/segments--for-banquet-hall-8386f-и-призыв-своего-направления/error-context.md
+
+  24) tests/site/segments.spec.ts:271:1 › карточки направлений на главной ведут на страницы по типам объектов 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.site-footer__directions').locator('a[href="/for/guest-houses/"]')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.site-footer__directions').locator('a[href="/for/guest-houses/"]') with timeout 10000ms
+      - waiting for locator('.site-footer__directions').locator('a[href="/for/guest-houses/"]')
+        23 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      277 |   const footer = page.locator('.site-footer__directions');
+      278 |   for (const segment of SEGMENTS)
+    > 279 |     await expect(footer.locator(`a[href="${segment.path}"]`)).toHaveCount(1);
+          |                                                               ^
+      280 |   for (const direction of ['/for/hotels/', '/for/salons/', '/for/restaurants/'])
+      281 |     await expect(footer.locator(`a[href="${direction}"]`)).toHaveCount(1);
+      282 | });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:279:63
+
+    Error Context: test-results/segments-карточки-направле-9d38c--страницы-по-типам-объектов/error-context.md
+
+  25) tests/site/segments.spec.ts:284:1 › страницы направлений ведут карточками на свои типы бизнеса 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('main .card a[href="/for/guest-houses/"]')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('main .card a[href="/for/guest-houses/"]') with timeout 10000ms
+      - waiting for locator('main .card a[href="/for/guest-houses/"]')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      287 |     await page.goto(direction);
+      288 |     for (const path of types)
+    > 289 |       await expect(page.locator(`main .card a[href="${path}"]`)).toHaveCount(1);
+          |                                                                  ^
+      290 |   }
+      291 | });
+      292 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:289:66
+
+    Error Context: test-results/segments-страницы-направле-60c55-очками-на-свои-типы-бизнеса/error-context.md
+
+  25 failed
+    tests/site/segments.spec.ts:201:3 › /for/hostels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/mini-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/apart-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/guest-houses/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/resorts/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/daily-rentals/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/glamping/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/sanatoriums/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/capsule-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/hair-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/massage/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/cosmetology/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/brows-lashes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/epilation/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/tattoo/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/cafes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/bars/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/coffee-shops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/hookah-lounges/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/karaoke/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/pizzerias/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/canteens/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:201:3 › /for/banquet-halls/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:271:1 › карточки направлений на главной ведут на страницы по типам объектов 
+    tests/site/segments.spec.ts:284:1 › страницы направлений ведут карточками на свои типы бизнеса ─
+  4 passed (5.1m)
+
+# код выхода 1 · 5 мин 5 с

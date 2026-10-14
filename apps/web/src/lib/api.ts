@@ -3574,6 +3574,8 @@ export interface BeautyServiceRow {
   priceMinor: string;
   currency: string;
   active: boolean;
+  /** DONE выбранного филиала за 30 местных календарных дней, Q-BS-7. */
+  popularity?: { completedVisits: number; totalCompletedVisits: number } | null;
   /** Что про услугу говорит текущий филиал; null, значит он её не включал */
   location: {
     enabled: boolean;
@@ -3693,6 +3695,14 @@ export interface BeautyCustomerRow {
   lastName: string | null;
   phone: string | null;
   status: string;
+  /** завершённые записи (DONE) бизнеса; деньги это снимки цен записей (Q-252) */
+  visits: number;
+  lastVisitAt: string | null;
+  /** День последнего визита в поясе филиала, где он состоялся. */
+  lastVisitLocalDate?: string | null;
+  /** средний чек в тиынах по валюте с наибольшим числом визитов; null, пока визитов нет */
+  avgCheckMinor: string | null;
+  avgCheckCurrency: string | null;
 }
 
 export const beautyApi = {

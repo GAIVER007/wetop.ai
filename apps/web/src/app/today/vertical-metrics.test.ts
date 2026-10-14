@@ -118,6 +118,98 @@ describe('Beauty Today: утверждённый набор показателе
   });
 });
 
+describe('Beauty Today: плитки макета «Главная» (ТЗ салона 09.10.2026)', () => {
+  const withMoney = (
+    row: BeautyAppointmentRow,
+    priceMinor: string,
+    currency = 'KZT',
+    customerId = row.customer.id,
+  ): BeautyAppointmentRow => ({ ...row, priceMinor, currency, customer: { ...row.customer, id: customerId } });
+
+  it('записей сегодня: все, кроме отменённых', () => {
+    const m = beautyToday(
+      day([
+        appointment('a', 'm1', 'BOOKED', 600, 660),
+        appointment('b', 'm1', 'DONE', 500, 560),
+        appointment('c', 'm2', 'NO_SHOW', 400, 460),
+        appointment('d', 'm2', 'CANCELLED', 800, 860),
+      ]),
+      620,
+    );
+    expect(m.total).toBe(3);
+  });
+
+  it('выручка сегодня: сумма снимков цен только DONE, тиыны без float', () => {
+    const m = beautyToday(
+      day([
+        withMoney(appointment('a', 'm1', 'DONE', 500, 560), '250000'),
+        withMoney(appointment('b', 'm1', 'DONE', 600, 660), '125050'),
+        withMoney(appointment('c', 'm2', 'CONFIRMED', 700, 760), '999900'),
+        withMoney(appointment('d', 'm2', 'CANCELLED', 800, 860), '999900'),
+      ]),
+      620,
+    );
+    expect(m.revenue).toEqual([{ currency: 'KZT', minor: '375050' }]);
+  });
+
+  it('выручка в двух валютах: валюта филиала первой, курсов нет', () => {
+    const m = beautyToday(
+      day([
+        withMoney(appointment('a', 'm1', 'DONE', 500, 560), '100', 'RUB'),
+        withMoney(appointment('b', 'm1', 'DONE', 600, 660), '200', 'KZT'),
+      ]),
+      620,
+    );
+    expect(m.revenue).toEqual([
+      { currency: 'KZT', minor: '200' },
+      { currency: 'RUB', minor: '100' },
+    ]);
+  });
+
+  it('без завершённых выручка пустая: плитка покажет ноль валюты филиала', () => {
+    expect(beautyToday(day([appointment('a', 'm1', 'BOOKED', 600, 660)]), 620).revenue).toEqual([]);
+  });
+
+  it('клиентов сегодня: уникальные, отменённые не считаются', () => {
+    const m = beautyToday(
+      day([
+        withMoney(appointment('a', 'm1', 'BOOKED', 600, 660), '0', 'KZT', 'c-one'),
+        withMoney(appointment('b', 'm1', 'DONE', 500, 560), '0', 'KZT', 'c-one'),
+        withMoney(appointment('c', 'm2', 'CONFIRMED', 700, 760), '0', 'KZT', 'c-two'),
+        withMoney(appointment('d', 'm2', 'CANCELLED', 800, 860), '0', 'KZT', 'c-three'),
+      ]),
+      620,
+    );
+    expect(m.clients).toBe(2);
+  });
+
+  it('на смене: есть интервалы и нет отсутствия; список несёт часы и счёт записей без отменённых', () => {
+    const base = day([
+      appointment('a', 'm1', 'BOOKED', 600, 660),
+      appointment('b', 'm1', 'DONE', 500, 560),
+      appointment('c', 'm1', 'CANCELLED', 800, 860),
+    ]);
+    const working: BeautyDay = {
+      ...base,
+      columns: [
+        {
+          ...column('m1', 'Анна'),
+          intervals: [
+            { timeFrom: '09:00', timeTo: '13:00' },
+            { timeFrom: '14:00', timeTo: '18:00' },
+          ],
+        },
+        { ...column('m2', 'Вера'), intervals: [{ timeFrom: '10:00', timeTo: '19:00' }], timeOff: true },
+        column('m3', 'Дина'),
+      ],
+    };
+    const m = beautyToday(working, 620);
+    expect(m.onShift).toBe(1);
+    expect(m.masters).toBe(3);
+    expect(m.shift).toEqual([{ id: 'm1', name: 'Анна', hours: '09:00–13:00, 14:00–18:00', appointments: 2 }]);
+  });
+});
+
 describe('сутки филиала', () => {
   it('Алматы UTC+5: 23:30 UTC это 04:30 следующего дня', () => {
     expect(localMinute('2026-10-07T23:30:00.000Z', 'Asia/Almaty')).toBe(270);

@@ -1,0 +1,2 @@
+import config from './playwright.config';
+export default { ...config, timeout: 240000, expect: { timeout: 30000 }, webServer: (config.webServer as any[]).map(server => ({ ...server, timeout: 240000 })) };

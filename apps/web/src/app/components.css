@@ -43,6 +43,15 @@
     gap: 12px;
     flex-wrap: wrap;
   }
+  /* телефон: крошка возврата — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .page__crumbs a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+    }
+  }
+
   .page__head {
     display: flex;
     align-items: baseline;
@@ -1977,7 +1986,8 @@
   }
   /* телефон: сегмент — контрол, цель касания 44 px (DESIGN.md §6, аудит UI5) */
   @media (max-width: 600px) {
-    .seg :is(a, .seg__item) {
+    .seg :is(a, button, .seg__item) {
+      height: auto;
       min-height: var(--touch-target);
     }
   }

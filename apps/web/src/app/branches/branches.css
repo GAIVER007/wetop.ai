@@ -1504,6 +1504,7 @@ body:has(.org-reference) .topmenu {
   align-items: center;
   justify-content: center;
   min-height: 36px;
+  /* телефон ниже: 44 px */
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -1907,6 +1908,7 @@ body:has(.org-reference) .topmenu {
 
 @media (min-width: 601px) {
   .org-cards:has(> .org-card:only-child) {
+    justify-content: center;
     align-items: start;
     align-content: start;
   }
@@ -2070,5 +2072,16 @@ body:has(.org-reference) .topmenu {
     bottom: 0;
     background: var(--surface);
     padding-block: var(--space-2);
+  }
+}
+
+/* телефон: контролы месяца и «Архив» — цель касания 44 px; хвостом файла, позже правила ~1742 (аудит UI5) */
+@media (max-width: 600px) {
+  .org-month a,
+  .org-month button,
+  .org-month input,
+  .org-archive-open {
+    height: auto;
+    min-height: var(--touch-target);
   }
 }

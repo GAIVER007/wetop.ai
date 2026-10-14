@@ -24,7 +24,7 @@ export default async function BarNewReceiptPage() {
   const failed = [products, suppliers].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!products.ok || !suppliers.ok) return null;
-  return <Page width="wide" title="Новый приход" subtitle="Счёт-фактура или накладная поставщика: загрузите фото, ИИ заполнит строки, либо внесите руками." crumbs={
+  return <Page width="wide" className="bar-subpage" title="Новый приход" subtitle="Счёт-фактура или накладная поставщика: загрузите фото, ИИ заполнит строки, либо внесите руками." crumbs={
     <Link href="/bar/receipts" prefetch={false}>← Приходы</Link>
   }>
     <BarTabs current="receipts" />

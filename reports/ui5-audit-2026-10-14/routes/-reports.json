@@ -5,12 +5,7 @@
    "minFont": 13,
    "h1": "Отчёты",
    "mainEmpty": false,
-   "smallTargets": [
-    "A:Сегодня 74x30",
-    "A:7 дней 62x30",
-    "A:Этот месяц 95x30",
-    "A:Прошлый месяц 130x30"
-   ]
+   "smallTargets": []
   },
   "768": {
    "overflowX": 0,

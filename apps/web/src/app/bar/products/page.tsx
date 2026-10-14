@@ -24,15 +24,15 @@ export default async function BarProductsPage() {
     BigInt(item.availableUnits) <= BigInt(item.minimumStockUnits);
   const rows = [...stock.value].sort((a, b) =>
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
-  return <Page width="wide" title="Бар: товары" subtitle="Карточки товаров с остатками и ценой. Цена правится прямо в строке.">
+  return <Page width="wide" className="bar-subpage" title="Бар: товары" subtitle="Карточки товаров с остатками и ценой. Цена правится прямо в строке.">
     <BarTabs current="products" />
     <div className="bar-catalog-grid">
-      <section className="panel">
-        <h3>Новый товар</h3>
+      <details className="panel bar-details">
+        <summary>Новый товар</summary>
         <ProductForm categories={categories.value.filter((category) => category.active)} />
-      </section>
-      <section className="panel">
-        <h3>Категории и наценка</h3>
+      </details>
+      <details className="panel bar-details">
+        <summary>Категории и наценка</summary>
         <p className="bar-muted">Наценка категории наследуется товаром, у товара её можно переопределить.</p>
         <CategoryForm />
         {categories.value.length > 0 && <ul className="bar-catalog-list">{categories.value.map((category) => <li key={category.id}>
@@ -44,22 +44,19 @@ export default async function BarProductsPage() {
             <Button type="submit" tone="ghost" size="xs">{category.active ? 'В архив' : 'Восстановить'}</Button>
           </form>
         </li>)}</ul>}
-      </section>
+      </details>
     </div>
     <section className="bar-products-table">
       <SectionTitle>Каталог и остатки</SectionTitle>
       {rows.length === 0
         ? <EmptyState icon={<Icon name="inventory" />} title="Товаров пока нет">Добавьте первый товар в форме выше или загрузите накладную во вкладке «Приходы».</EmptyState>
         : <Table density="compact" sticky="header" aria-label="Товары бара">
-            <thead><tr><th>Код</th><th>Товар</th><th>Остаток</th><th>Минимум</th><th>Наценка</th><th>Цена продажи</th><th>Себестоимость остатка</th><th /></tr></thead>
+            <thead><tr><th>Товар</th><th>Остаток</th><th>Цена продажи</th><th>Подробности</th><th>Действия</th></tr></thead>
             <tbody>{rows.map((item) => <tr key={item.id} className={item.active ? undefined : 'is-void'}>
-              <td>{item.code}</td>
-              <td><b>{item.name}</b>{item.category && <small>{item.category.name}</small>}</td>
-              <td><Badge tone={!item.active ? 'neutral' : low(item) ? 'warn' : 'ok'}>{item.availableUnits} шт.</Badge></td>
-              <td>{item.minimumStockUnits} шт.</td>
-              <td>{item.markupBasis === null ? (item.category ? `${item.category.defaultMarkupBasis / 100}% из категории` : 'нет') : `${item.markupBasis / 100}%`}</td>
+              <td><b>{item.name}</b><small>{item.code}{item.category ? `, ${item.category.name}` : ''}</small></td>
+              <td><Badge tone={!item.active ? 'neutral' : low(item) ? 'warn' : 'ok'}>{item.availableUnits} шт.</Badge><small>Минимум: {item.minimumStockUnits} шт.</small></td>
               <td>{item.active ? <ProductPriceForm productId={item.id} salePrice={item.salePrice} /> : formatMoney(item.salePrice)}</td>
-              <td>{formatMoney(item.stockCostMinor)}</td>
+              <td><details className="bar-row-details"><summary>Закупка и наценка</summary><p>Себестоимость остатка: {formatMoney(item.stockCostMinor)}</p><p>Наценка: {item.markupBasis === null ? (item.category ? `${item.category.defaultMarkupBasis / 100}% из категории` : 'нет') : `${item.markupBasis / 100}%`}</p></details></td>
               <td><form action={toggleBarCatalogAction}>
                 <input type="hidden" name="kind" value="product" />
                 <input type="hidden" name="id" value={item.id} />

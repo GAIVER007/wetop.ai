@@ -52,6 +52,41 @@ describe('business card database persistence and tenant isolation', () => {
     expect(cards.some((card) => card.id === businessA)).toBe(true);
     expect(cards.some((card) => card.id === businessB)).toBe(false);
   });
+  it('hides a business with only archived locations and restores its card without deleting data', async () => {
+    const id = randomUUID(),
+      first = randomUUID(),
+      second = randomUUID();
+    await db.business.create({
+      data: {
+        id,
+        organizationId: orgA,
+        name: 'Archived branches example',
+        vertical: 'HOSPITALITY',
+      },
+    });
+    await db.location.createMany({
+      data: [first, second].map((locationId) => ({
+        id: locationId,
+        businessId: id,
+        name: `Archived ${locationId}`,
+        currency: 'KZT',
+        timezone: 'UTC',
+        status: 'ARCHIVED' as const,
+      })),
+    });
+    const hidden = await owner(() => service.list([], true));
+    expect(hidden.some((card) => card.id === id)).toBe(false);
+    expect(hidden.some((card) => card.id === businessA)).toBe(true);
+    expect((await db.business.findUniqueOrThrow({ where: { id } })).status).toBe('ACTIVE');
+    expect(await db.location.count({ where: { businessId: id } })).toBe(2);
+    await db.location.update({ where: { id: second }, data: { status: 'ACTIVE' } });
+    expect((await owner(() => service.list([], true))).some((card) => card.id === id)).toBe(true);
+    await db.location.update({ where: { id: second }, data: { status: 'ARCHIVED' } });
+    expect((await owner(() => service.list([], true))).some((card) => card.id === id)).toBe(false);
+    await db.location.update({ where: { id: first }, data: { status: 'ACTIVE' } });
+    expect((await owner(() => service.list([], true))).some((card) => card.id === id)).toBe(true);
+  });
+
   it('edits a legacy business whose updated_at has PostgreSQL microseconds', async () => {
     const id = randomUUID();
     await db.business.create({

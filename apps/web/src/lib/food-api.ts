@@ -130,7 +130,11 @@ export const restaurantApi = {
     sendJson<{ token: string; expiresAt: string }>('POST', `${idPath('orders', id)}/rating-link`, {}),
   voidPayment: (id: string, reason: string) =>
     sendJson<OrderView>('POST', `${idPath('payments', id)}/void`, { reason }),
-  cash: () => getJsonPublic<FoodCashView>(`${base}/cash`),
+  // период считает сервер (ADR-181); без дат прежние последние 100 строк для экрана «Касса»
+  cash: (period?: { from: string; to: string }) =>
+    getJsonPublic<FoodCashView>(
+      `${base}/cash${period ? `?from=${period.from}&to=${period.to}` : ''}`,
+    ),
   cashOperation: (body: FoodCashOperationInput) =>
     sendJson<{ id: string }>('POST', `${base}/cash/operations`, body),
   voidCashOperation: (id: string) =>

@@ -5,6 +5,7 @@ import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
+import { JsonLd, faqLd } from '../../../components/json-ld';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -144,8 +145,36 @@ export default function RestaurantLandingPage() {
             </div>
           </section>
 
+          {/* Настоящий экран продукта: план зала с демо-данными, светлая и тёмная темы */}
+          <section className="hotel-shot" aria-labelledby="restaurant-shot-title">
+            <div className="section-heading section-heading--center">
+              <p className="eyebrow">{t.restaurant.shot.eyebrow}</p>
+              <h2 id="restaurant-shot-title" className="section-heading__title">
+                {typo(t.restaurant.shot.title)}
+              </h2>
+              <p className="section-heading__lead">{typo(t.restaurant.shot.lead)}</p>
+            </div>
+            <figure className="hotel-shot__frame">
+              <picture>
+                <source
+                  srcSet="/screens/restaurant-floor-dark.png"
+                  media="(prefers-color-scheme: dark)"
+                />
+                <img
+                  src="/screens/restaurant-floor-light.png"
+                  alt={t.restaurant.shot.alt}
+                  width={1440}
+                  height={640}
+                  loading="lazy"
+                />
+              </picture>
+              <figcaption>{t.restaurant.shot.note}</figcaption>
+            </figure>
+          </section>
+
           <SubtypeLinks direction="restaurants" title={t.segments.typesTitle.restaurants} />
 
+          {s.faq.length ? <JsonLd data={faqLd(s.faq)} /> : null}
           <MarketingBlock
             id="marketing"
             copy={t.marketing.restaurant}

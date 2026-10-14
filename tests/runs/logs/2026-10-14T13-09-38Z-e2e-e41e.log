@@ -1,0 +1,39 @@
+# Сквозные (e2e) · 14.10.2026 18:09 Алматы · MacBook-Air-Urij.local
+# коммит 9e2de38 (claude/site-cards-6-20261014), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'segments.spec'
+
+Running 29 tests using 1 worker
+
+  ✓   1 tests/site/segments.spec.ts:201:3 › /for/hostels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (613ms)
+  ✓   2 tests/site/segments.spec.ts:201:3 › /for/mini-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (489ms)
+  ✓   3 tests/site/segments.spec.ts:201:3 › /for/apart-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (418ms)
+  ✓   4 tests/site/segments.spec.ts:201:3 › /for/guest-houses/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (302ms)
+  ✓   5 tests/site/segments.spec.ts:201:3 › /for/resorts/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (287ms)
+  ✓   6 tests/site/segments.spec.ts:201:3 › /for/daily-rentals/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (345ms)
+  ✓   7 tests/site/segments.spec.ts:201:3 › /for/glamping/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (472ms)
+  ✓   8 tests/site/segments.spec.ts:201:3 › /for/sanatoriums/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (585ms)
+  ✓   9 tests/site/segments.spec.ts:201:3 › /for/capsule-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (373ms)
+  ✓  10 tests/site/segments.spec.ts:201:3 › /for/beauty-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (351ms)
+  ✓  11 tests/site/segments.spec.ts:201:3 › /for/barbershops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (507ms)
+  ✓  12 tests/site/segments.spec.ts:201:3 › /for/spa/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (465ms)
+  ✓  13 tests/site/segments.spec.ts:201:3 › /for/nail-studios/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (474ms)
+  ✓  14 tests/site/segments.spec.ts:201:3 › /for/hair-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (597ms)
+  ✓  15 tests/site/segments.spec.ts:201:3 › /for/massage/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (412ms)
+  ✓  16 tests/site/segments.spec.ts:201:3 › /for/cosmetology/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (407ms)
+  ✓  17 tests/site/segments.spec.ts:201:3 › /for/brows-lashes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (379ms)
+  ✓  18 tests/site/segments.spec.ts:201:3 › /for/epilation/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (333ms)
+  ✓  19 tests/site/segments.spec.ts:201:3 › /for/tattoo/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (371ms)
+  ✓  20 tests/site/segments.spec.ts:201:3 › /for/cafes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (554ms)
+  ✓  21 tests/site/segments.spec.ts:201:3 › /for/bars/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (696ms)
+  ✓  22 tests/site/segments.spec.ts:201:3 › /for/coffee-shops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (618ms)
+  ✓  23 tests/site/segments.spec.ts:201:3 › /for/hookah-lounges/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (452ms)
+  ✓  24 tests/site/segments.spec.ts:201:3 › /for/karaoke/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (565ms)
+  ✓  25 tests/site/segments.spec.ts:201:3 › /for/pizzerias/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (465ms)
+  ✓  26 tests/site/segments.spec.ts:201:3 › /for/canteens/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (429ms)
+  ✓  27 tests/site/segments.spec.ts:201:3 › /for/banquet-halls/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (364ms)
+  ✓  28 tests/site/segments.spec.ts:272:1 › карточки направлений на главной ведут на страницы по типам объектов (429ms)
+  ✓  29 tests/site/segments.spec.ts:285:1 › страницы направлений ведут карточками на свои типы бизнеса (689ms)
+
+  29 passed (33.2s)
+
+# код выхода 0 · 37 с

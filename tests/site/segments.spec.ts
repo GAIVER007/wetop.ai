@@ -222,10 +222,11 @@ for (const segment of SEGMENTS) {
     await expect(hero.getByText('Источники бронирований', { exact: true })).toHaveCount(0);
 
     expect((await page.request.get((await photo.getAttribute('src')) ?? '')).status()).toBe(200);
+    // Сетка возможностей 3 в ряд: карточек не меньше шести, чтобы ряды были полными
     expect(
       await page.locator('#segment-features .card').count(),
       'карточек возможностей',
-    ).toBeGreaterThanOrEqual(5);
+    ).toBeGreaterThanOrEqual(6);
     // Настоящий экран продукта своей вертикали: календарь размещений, день салона, план зала
     await expect(page.locator('.hotel-shot img')).toHaveAttribute(
       'src',

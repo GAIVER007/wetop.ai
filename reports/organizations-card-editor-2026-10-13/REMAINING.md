@@ -162,3 +162,15 @@ The earlier current-maincc9b2892 run38514092816 failed only the CSS baseline che
 - Integrated current maina3dad0346 via076435ee2, retaining stricter900px viewport and footer checks instead of widening to920px. Main already fixed missing text-base token; no duplicate Calendar change.
 - Full unit09-15-53Z-unit-8aec:4742 passed/4 failed (three service-script timeouts and one upstream undefined token). Reduced concurrent workers without changing timeouts:09-18-15Z-unit-8e20 had4745 passed/one upstream-token failure. After integrating the existing main correction:09-25-09Z-unit-4b22,4746 passed/4 existing skips/zero failures.
 - Final combined lint09-30-48Z-lint-5cc8 and typecheck09-31-49Z-typecheck-0931 green. Organization UI09-32-39Z-e2e-c971:4/4. Last visual hierarchy correction (secondary settings button): CSS guard09-35-00Z-unit-473e18/18; workflow09-35-04Z-e2e-c1111/1. No new migrations compared with deployed13d3210d.
+
+## Shared release-contract correction after PR505
+
+PR505 merged as925085f4; release-checks38543956284 started after the previous e6d38d2b run38538667703 finished. The old foreign run was not cancelled; the pending cancellation question became moot.
+
+Old e6d38d2b gate logs showed one real-database desk-day failure and eleven UI part3 failures. They still expected Hospitality /today to redirect to Finance, operational queues on Finance and the earlier navigation order. Main already restores Home per ADR-180. These tests were unchanged in925085f4, so repeating them could not establish a valid release.
+
+Updated only six test files: keep every queue count/severity/link assertion, real booking increase, analytics, money-period values and navigation order checks on their currently approved surfaces. Streamed redirect now exercises the existing hotel-settings/description alias, not removed /today redirect. No product or financial code changes, assertion skips, timeout increases, tolerance changes or CI configuration changes.
+
+- Initial synthetic UI2026-10-14T10-07-53Z-e2e-18a0:19/20. Mobile nav uses the existing TopNav dialog, not hidden desktop SideNav; final UX2026-10-14T10-13-35Z-e2e-ed02:6/6, codeChangedDuringRun=false.
+- Real local PostgreSQL55613, pmslocal/pms_test with synthetic seed. Production build succeeded. First DB run10-17-24Z-e2e-6a65 reached booking/queue/analytics, then failed because both old lower and new upper money-period forms matched. Scoped period values to the top page-actions control.
+- Final real DB E2E10-21-07Z-e2e-563c:3/3 including schema guard and authenticated setup; codeChangedDuringRun=false. No external workers or production writes. Types10-23-16Z-typecheck-b56a passed and targeted ESLint passed. Generated Next declarations restored to tracked state, not published.

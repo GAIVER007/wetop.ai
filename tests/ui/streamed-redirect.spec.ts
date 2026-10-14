@@ -4,8 +4,7 @@ import { FIXTURE_API, expect, test } from './fixtures';
  * Потоковый редирект Next (корневой `app/loading.tsx` начинает отдачу раньше, чем страница зовёт `redirect()`):
  * Next кладёт в документ `<meta id="__next-page-redirect" http-equiv="refresh">`, и браузер переходит на цель уже
  * ПОСЛЕ события `load`. `goto` возвращался на исходном адресе, а следующий `goto` обрывал этот отложенный переход:
- * `net::ERR_ABORTED` (profile-menu-readiness, system-screens, roles, 12.10.2026). Гостиничное `/today` уводит в
- * `/finance` именно так.
+ * `net::ERR_ABORTED` (profile-menu-readiness, system-screens, roles, 12.10.2026). Устаревшее `/hotel-settings/description` ведёт на `/hotel-settings` именно так.
  */
 test('goto на адрес с потоковым редиректом отдаёт конечную страницу, следующий goto не обрывается', async ({
   page,
@@ -17,9 +16,10 @@ test('goto на адрес с потоковым редиректом отдаё
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await expect(page.locator('main')).toBeVisible();
-  await page.goto('/today');
+  await expect(page).toHaveURL(/\/today$/);
+  await page.goto('/hotel-settings/description');
   // без автоожидания: адрес сразу после goto
-  expect(new URL(page.url()).pathname).toBe('/finance');
+  expect(new URL(page.url()).pathname).toBe('/hotel-settings');
   await expect(page.locator('meta#__next-page-redirect')).toHaveCount(0);
   await page.goto('/chessboard', { waitUntil: 'commit' });
   await expect(page).toHaveURL(/\/chessboard/);

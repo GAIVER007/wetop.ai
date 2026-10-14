@@ -147,7 +147,7 @@ test('администратор смены открывает хаб', async ({
   await control(request, { role: 'STAFF' });
   // как человек: со стартовой страницы роли через меню (прямой переход первым запросом после смены роли разворачивает стойка)
   // переход может быть прерван разворотом стойки на стартовую страницу роли: ждём, пока она откроется
-  await page.goto('/finance').catch(() => undefined);
+  await page.goto('/today');
   await page.waitForURL('**/today');
   await goViaMenu(page, 'Продажи', 'Обзор продаж');
   await expect(page).toHaveURL(/\/sales$/);

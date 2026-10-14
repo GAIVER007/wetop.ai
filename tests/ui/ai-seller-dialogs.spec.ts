@@ -142,7 +142,8 @@ const savePrompt = (request: APIRequestContext, text: string) =>
 
 test('версии инструкции: пока их нет, сказано словами', async ({ page }) => {
   await page.goto('/ai-seller');
-  await page.getByRole('button', { name: 'Инструкция' }).click();
+  await page.getByText('Настройка продавца', {exact: true}).click();
+  await expect(page.getByTestId('seller-prompt-text')).toBeVisible();
   await expect(page.getByTestId('seller-prompt-versions-empty')).toContainText('Версий пока нет');
 });
 
@@ -151,7 +152,8 @@ test('версии инструкции: новые сверху, текущая
   await savePrompt(request, 'Первая инструкция'); // повтор не множит
   await savePrompt(request, 'Вторая инструкция');
   await page.goto('/ai-seller');
-  await page.getByRole('button', { name: 'Инструкция' }).click();
+  await page.getByText('Настройка продавца', {exact: true}).click();
+  await expect(page.getByTestId('seller-prompt-text')).toBeVisible();
   const rows = page.getByTestId('seller-prompt-versions-table').locator('tbody tr');
   await expect(rows).toHaveCount(2);
   await expect(rows.nth(0)).toContainText('Вторая инструкция');
@@ -161,7 +163,8 @@ test('версии инструкции: новые сверху, текущая
   await rows.nth(1).getByRole('button', { name: /Вернуть версию/ }).click();
   await expect(page.getByTestId('prompt-restore-result')).toContainText('Версия возвращена');
   await page.reload();
-  await page.getByRole('button', { name: 'Инструкция' }).click();
+  await page.getByText('Настройка продавца', {exact: true}).click();
+  await expect(page.getByTestId('seller-prompt-text')).toBeVisible();
   await expect(page.getByTestId('seller-prompt-versions-table').locator('tbody tr')).toHaveCount(3);
   await expect(page.getByTestId('seller-prompt-versions-table').locator('tbody tr').nth(0)).toContainText('Первая инструкция');
 });
@@ -171,7 +174,8 @@ test('срок расширения вышел: версии видно, вер�
   await savePrompt(request, 'Вторая инструкция');
   await control(request, { sellerExtension: 'expired' });
   await page.goto('/ai-seller');
-  await page.getByRole('button', { name: 'Инструкция' }).click();
+  await page.getByText('Настройка продавца', {exact: true}).click();
+  await expect(page.getByTestId('seller-prompt-text')).toBeVisible();
   await expect(page.getByTestId('seller-prompt-versions-table').locator('tbody tr')).toHaveCount(2);
   await expect(page.getByRole('button', { name: /Вернуть версию/ })).toHaveCount(0);
 });

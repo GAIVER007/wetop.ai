@@ -2,7 +2,7 @@ import { FIXTURE_API, expect, test } from './fixtures';
 test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
-test('five steps, back navigation preserves instruction, desktop and mobile do not overflow', async ({
+test('four setup steps, back navigation preserves instruction, desktop and mobile do not overflow', async ({
   page,
 }) => {
   for (const colorScheme of ['light', 'dark'] as const) {
@@ -10,10 +10,10 @@ test('five steps, back navigation preserves instruction, desktop and mobile do n
     for (const width of [1440, 768, 320]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto('/ai-seller');
+      await page.getByText('Настройка продавца', {exact: true}).click();
       const steps = page.getByRole('navigation', { name: 'Шаги настройки продавца' });
-      await expect(steps.getByRole('button')).toHaveCount(5);
-      await expect(page.getByTestId('seller-setup')).toBeHidden();
-      await page.getByRole('button', { name: 'Далее', exact: true }).click();
+      await expect(steps.getByRole('button')).toHaveCount(4);
+      await expect(page.getByTestId('seller-setup')).toBeVisible();
       await page
         .getByTestId('seller-prompt-text')
         .fill('Тестовая инструкция для вымышленного объекта');
@@ -23,7 +23,7 @@ test('five steps, back navigation preserves instruction, desktop and mobile do n
       await expect(page.getByTestId('seller-prompt-text')).toHaveValue(
         'Тестовая инструкция для вымышленного объекта',
       );
-      await steps.getByRole('button', { name: '4 Проверка' }).click();
+      await steps.getByRole('button', { name: '3 Проверка' }).click();
       await expect(page.getByTestId('seller-check')).toBeVisible();
       await page.getByRole('button', { name: 'Далее', exact: true }).click();
       await expect(

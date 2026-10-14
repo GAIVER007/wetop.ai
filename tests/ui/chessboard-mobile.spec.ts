@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, chooseBoardPeriod, expect, test } from './fixtures';
 
 const add = (date: string, nights: number) => {
   const day = new Date(`${date}T12:00:00Z`);
@@ -255,7 +255,7 @@ test('календарь возвращает обе позиции после �
   await page.goBack();
   await expect.poll(() => wrap.evaluate((el) => el.scrollLeft)).toBeCloseTo(position.x, 0);
   await expect.poll(() => wrap.evaluate((el) => el.scrollTop)).toBeCloseTo(position.y, 0);
-  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
+  await chooseBoardPeriod(page, 'Сегодня');
   await expect
     .poll(() =>
       wrap.evaluate((el) => {

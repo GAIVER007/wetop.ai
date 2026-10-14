@@ -159,8 +159,8 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
     const other = await db.$transaction((tx) =>
       createPropertyInChain(tx, org.id, { name: 'Рынок сборщик', ...NEW_PROPERTY_DEFAULTS }),
     );
-    const mine = await repo.createCompetitor({ name: 'Сосед для сборщика' }, audit);
-    const theirs = await db.competitor.create({ data: { propertyId: other.id, name: 'Сосед другого объекта' } });
+    const mine = await repo.createCompetitor({ name: 'Сосед для сборщика', autoRefresh: true }, audit);
+    const theirs = await db.competitor.create({ data: { propertyId: other.id, name: 'Сосед другого объекта', autoRefresh: true } });
     await db.competitor.create({ data: { propertyId: other.id, name: 'Убранный сосед', active: false } });
 
     const targets = await repo.collectorTargets();

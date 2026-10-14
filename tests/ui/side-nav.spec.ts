@@ -31,15 +31,15 @@ const routes = [
 ];
 
 const SECTIONS = [
-  // «Главная» первой (ADR-180)
+  // «Главная» первой (ADR-180, 13.10.2026); дальше порядок #501
   'Главная',
-  'Финансы',
   'Календарь',
   'Гости и бронирования',
+  'Номерной фонд',
+  'Финансы',
   'Продажи',
   'Маркетинг',
   'Отчёты',
-  'Номерной фонд',
   'Настройки',
 ];
 
@@ -74,7 +74,7 @@ test('UI3.1: кнопка открывает разделы, наведение 
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
   await expect(nav.locator('.sidenav__section')).toHaveText(SECTIONS);
   // 3. наведение на раздел: его подразделы справа
-  await expect(items.locator('.sidenav__title')).toHaveText('Продажи');
+  await expect(items).toHaveAttribute('aria-label', 'Продажи');
   await expect(items.locator('a')).toHaveText([
     'Обзор продаж',
     'Анализ конкурентов',
@@ -96,7 +96,7 @@ test('UI3.1: кнопка открывает разделы, наведение 
   // раздел из одного пункта: справа его описание без второй ссылки (ширина панели не прыгает,
   // мастер-проход UI 11.10.2026), щелчок по самому разделу ведёт на страницу
   await openSection(page, 'Календарь');
-  await expect(nav.locator('.sidenav__items')).toContainText('Размещение по номерам');
+  await expect(nav.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
   await expect(nav.getByRole('link', { name: 'Календарь', exact: true })).toHaveCount(1);
   await nav.locator('.sidenav__section', { hasText: /^Календарь$/ }).click();
   await expect(page).toHaveURL(/\/chessboard$/);
@@ -121,11 +121,9 @@ test('ТЗ §9: клавиатура, ↓ открывает, ↑↓ по раз
   await expect(section('Финансы')).toBeFocused();
   for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowDown');
   await expect(section('Продажи')).toBeFocused();
-  await expect(nav.locator('.sidenav__items > :not([hidden]) .sidenav__title')).toHaveText(
-    'Продажи',
-  );
   await page.keyboard.press('ArrowRight');
-  const items = nav.locator('.sidenav__items > :not([hidden])');
+  await expect(nav.locator('.sidenav__items:not([hidden])')).toHaveAttribute('aria-label', 'Продажи');
+  const items = nav.locator('.sidenav__items:not([hidden])');
   await expect(items.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowDown');
   await expect(items.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeFocused();
@@ -175,7 +173,9 @@ test('вложенные адреса показывают свой раздел
   await expect(trigger).toHaveText('Профиль');
 });
 
-test('касание раздела на планшете раскрывает подразделы, а не уводит со страницы', async ({ page }) => {
+test('касание раздела на планшете раскрывает подразделы, а не уводит со страницы', async ({
+  page,
+}) => {
   await page.goto('/finance');
   const nav = sideNav(page);
   await nav.locator('.sidenav__current').click();
@@ -183,7 +183,7 @@ test('касание раздела на планшете раскрывает �
   await sales.dispatchEvent('pointerdown', { pointerType: 'touch' });
   await sales.click();
   await expect(page).toHaveURL(/\/finance$/);
-  await expect(nav.locator('.sidenav__items > :not([hidden]) .sidenav__title')).toHaveText('Продажи');
+  await expect(nav.locator('.sidenav__items:not([hidden])')).toHaveAttribute('aria-label', 'Продажи');
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -252,4 +252,16 @@ test('кнопка текущего раздела находится в шап�
   await expect(button).toHaveText('Главная');
   await button.click();
   await expect(sideNav(page).locator('.sidenav__panel')).toBeVisible();
+});
+
+test('menu panel offers an explicit close action and restores trigger focus', async ({ page }) => {
+  await page.goto('/finance');
+  const nav = sideNav(page);
+  const trigger = nav.locator('.sidenav__current');
+  await trigger.click();
+  const close = nav.getByRole('button', { name: 'Закрыть меню', exact: true });
+  await expect(close).toBeVisible();
+  await close.click();
+  await expect(nav.locator('.sidenav__panel')).toBeHidden();
+  await expect(trigger).toBeFocused();
 });

@@ -22,6 +22,8 @@ const openStep = async (
   page: Page,
   name: 'Объект' | 'Инструкция' | 'Подключения' | 'Проверка' | 'Готовность',
 ) => {
+  const setup = page.locator('.seller-setup-disclosure');
+  if ((await setup.count()) && (await setup.getAttribute('open')) === null) await setup.locator(':scope > summary').click();
   const button = page
     .getByRole('main')
     .locator('.seller-wizard__steps')

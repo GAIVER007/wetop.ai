@@ -239,6 +239,8 @@ test('на телефоне окно открывается из меню и н�
 
 /** Снимки окна регистрации 29.09.2026 для визуального «да» владельца — `reports/registration-v2-2026-09-29/` */
 test('снимки окна регистрации: светлая и тёмная, 1440 и 390', async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
   const report = 'reports/public-homepage-v2-business-copy-2026-10-07/test-screenshots';
   mkdirSync(report, { recursive: true });
@@ -294,7 +296,9 @@ test('снимки окна регистрации: светлая и тёмна
 });
 
 for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
-  test(`${vertical} registers like a hotel: no invitation, «Проверьте почту» (ADR-172)`, async ({ page }) => {
+  test(`${vertical} registers like a hotel: no invitation, «Проверьте почту» (ADR-172)`, async ({
+    page,
+  }) => {
     const calls = await mockDesk(page, {
       options: () => ({ status: 200, body: { registrationEnabled: true } }),
       register: (body) => ({
@@ -322,7 +326,9 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
   });
 }
 
-test('registration: three countries, correct dial codes and English preference', async ({ page }) => {
+test('registration: three countries, correct dial codes and English preference', async ({
+  page,
+}) => {
   const calls = await mockDesk(page, {
     options: () => ({ status: 200, body: { registrationEnabled: true } }),
     register: () => ({ status: 200, body: { email: 'owner@example.invalid', sent: true } }),
@@ -331,7 +337,11 @@ test('registration: three countries, correct dial codes and English preference',
   const dialog = page.getByRole('dialog');
   const country = dialog.getByLabel('Страна', { exact: true });
   await expect(country.locator('option')).toHaveText(['Казахстан', 'ОАЭ (Дубай)', 'Катар']);
-  for (const [code, dial] of [['KZ', '+7'], ['AE', '+971'], ['QA', '+974']]) {
+  for (const [code, dial] of [
+    ['KZ', '+7'],
+    ['AE', '+971'],
+    ['QA', '+974'],
+  ]) {
     await country.selectOption(code!);
     await expect(dialog.locator('.auth-phone__code')).toHaveText(dial!);
   }
@@ -346,5 +356,9 @@ test('registration: three countries, correct dial codes and English preference',
   await dialog.getByRole('checkbox').check();
   await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
   await expect(dialog.getByTestId('auth-sent')).toBeVisible();
-  expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({ phoneCountry: 'QA', phone: '5550 1234', locale: 'en' });
+  expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({
+    phoneCountry: 'QA',
+    phone: '5550 1234',
+    locale: 'en',
+  });
 });

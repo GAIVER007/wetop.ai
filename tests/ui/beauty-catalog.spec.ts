@@ -18,17 +18,15 @@ async function openSalon(page: Page, request: APIRequestContext) {
   await page.waitForURL('**/today');
   await page.goto('/branches');
   const main = page.getByRole('main');
-  await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
-  await main.getByRole('radio', { name: 'Салон красоты или студия' }).check();
-  await main.getByLabel('Название филиала').fill('Студия Айна');
-  await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
-  await expect(main.getByRole('status')).toContainText('Салон создан');
+  await main.getByRole('button', { name: 'Добавить', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+  await creation.getByLabel('Новый бизнес или бренд').check();
+  await creation.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+  await creation.getByLabel('Название бизнеса', { exact: true }).fill('Студия Айна');
+  await creation.getByRole('button', { name: 'Создать бизнес', exact: true }).click();
+  await expect(creation.getByRole('status')).toContainText('Салон создан');
   await page.reload();
-  await main
-    .locator('.branches-grid section')
-    .filter({ hasText: 'Студия Айна' })
-    .getByRole('button', { name: 'Открыть салон', exact: true })
-    .click();
+  await main.getByRole('button', { name: 'Открыть объект: Студия Айна', exact: true }).click();
   // MV8: открытый салон начинает с общего рабочего экрана дня
   await page.waitForURL('**/today');
   await page.goto('/calendar');

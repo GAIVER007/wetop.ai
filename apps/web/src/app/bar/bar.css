@@ -880,3 +880,39 @@
     }
   }
 }
+
+@layer sections {
+  .bar-page .page__head { margin-bottom: var(--space-2); }
+  .bar-sales { padding: var(--space-2); margin-bottom: var(--space-2); }
+  .bar-details > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--text-2); font-weight: var(--weight-medium); }
+  .bar-details > summary::before { content: '+'; margin-right: var(--space-2); color: var(--primary); }
+  .bar-details[open] > summary::before { content: '−'; }
+  .bar-form-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--space-2); }
+  .bar-form-actions .bar-card-save { width: auto; }
+  .bar-card-field > label, .bar-card-head h3, .bar-product-link b { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+  .bar-board th, .bar-board td { white-space: normal; overflow-wrap: anywhere; padding-block: var(--space-2); }
+  .bar-board table { min-width: 0; width: 100%; }
+  .bar-board :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(6),:nth-child(8),:nth-child(10),:nth-child(11)) { display: none; }
+  .bar-board .table-scroll { max-height: 48vh; overflow: auto; }
+  .bar-page .bar-kpis { margin-bottom: var(--space-2); gap: var(--space-2); }
+  .bar-page .bar-kpi { padding: var(--space-2); }
+  .bar-page .bar-card { padding: var(--space-2); gap: var(--space-2); }
+  @media (min-width: 961px) {
+    .bar-main:not(:has(.bar-card-head)) { grid-template-columns: minmax(0, 1fr); }
+    .bar-main:not(:has(.bar-card-head)) > .bar-card { display: none; }
+  }
+  @media (max-width: 600px) {
+    .bar-board .table-scroll { max-height: none; }
+    .bar-board table { min-width: 600px; }
+    .bar-sales .bar-inline { display: grid; grid-template-columns: minmax(0,1fr); }
+    .bar-sales .bar-inline > * { width: 100%; min-width: 0; }
+  }
+}
+
+@layer sections {
+  .bar-page .bar-kpi { grid-template-columns: minmax(0,1fr); }
+  .bar-page .bar-kpi-icon { display: none; }
+  .bar-page .bar-kpi-label { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+  .bar-page .bar-kpi-value { font-size: var(--text-lg); }
+  .bar-sales .bar-select-search { min-width: 0; }
+}

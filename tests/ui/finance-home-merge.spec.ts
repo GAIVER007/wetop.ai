@@ -108,6 +108,7 @@ test('главная гостиницы: /today с загрузкой, «Сег�
   const load = main.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(load.getByTestId('c-occupancy')).toHaveText(formatPercent(percent));
   await expect(load.getByTestId('c-free')).toHaveText(String(s.free));
+  await page.getByText('Прогноз загрузки', {exact:true}).click();
   await expect(load.getByTestId('owner-outlook-chart')).toBeVisible();
 
   const today = main.getByRole('region', { name: 'Сегодня', exact: true });
@@ -123,11 +124,12 @@ test('очередь «Требуют внимания» открывается 
   await expect(page.locator('#day-attention')).toHaveCount(1);
 });
 
-test('меню: «Главная» первой вкладкой, «Финансы» группой за ней', async ({ page }) => {
+test('меню: «Главная» первой вкладкой, «Финансы» группой после фонда (#501)', async ({ page }) => {
   await page.goto('/finance');
   const menu = sideNav(page);
   await expect(menu.locator('.sidenav__section').first()).toHaveText('Главная');
-  await expect(menu.locator('.sidenav__section').nth(1)).toHaveText('Финансы');
+  await expect(menu.locator('.sidenav__section').nth(1)).toHaveText('Календарь');
+  await expect(menu.locator('.sidenav__section').nth(4)).toHaveText('Финансы');
   // активная отметка живёт на пункте группы (ADR-157): на /finance это «Оплаты и касса»
   await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Оплаты и касса');
   await page.goto('/today');

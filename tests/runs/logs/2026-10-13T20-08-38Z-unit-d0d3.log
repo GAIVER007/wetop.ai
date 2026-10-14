@@ -1,0 +1,32 @@
+# Модульные (unit) · 14.10.2026 01:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит dae7250 (codex/organizations-card-editor), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T20-08-38Z-unit-d0d3.json' 'apps/api/src/web-booking/web-booking.controller.test.ts' 'tests/unit/guard-run.test.ts' 'tests/unit/design-slop.test.ts' '--maxWorkers' '1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 174ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 5325ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1701ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 867ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 840ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 563ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 837ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 507ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 3ms
+
+ Test Files  3 passed (3)
+      Tests  67 passed (67)
+   Start at  13:08:40
+   Duration  7.00s (tests 81%, import 11%, transform 9%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T20-08-38Z-unit-d0d3.json
+
+# код выхода 0 · 8 с

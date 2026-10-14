@@ -190,6 +190,13 @@ export function BusinessCardEditor({
                             <input type="hidden" name="id" value={branch.id} />
                             <button type="submit">Открыть объект</button>
                           </form>
+                          {branch.vertical === 'HOSPITALITY' && (
+                            <form action={selectBranch}>
+                              <input type="hidden" name="id" value={branch.id} />
+                              <input type="hidden" name="returnTo" value="/hotel-settings" />
+                              <button type="submit">Настройки объекта</button>
+                            </form>
+                          )}
                           <BranchArchiveButton id={branch.locationId} name={branch.name} />
                         </div>
                       </li>

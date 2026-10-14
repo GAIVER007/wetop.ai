@@ -345,10 +345,14 @@
     }
   } /* Compact workspace: one catalogue scroll, readable controls, no repeated panel borders. */
   .page:has(.inventory-content) {
-    padding-top: var(--space-4);
+    padding-top: var(--space-2);
   }
   .page:has(.inventory-content) .page__head {
     margin-bottom: var(--space-2);
+  }
+  .page:has(.inventory-content) .fund-tabs a {
+    min-height: var(--touch-target);
+    padding-block: var(--space-2);
   }
   .page:has(.inventory-content) .fund-tabs {
     margin-bottom: var(--space-2);
@@ -489,16 +493,16 @@
   }
   .inv-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-2);
     margin: 0;
   }
   .inv-tile {
     display: grid;
     grid-template-columns: 44px minmax(0, 1fr);
-    column-gap: var(--space-4);
+    column-gap: var(--space-2);
     min-width: 0;
-    padding: var(--space-4);
+    padding: var(--space-2);
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);

@@ -28,9 +28,13 @@ const input = (id = randomUUID()) => ({
 });
 let hotelA: string, hotelB: string, foreignBusiness: string;
 beforeAll(async () => {
-  // как в соседних наборах: любая своя петлевая база, а не один вшитый порт (гейт поднимает свой)
-  if (!isLocalDatabase(process.env.DATABASE_URL ?? ''))
-    throw new Error('Isolated local database required');
+  if (
+    !process.env.DATABASE_URL ||
+    !isLocalDatabase(process.env.DATABASE_URL) ||
+    (process.env.DATABASE_APP_URL && !isLocalDatabase(process.env.DATABASE_APP_URL)) ||
+    process.env.DATABASE_SCHEMA !== 'pms_test'
+  )
+    throw new Error('Isolated local test schema required');
   await db.user.create({
     data: { id: user, email: `feedback-${user}@example.invalid`, name: 'Тестовый владелец' },
   });

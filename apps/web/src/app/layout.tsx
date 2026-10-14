@@ -85,7 +85,7 @@ export default async function RootLayout({
           <ThemeProvider>
             <ToastProvider>{children}</ToastProvider>
           </ThemeProvider>
-          <DevAgentation />
+          {process.env.APP_UI_TEST !== '1' && <DevAgentation />}
         </body>
       </html>
     );
@@ -144,7 +144,7 @@ export default async function RootLayout({
         <Suspense fallback={null}>
           <WorkspaceAssistant desk={desk} />
         </Suspense>
-        <DevAgentation />
+        {process.env.APP_UI_TEST !== '1' && <DevAgentation />}
       </body>
     </html>
   );

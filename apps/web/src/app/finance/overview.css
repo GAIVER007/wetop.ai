@@ -489,3 +489,130 @@
     }
   }
 }
+
+@layer sections {
+  .biz-period {
+    gap: var(--space-1);
+    padding: var(--space-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .biz-period__range {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-2);
+    margin-right: 0;
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--weight-medium);
+    color: var(--text);
+  }
+  .biz-period a:not(.biz-period__range) {
+    min-height: 44px;
+    border-color: transparent;
+  }
+  .biz-overview,
+  .biz-row {
+    gap: var(--space-2);
+  }
+  .biz-kpis .stat {
+    padding: var(--space-2);
+  }
+  .biz-kpis .stat__value {
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  @media (max-width: 600px) {
+    .biz-period {
+      justify-content: flex-start;
+      width: 100%;
+    }
+    .biz-period__range {
+      flex-basis: 100%;
+    }
+    .biz-period a:not(.biz-period__range) {
+      justify-content: center;
+      flex: 1;
+    }
+  }
+}
+
+@layer sections {
+  .biz-kpis .stat--icon {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .biz-kpis .stat__icon {
+    display: none;
+  }
+  .biz-kpis .stat__value {
+    font-size: var(--text-2xl);
+    white-space: nowrap;
+  }
+  .finance-tab-panel .biz-overview {
+    margin-top: var(--space-2);
+  }
+  @media (max-width: 600px) {
+    .finance-controls .finance-presets {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
+}
+
+@layer sections {
+  .biz-row--daily {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .biz-overview > .finance-disclosure {
+    margin-top: 0;
+    padding-inline: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .biz-overview > .finance-disclosure[open] {
+    display: grid;
+    gap: var(--space-2);
+    padding-bottom: var(--space-4);
+  }
+  .biz-money__sums {
+    margin-bottom: var(--space-2);
+  }
+  @media (max-width: 600px) {
+    .biz-row--daily {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@layer sections {
+  .biz-today__tile {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    min-height: 52px;
+  }
+  .biz-today__icon {
+    display: none;
+  }
+  .biz-attention__list a {
+    padding-block: var(--space-1);
+  }
+  .biz-attention__text {
+    gap: 0;
+  }
+  .biz-attention__text small {
+    line-height: 1.2;
+  }
+  .biz-today,
+  .biz-attention {
+    padding: var(--space-2);
+  }
+}
+
+@layer sections {
+  .biz-row--two > .biz-money,
+  .biz-row--two > .owner-load {
+    padding: var(--space-2);
+  }
+}

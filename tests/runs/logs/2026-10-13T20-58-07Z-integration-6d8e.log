@@ -1,0 +1,62 @@
+# Интеграционные (integration) · 14.10.2026 01:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит d845a85 (codex/organizations-card-editor)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T20-58-07Z-integration-6d8e.json' 'tests/integration/mv4-beauty.test.ts' '-t' 'READ_ONLY blocks every mutation'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |integration| tests/integration/mv4-beauty.test.ts (23 tests | 1 failed | 22 skipped) 545ms
+   ❯ MV4 Beauty acceptance on PostgreSQL (23)
+     ↓ empty employee skills do not authorize every service
+     ↓ READ_ONLY blocks all mutation families even on direct service calls
+     ↓ concurrent overlap in same location gives one success and one domain conflict
+     ↓ concurrent overlap in different location gives one success and one domain conflict
+     ↓ concurrent terminal transitions cannot overwrite one another
+     ↓ customer visibility is restricted to CustomerBusiness and appears after atomic appointment
+     ↓ archived customer cannot receive a new appointment or visibility link
+     ↓ explicit Business reads only its own catalog; body scope cannot redirect a mutation
+     ↓ Business-only catalog is allowed but location operations cannot guess a branch
+     ↓ archived business fails on read and mutation
+     ↓ archived location fails on read and mutation
+     ↓ HOSPITALITY cannot call Beauty services even with a forged stale actor vertical
+     ↓ FOOD_SERVICE cannot call Beauty services even with a forged stale actor vertical
+     × READ_ONLY blocks every mutation and leaves audit and rows unchanged 73ms
+     ↓ eligibility rejects disabled or archived service, archived employee and foreign customer
+     ↓ CANCELLED releases the employee slot across branches
+     ↓ NO_SHOW releases the employee slot across branches
+     ↓ minor-unit override and duration are snapshots; catalog edits do not rewrite appointments
+     ↓ local Monday early morning is Sunday UTC and appears on the Location day only
+     ↓ RLS wetop_app hides every Beauty table across organizations, preserving own access
+     ↓ existing migration constraints and search_path match the accepted model
+     ↓ successful catalog, employee, schedule and appointment changes are audited
+     ↓ real HTTP applies verified scope, vertical capabilities and permissions before Beauty handlers
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv4-beauty.test.ts > MV4 Beauty acceptance on PostgreSQL > READ_ONLY blocks every mutation and leaves audit and rows unchanged
+AssertionError: expected [Function] to throw error matching /чтения/ but got 'Cannot read properties of undefined (…'
+
+- Expected:
+/чтения/
+
++ Received:
+"Cannot read properties of undefined (reading 'id')"
+
+ ❯ tests/integration/mv4-beauty.test.ts:377:61
+    375|         () => appointments.setStatus(id, { status: 'CANCELLED' }),
+    376|       ];
+    377|       for (const fn of calls) await expect(run<unknown>(fn)).rejects.t…
+       |                                                             ^
+    378|       expect(await db.auditLog.count({ where: { organizationId: org } …
+    379|       expect((await run(() => appointments.day('2026-10-12'))).appoint…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 22 skipped (23)
+   Start at  13:58:08
+   Duration  1.92s (transform 39%, tests 38%, import 23%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T20-58-07Z-integration-6d8e.json
+
+# код выхода 1 · 3 с

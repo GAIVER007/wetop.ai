@@ -379,6 +379,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
       ];
       for (const fn of calls) await expect(run<unknown>(fn)).rejects.toThrow(/чтения/);
       expect(await db.auditLog.count({ where: { organizationId: org } })).toBe(count);
+      expect(await db.timeOff.count({ where: { id: off.timeOffs[0]!.id } })).toBe(1);
       expect((await run(() => appointments.day('2026-10-12'))).appointments).toHaveLength(1);
     } finally {
       await db.organization.update({ where: { id: org }, data: { status: 'ACTIVE' } });

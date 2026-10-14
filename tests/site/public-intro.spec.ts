@@ -41,7 +41,10 @@ for (const theme of ['dark', 'light'] as const) {
       ] as const) {
         const card = cards.nth(index);
         await expect(card).not.toContainText(/пилот/i);
-        await expect(card.locator('.verticals__action')).toHaveAttribute('href', href);
+        await expect(card.getByRole('heading', { level: 3 }).getByRole('link')).toHaveAttribute(
+          'href',
+          href,
+        );
       }
       const layout = await page.evaluate(() => ({
         width: innerWidth,
@@ -148,17 +151,11 @@ test('business positioning: three verticals, no maturity labels, five capabiliti
   }
 });
 
-test('direction links have comfortable targets and separate rows', async ({ page }) => {
+test('compact direction cards retain accessible links without subtype lists', async ({ page }) => {
   await page.goto('/');
-  const groups = page.locator('.verticals__segments');
-  await expect(groups).toHaveCount(3);
-  for (const group of await groups.all()) {
-    expect(
-      await group.evaluate((el) => Number.parseFloat(getComputedStyle(el).rowGap)),
-    ).toBeGreaterThanOrEqual(8);
-    for (const link of await group.getByRole('link').all()) {
-      expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-      await expect(link).toHaveAttribute('href', /^\/for\/[^/]+\/$/);
-    }
+  await expect(page.locator('#audience .verticals__segments')).toHaveCount(0);
+  for (const link of await page.locator('#audience h3 a').all()) {
+    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await expect(link).toHaveAttribute('href', /^\/for\/[^/]+\/$/);
   }
 });

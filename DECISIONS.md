@@ -6987,4 +6987,12 @@ API `GET /food-service/shifts` (право `desk`) и `PUT /food-service/employe
 касса. ADR-152 отменяется в части слияния; автовыкладка из того же ADR в силе.
 
 **Последствия.** Модель данных, API и права не меняются; к `/finance` добавлен один запрос: отчёт за прошлый
-отрезок (сравнение «Общего дохода»). Нижняя панель телефона гостиницы: Главная, Финансы, Календарь, Гости.
+отрезок (сравнение «Общего дохода»). Нижняя панель телефона гостиницы: Главная, Календарь, Гости, Номерной фонд (порядок разделов после #501).
+
+## UI release gate corrections (13.10.2026)
+
+Problem: Calendar toolbar acquired extra vertical whitespace and category wrapping inside words; old UI assertions compared top edges of controls of different heights and an obsolete reservation drawer width. Manual Agentation overlays also contaminated automated component screenshots.
+
+Decision: retain approved940px reservation drawer, verify its exact width and no horizontal overflow. Keep the <=56px toolbar and six-widget layout bounds; compare visible control centres with1px tolerance. Remove extra toolbar padding and wrap category names at word boundaries. Exclude only manual Agentation from the existing APP_UI_TEST fixture environment; normal local preview and production rules remain unchanged. Do not change snapshot tolerances, skip checks or CI configuration.
+
+Consequence: product business rules, schema, permissions and financial calculations are unchanged. Red-before-green evidence and the full exact-SHA gate remain required before deployment.

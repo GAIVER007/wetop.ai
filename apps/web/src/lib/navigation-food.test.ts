@@ -71,12 +71,11 @@ describe('Food workspace isolation', () => {
         '/floor-plan',
       );
       if (v === 'HOSPITALITY') {
-        // первая вкладка гостиницы снова «Главная» (13.10.2026), вторая группа «Финансы» (ADR-157)
+        // «Главная» первой (ADR-180, 13.10.2026), затем «Календарь» (порядок #501)
         expect(menuSectionsFor(owner, v)[0]!.label).toBe('Главная');
-        expect(menuSectionsFor(owner, v)[1]!.label).toBe('Финансы');
-        expect(menuSectionsFor(owner, v)[1]!.items[0]).toMatchObject({
-          href: '/finance',
-          label: 'Оплаты и касса',
+        expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({
+          href: '/today',
+          label: 'Главная',
         });
       }
     }

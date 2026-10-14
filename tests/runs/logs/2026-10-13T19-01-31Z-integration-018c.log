@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 14.10.2026 00:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8391e6a (codex/organizations-card-editor), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T19-01-31Z-integration-018c.json' 'tests/integration/organization-feedback.test.ts' 'tests/integration/platform-p1-backfill.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |integration| tests/integration/organization-feedback.test.ts (3 tests) 276ms
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 136ms
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  12:01:32
+   Duration  2.65s (import 43%, tests 29%, transform 28%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T19-01-31Z-integration-018c.json
+
+# код выхода 0 · 3 с

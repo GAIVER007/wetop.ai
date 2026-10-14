@@ -6,6 +6,7 @@ import { hotelToday } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
+import { Tabs } from '../../components/tabs';
 import { ActionMenu } from '../../components/action-menu';
 import { Badge, EmptyState, Table, cx } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
@@ -123,7 +124,7 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
           ))}</ol>}
     </section>
   </div>;
-  return <Page width="full" className="bar-page" title="Бар" subtitle="Учёт товаров, закупки, продажи, остатки, себестоимость, наценка и долги поставщикам." actions={<>
+  return <Page width="full" className="bar-page" title="Бар" subtitle="Товары, остатки и продажи" actions={<>
     <Link className="btn" href="/bar?product=new" prefetch={false}><Icon name="plus" width={16} height={16} /> Добавить товар</Link>
     <Link className="btn btn--secondary" href="/bar/receipts/new" prefetch={false}><Icon name="plus" width={16} height={16} /> Приход</Link>
     <a className="btn btn--secondary" href="#bar-quick-sale"><Icon name="plus" width={16} height={16} /> Продажа</a>
@@ -146,30 +147,20 @@ export default async function BarPage({ searchParams }: { searchParams: Promise<
       <Kpi icon="truck" tone="danger" label="Долг поставщикам" value={formatMoney(r.supplierDebtMinor)} hint={debtors > 0 ? pluralRu(debtors, ['поставщик', 'поставщика', 'поставщиков']) : 'долгов нет'} />
       <Kpi icon="incidents" tone="danger" label="Заканчиваются" value={String(lowCount)} hint={pluralRu(lowCount, ['товар', 'товара', 'товаров'], false)} alarm={lowCount > 0} />
     </section>
-    <div className="bar-quick">
-      <section id="bar-quick-sale" className="panel bar-quick-panel" aria-labelledby="bar-quick-title">
-        <header className="bar-quick-head">
-          <span className="bar-quick-icon"><Icon name="cart" width={20} height={20} /></span>
-          <div><h2 id="bar-quick-title" className="bar-panel-title">Быстрая продажа</h2><p className="bar-muted">Продайте товар гостю или напрямую</p></div>
-        </header>
-        <SaleForm stock={stock.value} />
-      </section>
-      <section className="panel bar-quick-panel" aria-labelledby="bar-folio-title">
-        <header className="bar-quick-head">
-          <span className="bar-quick-icon"><Icon name="receipt" width={20} height={20} /></span>
-          <div><h2 id="bar-folio-title" className="bar-panel-title">Добавить в счёт гостя</h2><p className="bar-muted">Добавьте товары в счёт гостя</p></div>
-        </header>
-        {folios.value.length === 0
-          ? <p className="bar-muted">Открытых счетов нет: продайте товар слева, без брони.</p>
-          : <FolioSaleForm stock={stock.value} folios={folios.value} />}
-      </section>
-    </div>
+    <section id="bar-quick-sale" className="panel bar-sales" aria-label="Продажи бара">
+      <Tabs label="Способ продажи" panels={[
+        {id:'bar-retail',label:'Продажа напрямую',content:<SaleForm stock={stock.value} />},
+        {id:'bar-folio',label:'В счёт гостя',content:folios.value.length === 0
+          ? <p className="bar-muted">Открытых счетов нет. Доступна продажа напрямую.</p>
+          : <FolioSaleForm stock={stock.value} folios={folios.value} />},
+      ]} />
+    </section>
     {stock.value.length === 0
       ? <>
           <EmptyState icon={<Icon name="product" />} title="Товаров пока нет">Добавьте первый товар кнопкой «Добавить товар» или загрузите фото накладной: «Приход».</EmptyState>
           {bottom}
         </>
       : <StockBoard key={productParam ?? 'first'} stock={stock.value} categories={categories.value} suppliers={suppliers.value} movements={movements.value}
-          today={today} initialProduct={productParam ?? active[0]?.id ?? null} bottom={bottom} />}
+          today={today} initialProduct={productParam ?? null} bottom={<details className="bar-details"><summary>Приходы и популярные товары</summary>{bottom}</details>} />}
   </Page>;
 }

@@ -1,6 +1,6 @@
 .calendar :global(.board-toolbar) {
   gap: var(--space-4);
-  padding-block: var(--space-4);
+  padding-block: 0;
   align-items: center;
 }
 .calendar :global(.board-nav) {
@@ -52,7 +52,7 @@
 .calendar :global(.board .board-group-toggle) {
   display: grid;
   grid-template-columns: 16px minmax(0, 1fr);
-  gap: var(--space-2) var(--space-2);
+  gap: var(--space-2) var(--space-1);
   align-items: start;
   padding: var(--space-2) var(--space-2);
   text-align: left;
@@ -63,7 +63,7 @@
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   line-height: 1.35;
   font-weight: 700;
   font-size: var(--text-xs);
@@ -144,6 +144,9 @@
   min-height: 44px;
 }
 @media (max-width: 600px) {
+  .calendar :global(.board .board-group-toggle) {
+    padding-inline: var(--space-1);
+  }
   .calendar :global(.board-nav) {
     width: 100%;
   }

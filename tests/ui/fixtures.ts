@@ -256,7 +256,7 @@ export async function boardFilter(page: Page, pick: { category?: string; state?:
 export const sideNav = (page: Page) => page.locator('.sidenav');
 export const menuLinks = (page: Page) =>
   page
-    .locator('.sidenav__items a')
+    .locator('.sidenav__panel a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 /** Открывает панель разделов наведением на кнопку текущего раздела и показывает подразделы `section` */
@@ -273,10 +273,11 @@ export async function openSection(page: Page, section: string) {
     if ((await nav.locator('.sidenav__current').getAttribute('aria-expanded')) !== 'true')
       await nav.locator('.sidenav__current').click();
     await expect(panel).toBeVisible({ timeout: 1_000 });
-    await nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) }).hover();
+    const group = nav.locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) });
+    if (await group.getAttribute('aria-expanded') === 'false') await group.click();
     await expect(panel).toBeVisible({ timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
-  return nav.locator('.sidenav__items > :not([hidden])');
+  return nav.locator('.sidenav__items:not([hidden])');
 }
 
 /** Переход через панель: раздел → подраздел, как человек мышью */

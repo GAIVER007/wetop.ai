@@ -1,56 +1,37 @@
 .card {
   gap: 8px;
+  min-height: 0;
 }
-.action {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 48px;
-  padding: 8px 0;
-  color: var(--public-text);
-  font-weight: 700;
-  text-decoration: none;
-}
-.segments {
-  display: grid;
-  gap: 8px;
+.card :global(.verticals__text) {
+  min-height: 0;
   margin-top: 8px;
-  padding-top: 16px;
-  border-top: 1px solid var(--public-border);
 }
-.segments a {
-  display: flex;
+.card :global(.verticals__capabilities) {
+  margin-bottom: 0;
+}
+.titleLink {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   min-height: 44px;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  background: var(--public-surface);
   color: var(--public-text);
-  font-size: 0.875rem;
-  line-height: 1.5;
   text-decoration: none;
 }
-.segments a svg {
+.titleLink svg {
   flex-shrink: 0;
-  color: var(--public-muted);
+  transition: transform 180ms ease;
 }
-.segments a:hover {
-  background: var(--public-selected);
-  color: var(--public-accent);
+.titleLink:hover svg {
+  transform: translateX(4px);
 }
-.action:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.action:focus-visible,
-.segments a:focus-visible {
+.titleLink:focus-visible {
   outline: 2px solid var(--public-accent);
-  outline-offset: 3px;
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
 }
-
-@media (min-width: 64rem) {
-  .segments { min-height: 224px; align-content: start; }
+@media (prefers-reduced-motion: reduce) {
+  .titleLink svg {
+    transition: none;
+    transform: none;
+  }
 }

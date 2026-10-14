@@ -39,6 +39,7 @@ test('касса: простой вход, фильтры применяются
   await expect(page.getByTestId('cash-period-refunds')).toHaveText(money(ops.refundedMinor));
   await expect(page.getByTestId('cash-period-expense')).toHaveText(money(ops.expenseMinor));
   const before = await page.getByTestId('cash-period-income').innerText();
+  await page.getByRole('tab', {name:'Операции',exact:true}).click();
   await page.getByLabel('Тип операции', { exact: true }).selectOption('expense');
   await page.getByLabel('Способ оплаты', { exact: true }).selectOption('KASPI');
   await expect(page.getByLabel('Источник', { exact: true })).not.toBeVisible();
@@ -58,8 +59,7 @@ test('касса: простой вход, фильтры применяются
   await expect(page.getByLabel('Тип операции', { exact: true })).toHaveValue('');
   await expect(page.getByLabel('Способ оплаты', { exact: true })).toHaveValue('');
   await expect(page.getByLabel('Источник', { exact: true })).toHaveValue('');
-  await page.getByText('Отчёты и управление', { exact: true }).click();
-  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
+  await page.getByRole('tab', { name: 'Начисления', exact: true }).click();
   await expect(page.getByTestId('finance-kpis')).toBeVisible();
 });
 
@@ -75,6 +75,7 @@ for (const width of [1440, 390, 360]) {
     if (width < 600) {
       // с 09.10 над кассой стоит сводка владельца (plans/finance-home-merge-2026-10-09.md):
       // первый экран: сводка, «Показать» достижима прокруткой и остаётся целью не ниже 44 px
+      await page.getByRole('tab', {name:'Операции',exact:true}).click();
       const show = page.getByRole('button', { name: 'Показать', exact: true });
       await show.scrollIntoViewIfNeeded();
       await expect(show).toBeInViewport();
@@ -97,9 +98,10 @@ for (const width of [1440, 390, 360]) {
 test('касса: первый экран без лишних кнопок, действия внутри управления', async ({ page }) => {
   await page.goto('/finance');
   await expect(page.getByRole('button', { name: 'Новая операция', exact: true })).toHaveCount(0);
+  await page.getByRole('tab',{name:'Операции',exact:true}).click();
   await expect(page.getByRole('link', { name: 'Вчера', exact: true })).toBeVisible();
   const todayHref = await page
-    .getByRole('navigation', { name: 'Готовые периоды' })
+    .getByRole('navigation', { name: 'Период обзора' })
     .getByRole('link', { name: 'Сегодня', exact: true })
     .getAttribute('href');
   const today = new URL(todayHref!, 'http://localhost').searchParams.get('from')!;
@@ -108,7 +110,6 @@ test('касса: первый экран без лишних кнопок, де
   const date = yesterday.toISOString().slice(0, 10);
   await page.getByRole('link', { name: 'Вчера', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`from=${date}&to=${date}`));
-  await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   await page.getByTestId('cash-expense-btn').click();
   await expect(page.getByTestId('cash-operation-form')).toBeVisible();
@@ -126,6 +127,7 @@ test('касса: визуальная иерархия итогов и спок
   expect(
     await page.getByTestId('cash-summary').evaluate((el) => getComputedStyle(el).backgroundColor),
   ).not.toBe('rgba(0, 0, 0, 0)');
+  await page.getByRole('tab', {name:'Операции',exact:true}).click();
   expect(
     await page
       .getByRole('link', { name: 'Сбросить фильтр' })

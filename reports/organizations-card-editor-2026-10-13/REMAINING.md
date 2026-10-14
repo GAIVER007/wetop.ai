@@ -123,3 +123,12 @@ New owner request: investigate the merge error and put remaining work in order. 
 - Full local unit2026-10-14T04-39-49Z-unit-c53f is NOT green:4741 passed,1 socket hang up in the AI-seller disconnected-catalogue test,4 existing skips. The unchanged AI-seller file passed isolated74/74 in2026-10-14T04-43-04Z-unit-5b62. This does not promote the failed full run to green.
 
 - Final full local unit2026-10-14T04-43-46Z-unit-ede1:4742 passed,4 existing skips,0 failures (492 passed files,1 skipped). No AI-seller test or product changes were required. Production deployed marker remains6d8b6d8; API/web bothhealthy, verified via the existing hostinger SSH profile.
+
+## Final mobile category overflow correction
+
+Exact-SHA1930e9df gate38513294586 passed main/unit/site, bot, database, branches-ui, beauty-ui, food-ui and UI part3. UI part1 had517 passed/2 failed: long category text overflowed2px in both themes. Cancelled only this own already-red run via standard GitHub cancellation after owner renewed the instruction to complete publication. Did not cancel the separate UI4 candidate or change CI configuration.
+
+- Updated own tree fast-forward to current maincc9b2892, preserving PR497 changes to inventory/menu. Separate UI4 PR498 remains untouched.
+- Red2026-10-14T05-27-43Z-e2e-03de:2/2 failed. Narrow gap change alone did not solve it (2026-10-14T05-28-44Z-e2e-c194). Diagnostics in2026-10-14T05-30-15Z-e2e-5e36 showed390px, label91px versus first word93px.
+- Allocate more mobile label width using4px side padding and4px icon gap; preserve normal word wrapping with break-word only for overlong tokens. Keep every1px/no-overflow/whole-word/accessibility assertion. Added useful failing-category geometry to the existing test.
+- Green2026-10-14T05-31-50Z-e2e-defa:8/8, both themes across1440/1024/768/390/320, mobile whole-word checks360/390/430, desktop toolbar1280/1366/1440. Targeted ESLint and design guard passed. Production still requires a green exact-SHA gate, approved migrations and runtime/domain verification.

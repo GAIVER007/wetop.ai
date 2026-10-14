@@ -23,10 +23,7 @@ test('доля на «Сайт → Аналитика»: родной progress �
   await expect(first).toHaveAttribute('max', '100');
   await expect(first).toHaveAttribute('aria-label', /^Доля: /);
   await expect(page.locator('.share__fill, .share__track')).toHaveCount(0);
-  const styled = await page
-    .getByRole('main')
-    .locator('.share-bar [style]')
-    .count();
+  const styled = await page.getByRole('main').locator('.share-bar [style]').count();
   expect(styled).toBe(0);
 });
 
@@ -37,7 +34,10 @@ test('плитка: тон чертой слева, изменение слов�
   const shadow = await danger.evaluate((el) => getComputedStyle(el).boxShadow);
   expect(shadow).toContain('inset');
   const bg = await danger.evaluate((el) => getComputedStyle(el).backgroundColor);
-  const plain = await section.locator('.stat:not([class*="tone"])').first().evaluate((el) => getComputedStyle(el).backgroundColor);
+  const plain = await section
+    .locator('.stat:not([class*="tone"])')
+    .first()
+    .evaluate((el) => getComputedStyle(el).backgroundColor);
   expect(bg).toBe(plain);
   await expect(section.getByText('+3,2 п.п.')).toBeVisible();
   const link = section.getByRole('link', { name: /Заезды сегодня/ });
@@ -81,7 +81,7 @@ test('период «Броней»: готовые отрезки ссылка�
   await expect(page.locator('.period-picker').getByLabel('Период: по')).toHaveValue('2026-09-20');
 });
 
-test('размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус', async ({
+test('размеры окон: «Новая задача» sm, новая бронь 940 px, Escape закрывает и возвращает фокус', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -99,7 +99,8 @@ test('размеры окон: «Новая задача» sm, новая бро
   await page.getByRole('link', { name: 'Новая бронь' }).first().click();
   const booking = page.getByRole('dialog', { name: 'Новая бронь' });
   await expect(booking).toBeVisible();
-  expect(Math.round((await booking.boundingBox())!.width)).toBe(760);
+  expect(Math.round((await booking.boundingBox())!.width)).toBe(940);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1440);
 });
 
 test('поле: обязательное с родным required и знаком, необязательное словом', async ({ page }) => {
@@ -137,7 +138,9 @@ test('таблица `/market`: липкая колонка отелей общ�
   ).toBeVisible();
 });
 
-test('главная кнопка: под курсором фон --primary-hover, без фильтра и градиента', async ({ page }) => {
+test('главная кнопка: под курсором фон --primary-hover, без фильтра и градиента', async ({
+  page,
+}) => {
   await page.goto('/design-system');
   const button = kit(page)
     .locator('section[data-component="button"] [data-state="default"] .btn')
@@ -166,9 +169,21 @@ test('главная кнопка: под курсором фон --primary-hove
   expect(style.filter).toBe('none');
 });
 
-const SCREENS = ['/market', '/website/analytics', '/reservations?from=2026-09-10&to=2026-09-24', '/design-system'];
+const SCREENS = [
+  '/market',
+  '/website/analytics',
+  '/reservations?from=2026-09-10&to=2026-09-24',
+  '/design-system',
+];
 
-const PRIMITIVES = ['.stat', '.share-bar', '.form-grid', '.period-picker', '.date-bar', '.tbl--sticky-column'];
+const PRIMITIVES = [
+  '.stat',
+  '.share-bar',
+  '.form-grid',
+  '.period-picker',
+  '.date-bar',
+  '.tbl--sticky-column',
+];
 
 for (const theme of ['light', 'dark'] as const) {
   test(`390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (${theme})`, async ({

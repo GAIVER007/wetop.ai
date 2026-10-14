@@ -1,5 +1,7 @@
 import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 import { barApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { Page } from '../../../components/page';
@@ -24,9 +26,11 @@ const MOVEMENT_LABEL: Record<string, string> = {
 /** Операции бара (ADR-157): списание, инвентаризация, журнал продаж с возвратами и лента движений. */
 export default async function BarOperationsPage() {
   await requireVertical(['HOSPITALITY']);
-  const [stock, sales, movements] = await Promise.all([
-    settle(barApi.stock()), settle(barApi.sales()), settle(barApi.movements()),
+  const [stock, sales, movements, shell] = await Promise.all([
+    settle(barApi.stock()), settle(barApi.sales()), settle(barApi.movements()), deskShell(),
   ]);
+  // сторно гасит деньги и требует права refunds (ADR-181): без права кнопки не показываем
+  const canReverse = mayAccess(shell.access, 'refunds') && !shell.readOnly;
   const failed = [stock, sales, movements].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!stock.ok || !sales.ok || !movements.ok) return null;
@@ -56,7 +60,7 @@ export default async function BarOperationsPage() {
             <td>{formatMoney(sale.totalCost)}</td>
             <td>{formatMoney(BigInt(sale.totalRevenue) - BigInt(sale.totalCost))}</td>
             <td><Badge tone={sale.status === 'POSTED' ? 'ok' : 'neutral'}>{sale.status === 'POSTED' ? 'Продано' : 'Возврат'}</Badge></td>
-            <td>{sale.status === 'POSTED' && <div className="bar-return">
+            <td>{sale.status === 'POSTED' && canReverse && <div className="bar-return">
               <form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="true" /><input type="hidden" name="reason" value="Возврат гостя, товар пригоден" /><Button type="submit" tone="ghost" size="xs">Вернуть на склад</Button></form>
               <form action={reverseBarSaleAction}><input type="hidden" name="id" value={sale.id} /><input type="hidden" name="restock" value="false" /><input type="hidden" name="reason" value="Возврат гостя, товар непригоден" /><Button type="submit" tone="ghost" size="xs">Без возврата на склад</Button></form>
             </div>}</td>

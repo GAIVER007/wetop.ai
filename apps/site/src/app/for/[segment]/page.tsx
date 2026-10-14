@@ -209,15 +209,21 @@ export default async function SegmentPage({ params }: Props) {
           ) : null}
 
           {item.about ? (
-            <section className="section section--tight" aria-labelledby="segment-about-title">
-              <div className="section-heading section-heading--center">
-                <h2 id="segment-about-title" className="section-heading__title">
+            /* Фотополоса «о формате»: свой снимок подтипа (из public/photos, KIE) и текст рядом.
+               Блок .hotel-growth уже в реестре DESIGN.md §19.5, новых стилей нет. */
+            <section className="hotel-growth glass" aria-labelledby="segment-about-title">
+              <div className="hotel-growth__art hotel-growth__art--photo">
+                <img src={type.photo} alt="" loading="lazy" width={1184} height={864} />
+              </div>
+              <div>
+                <p className="eyebrow">{item.metaTitle}</p>
+                <h2 id="segment-about-title" className="hotel-growth__title">
                   {typo(item.about.title)}
                 </h2>
-              </div>
-              <div className="prose prose--center">
                 {item.about.text.map((paragraph) => (
-                  <p key={paragraph.slice(0, 32)}>{typo(paragraph)}</p>
+                  <p key={paragraph.slice(0, 32)} className="hotel-growth__text">
+                    {typo(paragraph)}
+                  </p>
                 ))}
               </div>
             </section>

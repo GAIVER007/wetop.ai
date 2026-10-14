@@ -1,0 +1,123 @@
+{
+ "/login": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Управляйте бронированиями, клиентами и командой из одного окна",
+   "mainEmpty": false,
+   "smallTargets": [
+    "BUTTON:Гостиницы 124x40",
+    "BUTTON:Салоны красоты 162x40",
+    "BUTTON:Рестораны 125x40",
+    "A:Все статьи 141x42"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Управляйте бронированиями, клиентами и командой из одного окна",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Управляйте бронированиями, клиентами и командой из одного окна",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/login/reset": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Забыли пароль?  Это решаемо.",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:WWETOP.AI 342x32",
+    "A:Войти 38x20"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Забыли пароль?  Это решаемо.",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Забыли пароль?  Это решаемо.",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/register": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Управляйте бронированиями, клиентами и командой из одного окна",
+   "mainEmpty": false,
+   "smallTargets": [
+    "BUTTON:Гостиницы 124x40",
+    "BUTTON:Салоны красоты 162x40",
+    "BUTTON:Рестораны 125x40",
+    "A:Все статьи 141x42"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Управляйте бронированиями, клиентами и командой из одного окна",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Управляйте бронированиями, клиентами и командой из одного окна",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ },
+ "/create": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Создайте ИИ-продавца за 3 минуты",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:WETOP.AI 96x29"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Создайте ИИ-продавца за 3 минуты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Создайте ИИ-продавца за 3 минуты",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": [
+   "Failed to load resource: the server responded with a status of 501 (Not Implemented)"
+  ]
+ }
+}

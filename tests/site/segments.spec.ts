@@ -9,15 +9,51 @@ const HOTEL = { vertical: 'HOSPITALITY', secondary: '/calculator/', calendar: tr
 const BEAUTY = { vertical: 'BEAUTY', secondary: '/for/salons/', calendar: false };
 const FOOD = { vertical: 'FOOD_SERVICE', secondary: '/for/restaurants/', calendar: false };
 const SEGMENTS = [
-  { path: '/for/hostels/', title: /хостел/i, mustHave: /койк/i, ...HOTEL },
-  { path: '/for/mini-hotels/', title: /мини-отел/i, mustHave: /категори/i, ...HOTEL },
-  { path: '/for/apart-hotels/', title: /апарт/i, mustHave: /апартамент/i, ...HOTEL },
-  { path: '/for/beauty-salons/', title: /салон красоты/i, mustHave: /косметолог/i, ...BEAUTY },
-  { path: '/for/barbershops/', title: /барбершоп/i, mustHave: /барбер/i, ...BEAUTY },
-  { path: '/for/spa/', title: /спа/i, mustHave: /процедур/i, ...BEAUTY },
-  { path: '/for/nail-studios/', title: /ногтев/i, mustHave: /маникюр/i, ...BEAUTY },
-  { path: '/for/cafes/', title: /кафе/i, mustHave: /техкарт/i, ...FOOD },
-  { path: '/for/bars/', title: /бар/i, mustHave: /коктейл/i, ...FOOD },
+  {
+    path: '/for/hostels/',
+    title: /хостел/i,
+    mustHave: /койк/i,
+    photo: '/photos/hostel.jpg',
+    ...HOTEL,
+  },
+  {
+    path: '/for/mini-hotels/',
+    title: /мини-отел/i,
+    mustHave: /категори/i,
+    photo: '/photos/minihotel.jpg',
+    ...HOTEL,
+  },
+  {
+    path: '/for/apart-hotels/',
+    title: /апарт/i,
+    mustHave: /апартамент/i,
+    photo: '/photos/aparthotel.jpg',
+    ...HOTEL,
+  },
+  {
+    path: '/for/beauty-salons/',
+    title: /салон красоты/i,
+    mustHave: /косметолог/i,
+    photo: '/photos/salon.jpg',
+    ...BEAUTY,
+  },
+  {
+    path: '/for/barbershops/',
+    title: /барбершоп/i,
+    mustHave: /барбер/i,
+    photo: '/photos/barbershop.jpg',
+    ...BEAUTY,
+  },
+  { path: '/for/spa/', title: /спа/i, mustHave: /процедур/i, photo: '/photos/spa.jpg', ...BEAUTY },
+  {
+    path: '/for/nail-studios/',
+    title: /ногтев/i,
+    mustHave: /маникюр/i,
+    photo: '/photos/nails.jpg',
+    ...BEAUTY,
+  },
+  { path: '/for/cafes/', title: /кафе/i, mustHave: /техкарт/i, photo: '/photos/cafe.jpg', ...FOOD },
+  { path: '/for/bars/', title: /бар/i, mustHave: /коктейл/i, photo: '/photos/bar.jpg', ...FOOD },
 ];
 
 for (const segment of SEGMENTS) {
@@ -65,10 +101,14 @@ for (const segment of SEGMENTS) {
     expect(text, 'строка «чего нет»').not.toMatch(/Пока нет|пока не входят|пока не учитываются/i);
     await expect(page.locator('#segment-day-title')).toHaveText('Как проходит день с WETOP');
     await expect(page.locator('.steps .step')).toHaveCount(3);
+    // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+    const about = page.locator('.landing > .hotel-growth');
+    await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
     expect(
-      await page.locator('.prose--center p').count(),
+      await about.locator('.hotel-growth__text').count(),
       'текст о формате',
     ).toBeGreaterThanOrEqual(2);
+    expect((await page.request.get(segment.photo)).status()).toBe(200);
     expect(text, 'цифры клиентов и цены').not.toMatch(
       /\d+\s?(клиент|отел[яей]\b)|\d+\s?₸\s*(в месяц|\/ мес)/i,
     );

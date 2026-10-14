@@ -919,3 +919,13 @@
   .bar-page .bar-kpi-value { font-size: var(--text-lg); }
   .bar-sales .bar-select-search { min-width: 0; }
 }
+
+@layer sections {
+  /* телефон: флажок отбора товара крупнее (аудит UI5); ряд таблицы остаётся выше 44 px */
+  @media (max-width: 600px) {
+    .bar-col-check input[type='checkbox'] {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}

@@ -1,0 +1,684 @@
+# Сквозные (e2e) · 14.10.2026 20:27 Алматы · MacBook-Air-Urij.local
+# коммит ecd2127 (claude/food-fix-02-20261014), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 62 tests using 1 worker
+
+  -   1 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони light 1440
+  -   2 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони light 390
+  -   3 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони dark 1440
+  -   4 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони dark 390
+  ✓   5 tests/food-ui/ds1c-date-bar.spec.ts:10:1 › ресторан: день по прежним адресам, форма брони с обязательными датой и временем (3.2s)
+  ✘   6 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (2.3s)
+[WebServer] (node:76970) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   7 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (8.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3457380347'
+[WebServer] }
+  ✘   8 tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe (18.3m)
+  ✘   9 tests/food-ui/food.spec.ts:227:1 › overlap and archived catalog preserve creation draft and idempotency key (17.5m)
+  ✓  10 tests/food-ui/food.spec.ts:283:1 › правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется (398ms)
+  ✓  11 tests/food-ui/food.spec.ts:349:1 › правила брони: экран настроек сохраняет правила, закрывает и открывает день (3.1s)
+  ✘  12 tests/food-ui/food.spec.ts:372:1 › stale token refreshes drawer without automatic mutation retry (15.0m)
+  ✓  13 tests/food-ui/food.spec.ts:396:1 › READ_ONLY and STAFF permissions on real API (2.4s)
+  ✘  14 tests/food-ui/food.spec.ts:423:1 › server branch switch isolates Food businesses and locations and other verticals (17.1m)
+  ✘  15 tests/food-ui/food.spec.ts:474:1 › pagination beyond 100 and previous local day keep table occupied after reload (16.0m)
+  ✘  16 tests/food-ui/food.spec.ts:542:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (15.4m)
+  ✓  17 tests/food-ui/food.spec.ts:644:1 › API unavailable renders LoadError instead of free tables (1.1s)
+  ✓  18 tests/food-ui/food.spec.ts:652:1 › creation 503 keeps the draft and retry key; invalid period stays inline (1.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3457380347'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3457380347'
+[WebServer] }
+  ✘  19 tests/food-ui/food.spec.ts:682:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается (9.1s)
+  ✘  20 tests/food-ui/food.spec.ts:694:1 › Food excludes every registered foreign workspace route before API requests (17.2m)
+  ✓  21 tests/food-ui/food.spec.ts:735:1 › marker guarded cleanup (179ms)
+  -  22 tests/food-ui/ref-capture.spec.ts:15:1 › ресторан: зал на ширинах и темах
+  ✓  23 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (1.2m)
+  ✓  24 tests/food-ui/restaurant.spec.ts:152:1 › фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление (3.4s)
+  ✘  25 tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (15.0m)
+  ✓  26 tests/food-ui/restaurant.spec.ts:263:1 › кухня: колонки KDS и переходы кнопками (2.5s)
+  ✘  27 tests/food-ui/restaurant.spec.ts:287:1 › главная: плитки, последние заказы и выручка после закрытия (16.7m)
+  ✓  28 tests/food-ui/restaurant.spec.ts:308:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол (2.0s)
+  ✘  29 tests/food-ui/restaurant.spec.ts:373:1 › план зала: заказ занимает стол, уборка включается и видна легенда (13.3m)
+  ✓  30 tests/food-ui/restaurant.spec.ts:412:1 › сотрудники: список с продажами, добавление и правка (3.6s)
+  ✓  31 tests/food-ui/restaurant.spec.ts:434:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (16.6s)
+  ✓  32 tests/food-ui/restaurant.spec.ts:499:1 › отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты (36.7s)
+  ✘  33 tests/food-ui/restaurant.spec.ts:562:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (45.3s)
+  ✘  34 tests/food-ui/restaurant.spec.ts:643:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода (14.2s)
+  ✓  35 tests/food-ui/restaurant.spec.ts:676:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API (11.5s)
+  ✓  36 tests/food-ui/restaurant.spec.ts:742:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (13.9s)
+  ✓  37 tests/food-ui/restaurant.spec.ts:803:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (4.3s)
+  ✓  38 tests/food-ui/restaurant.spec.ts:890:1 › навигация ресторана: пункты макета на месте и ведут на экраны (918ms)
+  ✓  39 tests/food-ui/restaurant.spec.ts:904:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) (8.3s)
+  ✓  40 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (2.8s)
+  ✓  41 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (1.9s)
+  ✓  42 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается FIFO, излишек приходуется по средней (Q-KITCHEN-9) (2.0s)
+  ✓  43 tests/food-ui/stock.spec.ts:133:1 › инвентаризация пустого склада: излишек только с ценой, введённой вручную (1.4s)
+  ✓  44 tests/food-ui/stock.spec.ts:148:1 › сторно: нетронутая партия сторнируется, начатая нет (1.6s)
+  ✓  45 tests/food-ui/stock.spec.ts:164:1 › роли: администратор работает со складом, но не правит справочник; только чтение (1.4s)
+  ✓  46 tests/food-ui/stock.spec.ts:184:1 › снимки и axe в двух темах на 1440 и 390 (9.6s)
+  ✓  47 tests/food-ui/stock.spec.ts:213:1 › списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает (3.0s)
+  -  48 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /today
+  -  49 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /floor-plan
+  -  50 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /dining-areas
+  -  51 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /table-reservations
+  -  52 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /orders
+  -  53 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /kitchen
+  -  54 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /menu
+  -  55 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /stock
+  -  56 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /drinks
+  -  57 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /customers
+  -  58 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /restaurant-finance
+  -  59 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /restaurant-settings
+  -  60 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /payroll
+  -  61 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /help
+  -  62 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /reports
+
+
+  1) tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow ──
+
+    Error: page.goto: net::ERR_NETWORK_IO_SUSPENDED at http://127.0.0.1:55843/dining-areas
+    Call log:
+      - navigating to "http://127.0.0.1:55843/dining-areas", waiting until "load"
+
+
+       at ../tools/next-redirect.ts:38
+
+      36 |   page.goto = async (url, options) => {
+      37 |     await settleNextRedirect(page, 'commit');
+    > 38 |     const response = await goto(url, options);
+         |                            ^
+      39 |     await settleNextRedirect(page, until(options?.waitUntil));
+      40 |     return response;
+      41 |   };
+        at _Page.page.goto (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/tools/next-redirect.ts:38:28)
+        at setup (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:42:3)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:120:3
+
+    Error Context: test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe ─────────────────────
+
+    Test timeout of 240000ms exceeded.
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Стол 7, Подтверждено' })
+        - locator resolved to <button type="button" class="rest-fp-table__body" aria-label="Стол 7, Подтверждено" data-table-id="61eba740-49e9-4142-888e-a55bb3474397">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      201 |       }
+      202 |       await page.goto(`/floor-plan?date=${date}&time=19:00`);
+    > 203 |       await page.getByRole('button', { name: 'Стол 7, Подтверждено' }).click();
+          |                                                                        ^
+      204 |       await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
+      205 |       await expect(page.getByRole('dialog', { name: 'Бронирование' })).toBeVisible();
+      206 |       await settled(page);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:203:72
+
+    Error Context: test-results/food-real-API-screenshots-keyboard-and-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/food-ui/food.spec.ts:227:1 › overlap and archived catalog preserve creation draft and idempotency key 
+
+    Test timeout of 90000ms exceeded.
+
+    TimeoutError: locator.check: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('radio', { name: 'Новый', exact: true })
+        - locator resolved to <input type="radio" name="customerMode"/>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      249 |   await page.getByRole('button', { name: '+ Новая бронь', exact: true }).click();
+      250 |   const d = page.getByRole('dialog');
+    > 251 |   await d.getByRole('radio', { name: 'Новый', exact: true }).check();
+          |                                                              ^
+      252 |   await d.getByLabel('Имя', { exact: true }).fill('Сохранённый черновик');
+      253 |   await d.getByLabel('Заметка').fill('Тестовая заметка');
+      254 |   await d.getByRole('combobox', { name: 'Стол', exact: true }).selectOption(table.id);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:251:62
+
+    Error Context: test-results/food-overlap-and-archived--1a467-n-draft-and-idempotency-key/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-overlap-and-archived--1a467-n-draft-and-idempotency-key/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-overlap-and-archived--1a467-n-draft-and-idempotency-key/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/food-ui/food.spec.ts:372:1 › stale token refreshes drawer without automatic mutation retry 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.check: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('radio', { name: 'Новый', exact: true })
+
+
+       97 |     .click();
+       98 |   const dialog = page.getByRole('dialog');
+    >  99 |   await dialog.getByRole('radio', { name: 'Новый', exact: true }).check();
+          |                                                                   ^
+      100 |   await dialog.getByLabel('Имя', { exact: true }).fill('Анна');
+      101 |   await dialog.getByLabel('Фамилия', { exact: true }).fill('Тестовая');
+      102 |   await dialog.getByLabel('Телефон', { exact: true }).fill(
+        at create (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:99:67)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:374:13
+
+    Error Context: test-results/food-stale-token-refreshes-f10c2-ut-automatic-mutation-retry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-stale-token-refreshes-f10c2-ut-automatic-mutation-retry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-stale-token-refreshes-f10c2-ut-automatic-mutation-retry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/food-ui/food.spec.ts:423:1 › server branch switch isolates Food businesses and locations and other verticals 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByLabel('Время', { exact: true })
+        - locator resolved to <input class="inp" required="" type="time" name="time" value="19:00"/>
+        - fill("19:00")
+      - attempting fill action
+        - waiting for element to be visible, enabled and editable
+
+
+      105 |       .padStart(6, '0')}`,
+      106 |   );
+    > 107 |   await dialog.getByLabel('Время', { exact: true }).fill('19:00');
+          |                                                     ^
+      108 |   if (walkIn)
+      109 |     await dialog
+      110 |       .getByRole('combobox', { name: 'Стол', exact: true })
+        at create (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:107:53)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:428:3
+
+    Error Context: test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-server-branch-switch--3aa21-cations-and-other-verticals/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/food-ui/food.spec.ts:474:1 › pagination beyond 100 and previous local day keep table occupied after reload 
+
+    Tearing down "context" exceeded the test timeout of 90000ms.
+
+    Error: browserContext.close: Test ended.
+    Browser logs:
+
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.270702:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.270769:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.270861:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.270953:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271026:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271104:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271190:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271251:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271357:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271464:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271532:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271633:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271701:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.271955:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.272034:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.272512:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.272625:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.272675:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.272717:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.272944:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273009:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273590:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273647:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273701:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273731:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273768:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273797:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273852:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273886:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273927:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.273984:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276495:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276543:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276589:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276629:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276670:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276710:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276751:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276793:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276838:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276880:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276925:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.276970:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.277008:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.277040:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.277099:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.277145:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.277307:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.277341:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.277826:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.277904:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.277980:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.278312:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.278364:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.278409:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.278441:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.278479:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.284191:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.284338:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.284547:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.284774:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.284965:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.285277:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.285541:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.286959:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.287166:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.287409:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.287722:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.287920:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.288151:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.288344:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.288524:INFO:CONSOLE:1955] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (1955)
+    [pid=78897][err] [1014/203836.292185:INFO:CONSOLE:464] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (464)
+    [pid=78897][err] [1014/203836.292354:INFO:CONSOLE:464] "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'unsafe-inline'".
+    [pid=78897][err]  The policy is report-only, so the violation has been logged but no further action has been taken.", source: http://127.0.0.1:55843/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js (464)
+    [pid=78897] <gracefully close start>
+
+    Error Context: test-results/food-pagination-beyond-100-7b31d-table-occupied-after-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-pagination-beyond-100-7b31d-table-occupied-after-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-pagination-beyond-100-7b31d-table-occupied-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/food-ui/food.spec.ts:542:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+
+    Test timeout of 90000ms exceeded.
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('button', { name: 'Архивировать', exact: true })
+        - locator resolved to <button type="submit" value="archive" name="activeAction" class="btn btn--secondary">Архивировать</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      - retrying click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+
+
+      626 |         .click();
+      627 |     }
+    > 628 |     await d.getByRole('button', { name: 'Архивировать', exact: true }).click();
+          |                                                                        ^
+      629 |     await expect(d).not.toBeVisible();
+      630 |     if (kind === 'table')
+      631 |       await page.getByRole('button', { name: 'Изменить стол Стол 8', exact: true }).click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:628:72
+
+    Error Context: test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-assignment-reassign-u-382ae-ty-conflicts-stay-in-drawer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/food-ui/food.spec.ts:682:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается 
+
+    Error: apiRequestContext.post: read ECONNRESET
+    Call log:
+      - → POST http://127.0.0.1:55844/food-service/areas
+        - user-agent: Playwright/1.63.0 (arm64; macOS 26.6) node/24.15
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - x-wetop-scope: business=61560883-bf97-4497-82a5-4ccd7cea95e4;location=ec7e5c2d-7a33-426d-bd11-86782f462466
+        - content-type: application/json
+        - content-length: 62
+
+
+      64 |   const headers = { 'x-wetop-scope': pointer(f.business, f.locations[0]!) };
+      65 |   const area = await (
+    > 66 |     await request.post(`${api}/food-service/areas`, {
+         |                   ^
+      67 |       headers,
+      68 |       data: { name: 'Основной зал', sortOrder: 0, active: true },
+      69 |     })
+        at seed (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:66:19)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:687:3
+
+    Error Context: test-results/food-чужой-маршрут-с-поток-2f714-ледующий-goto-не-обрывается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-чужой-маршрут-с-поток-2f714-ледующий-goto-не-обрывается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-чужой-маршрут-с-поток-2f714-ледующий-goto-не-обрывается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/food-ui/food.spec.ts:694:1 › Food excludes every registered foreign workspace route before API requests 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  ""
+
+
+      720 |     await page.goto(route);
+      721 |     // первый заход на маршрут компилируется dev-сервером; под нагрузкой редирект дольше 5 секунд
+    > 722 |     await expect(page).toHaveURL(/\/today$/, { timeout: 15000 });
+          |                        ^
+      723 |   }
+      724 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+      725 |   expect(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/food.spec.ts:722:24
+
+    Error Context: test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-Food-excludes-every-r-9b21a-e-route-before-API-requests/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.goto: Test timeout of 90000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:55843/orders", waiting until "load"
+
+
+       at ../tools/next-redirect.ts:38
+
+      36 |   page.goto = async (url, options) => {
+      37 |     await settleNextRedirect(page, 'commit');
+    > 38 |     const response = await goto(url, options);
+         |                            ^
+      39 |     await settleNextRedirect(page, until(options?.waitUntil));
+      40 |     return response;
+      41 |   };
+        at _Page.page.goto (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/tools/next-redirect.ts:38:28)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/restaurant.spec.ts:196:3
+
+    Error Context: test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/food-ui/restaurant.spec.ts:287:1 › главная: плитки, последние заказы и выручка после закрытия 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 90000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      302 |   await expect(page.getByTestId('today-latest-orders')).toContainText('Стол 7');
+      303 |   await expect(page.getByTestId('today-revenue-chart')).toBeVisible();
+    > 304 |   const axe = await new AxeBuilder({ page }).include('main').analyze();
+          |               ^
+      305 |   expect(axe.violations).toEqual([]);
+      306 | });
+      307 |
+        at AxeBuilder.analyze (/Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/restaurant.spec.ts:304:15
+
+    Error Context: test-results/restaurant-главная-плитки--bd908-зы-и-выручка-после-закрытия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-главная-плитки--bd908-зы-и-выручка-после-закрытия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-главная-плитки--bd908-зы-и-выручка-после-закрытия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/food-ui/restaurant.spec.ts:373:1 › план зала: заказ занимает стол, уборка включается и видна легенда 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('.rest-fp-table[data-kind="FREE"]').getByRole('button')
+        - locator resolved to <button type="button" aria-label="8, Свободен" class="rest-fp-table__body" data-table-id="7c731d13-a65d-40c7-a5b4-0ac47fdf7a29">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      396 |   });
+      397 |   await page.reload();
+    > 398 |   await page.locator('.rest-fp-table[data-kind="FREE"]').getByRole('button').click();
+          |                                                                              ^
+      399 |   const panel = page.getByTestId('table-panel');
+      400 |   await panel.getByRole('button', { name: 'Отметить уборку' }).click();
+      401 |   await expect(page.locator('.rest-fp-table[data-kind="CLEANING"]')).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/restaurant.spec.ts:398:78
+
+    Error Context: test-results/restaurant-план-зала-заказ-ccd42--включается-и-видна-легенда/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-план-зала-заказ-ccd42--включается-и-видна-легенда/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-план-зала-заказ-ccd42--включается-и-видна-легенда/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/food-ui/restaurant.spec.ts:562:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('rate-done')
+    Expected substring: "Спасибо"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('rate-done') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('rate-done')
+
+
+      607 |   expect(axe.violations).toEqual([]);
+      608 |   await main.getByRole('button', { name: 'Отправить оценку' }).click();
+    > 609 |   await expect(main.getByTestId('rate-done')).toContainText('Спасибо');
+          |                                               ^
+      610 |   await phone.reload();
+      611 |   await expect(main.getByRole('heading', { name: 'Ссылка недействительна' })).toBeVisible();
+      612 |   await guest.close();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/restaurant.spec.ts:609:47
+
+    Error Context: test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/food-ui/restaurant.spec.ts:643:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/employees\/shifts$/
+    Received string:  "http://127.0.0.1:55843/employees"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:55843/employees"
+
+
+      655 |   await page.goto('/employees');
+      656 |   await page.getByRole('link', { name: 'График смен' }).click();
+    > 657 |   await expect(page).toHaveURL(/\/employees\/shifts$/);
+          |                      ^
+      658 |   const line = page.locator('tbody tr', { hasText: waiter.name });
+      659 |   await expect(line).toContainText('Выходной');
+      660 |   await line.getByRole('button', { name: 'Изменить график' }).click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/restaurant.spec.ts:657:22
+
+    Error Context: test-results/restaurant-график-смен-Q-R-f9109-правка-часов-проверка-ввода/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-график-смен-Q-R-f9109-правка-часов-проверка-ввода/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-график-смен-Q-R-f9109-правка-часов-проверка-ввода/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14 failed
+    tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow ───
+    tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe ──────────────────────
+    tests/food-ui/food.spec.ts:227:1 › overlap and archived catalog preserve creation draft and idempotency key 
+    tests/food-ui/food.spec.ts:372:1 › stale token refreshes drawer without automatic mutation retry 
+    tests/food-ui/food.spec.ts:423:1 › server branch switch isolates Food businesses and locations and other verticals 
+    tests/food-ui/food.spec.ts:474:1 › pagination beyond 100 and previous local day keep table occupied after reload 
+    tests/food-ui/food.spec.ts:542:1 › assignment reassign unassign edit and capacity conflicts stay in drawer 
+    tests/food-ui/food.spec.ts:682:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается 
+    tests/food-ui/food.spec.ts:694:1 › Food excludes every registered foreign workspace route before API requests 
+    tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+    tests/food-ui/restaurant.spec.ts:287:1 › главная: плитки, последние заказы и выручка после закрытия 
+    tests/food-ui/restaurant.spec.ts:373:1 › план зала: заказ занимает стол, уборка включается и видна легенда 
+    tests/food-ui/restaurant.spec.ts:562:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+    tests/food-ui/restaurant.spec.ts:643:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода 
+  20 skipped
+  28 passed (2.8h)
+
+# код выхода 1 · 2 ч 49 мин

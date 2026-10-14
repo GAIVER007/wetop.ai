@@ -1,0 +1,9 @@
+{
+ "/branches → Добавить": {
+  "opener": true,
+  "name": "Добавить бизнес или филиал",
+  "closeButton": true,
+  "escapeCloses": true,
+  "focusReturned": true
+ }
+}

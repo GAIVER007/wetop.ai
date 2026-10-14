@@ -1,0 +1,32 @@
+{
+ "/reports/units": {
+  "390": [
+   {
+    "cols": 5,
+    "noHead": false,
+    "rows": 91,
+    "rowHeights": [
+     37,
+     38,
+     47
+    ],
+    "widerThanViewport": true,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 5,
+    "noHead": false,
+    "rows": 91,
+    "rowHeights": [
+     37,
+     38,
+     47
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

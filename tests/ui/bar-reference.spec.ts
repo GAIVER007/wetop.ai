@@ -1,4 +1,4 @@
-import {test,expect} from './fixtures';
+import {test,expect,FIXTURE_API} from './fixtures';
 for(const width of [1333,390]) test(`bar reference layout ${width}`,async({page})=>{
  await page.setViewportSize({width,height:973}); await page.goto('/bar');
  const main=page.getByRole('main').filter({visible:true});
@@ -45,7 +45,7 @@ test('mobile quick actions open the existing forms',async({page})=>{
 });
 
 for(const width of [1333,960,390]) for(const theme of ['light','dark'] as const) test(`clear KPI ${width} ${theme}`,async({page,request})=>{
- await request.post(`${process.env.UI_FIXTURE_API || 'http://127.0.0.1:4311'}/__test/reset`);
+ await request.post(`${FIXTURE_API}/__test/reset`);
  await page.emulateMedia({colorScheme:theme,reducedMotion:'reduce'});await page.setViewportSize({width,height:973});await page.goto('/bar');
  const kpis=page.getByRole('region',{name:'Показатели бара'});
  await expect(kpis.locator('.bar-kpi-label')).toHaveText(['Сумма закупок','Выручка бара','Прибыль от продаж','Долг поставщикам','Заканчиваются']);
@@ -60,7 +60,7 @@ for(const width of [1333,960,390]) for(const theme of ['light','dark'] as const)
 });
 
 for (const width of [1333,390]) test(`direct sale visible labels and journal ${width}`,async({page,request})=>{
- await request.post(`${process.env.UI_FIXTURE_API || 'http://127.0.0.1:4311'}/__test/reset`);
+ await request.post(`${FIXTURE_API}/__test/reset`);
  await page.setViewportSize({width,height:973});await page.goto('/bar');
  await page.getByRole('main').filter({visible:true}).getByRole('link',{name:'Продажа',exact:true}).filter({visible:true}).click();
  const panel=page.getByRole('tabpanel',{name:'Продажа напрямую',exact:true});

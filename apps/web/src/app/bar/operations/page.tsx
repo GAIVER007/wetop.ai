@@ -1,5 +1,7 @@
 import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 import { barApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { Tabs } from '../../../components/tabs';
@@ -32,11 +34,14 @@ const MOVEMENT_LABEL: Record<string, string> = {
 /** Операции бара (ADR-157): списание, инвентаризация, журнал продаж с возвратами и лента движений. */
 export default async function BarOperationsPage() {
   await requireVertical(['HOSPITALITY']);
-  const [stock, sales, movements] = await Promise.all([
+  const [stock, sales, movements, shell] = await Promise.all([
     settle(barApi.stock()),
     settle(barApi.sales()),
     settle(barApi.movements()),
+    deskShell(),
   ]);
+  // Сохраняем проверку refunds и readOnly из актуального main (ADR-181).
+  const canReverse = mayAccess(shell.access, 'refunds') && !shell.readOnly;
   const failed = [stock, sales, movements].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!stock.ok || !sales.ok || !movements.ok) return null;
@@ -93,7 +98,7 @@ export default async function BarOperationsPage() {
                             </Badge>
                           </td>
                           <td>
-                            {sale.status === 'POSTED' && (
+                            {sale.status === 'POSTED' && canReverse && (
                               <div className="bar-return">
                                 <form action={reverseBarSaleAction}>
                                   <input type="hidden" name="id" value={sale.id} />

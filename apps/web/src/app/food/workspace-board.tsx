@@ -63,6 +63,8 @@ export function WorkspaceBoard({
   const [panelTable, setPanelTable] = useState<string | null>(null);
   const [cleaningPending, startCleaning] = useTransition();
   const [cleaningError, setCleaningError] = useState<string | null>(null);
+  // все хуки до раннего возврата «Переключаем ресторан…», иначе React падает на смене филиала (ADR-181, аудит P1.5)
+  const [editingArea, setEditingArea] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
   useEffect(() => {
     const begin = () => {
@@ -132,7 +134,6 @@ export function WorkspaceBoard({
     );
   const panel = panelTable ? data.tables.find((t) => t.id === panelTable) : undefined;
   const shown = areas.filter((a) => !area || a.id === area);
-  const [editingArea, setEditingArea] = useState<string | null>(null);
   const spots = (tables: DiningTable[]) =>
     layoutSpots(tables.map((t) => ({ id: t.id, posX: t.posX ?? null, posY: t.posY ?? null })));
   /** Стол на плане: одна разметка для сетки и для схемы зала (§42) */

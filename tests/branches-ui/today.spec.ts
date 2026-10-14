@@ -1,3 +1,4 @@
+import { formatMoney } from '../../apps/web/src/lib/money';
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {
@@ -138,13 +139,11 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await page.goto('/today');
     await expect(page.getByRole('heading', { name: 'Сегодня', exact: true })).toBeVisible();
     await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
-    const { m } = await expectedBeauty(request, f.salon);
+    const { day, m } = await expectedBeauty(request, f.salon);
     expect(m.masters).toBe(2);
     for (const [id, n] of [
-      ['today-planned', m.planned],
-      ['today-confirmed', m.confirmed],
-      ['today-done', m.done],
-      ['today-masters', m.masters],
+      ['today-total', m.total],
+      ['today-clients', m.clients],
     ] as const)
       await expect(value(page, id), id).toHaveText(String(n));
     if (m.awaitingConfirmation > 0)
@@ -153,7 +152,11 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
       );
     if (m.noShow > 0)
       await expect(page.getByTestId('today-attention-no-show')).toContainText(String(m.noShow));
-    await expect(page.getByText('Мастеров', { exact: true })).toBeVisible();
+    await expect(value(page, 'today-shift')).toHaveText(`${m.onShift} из ${m.masters}`);
+    await expect(value(page, 'today-revenue')).toHaveText(m.revenue.length
+      ? formatMoney(m.revenue[0]!.minor, m.revenue[0]!.currency)
+      : formatMoney('0', day.location.currency));
+    await expect(page.getByText('Мастера на смене', { exact: true }).first()).toBeVisible();
     const rows = page.getByTestId('today-upcoming').locator('li');
     await expect(rows).toHaveCount(m.upcoming.length);
     if (m.upcoming.some((u) => u.master === UNAVAILABLE_MASTER))

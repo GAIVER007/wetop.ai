@@ -1,5 +1,52 @@
 /* Рабочее место салона (срез B2). Отступы по шкале DESIGN.md §3, цвета только токенами */
 @layer sections {
+  .beauty-popularity {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .beauty-popularity progress {
+    width: 100%;
+    max-width: 160px;
+    accent-color: var(--primary);
+  }
+  .beauty-calendar-views,
+  .beauty-calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .beauty-calendar-views [aria-current="page"] {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .beauty-week-calendar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .beauty-week-appointments {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-4) 0 0;
+  }
+  .beauty-week-appointments li + li {
+    margin-top: var(--space-2);
+  }
+  .beauty-week-appointments a {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--text);
+    overflow-wrap: anywhere;
+    text-decoration: none;
+  }
+  .beauty-week-appointments a:hover {
+    background: var(--surface-muted);
+  }
   .beauty-grid {
     display: grid;
     gap: 16px;
@@ -44,7 +91,77 @@
     padding: 16px;
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
-  } /* Телефон: второстепенные колонки каталога скрываются, иначе таблица уезжает вбок */
+  }
+  /* «Клиенты» по макету (ТЗ салона 09.10.2026): поиск и сегмент одной строкой, на телефоне столбиком */
+  .beauty-customers-controls {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 600px) {
+    .beauty-customers-controls {
+      width: 100%;
+    }
+    .beauty-customers-controls > * {
+      flex: 1 1 100%;
+    }
+  }
+  /* «Мастера» карточками (ТЗ салона 09.10.2026): сетка вместо таблицы, drawer правки прежний */
+  .beauty-master-cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    align-items: start;
+  }
+  .beauty-master-card {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .beauty-master-card p {
+    margin: 0;
+  }
+  .beauty-master-card__head {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+  }
+  .beauty-card-avatar {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    color: var(--text-2);
+    background: var(--surface-muted);
+    display: grid;
+    place-items: center;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    flex: none;
+  }
+  .beauty-master-card__name {
+    display: grid;
+    min-width: 0;
+  }
+  .beauty-master-card__state {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .beauty-master-card__skills {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  /* Телефон: второстепенные колонки каталога скрываются, иначе таблица уезжает вбок */
   @media (max-width: 600px) {
     .beauty-page .beauty-col-wide {
       display: none;
@@ -187,10 +304,21 @@
   }
   .beauty-tile--done {
     border-style: dashed;
+    border-color: var(--border);
+  }
+  .beauty-tile--booked {
+    border-color: var(--warning);
+  }
+  .beauty-tile--confirmed {
+    border-color: var(--info);
+  }
+  .beauty-slot--drop {
+    background: var(--primary-soft);
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
   }
   .beauty-tile--no_show {
-    border-color: var(--border);
-    color: var(--muted);
+    border-color: var(--danger);
   } /* День списком: он же единственный вид на телефоне */
   .beauty-facts {
     display: grid;

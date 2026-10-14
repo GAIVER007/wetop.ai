@@ -5,7 +5,7 @@ for(const width of [1333,390]) test(`bar reference layout ${width}`,async({page}
  if(width<=600) await main.locator('.bar-analytics-disclosure > summary').click();
  await expect(main.getByRole('heading',{name:'Продажи по дням',exact:true})).toBeVisible();
  if(width<=600) await main.locator('.bar-analytics-disclosure > summary').click();
- await expect(main.locator('.bar-kpi')).toHaveCount(6);
+ await expect(main.locator('.bar-kpi')).toHaveCount(5);
  if(width>600) await expect(main.getByRole('columnheader',{name:'Цена закупки',exact:true})).toBeVisible();
 
  await expect(main.getByRole('button',{name:'Coca-Cola 0.5',exact:true})).toBeVisible();
@@ -42,4 +42,37 @@ test('mobile quick actions open the existing forms',async({page})=>{
  await expect(page.getByRole('button',{name:'Продать',exact:true})).toBeVisible();
  await page.getByRole('navigation',{name:'Разделы бара'}).getByRole('link',{name:'Поставщики',exact:true}).click();
  await expect(page.getByRole('heading',{level:1})).toHaveText('Бар: поставщики');
+});
+
+for(const width of [1333,960,390]) for(const theme of ['light','dark'] as const) test(`clear KPI ${width} ${theme}`,async({page,request})=>{
+ await request.post(`${process.env.UI_FIXTURE_API || 'http://127.0.0.1:4311'}/__test/reset`);
+ await page.emulateMedia({colorScheme:theme,reducedMotion:'reduce'});await page.setViewportSize({width,height:973});await page.goto('/bar');
+ const kpis=page.getByRole('region',{name:'Показатели бара'});
+ await expect(kpis.locator('.bar-kpi-label')).toHaveText(['Сумма закупок','Выручка бара','Прибыль от продаж','Долг поставщикам','Заканчиваются']);
+ await expect(kpis.locator('.bar-kpi-value')).toHaveText(['412 800 ₸','1 245 600 ₸','623 400 ₸','68 400 ₸','2']);
+ for(const label of await kpis.locator('.bar-kpi-label').all()){
+  await expect(label).toBeVisible();expect(await label.evaluate(e=>e.scrollWidth<=e.clientWidth+1 && e.scrollHeight<=e.clientHeight+1)).toBeTruthy();
+ }
+ await kpis.locator('summary').click();await expect(kpis.getByRole('link',{name:'Red Bull 0.25',exact:true})).toBeVisible();await expect(kpis.getByRole('link',{name:"Чипсы Lay's 90г",exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
+ await kpis.locator('summary').click();
+ await page.screenshot({path:`reports/bar-kpi-2026-10-14/${width}-${theme}.png`});
+});
+
+for (const width of [1333,390]) test(`direct sale visible labels and journal ${width}`,async({page,request})=>{
+ await request.post(`${process.env.UI_FIXTURE_API || 'http://127.0.0.1:4311'}/__test/reset`);
+ await page.setViewportSize({width,height:973});await page.goto('/bar');
+ await page.getByRole('main').filter({visible:true}).getByRole('link',{name:'Продажа',exact:true}).filter({visible:true}).click();
+ const panel=page.getByRole('tabpanel',{name:'Продажа напрямую',exact:true});
+ await expect(panel.locator('.bar-retail-label')).toHaveText(['Товар','Количество, шт.','Способ оплаты']);
+ await panel.getByLabel('Товар',{exact:true}).selectOption({label:'Coca-Cola 0.5, остаток 24 шт.'});
+ await expect(panel.locator('.bar-retail-product-info')).toContainText('Coca-Cola 0.5');
+ await panel.getByLabel('Количество, шт.',{exact:true}).fill('3');
+ await page.screenshot({path:`reports/bar-direct-sale-2026-10-14/${width}.png`});
+ await panel.getByRole('button',{name:'Продать',exact:true}).click();
+ await expect(panel.getByRole('status')).toContainText('Продажа записана');
+ await expect(panel.locator('.bar-retail-product-info')).toHaveCount(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
+ await page.goto('/bar/operations');
+ await expect(page.getByRole('region',{name:'Продажи бара'}).locator('tbody tr').first()).toContainText('Coca-Cola 0.5 × 3');
 });

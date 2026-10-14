@@ -1,0 +1,32 @@
+{
+ "/guests": {
+  "390": [
+   {
+    "cols": 12,
+    "noHead": false,
+    "rows": 9,
+    "rowHeights": [
+     60,
+     61,
+     65
+    ],
+    "widerThanViewport": true,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 12,
+    "noHead": false,
+    "rows": 9,
+    "rowHeights": [
+     60,
+     61,
+     65
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

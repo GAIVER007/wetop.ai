@@ -1504,12 +1504,22 @@ body:has(.org-reference) .topmenu {
   align-items: center;
   justify-content: center;
   min-height: 36px;
+  /* телефон ниже: 44 px */
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--primary);
   background: var(--surface);
 }
+/* телефон: контролы месяца и «Архив» — цель касания 44 px (аудит UI5) */
+@media (max-width: 600px) {
+  .org-month a,
+  .org-month button,
+  .org-archive-open {
+    min-height: var(--touch-target);
+  }
+}
+
 .org-month svg {
   width: 16px;
   height: 16px;

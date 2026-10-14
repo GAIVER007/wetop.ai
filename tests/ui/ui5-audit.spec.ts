@@ -29,6 +29,8 @@ const ROUTES: string[] = [
   '/branches', '/hotel-settings', '/hotel-settings/stay', '/hotel-settings/services',
   '/connections', '/connections/channex', '/journal', '/incidents',
   '/help', '/status', '/design-system',
+  // семейство O: вход и регистрация (страницы без сессии)
+  '/login', '/login/reset', '/register', '/create',
 ];
 const VIEWS = [
   { name: '1440', width: 1440, height: 900 },

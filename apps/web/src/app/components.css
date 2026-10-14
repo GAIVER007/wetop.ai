@@ -43,6 +43,15 @@
     gap: 12px;
     flex-wrap: wrap;
   }
+  /* телефон: крошка возврата — цель касания 44 px (аудит UI5) */
+  @media (max-width: 600px) {
+    .page__crumbs a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+    }
+  }
+
   .page__head {
     display: flex;
     align-items: baseline;

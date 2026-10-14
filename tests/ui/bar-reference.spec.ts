@@ -40,7 +40,6 @@ test('mobile quick actions open the existing forms',async({page})=>{
  const actions=page.getByRole('navigation',{name:'Быстрые действия бара'});
  await actions.getByRole('link',{name:'Продажа',exact:true}).click();
  await expect(page.getByRole('button',{name:'Продать',exact:true})).toBeVisible();
- await actions.getByRole('button',{name:'Разделы бара',exact:true}).click();
- await page.getByRole('menuitem',{name:'Поставщики',exact:true}).click();
+ await page.getByRole('navigation',{name:'Разделы бара'}).getByRole('link',{name:'Поставщики',exact:true}).click();
  await expect(page.getByRole('heading',{level:1})).toHaveText('Бар: поставщики');
 });

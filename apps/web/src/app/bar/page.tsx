@@ -7,7 +7,7 @@ import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { Tabs } from '../../components/tabs';
-import { ActionMenu } from '../../components/action-menu';
+import { BarTabs } from './tabs';
 import { Badge, EmptyState, Table, cx } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
 import { SaleForm } from './sale-form';
@@ -261,16 +261,6 @@ export default async function BarPage({
                 }).format(new Date(`${r.month.monthStart}T12:00:00Z`))
               : 'Текущий месяц'}
           </span>
-          <ActionMenu
-            label="Ещё разделы бара"
-            items={[
-              { label: 'Добавить товар', href: '/bar?product=new' },
-              { label: 'Все товары и категории', href: '/bar/products' },
-              { label: 'Все приходы', href: '/bar/receipts' },
-              { label: 'Поставщики', href: '/bar/suppliers' },
-              { label: 'Списания и инвентаризация', href: '/bar/operations' },
-            ]}
-          />
         </>
       }
     >
@@ -289,16 +279,8 @@ export default async function BarPage({
         >
           Пересчёт
         </Link>
-        <ActionMenu
-          label="Разделы бара"
-          items={[
-            { label: 'Товары и категории', href: '/bar/products' },
-            { label: 'Приходы', href: '/bar/receipts' },
-            { label: 'Поставщики', href: '/bar/suppliers' },
-            { label: 'Операции', href: '/bar/operations' },
-          ]}
-        />
       </nav>
+      <BarTabs current="overview" />
       <section className="bar-kpis" aria-label="Показатели бара">
         <Kpi
           icon="chart"

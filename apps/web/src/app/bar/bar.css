@@ -1070,3 +1070,11 @@
   .bar-mobile-actions .action-menu__list { top:auto; bottom:calc(100% + var(--space-1)); }
  }
 }
+
+@layer sections {
+ .bar-page .bar-tabs { display:flex; flex-wrap:wrap; gap:var(--space-1); margin-bottom:var(--space-2); }
+ .bar-page .bar-tabs .tabs__item { min-height:44px; padding-inline:var(--space-4); }
+ .bar-row-details > summary { min-height:44px; cursor:pointer; color:var(--primary); display:flex; align-items:center; }
+ .bar-row-details p { margin:var(--space-1) 0; }
+ @media (max-width:600px) { .bar-mobile-actions { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+}

@@ -51,15 +51,12 @@ export default async function BarProductsPage() {
       {rows.length === 0
         ? <EmptyState icon={<Icon name="inventory" />} title="Товаров пока нет">Добавьте первый товар в форме выше или загрузите накладную во вкладке «Приходы».</EmptyState>
         : <Table density="compact" sticky="header" aria-label="Товары бара">
-            <thead><tr><th>Код</th><th>Товар</th><th>Остаток</th><th>Минимум</th><th>Наценка</th><th>Цена продажи</th><th>Себестоимость остатка</th><th /></tr></thead>
+            <thead><tr><th>Товар</th><th>Остаток</th><th>Цена продажи</th><th>Подробности</th><th>Действия</th></tr></thead>
             <tbody>{rows.map((item) => <tr key={item.id} className={item.active ? undefined : 'is-void'}>
-              <td>{item.code}</td>
-              <td><b>{item.name}</b>{item.category && <small>{item.category.name}</small>}</td>
-              <td><Badge tone={!item.active ? 'neutral' : low(item) ? 'warn' : 'ok'}>{item.availableUnits} шт.</Badge></td>
-              <td>{item.minimumStockUnits} шт.</td>
-              <td>{item.markupBasis === null ? (item.category ? `${item.category.defaultMarkupBasis / 100}% из категории` : 'нет') : `${item.markupBasis / 100}%`}</td>
+              <td><b>{item.name}</b><small>{item.code}{item.category ? `, ${item.category.name}` : ''}</small></td>
+              <td><Badge tone={!item.active ? 'neutral' : low(item) ? 'warn' : 'ok'}>{item.availableUnits} шт.</Badge><small>Минимум: {item.minimumStockUnits} шт.</small></td>
               <td>{item.active ? <ProductPriceForm productId={item.id} salePrice={item.salePrice} /> : formatMoney(item.salePrice)}</td>
-              <td>{formatMoney(item.stockCostMinor)}</td>
+              <td><details className="bar-row-details"><summary>Закупка и наценка</summary><p>Себестоимость остатка: {formatMoney(item.stockCostMinor)}</p><p>Наценка: {item.markupBasis === null ? (item.category ? `${item.category.defaultMarkupBasis / 100}% из категории` : 'нет') : `${item.markupBasis / 100}%`}</p></details></td>
               <td><form action={toggleBarCatalogAction}>
                 <input type="hidden" name="kind" value="product" />
                 <input type="hidden" name="id" value={item.id} />

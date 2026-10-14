@@ -31,8 +31,8 @@ test('обзор как на макете: шесть KPI, графики, ко�
   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
   await expect(m.getByRole('link', { name: 'Продажа', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
-  await expect(m.getByRole('button', { name: 'Ещё разделы бара' })).toBeVisible();
-  await expect(m.getByRole('navigation', { name: 'Разделы бара' })).toHaveCount(0);
+  await expect(m.getByRole('navigation',{name:'Разделы бара'})).toBeVisible();
+  await expect(m.getByRole('navigation', { name: 'Разделы бара' }).getByRole('link')).toHaveCount(5);
   // Шесть плиток текущего макета, без выдуманных данных.
   const kpis = m.getByRole('region', { name: 'Показатели бара' });
   await expect(kpis.locator('.bar-kpi-label')).toHaveText([

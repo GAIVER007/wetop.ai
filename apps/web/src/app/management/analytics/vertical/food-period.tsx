@@ -37,6 +37,12 @@ export function FoodPeriodPanel({ report }: { report: FoodPeriodReport }) {
         <Stat label="Выручка" value={money(report.revenueMinor)} hint="закрытые заказы" testId="food-period-revenue" />
         <Stat label="Гостей" value={report.guestsCount ?? '—'} testId="food-period-guests" />
         <Stat
+          label="Выручка бара"
+          value={money(report.barRevenueMinor ?? '0')}
+          hint="продажи бара"
+          testId="food-period-bar-revenue"
+        />
+        <Stat
           label="Средний чек"
           value={report.averageCheckMinor === null ? '—' : money(report.averageCheckMinor)}
           testId="food-period-check"

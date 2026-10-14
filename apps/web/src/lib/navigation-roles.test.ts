@@ -39,11 +39,11 @@ describe('меню по ролям', () => {
     expect(hrefs(access('STAFF'))).toEqual([
       // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md);
       // с ADR-157 это группа, «Бар» её пункт
-      '/finance',
-      '/bar',
       '/chessboard',
       // «Гости и бронирования» (09.10.2026): одна вкладка на месте «Броней» и «Гостей»
       '/guests',
+      '/finance',
+      '/bar',
       // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
       '/sales',
       '/market',
@@ -53,9 +53,9 @@ describe('меню по ролям', () => {
       '/incidents',
     ]);
     expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
-      'finance',
       'chessboard',
       'guests',
+      'finance',
       'sales',
       'reports',
       'settings',

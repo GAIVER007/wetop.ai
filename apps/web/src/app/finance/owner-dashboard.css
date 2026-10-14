@@ -548,3 +548,19 @@
     }
   }
 }
+
+@layer sections {
+  .page:has(.finance-workspace) .page__head {
+    margin-bottom: var(--space-2);
+  }
+  .page:has(.finance-workspace) .page__title {
+    font-size: var(--text-3xl);
+  }
+  .owner-load .owner-ring {
+    width: 96px;
+    height: 96px;
+  }
+  .owner-load .owner-load-value {
+    font-size: var(--text-4xl);
+  }
+}

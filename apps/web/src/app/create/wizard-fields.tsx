@@ -106,7 +106,7 @@ export function WizardFields({
           value={values.description}
           onChange={change('description')}
           maxLength={10000}
-          rows={4}
+          rows={3}
           placeholder="Чем занимаетесь и что важно знать вашему агенту"
         />
       </label>

@@ -4,13 +4,13 @@ import { activeMenuRoute, menuSections, phoneNavigation } from './navigation';
 it('organizes the menu by tasks: desk screens first, groups only for multi-screen areas', () => {
   expect(menuSections.map((s) => s.id)).toEqual([
     // «Финансы» первой вкладкой: единый раздел вместо Главной (plans/finance-home-merge-2026-10-09.md)
-    'finance',
     'chessboard',
     'guests',
+    'inventory',
+    'finance',
     'sales',
     'marketing',
     'reports',
-    'inventory',
     'settings',
   ]);
   // «Отчёты»: группа, хаб REP1 и «Аналитика» вместе (поручение владельца 03.10);
@@ -44,16 +44,10 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
   expect(menuSections.find((s) => s.id === 'settings')?.items.at(-1)?.href).toBe('/platform');
 });
 it('phone bottom bar: the four leading tabs; a group tab opens its first item under the group name', () => {
-  expect(phoneNavigation.map((i) => i.href)).toEqual([
-    '/finance',
-    '/chessboard',
-    '/guests',
-    // группа «Продажи» открывается хабом (SALES2.2), а не «Загрузкой конкурентов»
-    '/sales',
-  ]);
+  expect(phoneNavigation.map((i) => i.href)).toEqual(['/chessboard', '/guests', '/inventory', '/finance']);
   // Группы на панели зовутся именем группы, не первым пунктом (ADR-157): «Финансы» и «Продажи»
-  expect(phoneNavigation[0]!.label).toBe('Финансы');
-  expect(phoneNavigation[3]!.label).toBe('Продажи');
+  expect(phoneNavigation[0]!.label).toBe('Календарь');
+  expect(phoneNavigation[3]!.label).toBe('Финансы');
 });
 
 // «Гости и бронирования» (поручение владельца 09.10.2026): вместо вкладок «Брони» и «Гости» одна вкладка меню,

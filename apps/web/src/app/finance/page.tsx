@@ -217,15 +217,15 @@ export default async function FinanceReportPage({
   if (srcParam) exportQuery.set('src', srcParam);
   return (
     <Page
-      title="Обзор бизнеса"
-      subtitle="Ключевые показатели, деньги, загрузка и задачи в одном месте"
+      title="Финансы"
+      subtitle="Деньги, загрузка и работа с оплатами"
       width="full"
       actions={
         <>
           <nav className="biz-period" aria-label="Период обзора">
-            <a href="#finance-filters" className="biz-period__range" data-testid="finance-period">
-              За период с {displayDate(from, 'numeric')} по {displayDate(to, 'numeric')}
-            </a>
+            <span className="biz-period__range" data-testid="finance-period">
+              {displayDate(from, 'numeric')} → {displayDate(to, 'numeric')}
+            </span>
             {(
               [
                 ['Сегодня', { from: cal.today, to: cal.today }],
@@ -249,180 +249,13 @@ export default async function FinanceReportPage({
     >
       {/* «Обзор бизнеса» по макету владельца (план finance-overview-2026-10-09): блоки бывшей
           Главной и деньги кассы одним экраном; числа макета вымышленные, всё считается из API */}
-      <div className="biz-overview" data-testid="owner-dashboard">
-        <Suspense
-          fallback={
-            <section className="biz-kpis" aria-label="Ключевые показатели">
-              <OwnerPlaceholder variant="today" label="Загружаем показатели…" />
-            </section>
-          }
-        >
-          <BizKpis
-            sums={sums}
-            periodLabel={periodWord(presetKind)}
-            debts={debts}
-            date={cal.today}
-            yesterday={yesterdayDate}
-          />
-        </Suspense>
-        <div className="biz-row biz-row--two">
-          <Suspense
-            fallback={
-              <div className="owner-load owner-surface">
-                <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
-              </div>
-            }
-          >
-            <OwnerLoad date={cal.today} />
-          </Suspense>
-          <MoneyOverview
-            sums={sums}
-            ops={periodOps}
-            from={from}
-            to={to}
-            cash={cashBalances}
-            detailsHref={`${period}&show=1#operations`}
-          />
-        </div>
-        <div className="biz-row biz-row--three">
-          <PaymentMethods
-            report={r}
-            opsHref={(method) => opsHref(method ? { op: 'payment', method } : { op: 'payment' })}
-          />
-          <Suspense
-            fallback={
-              <div className="biz-today owner-surface">
-                <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
-              </div>
-            }
-          >
-            <TodayCard date={cal.today} debts={debts} period={period} currency={sums.currency} />
-          </Suspense>
-          <Suspense fallback={<AttentionPlaceholder />}>
-            <AttentionCard date={cal.today} debts={debts} period={period} />
-          </Suspense>
-        </div>
-        <RecentOperations ops={periodOps} period={period} />
-      </div>
+
       {cashError !== null && (
         <LoadError testId="cash-summary-error" {...loadErrorProps(cashError)} />
       )}
       {periodOpsError !== null && (
         <LoadError testId="cash-period-error" {...loadErrorProps(periodOpsError)} />
       )}
-
-      <section className="finance-controls" id="finance-filters" aria-label="Фильтры операций">
-        <form
-          method="get"
-          action="/finance#operations"
-          className="finance-toolbar"
-          data-testid="period-form"
-        >
-          <FilterHistory
-            defaults={{
-              from,
-              to,
-              op: opParam ?? '',
-              method: filter.method ?? '',
-              src: srcParam ?? '',
-            }}
-          />
-          <input type="hidden" name="show" value="1" />
-          <Field inline label="С">
-            <DateInput
-              key={`from-${from}`}
-              name="from"
-              defaultValue={from}
-              aria-label="Период: с"
-            />
-          </Field>
-          <Field inline label="По">
-            <DateInput
-              key={`to-${to}`}
-              name="to"
-              rangeFromName="from"
-              defaultValue={to}
-              aria-label="Период: по"
-            />
-          </Field>
-          {/* Готовые отрезки — ссылками: период виден в адресе и в подзаголовке */}
-          <nav className="directory-filters finance-presets" aria-label="Готовые периоды">
-            <span className="finance-presets__label">Период:</span>
-            {(
-              [
-                ['Сегодня', { from: cal.today, to: cal.today }],
-                ['Вчера', { from: yesterdayDate, to: yesterdayDate }],
-                ['Неделя', cal.week],
-                ['Месяц', cal.month],
-                ['Прошлый месяц', cal.prevMonth],
-              ] as const
-            ).map(([label, p]) => (
-              <Link
-                key={label}
-                href={preset(p)}
-                className={isPreset(p) ? 'is-active' : ''}
-                aria-current={isPreset(p) ? 'page' : undefined}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-          <Field label="Тип операции">
-            <Select
-              name="op"
-              aria-label="Тип операции"
-              key={`op-${opParam}`}
-              defaultValue={opParam ?? ''}
-            >
-              <option value="">Все операции</option>
-              <option value="payment">Оплаты</option>
-              <option value="refund">Возвраты</option>
-              <option value="income">Поступления кассы</option>
-              <option value="expense">Расходы кассы</option>
-              <option value="transfer">Переводы</option>
-            </Select>
-          </Field>
-          <Field label="Способ оплаты">
-            <Select
-              name="method"
-              aria-label="Способ оплаты"
-              key={`method-${filter.method}`}
-              defaultValue={filter.method ?? ''}
-            >
-              <option value="">Все способы</option>
-              {Object.entries(METHOD_RU).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <details className="finance-extra-filters" key={`extra-${srcParam}`} open={!!srcParam}>
-            <summary>
-              <Icon name="chevron" />
-              Дополнительные фильтры{srcParam ? ' (1)' : ''}
-            </summary>
-            <Field label="Источник">
-              <Select
-                name="src"
-                aria-label="Источник"
-                key={`src-${srcParam}`}
-                defaultValue={srcParam ?? ''}
-              >
-                <option value="">Все источники</option>
-                <option value="bookings">Брони</option>
-                <option value="cash">Касса</option>
-              </Select>
-            </Field>
-          </details>
-          <div className="finance-filter-actions">
-            <Button>Показать</Button>
-            <Link href={period} className="btn btn--ghost finance-reset">
-              Сбросить фильтр
-            </Link>
-          </div>
-        </form>
-      </section>
 
       {tooLong && (
         <Alert boxed>
@@ -441,6 +274,204 @@ export default async function FinanceReportPage({
         </Alert>
       )}
       <FinanceWorkspace
+        periodEditor={
+          <>
+            <Field inline label="С">
+              <DateInput name="from" defaultValue={from} aria-label="Начало периода" />
+            </Field>
+            <Field inline label="По">
+              <DateInput
+                name="to"
+                rangeFromName="from"
+                defaultValue={to}
+                aria-label="Конец периода"
+              />
+            </Field>
+            <Button>Применить период</Button>
+          </>
+        }
+        dashboard={
+          <div className="biz-overview" data-testid="owner-dashboard">
+            <Suspense
+              fallback={
+                <section className="biz-kpis" aria-label="Ключевые показатели">
+                  <OwnerPlaceholder variant="today" label="Загружаем показатели…" />
+                </section>
+              }
+            >
+              <BizKpis
+                sums={sums}
+                periodLabel={periodWord(presetKind)}
+                debts={debts}
+                date={cal.today}
+                yesterday={yesterdayDate}
+              />
+            </Suspense>
+            <div className="biz-row biz-row--two">
+              <Suspense
+                fallback={
+                  <div className="owner-load owner-surface">
+                    <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
+                  </div>
+                }
+              >
+                <OwnerLoad date={cal.today} />
+              </Suspense>
+              <MoneyOverview
+                sums={sums}
+                ops={periodOps}
+                from={from}
+                to={to}
+                cash={cashBalances}
+                detailsHref={`${period}&show=1#operations`}
+              />
+            </div>
+            <div className="biz-row biz-row--daily">
+              <Suspense
+                fallback={
+                  <div className="biz-today owner-surface">
+                    <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
+                  </div>
+                }
+              >
+                <TodayCard
+                  date={cal.today}
+                  debts={debts}
+                  period={period}
+                  currency={sums.currency}
+                />
+              </Suspense>
+              <Suspense fallback={<AttentionPlaceholder />}>
+                <AttentionCard date={cal.today} debts={debts} period={period} />
+              </Suspense>
+            </div>
+            <details className="finance-disclosure">
+              <summary>Способы оплаты и последние операции</summary>
+              <PaymentMethods
+                report={r}
+                opsHref={(method) =>
+                  opsHref(method ? { op: 'payment', method } : { op: 'payment' })
+                }
+              />
+              <RecentOperations ops={periodOps} period={period} />
+            </details>
+          </div>
+        }
+        filters={
+          <section className="finance-controls" id="finance-filters" aria-label="Фильтры операций">
+            <form
+              method="get"
+              action="/finance#operations"
+              className="finance-toolbar"
+              data-testid="period-form"
+            >
+              <FilterHistory
+                defaults={{
+                  from,
+                  to,
+                  op: opParam ?? '',
+                  method: filter.method ?? '',
+                  src: srcParam ?? '',
+                }}
+              />
+              <input type="hidden" name="show" value="1" />
+              <Field inline label="С">
+                <DateInput
+                  key={`from-${from}`}
+                  name="from"
+                  defaultValue={from}
+                  aria-label="Период: с"
+                />
+              </Field>
+              <Field inline label="По">
+                <DateInput
+                  key={`to-${to}`}
+                  name="to"
+                  rangeFromName="from"
+                  defaultValue={to}
+                  aria-label="Период: по"
+                />
+              </Field>
+              {/* Готовые отрезки — ссылками: период виден в адресе и в подзаголовке */}
+              <nav className="directory-filters finance-presets" aria-label="Готовые периоды">
+                <span className="finance-presets__label">Период:</span>
+                {(
+                  [
+                    ['Вчера', { from: yesterdayDate, to: yesterdayDate }],
+                    ['Прошлый месяц', cal.prevMonth],
+                  ] as const
+                ).map(([label, p]) => (
+                  <Link
+                    key={label}
+                    href={preset(p)}
+                    className={isPreset(p) ? 'is-active' : ''}
+                    aria-current={isPreset(p) ? 'page' : undefined}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+              <Field label="Тип операции">
+                <Select
+                  name="op"
+                  aria-label="Тип операции"
+                  key={`op-${opParam}`}
+                  defaultValue={opParam ?? ''}
+                >
+                  <option value="">Все операции</option>
+                  <option value="payment">Оплаты</option>
+                  <option value="refund">Возвраты</option>
+                  <option value="income">Поступления кассы</option>
+                  <option value="expense">Расходы кассы</option>
+                  <option value="transfer">Переводы</option>
+                </Select>
+              </Field>
+              <Field label="Способ оплаты">
+                <Select
+                  name="method"
+                  aria-label="Способ оплаты"
+                  key={`method-${filter.method}`}
+                  defaultValue={filter.method ?? ''}
+                >
+                  <option value="">Все способы</option>
+                  {Object.entries(METHOD_RU).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <details
+                className="finance-extra-filters"
+                key={`extra-${srcParam}`}
+                open={!!srcParam}
+              >
+                <summary>
+                  <Icon name="chevron" />
+                  Дополнительные фильтры{srcParam ? ' (1)' : ''}
+                </summary>
+                <Field label="Источник">
+                  <Select
+                    name="src"
+                    aria-label="Источник"
+                    key={`src-${srcParam}`}
+                    defaultValue={srcParam ?? ''}
+                  >
+                    <option value="">Все источники</option>
+                    <option value="bookings">Брони</option>
+                    <option value="cash">Касса</option>
+                  </Select>
+                </Field>
+              </details>
+              <div className="finance-filter-actions">
+                <Button>Показать</Button>
+                <Link href={period} className="btn btn--ghost finance-reset">
+                  Сбросить фильтр
+                </Link>
+              </div>
+            </form>
+          </section>
+        }
         initialView={
           sp.show === '1' || sp.op || sp.method || sp.src || sp.ops
             ? 'operations'

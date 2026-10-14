@@ -19,7 +19,7 @@ test.beforeEach(async ({ request }) => {
 test('обзор бизнеса: плитки, блоки макета и деньги кассы без заглушек', async ({ page }) => {
   await page.goto('/finance');
   await expect(
-    page.getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 }),
+    page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 }),
   ).toBeVisible();
   const main = page.getByRole('main');
 
@@ -60,6 +60,7 @@ test('обзор бизнеса: плитки, блоки макета и ден
   const load = main.getByRole('region', { name: 'Загрузка и операционные показатели' });
   await expect(load.getByTestId('c-occupancy')).toHaveText(formatPercent(percent));
   await expect(load.getByTestId('c-free')).toHaveText(String(s.free));
+  await page.getByText('Прогноз загрузки', {exact:true}).click();
   await expect(load.getByTestId('owner-outlook-chart')).toBeVisible();
 
   // финансовый обзор: поступления, расходы, движение по дням, остаток на счетах
@@ -71,11 +72,13 @@ test('обзор бизнеса: плитки, блоки макета и ден
     formatMoney(expense.toString(), 'KZT'),
   );
   const cash = await (await page.request.get(`${fixture}/finance/cash`, asClient)).json();
+  await page.getByText('График и остатки по счетам',{exact:true}).click();
   await expect(money.getByTestId('cash-balance')).toHaveText(
     formatMoney(cash.totalMinor, cash.currency),
   );
   await expect(money.getByTestId('cash-flow-chart')).toBeVisible();
 
+  await page.getByText('Способы оплаты и последние операции',{exact:true}).click();
   // способы оплаты полосками, «Сегодня» и внимание
   await expect(
     main
@@ -110,14 +113,14 @@ test('/today гостиницы перенаправляет в финансы',
   await page.goto('/today');
   await expect(page).toHaveURL(/\/finance(?:[?#]|$)/);
   await expect(
-    page.getByRole('heading', { name: 'Обзор бизнеса', exact: true, level: 1 }),
+    page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 }),
   ).toBeVisible();
 });
 
 test('меню: «Финансы» первой вкладкой, «Главной» нет', async ({ page }) => {
   await page.goto('/finance');
   const menu = sideNav(page);
-  await expect(menu.locator('.sidenav__section').first()).toHaveText('Финансы');
+  await expect(menu.locator('.sidenav__section').first()).toHaveText('Календарь');
   await expect(menu.getByRole('link', { name: 'Главная', exact: true })).toHaveCount(0);
   // активная отметка живёт на пункте группы (ADR-157): на /finance это «Оплаты и касса»
   await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Оплаты и касса');
@@ -146,6 +149,7 @@ test('телефон: показатели первым экраном, филь
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
+  await page.getByRole('tab',{name:'Операции',exact:true}).click();
   const show = page.getByRole('button', { name: 'Показать', exact: true });
   await show.scrollIntoViewIfNeeded();
   await expect(show).toBeInViewport();

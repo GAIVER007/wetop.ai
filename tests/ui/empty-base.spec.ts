@@ -69,5 +69,7 @@ test('пустая база: финансы и главная говорят п�
   await page.goto('/today');
   await expect(main.getByTestId('c-occupancy')).toHaveText('0 %');
   await expect(main.getByTestId('c-free')).toHaveText('88');
+  // прогноз свёрнут по умолчанию (ADR-180): раскрыть перед проверкой семи дней
+  await main.getByText('Прогноз загрузки', { exact: true }).click();
   await expect(main.getByTestId('owner-outlook-chart').getByRole('listitem')).toHaveCount(7);
 });

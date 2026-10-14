@@ -54,6 +54,7 @@ test('attention stays available when dashboard API fails; cash on finance', asyn
     data: { failPath: '/desk/dashboard' },
   });
   await page.goto('/today');
+  await page.getByText('Прогноз загрузки', { exact: true }).click();
   await expect(page.getByText('Прогноз загрузки недоступен', { exact: false })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Все задачи', exact: true })).toBeVisible();
   await page.goto('/finance');
@@ -96,6 +97,7 @@ test('owner mobile summary fits the first screen and omits removed metrics', asy
   await page.goto('/today');
   for (const id of ['owner-refunds', 'owner-cash', 'owner-total'])
     await expect(page.getByTestId(id)).toHaveCount(0);
+  await page.getByText('Прогноз загрузки', { exact: true }).click();
   await expect(page.getByTestId('owner-outlook-chart')).toBeVisible();
   // Первый экран телефона начинается с загрузки
   await expect(page.getByTestId('c-occupancy')).toBeInViewport();
@@ -135,6 +137,7 @@ test('approved owner concept groups forecast with occupancy and matches attentio
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/today');
   const load = page.getByRole('region', { name: 'Загрузка и операционные показатели' });
+  await load.getByText('Прогноз загрузки', { exact: true }).click();
   await expect(load.getByTestId('owner-outlook-chart')).toBeVisible();
   await expect(load.getByTestId('c-occupancy')).toBeVisible();
   const badge = page.getByTestId('owner-attention-count');

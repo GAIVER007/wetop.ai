@@ -91,15 +91,17 @@ test('телефон: сводка и управление оставляют с
   await expect(page.getByLabel('Период: по', { exact: true })).toBeVisible();
 });
 
-test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
+test('узкий телефон: плитки финансов в две колонки без перелива вбок', async ({ page }) => {
+  // денежный экран по эталону 13.10 (ADR-180): четыре плитки на телефоне парами, свёртка «Отчёты и управление» снята
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  await page.getByText('Отчёты и управление', { exact: true }).click();
-  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const columns = await page
-    .locator('.finance-kpis')
+    .locator('.fin-kpis')
     .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
-  expect(columns).toBe(1);
+  expect(columns).toBe(2);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+  ).toBeLessThanOrEqual(1);
 });
 
 test('телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px', async ({ page }) => {

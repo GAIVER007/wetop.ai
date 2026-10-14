@@ -957,7 +957,6 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/debts' } });
   await page.goto('/finance');
-  await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('debt-row')).toHaveCount(0);
@@ -1092,8 +1091,6 @@ test('кнопки называют своё действие: гость зав
 
   // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
   await page.goto('/finance');
-  // список долгов с кнопками оплаты находится в сворачиваемом блоке
-  await page.getByRole('button', { name: 'Отчёты и управление' }).click();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();
@@ -1567,7 +1564,6 @@ test('финансы F1: период в подзаголовке, четыре 
   const main = page.getByRole('main');
   // один контрол периода (ADR-180): подпись отрезка на кнопке
   await expect(main.getByTestId('finance-period')).toContainText('1–30 сентября 2026');
-  await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const kpis = main.getByTestId('finance-kpis');
   await expect(kpis.getByTestId('charged')).toHaveText('24 000 ₸');
@@ -1593,20 +1589,20 @@ test('финансы F1: период в подзаголовке, четыре 
   await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(
     /is-active/,
   );
-  await expect(main.getByTestId('finance-period')).toContainText('За период с');
+  // компактная подпись контрола периода (ADR-180): дата словами, без «За период с»
+  await expect(main.getByTestId('finance-period')).toContainText(/\d+ [а-яё]+ \d{4}/);
   // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
   await page.goto('/finance?from=2026-09-01&to=2026-09-30');
   await expect(main.getByTestId('finance-period')).toBeVisible();
   await expect(main.getByTestId('finance-error')).toContainText('Проверьте подключение');
   await expect(main.getByTestId('charged')).toHaveCount(0);
-  await expect(main.locator('input[name="from"]')).toHaveValue('2026-09-01');
+  await expect(main.locator('#finance-filters input[name="from"]')).toHaveValue('2026-09-01');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await main
     .getByTestId('finance-error')
     .getByRole('button', { name: 'Повторить загрузку' })
     .click();
-  await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(main.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(main.getByTestId('finance-error')).toHaveCount(0);

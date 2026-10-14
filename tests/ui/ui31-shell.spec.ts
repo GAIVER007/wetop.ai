@@ -23,10 +23,12 @@ test('UI3.1: одна кнопка, стабильная ширина и кла�
   expect(after?.width).toBe(before?.width);
   expect(after?.x).toBe(before?.x);
   const sales = panel.getByRole('button', { name: 'Продажи', exact: true });
+  // список компактный (#501): фокус группу не раскрывает, раскрывает ArrowRight или щелчок
   await sales.focus();
+  await expect(sales).toHaveAttribute('aria-expanded', 'false');
+  await page.keyboard.press('ArrowRight');
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await page.screenshot({ path: `${shots}/after-desktop-menu-subsections.png` });
-  await page.keyboard.press('ArrowRight');
   await expect(panel.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(sales).toBeFocused();
@@ -62,7 +64,8 @@ test('UI3.1: переход закрывает меню, active route сохра
   const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
   await trigger.click();
   const panel = page.locator('.sidenav__panel');
-  await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
+  // компактный список (#501): группа раскрывается щелчком, а не наведением
+  await panel.getByRole('button', { name: 'Настройки', exact: true }).click();
   await panel.getByRole('link', { name: 'Объект', exact: true }).click();
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(panel).toBeHidden();

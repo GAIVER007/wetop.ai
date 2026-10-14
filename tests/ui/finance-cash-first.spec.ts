@@ -101,7 +101,7 @@ test('касса: первый экран без лишних кнопок, де
   await page.getByRole('tab',{name:'Операции',exact:true}).click();
   await expect(page.getByRole('link', { name: 'Вчера', exact: true })).toBeVisible();
   const todayHref = await page
-    .getByRole('navigation', { name: 'Период обзора' })
+    .getByRole('navigation', { name: 'Готовые периоды' })
     .getByRole('link', { name: 'Сегодня', exact: true })
     .getAttribute('href');
   const today = new URL(todayHref!, 'http://localhost').searchParams.get('from')!;

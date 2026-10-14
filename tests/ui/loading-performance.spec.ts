@@ -12,7 +12,7 @@ test('ошибка стойки показывается сразу, даже е
   page,
   request,
 }) => {
-  await page.goto('/finance');
+  await page.goto('/today');
   await request.post(`${API}/__test/control`, {
     data: {
       failPath: '/desk/today',
@@ -20,7 +20,7 @@ test('ошибка стойки показывается сразу, даже е
       delayMs: 6000,
     },
   });
-  await page.goto('/finance', { waitUntil: 'commit' });
+  await page.goto('/today', { waitUntil: 'commit' });
   await expect(page.getByTestId('desk-error')).toBeVisible({ timeout: 2500 });
 });
 
@@ -45,12 +45,13 @@ test('«Финансы» показывают блоки, пока настро�
 });
 
 test('стойка и её шахматка запрашиваются параллельно', async ({ page, request }) => {
-  await page.goto('/finance'); // компиляция next dev не входит в бюджет
+  // блоки стойки живут на «Главной» (ADR-180)
+  await page.goto('/today'); // компиляция next dev не входит в бюджет
   await request.post(`${API}/__test/reset`);
   await request.post(`${API}/__test/control`, {
     data: { delayPath: '/desk/today', delayMs: 5000 },
   });
-  await page.goto('/finance', { waitUntil: 'commit' });
+  await page.goto('/today', { waitUntil: 'commit' });
   await expect
     .poll(async () => {
       const hits = await (await request.get(`${API}/__test/hits`)).json();

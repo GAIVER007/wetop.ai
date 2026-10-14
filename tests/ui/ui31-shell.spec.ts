@@ -26,9 +26,10 @@ test('UI3.1: одна кнопка, стабильная ширина и кла�
   // список компактный (#501): фокус группу не раскрывает, раскрывает ArrowRight или щелчок
   await sales.focus();
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
-  await page.keyboard.press('ArrowRight');
+  await sales.press('Enter');
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await page.screenshot({ path: `${shots}/after-desktop-menu-subsections.png` });
+  await page.keyboard.press('ArrowRight');
   await expect(panel.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(sales).toBeFocused();

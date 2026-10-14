@@ -222,3 +222,26 @@
 .caption :global(.board-stay-source::before) {
   content: none;
 }
+
+.bookingTooltip {
+  position: fixed;
+  z-index: var(--layer-toast);
+  transform: translateY(calc(-100% - var(--space-2)));
+  width: min(320px, calc(100vw - 24px));
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface-solid);
+  color: var(--text);
+  box-shadow: var(--shadow-floating);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+.bookingTooltip strong { font-size: var(--text-base); }
+.caption :global(.board-stay-source) { flex-shrink: 0; }
+
+.bookingTooltip[data-below] { transform: translateY(var(--space-2)); }

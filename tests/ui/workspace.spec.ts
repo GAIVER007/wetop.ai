@@ -1584,20 +1584,24 @@ test('финансы F1: период в подзаголовке, четыре 
   // с 09.10 в main две ссылки «Сегодня» (навигация «Период обзора» в шапке и «Готовые периоды»
   // у фильтров) — проверяем ровно фильтровую
   const presets = main.getByRole('navigation', { name: 'Готовые периоды' });
+  const todayHref = await presets.getByRole('link', { name: 'Сегодня', exact: true }).getAttribute('href');
+  const day = new URL(todayHref!, 'http://wetop.test').searchParams.get('from')!;
+  const month = new Intl.DateTimeFormat('ru-RU', {day: 'numeric', month: 'long', timeZone: 'UTC'})
+    .formatToParts(new Date(`${day}T00:00:00Z`)).find((part) => part.type === 'month')!.value;
   await presets.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL(/\/finance\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
   await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(
     /is-active/,
   );
   // компактная подпись контрола периода (ADR-180): дата словами, без «За период с»
-  await expect(main.getByTestId('finance-period')).toContainText(/\d+ [а-яё]+ \d{4}/);
+  await expect(main.getByTestId('finance-period')).toContainText(`${Number(day.slice(8))} ${month} ${day.slice(0, 4)}`);
   // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
   await page.goto('/finance?from=2026-09-01&to=2026-09-30');
   await expect(main.getByTestId('finance-period')).toBeVisible();
   await expect(main.getByTestId('finance-error')).toContainText('Проверьте подключение');
   await expect(main.getByTestId('charged')).toHaveCount(0);
-  await expect(main.locator('#finance-filters input[name="from"]')).toHaveValue('2026-09-01');
+  await expect(main.getByTestId('period-form').locator('input[name="from"]')).toHaveValue('2026-09-01');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await main
     .getByTestId('finance-error')

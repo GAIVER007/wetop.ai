@@ -7,9 +7,9 @@ test.beforeEach(async ({ request }) => {
 test('финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/finance#charges');
-  await expect(page.getByTestId('cash-summary')).toBeHidden();
-  await page.getByRole('tab', { name: 'Начисления', exact: true }).click();
-  await expect(page.getByRole('tab', { name: 'Начисления', exact: true })).toHaveAttribute(
+  await expect(page.getByTestId('cash-summary')).toBeVisible();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
+  await expect(page.getByRole('tab', { name: 'Обзор', exact: true })).toHaveAttribute(
     'aria-selected',
     'true',
   );
@@ -23,7 +23,7 @@ test('финансы: обзор на ноутбуке, вкладки и пер
   await expect(page.getByTestId('finance-charges')).not.toBeVisible();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByTestId('finance-debts')).toBeVisible();
-  await page.getByRole('tab', { name: 'Начисления', exact: true }).click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await page.getByTestId('kpi-paid').click();
   await settleStreaming(page);
   await expect(page.getByTestId('finance-operations')).toBeVisible();

@@ -49,7 +49,7 @@ test('F2: оплаты и возвраты — колонки, строка ит
   await expect(rows.first().getByRole('link')).toHaveAttribute('href', /#booking-finance$/);
 
   // «Начислено» — к видам начислений, «Оплачено» — к оплатам, «Возвращено» — к возвратам
-  await page.getByRole('tab', { name: 'Начисления', exact: true }).click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await main.getByTestId('kpi-charged').click();
   await expect(page).toHaveURL(/#charges$/);
   await expect(main.locator('#charges')).toBeInViewport();
@@ -58,7 +58,7 @@ test('F2: оплаты и возвраты — колонки, строка ит
   await expect(page.getByLabel('Тип операции', { exact: true })).toHaveValue('payment');
   for (const row of await main.getByTestId('op-row').all())
     await expect(row).toHaveAttribute('data-kind', 'PAYMENT');
-  await page.getByRole('tab', { name: 'Начисления', exact: true }).click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await main.getByTestId('kpi-refunded').click();
   await expect(page).toHaveURL(/op=refund#operations$/);
   await expect(main.getByTestId('ops-empty')).toHaveText('Операций не найдено.');
@@ -69,7 +69,7 @@ test('F2: способ в «Оплатах по способам» ведёт к
 }) => {
   await page.goto(`${url}#operations`);
   const main = page.getByRole('main');
-  await page.getByRole('tab', { name: 'Начисления', exact: true }).click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await main.getByTestId('payments-table').getByRole('link', { name: 'Наличные' }).click();
   await expect(page).toHaveURL(/op=payment&method=CASH#operations$/);
   const methods = page.getByLabel('Способ оплаты', { exact: true });
@@ -138,7 +138,7 @@ test('F2: сбой операций не роняет итоги и долги; 
   await page.goto(`${url}#operations`);
   const main = page.getByRole('main');
   await expect(page.getByTestId('cash-period-income')).toHaveText('Нет данных');
-  await page.getByRole('tab', { name: 'Начисления', exact: true }).click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(main.getByTestId('charged')).toBeVisible();
   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('finance-debts')).toBeVisible();

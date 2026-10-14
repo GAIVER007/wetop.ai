@@ -2,10 +2,9 @@
 
 import { useSyncExternalStore, type ReactNode } from 'react';
 
-type View = 'dashboard' | 'overview' | 'operations' | 'debts' | 'services' | 'cash';
+type View = 'overview' | 'operations' | 'debts' | 'services' | 'cash';
 const tabs = [
-  { id: 'dashboard', label: 'Обзор', hash: '#overview' },
-  { id: 'overview', label: 'Начисления', hash: '#charges' },
+  { id: 'overview', label: 'Обзор', hash: '#overview' },
   { id: 'operations', label: 'Операции', hash: '#operations' },
   { id: 'debts', label: 'Долги', hash: '#debts' },
   // REP2: отчёт по услугам — свод начислений-услуг периода
@@ -24,9 +23,6 @@ function subscribe(notify: () => void) {
 /** Existing bookmarked drill-down links keep opening the corresponding panel. */
 export function FinanceWorkspace({
   initialView,
-  dashboard,
-  filters,
-  periodEditor,
   overview,
   operations,
   debts,
@@ -34,9 +30,6 @@ export function FinanceWorkspace({
   cash,
 }: {
   initialView: View | null;
-  dashboard: ReactNode;
-  filters: ReactNode;
-  periodEditor: ReactNode;
   overview: ReactNode;
   operations: ReactNode;
   debts: ReactNode;
@@ -51,14 +44,16 @@ export function FinanceWorkspace({
   const active =
     hash === '#finance-filters'
       ? 'operations'
-      : (tabs.find((tab) => tab.hash === hash)?.id ?? initialView ?? 'dashboard');
+      : hash === '#charges'
+        ? 'overview'
+        : (tabs.find((tab) => tab.hash === hash)?.id ?? initialView ?? 'overview');
   const choose = (index: number) => {
     const tab = tabs[index]!;
     window.history.pushState(null, '', tab.hash);
     window.dispatchEvent(new Event('hashchange'));
     document.getElementById(`finance-tab-${tab.id}`)?.focus();
   };
-  const panels = { dashboard, overview, operations, debts, services, cash };
+  const panels = { overview, operations, debts, services, cash };
   return (
     <div className="finance-workspace finance-more">
       <div id="finance-details">
@@ -94,19 +89,6 @@ export function FinanceWorkspace({
             </button>
           ))}
         </div>
-        <div hidden={active !== 'operations'}>{filters}</div>
-        {active !== 'operations' && active !== 'cash' && (
-          <details className="finance-period-editor">
-            <summary>Свои даты</summary>
-            <form
-              method="get"
-              action={`/finance${tabs.find((tab) => tab.id === active)?.hash ?? '#overview'}`}
-              className="finance-toolbar"
-            >
-              {periodEditor}
-            </form>
-          </details>
-        )}
         {tabs.map((tab) => (
           <div
             key={tab.id}

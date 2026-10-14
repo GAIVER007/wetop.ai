@@ -1,9 +1,11 @@
 'use client';
 import design from './calendar-design.module.css';
 import Link from 'next/link';
+import { createPortal } from 'react-dom';
 import {
   Fragment,
   useCallback,
+  useId,
   useEffect,
   useMemo,
   useRef,
@@ -1511,6 +1513,28 @@ function Cell({
   pending: boolean;
   onCancel: (payload: StayMenuPayload) => void;
 }) {
+  const tooltipId = useId();
+  const [tooltip, setTooltip] = useState<{ left: number; top: number; below: boolean } | null>(null);
+  const tooltipOpen = tooltip !== null;
+  useEffect(() => {
+    if (!tooltipOpen) return;
+    const close = () => setTooltip(null);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [tooltipOpen]);
+  const showTooltip = (anchor: HTMLElement) => {
+    const rect = anchor.getBoundingClientRect();
+    const below = rect.top < 240;
+    setTooltip({
+      left: Math.max(12, Math.min(rect.left, window.innerWidth - 332)),
+      top: below ? rect.bottom : rect.top,
+      below,
+    });
+  };
   // цвет клетки зависит от данных — единственный инлайн-стиль сетки; значения из токенов globals.css
   const bg =
     cell.state === 'BLOCKED'
@@ -1643,6 +1667,12 @@ function Cell({
               event.preventDefault();
               onOpen(card);
             }}
+            onMouseEnter={(event) => showTooltip(event.currentTarget)}
+            onMouseLeave={() => setTooltip(null)}
+            onFocus={(event) => showTooltip(event.currentTarget)}
+            onBlur={() => setTooltip(null)}
+            onKeyDown={(event) => { if (event.key === 'Escape') setTooltip(null); }}
+            aria-describedby={tooltip ? tooltipId : undefined}
             aria-haspopup="dialog"
             className={cx('board__stay', lifted && 'is-lifted')}
             aria-label={title}
@@ -1728,6 +1758,16 @@ function Cell({
               </span>
             )}
           </Link>
+          {tooltip && createPortal(
+            <div role="tooltip" id={tooltipId} className={design.bookingTooltip} data-below={tooltip.below || undefined} style={{ left: tooltip.left, top: tooltip.top }} // slop-allow: inline-style координаты подсказки из геометрии ссылки брони
+            >
+              <strong>{names.full || 'Бронь без имени'}</strong>
+              <span>Бронь {cell.confirmationNumber}, {statusText(hospitalityStatus, cell.itemStatus ?? '')}</span>
+              <span>{badge?.name ?? 'Источник не указан'}, номер {unitCode}</span>
+              {label && <span>{plateDates(label)}, {nights(label.span, label.continues || !label.ends)}</span>}
+              {hasDebt && <AmountChip minor={cell.balanceMinor!} tone="due" />}
+            </div>, document.body,
+          )}
           {/* C2: меню действий — брат ссылки, а не её потомок: клик по плашке и перетаскивание не задеты */}
           {label && withMenu && cell.confirmationNumber && cell.itemId && (
             <ActionMenu

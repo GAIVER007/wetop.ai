@@ -95,6 +95,7 @@ test('узкий телефон: плитки финансов в две кол�
   // денежный экран по эталону 13.10 (ADR-180): четыре плитки на телефоне парами, свёртка «Отчёты и управление» снята
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const columns = await page
     .locator('.fin-kpis')
     .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);

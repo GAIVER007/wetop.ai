@@ -53,6 +53,8 @@ function compatible(path: string, vertical: WebVertical): boolean {
  */
 function targetFor(vertical: WebVertical, rawNext: string | null): string {
   const next = rawNext ? safeReturnPath(rawNext) : null;
+  if (vertical === 'BEAUTY' && (!next || next === '/today' || !compatible(next, vertical)))
+    return '/register/setup?entry=1';
   if (next && compatible(next, vertical)) return next;
   return vertical === 'HOSPITALITY' ? landingForVertical(vertical) : '/register/setup';
 }

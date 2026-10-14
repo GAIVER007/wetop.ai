@@ -35,7 +35,7 @@ it('несколько филиалов: тот, что человек выби�
   expect(decideScope(items, '/today', L2)).toEqual({
     kind: 'select',
     pointer: `business=${B2};location=${L2}`,
-    target: '/today',
+    target: '/register/setup?entry=1',
   });
   expect(decideScope(items, null, L1)).toEqual({
     kind: 'select',
@@ -57,12 +57,12 @@ it('next чужого направления заменяется стартов
     target: '/register/setup',
   });
   expect(decideScope([branch('BEAUTY')], '/floor-plan')).toMatchObject({
-    target: '/register/setup',
+    target: '/register/setup?entry=1',
   });
 });
 
-it('/today общий для всех направлений: сохраняется у салона и ресторана (MV8)', () => {
-  for (const v of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)
+it('/today сохраняется у гостиницы и ресторана, Beauty проверяет готовность', () => {
+  for (const v of ['HOSPITALITY', 'FOOD_SERVICE'] as const)
     expect(decideScope([branch(v)], '/today')).toMatchObject({ target: '/today' });
 });
 
@@ -96,4 +96,11 @@ it('устаревший указатель: кука есть, а /auth/me не
   expect(scopeIsStale(undefined, { user, context: { businessId: null } })).toBe(false);
   expect(scopeIsStale(cookie, { user: null, context: null })).toBe(false);
   expect(scopeIsStale('garbage', { user, context: { businessId: null } })).toBe(false);
+});
+
+it('Beauty default work entry checks setup before continuing, without changing explicit calendar links', () => {
+  expect(decideScope([branch('BEAUTY')], '/today')).toMatchObject({
+    target: '/register/setup?entry=1',
+  });
+  expect(decideScope([branch('BEAUTY')], '/calendar')).toMatchObject({ target: '/calendar' });
 });

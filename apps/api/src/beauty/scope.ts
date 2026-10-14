@@ -97,16 +97,21 @@ export async function beautyTransaction<T>(
   fn: (tx: DbTx) => Promise<T>,
 ): Promise<T> {
   try {
-    return await prisma.db.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT id FROM organizations WHERE id = ${scope.organizationId}::uuid FOR SHARE`;
-      await tx.$queryRaw`SELECT id FROM businesses WHERE id = ${scope.businessId}::uuid FOR SHARE`;
-      if (scope.locationId)
-        await tx.$queryRaw`SELECT id FROM locations WHERE id = ${scope.locationId}::uuid FOR SHARE`;
-      await assertWritable(tx);
-      await beautyScope({ db: tx }, scope.locationId !== null);
-      return fn(tx);
-    });
+    return await prisma.db.$transaction(
+      async (tx) => {
+        await tx.$queryRaw`SELECT id FROM organizations WHERE id = ${scope.organizationId}::uuid FOR SHARE`;
+        await tx.$queryRaw`SELECT id FROM businesses WHERE id = ${scope.businessId}::uuid FOR UPDATE`;
+        if (scope.locationId)
+          await tx.$queryRaw`SELECT id FROM locations WHERE id = ${scope.locationId}::uuid FOR UPDATE`;
+        await assertWritable(tx);
+        await beautyScope({ db: tx }, scope.locationId !== null);
+        return fn(tx);
+      },
+      { maxWait: 5000, timeout: 10000 },
+    );
   } catch (error) {
+    if ((error as { code?: string })?.code === 'P2002')
+      throw new ConflictException('Идентификатор уже занят. Проверьте сохранённые данные.');
     if (isOverlapViolation(error)) throw new ConflictException('Мастер в это время уже занят');
     throw error;
   }

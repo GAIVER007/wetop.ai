@@ -219,12 +219,22 @@ export class AuthService {
     });
     const vertical = parseBusinessVertical(business?.vertical);
     if (!business || !vertical) return null;
+    const otherBusiness = await this.prisma.db.business.findFirst({
+      where: { organizationId, status: 'ACTIVE', id: { not: business.id } },
+      select: { id: true },
+    });
+    if (otherBusiness && otherBusiness.id !== business.id) return null;
     const location = await this.prisma.db.location.findFirst({
       where: { businessId: business.id, status: 'ACTIVE' },
       orderBy: { createdAt: 'asc' },
       select: { id: true, name: true },
     });
     if (!location) return null;
+    const otherLocation = await this.prisma.db.location.findFirst({
+      where: { businessId: business.id, status: 'ACTIVE', id: { not: location.id } },
+      select: { id: true },
+    });
+    if (otherLocation && otherLocation.id !== location.id) return null;
     return {
       businessId: business.id,
       locationId: location.id,
@@ -291,7 +301,8 @@ export class AuthService {
     // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
     // приостановленный член в организацию не входит (DATA_MODEL §31.2): пароль он назвал верно, поэтому говорим причину
     const active = user.memberships.find((m) => m.status === 'ACTIVE');
-    if (!active && user.memberships.length > 0) throw new ForbiddenException(ACCESS_SUSPENDED_MESSAGE);
+    if (!active && user.memberships.length > 0)
+      throw new ForbiddenException(ACCESS_SUSPENDED_MESSAGE);
     const organizationId = active?.organizationId;
     if (!organizationId) throw new UnauthorizedException(WRONG);
     await this.assertOrganizationOpen(organizationId);

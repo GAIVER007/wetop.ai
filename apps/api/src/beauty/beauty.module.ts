@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ConflictException,
   Get,
   Inject,
   Injectable,
@@ -21,13 +22,31 @@ import {
   parseLocationServiceInput,
   type Permission,
 } from '@pms/domain';
+import type { DbTx } from '@pms/database';
+import {
+  creationKey,
+  receiptFor,
+  assertCreationReceipt,
+  assertUnusedCreationKey,
+  assertProfileBeforeCreate,
+  assertRevision,
+  skillsRevision,
+  canonicalRevision,
+} from './write-contract';
 import { currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { BeautyAppointmentsController, BeautyAppointmentsService } from './appointments';
 import { BeautyScheduleController, BeautyScheduleService } from './schedule';
-import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
+import {
+  beautyScope,
+  beautyTransaction,
+  mayBeauty,
+  mayBeautyWrite,
+  UUID,
+  type BeautyScope,
+} from './scope';
 
 /**
  * Каталог салона: услуги сети и мастера (DATA_MODEL §19 и §19.1, срез B3, ADR-141).
@@ -56,7 +75,10 @@ export class BeautyCatalogService {
     this.may('desk');
     const scope = await this.scope();
     const items = await this.prisma.db.customer.findMany({
-      where: { organizationId: scope.organizationId, businesses: { some: { businessId: scope.businessId } } },
+      where: {
+        organizationId: scope.organizationId,
+        businesses: { some: { businessId: scope.businessId } },
+      },
       orderBy: [{ firstName: 'asc' }, { id: 'asc' }],
       select: { id: true, firstName: true, lastName: true, phone: true, status: true },
     });
@@ -99,10 +121,25 @@ export class BeautyCatalogService {
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const input = parsed.value as Required<NonNullable<typeof parsed.value>>;
     const scope = await this.scope();
+    const key = creationKey(raw);
+    const receipt = key ? receiptFor(scope, 'beauty_service', input) : null;
     const created = await beautyTransaction(this.prisma, scope, async (tx) => {
+      if (key) {
+        const existing = await tx.beautyService.findFirst({
+          where: { id: key, businessId: scope.businessId },
+        });
+        if (existing) {
+          await assertCreationReceipt(tx, scope, 'beauty_service', key, receipt!);
+          if (!existing.active)
+            throw new ConflictException('Услуга в архиве. Проверьте её в каталоге.');
+          return existing;
+        }
+      }
+      if (key) await assertUnusedCreationKey(tx, scope, 'beauty_service', key);
+      await assertProfileBeforeCreate(tx, scope);
       const row = await tx.beautyService.create({
         data: {
-          id: randomUUID(),
+          id: key ?? randomUUID(),
           businessId: scope.businessId,
           name: input.name,
           category: input.category,
@@ -119,7 +156,7 @@ export class BeautyCatalogService {
           entityType: 'beauty_service',
           entityId: row.id,
           action: 'beauty.service.created',
-          after: plain(row),
+          after: { ...plain(row), ...(receipt ? { creationReceipt: receipt } : {}) },
         },
       });
       return row;
@@ -228,20 +265,24 @@ export class BeautyCatalogService {
   async employees() {
     this.may('desk');
     const scope = await this.scope();
-    const rows = await this.prisma.db.employee.findMany({
-      where: { businessId: scope.businessId },
-      orderBy: [{ status: 'asc' }, { name: 'asc' }],
-      select: {
-        id: true,
-        name: true,
-        phone: true,
-        email: true,
-        status: true,
-        locations: { select: { locationId: true } },
-        services: { select: { serviceId: true } },
-      },
-    });
-    return { locationId: scope.locationId, items: rows.map(employeeView) };
+    const profiles = await employeeProfiles(this.prisma.db, scope.businessId);
+    const children = await employeeChildren(
+      this.prisma.db,
+      profiles.map((row) => row.id),
+    );
+    return {
+      locationId: scope.locationId,
+      items: profiles.map((profile) => ({
+        ...employeeView(profile, children.get(profile.id)),
+        profileRevision: profile.profileRevision,
+        servicesRevision: canonicalRevision(
+          (children.get(profile.id)?.services ?? []).map((row) => [
+            row.serviceId,
+            row.createdAt.toISOString(),
+          ]),
+        ),
+      })),
+    };
   }
 
   async createEmployee(raw: unknown) {
@@ -250,10 +291,25 @@ export class BeautyCatalogService {
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const input = parsed.value as Required<NonNullable<typeof parsed.value>>;
     const scope = await this.scope();
+    const key = creationKey(raw);
+    const receipt = key ? receiptFor(scope, 'employee', input) : null;
     const created = await beautyTransaction(this.prisma, scope, async (tx) => {
+      if (key) {
+        const existing = await tx.employee.findFirst({
+          where: { id: key, businessId: scope.businessId },
+        });
+        if (existing) {
+          await assertCreationReceipt(tx, scope, 'employee', key, receipt!);
+          if (existing.status !== 'ACTIVE')
+            throw new ConflictException('Мастер в архиве. Проверьте его в списке.');
+          return existing;
+        }
+      }
+      if (key) await assertUnusedCreationKey(tx, scope, 'employee', key);
+      await assertProfileBeforeCreate(tx, scope);
       const row = await tx.employee.create({
         data: {
-          id: randomUUID(),
+          id: key ?? randomUUID(),
           businessId: scope.businessId,
           name: input.name,
           phone: input.phone,
@@ -273,16 +329,16 @@ export class BeautyCatalogService {
           entityType: 'employee',
           entityId: row.id,
           action: 'beauty.employee.created',
-          after: { name: row.name, locationId: scope.locationId },
+          after: {
+            name: row.name,
+            locationId: scope.locationId,
+            ...(receipt ? { creationReceipt: receipt } : {}),
+          },
         },
       });
       return row;
     });
-    return employeeView({
-      ...created,
-      locations: scope.locationId ? [{ locationId: scope.locationId }] : [],
-      services: [],
-    });
+    return this.employee(created.id, scope.businessId);
   }
 
   async updateEmployee(id: string, raw: unknown) {
@@ -291,27 +347,40 @@ export class BeautyCatalogService {
     const parsed = parseEmployeeInput(raw, { partial: true });
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const scope = await this.scope();
-    const current = await this.prisma.db.employee.findFirst({
-      where: { id, businessId: scope.businessId },
-    });
-    if (!current) throw new NotFoundException('Мастер не найден');
     const p = parsed.value;
-    const data: {
-      name?: string;
-      phone?: string | null;
-      email?: string | null;
-      status?: 'ACTIVE' | 'ARCHIVED';
-    } = {};
-    if (p.name !== undefined && p.name !== current.name) data.name = p.name;
-    if (p.phone !== undefined && p.phone !== current.phone) data.phone = p.phone;
-    if (p.email !== undefined && p.email !== current.email) data.email = p.email;
-    if (p.active !== undefined) {
-      const status = p.active ? 'ACTIVE' : 'ARCHIVED';
-      if (status !== current.status) data.status = status;
-    }
-    if (Object.keys(data).length === 0) return this.employee(current.id, scope.businessId);
-    await beautyTransaction(this.prisma, scope, async (tx) => {
-      await tx.employee.update({ where: { id: current.id }, data });
+    const expected = expectedProfileRevision(raw);
+    return beautyTransaction(this.prisma, scope, async (tx) => {
+      const current = await lockedEmployeeProfile(tx, id, scope.businessId);
+      if (!current) throw new NotFoundException('Мастер не найден');
+      // Старые клиенты без expectedProfileRevision сохраняют прежний контракт без CAS.
+      if (expected !== undefined && expected !== current.profileRevision)
+        throw new ConflictException(
+          'Профиль изменён в другом окне. Загрузите актуальные данные перед сохранением.',
+        );
+      const next = {
+        name: p.name ?? current.name,
+        phone: p.phone !== undefined ? p.phone : current.phone,
+        email: p.email !== undefined ? p.email : current.email,
+        status:
+          p.active === undefined
+            ? current.status
+            : p.active
+              ? ('ACTIVE' as const)
+              : ('ARCHIVED' as const),
+      };
+      const changed = Object.keys(next).filter(
+        (key) => next[key as keyof typeof next] !== current[key as keyof typeof next],
+      );
+      if (changed.length === 0) return this.employee(current.id, scope.businessId, tx);
+      await tx.$executeRaw`
+        UPDATE employees
+        SET name = ${next.name},
+            phone = ${next.phone},
+            email = ${next.email},
+            status = ${next.status}::"EmployeeStatus",
+            updated_at = GREATEST(clock_timestamp(), updated_at + INTERVAL '1 microsecond')
+        WHERE id = ${current.id}::uuid AND business_id = ${scope.businessId}::uuid
+      `;
       await tx.auditLog.create({
         data: {
           organizationId: scope.organizationId,
@@ -319,12 +388,12 @@ export class BeautyCatalogService {
           entityType: 'employee',
           entityId: current.id,
           action: 'beauty.employee.updated',
-          before: pick(plain(current), Object.keys(data)),
-          after: pick(plain({ ...current, ...data }), Object.keys(data)),
+          before: pick(plain(current), changed),
+          after: pick(plain(next), changed),
         },
       });
+      return this.employee(current.id, scope.businessId, tx);
     });
-    return this.employee(current.id, scope.businessId);
   }
 
   /** Что мастер умеет: список услуг каталога целиком, не добавлением по одной */
@@ -349,6 +418,7 @@ export class BeautyCatalogService {
     if (own.length !== wanted.length)
       throw new BadRequestException('Среди выбранных услуг есть чужая');
     await beautyTransaction(this.prisma, scope, async (tx) => {
+      await assertRevision(body, await skillsRevision(tx, employee.id));
       await tx.employeeService.deleteMany({ where: { employeeId: employee.id } });
       if (wanted.length)
         await tx.employeeService.createMany({
@@ -368,21 +438,123 @@ export class BeautyCatalogService {
     return this.employee(employee.id, scope.businessId);
   }
 
-  private async employee(id: string, businessId: string) {
-    const row = await this.prisma.db.employee.findFirstOrThrow({
-      where: { id, businessId },
-      select: {
-        id: true,
-        name: true,
-        phone: true,
-        email: true,
-        status: true,
-        locations: { select: { locationId: true } },
-        services: { select: { serviceId: true } },
-      },
-    });
-    return employeeView(row);
+  private async employee(id: string, businessId: string, db: EmployeeDb = this.prisma.db) {
+    const profile = await employeeProfile(db, id, businessId);
+    if (!profile) throw new NotFoundException('Мастер не найден');
+    const children = (await employeeChildren(db, [id])).get(id);
+    return {
+      ...employeeView(profile, children),
+      profileRevision: profile.profileRevision,
+      servicesRevision: canonicalRevision(
+        (children?.services ?? []).map((row) => [row.serviceId, row.createdAt.toISOString()]),
+      ),
+    };
   }
+}
+
+type EmployeeDb = Pick<DbTx, '$queryRaw' | 'employeeLocation' | 'employeeService'>;
+type EmployeeProfile = {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  status: 'ACTIVE' | 'ARCHIVED';
+  profileRevision: string;
+};
+type EmployeeChildren = {
+  locations: Array<{ locationId: string }>;
+  services: Array<{ serviceId: string; createdAt: Date }>;
+};
+
+async function employeeProfiles(db: EmployeeDb, businessId: string): Promise<EmployeeProfile[]> {
+  return db.$queryRaw<EmployeeProfile[]>`
+    SELECT id::text,
+           name,
+           phone,
+           email,
+           status::text AS status,
+           to_char(updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "profileRevision"
+    FROM employees
+    WHERE business_id = ${businessId}::uuid
+    ORDER BY status ASC, name ASC, id ASC
+  `;
+}
+
+async function employeeProfile(
+  db: EmployeeDb,
+  id: string,
+  businessId: string,
+): Promise<EmployeeProfile | null> {
+  const rows = await db.$queryRaw<EmployeeProfile[]>`
+    SELECT id::text,
+           name,
+           phone,
+           email,
+           status::text AS status,
+           to_char(updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "profileRevision"
+    FROM employees
+    WHERE id = ${id}::uuid AND business_id = ${businessId}::uuid
+  `;
+  return rows[0] ?? null;
+}
+
+async function lockedEmployeeProfile(
+  db: EmployeeDb,
+  id: string,
+  businessId: string,
+): Promise<EmployeeProfile | null> {
+  const rows = await db.$queryRaw<EmployeeProfile[]>`
+    SELECT id::text,
+           name,
+           phone,
+           email,
+           status::text AS status,
+           to_char(updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "profileRevision"
+    FROM employees
+    WHERE id = ${id}::uuid AND business_id = ${businessId}::uuid
+    FOR UPDATE
+  `;
+  return rows[0] ?? null;
+}
+
+async function employeeChildren(
+  db: EmployeeDb,
+  employeeIds: string[],
+): Promise<Map<string, EmployeeChildren>> {
+  const grouped = new Map<string, EmployeeChildren>(
+    employeeIds.map((id) => [id, { locations: [], services: [] }]),
+  );
+  if (employeeIds.length === 0) return grouped;
+  const [locations, services] = await Promise.all([
+    db.employeeLocation.findMany({
+      where: { employeeId: { in: employeeIds } },
+      select: { employeeId: true, locationId: true },
+    }),
+    db.employeeService.findMany({
+      where: { employeeId: { in: employeeIds } },
+      orderBy: [{ employeeId: 'asc' }, { serviceId: 'asc' }],
+      select: { employeeId: true, serviceId: true, createdAt: true },
+    }),
+  ]);
+  for (const row of locations)
+    grouped.get(row.employeeId)?.locations.push({ locationId: row.locationId });
+  for (const row of services)
+    grouped
+      .get(row.employeeId)
+      ?.services.push({ serviceId: row.serviceId, createdAt: row.createdAt });
+  return grouped;
+}
+
+function expectedProfileRevision(raw: unknown): string | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const expected = (raw as Record<string, unknown>).expectedProfileRevision;
+  if (expected === undefined) return undefined;
+  if (
+    typeof expected !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(expected)
+  )
+    throw new BadRequestException('Некорректная версия профиля');
+  return expected;
 }
 
 /** Услуга наружу: цена строкой тиынов (деньги не float, ADR-008) и действующая цена филиала словами домена */
@@ -450,23 +622,24 @@ function serviceView(
   };
 }
 
-function employeeView(row: {
-  id: string;
-  name: string;
-  phone: string | null;
-  email: string | null;
-  status: string;
-  locations: Array<{ locationId: string }>;
-  services: Array<{ serviceId: string }>;
-}) {
+function employeeView(
+  row: {
+    id: string;
+    name: string;
+    phone: string | null;
+    email: string | null;
+    status: string;
+  },
+  children: EmployeeChildren | undefined,
+) {
   return {
     id: row.id,
     name: row.name,
     phone: row.phone,
     email: row.email,
     active: row.status === 'ACTIVE',
-    locationIds: row.locations.map((l) => l.locationId),
-    serviceIds: row.services.map((s) => s.serviceId),
+    locationIds: (children?.locations ?? []).map((location) => location.locationId),
+    serviceIds: (children?.services ?? []).map((service) => service.serviceId),
   };
 }
 
@@ -477,7 +650,10 @@ function plain(row: Record<string, unknown>): LogRow {
   return Object.fromEntries(
     Object.entries(row)
       .filter(([, v]) => typeof v !== 'object' || v === null)
-      .map(([k, v]) => [k, typeof v === 'bigint' ? v.toString() : (v as string | number | boolean | null)]),
+      .map(([k, v]) => [
+        k,
+        typeof v === 'bigint' ? v.toString() : (v as string | number | boolean | null),
+      ]),
   );
 }
 
@@ -493,7 +669,8 @@ export class BeautyCatalogController {
   constructor(@Inject(BeautyCatalogService) private readonly service: BeautyCatalogService) {}
 
   @RequiresBusinessCapability('beauty.customers')
-  @Get('customers') customers() {
+  @Get('customers')
+  customers() {
     return this.service.customers();
   }
 
@@ -518,32 +695,38 @@ export class BeautyCatalogController {
   }
 
   @RequiresBusinessCapability('beauty.employees')
-  @Get('employees') employees() {
+  @Get('employees')
+  employees() {
     return this.service.employees();
   }
   // Мастера это то, чем салон работает: право `property`, как номерной фонд в гостинице (Q-253)
   @RequiresBusinessCapability('beauty.employees')
-  @Access('property') @Post('employees') createEmployee(@Body() body: unknown) {
+  @Access('property')
+  @Post('employees')
+  createEmployee(@Body() body: unknown) {
     return this.service.createEmployee(body);
   }
   @RequiresBusinessCapability('beauty.employees')
-  @Access('property') @Patch('employees/:id') updateEmployee(
-    @Param('id') id: string,
-    @Body() body: unknown,
-  ) {
+  @Access('property')
+  @Patch('employees/:id')
+  updateEmployee(@Param('id') id: string, @Body() body: unknown) {
     return this.service.updateEmployee(id, body);
   }
   @RequiresBusinessCapability('beauty.employees')
-  @Access('property') @Put('employees/:id/services') setEmployeeServices(
-    @Param('id') id: string,
-    @Body() body: unknown,
-  ) {
+  @Access('property')
+  @Put('employees/:id/services')
+  setEmployeeServices(@Param('id') id: string, @Body() body: unknown) {
     return this.service.setEmployeeServices(id, body);
   }
 }
 
 @Module({
   controllers: [BeautyCatalogController, BeautyScheduleController, BeautyAppointmentsController],
-  providers: [BeautyCatalogService, BeautyScheduleService, BeautyAppointmentsService, PrismaService],
+  providers: [
+    BeautyCatalogService,
+    BeautyScheduleService,
+    BeautyAppointmentsService,
+    PrismaService,
+  ],
 })
 export class BeautyModule {}

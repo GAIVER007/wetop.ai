@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
@@ -50,7 +51,14 @@ export default async function BeautySchedulePage({
           : 'Недельный график мастера. Филиал пока не выбран.'
       }
     >
-      <ScheduleBoard data={loaded.value} canEdit={canEdit} />
+      <p>
+        <Link href="/register/setup">Вернуться к настройке салона</Link>
+      </p>
+      <ScheduleBoard
+        key={loaded.value.location?.id ?? 'none'}
+        data={loaded.value}
+        canEdit={canEdit}
+      />
     </Page>
   );
 }

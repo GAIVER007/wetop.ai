@@ -2021,7 +2021,7 @@ body:has(.org-reference) .topmenu {
 .org-editor .org-editor-branch-actions form {
   display: contents;
 }
-.org-editor .org-editor-settings {
+.org-editor button.org-editor-settings {
   background: var(--surface);
   color: var(--primary);
 }

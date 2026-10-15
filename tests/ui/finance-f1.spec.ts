@@ -55,11 +55,14 @@ test('F1: заголовок и период в подзаголовке, пер
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`${url}#charges`);
   const main = page.getByRole('main');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Касса');
-  await expect(main.getByTestId('finance-period')).toContainText('За период с');
-  await expect(main.getByTestId('finance-period')).toContainText('по');
-  // Начальный экран без поиска брони и вторичных действий.
-  await expect(page.locator('.page__actions')).toHaveCount(0);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Финансы');
+  // один контрол периода (Q-DES-1, ADR-180): подпись «1–31 октября 2026» на кнопке
+  await expect(main.getByTestId('finance-period')).toContainText(/\d+–\d+ [а-яё]+ \d{4}/);
+  // в действиях страницы контрол периода и «Экспорт»; поиска броней и «Новой брони» нет (ADR-180)
+  await expect(
+    page.locator('.page__actions').getByRole('link', { name: 'Экспорт', exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('.page__actions').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
 
   // Даты и отборы на компьютере располагаются одним рядом.
   const form = main.getByTestId('period-form');

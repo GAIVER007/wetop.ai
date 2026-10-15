@@ -1,0 +1,43 @@
+# Сквозные (e2e) · 07.10.2026 17:49 Алматы · vm
+# коммит 4cb3746 (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] /home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238
+[WebServer]       throw new PrismaClientKnownRequestError(message, {
+[WebServer]             ^
+[WebServer] 
+[WebServer] PrismaClientKnownRequestError: 
+[WebServer] Invalid `prisma.organization.create()` invocation:
+[WebServer] 
+[WebServer] 
+[WebServer] Can't reach database server at 127.0.0.1:55432
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async <anonymous> (/home/user/wetop.ai/tests/beauty-ui/fixture-api.ts:32:1) {
+[WebServer]   code: 'P1001',
+[WebServer]   meta: {
+[WebServer]     modelName: 'Organization',
+[WebServer]     driverAdapterError: DriverAdapterError: DatabaseNotReachable
+[WebServer]         at PrismaPgAdapter.onError (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+[WebServer]         at PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+[WebServer]         at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]         at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+[WebServer]         at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+[WebServer]         at async e.interpretNode (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:228:41)
+[WebServer]         at async e.interpretNode (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:273:41)
+[WebServer]         at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:121:23)
+[WebServer]         at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+[WebServer]         at async yr.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:510:22) {
+[WebServer]       cause: { kind: 'DatabaseNotReachable', host: '127.0.0.1', port: 55432 }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] 
+[WebServer] Node.js v22.22.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 5 с

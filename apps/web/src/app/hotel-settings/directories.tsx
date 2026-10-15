@@ -7,7 +7,7 @@ import { saveCashCategory, savePaymentMethods, type DirectoryActionResult } from
 import { SETTINGS_FORM_ID, useSaveReport } from './settings-save';
 
 /**
- * «Справочники» в «Настройках объекта» (DATA_MODEL §21.6, ADR-152, план plans/property-directories-2026-10-07.md):
+ * «Справочники» в «Настройках объекта» (DATA_MODEL §21.6, ADR-185, план plans/property-directories-2026-10-07.md):
  * способы оплаты, которые объект принимает, и их порядок; статьи кассы. Способы остаются системными кодами,
  * объект их включает, выключает и упорядочивает; выключенный не предлагается при приёме денег, история не меняется.
  */

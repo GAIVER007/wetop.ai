@@ -58,7 +58,7 @@ export function AgentCreateForm({
           name="name"
           required
           maxLength={80}
-          placeholder="AI-продавец Luxx"
+          placeholder="ИИ-продавец Luxx"
           defaultValue={kept?.name ?? ''}
           data-testid="agent-name"
           {...invalid('name')}
@@ -99,7 +99,7 @@ export function AgentCreateForm({
       </Field>
       {business?.locations.some((l) => !l.free) && (
         <Notice tone="muted" data-testid="agent-location-taken">
-          Занятый филиал выбрать нельзя: для него AI-продавец уже создан.
+          Занятый филиал выбрать нельзя: для него ИИ-продавец уже создан.
         </Notice>
       )}
       <Stack gap="sm">

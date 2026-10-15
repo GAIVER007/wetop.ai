@@ -155,7 +155,7 @@ describe('варианты и счётчик окошка «Фильтры»', (
     expect(statusOptions(rows)).toEqual([
       { key: 'TENTATIVE', label: 'Не подтверждена' },
       { key: 'CONFIRMED', label: 'Подтверждена' },
-      { key: 'CHECKED_IN', label: 'Заселён' },
+      { key: 'CHECKED_IN', label: 'Проживает' },
     ]);
   });
   it('на кнопке — число заданных условий (поиск не считается)', () => {

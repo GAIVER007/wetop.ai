@@ -29,7 +29,7 @@ export function ctaLink(cta: Cta | undefined, ctx: RenderContext, ghost = false)
   return `<a class="btn${ghost ? ' btn--ghost' : ''}" href="${esc(target.href)}"${rel}>${t(cta.label, ctx)}</a>`;
 }
 
-/** Картинка только с адресом из карты ассетов; в MKT4 карта пуста, и картинок нет (план MKT4 §8) */
+/** Картинка только с подписанным адресом из карты ассетов (MKT8); адреса нет, нет и картинки */
 function image(ref: unknown, ctx: RenderContext, eager = false): string {
   const [img] = resolvedImages(ref ? [ref] : [], ctx.assets);
   if (!img) return '';

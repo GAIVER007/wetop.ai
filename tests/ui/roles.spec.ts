@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, menuLinks } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -25,11 +25,6 @@ async function signIn(page: Page) {
 const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF') =>
   request.post(`${API}/__test/control`, { data: { role } });
 
-const menuLinks = (page: Page) =>
-  page
-    .locator('.workspace-header .topmenu a')
-    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
-
 const shot = (page: Page, name: string) =>
   page.screenshot({ path: `reports/roles-2026-09-27/${name}.png`, fullPage: true });
 
@@ -39,16 +34,18 @@ test('администратор: в меню — работа с гостями
 }) => {
   await signIn(page);
   await asRole(request, 'STAFF');
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect
     .poll(() => menuLinks(page))
     .toEqual([
+      // «Главная» первой (ADR-180), дальше порядок владельца 13.10 (#501); «Бар» в группе «Финансы» (ADR-157)
       '/today',
       '/chessboard',
-      '/reservations',
+      // «Гости и бронирования» (поручение владельца 09.10.2026): одна вкладка на месте «Броней» и «Гостей»
       '/guests',
       '/finance',
       '/bar',
+      '/sales',
       '/market',
       '/ai-agents',
       '/reports',
@@ -69,7 +66,7 @@ test('администратор: закрытые разделы по адре�
   await asRole(request, 'STAFF');
   const main = page.getByRole('main');
   for (const [route, title, text] of [
-    ['/journal', 'Журнал', '«Журнал операций»: доступ есть только у владельца.'],
+    ['/journal', 'Журнал операций', '«Журнал операций»: доступ есть только у владельца.'],
     ['/channels', 'Каналы продаж', '«Каналы продаж»: доступ есть у владельца и управляющего.'],
     [
       '/hotel-settings',
@@ -126,7 +123,8 @@ test('администратор принимает оплату, но возв�
     const form = page.getByTestId('payment-form').first();
     await form.locator('[name=amount]').fill('1000');
     await form.locator('[name=note]').fill(note);
-    await form.getByRole('button', { name: 'Принять оплату' }).click();
+    await form.getByRole('button', { name: 'Проверить оплату' }).click();
+    await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
     await expect(page.getByTestId('payment-row').filter({ hasText: note })).toHaveCount(1);
   };
 
@@ -220,7 +218,7 @@ test('управляющий: журнал и платформа закрыты;
 }) => {
   await signIn(page);
   await asRole(request, 'MANAGER');
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect.poll(() => menuLinks(page)).toContain('/market');
   const links = await menuLinks(page);
   for (const href of ['/channels', '/hotel-settings', '/team', '/connections'])
@@ -240,7 +238,7 @@ test('управляющий: журнал и платформа закрыты;
   await expect(drawer.getByTestId('invite-role-fixed')).toContainText(
     'Управляющий приглашает администраторов',
   );
-  await expect(drawer.getByLabel('Роль приглашённого', { exact: true })).toHaveCount(0);
+  await expect(drawer.getByLabel('Должность', { exact: true })).toHaveCount(0);
   await drawer.getByRole('button', { name: 'Отмена' }).click();
   const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
@@ -249,7 +247,7 @@ test('управляющий: журнал и платформа закрыты;
   ).toHaveCount(0);
   await expect(rows.filter({ hasText: 'Дана Тестова' })).toContainText('это вы');
   // роль меняет только владелец
-  await expect(main.getByRole('combobox', { name: /^Роль:/ })).toHaveCount(0);
+  await expect(main.getByRole('combobox', { name: /^Должность:/ })).toHaveCount(0);
   // приглашение управляющего отозвать нельзя, администратора — можно
   const invites = main.getByTestId('invite-list');
   await expect(
@@ -276,7 +274,7 @@ test('владелец: зовёт управляющего и админист�
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const drawer = page.getByRole('dialog');
-  const role = drawer.getByLabel('Роль приглашённого', { exact: true });
+  const role = drawer.getByLabel('Должность', { exact: true });
   await expect(role.locator('option')).toHaveText(['Управляющий', 'Администратор']);
   await expect(role).toHaveValue('STAFF');
 
@@ -296,7 +294,7 @@ test('владелец: зовёт управляющего и админист�
 
   const admin = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
   await expect(admin).toContainText('администратор');
-  await admin.getByRole('combobox', { name: 'Роль: Юрий Тестов' }).selectOption('MANAGER');
+  await admin.getByRole('combobox', { name: 'Должность: Юрий Тестов' }).selectOption('MANAGER');
   await expect(admin).toContainText('управляющий');
   await shot(page, 'team-owner');
 });

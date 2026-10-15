@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 11.10.2026 11:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 907a513 (claude/kitchen-fs2-stock), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' 'tests/food-ui/stock.spec.ts' 'tests/food-ui/restaurant.spec.ts'
+Error: Process from config.webServer was not able to start. Exit code: 137
+
+
+# код выхода 1 · 2 с

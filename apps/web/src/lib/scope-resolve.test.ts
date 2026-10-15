@@ -30,6 +30,27 @@ it('несколько филиалов: никогда не выбираетс�
   expect(decision).not.toHaveProperty('pointer');
 });
 
+it('несколько филиалов: тот, что человек выбирал последним, выбирается сам, если он ещё доступен', () => {
+  const items = [branch('HOSPITALITY'), branch('BEAUTY', B2, L2)];
+  expect(decideScope(items, '/today', L2)).toEqual({
+    kind: 'select',
+    pointer: `business=${B2};location=${L2}`,
+    target: '/today',
+  });
+  expect(decideScope(items, null, L1)).toEqual({
+    kind: 'select',
+    pointer: `business=${B1};location=${L1}`,
+    target: '/today',
+  });
+});
+
+it('запомненный филиал, которого нет в ответе сервера, не выбирается: человек выбирает сам', () => {
+  const items = [branch('HOSPITALITY'), branch('BEAUTY', B2, L2)];
+  const gone = '55555555-5555-4555-8555-555555555555';
+  expect(decideScope(items, '/today', gone)).toEqual({ kind: 'choose', target: '/branches' });
+  expect(decideScope(items, '/today', '')).toEqual({ kind: 'choose', target: '/branches' });
+});
+
 it('next чужого направления заменяется стартовой страницей направления', () => {
   expect(decideScope([branch('HOSPITALITY')], '/calendar')).toMatchObject({ target: '/today' });
   expect(decideScope([branch('FOOD_SERVICE')], '/chessboard')).toMatchObject({
@@ -58,8 +79,10 @@ it('next своего направления и общие разделы сох
 });
 
 it('next только безопасный локальный путь', () => {
-  for (const next of ['//evil.invalid', 'https://evil.invalid/today', '/login', null, '/\\evil'])
+  // небезопасная строка падает в общий «/today» (safeReturnPath), гостиницу оттуда уводит редирект в «Финансы»
+  for (const next of ['//evil.invalid', 'https://evil.invalid/today', '/login', '/\\evil'])
     expect(decideScope([branch('HOSPITALITY')], next)).toMatchObject({ target: '/today' });
+  expect(decideScope([branch('HOSPITALITY')], null)).toMatchObject({ target: '/today' });
 });
 
 it('устаревший указатель: кука есть, а /auth/me не подтвердил ни Business, ни филиал', () => {

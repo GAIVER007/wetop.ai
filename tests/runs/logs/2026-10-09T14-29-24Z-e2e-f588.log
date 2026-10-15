@@ -1,0 +1,141 @@
+# Сквозные (e2e) · 09.10.2026 19:29 Алматы · vm
+# коммит e1a5145 (claude/fervent-mayer-8xg2nf)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/bar.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/top-menu.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 42 tests using 1 worker
+
+  ✓   1 tests/ui/bar.spec.ts:23:1 › обзор по макету: показатели, быстрая продажа, доска товаров, приходы и популярные (2.9s)
+  ✓   2 tests/ui/bar.spec.ts:72:1 › карточка товара боковой панелью: правка полей и цены, закрытие Escape (2.0s)
+  ✓   3 tests/ui/bar.spec.ts:95:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (1.9s)
+  ✓   4 tests/ui/bar.spec.ts:108:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (4.1s)
+  ✓   5 tests/ui/bar.spec.ts:140:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.6s)
+  ✓   6 tests/ui/bar.spec.ts:153:1 › приходы: оплата долга из журнала; товары: новый товар и цена в строке; поставщики: расчёты (5.1s)
+  ✓   7 tests/ui/bar.spec.ts:180:1 › операции: списание с причиной, журнал продаж и лента движений (2.4s)
+  ✓   8 tests/ui/bar.spec.ts:194:3 › доступность и телефон: light (4.2s)
+  ✓   9 tests/ui/bar.spec.ts:194:3 › доступность и телефон: dark (4.8s)
+  ✓  10 tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (4.7s)
+  ✓  11 tests/ui/navigation.spec.ts:92:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (3.6s)
+  ✓  12 tests/ui/navigation.spec.ts:119:1 › все пункты меню открывают существующие страницы (20.2s)
+  ✓  13 tests/ui/navigation.spec.ts:167:3 › меню телефона и планшета ровное и доступное: light (4.3s)
+  ✓  14 tests/ui/navigation.spec.ts:167:3 › меню телефона и планшета ровное и доступное: dark (4.5s)
+  ✓  15 tests/ui/navigation.spec.ts:222:1 › «Гости» открываются вкладкой раздела «Брони», меню подсвечивает «Брони» (2.9s)
+  ✓  16 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (3.6s)
+  ✓  17 tests/ui/platform-access.spec.ts:86:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.4s)
+  ✓  18 tests/ui/platform-access.spec.ts:108:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (5.2s)
+  ✓  19 tests/ui/platform-access.spec.ts:147:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (5.0s)
+  ✓  20 tests/ui/platform-access.spec.ts:175:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (2.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     ...
+[WebServer]                       <h2>
+[WebServer]                       <p>
+[WebServer]                       <KnowledgeUploadForm>
+[WebServer]                         <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                           <Field label="Документ: ...">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="file"
+[WebServer]                                   name="file"
+[WebServer]                                   accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                   required={true}
+[WebServer]                                   data-testid="knowledge-file"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  21 tests/ui/platform-access.spec.ts:195:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (5.1s)
+  ✓  22 tests/ui/platform-access.spec.ts:218:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (7.6s)
+  ✓  23 tests/ui/platform-access.spec.ts:275:5 › доступность: «Организации» и состояния расширения, light, 1440px (14.7s)
+  ✓  24 tests/ui/platform-access.spec.ts:275:5 › доступность: «Организации» и состояния расширения, dark, 1440px (13.4s)
+  ✓  25 tests/ui/platform-access.spec.ts:275:5 › доступность: «Организации» и состояния расширения, light, 390px (13.7s)
+  ✓  26 tests/ui/platform-access.spec.ts:275:5 › доступность: «Организации» и состояния расширения, dark, 390px (13.2s)
+  ✓  27 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.6s)
+  ✓  28 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (7.7s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  29 tests/ui/roles.spec.ts:101:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.8s)
+  ✓  30 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  31 tests/ui/roles.spec.ts:155:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (8.2s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  32 tests/ui/roles.spec.ts:217:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (7.6s)
+  ✓  33 tests/ui/roles.spec.ts:273:1 › владелец: зовёт управляющего и администратора, меняет роль (3.3s)
+  ✓  34 tests/ui/roles.spec.ts:304:1 › администратор: сотрудниками ведают владелец и управляющий (2.2s)
+  ✓  35 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 1440px (6.6s)
+  ✓  36 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 1440px (6.2s)
+  ✓  37 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, light, 390px (5.9s)
+  ✓  38 tests/ui/roles.spec.ts:316:5 › доступность: сотрудники и отказ по роли, dark, 390px (6.5s)
+  ✓  39 tests/ui/top-menu.spec.ts:54:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (5.8s)
+  ✓  40 tests/ui/top-menu.spec.ts:127:1 › вложенные адреса подсвечивают свою вкладку (5.5s)
+  ✓  41 tests/ui/top-menu.spec.ts:163:3 › шапка ровная, без прокрутки вбок и доступная: light (4.2s)
+  ✓  42 tests/ui/top-menu.spec.ts:163:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.4s)
+
+  42 passed (4.3m)
+
+# код выхода 0 · 4 мин 21 с

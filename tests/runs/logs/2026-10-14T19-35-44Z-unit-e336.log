@@ -1,0 +1,43 @@
+# Модульные (unit) · 15.10.2026 00:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0997dbc (codex/bar-indicators-sale-20261014)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-35-44Z-unit-e336.json' '--project' 'unit' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/bar-indicators-sale/WETOP
+
+ ❯ |unit| tests/unit/ui-fixture-address.test.ts (2 tests | 1 failed) 245ms
+   ❯ адрес подставного API в наборе UI (2)
+     × ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API 239ms
+     ✓ FIXTURE_API берёт адрес из UI_FIXTURE_API, а 4311 оставляет умолчанием 4ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  12:35:56
+   Duration  1.33s (tests 69%, transform 20%, import 9%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-14T19-35-44Z-unit-e336.json
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ui-fixture-address.test.ts > адрес подставного API в наборе UI > ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API
+AssertionError: expected [ 'bar-reference.spec.ts' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "bar-reference.spec.ts",
++ ]
+
+ ❯ tests/unit/ui-fixture-address.test.ts:30:41
+     28| describe('адрес подставного API в наборе UI', () => {
+     29|   it('ни один спек не зашивает адрес стенда: он приходит из FIXTURE_AP…
+     30|     expect(specsWithHardcodedAddress()).toEqual([]);
+       |                                         ^
+     31|   });
+     32|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+# код выхода 1 · 13 с

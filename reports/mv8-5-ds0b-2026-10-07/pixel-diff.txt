@@ -1,0 +1,60 @@
+## screens
+hospitality-chessboard-1440-dark.png           191193 / 1296000 px   14.753 %  область x 193–1245, y 166–871
+hospitality-chessboard-1440-light.png           64451 / 1296000 px    4.973 %  область x 193–1245, y 166–871
+hospitality-chessboard-390-dark.png              5822 / 329160 px    1.769 %  область x 79–380, y 132–774
+hospitality-chessboard-390-light.png             5196 / 329160 px    1.579 %  область x 79–380, y 132–774
+hospitality-guests-1440-dark.png                  508 / 1296000 px    0.039 %  область x 543–897, y 394–869
+hospitality-guests-1440-light.png                 506 / 1296000 px    0.039 %  область x 543–897, y 394–869
+hospitality-guests-390-dark.png                   122 / 329160 px    0.037 %  область x 73–79, y 565–742
+hospitality-guests-390-light.png                  122 / 329160 px    0.037 %  область x 73–79, y 565–742
+hospitality-reservations-1440-dark.png           1008 / 1296000 px    0.078 %  область x 152–373, y 326–843
+hospitality-reservations-1440-light.png           992 / 1296000 px    0.077 %  область x 152–373, y 326–843
+hospitality-reservations-390-dark.png             354 / 329160 px    0.108 %  область x 26–181, y 399–774
+hospitality-reservations-390-light.png            347 / 329160 px    0.105 %  область x 26–181, y 399–774
+hospitality-today-1440-dark.png                  1813 / 1296000 px    0.140 %  область x 144–704, y 170–636
+hospitality-today-1440-light.png                 1823 / 1296000 px    0.141 %  область x 144–704, y 170–636
+hospitality-today-390-dark.png                   1587 / 329160 px    0.482 %  область x 8–358, y 108–387
+hospitality-today-390-light.png                  1598 / 329160 px    0.485 %  область x 8–358, y 108–387
+снимков: 16, с отличиями: 16
+## beauty
+appointments-1440-dark.png                          0 / 1440000 px    0.000 %
+appointments-1440-light.png                         0 / 1440000 px    0.000 %
+appointments-390-dark.png                           0 / 329160 px    0.000 %
+appointments-390-light.png                          0 / 329160 px    0.000 %
+calendar-1440-dark.png                              0 / 1494720 px    0.000 %
+calendar-1440-light.png                             0 / 1494720 px    0.000 %
+calendar-390-dark.png                               0 / 638040 px    0.000 %
+calendar-390-light.png                              0 / 638040 px    0.000 %
+customers-1440-dark.png                             0 / 1440000 px    0.000 %
+customers-1440-light.png                            0 / 1440000 px    0.000 %
+customers-390-dark.png                              0 / 329160 px    0.000 %
+customers-390-light.png                             0 / 329160 px    0.000 %
+снимков: 12, с отличиями: 0
+## food
+dining-areas-dark-1440.png                          0 / 1440000 px    0.000 %
+dining-areas-dark-390.png                           0 / 390000 px    0.000 %
+dining-areas-light-1440.png                         0 / 1440000 px    0.000 %
+dining-areas-light-390.png                          0 / 390000 px    0.000 %
+floor-plan-dark-1440.png                            0 / 1440000 px    0.000 %
+floor-plan-dark-390.png                             0 / 390000 px    0.000 %
+floor-plan-light-1440.png                           0 / 1440000 px    0.000 %
+floor-plan-light-390.png                            0 / 390000 px    0.000 %
+table-reservations-dark-1440.png                    0 / 1440000 px    0.000 %
+table-reservations-dark-390.png                     0 / 390000 px    0.000 %
+table-reservations-light-1440.png                   0 / 1440000 px    0.000 %
+table-reservations-light-390.png                    0 / 390000 px    0.000 %
+снимков: 12, с отличиями: 0
+## today
+today-beauty-1440-dark.png                       2939 / 1440000 px    0.204 %  область x 57–350, y 165–757
+today-beauty-1440-light.png                      2934 / 1440000 px    0.204 %  область x 57–350, y 165–757
+today-beauty-390-dark.png                        2425 / 484380 px    0.501 %  область x 41–334, y 126–1040
+today-beauty-390-light.png                       2387 / 484380 px    0.493 %  область x 41–334, y 126–1040
+today-food-1440-dark.png                         3150 / 1452960 px    0.217 %  область x 218–1382, y 165–937
+today-food-1440-light.png                        2517 / 1452960 px    0.173 %  область x 218–1382, y 165–937
+today-food-390-dark.png                          3842 / 612300 px    0.627 %  область x 17–366, y 126–1332
+today-food-390-light.png                         3212 / 612300 px    0.525 %  область x 17–366, y 126–1444
+today-hospitality-1440-dark.png                  1813 / 1440000 px    0.126 %  область x 144–704, y 170–636
+today-hospitality-1440-light.png                 1823 / 1440000 px    0.127 %  область x 144–704, y 170–636
+today-hospitality-390-dark.png                   1587 / 329160 px    0.482 %  область x 8–358, y 108–387
+today-hospitality-390-light.png                  1598 / 329160 px    0.485 %  область x 8–358, y 108–387
+снимков: 12, с отличиями: 12

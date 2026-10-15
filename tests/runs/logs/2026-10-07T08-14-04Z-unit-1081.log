@@ -1,0 +1,59 @@
+# Модульные (unit) · 07.10.2026 13:14 Алматы · vm
+# коммит 012c06d (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-14-04Z-unit-1081.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/design-slop.test.ts (17 tests | 2 failed) 22ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (17)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 3ms
+     ✓ space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 1ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 1ms
+     ✓ dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 0ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     ✓ radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     ✓ z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 0ms
+     ✓ font-literal: размер шрифта литералом вместо --text-* (DESIGN.md §4.1, MV8.5 DS0a) 0ms
+     ✓ space-literal-not-var: отступ литералом вместо --space-*, даже на шкале (DESIGN.md §4.1, MV8.5 DS0a) 0ms
+     × inline-style: style={…} в TSX: только геометрия из данных и только с `slop-allow: inline-style <причина>` (MV8.5 DS0a) 10ms
+     ✓ breakpoint-literal: точка перелома вне max 600 / min 601 / max 960 / min 961 / max 1279 / min 1280, var() или диапазон в @media (DESIGN.md §4.1) 0ms
+     ✓ layer-name: @layer вне договора reset, tokens, base, components, sections, utilities (DESIGN.md §20.6) 0ms
+     × orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a) 2ms
+     ✓ снимок покрывает все правила 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > inline-style: style={…} в TSX: только геометрия из данных и только с `slop-allow: inline-style <причина>` (MV8.5 DS0a)
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > orphan-module: .tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/today/today-widgets.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:30:9
+     28|         worse,
+     29|         `новые нарушения — исправьте или объясните в reports/design-au…
+     30|       ).toEqual([]);
+       |         ^
+     31|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+     32|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 15 passed (17)
+   Start at  08:14:05
+   Duration  1.16s (import 58%, transform 38%, tests 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-14-04Z-unit-1081.json
+
+# код выхода 1 · 3 с

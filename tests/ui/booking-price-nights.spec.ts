@@ -25,17 +25,40 @@ test('форма брони: детализация цены по дням, су
   await expect(form.getByTestId('price-by-night-sum')).toContainText('средняя стоимость ночи');
 });
 
-test('календарь: сводка дня карточкой справа, управление слева', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/chessboard');
-  const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-  await expect(panel).toBeVisible();
-  const p = (await panel.boundingBox())!;
-  const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
-  // сводка по образцу Lite PMS (06.10): карточка справа, управление слева от неё, не под ней
-  expect(p.height).toBeLessThanOrEqual(190);
-  expect(c.x + c.width).toBeLessThanOrEqual(p.x + 1);
-  await expect(panel.getByTestId('day-free')).toBeVisible();
-  await expect(panel.getByTestId('day-units')).toHaveCount(0);
-  await page.screenshot({ path: 'reports/calendar-2026-10-02/header-compact-1440.png' });
-});
+for (const width of [1280, 1366, 1440]) {
+  test(`календарь ${width}px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка`, async ({
+    page,
+  }) => {
+    // Эталон владельца 13.10.2026 (UI4.2): заголовок слева и период, «Сегодня», «Новая бронь» справа одной
+    // строкой; под ним шесть плиток в один ряд; затем полоса фильтров; затем сетка.
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/chessboard');
+    const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
+    await expect(panel).toBeVisible();
+    const head = (await page.locator('main > .page__head').boundingBox())!;
+    const p = (await panel.boundingBox())!;
+    const bar = (await page.locator('.board-toolbar').boundingBox())!;
+    const grid = (await page.locator('.board-wrap').boundingBox())!;
+    expect(head.height).toBeLessThanOrEqual(64);
+    expect(head.y + head.height).toBeLessThanOrEqual(p.y + 1);
+    expect(p.height).toBeLessThanOrEqual(120);
+    expect(p.y + p.height).toBeLessThanOrEqual(bar.y + 1);
+    expect(bar.height).toBeLessThanOrEqual(56);
+    expect(bar.y + bar.height).toBeLessThanOrEqual(grid.y + 1);
+    expect(grid.y).toBeLessThanOrEqual(360);
+    const tops = await panel
+      .locator('.stat')
+      .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
+    expect(tops).toHaveLength(6);
+    expect(new Set(tops).size).toBe(1);
+    // период и «Новая бронь» на одной линии с заголовком; ярлык «Сегодня» снят в #506 (пресет внутри периода)
+    const lineTops = await page
+      .locator('main > .page__head')
+      .locator('.board-period, .board-nav > .btn, .board-new')
+      .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 8)));
+    expect(lineTops).toHaveLength(2);
+    expect(new Set(lineTops).size).toBe(1);
+    await expect(panel.getByTestId('day-free')).toBeVisible();
+    await expect(panel.getByTestId('day-units')).toHaveCount(0);
+  });
+}

@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, devNoise, expect, test, type APIRequestContext, type Page } from './fixtures';
+import { FIXTURE_API, devNoise, expect, test, type APIRequestContext, type Page, menuLinks } from './fixtures';
 
 /**
  * «Продажи → Сайт и онлайн-бронирование» (ADR-117, срез WEB1): сайт объекта — одно место вместо трёх («Аналитика
@@ -39,13 +39,15 @@ test('старые адреса ведут во вкладки модуля и �
 
 test('одна точка входа в меню и четыре вкладки со своим адресом', async ({ page }) => {
   await page.goto('/website');
-  const sidebar = page.locator('.workspace-header .topmenu');
-  const hrefs = await sidebar
-    .locator('a')
-    .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+  const hrefs = await menuLinks(page);
   // MKT2: вход в сайт один, пункт «Маркетинг → Сайт и SEO» ведёт в хаб; у страниц /website/* пункта меню нет
   expect(hrefs.filter((href) => href?.startsWith('/website'))).toEqual([]);
-  expect(hrefs.filter((href) => href?.startsWith('/marketing'))).toEqual(['/marketing']);
+  // МКТ-В1/В2: в группе «Маркетинг» сайт и SEO, бюджет и аналитика маркетинга; адресов сайта `/website` в меню нет
+  expect(hrefs.filter((href) => href?.startsWith('/marketing'))).toEqual([
+    '/marketing',
+    '/marketing/budget',
+    '/marketing/analytics',
+  ]);
   expect(hrefs.filter((href) => href?.startsWith('/analytics'))).toEqual([]);
   const tabs = page.getByRole('navigation', { name: TITLE, exact: true });
   await expect(tabs.getByRole('link')).toHaveText([
@@ -66,7 +68,7 @@ test('одна точка входа в меню и четыре вкладки 
       'aria-current',
       'page',
     );
-    await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
+    await expect(page.locator('.sidenav__items [aria-current="page"]')).toHaveText('Сайт и SEO');
   }
 });
 
@@ -143,6 +145,29 @@ test('настройки: пауза и удаление — в «Опасной
   await expect(dialog).toContainText('счётчик не записывает посещения');
   await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
   await expect(page.getByTestId('site-toggle')).toHaveText('Приостановить сайт');
+});
+
+test('MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409', async ({
+  page,
+  request,
+}) => {
+  await realDomain(request);
+  await request.post(`${API}/__test/control`, { data: { siteManaged: true } });
+  for (const path of ['/website/settings', '/website/booking']) {
+    await page.goto(path);
+    const main = page.getByRole('main');
+    const notice = main.getByTestId('website-managed-site');
+    await expect(notice).toContainText('сайт WETOP');
+    await expect(notice.getByRole('link')).toHaveAttribute('href', '/marketing/site');
+    await expect(main.getByTestId('site-card')).toHaveCount(0);
+    await expect(main.getByTestId('site-danger')).toHaveCount(0);
+  }
+  const r = await request.patch(`${API}/analytics/sites/ui-site`, {
+    headers: TEST_CLIENT,
+    data: { hosts: ['rogue.example.com'] },
+  });
+  expect(r.status()).toBe(409);
+  expect((await r.json()).code).toBe('MANAGED_SITE_READ_ONLY');
 });
 
 test('четыре вкладки: доступность в двух темах, телефон без прокрутки вбок', async ({

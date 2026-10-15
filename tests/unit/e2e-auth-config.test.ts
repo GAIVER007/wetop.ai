@@ -1,10 +1,11 @@
 /**
- * Конфиг прогона e2e: замок API включается только по `E2E_AUTH=1` и включается целиком.
+ * Конфиг прогона e2e: замок API включён по умолчанию (решение владельца 07.10.2026 после MV8: изолированные
+ * сквозные идут вошедшим пользователем), выключается только явным `E2E_AUTH=0` и включается целиком.
  *
  * Зачем проверка: включение замка (`plans/slice-13-accounts-saas.md` §7а) касается четырёх мест разом —
  * стенд API, стойка, вход в фикстуре и служебный ключ для прямых запросов спеков. Забыть одно из них
- * значит получить либо 401 на каждом спеке, либо зелёный прогон, который ничего не доказал. И наоборот:
- * обычный прогон без переменной должен остаться таким, каким был до 16.09.2026.
+ * значит получить либо 401 на каждом спеке, либо зелёный прогон, который ничего не доказал. С MV8 стойка
+ * production-сборкой без входа не угадывает гостиницу, поэтому прогон без входа проверял бы не тот продукт.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { PlaywrightTestConfig } from '@playwright/test';
@@ -14,10 +15,11 @@ interface Stand {
   env?: Record<string, string>;
 }
 
-async function config(auth: boolean): Promise<PlaywrightTestConfig> {
+/** `undefined` значит «переменная не задана» */
+async function config(auth: '0' | '1' | undefined): Promise<PlaywrightTestConfig> {
   vi.resetModules();
-  if (auth) process.env['E2E_AUTH'] = '1';
-  else delete process.env['E2E_AUTH'];
+  if (auth === undefined) delete process.env['E2E_AUTH'];
+  else process.env['E2E_AUTH'] = auth;
   const loaded = (await import('../../playwright.config')) as { default: PlaywrightTestConfig };
   return loaded.default;
 }
@@ -36,12 +38,20 @@ describe('конфиг e2e и замок API', () => {
   it('изолированный API проверяет сессии без рабочего SESSION_SECRET', async () => {
     vi.stubEnv('SESSION_SECRET', '');
     vi.stubEnv('E2E_SESSION_SECRET', '');
-    const c = await config(true);
+    const c = await config('1');
     expect(api(c)?.env?.['SESSION_SECRET']).toBeTruthy();
   });
 
-  it('без переменной прогон идёт как раньше: замка нет, шага входа нет', async () => {
-    const c = await config(false);
+  it('без переменной замок включён: изолированные сквозные идут вошедшим пользователем', async () => {
+    const c = await config(undefined);
+    expect(c.projects?.map((p) => p.name)).toEqual(['schema-guard', 'auth', 'isolated']);
+    expect(api(c)?.env?.['AUTH_REQUIRED']).toBe('1');
+    expect(web(c)?.env?.['APP_AUTH_REQUIRED']).toBe('1');
+    expect(c.projects?.find((p) => p.name === 'isolated')?.use?.storageState).toMatch(/runs\/\.auth\/desk\.json$/);
+  });
+
+  it('E2E_AUTH=0, явный отказ: замка нет, шага входа нет', async () => {
+    const c = await config('0');
     expect(c.projects?.map((p) => p.name)).toEqual(['schema-guard', 'isolated']);
     // выключен явным «0»: стойка стенда — production-сборка, а там без переменной вход обязателен (ADR-095)
     expect(api(c)?.env?.['AUTH_REQUIRED']).toBe('0');
@@ -51,7 +61,7 @@ describe('конфиг e2e и замок API', () => {
   });
 
   it('E2E_AUTH=1 включает замок на стенде, вход перед спеками и служебный ключ', async () => {
-    const c = await config(true);
+    const c = await config('1');
     const projects = c.projects ?? [];
     expect(projects.map((p) => p.name)).toEqual(['schema-guard', 'auth', 'isolated']);
     // вход идёт после предохранителя схемы и до спеков — иначе сотрудник уехал бы в рабочие данные

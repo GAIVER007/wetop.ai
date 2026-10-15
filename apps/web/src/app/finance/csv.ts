@@ -11,5 +11,15 @@ export function csvTenge(minor: string, negative = false): string {
   return `${sign}${abs / 100n},${String(abs % 100n).padStart(2, '0')}`;
 }
 
-/** Поле с «;», кавычкой или переводом строки берётся в кавычки, кавычки удваиваются */
-export const csvField = (s: string) => (/[;"\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+/** Отрицательная сумма из `csvTenge`: «-3000,00». Единственное, что может начинаться с «-» и не быть формулой */
+const MONEY = /^-\d+,\d{2}$/;
+
+/**
+ * Поле с «;», кавычкой или переводом строки берётся в кавычки, кавычки удваиваются. Текст, который Excel
+ * прочёл бы как формулу (начало «=», «+», «-», «@», табуляция, возврат каретки), получает впереди апостроф
+ * (RPT2.2a, CSV injection); суммы вида «-3000,00» не трогаются.
+ */
+export const csvField = (s: string) => {
+  const safe = /^[=+\-@\t\r]/.test(s) && !MONEY.test(s) ? `'${s}` : s;
+  return /[;"\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+};

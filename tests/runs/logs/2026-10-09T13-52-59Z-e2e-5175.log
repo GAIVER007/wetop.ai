@@ -1,0 +1,144 @@
+# Сквозные (e2e) · 09.10.2026 18:52 Алматы · vm
+# коммит 97364f8 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/bar.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+[WebServer] ⨯ Error: Attempted to call stockStatusOf() from the server but stockStatusOf is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+[WebServer]     at <unknown> (src/app/bar/page.tsx:54:57)
+[WebServer]     at Array.filter (<anonymous>)
+[WebServer]     at BarPage (src/app/bar/page.tsx:54:27)
+[WebServer]   52 |   const active = stock.value.filter((item) => item.active);
+[WebServer]   53 |   const unitsTotal = active.reduce((sum, item) => sum + BigInt(item.availableUnits), 0n);
+[WebServer] > 54 |   const lowCount = active.filter((item) => stockStatusOf(item) !== 'ok').length;
+[WebServer]      |                                                         ^
+[WebServer]   55 |   const debtors = new Set(receipts.value.filter((receipt) => receipt.status === 'POSTED' && BigInt(receipt.dueAmount) > 0n).map((receipt) => receipt.supplier.id)).size;
+[WebServer]   56 |   const revenue = BigInt(report.value.revenueMinor);
+[WebServer]   57 |   const margin = revenue > 0n ? Number((BigInt(report.value.grossProfitMinor) * 100n) / revenue) : null; {
+[WebServer]   digest: '2793417514'
+[WebServer] }
+  ✘  1 tests/ui/bar.spec.ts:23:1 › обзор по макету: показатели, быстрая продажа, доска товаров, приходы и популярные (16.9s)
+[WebServer] ⨯ Error: Attempted to call stockStatusOf() from the server but stockStatusOf is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+[WebServer]     at <unknown> (src/app/bar/page.tsx:54:57)
+[WebServer]     at Array.filter (<anonymous>)
+[WebServer]     at BarPage (src/app/bar/page.tsx:54:27)
+[WebServer]   52 |   const active = stock.value.filter((item) => item.active);
+[WebServer]   53 |   const unitsTotal = active.reduce((sum, item) => sum + BigInt(item.availableUnits), 0n);
+[WebServer] > 54 |   const lowCount = active.filter((item) => stockStatusOf(item) !== 'ok').length;
+[WebServer]      |                                                         ^
+[WebServer]   55 |   const debtors = new Set(receipts.value.filter((receipt) => receipt.status === 'POSTED' && BigInt(receipt.dueAmount) > 0n).map((receipt) => receipt.supplier.id)).size;
+[WebServer]   56 |   const revenue = BigInt(report.value.revenueMinor);
+[WebServer]   57 |   const margin = revenue > 0n ? Number((BigInt(report.value.grossProfitMinor) * 100n) / revenue) : null; {
+[WebServer]   digest: '2793417514'
+[WebServer] }
+  ✘  2 tests/ui/bar.spec.ts:72:1 › карточка товара боковой панелью: правка полей и цены, закрытие Escape (45.1s)
+  ✓  3 tests/ui/bar.spec.ts:95:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.0s)
+  ✓  4 tests/ui/bar.spec.ts:108:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (4.5s)
+  ✓  5 tests/ui/bar.spec.ts:140:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.9s)
+  ✓  6 tests/ui/bar.spec.ts:153:1 › приходы: оплата долга из журнала; товары: новый товар и цена в строке; поставщики: расчёты (4.9s)
+  ✓  7 tests/ui/bar.spec.ts:180:1 › операции: списание с причиной, журнал продаж и лента движений (2.2s)
+[WebServer] ⨯ Error: Attempted to call stockStatusOf() from the server but stockStatusOf is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+[WebServer]     at <unknown> (src/app/bar/page.tsx:54:57)
+[WebServer]     at Array.filter (<anonymous>)
+[WebServer]     at BarPage (src/app/bar/page.tsx:54:27)
+[WebServer]   52 |   const active = stock.value.filter((item) => item.active);
+[WebServer]   53 |   const unitsTotal = active.reduce((sum, item) => sum + BigInt(item.availableUnits), 0n);
+[WebServer] > 54 |   const lowCount = active.filter((item) => stockStatusOf(item) !== 'ok').length;
+[WebServer]      |                                                         ^
+[WebServer]   55 |   const debtors = new Set(receipts.value.filter((receipt) => receipt.status === 'POSTED' && BigInt(receipt.dueAmount) > 0n).map((receipt) => receipt.supplier.id)).size;
+[WebServer]   56 |   const revenue = BigInt(report.value.revenueMinor);
+[WebServer]   57 |   const margin = revenue > 0n ? Number((BigInt(report.value.grossProfitMinor) * 100n) / revenue) : null; {
+[WebServer]   digest: '2793417514'
+[WebServer] }
+  ✓  8 tests/ui/bar.spec.ts:194:3 › доступность и телефон: light (4.4s)
+[WebServer] ⨯ Error: Attempted to call stockStatusOf() from the server but stockStatusOf is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+[WebServer]     at <unknown> (src/app/bar/page.tsx:54:57)
+[WebServer]     at Array.filter (<anonymous>)
+[WebServer]     at BarPage (src/app/bar/page.tsx:54:27)
+[WebServer]   52 |   const active = stock.value.filter((item) => item.active);
+[WebServer]   53 |   const unitsTotal = active.reduce((sum, item) => sum + BigInt(item.availableUnits), 0n);
+[WebServer] > 54 |   const lowCount = active.filter((item) => stockStatusOf(item) !== 'ok').length;
+[WebServer]      |                                                         ^
+[WebServer]   55 |   const debtors = new Set(receipts.value.filter((receipt) => receipt.status === 'POSTED' && BigInt(receipt.dueAmount) > 0n).map((receipt) => receipt.supplier.id)).size;
+[WebServer]   56 |   const revenue = BigInt(report.value.revenueMinor);
+[WebServer]   57 |   const margin = revenue > 0n ? Number((BigInt(report.value.grossProfitMinor) * 100n) / revenue) : null; {
+[WebServer]   digest: '2793417514'
+[WebServer] }
+  ✓  9 tests/ui/bar.spec.ts:194:3 › доступность и телефон: dark (4.2s)
+
+
+  1) tests/ui/bar.spec.ts:23:1 › обзор по макету: показатели, быстрая продажа, доска товаров, приходы и популярные 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').visible().getByRole('heading', { level: 1 })
+    Expected: "Бар"
+    Received: "Не удалось загрузить данные"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').visible().getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByRole('heading', { level: 1 })
+        30 × locator resolved to <h1 class="page__title">Не удалось загрузить данные</h1>
+           - unexpected value "Не удалось загрузить данные"
+
+
+      26 |   await page.goto('/bar');
+      27 |   const m = main(page);
+    > 28 |   await expect(m.getByRole('heading', { level: 1 })).toHaveText('Бар');
+         |                                                      ^
+      29 |   // пять вкладок раздела, активен «Обзор»; действия шапки как в макете
+      30 |   const tabs = m.getByRole('navigation', { name: 'Разделы бара' });
+      31 |   await expect(tabs.getByRole('link')).toHaveText(['Обзор', 'Приходы', 'Товары', 'Поставщики', 'Операции']);
+        at /home/user/wetop.ai/tests/ui/bar.spec.ts:28:54
+
+    Error Context: test-results/bar-обзор-по-макету-показа-54621-оваров-приходы-и-популярные/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-обзор-по-макету-показа-54621-оваров-приходы-и-популярные/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-обзор-по-макету-показа-54621-оваров-приходы-и-популярные/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/bar.spec.ts:72:1 › карточка товара боковой панелью: правка полей и цены, закрытие Escape 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').visible().getByRole('region', { name: 'Товары и остатки бара' }).locator('tbody tr').filter({ hasText: 'Cola 0,5' }).getByRole('button', { name: 'Изменить' })
+
+
+      76 |   const m = main(page);
+      77 |   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
+    > 78 |   await board.locator('tbody tr', { hasText: 'Cola 0,5' }).getByRole('button', { name: 'Изменить' }).click();
+         |                                                                                                      ^
+      79 |   const panel = page.getByRole('dialog', { name: 'Карточка товара Cola 0,5' });
+      80 |   await expect(panel).toBeVisible();
+      81 |   await expect(panel.getByText('Текущий остаток')).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/bar.spec.ts:78:102
+
+    Error Context: test-results/bar-карточка-товара-боково-41370-олей-и-цены-закрытие-Escape/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bar-карточка-товара-боково-41370-олей-и-цены-закрытие-Escape/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bar-карточка-товара-боково-41370-олей-и-цены-закрытие-Escape/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/bar.spec.ts:23:1 › обзор по макету: показатели, быстрая продажа, доска товаров, приходы и популярные 
+    tests/ui/bar.spec.ts:72:1 › карточка товара боковой панелью: правка полей и цены, закрытие Escape 
+  7 passed (1.7m)
+
+# код выхода 1 · 1 мин 42 с

@@ -20,6 +20,8 @@ import {
   assertPaymentReversible,
   assertCashOperation,
   assertCashReconciliation,
+  buildCashFlow,
+  type CashFlow,
   assertRefundWithin,
   cashBalances,
   commissionFromPercent,
@@ -202,6 +204,12 @@ export interface PeriodOperationsView {
   /** способы периода с числом операций — внутри отбора по типу, без отбора по способу */
   methods: Array<{ method: PaymentMethod; count: number }>;
   rows: OperationView[];
+  truncated: boolean;
+}
+/** Деньги за период по дням (RPT2.4a, ADR-155): поступления, возвраты, расходы и денежный поток раздельно */
+export interface PeriodCashFlowView extends CashFlow {
+  currency: string;
+  /** Строк ленты больше предела выгрузки: итоги неполные, экран говорит об этом словами */
   truncated: boolean;
 }
 /** Остатки кассы по способам (§21) — за всё время, не за период; статьи и сверки — тем же ответом */
@@ -607,6 +615,29 @@ export class FinanceService {
     };
   }
 
+  /**
+   * Деньги за период по дням (RPT2.4a, ADR-155, `docs/metrics.md` §2): та же лента, что у «Оплат», сведённая по дням.
+   * Читает все строки периода до предела выгрузки; если их больше, ответ помечен `truncated`.
+   */
+  async periodCashFlow(fromParam?: string, toParam?: string): Promise<PeriodCashFlowView> {
+    const { from, to } = checkedPeriod(fromParam, toParam);
+    const r = await this.repo.periodOperations(from, to, { limit: MAX_OPERATION_ROWS });
+    const total = r.summary.reduce((a, x) => a + x.count, 0);
+    const flow = buildCashFlow(
+      r.rows.map((x) => ({
+        kind: x.kind,
+        localAt: x.localAt,
+        method: x.method,
+        amountMinor: x.amountMinor,
+        status: x.status,
+        category: x.category,
+      })),
+      from,
+      to,
+    );
+    return { currency: 'KZT', ...flow, truncated: total > r.rows.length };
+  }
+
   // ── Касса (DATA_MODEL §21, план plans/finance-cashbox-2026-10-02.md) ─────────────────────────────
   /** Остатки по способам — за всё время: оплаты гостей − возвраты + касса. Валюта — валюта объекта */
   async cash(): Promise<CashView> {
@@ -639,7 +670,7 @@ export class FinanceService {
     };
   }
 
-  /** Справочник статей без остатков: для «Настроек объекта → Справочники» (ADR-152) */
+  /** Справочник статей без остатков: для «Настроек объекта → Справочники» (ADR-185) */
   async cashCategoriesList(): Promise<CashCategoryView[]> {
     return this.repo.cashCategories();
   }
@@ -1277,7 +1308,10 @@ export class FinanceService {
         before: {
           method: p.method,
           amountMinor: s(p.amountMinor),
-          allocations: p.allocations.map((a) => ({ folioId: a.folioId, amountMinor: s(a.amountMinor) })),
+          allocations: p.allocations.map((a) => ({
+            folioId: a.folioId,
+            amountMinor: s(a.amountMinor),
+          })),
           ...(p.requestId ? { requestId: p.requestId } : {}),
         },
         after: { voided: true, reason: reason === null ? null : maskContacts(reason) },

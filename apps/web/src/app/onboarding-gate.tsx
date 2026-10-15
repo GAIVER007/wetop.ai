@@ -14,9 +14,11 @@ export async function OnboardingGate() {
   const path = (await headers()).get('x-wetop-path') ?? '';
   const postponed = Boolean((await cookies()).get(ONBOARDING_LATER_COOKIE)?.value);
   // Путь, где гейт вообще работает; отложенный онбординг проверяется ниже — объекта может не быть вовсе
-  if (!needsOnboardingRedirect({ path, needsOnboarding: true, postponed: false })) return null;
+  const settingsPath = path === '/hotel-settings' || path.startsWith('/hotel-settings/');
+  if (!settingsPath && !needsOnboardingRedirect({ path, needsOnboarding: true, postponed: false }))
+    return null;
   const { vertical, access } = await deskShell();
-  if(access.unknown)return null;
+  if (access.unknown) return null;
   if (vertical !== 'HOSPITALITY') return null;
   // Берём те же настройки, что и шапка объекта (кэшируются на рендер) — отдельного рейса гейт не делает
   const settings = await hotelApi.settings().catch((e: unknown) => {

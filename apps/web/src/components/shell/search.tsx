@@ -2,12 +2,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import {
-  PENDING_ACCESS,
-  allowedItem,
-  navigationItems,
-  type NavigationAccess,
-} from '../../lib/navigation';
+import { PENDING_ACCESS, menuSectionsFor, type NavigationAccess } from '../../lib/navigation';
 import { Icon } from '../icon';
 import { Overlay } from '../overlay';
 export function GlobalSearch({
@@ -23,20 +18,9 @@ export function GlobalSearch({
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState('guest');
   const router = useRouter();
-  const matches = navigationItems
-    .filter(
-      (n) =>
-        ![
-          '/calendar',
-          '/appointments',
-          '/customers',
-          '/employees',
-          '/services',
-          '/help',
-          '/staff',
-        ].includes(n.href),
-    )
-    .filter((n) => allowedItem(n, access))
+  const matches = menuSectionsFor(access)
+    .flatMap((section) => section.items)
+    .filter((item, index, items) => items.findIndex((other) => other.href === item.href) === index)
     .filter((n) => n.label.toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')))
     .slice(0, 6);
   return (

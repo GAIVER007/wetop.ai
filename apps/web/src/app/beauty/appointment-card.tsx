@@ -6,7 +6,8 @@ import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { moveAppointment, setAppointmentStatus } from './journal-actions';
 import { clock, instantOf, localInput } from './time';
-import { STATUS_WORD, ACTION_WORD } from './appointment-status';
+import { ACTION_WORD } from './appointment-status';
+import { beautyStatus } from '../../lib/status/beauty';
 
 export function AppointmentCard({
   day,
@@ -81,7 +82,7 @@ export function AppointmentCard({
         </div>
         <div>
           <dt>Состояние</dt>
-          <dd data-testid="beauty-card-status">{STATUS_WORD[row.status]}</dd>
+          <dd data-testid="beauty-card-status">{beautyStatus[row.status].label}</dd>
         </div>
         {row.notes && (
           <div>

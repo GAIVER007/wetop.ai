@@ -23,8 +23,26 @@ export async function settleStreaming(page: Page): Promise<void> {
     .catch(() => undefined);
 }
 
+/**
+ * Обучение в стойке (ADR-100) само открывается на «Сегодня» у вошедшей гостиницы, пока в браузере нет отметки
+ * «пройдено». С 07.10.2026 сквозные идут вошедшим пользователем, и окно обучения перекрывало экран для спеков,
+ * которые работают на Главной (`desk-day`); какой спек открывал «Сегодня» первым, тот и упирался в окно. Отметка
+ * ставится до загрузки страницы тем же приёмом, что в `tests/ui/fixtures.ts`; спека самого обучения среди
+ * сквозных нет.
+ */
+const TOUR_DONE_SCRIPT = `(() => {
+  try {
+    const get = Storage.prototype.getItem;
+    Storage.prototype.getItem = function (key) {
+      const value = get.call(this, key);
+      return value === null && typeof key === 'string' && key.startsWith('wetop.tour.v1:') ? 'done' : value;
+    };
+  } catch (e) {}
+})();`;
+
 export const test = base.extend({
   page: async ({ page }, use) => {
+    await page.addInitScript(TOUR_DONE_SCRIPT);
     const goto = page.goto.bind(page);
     page.goto = async (url, options) => {
       const response = await goto(url, options);

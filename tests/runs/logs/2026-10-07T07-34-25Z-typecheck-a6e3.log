@@ -1,0 +1,20 @@
+# Типы (typecheck) · 07.10.2026 12:34 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 16
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/management/analytics/vertical/screen.tsx(28,11): error TS7034: Variable 'results' implicitly has type 'any[]' in some locations where its type cannot be determined.
+apps/web/src/app/management/analytics/vertical/screen.tsx(50,25): error TS7005: Variable 'results' implicitly has an 'any[]' type.
+apps/web/src/app/management/analytics/vertical/screen.tsx(60,182): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+# код выхода 1 · 46 с

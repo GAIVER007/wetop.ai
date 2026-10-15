@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, openFullCard, test, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -44,7 +44,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(main.getByTestId('date-col').first()).toBeVisible();
     await shot(page, 'chessboard-month-full', theme);
 
-    // главная (в документе ментора — «служба приёма»)
+    // главная (в документе ментора «служба приёма»): с 13.10 снова своя, /today (ADR-180)
     await page.goto('/today');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Главная');
     await shot(page, 'today', theme);
@@ -52,7 +52,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     // карточка брони панелью поверх шахматки, четыре вкладки
     await page.goto('/chessboard');
-    await main.getByTestId('stay-cell').first().dblclick();
+    await openFullCard(main.getByTestId('stay-cell').first());
     const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
     await expect(drawer).toBeVisible();
     await shot(page, 'reservation-drawer-overview', theme);

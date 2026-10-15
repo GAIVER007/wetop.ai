@@ -1,0 +1,208 @@
+# Модульные (unit) · 09.10.2026 17:37 Алматы · vm
+# коммит ce21ea3 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 17
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T12-37-40Z-unit-5d20.json' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/workspace-organization.test.ts' 'apps/web/src/components/shell/tour-steps.test.ts' 'apps/web/src/app/today/dispatch.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (10 tests) 5ms
+ ❯ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests | 1 failed) 10ms
+   ✓ TOUR_STEPS (2)
+     ✓ первый шаг — приветствие без элемента, последний — как вернуться к обучению 1ms
+     ✓ у каждого шага — заголовок и текст, цели не повторяются 1ms
+   ✓ tourStepsFor (3)
+     ✓ элемент на экране — шаг с подсветкой 1ms
+     ✓ закрытый по правам раздел — шаг пропущен независимо от разметки 0ms
+     ✓ обязательный шаг без элемента (телефон, меню свёрнуто) — остаётся, но без подсветки 0ms
+   ✓ tourKeyOf (1)
+     ✓ ключ свой у каждой почты, без самой почты в хранилище браузера 0ms
+   ❯ shouldAutoStartTour (1)
+     × сам стартует один раз — на Главной, у вошедшего, пока не пройдено 5ms
+   ✓ обучение скрывает недоступные права, а доступные темы остаются на телефоне 0ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 7ms
+ ❯ |unit| apps/web/src/lib/navigation-roles.test.ts (18 tests | 1 failed) 14ms
+   ❯ меню по ролям (6)
+     ✓ у каждого пункта меню записано право — пункта «для всех по умолчанию» нет 1ms
+     × администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности 6ms
+     ✓ управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора 1ms
+     ✓ никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется 0ms
+     ✓ «Маркетинг» по праву settings: владелец и управляющий видят группу, администратор нет (MKT2) 1ms
+     ✓ пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего 0ms
+   ✓ страница по адресу: какое право её открывает (4)
+     ✓ разделы меню и их вложенные адреса 0ms
+     ✓ адреса вне меню: настройки продавца и его агенты 0ms
+     ✓ первичная настройка не закрыта: туда гейт ведёт и администратора, страница говорит, кто настраивает 0ms
+     ✓ карточка ячейки и брони — работа смены, отдельного права нет 0ms
+   ✓ право вошедшего (4)
+     ✓ по роли; никто не вошёл — открыто, как в API без человека за запросом 0ms
+     ✓ роль не узнали (сбой `/auth/me`): меню и кнопки — как у администратора 0ms
+     ✓ страница по адресу: нет права — закрыта; роль не узнали — открыта, решает API, а не «нет доступа» 0ms
+     ✓ роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет 0ms
+   ✓ «ИИ-агенты» (S0) (3)
+     ✓ пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела 0ms
+     ✓ страницы продавца подсвечивают пункт «ИИ-агенты», право у них прежнее 0ms
+     ✓ каталог не открывает продавца тем, у кого его не было: вкладки требуют расширение, карточка WETOP Support — только платформу 0ms
+   ✓ сотрудники доступны в настройках только владельцу и управляющему 0ms
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 2 failed) 19ms
+   ❯ Food workspace isolation (4)
+     ✓ exposes exactly accepted Food menu 2ms
+     × does not expose Food to existing verticals 12ms
+     × uses canonical landings and verified scope 2ms
+     ✓ identifies isolated routes before API access 0ms
+ ❯ |unit| apps/web/src/lib/workspace-organization.test.ts (2 tests | 2 failed) 10ms
+   × organizes the menu by tasks: desk screens first, groups only for multi-screen areas 7ms
+   × phone bottom bar: the four desk screens, every one a direct tab 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > does not expose Food to existing verticals
+AssertionError: expected { href: '/finance', …(4) } to match object { href: '/today', label: 'Главная' }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "href": "/today",
+-   "label": "Главная",
++   "href": "/finance",
++   "label": "Финансы",
+  }
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:38:56
+     36|       );
+     37|       if (v === 'HOSPITALITY')
+     38|         expect(menuSectionsFor(owner, v)[0]!.items[0]).toMatchObject({…
+       |                                                        ^
+     39|     }
+     40|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > uses canonical landings and verified scope
+AssertionError: expected '/finance' to be '/today' // Object.is equality
+
+Expected: "/today"
+Received: "/finance"
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:45:47
+     43|     expect(landingForVertical('FOOD_SERVICE')).toBe('/today');
+     44|     expect(landingForVertical('BEAUTY')).toBe('/today');
+     45|     expect(landingForVertical('HOSPITALITY')).toBe('/today');
+       |                                               ^
+     46|     expect(
+     47|       deskShellOf({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > меню по ролям > администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности
+AssertionError: expected [ '/finance', '/chessboard', …(8) ] to deeply equal [ '/today', '/chessboard', …(9) ]
+
+- Expected
++ Received
+
+@@ -1,11 +1,10 @@
+  [
+-   "/today",
++   "/finance",
+    "/chessboard",
+    "/reservations",
+    "/guests",
+-   "/finance",
+    "/bar",
+    "/market",
+    "/ai-agents",
+    "/reports",
+    "/management/analytics",
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:39:36
+     37|
+     38|   it('администратор: работа с гостями, продавец (диалоги), оплаты и ст…
+     39|     expect(hrefs(access('STAFF'))).toEqual([
+       |                                    ^
+     40|       '/today',
+     41|       '/chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/workspace-organization.test.ts > organizes the menu by tasks: desk screens first, groups only for multi-screen areas
+AssertionError: expected [ 'finance', 'chessboard', …(9) ] to deeply equal [ 'home', 'chessboard', …(10) ]
+
+- Expected
++ Received
+
+@@ -1,11 +1,10 @@
+  [
+-   "home",
++   "finance",
+    "chessboard",
+    "reservations",
+    "guests",
+-   "finance",
+    "bar",
+    "sales",
+    "marketing",
+    "reports",
+    "inventory",
+
+ ❯ apps/web/src/lib/workspace-organization.test.ts:5:41
+      3| // Строка вкладок (ADR-134): работа смены одним щелчком, группы только…
+      4| it('organizes the menu by tasks: desk screens first, groups only for m…
+      5|   expect(menuSections.map((s) => s.id)).toEqual([
+       |                                         ^
+      6|     'home',
+      7|     'chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/workspace-organization.test.ts > phone bottom bar: the four desk screens, every one a direct tab
+AssertionError: expected [ '/finance', '/chessboard', …(2) ] to deeply equal [ '/today', '/chessboard', …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "/today",
++   "/finance",
+    "/chessboard",
+    "/reservations",
+    "/guests",
+  ]
+
+ ❯ apps/web/src/lib/workspace-organization.test.ts:40:46
+     38| });
+     39| it('phone bottom bar: the four desk screens, every one a direct tab', …
+     40|   expect(phoneNavigation.map((i) => i.href)).toEqual([
+       |                                              ^
+     41|     '/today',
+     42|     '/chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/web/src/components/shell/tour-steps.test.ts > shouldAutoStartTour > сам стартует один раз — на Главной, у вошедшего, пока не пройдено
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/web/src/components/shell/tour-steps.test.ts:61:76
+     59| describe('shouldAutoStartTour', () => {
+     60|   it('сам стартует один раз — на Главной, у вошедшего, пока не пройден…
+     61|     expect(shouldAutoStartTour({ path: '/today', key: 'k', done: false…
+       |                                                                            ^
+     62|     expect(shouldAutoStartTour({ path: '/today', key: 'k', done: true …
+     63|     expect(shouldAutoStartTour({ path: '/chessboard', key: 'k', done: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  4 failed | 2 passed (6)
+      Tests  6 failed | 44 passed (50)
+   Start at  12:37:41
+   Duration  1.27s (transform 84%, import 13%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T12-37-40Z-unit-5d20.json
+
+# код выхода 1 · 2 с

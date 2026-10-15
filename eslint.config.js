@@ -22,6 +22,10 @@ export default tseslint.config(
       '.ds-sync/**',
       'ds-bundle/**',
       '.omx/**',
+      // Рабочие деревья сессий внутри репозитория (.gitignore): у каждого свой tsconfig, и парсер
+      // отказывал во всём дереве «multiple candidate TSConfigRootDirs» (разбор 09.10.2026, 4521 ошибка)
+      '.claude/worktrees/**',
+      '.gstack/**',
     ],
   },
   js.configs.recommended,

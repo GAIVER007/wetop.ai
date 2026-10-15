@@ -1,0 +1,16 @@
+# Модульные (unit) · 09.10.2026 18:03 Алматы · vm
+# коммит 9895ded (claude/stoic-darwin-hjb5x3), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T13-03-09Z-unit-d328.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (25 tests) 179ms
+
+ Test Files  1 passed (1)
+      Tests  25 passed (25)
+   Start at  13:03:10
+   Duration  533ms (tests 51%, transform 41%, import 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T13-03-09Z-unit-d328.json
+
+# код выхода 0 · 2 с

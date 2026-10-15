@@ -1,0 +1,39 @@
+{
+ "/help": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Помощь",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Проверьте категории номеров 227x19",
+    "A:Проверьте номерной фонд 199x19",
+    "A:Создайте первую бронь 178x19",
+    "A:календаре 78x19",
+    "A:Подключите каналы продаж 210x19",
+    "A:«Сотрудники и доступ» 174x19"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Помощь",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": "Помощь",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [
+   "link-in-text-block×4"
+  ],
+  "axe-dark": [
+   "link-in-text-block×4"
+  ],
+  "console": []
+ }
+}

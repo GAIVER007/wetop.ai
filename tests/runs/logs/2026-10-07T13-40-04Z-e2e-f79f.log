@@ -1,0 +1,166 @@
+# Сквозные (e2e) · 07.10.2026 18:40 Алматы · MacBook-Air-Urij.local
+# коммит 15ff587 (codex/mv9-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' '/Users/urijzapojnov/wetop-mv9-acceptance-runtime-20261007/hospitality.config.mts' 'analytics-v2.spec.ts' 'analytics-occupancy.spec.ts' 'analytics-units.spec.ts' 'analytics-channels.spec.ts' 'analytics-design.spec.ts' 'navigation.spec.ts' 'branches.spec.ts' '--workers=1'
+[WebServer] (node:90139) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90180) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 41 tests using 1 worker
+
+(node:90256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API (26.3s)
+  ✓   2 tests/ui/analytics-channels.spec.ts:88:1 › отбор по каналу, каналы без броней и сравнение: из полосы отбора (20.8s)
+  ✓   3 tests/ui/analytics-channels.spec.ts:119:1 › CSV: те же строки и итог, с разделителем «;» и BOM (30.7s)
+  ✓   4 tests/ui/analytics-channels.spec.ts:135:1 › пустой период и отказ API: словами, не падение страницы (29.3s)
+  ✓   5 tests/ui/analytics-channels.spec.ts:153:1 › телефон: страница без горизонтальной прокрутки (8.5s)
+[WebServer] (node:5898) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, light (27.1s)
+  ✓   7 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, dark (21.1s)
+[WebServer] (node:10105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/analytics-channels.spec.ts:181:1 › вход в отчёт: из раздела «Каналы» и с хаба «Отчёты» с тем же периодом (17.9s)
+  ✓   9 tests/ui/analytics-design.spec.ts:20:1 › аналитика и статистика: подпись периода — одной строкой без разрывов (16.4s)
+  ✓  10 tests/ui/analytics-design.spec.ts:50:1 › аналитика: нижние таблицы не обрезаются, пустые состояния говорят словами и ведут к подключению (6.4s)
+  ✓  11 tests/ui/analytics-occupancy.spec.ts:34:1 › по умолчанию — сегодняшний день: пять плиток, категории и шахматка на этот день (6.7s)
+  ✓  12 tests/ui/analytics-occupancy.spec.ts:72:1 › знаменатель прежний: заблокированное место остаётся в фонде загрузки (7.3s)
+  ✓  13 tests/ui/analytics-occupancy.spec.ts:114:1 › без размещения: групповая бронь на три койки без места — три проживания и ссылка разместить (8.3s)
+  ✓  14 tests/ui/analytics-occupancy.spec.ts:147:1 › номера и койки: свои категории, своя средняя, шахматка открывается на том же типе (36.8s)
+  ✓  15 tests/ui/analytics-occupancy.spec.ts:182:1 › период: ночи вместо мест, стрелки дня, сравнение выключается (14.5s)
+[WebServer] (node:14689) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/ui/analytics-occupancy.spec.ts:210:1 › старые адреса: «Статистика» с датой и некорректная дата (13.5s)
+  ✓  17 tests/ui/analytics-occupancy.spec.ts:223:1 › сбой API не уносит полосу периода и повторяет тот же день (10.2s)
+  ✓  18 tests/ui/analytics-occupancy.spec.ts:239:1 › телефон: без прокрутки вбок, строка категории — карточкой (4.7s)
+  ✓  19 tests/ui/analytics-occupancy.spec.ts:268:1 › снимки для визуального гейта AN2 (22.6s)
+  ✓  20 tests/ui/analytics-units.spec.ts:52:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (3.9s)
+  ✓  21 tests/ui/analytics-units.spec.ts:95:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (2.5s)
+  ✓  22 tests/ui/analytics-units.spec.ts:116:1 › отказ API — словами на своём экране, не падение страницы (3.1s)
+  ✓  23 tests/ui/analytics-units.spec.ts:128:1 › телефон: таблица без горизонтальной прокрутки страницы (2.3s)
+  ✓  24 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, light (7.8s)
+  ✓  25 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, dark (4.9s)
+[WebServer] (node:15061) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  26 tests/ui/analytics-v2.spec.ts:58:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (4.8s)
+  ✓  27 tests/ui/analytics-v2.spec.ts:77:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (4.1s)
+  ✓  28 tests/ui/analytics-v2.spec.ts:113:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (7.9s)
+  ✓  29 tests/ui/analytics-v2.spec.ts:138:1 › рост отмен — красный, падение — зелёный; сравнение выключается (4.6s)
+  ✓  30 tests/ui/analytics-v2.spec.ts:151:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (5.0s)
+  ✓  31 tests/ui/analytics-v2.spec.ts:174:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (23.5s)
+  ✓  32 tests/ui/analytics-v2.spec.ts:191:1 › телефон: без прокрутки вбок, плитки в две колонки (5.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer]
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer]
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer]
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer]
+[WebServer]   ...
+[WebServer]     <Suspense name="occupancy/" fallback={<Fragment>}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OccupancyPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page analy...">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AnalyticsToolbar>
+[WebServer]                         <section className="pa-toolbar" aria-label="Период и о..." data-testid="pa-toolbar">
+[WebServer]                           <div>
+[WebServer]                           <div className="pa-toolbar...">
+[WebServer]                             <nav>
+[WebServer]                             <details className="pa-range">
+[WebServer]                               <summary>
+[WebServer]                               <form method="get" className="pa-range__..." data-testid="pa-range-form">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="from" defaultValue="2026-10-07" aria-label="Период: с">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-10-07"
+[WebServer]                                         aria-label="Период: с"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="to" rangeFromName="from" defaultValue="2026-10-07" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-10-07"
+[WebServer]                                         aria-label="Период: по"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 ...
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]
+  ✓  33 tests/ui/analytics-v2.spec.ts:202:1 › снимки для визуального гейта AN1 (28.7s)
+[WebServer] (node:15448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  34 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (11.2s)
+[WebServer] (node:15635) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (34.0s)
+[WebServer] (node:15871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  36 tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (35.0s)
+  ✓  37 tests/ui/navigation.spec.ts:53:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (20.8s)
+[WebServer] (node:16042) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  38 tests/ui/navigation.spec.ts:94:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (7.9s)
+[WebServer] (node:16070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:16173) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:16298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  39 tests/ui/navigation.spec.ts:121:1 › все пункты меню открывают существующие страницы (1.1m)
+  ✓  40 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: light (11.0s)
+  ✓  41 tests/ui/navigation.spec.ts:169:3 › меню телефона и планшета ровное и доступное: dark (5.9s)
+
+  41 passed (10.8m)
+
+# код выхода 0 · 10 мин 52 с

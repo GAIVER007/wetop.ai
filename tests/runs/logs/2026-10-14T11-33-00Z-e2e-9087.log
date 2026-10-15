@@ -1,0 +1,148 @@
+# Сквозные (e2e) · 14.10.2026 16:33 Алматы · MacBook-Air-Urij.local
+# коммит 10fa924 (claude/ui5-fullpass-20261014), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/finance-home-merge.spec.ts' 'tests/ui/marketing-budget.spec.ts' 'tests/ui/reports.spec.ts' 'tests/ui/search-filter-recovery.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 37 tests using 1 worker
+
+  ✓   1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (3.3s)
+  ✘   2 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1280px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (3.1s)
+  ✘   3 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1366px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (2.1s)
+  ✘   4 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1440px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (1.8s)
+  ✓   5 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (4.6s)
+  ✓   6 tests/ui/branches.spec.ts:71:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (5.1s)
+  ✓   7 tests/ui/branches.spec.ts:122:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (9.3s)
+  ✓   8 tests/ui/finance-home-merge.spec.ts:19:1 › финансы: четыре плитки эталона из тех же API, блоки без заглушек (6.1s)
+  ✓   9 tests/ui/finance-home-merge.spec.ts:92:1 › главная гостиницы: /today с загрузкой, «Сегодня» и «Что требует внимания» (3.4s)
+  ✓  10 tests/ui/finance-home-merge.spec.ts:120:1 › очередь «Требуют внимания» открывается из «Все задачи» на главной (1.6s)
+  ✓  11 tests/ui/finance-home-merge.spec.ts:127:1 › меню: «Главная» первой вкладкой, «Финансы» группой после фонда (#501) (3.6s)
+  ✓  12 tests/ui/finance-home-merge.spec.ts:139:1 › телефон: плитки денег первым экраном, фильтры достижимы (2.0s)
+  ✓  13 tests/ui/marketing-budget.spec.ts:55:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (3.4s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓  14 tests/ui/marketing-budget.spec.ts:69:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (3.4s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓  15 tests/ui/marketing-budget.spec.ts:99:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (3.0s)
+  ✓  16 tests/ui/marketing-budget.spec.ts:136:1 › аналитика маркетинга: расходы с динамикой, эффективность источников, честные «Недостаточно данных» (3.8s)
+  ✓  17 tests/ui/marketing-budget.spec.ts:162:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (2.4s)
+  ✓  18 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: light (6.4s)
+  ✓  19 tests/ui/marketing-budget.spec.ts:176:3 › снимки и доступность: dark (6.9s)
+  ✓  20 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (5.0s)
+  ✓  21 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (1.6s)
+  ✓  22 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 1440 › availability: manual dates and guests do not apply before Find (1.4s)
+  ✓  23 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 1440 › availability: selected guests and category survive a quick period and booking link (1.2s)
+  ✓  24 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 1440 › availability: category action transfers category into search (1.3s)
+  ✓  25 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (2.3s)
+  ✓  26 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (1.4s)
+  ✓  27 tests/ui/search-filter-recovery.spec.ts:146:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (4.4s)
+  ✓  28 tests/ui/search-filter-recovery.spec.ts:172:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (6.9s)
+  ✓  29 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (3.2s)
+  ✓  30 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (2.2s)
+  ✓  31 tests/ui/search-filter-recovery.spec.ts:46:5 › search/filter recovery 390 › availability: manual dates and guests do not apply before Find (2.0s)
+  ✓  32 tests/ui/search-filter-recovery.spec.ts:63:5 › search/filter recovery 390 › availability: selected guests and category survive a quick period and booking link (2.0s)
+  ✓  33 tests/ui/search-filter-recovery.spec.ts:94:5 › search/filter recovery 390 › availability: category action transfers category into search (1.8s)
+  ✓  34 tests/ui/search-filter-recovery.spec.ts:106:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (4.4s)
+  ✓  35 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (3.4s)
+  ✓  36 tests/ui/search-filter-recovery.spec.ts:146:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (3.5s)
+  ✓  37 tests/ui/search-filter-recovery.spec.ts:172:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (2.4s)
+
+
+  1) tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1280px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 3
+    Received length: 2
+    Received array:  [10, 10]
+
+      57 |       .locator('.board-period, .board-nav > .btn, .board-new')
+      58 |       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 8)));
+    > 59 |     expect(lineTops).toHaveLength(3);
+         |                      ^
+      60 |     expect(new Set(lineTops).size).toBe(1);
+      61 |     await expect(panel.getByTestId('day-free')).toBeVisible();
+      62 |     await expect(panel.getByTestId('day-units')).toHaveCount(0);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/booking-price-nights.spec.ts:59:22
+
+    Error Context: test-results/booking-price-nights-кален-9e147-литок-полоса-фильтров-сетка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-price-nights-кален-9e147-литок-полоса-фильтров-сетка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-price-nights-кален-9e147-литок-полоса-фильтров-сетка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1366px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 3
+    Received length: 2
+    Received array:  [10, 10]
+
+      57 |       .locator('.board-period, .board-nav > .btn, .board-new')
+      58 |       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 8)));
+    > 59 |     expect(lineTops).toHaveLength(3);
+         |                      ^
+      60 |     expect(new Set(lineTops).size).toBe(1);
+      61 |     await expect(panel.getByTestId('day-free')).toBeVisible();
+      62 |     await expect(panel.getByTestId('day-units')).toHaveCount(0);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/booking-price-nights.spec.ts:59:22
+
+    Error Context: test-results/booking-price-nights-кален-d9c51-литок-полоса-фильтров-сетка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-price-nights-кален-d9c51-литок-полоса-фильтров-сетка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-price-nights-кален-d9c51-литок-полоса-фильтров-сетка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1440px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 3
+    Received length: 2
+    Received array:  [10, 10]
+
+      57 |       .locator('.board-period, .board-nav > .btn, .board-new')
+      58 |       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 8)));
+    > 59 |     expect(lineTops).toHaveLength(3);
+         |                      ^
+      60 |     expect(new Set(lineTops).size).toBe(1);
+      61 |     await expect(panel.getByTestId('day-free')).toBeVisible();
+      62 |     await expect(panel.getByTestId('day-units')).toHaveCount(0);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui/booking-price-nights.spec.ts:59:22
+
+    Error Context: test-results/booking-price-nights-кален-a09b7-литок-полоса-фильтров-сетка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-price-nights-кален-a09b7-литок-полоса-фильтров-сетка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-price-nights-кален-a09b7-литок-полоса-фильтров-сетка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1280px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка 
+    tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1366px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка 
+    tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1440px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка 
+  34 passed (2.3m)
+
+# код выхода 1 · 2 мин 20 с

@@ -1,0 +1,28 @@
+{
+ "/ai-agents": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "ИИ-продавцы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "ИИ-продавцы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "ИИ-продавцы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

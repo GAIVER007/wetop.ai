@@ -17,6 +17,7 @@ const SKIP = [
   '/login',
   '/register',
   '/invite',
+  '/rate',
   '/password-reset',
   '/profile/access',
   '/status',
@@ -39,5 +40,7 @@ export function needsOnboardingRedirect(input: {
   if (path.includes('/print')) return false;
   if (input.vertical && input.vertical !== 'HOSPITALITY') return false;
   if (input.propertyMissing) return true;
+  // Existing objects can edit metadata before adding rooms. Missing objects still require onboarding.
+  if (path === '/hotel-settings' || path.startsWith('/hotel-settings/')) return false;
   return input.needsOnboarding && !input.postponed;
 }

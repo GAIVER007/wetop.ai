@@ -16,7 +16,15 @@ import {
   foodNext,
   foodObject,
   foodText,
+  birthdayInDays,
+  parseCustomerMarks,
   parseFoodCatalog,
+  parseAreaLayout,
+  parseBookingRules,
+  parseClosedDay,
+  bookingRuleViolation,
+  DEFAULT_BOOKING_RULES,
+  foodLocal,
   parseFoodCreate,
   timeOffWindow,
   type FoodCatalogKind,
@@ -27,9 +35,23 @@ import type { DbTx, Prisma, DiningArea, DiningTable, ServicePeriod } from '@pms/
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
+
+/** Сегодня по часовому поясу филиала, `ГГГГ-ММ-ДД` */
+const localToday = (timezone: string) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date());
 const active: FoodStatus[] = ['BOOKED', 'CONFIRMED', 'SEATED'];
 const include = {
-  customer: { select: { id: true, firstName: true, lastName: true, phone: true, status: true } },
+  customer: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
+      status: true,
+      isVip: true,
+      birthDate: true,
+    },
+  },
   servicePeriod: true,
   tableAssignment: { include: { table: { include: { area: true } } } },
 } as const;
@@ -72,6 +94,8 @@ const view = (r: Row) => ({
   createdById: r.createdById,
   customer: {
     ...r.customer,
+    // §36: дата рождения строкой; метка «день рождения в день брони» считается на экране по дню филиала
+    birthDate: r.customer.birthDate ? r.customer.birthDate.toISOString().slice(0, 10) : null,
     name: [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' '),
   },
   servicePeriod: catalogView(r.servicePeriod),
@@ -125,8 +149,9 @@ export class FoodService {
       data: {
         organizationId: s.organizationId,
         userId: currentUserId(),
-        entityType:
-          action.startsWith('food.reservation.') ||
+        entityType: action.startsWith('food.customer.')
+          ? 'customer'
+          : action.startsWith('food.reservation.') ||
           ['food.table.assigned', 'food.table.reassigned', 'food.table.unassigned'].includes(action)
             ? 'restaurant_reservation'
             : 'food_catalog',
@@ -297,24 +322,151 @@ export class FoodService {
       return catalogView(row);
     });
   }
+  /** Правила брони и будущие закрытые дни (§43) */
+  async bookingSettings() {
+    foodMay('desk');
+    const s = await foodScope(this.prisma.db);
+    const today = foodLocal(new Date(), s.timezone).date;
+    const closedDays = await this.prisma.db.foodClosedDay.findMany({
+      where: { locationId: s.locationId, day: { gte: new Date(`${today}T00:00:00Z`) } },
+      orderBy: { day: 'asc' },
+      take: 400,
+    });
+    return {
+      rules: await this.bookingRules(this.prisma.db, s),
+      closedDays: closedDays.map((d) => ({ id: d.id, day: d.day.toISOString().slice(0, 10), reason: d.reason })),
+    };
+  }
+  async setBookingRules(raw: unknown) {
+    return this.write('property', async (tx, s) => {
+      const rules = parsed(() => parseBookingRules(raw));
+      const before = await this.bookingRules(tx, s);
+      await tx.foodBookingRules.upsert({
+        where: { locationId: s.locationId },
+        create: { locationId: s.locationId, ...rules },
+        update: rules,
+      });
+      await this.audit(tx, s, s.locationId, 'food.booking_rules.set', { ...rules }, { ...before });
+      return rules;
+    });
+  }
+  async addClosedDay(raw: unknown) {
+    return this.write('property', async (tx, s) => {
+      const b = parsed(() => parseClosedDay(raw));
+      const row = await tx.foodClosedDay.create({
+        data: { locationId: s.locationId, day: new Date(`${b.day}T00:00:00Z`), reason: b.reason },
+      });
+      await this.audit(tx, s, row.id, 'food.closed_day.added', { day: b.day, reason: b.reason });
+      return { id: row.id, day: b.day, reason: b.reason };
+    });
+  }
+  async removeClosedDay(idRaw: string) {
+    return this.write('property', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      const row = await tx.foodClosedDay.findFirst({ where: { id, locationId: s.locationId } });
+      if (!row) throw new NotFoundException('Закрытый день не найден');
+      await tx.foodClosedDay.delete({ where: { id } });
+      await this.audit(tx, s, id, 'food.closed_day.removed', { day: row.day.toISOString().slice(0, 10) });
+      return { ok: true };
+    });
+  }
+  /** Схема зала (§42): расстановка зоны одним запросом, каждый стол обязан быть из этой зоны */
+  async setLayout(areaIdRaw: string, raw: unknown) {
+    return this.write('property', async (tx, s) => {
+      const areaId = parsed(() => foodId(areaIdRaw));
+      const layout = parsed(() => parseAreaLayout(raw));
+      const area = await tx.diningArea.findFirst({ where: { id: areaId, locationId: s.locationId } });
+      if (!area) throw new NotFoundException('Зона не найдена');
+      const owned = await tx.diningTable.count({ where: { areaId, id: { in: layout.map((t) => t.id) } } });
+      if (owned !== layout.length) throw new BadRequestException('Стол не из этой зоны');
+      for (const t of layout)
+        await tx.diningTable.update({
+          where: { id: t.id },
+          data: { posX: t.posX, posY: t.posY, shape: t.shape, scale: t.scale, rotation: t.rotation },
+        });
+      await this.audit(tx, s, areaId, 'food.area.layout.set', { tables: layout.length });
+      return { tables: layout };
+    });
+  }
   async customers(query: unknown) {
     foodMay('desk');
     const s = await foodScope(this.prisma.db),
       p = page(query);
+    const rows = await this.prisma.db.customer.findMany({
+      where: {
+        ...(p.cursor ? { id: { gt: p.cursor } } : {}),
+        organizationId: s.organizationId,
+        status: 'ACTIVE',
+        businesses: { some: { businessId: s.businessId } },
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        status: true,
+        isVip: true,
+        birthDate: true,
+      },
+      orderBy: { id: 'asc' },
+      take: p.limit + 1,
+    });
+    // «Постоянный гость» на экране клиентов (ADR-159): визит = посажен или завершён в этом филиале
+    const visits = rows.length
+      ? await this.prisma.db.restaurantReservation.groupBy({
+          by: ['customerId'],
+          where: {
+            locationId: s.locationId,
+            customerId: { in: rows.map((r) => r.id) },
+            status: { in: ['SEATED', 'COMPLETED'] },
+          },
+          _count: { _all: true },
+        })
+      : [];
+    const byCustomer = new Map(visits.map((v) => [v.customerId, v._count._all]));
+    const today = localToday(s.timezone);
     return paged(
-      await this.prisma.db.customer.findMany({
-        where: {
-          ...(p.cursor ? { id: { gt: p.cursor } } : {}),
-          organizationId: s.organizationId,
-          status: 'ACTIVE',
-          businesses: { some: { businessId: s.businessId } },
-        },
-        select: { id: true, firstName: true, lastName: true, phone: true, status: true },
-        orderBy: { id: 'asc' },
-        take: p.limit + 1,
+      rows.map((r) => {
+        const birthDate = r.birthDate ? r.birthDate.toISOString().slice(0, 10) : null;
+        return {
+          ...r,
+          birthDate,
+          birthdayInDays: birthDate ? birthdayInDays(birthDate, today) : null,
+          visits: byCustomer.get(r.id) ?? 0,
+        };
       }),
       p.limit,
     );
+  }
+
+  /** VIP-метка и дата рождения (§36): клиент виден в этом бизнесе; дата в журнал не пишется */
+  async updateCustomer(idRaw: string, raw: unknown) {
+    return this.write('desk', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw));
+      const b = parsed(() => parseCustomerMarks(raw, localToday(s.timezone)));
+      const found = await tx.customer.findFirst({
+        where: { id, organizationId: s.organizationId, businesses: { some: { businessId: s.businessId } } },
+      });
+      if (!found) throw new NotFoundException('Клиент не найден');
+      const row = await tx.customer.update({
+        where: { id },
+        data: {
+          ...(b.isVip !== undefined ? { isVip: b.isVip } : {}),
+          ...(b.birthDate !== undefined
+            ? { birthDate: b.birthDate === null ? null : new Date(`${b.birthDate}T00:00:00Z`) }
+            : {}),
+        },
+      });
+      await this.audit(
+        tx,
+        s,
+        id,
+        'food.customer.marks',
+        { isVip: row.isVip, birthDateChanged: b.birthDate !== undefined },
+        { isVip: found.isVip },
+      );
+      return { id, isVip: row.isVip, birthDate: b.birthDate ?? found.birthDate?.toISOString().slice(0, 10) ?? null };
+    });
   }
   async reservations(query: unknown) {
     foodMay('desk');
@@ -357,6 +509,28 @@ export class FoodService {
     );
     return endsAt;
   }
+  /** Правила брони филиала (§43); нет строки значит прежнее поведение */
+  private async bookingRules(db: Pick<DbTx, 'foodBookingRules'>, s: FoodScope) {
+    const row = await db.foodBookingRules.findUnique({ where: { locationId: s.locationId } });
+    return row
+      ? { bufferMinutes: row.bufferMinutes, horizonDays: row.horizonDays, maxPartySize: row.maxPartySize }
+      : DEFAULT_BOOKING_RULES;
+  }
+  /** Горизонт, закрытые дни и предел гостей (§43) по дате начала в поясе филиала */
+  private async checkRules(tx: DbTx, s: FoodScope, startsAt: Date, partySize: number) {
+    const day = foodLocal(startsAt, s.timezone).date;
+    const closed = await tx.foodClosedDay.findUnique({
+      where: { locationId_day: { locationId: s.locationId, day: new Date(`${day}T00:00:00Z`) } },
+    });
+    const violation = bookingRuleViolation({
+      day,
+      today: foodLocal(new Date(), s.timezone).date,
+      partySize,
+      rules: await this.bookingRules(tx, s),
+      closed: closed !== null,
+    });
+    if (violation) throw new ConflictException(violation);
+  }
   private async table(
     tx: DbTx,
     s: FoodScope,
@@ -370,6 +544,7 @@ export class FoodService {
     await tx.$queryRaw`SELECT id FROM dining_tables WHERE id=${id}::uuid FOR UPDATE`;
     if (!foodCapacity(r.partySize, table.capacity))
       throw new ConflictException('Недостаточная вместимость стола');
+    const buffer = (await this.bookingRules(tx, s)).bufferMinutes * 60_000;
     if (
       await tx.tableAssignment.findFirst({
         where: {
@@ -377,8 +552,9 @@ export class FoodService {
           reservation: {
             ...(r.id ? { id: { not: r.id } } : {}),
             status: { in: active },
-            startsAt: { lt: r.endsAt },
-            endsAt: { gt: r.startsAt },
+            // буфер между посадками (§43) расширяет занятость стола в обе стороны
+            startsAt: { lt: new Date(r.endsAt.getTime() + buffer) },
+            endsAt: { gt: new Date(r.startsAt.getTime() - buffer) },
           },
         },
       })
@@ -401,6 +577,7 @@ export class FoodService {
       }
       const startsAt = new Date(b.startsAt),
         endsAt = await this.period(tx, s, b.servicePeriodId, b.startsAt);
+      await this.checkRules(tx, s, startsAt, b.partySize);
       if (b.tableId)
         await this.table(tx, s, b.tableId, { startsAt, endsAt, partySize: b.partySize });
       let customerId = b.customerId;
@@ -502,6 +679,9 @@ export class FoodService {
       }));
       const startsAt = new Date(change.startsAt),
         endsAt = await this.period(tx, s, change.servicePeriodId, change.startsAt);
+      // правила только для новых времени и числа гостей: правка заметки старой брони им не подчиняется
+      if (startsAt.getTime() !== r.startsAt.getTime() || change.partySize !== r.partySize)
+        await this.checkRules(tx, s, startsAt, change.partySize);
       if (r.tableAssignment)
         await this.table(tx, s, r.tableAssignment.tableId, {
           id: r.id,

@@ -1,0 +1,40 @@
+# Сквозные (e2e) · 14.10.2026 19:56 Алматы · MacBook-Air-Urij.local
+# коммит 51b0786 (claude/site-blog-24-20261014), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'blog.spec'
+
+Running 30 tests using 1 worker
+
+  ✓   1 tests/site/blog.spec.ts:71:1 › каждая страница типа бизнеса закрыта статьёй блога (23ms)
+  ✓   2 tests/site/blog.spec.ts:84:1 › список статей: все опубликованы, черновика нет (723ms)
+  ✓   3 tests/site/blog.spec.ts:92:3 › статья kak-vybrat-pms-dlya-khostela: один H1, ссылка на лендинг, внутренние ссылки живые (206ms)
+  ✓   4 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-salone-krasoty: один H1, ссылка на лендинг, внутренние ссылки живые (173ms)
+  ✓   5 tests/site/blog.spec.ts:92:3 › статья kak-prinimat-broni-stolov-v-restorane: один H1, ссылка на лендинг, внутренние ссылки живые (162ms)
+  ✓   6 tests/site/blog.spec.ts:92:3 › статья kak-upravlyat-mini-otelem: один H1, ссылка на лендинг, внутренние ссылки живые (159ms)
+  ✓   7 tests/site/blog.spec.ts:92:3 › статья kak-vesti-apart-otel: один H1, ссылка на лендинг, внутренние ссылки живые (149ms)
+  ✓   8 tests/site/blog.spec.ts:92:3 › статья kak-vesti-gostevoy-dom: один H1, ссылка на лендинг, внутренние ссылки живые (142ms)
+  ✓   9 tests/site/blog.spec.ts:92:3 › статья kak-vesti-bazu-otdyha: один H1, ссылка на лендинг, внутренние ссылки живые (168ms)
+  ✓  10 tests/site/blog.spec.ts:92:3 › статья kak-sdavat-kvartiry-posutochno: один H1, ссылка на лендинг, внутренние ссылки живые (152ms)
+  ✓  11 tests/site/blog.spec.ts:92:3 › статья kak-vesti-glemping: один H1, ссылка на лендинг, внутренние ссылки живые (141ms)
+  ✓  12 tests/site/blog.spec.ts:92:3 › статья kak-vesti-razmeshchenie-v-sanatorii: один H1, ссылка на лендинг, внутренние ссылки живые (142ms)
+  ✓  13 tests/site/blog.spec.ts:92:3 › статья kak-vesti-kapsulnyy-otel: один H1, ссылка на лендинг, внутренние ссылки живые (142ms)
+  ✓  14 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-barbershope: один H1, ссылка на лендинг, внутренние ссылки живые (172ms)
+  ✓  15 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-spa: один H1, ссылка на лендинг, внутренние ссылки живые (146ms)
+  ✓  16 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-nogtevoy-studii: один H1, ссылка на лендинг, внутренние ссылки живые (140ms)
+  ✓  17 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-parikmaherskoy: один H1, ссылка на лендинг, внутренние ссылки живые (149ms)
+  ✓  18 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-massazhnogo-salona: один H1, ссылка на лендинг, внутренние ссылки живые (156ms)
+  ✓  19 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-kosmetologii: один H1, ссылка на лендинг, внутренние ссылки живые (172ms)
+  ✓  20 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-brovey-i-resnic: один H1, ссылка на лендинг, внутренние ссылки живые (140ms)
+  ✓  21 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-epilyacii: один H1, ссылка на лендинг, внутренние ссылки живые (150ms)
+  ✓  22 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-tatu-studii: один H1, ссылка на лендинг, внутренние ссылки живые (149ms)
+  ✓  23 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-v-kafe: один H1, ссылка на лендинг, внутренние ссылки живые (147ms)
+  ✓  24 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-bara: один H1, ссылка на лендинг, внутренние ссылки живые (143ms)
+  ✓  25 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-kofeyni: один H1, ссылка на лендинг, внутренние ссылки живые (148ms)
+  ✓  26 tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-v-kalyannoy: один H1, ссылка на лендинг, внутренние ссылки живые (163ms)
+  ✓  27 tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-komnat-v-karaoke: один H1, ссылка на лендинг, внутренние ссылки живые (155ms)
+  ✓  28 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-piccerii: один H1, ссылка на лендинг, внутренние ссылки живые (147ms)
+  ✓  29 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-stolovoy: один H1, ссылка на лендинг, внутренние ссылки живые (147ms)
+  ✓  30 tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-banketnogo-zala: один H1, ссылка на лендинг, внутренние ссылки живые (144ms)
+
+  30 passed (14.9s)
+
+# код выхода 0 · 17 с

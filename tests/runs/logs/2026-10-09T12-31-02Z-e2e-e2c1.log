@@ -1,0 +1,85 @@
+# Сквозные (e2e) · 09.10.2026 17:31 Алматы · vm
+# коммит ce21ea3 (claude/quirky-newton-qkhfgz), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/finance-home-merge.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/finance-home-merge.spec.ts:17:1 › финансы: один раздел с блоками Главной и деньгами кассы (52ms)
+  ✘  2 tests/ui/finance-home-merge.spec.ts:61:1 › /today гостиницы перенаправляет в финансы (83ms)
+  ✘  3 tests/ui/finance-home-merge.spec.ts:67:1 › меню: «Финансы» первой вкладкой, «Главной» нет (38ms)
+  ✘  4 tests/ui/finance-home-merge.spec.ts:75:1 › телефон: сводка первым экраном, фильтры достижимы (36ms)
+
+
+  1) tests/ui/finance-home-merge.spec.ts:17:1 › финансы: один раздел с блоками Главной и деньгами кассы 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/finance-home-merge-финансы-227ee-ми-Главной-и-деньгами-кассы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-финансы-227ee-ми-Главной-и-деньгами-кассы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-финансы-227ee-ми-Главной-и-деньгами-кассы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-home-merge.spec.ts:61:1 › /today гостиницы перенаправляет в финансы ──────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/finance-home-merge--today-гостиницы-перенаправляет-в-финансы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge--today-гостиницы-перенаправляет-в-финансы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge--today-гостиницы-перенаправляет-в-финансы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-home-merge.spec.ts:67:1 › меню: «Финансы» первой вкладкой, «Главной» нет ─────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/finance-home-merge-меню-«Ф-b6edd-рвой-вкладкой-«Главной»-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-меню-«Ф-b6edd-рвой-вкладкой-«Главной»-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-меню-«Ф-b6edd-рвой-вкладкой-«Главной»-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/finance-home-merge.spec.ts:75:1 › телефон: сводка первым экраном, фильтры достижимы ──
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/finance-home-merge-телефон-8293d-м-экраном-фильтры-достижимы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-home-merge-телефон-8293d-м-экраном-фильтры-достижимы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-home-merge-телефон-8293d-м-экраном-фильтры-достижимы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/finance-home-merge.spec.ts:17:1 › финансы: один раздел с блоками Главной и деньгами кассы 
+    tests/ui/finance-home-merge.spec.ts:61:1 › /today гостиницы перенаправляет в финансы ───────────
+    tests/ui/finance-home-merge.spec.ts:67:1 › меню: «Финансы» первой вкладкой, «Главной» нет ──────
+    tests/ui/finance-home-merge.spec.ts:75:1 › телефон: сводка первым экраном, фильтры достижимы ───
+
+# код выхода 1 · 19 с

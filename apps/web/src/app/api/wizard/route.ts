@@ -31,6 +31,11 @@ export async function POST(request: Request) {
     config?: unknown;
     revision?: unknown;
     step?: unknown;
+    answers?: unknown;
+    type?: unknown;
+    challenge?: unknown;
+    text?: unknown;
+    requestId?: unknown;
   };
   try {
     body = JSON.parse(raw);
@@ -45,6 +50,36 @@ export async function POST(request: Request) {
   if (token && !/^wz_[a-f0-9]{64}$/.test(token))
     return json({ message: 'Сессия мастера недействительна' }, 401);
   try {
+    if (body.operation === 'message')
+      return json(
+        await wizardApi.message(
+          token,
+          {
+            text: body.text,
+            requestId: body.requestId,
+            revision: body.revision,
+            challenge: body.challenge,
+          },
+          request.headers.get('cf-connecting-ip'),
+        ),
+      );
+    if (body.operation === 'generate')
+      return json(
+        await wizardApi.generate(
+          token,
+          { revision: body.revision, challenge: body.challenge },
+          request.headers.get('cf-connecting-ip'),
+        ),
+      );
+    if (body.operation === 'scan')
+      return json(
+        await wizardApi.scan(
+          token,
+          { revision: body.revision, challenge: body.challenge },
+          request.headers.get('cf-connecting-ip'),
+        ),
+      );
+    if (body.operation === 'scan-status') return json(await wizardApi.scanStatus(token));
     if (body.operation === 'claim') return json(await sellerAgentsApi.claim(token));
     if (body.operation === 'open')
       return json(
@@ -62,6 +97,8 @@ export async function POST(request: Request) {
           step: body.step,
         }),
       );
+    if (body.operation === 'survey') return json(await wizardApi.survey(token, body.answers));
+    if (body.operation === 'event') return json(await wizardApi.event(token, { type: body.type }));
     return json({ message: 'Неизвестное действие' }, 400);
   } catch (error) {
     if (error instanceof ApiError) return json({ message: error.message }, error.status);

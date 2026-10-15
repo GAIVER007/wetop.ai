@@ -1,0 +1,52 @@
+# Модульные (unit) · 07.10.2026 13:13 Алматы · vm
+# коммит 012c06d (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-13-45Z-unit-a316.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 198ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 139ms
+     ✓ MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет 55ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(326) } to deeply equal { 'GET /onboarding': 'self', …(325) }
+
+- Expected
++ Received
+
+@@ -113,10 +113,11 @@
+    "GET /inventory/units": "desk",
+    "GET /market/collector/competitors": "service",
+    "GET /market/night": "reports",
+    "GET /market/occupancy": "reports",
+    "GET /marketing/site": "settings",
++   "GET /marketing/site/brief": "settings",
+    "GET /marketing/site/draft": "settings",
+    "GET /onboarding": "self",
+    "GET /platform/organizations": "platform",
+    "GET /platform/support/conversations": "platform",
+    "GET /platform/support/conversations/:id": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:433:20
+    431|       .map(([key]) => key);
+    432|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    433|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    434|   });
+    435|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  08:13:46
+   Duration  7.90s (transform 78%, import 19%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-13-45Z-unit-a316.json
+
+# код выхода 1 · 9 с

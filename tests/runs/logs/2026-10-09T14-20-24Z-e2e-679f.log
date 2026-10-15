@@ -1,0 +1,288 @@
+# Сквозные (e2e) · 09.10.2026 19:20 Алматы · vm
+# коммит 63d4d29 (claude/serene-newton-q453ps)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-design.spec.ts' 'tests/ui/chessboard-filters.spec.ts' 'tests/ui/chessboard-gate-pr3.spec.ts' 'tests/ui/chessboard-gate-pr7.spec.ts' 'tests/ui/chessboard-gate.spec.ts' 'tests/ui/chessboard-grid.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-compact-screen.spec.ts' 'tests/ui/chessboard-unassigned.spec.ts' 'tests/ui/ds1b-primitives.spec.ts' 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/housekeeping.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/workspace.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 181 tests using 1 worker
+
+  ✓    1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (3.1s)
+  ✓    2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: одна полоса управления и шесть карточек под ней, сетка начинается выше (4.3s)
+  ✓    3 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (3.8s)
+  ✓    4 tests/ui/chessboard-calendar.spec.ts:47:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (2.2s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-09" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             ...
+[WebServer]                               <PeriodPicker>
+[WebServer]                                 <div className="period-picker">
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-from" className="field fiel...">
+[WebServer]                                       <DateInput id="period-from" name="from" defaultValue="2026-10-05" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-from"
+[WebServer]                                             name="from"
+[WebServer]                                             defaultValue="2026-10-05"
+[WebServer]                                             aria-label="Период: с"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-to" className="field fiel...">
+[WebServer]                                       <DateInput id="period-to" name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-to"
+[WebServer]                                             name="to"
+[WebServer]                                             defaultValue="2026-10-11"
+[WebServer]                                             aria-label="Период: по"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓    5 tests/ui/chessboard-calendar.spec.ts:60:3 › гейт «Календарь»: light (4.2s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-09" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             ...
+[WebServer]                               <PeriodPicker>
+[WebServer]                                 <div className="period-picker">
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-from" className="field fiel...">
+[WebServer]                                       <DateInput id="period-from" name="from" defaultValue="2026-10-05" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-from"
+[WebServer]                                             name="from"
+[WebServer]                                             defaultValue="2026-10-05"
+[WebServer]                                             aria-label="Период: с"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-to" className="field fiel...">
+[WebServer]                                       <DateInput id="period-to" name="to" rangeFromName="from" defaultValue="2026-10-11" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-to"
+[WebServer]                                             name="to"
+[WebServer]                                             defaultValue="2026-10-11"
+[WebServer]                                             aria-label="Период: по"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓    6 tests/ui/chessboard-calendar.spec.ts:60:3 › гейт «Календарь»: dark (4.7s)
+  ✓    7 tests/ui/chessboard-calendar.spec.ts:73:1 › пустая клетка не дублирует дату из шапки календаря (3.3s)
+  ✓    8 tests/ui/chessboard-calendar.spec.ts:81:1 › даты в шапке не повторяют свободные и занятые места (3.1s)
+  ✓    9 tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (4.4s)
+  ✓   10 tests/ui/chessboard-card.spec.ts:43:1 › двойной клик открывает полную карточку брони (6.5s)
+  ✓   11 tests/ui/chessboard-card.spec.ts:49:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить (4.5s)
+  ✓   12 tests/ui/chessboard-card.spec.ts:71:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (4.8s)
+  ✓   13 tests/ui/chessboard-card.spec.ts:90:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (10.4s)
+  ✓   14 tests/ui/chessboard-card.spec.ts:125:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (8.7s)
+  ✓   15 tests/ui/chessboard-card.spec.ts:153:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (5.0s)
+  ✓   16 tests/ui/chessboard-card.spec.ts:169:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (8.3s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url={"/chessbo..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-09" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             ...
+[WebServer]                               <PeriodPicker>
+[WebServer]                                 <div className="period-picker">
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-from" className="field fiel...">
+[WebServer]                                       <DateInput id="period-from" name="from" defaultValue="2026-09-14" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-from"
+[WebServer]                                             name="from"
+[WebServer]                                             defaultValue="2026-09-14"
+[WebServer]                                             aria-label="Период: с"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                                   <Field>
+[WebServer]                                     <label htmlFor="period-to" className="field fiel...">
+[WebServer]                                       <DateInput id="period-to" name="to" rangeFromName="from" defaultValue="2026-09-20" ...>
+[WebServer]                                         <span className="date-field">
+[WebServer]                                           <input
+[WebServer]                                             ref={{current:null}}
+[WebServer]                                             type="date"
+[WebServer]                                             className="inp date-field__input"
+[WebServer]                                             id="period-to"
+[WebServer]                                             name="to"
+[WebServer]                                             defaultValue="2026-09-20"
+[WebServer]                                             aria-label="Период: по"
+[WebServer] -                                           style={{caret-color:"transparent"}}
+[WebServer]                                           >
+[WebServer]                                           ...
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓   17 tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (3.3s)
+  ✓   18 tests/ui/chessboard-compact-screen.spec.ts:62:1 › свёрнутые категории переживают перезагрузку и разворачиваются (6.1s)
+  ✓   19 tests/ui/chessboard-compact-screen.spec.ts:74:1 › без сохранённого выбора вид «Обычный» (образец владельца 09.10), сохранённые «Компактный» и «Подробный» восстанавливаются (14.3s)
+  ✓   20 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (3.7s)
+  ✓   21 tests/ui/chessboard-design.spec.ts:38:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (10.4s)
+  ✓   22 tests/ui/chessboard-design.spec.ts:63:3 › дизайн шахматки: light, компактное управление и доступная сетка (24.2s)
+  ✓   23 tests/ui/chessboard-design.spec.ts:63:3 › дизайн шахматки: dark, компактное управление и доступная сетка (24.5s)
+  ✓   24 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (8.8s)
+  ✓   25 tests/ui/chessboard-filters.spec.ts:147:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (5.1s)
+  ✓   26 tests/ui/chessboard-filters.spec.ts:178:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (8.6s)
+  ✓   27 tests/ui/chessboard-filters.spec.ts:243:1 › §37: ничего не найдено — «Сбросить фильтры» (3.5s)
+  ✓   28 tests/ui/chessboard-filters.spec.ts:256:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (8.3s)
+  ✓   29 tests/ui/chessboard-filters.spec.ts:288:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (3.8s)
+  ✓   30 tests/ui/chessboard-filters.spec.ts:306:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (3.7s)
+  ✓   31 tests/ui/chessboard-filters.spec.ts:333:1 › доступность: окошко «Фильтры» открыто (4.6s)
+
+# код выхода —, сигнал SIGTERM · 5 мин 15 с

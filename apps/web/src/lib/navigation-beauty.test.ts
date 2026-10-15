@@ -25,9 +25,6 @@ describe('меню салона', () => {
       '/channels',
       '/hotel-settings',
       '/website',
-      '/marketing',
-      '/finance',
-      '/bar',
     ]) {
       expect(items, href).not.toContain(href);
     }
@@ -41,9 +38,22 @@ describe('меню салона', () => {
       '/appointments',
       '/customers',
       '/employees',
+      // «График» мастеров своей вкладкой: решение владельца №1 по плану DS2 (09.10.2026), мастер-проход 11.10
+      '/beauty/schedule',
       '/services',
-      '/staff',
+      '/finance',
+      '/bar',
+      '/team',
+      '/sales',
+      '/ai-agents',
+      '/marketing',
+      '/marketing/budget',
+      '/marketing/analytics',
+      '/reports',
+      '/management/analytics',
+      '/connections',
       '/journal',
+      '/incidents',
       '/help',
       '/profile',
     ]);
@@ -69,6 +79,25 @@ describe('меню салона', () => {
   it('первый пункт салона «Сегодня» на общем адресе /today (MV8)', () => {
     const first = menuSectionsFor(owner, 'BEAUTY')[0]!.items[0]!;
     expect(first).toMatchObject({ href: '/today', label: 'Сегодня', requires: 'desk' });
+  });
+
+  /**
+   * Мастер и учётная запись сотрудника это разные экраны: `/employees` ведёт каталог мастеров филиала
+   * (право `desk`, работа смены), `/team` заводит учётные записи и роли (право `staff`). В общем реестре
+   * маршрутов у `/employees` стояла подпись «Сотрудники», и рядом с «Сотрудники и доступ» в меню салона
+   * она читалась как тот же раздел. Подпись исправлена в самом реестре, а не аргументом `direct` по
+   * вертикали: `/employees` есть только у салона (у ресторана этого пункта нет вовсе), поэтому вторая
+   * подпись на тот же адрес разошлась бы с экраном. Экран назван так же, путь `beauty/masters` и подпись
+   * под заголовком про мастера сети не менялись.
+   */
+  it('«Мастера» и «Сотрудники и доступ» в меню салона не путаются', () => {
+    const labels = new Map(
+      menuSectionsFor(owner, 'BEAUTY').flatMap((s) => s.items.map((i) => [i.href, i.label] as const)),
+    );
+    expect(labels.get('/employees')).toBe('Мастера');
+    expect(labels.get('/team')).toBe('Сотрудники и доступ');
+    const all = [...labels.values()];
+    expect(new Set(all).size, all.join(', ')).toBe(all.length);
   });
 
   it('у каждого пункта салона есть право: закрытую страницу меню не обещает', () => {

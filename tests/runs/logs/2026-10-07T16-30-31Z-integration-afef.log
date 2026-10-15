@@ -1,0 +1,24 @@
+# Интеграционные (integration) · 07.10.2026 21:30 Алматы · vm
+# коммит ba1d114 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-30-31Z-integration-afef.json' 'tests/integration/site-assets.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §75: запись в хранилище не удалась: строки нет, 503; без права settings 403
+{"event":"site_assets.put_failed","assetId":"05a650c4-0045-48cd-90e1-d18e47edaf60","kind":"IMAGE","byteSize":76}
+
+(node:7295) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-assets.test.ts (11 tests) 3094ms
+   ✓ MKT8 библиотека изображений сайта (10)
+     ✓ §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть 662ms
+     ✓ §104: больше 30 загрузок и импортов в час: 429 621ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  16:30:32
+   Duration  8.51s (tests 49%, transform 34%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-30-31Z-integration-afef.json
+
+# код выхода 0 · 10 с

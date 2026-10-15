@@ -1,0 +1,333 @@
+# Сквозные (e2e) · 08.10.2026 21:57 Алматы · vm
+# коммит f0fcf86 (claude/mv8-5-ds1c-primitives), незакоммиченных файлов набора: 24
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/ds1c-primitives.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✘   1 tests/ui/ds1c-primitives.spec.ts:15:1 › доля на «Сайт → Аналитика»: родной progress с именем и числом, без ширины строкой стиля (3.3s)
+  ✘   2 tests/ui/ds1c-primitives.spec.ts:32:1 › плитка: тон чертой слева, изменение словами, плитка-ссылка с фокусом (45.8s)
+  ✘   3 tests/ui/ds1c-primitives.spec.ts:50:1 › день: предыдущий, следующий, «Сегодня» и поле «Дата» с подписью (18.0s)
+  ✘   4 tests/ui/ds1c-primitives.spec.ts:68:1 › период «Броней»: готовые отрезки ссылками, поля «С» и «По», применяет «Показать», адрес прежний (17.6s)
+  ✘   5 tests/ui/ds1c-primitives.spec.ts:83:1 › размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус (3.2s)
+  ✘   6 tests/ui/ds1c-primitives.spec.ts:104:1 › поле: обязательное с родным required и знаком, необязательное словом (18.2s)
+  ✘   7 tests/ui/ds1c-primitives.spec.ts:115:1 › таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки (17.3s)
+  ✘   8 tests/ui/ds1c-primitives.spec.ts:131:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента (5.2s)
+  ✘   9 tests/ui/ds1c-primitives.spec.ts:160:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (light) (3.0s)
+  ✘  10 tests/ui/ds1c-primitives.spec.ts:160:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (dark) (2.9s)
+
+
+  1) tests/ui/ds1c-primitives.spec.ts:15:1 › доля на «Сайт → Аналитика»: родной progress с именем и числом, без ширины строкой стиля 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      18 |   await page.goto('/website/analytics');
+      19 |   const bars = page.getByRole('main').getByRole('progressbar');
+    > 20 |   expect(await bars.count()).toBeGreaterThan(0);
+         |                              ^
+      21 |   const first = bars.first();
+      22 |   await expect(first).toHaveAttribute('max', '100');
+      23 |   await expect(first).toHaveAttribute('aria-label', /^Доля: /);
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:20:30
+
+    Error Context: test-results/ds1c-primitives-доля-на-«С-38419-ом-без-ширины-строкой-стиля/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-доля-на-«С-38419-ом-без-ширины-строкой-стиля/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-доля-на-«С-38419-ом-без-ширины-строкой-стиля/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ds1c-primitives.spec.ts:32:1 › плитка: тон чертой слева, изменение словами, плитка-ссылка с фокусом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.evaluate: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('kit-light').locator('section[data-component="stat"]').locator('.stat--tone-danger').first()
+
+
+      34 |   const section = kit(page).locator('section[data-component="stat"]');
+      35 |   const danger = section.locator('.stat--tone-danger').first();
+    > 36 |   const shadow = await danger.evaluate((el) => getComputedStyle(el).boxShadow);
+         |                               ^
+      37 |   expect(shadow).toContain('inset');
+      38 |   const bg = await danger.evaluate((el) => getComputedStyle(el).backgroundColor);
+      39 |   const plain = await section.locator('.stat:not([class*="tone"])').first().evaluate((el) => getComputedStyle(el).backgroundColor);
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:36:31
+
+    Error Context: test-results/ds1c-primitives-плитка-тон-663da-ами-плитка-ссылка-с-фокусом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-плитка-тон-663da-ами-плитка-ссылка-с-фокусом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-плитка-тон-663da-ами-плитка-ссылка-с-фокусом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ds1c-primitives.spec.ts:50:1 › день: предыдущий, следующий, «Сегодня» и поле «Дата» с подписью 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component="date-bar"] .date-bar').first().getByLabel('Дата', { exact: true })
+    Expected: "2026-10-12"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByTestId('kit-light').locator('section[data-component="date-bar"] .date-bar').first().getByLabel('Дата', { exact: true }) with timeout 15000ms
+      - waiting for getByTestId('kit-light').locator('section[data-component="date-bar"] .date-bar').first().getByLabel('Дата', { exact: true })
+
+
+      52 |   const bar = kit(page).locator('section[data-component="date-bar"] .date-bar').first();
+      53 |   const date = bar.getByLabel('Дата', { exact: true });
+    > 54 |   await expect(date).toHaveValue('2026-10-12');
+         |                      ^
+      55 |   await bar.getByRole('button', { name: 'Следующий день' }).click();
+      56 |   await expect(date).toHaveValue('2026-10-13');
+      57 |   await bar.getByRole('button', { name: 'Предыдущий день' }).click();
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:54:22
+
+    Error Context: test-results/ds1c-primitives-день-преды-7f3f7-я»-и-поле-«Дата»-с-подписью/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-день-преды-7f3f7-я»-и-поле-«Дата»-с-подписью/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-день-преды-7f3f7-я»-и-поле-«Дата»-с-подписью/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ds1c-primitives.spec.ts:68:1 › период «Броней»: готовые отрезки ссылками, поля «С» и «По», применяет «Показать», адрес прежний 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.period-picker')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.period-picker') with timeout 15000ms
+      - waiting for locator('.period-picker')
+
+
+      71 |   await page.goto('/reservations?from=2026-09-10&to=2026-09-24');
+      72 |   const picker = page.locator('.period-picker');
+    > 73 |   await expect(picker).toBeVisible();
+         |                        ^
+      74 |   await expect(picker.getByRole('navigation', { name: 'Готовые периоды' })).toBeVisible();
+      75 |   await expect(picker.getByLabel('Период: с')).toHaveValue('2026-09-10');
+      76 |   await picker.getByLabel('Период: по').fill('2026-09-20');
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:73:24
+
+    Error Context: test-results/ds1c-primitives-период-«Бр-5e2e7-ет-«Показать»-адрес-прежний/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-период-«Бр-5e2e7-ет-«Показать»-адрес-прежний/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-период-«Бр-5e2e7-ет-«Показать»-адрес-прежний/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ds1c-primitives.spec.ts:83:1 › размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 480
+
+      90 |   const task = page.getByRole('dialog', { name: 'Новая задача' });
+      91 |   await expect(task).toBeVisible();
+    > 92 |   expect(Math.round((await task.boundingBox())!.width)).toBe(400);
+         |                                                         ^
+      93 |   await page.keyboard.press('Escape');
+      94 |   await expect(task).toBeHidden();
+      95 |   await expect(open).toBeFocused();
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:92:57
+
+    Error Context: test-results/ds1c-primitives-размеры-ок-f0524-акрывает-и-возвращает-фокус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-размеры-ок-f0524-акрывает-и-возвращает-фокус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-размеры-ок-f0524-акрывает-и-возвращает-фокус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ds1c-primitives.spec.ts:104:1 › поле: обязательное с родным required и знаком, необязательное словом 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByTestId('kit-light').locator('section[data-component="form-grid"]').getByLabel('Имя', { exact: true })
+    Expected: ""
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('kit-light').locator('section[data-component="form-grid"]').getByLabel('Имя', { exact: true }) with timeout 15000ms
+      - waiting for getByTestId('kit-light').locator('section[data-component="form-grid"]').getByLabel('Имя', { exact: true })
+
+
+      106 |   const section = kit(page).locator('section[data-component="form-grid"]');
+      107 |   const name = section.getByLabel('Имя', { exact: true });
+    > 108 |   await expect(name).toHaveAttribute('required', '');
+          |                      ^
+      109 |   await expect(section.locator('.field__required').first()).toHaveText('*');
+      110 |   const middle = section.getByLabel(/^Отчество/);
+      111 |   await expect(middle).not.toHaveAttribute('required', /.*/);
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:108:22
+
+    Error Context: test-results/ds1c-primitives-поле-обяза-0bd69-наком-необязательное-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-поле-обяза-0bd69-наком-необязательное-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-поле-обяза-0bd69-наком-необязательное-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/ds1c-primitives.spec.ts:115:1 › таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: getByTestId('market-table')
+    Expected pattern: /tbl--sticky-column/
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveClass" getByTestId('market-table') with timeout 15000ms
+      - waiting for getByTestId('market-table')
+
+
+      118 |   await page.goto('/market');
+      119 |   const table = page.getByTestId('market-table');
+    > 120 |   await expect(table).toHaveClass(/tbl--sticky-column/);
+          |                       ^
+      121 |   const position = await table
+      122 |     .locator('th.market-table__name')
+      123 |     .first()
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:120:23
+
+    Error Context: test-results/ds1c-primitives-таблица-ma-0b621-ассом-имя-области-прокрутки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-таблица-ma-0b621-ассом-имя-области-прокрутки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-таблица-ma-0b621-ассом-имя-области-прокрутки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/ds1c-primitives.spec.ts:131:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(9, 102, 200)"
+    Received: "rgb(8, 95, 186)"
+
+      150 |     return rgb;
+      151 |   }, hoverToken);
+    > 152 |   expect(style.bg).toBe(expected);
+          |                    ^
+      153 |   expect(style.image).toBe('none');
+      154 |   expect(style.filter).toBe('none');
+      155 | });
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:152:20
+
+    Error Context: test-results/ds1c-primitives-главная-кн-fe933-ver-без-фильтра-и-градиента/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-главная-кн-fe933-ver-без-фильтра-и-градиента/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-главная-кн-fe933-ver-без-фильтра-и-градиента/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/ds1c-primitives.spec.ts:160:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (light) 
+
+    Error: frame.evaluate: Error: No elements found for include in page Context
+        at validateContext (eval at evaluate (:311:30), <anonymous>:19556:15)
+        at new Context (eval at evaluate (:311:30), <anonymous>:19537:7)
+        at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:19578:22)
+        at eval (eval at evaluate (:311:30), <anonymous>:4:27)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at validateContext (eval at evaluate (:311:30), <anonymous>:19556:15)
+        at Context (eval at evaluate (:311:30), <anonymous>:19537:7)
+        at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:19578:22)
+        at eval (eval at evaluate (:311:30), <anonymous>:4:27)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at AxeBuilder.runPartialRecursive (/home/user/wetop.ai/node_modules/@axe-core/playwright/dist/index.mjs:280:39)
+        at AxeBuilder.analyze (/home/user/wetop.ai/node_modules/@axe-core/playwright/dist/index.mjs:210:39)
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:173:22
+
+    Error Context: test-results/ds1c-primitives-390-px-пре-24b47--по-новым-примитивам-light-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-390-px-пре-24b47--по-новым-примитивам-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-390-px-пре-24b47--по-новым-примитивам-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/ds1c-primitives.spec.ts:160:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (dark) 
+
+    Error: frame.evaluate: Error: No elements found for include in page Context
+        at validateContext (eval at evaluate (:311:30), <anonymous>:19556:15)
+        at new Context (eval at evaluate (:311:30), <anonymous>:19537:7)
+        at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:19578:22)
+        at eval (eval at evaluate (:311:30), <anonymous>:4:27)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at validateContext (eval at evaluate (:311:30), <anonymous>:19556:15)
+        at Context (eval at evaluate (:311:30), <anonymous>:19537:7)
+        at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:19578:22)
+        at eval (eval at evaluate (:311:30), <anonymous>:4:27)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at AxeBuilder.runPartialRecursive (/home/user/wetop.ai/node_modules/@axe-core/playwright/dist/index.mjs:280:39)
+        at AxeBuilder.analyze (/home/user/wetop.ai/node_modules/@axe-core/playwright/dist/index.mjs:210:39)
+        at /home/user/wetop.ai/tests/ui/ds1c-primitives.spec.ts:173:22
+
+    Error Context: test-results/ds1c-primitives-390-px-пре-c9526-e-по-новым-примитивам-dark-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ds1c-primitives-390-px-пре-c9526-e-по-новым-примитивам-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ds1c-primitives-390-px-пре-c9526-e-по-новым-примитивам-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests/ui/ds1c-primitives.spec.ts:15:1 › доля на «Сайт → Аналитика»: родной progress с именем и числом, без ширины строкой стиля 
+    tests/ui/ds1c-primitives.spec.ts:32:1 › плитка: тон чертой слева, изменение словами, плитка-ссылка с фокусом 
+    tests/ui/ds1c-primitives.spec.ts:50:1 › день: предыдущий, следующий, «Сегодня» и поле «Дата» с подписью 
+    tests/ui/ds1c-primitives.spec.ts:68:1 › период «Броней»: готовые отрезки ссылками, поля «С» и «По», применяет «Показать», адрес прежний 
+    tests/ui/ds1c-primitives.spec.ts:83:1 › размеры окон: «Новая задача» sm, новая бронь lg, Escape закрывает и возвращает фокус 
+    tests/ui/ds1c-primitives.spec.ts:104:1 › поле: обязательное с родным required и знаком, необязательное словом 
+    tests/ui/ds1c-primitives.spec.ts:115:1 › таблица `/market`: липкая колонка отелей общим классом, имя области прокрутки 
+    tests/ui/ds1c-primitives.spec.ts:131:1 › главная кнопка: под курсором фон --primary-hover, без фильтра и градиента 
+    tests/ui/ds1c-primitives.spec.ts:160:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (light) 
+    tests/ui/ds1c-primitives.spec.ts:160:3 › 390 px: представители DS1c без прокрутки вбок, axe по новым примитивам (dark) 
+
+# код выхода 1 · 2 мин 46 с

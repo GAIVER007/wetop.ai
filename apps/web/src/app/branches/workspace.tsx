@@ -1,108 +1,75 @@
+import { MonthPicker } from './month-picker';
+import { ArchivedBranches } from './archived-branches';
 import './branches.css';
-import { Suspense } from 'react';
-import { BranchOverview } from './overview';
-import { todayAt, isIsoDate } from '@pms/domain';
 import { randomUUID } from 'node:crypto';
+import { todayAt, isIsoDate } from '@pms/domain';
+import { branchesApi, organizationSummaryApi, branchLifecycleApi } from '../../lib/api';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import { Panel, Stack } from '../../components/ui';
-import { branchesApi } from '../../lib/api';
-import { BranchForm } from './form';
-import { selectBranch } from './actions';
 import { unstable_rethrow } from 'next/navigation';
+import { BranchCreateDialog } from './branch-create-dialog';
+import { ReferenceBoard } from './reference-board';
 export async function BranchWorkspace({
   query,
-  createLabel = 'Добавить филиал',
+  createLabel = 'Добавить',
 }: {
   query: Record<string, string | string[] | undefined>;
   createLabel?: string;
 }) {
-  const loaded = await branchesApi.list().then(
-    (value) => ({ ok: true as const, value }),
-    (error: unknown) => {
-      unstable_rethrow(error);
-      return { ok: false as const, error };
-    },
-  );
-  if (!loaded.ok)
-    return <LoadError testId="branches-load-error" {...loadErrorProps(loaded.error)} />;
-  const { organization, items, canCreate } = loaded.value;
-  const today = todayAt(items[0]?.timezone ?? 'UTC');
-  const from = typeof query.from === 'string' && isIsoDate(query.from) ? query.from : today;
-  const to = typeof query.to === 'string' && isIsoDate(query.to) ? query.to : from;
-  return (
-    <section className="branches-workspace" aria-label="Объекты и филиалы">
-      <Stack>
-        <Panel>
-          <h2>{organization.name}</h2>
-          <details>
-            <summary>Реквизиты организации</summary>
-            <p className="muted">ID: {organization.id}</p>
-          </details>
-          <p>Один аккаунт, отдельный номерной фонд и настройки каждого филиала.</p>
-        </Panel>
-        {canCreate && (
-          <Panel>
-            <details>
-              <summary className="branch-create-toggle">{createLabel}</summary>
-              <BranchForm id={randomUUID()} />
-            </details>
-          </Panel>
-        )}
-        <div
-          className="branches-grid"
-          style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))' }}
-        >
-          {items.map((item) => (
-            <Panel key={item.id}>
-              <h2>{item.name}</h2>
-              <p>{item.address || 'Адрес пока не указан'}</p>
-              {/* У салона номеров и коек нет вовсе (DATA_MODEL §19): состав фонда ему не показывается */}
-              <p>
-                {item.vertical === 'FOOD_SERVICE'
-                  ? 'Ресторан: залы, столы и бронирования'
-                  : item.vertical === 'BEAUTY'
-                    ? 'Салон красоты: клиенты, услуги и мастера'
-                    : `${item._count.inventoryUnits} номеров и коек, ${item._count.accommodationTypes} категорий`}
-              </p>
-              <p>
-                Валюта {item.currency}, часовой пояс {item.timezone}
-              </p>
-              <p className="muted" style={{ overflowWrap: 'anywhere' }}>
-                <small>ID филиала: {item.locationId}</small>
-              </p>
-              <form action={selectBranch}>
-                <input type="hidden" name="id" value={item.id} />
-                <button className="btn" type="submit">
-                  {item.vertical === 'FOOD_SERVICE'
-                    ? 'Открыть ресторан'
-                    : item.vertical === 'BEAUTY'
-                      ? 'Открыть салон'
-                      : item._count.inventoryUnits
-                        ? 'Открыть филиал'
-                        : 'Настроить номера'}
-                </button>
-              </form>
-            </Panel>
-          ))}
-        </div>
-        <form className="branches-period">
-          <label>
-            С даты
-            <input className="inp" type="date" name="from" defaultValue={from} required />
-          </label>
-          <label>
-            По дату
-            <input className="inp" type="date" name="to" defaultValue={to} required min={from} />
-          </label>
-          <button className="btn" type="submit">
-            Показать
-          </button>
-        </form>
-        <Suspense fallback={<p role="status">Считаем показатели филиалов…</p>}>
-          <BranchOverview from={from} to={to} />
-        </Suspense>
-      </Stack>
-    </section>
-  );
+  try {
+    const loaded = await branchesApi.list();
+    const { organization, items, canCreate } = loaded;
+    const businesses = loaded.businesses ?? [];
+    const date = todayAt(items[0]?.timezone ?? 'UTC');
+    const month =
+      typeof query.month === 'string' &&
+      /^\d{4}-\d{2}$/.test(query.month) &&
+      isIsoDate(`${query.month}-01`)
+        ? query.month
+        : date.slice(0, 7);
+    const monthFrom = `${month}-01`;
+    const monthTo = `${month}-${String(new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0)).getUTCDate()).padStart(2, '0')}`;
+    const from = typeof query.from === 'string' && isIsoDate(query.from) ? query.from : monthFrom;
+    const to = typeof query.to === 'string' && isIsoDate(query.to) ? query.to : monthTo;
+    const [financial, archived] = await Promise.all([
+      organizationSummaryApi.load(from, to).catch((error) => {
+        unstable_rethrow(error);
+        return null;
+      }),
+      canCreate
+        ? branchLifecycleApi.archived().catch((error) => {
+            unstable_rethrow(error);
+            return null;
+          })
+        : Promise.resolve(null),
+    ]);
+    return (
+      <ReferenceBoard
+        organization={organization.name}
+        period={<MonthPicker key="month" month={month} />}
+        financial={financial}
+        archive={canCreate ? <ArchivedBranches key="archive" items={archived} /> : null}
+        periodLabel={from === date && to === date ? 'за сегодня' : `за ${from} - ${to}`}
+        items={items}
+        businesses={businesses}
+        preview={process.env.NODE_ENV === 'development' && process.env.APP_ALLOW_TEST_DATA === '1'}
+        metrics={{}}
+        money={[]}
+        create={
+          canCreate ? (
+            <BranchCreateDialog
+              key="create"
+              id={randomUUID()}
+              newBusinessId={randomUUID()}
+              businesses={businesses}
+              label={createLabel}
+            />
+          ) : null
+        }
+      />
+    );
+  } catch (error) {
+    unstable_rethrow(error);
+    return <LoadError testId="branches-load-error" {...loadErrorProps(error)} />;
+  }
 }

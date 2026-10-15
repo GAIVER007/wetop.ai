@@ -1,0 +1,31 @@
+{
+ "/bar/receipts": {
+  "390": [
+   {
+    "cols": 8,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     296,
+     468
+    ],
+    "widerThanViewport": true,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 8,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     34,
+     35,
+     79
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

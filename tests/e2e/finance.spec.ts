@@ -65,7 +65,10 @@ test('счёт на проживание: начисления, оплата, в
     'data-kind',
     'ACCOMMODATION',
   );
-  await expect(panel.getByTestId('charge-row').first().locator('button')).toHaveCount(0); // сторно проживания нет
+  // сторно проживания нет; с ADR-151 у проживания есть только «Изменить цену»
+  const stayRow = panel.getByTestId('charge-row').first();
+  await expect(stayRow.locator('[data-testid^="void-"]')).toHaveCount(0);
+  await expect(stayRow.getByTestId('stay-price-btn')).toHaveText('Изменить цену');
 
   // штраф 1 000 ₸
   let cf = panel.getByTestId('charge-form');
@@ -89,7 +92,8 @@ test('счёт на проживание: начисления, оплата, в
   // оплата наличными: сумма по умолчанию — весь баланс
   const pf = panel.getByTestId('payment-form');
   await expect(pf.locator('input[name="amount"]')).toHaveValue(decimal(price + 200_000n));
-  await pf.getByRole('button', { name: 'Принять оплату' }).click();
+  await pf.getByRole('button', { name: 'Проверить оплату' }).click();
+  await pf.getByRole('button', { name: 'Подтвердить оплату' }).click();
   await expect(panel.getByTestId('payment-row')).toHaveCount(1);
   expect(await balance()).toBe(0n);
   await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('оплачено');
@@ -99,7 +103,8 @@ test('счёт на проживание: начисления, оплата, в
   const rf = panel.getByTestId('refund-form');
   await rf.locator('input[name="amount"]').fill('500');
   await rf.locator('input[name="reason"]').fill('ранний выезд');
-  await rf.getByRole('button', { name: 'вернуть' }).click();
+  await rf.getByRole('button', { name: 'Проверить возврат' }).click();
+  await rf.getByRole('button', { name: 'Подтвердить возврат' }).click();
   await expect(panel.getByText(/Возвраты:/)).toBeVisible();
   expect(await balance()).toBe(50_000n);
 

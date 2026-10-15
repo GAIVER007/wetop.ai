@@ -1,0 +1,174 @@
+# Сквозные (e2e) · 08.10.2026 00:29 Алматы · vm
+# коммит 5423299 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-editor.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 22 tests using 1 worker
+
+  ✓   1 tests/ui/site-editor.spec.ts:32:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами (6.1s)
+  ✘   2 tests/ui/site-editor.spec.ts:69:1 › просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит (18.1s)
+  ✓   3 tests/ui/site-editor.spec.ts:87:1 › открыть в новой вкладке: с несохранёнными правками просит сохранить, без них открывает ссылку (3.9s)
+  ✓   4 tests/ui/site-editor.spec.ts:102:1 › восстановить старую версию как новый черновик (4.1s)
+  ✘   5 tests/ui/site-editor.spec.ts:115:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (3.6s)
+  ✓   6 tests/ui/site-editor.spec.ts:133:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (4.7s)
+  ✓   7 tests/ui/site-editor.spec.ts:151:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (4.0s)
+  ✓   8 tests/ui/site-editor.spec.ts:170:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (5.2s)
+  ✓   9 tests/ui/site-editor.spec.ts:188:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (2.6s)
+  ✓  10 tests/ui/site-editor.spec.ts:198:1 › добавить секцию, переставить и сделать копию с клавиатуры (3.8s)
+  ✓  11 tests/ui/site-editor.spec.ts:220:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (3.3s)
+  ✘  12 tests/ui/site-editor.spec.ts:233:1 › ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было (24.6s)
+  ✓  13 tests/ui/site-editor.spec.ts:259:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна (7.4s)
+  ✓  14 tests/ui/site-editor.spec.ts:277:1 › ИИ с несохранёнными правками: «Сохранить и отправить» сохраняет версию, ошибка ИИ словами, «Повторить запрос» (7.3s)
+  ✓  15 tests/ui/site-editor.spec.ts:294:1 › окно «Создать сайт»: нет сайта, занятый адрес у поля, текст на месте; затем сайт создаётся и открывается редактор (6.5s)
+  ✓  16 tests/ui/site-editor.spec.ts:316:1 › окно «Создать сайт»: сайт есть без версий, адреса нет; ошибка ИИ словами, текст на месте (5.4s)
+  ✓  17 tests/ui/site-editor.spec.ts:329:3 › окно «Создать сайт»: снимки и доступность, light (5.8s)
+  ✓  18 tests/ui/site-editor.spec.ts:329:3 › окно «Создать сайт»: снимки и доступность, dark (6.9s)
+  ✘  19 tests/ui/site-editor.spec.ts:349:3 › редактор на компьютере, доступность и снимки: light (2.0m)
+  ✓  20 tests/ui/site-editor.spec.ts:402:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light (36.8s)
+  ✓  21 tests/ui/site-editor.spec.ts:349:3 › редактор на компьютере, доступность и снимки: dark (31.8s)
+  ✓  22 tests/ui/site-editor.spec.ts:402:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark (36.8s)
+
+
+  1) tests/ui/site-editor.spec.ts:69:1 › просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('main').visible().getByLabel('Страница', { exact: true })
+    Expected: "page-rules"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').visible().getByLabel('Страница', { exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByLabel('Страница', { exact: true })
+
+
+      73 |   await frame(page).locator('footer').getByRole('link', { name: 'Правила' }).click();
+      74 |   await expect(frame(page).locator('#sec-rules')).toContainText('Правила проживания');
+    > 75 |   await expect(m.getByLabel('Страница', { exact: true })).toHaveValue('page-rules');
+         |                                                           ^
+      76 |   await expect(m).toHaveURL(/\/marketing\/site\/editor$/);
+      77 |   await tab(page, 'Блоки').click();
+      78 |   await expect(structure(page).getByRole('button', { name: 'О гостинице: Правила проживания', exact: true })).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:75:59
+
+    Error Context: test-results/site-editor-просмотр-ссылк-8ed0f-ыполняются-наружу-не-уходит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-просмотр-ссылк-8ed0f-ыполняются-наружу-не-уходит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-просмотр-ссылк-8ed0f-ыполняются-наружу-не-уходит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/site-editor.spec.ts:115:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('main').visible().getByLabel('Подпись для незрячих (ALT)', { exact: true })
+    Expected: "Фасад вечером"
+    Error: strict mode violation: getByRole('main').visible().getByLabel('Подпись для незрячих (ALT)', { exact: true }) resolved to 2 elements:
+        1) <input class="inp" maxlength="150" value="Фасад вечером" id="ed-pages-0-sections-0-image-alt-ru"/> aka getByRole('textbox', { name: 'Подпись для незрячих (ALT)' })
+        2) <input class="inp" maxlength="150" value="Логотип Luxx Aparts" id="ed-site-brand-logo-alt-ru"/> aka getByTestId('ed-site-form').getByLabel('Подпись для незрячих (ALT)')
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').visible().getByLabel('Подпись для незрячих (ALT)', { exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').visible().getByLabel('Подпись для незрячих (ALT)', { exact: true })
+
+
+      122 |   await picker.getByTestId('ed-asset-option').nth(1).click();
+      123 |   await expect(picker).toBeHidden();
+    > 124 |   await expect(m.getByLabel('Подпись для незрячих (ALT)', { exact: true })).toHaveValue('Фасад вечером');
+          |                                                                             ^
+      125 |   await expect(m.getByTestId('ed-dirty')).toHaveText('Есть несохранённые изменения');
+      126 |   await expect(m.locator('input[type="url"]')).toHaveCount(0);
+      127 |
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:124:77
+
+    Error Context: test-results/site-editor-выбор-картинки-ba036-ми-не-вводится-ALT-отдельно/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-выбор-картинки-ba036-ми-не-вводится-ALT-отдельно/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-выбор-картинки-ba036-ми-не-вводится-ALT-отдельно/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/site-editor.spec.ts:233:1 › ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').visible().getByTestId('ed-ai')
+    Expected substring: "Сделай первый экран короче"
+    Received string:    "Напишите, что поменять на сайте.Например, «сделай первый экран короче» или «добавь вопрос про парковку». Чтобы изменить один блок, щёлкните его на сайте справа.ИИ не меняет название, контакты, языки, бронирование и SEO и не придумывает цены.Что изменить на сайте?Ctrl+Enter отправляет.Отправить"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').visible().getByTestId('ed-ai') with timeout 15000ms
+      - waiting for getByRole('main').visible().getByTestId('ed-ai')
+        33 × locator resolved to <div class="ed-chat" data-testid="ed-ai">…</div>
+           - unexpected value "Напишите, что поменять на сайте.Например, «сделай первый экран короче» или «добавь вопрос про парковку». Чтобы изменить один блок, щёлкните его на сайте справа.ИИ не меняет название, контакты, языки, бронирование и SEO и не придумывает цены.Что изменить на сайте?Ctrl+Enter отправляет.Отправить"
+
+
+      254 |   // лента живёт в браузере и переживает обновление вкладки
+      255 |   await page.reload();
+    > 256 |   await expect(main(page).getByTestId('ed-ai')).toContainText('Сделай первый экран короче');
+          |                                                 ^
+      257 | });
+      258 |
+      259 | test('ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:256:49
+
+    Error Context: test-results/site-editor-ИИ-всего-сайта-83180-ся-разница-вернуть-как-было/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-ИИ-всего-сайта-83180-ся-разница-вернуть-как-было/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-ИИ-всего-сайта-83180-ся-разница-вернуть-как-было/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/site-editor.spec.ts:349:3 › редактор на компьютере, доступность и снимки: light ──────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: browserContext.newPage: Protocol error (Target.createTarget): Failed to find browser context with id D05800DCA727BA3ACE1541B0E90F9692
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      358 |     await page.goto('/marketing/site/editor');
+      359 |     const audit = async () => {
+    > 360 |       const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+          |                      ^
+      361 |       expect(result.violations).toEqual([]);
+      362 |     };
+      363 |     await expect(main(page).getByTestId('site-editor')).toBeVisible();
+        at AxeBuilder.analyze (/home/user/wetop.ai/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at audit (/home/user/wetop.ai/tests/ui/site-editor.spec.ts:360:22)
+        at /home/user/wetop.ai/tests/ui/site-editor.spec.ts:369:5
+
+    Error Context: test-results/site-editor-редактор-на-ко-f9c8a--доступность-и-снимки-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-editor-редактор-на-ко-f9c8a--доступность-и-снимки-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-editor-редактор-на-ко-f9c8a--доступность-и-снимки-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/site-editor.spec.ts:69:1 › просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит 
+    tests/ui/site-editor.spec.ts:115:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно 
+    tests/ui/site-editor.spec.ts:233:1 › ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было 
+    tests/ui/site-editor.spec.ts:349:3 › редактор на компьютере, доступность и снимки: light ───────
+  18 passed (6.2m)
+
+# код выхода 1 · 6 мин 15 с

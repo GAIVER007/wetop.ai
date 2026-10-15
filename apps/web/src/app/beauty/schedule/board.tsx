@@ -1,9 +1,10 @@
 'use client';
+import Link from 'next/link';
 import { useActionState, useState, useTransition } from 'react';
 import { parseTimeOffInput, parseWorkingHoursWeek } from '@pms/domain';
 import { useConfirm } from '../../../components/use-confirm';
 import { Overlay } from '../../../components/overlay';
-import { Alert, Button, EmptyState, Field, Input, Select, Table } from '../../../components/ui';
+import { Alert, Button, Field, Input, Select, Table } from '../../../components/ui';
 import { pluralRu } from '../../../lib/plural';
 import type { BeautySchedule, BeautyWorkingInterval } from '../../../lib/api';
 import {
@@ -39,9 +40,33 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
 
   if (!master)
     return (
-      <EmptyState data-testid="beauty-schedule-empty" title="Мастеров пока нет">
-        Сначала добавьте мастера на странице «Мастера», потом поставьте ему график.
-      </EmptyState>
+      <section className="beauty-section" data-testid="beauty-schedule-empty">
+        <div className="beauty-bar">
+          <h2>Неделя</h2>
+          {canEdit && (
+            <Link className="btn btn--secondary" href="/employees">
+              Добавить мастера
+            </Link>
+          )}
+        </div>
+        <p className="beauty-note">Выберите или добавьте мастера, чтобы настроить рабочие часы.</p>
+        <Table className="beauty-week-table">
+          <thead>
+            <tr>
+              <th>День</th>
+              <th>Работает</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 4, 5, 6, 0].map((weekday) => (
+              <tr key={weekday}>
+                <td>{DAYS[weekday]}</td>
+                <td>Не настроено</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </section>
     );
 
   const hours = data.week.reduce((sum, day) => sum + minutesOf(day.intervals), 0);
@@ -175,14 +200,17 @@ export function WeekForm({
   employeeId,
   onSaved,
   week,
+  save = saveBeautyWorkingHours,
 }: {
   employeeId: string;
   onSaved?: () => Promise<void>;
   week: BeautySchedule['week'];
+  /** Действие сохранения недели: салонное по умолчанию, ресторан передаёт своё (Q-REST-11) */
+  save?: typeof saveBeautyWorkingHours;
 }) {
   const [state, action, pending] = useActionState(
     async (prev: Awaited<ReturnType<typeof saveBeautyWorkingHours>> | null, form: FormData) => {
-      const result = await saveBeautyWorkingHours(prev, form);
+      const result = await save(prev, form);
       if (!result.error) await onSaved?.();
       return result;
     },

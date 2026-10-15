@@ -1,0 +1,52 @@
+# Интеграционные (integration) · 11.10.2026 17:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит d611be5 (claude/restaurant-payments-plan), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T12-03-59Z-integration-46b9.json' 'tests/integration/restaurant-cash-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |integration| tests/integration/restaurant-cash-database.test.ts (2 tests | 2 failed) 33ms
+   ❯ restaurant cash: database guards, grants and RLS (2)
+     × guards reject foreign parents, edits of money and resurrection of voided rows 23ms
+     × application role cannot delete money rows and sees only its organization 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/restaurant-cash-database.test.ts > restaurant cash: database guards, grants and RLS > guards reject foreign parents, edits of money and resurrection of voided rows
+error: INSERT has more expressions than target columns
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seed tests/integration/restaurant-cash-database.test.ts:71:5
+     69|       [ids.payment, ids.loc, ids.order],
+     70|     );
+     71|     await db.query(
+       |     ^
+     72|       `INSERT INTO restaurant_cash_operations(id,location_id,kind,meth…
+     73|       [ids.op, ids.loc, ids.employee],
+ ❯ tests/integration/restaurant-cash-database.test.ts:80:17
+ ❯ rollback tests/integration/restaurant-cash-database.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/restaurant-cash-database.test.ts > restaurant cash: database guards, grants and RLS > application role cannot delete money rows and sees only its organization
+error: INSERT has more expressions than target columns
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ seed tests/integration/restaurant-cash-database.test.ts:71:5
+     69|       [ids.payment, ids.loc, ids.order],
+     70|     );
+     71|     await db.query(
+       |     ^
+     72|       `INSERT INTO restaurant_cash_operations(id,location_id,kind,meth…
+     73|       [ids.op, ids.loc, ids.employee],
+ ❯ tests/integration/restaurant-cash-database.test.ts:133:17
+ ❯ rollback tests/integration/restaurant-cash-database.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  05:04:00
+   Duration  1.33s (transform 76%, import 19%, tests 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T12-03-59Z-integration-46b9.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,23 @@
+# Модульные (unit) · 07.10.2026 19:17 Алматы · MacBook-Air-Urij.local
+# коммит 0c33362 (codex/mv9-acceptance-20261007)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-17-50Z-unit-9810.json' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/dead-css.test.ts' 'tests/unit/ci-runner.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv9-acceptance-20261007
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (22 tests) 1377ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 850ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 422ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 5ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 3ms
+ ✓ |unit| tests/unit/design-slop.test.ts (17 tests) 4ms
+ ✓ |unit| scripts/design/dead-css.test.ts (2 tests) 9ms
+
+ Test Files  5 passed (5)
+      Tests  61 passed (61)
+   Start at  18:17:51
+   Duration  2.11s (tests 80%, import 16%, transform 3%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-17-50Z-unit-9810.json
+
+# код выхода 0 · 3 с

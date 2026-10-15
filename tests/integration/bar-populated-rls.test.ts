@@ -287,7 +287,8 @@ describe('BAR populated tenant visibility and SQL ownership boundary', () => {
           const sql = `INSERT INTO ${table} (${columns[table]}) VALUES (${values[table]})`;
           // Receipt's invoker guard cannot see B's supplier and may deny before the RLS check.
           await expect(client.query(sql, params)).rejects.toThrow(
-            /row-level security|Supplier belongs to another property/,
+            // §44: чужой объект под RLS не виден, его филиал не находится
+            /row-level security|Supplier belongs to another property|BAR property is not visible/,
           );
         });
       });

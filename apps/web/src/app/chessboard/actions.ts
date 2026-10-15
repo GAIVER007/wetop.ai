@@ -7,6 +7,10 @@ export interface StayPreviewData {
   departureDate: string;
   currency: string;
   guestHref: string | null;
+  /** Гостей на проживании и заметка к брони: правая панель календаря (образец владельца 09.10.2026) */
+  adults: number;
+  children: number;
+  notes: string | null;
   /** Суммы счёта проживания, тиыны строкой (ADR-008); null — счёт не загрузился или ещё не открыт */
   money: {
     chargedMinor: string;
@@ -39,6 +43,9 @@ export async function stayPreviewAction(
       departureDate: item.departureDate,
       currency: card.currency,
       guestHref: card.primaryGuest ? `/guests/${encodeURIComponent(card.primaryGuest.id)}` : null,
+      adults: item.adults,
+      children: item.children,
+      notes: card.notes,
       money: folio
         ? {
             chargedMinor: folio.chargedMinor,
@@ -67,6 +74,45 @@ export async function stayAvailabilityAction(
   if (!ISO_DATE.test(arrival) || !ISO_DATE.test(departure) || departure <= arrival) return null;
   try {
     return await reservationsApi.availability(arrival, departure);
+  } catch {
+    return null;
+  }
+}
+
+export interface PreviewFolio {
+  id: string;
+  status: 'OPEN' | 'CLOSED';
+  currency: string;
+  balanceMinor: string;
+  stay: { accommodationTypeName: string };
+  payments: Array<{ paymentId: string; method: string; remainingMinor: string }>;
+}
+
+/** Только выбранный счёт и доступные остатки платежей, без примечаний и документов гостей. */
+export async function stayFinanceAction(
+  number: string,
+  itemId: string,
+): Promise<PreviewFolio | null> {
+  try {
+    const finance = await financeApi.reservation(number);
+    const folio = finance.folios.find((f) => f.reservationItemId === itemId);
+    if (!folio) return null;
+    return {
+      id: folio.id,
+      status: folio.status,
+      currency: folio.currency,
+      balanceMinor: folio.balanceMinor,
+      stay: { accommodationTypeName: folio.stay.accommodationTypeName },
+      payments: folio.payments
+        .filter(
+          (p) => p.status === 'COMPLETED' && BigInt(p.allocatedMinor) > BigInt(p.refundedMinor),
+        )
+        .map((p) => ({
+          paymentId: p.paymentId,
+          method: p.method,
+          remainingMinor: (BigInt(p.allocatedMinor) - BigInt(p.refundedMinor)).toString(),
+        })),
+    };
   } catch {
     return null;
   }

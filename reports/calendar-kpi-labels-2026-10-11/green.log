@@ -1,0 +1,34 @@
+[WebServer] (node:56078) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56097) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56098) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:56305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (32.8s)
+  ✓  2 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (20.5s)
+  ✓  3 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (10.5s)
+  ✓  4 tests/ui/chessboard-statistics.spec.ts:76:1 › today statistics stay available when the calendar shows another month (15.3s)
+  ✓  5 tests/ui/chessboard-statistics.spec.ts:90:1 › empty booking base shows zero occupancy and no urgent bookings (3.6s)
+  ✓  6 tests/ui/chessboard-statistics.spec.ts:104:3 › daily widgets light: accessible labels and contrasts (5.0s)
+  ✓  7 tests/ui/chessboard-statistics.spec.ts:104:3 › daily widgets dark: accessible labels and contrasts (5.1s)
+  ✓  8 tests/ui/chessboard-statistics.spec.ts:121:3 › desktop daily widgets light: accessible pointer targets (5.2s)
+  ✓  9 tests/ui/chessboard-statistics.spec.ts:121:3 › desktop daily widgets dark: accessible pointer targets (5.3s)
+
+  9 passed (2.5m)

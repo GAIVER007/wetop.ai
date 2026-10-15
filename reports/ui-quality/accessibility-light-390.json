@@ -1,13 +1,5 @@
 [
   {
-    "route": "/today",
-    "violations": [],
-    "layout": {
-      "viewport": 390,
-      "content": 390
-    }
-  },
-  {
     "route": "/chessboard",
     "violations": [],
     "layout": {
@@ -89,14 +81,6 @@
   },
   {
     "route": "/units/R01",
-    "violations": [],
-    "layout": {
-      "viewport": 390,
-      "content": 390
-    }
-  },
-  {
-    "route": "/rates",
     "violations": [],
     "layout": {
       "viewport": 390,
@@ -193,6 +177,14 @@
   },
   {
     "route": "/connections/channex",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/marketing",
     "violations": [],
     "layout": {
       "viewport": 390,

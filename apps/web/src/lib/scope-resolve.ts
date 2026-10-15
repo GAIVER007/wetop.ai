@@ -9,7 +9,8 @@ import { landingForVertical, routeVertical, type WebVertical } from './vertical-
  *
  * - филиалов нет: прежний путь настройки (`/onboarding`);
  * - филиал один: выбирается сам;
- * - филиалов несколько: человек выбирает сам на `/branches`, «первый попавшийся» не выбирается никогда.
+ * - филиалов несколько: открывается тот, что человек сам выбирал последним на этом устройстве, если он есть в ответе
+ *   сервера (13.10.2026); иначе человек выбирает сам на `/branches`. «Первый попавшийся» не выбирается никогда.
  *
  * Регистрационный помощник `/auth/registration-context` здесь не используется: он завершает первую регистрацию и
  * рабочий филиал в организации с несколькими бизнесами не выбирает.
@@ -41,8 +42,14 @@ function compatible(path: string, vertical: WebVertical): boolean {
 
 /**
  * Куда вести после выбора. `next` допускается только безопасный локальный путь и только своего направления. Иначе стартовая
- * страница: у гостиницы `/today` (гейт онбординга стоит там), у салона и ресторана `/register/setup`: он сам ведёт на
- * стартовую страницу направления, когда настройка завершена, и продолжает настройку пилота, если нет.
+ * страница: у гостиницы единые «Финансы» (гейт онбординга в layout работает и там), у салона и ресторана
+ * `/register/setup`: он сам ведёт на стартовую страницу направления, когда настройка завершена, и продолжает
+ * настройку пилота, если нет.
+ *
+ * Переход «/today» гостиницы на «Финансы» не сокращать (13.10.2026): подтверждение почты зовёт серверное действие,
+ * его `redirect` ведёт на `/scope/resolve?next=%2Ftoday`, и если цепочка кончается обработчиком маршрута, клиентский
+ * роутер Next оставляет в адресной строке адрес действия (показывает «Финансы» под адресом `/scope/resolve…`). Через
+ * страницу `/today` адрес обновляется верно (`login-access`, `unified-auth`).
  */
 function targetFor(vertical: WebVertical, rawNext: string | null): string {
   const next = rawNext ? safeReturnPath(rawNext) : null;
@@ -50,14 +57,21 @@ function targetFor(vertical: WebVertical, rawNext: string | null): string {
   return vertical === 'HOSPITALITY' ? landingForVertical(vertical) : '/register/setup';
 }
 
-export function decideScope(items: SelectableBranch[], rawNext: string | null): ScopeDecision {
+export function decideScope(
+  items: SelectableBranch[],
+  rawNext: string | null,
+  rememberedLocationId: string | null = null,
+): ScopeDecision {
   if (items.length === 0) return { kind: 'empty', target: '/onboarding' };
-  if (items.length > 1) return { kind: 'choose', target: '/branches' };
-  const only = items[0]!;
+  const remembered = rememberedLocationId
+    ? items.find((item) => item.locationId === rememberedLocationId)
+    : undefined;
+  const chosen = items.length === 1 ? items[0]! : remembered;
+  if (!chosen) return { kind: 'choose', target: '/branches' };
   return {
     kind: 'select',
-    pointer: `business=${only.location.businessId};location=${only.locationId}`,
-    target: targetFor(only.vertical, rawNext),
+    pointer: `business=${chosen.location.businessId};location=${chosen.locationId}`,
+    target: targetFor(chosen.vertical, rawNext),
   };
 }
 

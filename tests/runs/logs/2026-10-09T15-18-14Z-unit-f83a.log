@@ -1,0 +1,47 @@
+# Модульные (unit) · 09.10.2026 20:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5a8e44a (claude/sales2-impl), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-18-14Z-unit-f83a.json' 'apps/api/src/market' 'apps/api/src/auth/route-access'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl
+
+ ❯ |unit| apps/api/src/marketing-site/asset-storage.test.ts (0 test)
+ ✓ |unit| apps/api/src/marketing-site/asset-fetch.test.ts (50 tests) 49ms
+ ✓ |unit| apps/api/src/marketing-site/preview-token.test.ts (5 tests) 33ms
+ ✓ |unit| apps/api/src/market/market.service.test.ts (11 tests) 10ms
+ ✓ |unit| apps/api/src/market/collector.controller.test.ts (7 tests) 212ms
+ ✓ |unit| apps/api/src/marketing-site/asset-image.test.ts (9 tests) 213ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts [ apps/api/src/auth/route-access.test.ts ]
+Error: Cannot find package '@aws-sdk/client-s3' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/api/src/marketing-site/asset-storage.ts
+ ❯ apps/api/src/marketing-site/asset-storage.ts:2:1
+      1| import { createHash, createHmac } from 'node:crypto';
+      2| import {
+       | ^
+      3|   DeleteObjectCommand,
+      4|   GetObjectCommand,
+ ❯ apps/api/src/marketing-site/publication.service.ts:25:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/marketing-site/asset-storage.test.ts [ apps/api/src/marketing-site/asset-storage.test.ts ]
+Error: Cannot find package '@aws-sdk/client-s3' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sales2-impl/apps/api/src/marketing-site/asset-storage.test.ts
+ ❯ apps/api/src/marketing-site/asset-storage.test.ts:1:1
+      1| import { S3Client } from '@aws-sdk/client-s3';
+       | ^
+      2| import { afterEach, describe, expect, it, vi } from 'vitest';
+      3| import {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 5 passed (7)
+      Tests  82 passed (82)
+   Start at  08:18:15
+   Duration  1.82s (import 55%, transform 29%, tests 15%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-09T15-18-14Z-unit-f83a.json
+
+# код выхода 1 · 3 с

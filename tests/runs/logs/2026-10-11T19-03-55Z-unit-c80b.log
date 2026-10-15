@@ -1,0 +1,30 @@
+# Модульные (unit) · 12.10.2026 00:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2d3476c (claude/restaurant-vip-birthdays), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T19-03-55Z-unit-c80b.json' 'packages/domain/src/food/customer-marks.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |unit| packages/domain/src/food/customer-marks.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/food/customer-marks.test.ts [ packages/domain/src/food/customer-marks.test.ts ]
+Error: Cannot find module './customer-marks' imported from /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/packages/domain/src/food/customer-marks.test.ts
+ ❯ packages/domain/src/food/customer-marks.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { birthdayInDays, parseCustomerMarks } from './customer-marks';
+       | ^
+      3|
+      4| /** VIP и день рождения клиента (DATA_MODEL §36, ADR-166) */
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  12:03:57
+   Duration  115ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T19-03-55Z-unit-c80b.json
+
+# код выхода 1 · 2 с

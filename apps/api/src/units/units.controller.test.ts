@@ -54,6 +54,8 @@ function makeFakes() {
       },
     ],
     housekeepingHistory: [],
+    createdAt: '2026-01-12T09:30:00.000Z',
+    updatedAt: '2026-03-20T05:24:00.000Z',
   });
   const repo: UnitsRepository = {
     async today() {
@@ -139,6 +141,8 @@ describe('units API: blocks and housekeeping', () => {
       code: '9001',
       housekeepingStatus: 'DIRTY',
       stays: [{ confirmationNumber: 'B-1' }],
+      createdAt: '2026-01-12T09:30:00.000Z',
+      updatedAt: '2026-03-20T05:24:00.000Z',
     });
     await request(app.getHttpServer()).get('/units/nope').expect(404);
   });

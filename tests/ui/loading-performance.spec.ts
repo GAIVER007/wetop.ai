@@ -24,7 +24,7 @@ test('ошибка стойки показывается сразу, даже е
   await expect(page.getByTestId('desk-error')).toBeVisible({ timeout: 2500 });
 });
 
-test('Главная показывает блоки, пока настройки гостиницы ещё загружаются', async ({
+test('«Финансы» показывают блоки, пока настройки гостиницы ещё загружаются', async ({
   page,
   request,
 }) => {
@@ -45,6 +45,7 @@ test('Главная показывает блоки, пока настройк�
 });
 
 test('стойка и её шахматка запрашиваются параллельно', async ({ page, request }) => {
+  // блоки стойки живут на «Главной» (ADR-180)
   await page.goto('/today'); // компиляция next dev не входит в бюджет
   await request.post(`${API}/__test/reset`);
   await request.post(`${API}/__test/control`, {
@@ -80,8 +81,8 @@ test('мобильное меню использует уже загруженн
       },
     });
   });
-  await page.goto('/today');
-  await expect(page.locator('.workspace-header [data-testid="data-freshness"]')).toContainText(
+  await page.goto('/finance');
+  await expect(page.locator('.sidenav [data-testid="data-freshness"]')).toContainText(
     'очередь 7',
   );
   const before = calls;
@@ -93,8 +94,8 @@ test('мобильное меню использует уже загруженн
   expect(calls).toBe(before);
 });
 
-test('замер: блоки Главной при задержке настроек 2000 мс', async ({ page, request }, testInfo) => {
-  await page.goto('/today');
+test('замер: блоки «Финансов» при задержке настроек 2000 мс', async ({ page, request }, testInfo) => {
+  await page.goto('/finance');
   const samples: Array<Record<string, number>> = [];
   for (let pass = 0; pass < 3; pass++) {
     await request.post(`${API}/__test/control`, {
@@ -106,7 +107,7 @@ test('замер: блоки Главной при задержке настро
     await Promise.all(
       [
         ['heading', page.getByRole('heading', { name: 'Главная', exact: true })],
-        ['money', page.getByTestId('owner-paid')],
+        ['today', page.getByTestId('biz-arrivals')],
         ['risks', page.getByTestId('owner-risks')],
       ].map(async ([key, locator]) => {
         await expect(locator as import('@playwright/test').Locator).toBeVisible();
@@ -150,8 +151,8 @@ test('фоновый опрос не перекрывается и восста�
           },
     });
   });
-  await page.goto('/today');
-  const status = page.locator('.workspace-header [data-testid="data-freshness"]');
+  await page.goto('/finance');
+  const status = page.locator('.sidenav [data-testid="data-freshness"]');
   await expect(status).toContainText('очередь 0');
   await expect(status).not.toHaveClass(/freshness--warn/);
   hold = true;

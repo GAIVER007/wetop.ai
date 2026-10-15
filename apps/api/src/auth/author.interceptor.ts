@@ -15,9 +15,27 @@ import { withSignedInUser, currentVertical } from './request-context';
 import { BUSINESS_CAPABILITY } from './capability.decorator';
 import { PUBLIC_ROUTE } from './public.decorator';
 import { assertBusinessCapability, resolveBusinessVertical } from './business-vertical';
-import { LUXX_APARTS_PROPERTY, type VerticalCapability } from '@pms/domain';
+import {
+  LUXX_APARTS_PROPERTY,
+  SCOPE_CHOOSE_MESSAGE,
+  SCOPE_FORBIDDEN_MESSAGE,
+  SCOPE_REJECTED_MESSAGE,
+  accessDeniedMessage,
+  can,
+  isRestricted,
+  roleAt,
+  type VerticalCapability,
+} from '@pms/domain';
+import { ROUTE_ACCESS, type RouteAccess } from './access.decorator';
+import { SCOPE_AWARE } from './scope-aware.decorator';
 import { propertyRef } from '../database/property-ref';
-import { SCOPE_HEADER, parseScopePointer, resolveScope, type ResolvedScope } from './scope';
+import {
+  SCOPE_HEADER,
+  hasScopePointer,
+  parseScopePointer,
+  resolveScope,
+  type ResolvedScope,
+} from './scope';
 
 /**
  * Оборачивает обработку запроса в контекст вошедшего, чтобы `audit_logs.user_id` заполнялся сам:
@@ -51,10 +69,15 @@ export class AuthorInterceptor implements NestInterceptor {
       role: request?.user?.role ?? null,
       platformAdmin: request?.user?.platformAdmin === true,
     };
-    const scope = await this.scope(actor, request?.headers?.[SCOPE_HEADER]);
+    const { scope, rejected } = await this.scope(actor, request?.headers?.[SCOPE_HEADER]);
     // Public endpoints authenticate and bind the provider/site inside their own domain adapter.
     const handler = context.getHandler?.();
     const controller = context.getClass?.();
+    // fail-closed (O4=A): указатель прислан, но не принят. Не превращаем его молча в организацию
+    if (rejected && !this.mayIgnoreRejectedPointer(handler, controller))
+      throw new ForbiddenException(SCOPE_REJECTED_MESSAGE);
+    const assignments = request?.user?.scopes ?? [];
+    const role = this.roleAtPlace(actor.role, assignments, scope, handler, controller);
     const publicRoute =
       handler &&
       (Reflect.getMetadata(PUBLIC_ROUTE, handler) ??
@@ -64,7 +87,7 @@ export class AuthorInterceptor implements NestInterceptor {
         ? (Reflect.getMetadata(BUSINESS_CAPABILITY, handler) ??
           (controller && Reflect.getMetadata(BUSINESS_CAPABILITY, controller)))
         : undefined;
-    const value = await withSignedInUser({ ...actor, ...scope }, async () => {
+    const value = await withSignedInUser({ ...actor, ...scope, role, scopes: assignments }, async () => {
       if (capability) {
         if (
           request?.headers?.[SCOPE_HEADER] &&
@@ -78,6 +101,57 @@ export class AuthorInterceptor implements NestInterceptor {
       return lastValueFrom(next.handle(), { defaultValue: undefined });
     });
     return from([value]);
+  }
+
+  /**
+   * Маршруты, которым отклонённый указатель не мешает: публичные и служебные (человека за запросом нет), личные (`self`:
+   * среди них `GET /auth/me`, по которому стойка узнаёт, что кука устарела), раздел платформы (указатель ему не нужен) и
+   * `@ScopeAware` (выбор филиала и сводка вызываются до выбора и сами восстанавливают указатель). Маршрут без записанного
+   * права сюда не входит: он и так закрыт `RoleGuard`.
+   */
+  private mayIgnoreRejectedPointer(handler: unknown, controller: unknown): boolean {
+    const reflectOn = (key: string) =>
+      handler &&
+      (Reflect.getMetadata(key, handler as object) ??
+        (controller && Reflect.getMetadata(key, controller as object)));
+    if (reflectOn(PUBLIC_ROUTE) || reflectOn(SCOPE_AWARE)) return true;
+    const access: RouteAccess | undefined = reflectOn(ROUTE_ACCESS);
+    return access === 'self' || access === 'platform' || access === 'service';
+  }
+
+  /**
+   * Человек с областью доступа (DATA_MODEL §31.1) работает только там, где назначен, и с ролью этого места. Маршруту с
+   * правом нужен проверенный филиал (или бизнес) запроса: нет выбора, чужой выбор или право, которого нет у роли в этом
+   * месте, это 403. Маршрут `@ScopeAware` решает сам (выбор филиала и сводка фильтруют ответ), личные маршруты (`self`)
+   * открыты. Без ограничения ничего не меняется.
+   */
+  private roleAtPlace(
+    role: SignedInUser['role'] | null,
+    assignments: NonNullable<SignedInUser['scopes']>,
+    scope: ResolvedScope | Record<string, never>,
+    handler: unknown,
+    controller: unknown,
+  ): typeof role {
+    if (!role || !isRestricted(role as SignedInUser['role'], assignments)) return role;
+    const reflectOn = (key: string) =>
+      handler &&
+      (Reflect.getMetadata(key, handler as object) ??
+        (controller && Reflect.getMetadata(key, controller as object)));
+    if (reflectOn(PUBLIC_ROUTE) || reflectOn(SCOPE_AWARE)) return role;
+    const access: RouteAccess | undefined = reflectOn(ROUTE_ACCESS);
+    if (!access || access === 'self' || access === 'platform' || access === 'service') return role;
+    const here = scope as ResolvedScope;
+    const target =
+      here.scope === 'LOCATION' && here.businessId && here.locationId
+        ? { businessId: here.businessId, locationId: here.locationId }
+        : here.scope === 'BUSINESS' && here.businessId
+          ? { businessId: here.businessId }
+          : undefined;
+    if (!target) throw new ForbiddenException(SCOPE_CHOOSE_MESSAGE);
+    const placeRole = roleAt(role as SignedInUser['role'], assignments, target);
+    if (!placeRole) throw new ForbiddenException(SCOPE_FORBIDDEN_MESSAGE);
+    if (!can(placeRole, access)) throw new ForbiddenException(accessDeniedMessage(access));
+    return placeRole;
   }
 
   private async capability(capability: VerticalCapability): Promise<void> {
@@ -118,13 +192,20 @@ export class AuthorInterceptor implements NestInterceptor {
   private async scope(
     actor: { userId: string | null; organizationId: string | null },
     header: string | string[] | undefined,
-  ): Promise<ResolvedScope | Record<string, never>> {
-    if (!actor.userId || !actor.organizationId) return {};
+  ): Promise<{ scope: ResolvedScope | Record<string, never>; rejected: boolean }> {
+    if (!actor.userId || !actor.organizationId) return { scope: {}, rejected: false };
+    const attempted = hasScopePointer(header);
     const pointer = parseScopePointer(header);
-    if (!pointer.businessId && !pointer.locationId) return { scope: 'ORGANIZATION' };
+    // указатель есть, но не разобран (битый uuid, повтор ключа, чужой ключ): отклонён
+    if (!pointer.businessId && !pointer.locationId)
+      return { scope: { scope: 'ORGANIZATION' }, rejected: attempted };
     const prisma = this.prisma;
-    if (!prisma) return { scope: 'ORGANIZATION' };
+    if (!prisma) return { scope: { scope: 'ORGANIZATION' }, rejected: false };
     const organizationId = actor.organizationId;
-    return withSignedInUser(actor, () => resolveScope(prisma.db, organizationId, pointer));
+    const resolved = await withSignedInUser(actor, () =>
+      resolveScope(prisma.db, organizationId, pointer),
+    );
+    // resolveScope отдаёт ORGANIZATION на любой отказ при разобранном указателе: чужой, архивный, без бизнеса
+    return { scope: resolved, rejected: resolved.scope === 'ORGANIZATION' };
   }
 }

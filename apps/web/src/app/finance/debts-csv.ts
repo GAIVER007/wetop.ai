@@ -1,5 +1,6 @@
 import type { PeriodDebts } from '../../lib/api';
-import { reservationStatusWords } from '../../lib/hotel-api';
+import { hospitalityStatus } from '../../lib/status/hospitality';
+import { statusLabel } from '../../lib/status/types';
 import { csvField, csvTenge } from './csv';
 
 type DebtRow = PeriodDebts['rows'][number];
@@ -9,7 +10,10 @@ const dmy = (isoDate: string) => {
   return `${d}.${m}.${y}`;
 };
 const nights = (from: string, to: string) =>
-  Math.max(0, Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000));
+  Math.max(
+    0,
+    Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000),
+  );
 
 /**
  * «Брони с остатком к сбору» за период для бухгалтера (REP1, план `plans/reports-hub-2026-10-02.md`):
@@ -32,7 +36,7 @@ export function debtsCsv(rows: DebtRow[]): string {
   const lines = rows.map((x) =>
     [
       x.confirmationNumber,
-      reservationStatusWords[x.status] || x.status,
+      statusLabel(hospitalityStatus, x.status),
       dmy(x.arrivalDate),
       dmy(x.departureDate),
       String(nights(x.arrivalDate, x.departureDate)),

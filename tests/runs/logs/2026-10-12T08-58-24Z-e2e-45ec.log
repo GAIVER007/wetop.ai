@@ -1,0 +1,173 @@
+# Сквозные (e2e) · 12.10.2026 13:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 894d588 (claude/ui-master-final-20261011), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+  -   1 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони light 1440
+  -   2 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони light 390
+  -   3 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони dark 1440
+  -   4 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони dark 390
+  ✓   5 tests/food-ui/ds1c-date-bar.spec.ts:10:1 › ресторан: день по прежним адресам, форма брони с обязательными датой и временем (1.4s)
+[WebServer] (node:29219) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘   6 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (19.0s)
+  ✓   7 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (2.4s)
+  ✘   8 tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe (16.1s)
+  ✓   9 tests/food-ui/food.spec.ts:221:1 › overlap and archived catalog preserve creation draft and idempotency key (2.6s)
+  ✓  10 tests/food-ui/food.spec.ts:277:1 › stale token refreshes drawer without automatic mutation retry (1.5s)
+  ✓  11 tests/food-ui/food.spec.ts:301:1 › READ_ONLY and STAFF permissions on real API (1.4s)
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:17:52)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✓  12 tests/food-ui/food.spec.ts:328:1 › server branch switch isolates Food businesses and locations and other verticals (14.2s)
+  ✓  13 tests/food-ui/food.spec.ts:379:1 › pagination beyond 100 and previous local day keep table occupied after reload (5.0s)
+  ✓  14 tests/food-ui/food.spec.ts:447:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (9.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2126582399'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2126582399'
+[WebServer] }
+  ✓  15 tests/food-ui/food.spec.ts:549:1 › API unavailable renders LoadError instead of free tables (964ms)
+  ✓  16 tests/food-ui/food.spec.ts:557:1 › creation 503 keeps the draft and retry key; invalid period stays inline (1.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2126582399'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2126582399'
+[WebServer] }
+  ✓  17 tests/food-ui/food.spec.ts:587:1 › Food excludes every registered foreign workspace route before API requests (18.7s)
+  ✓  18 tests/food-ui/food.spec.ts:626:1 › marker guarded cleanup (110ms)
+  ✓  19 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (4.7s)
+  ✓  20 tests/food-ui/restaurant.spec.ts:148:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (7.1s)
+  ✓  21 tests/food-ui/restaurant.spec.ts:192:1 › кухня: колонки KDS и переходы кнопками (2.9s)
+  ✓  22 tests/food-ui/restaurant.spec.ts:214:1 › главная: плитки, последние заказы и выручка после закрытия (1.3s)
+  ✓  23 tests/food-ui/restaurant.spec.ts:233:1 › план зала: заказ занимает стол, уборка включается и видна легенда (2.3s)
+  ✓  24 tests/food-ui/restaurant.spec.ts:263:1 › сотрудники: список с продажами, добавление и правка (2.8s)
+  ✓  25 tests/food-ui/restaurant.spec.ts:285:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (5.0s)
+  ✓  26 tests/food-ui/restaurant.spec.ts:350:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (3.7s)
+  ✓  27 tests/food-ui/restaurant.spec.ts:409:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (2.5s)
+  ✓  28 tests/food-ui/restaurant.spec.ts:487:1 › навигация ресторана: пункты макета на месте и ведут на экраны (1.0s)
+
+
+  1) tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow ──
+
+    TimeoutError: locator.selectOption: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('combobox', { name: 'Назначить стол', exact: true })
+        - locator resolved to <select class="inp">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        29 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+      125 |   await dialog
+      126 |     .getByRole('combobox', { name: 'Назначить стол', exact: true })
+    > 127 |     .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+          |      ^
+      128 |   await dialog.getByRole('button', { name: 'Назначить стол', exact: true }).click();
+      129 |   await expect(dialog).toContainText('Основной зал, Стол 7');
+      130 |   await dialog.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/food-ui/food.spec.ts:127:6
+
+    Error Context: test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-empty-restaurant-cata-18276-omplete-persisted-desk-flow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe ─────────────────────
+
+    TimeoutError: locator.selectOption: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('combobox', { name: 'Назначить стол', exact: true })
+        - locator resolved to <select class="inp">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        30 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+      162 |   await d
+      163 |     .getByRole('combobox', { name: 'Назначить стол', exact: true })
+    > 164 |     .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+          |      ^
+      165 |   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
+      166 |   await d.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+      167 |   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/food-ui/food.spec.ts:164:6
+
+    Error Context: test-results/food-real-API-screenshots-keyboard-and-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/food-real-API-screenshots-keyboard-and-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow ───
+    tests/food-ui/food.spec.ts:159:1 › real API screenshots, keyboard and axe ──────────────────────
+  4 skipped
+  22 passed (2.3m)
+
+# код выхода 1 · 2 мин 17 с

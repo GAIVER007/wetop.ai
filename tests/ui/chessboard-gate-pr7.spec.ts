@@ -104,13 +104,24 @@ for (const theme of ['light', 'dark'] as const) {
     await shot('empty');
     await main.getByTestId('board-empty').getByRole('button', { name: 'Сбросить фильтры' }).click();
 
-    // 6. Вид: компактный и подробный; мышь уводим с сетки, чтобы на снимке не было наведения
+    // 6. Вид: компактный и подробный; переключатель с 09.10 в окошке «Фильтры», на снимках
+    // окошко закрыто Escape (вид применяется сразу, мимо черновика); мышь уводим с сетки,
+    // чтобы на снимке не было наведения
+    const pickView = async (name: string) => {
+      await main.getByRole('button', { name: 'Фильтры', exact: true }).click();
+      await pop
+        .getByRole('group', { name: 'Вид строк календаря' })
+        .getByRole('button', { name, exact: true })
+        .click();
+      await page.keyboard.press('Escape');
+      await expect(pop).toBeHidden();
+    };
     await page.mouse.move(0, 0);
-    await main.getByLabel('Вид строк календаря').selectOption('compact');
+    await pickView('Компактный');
     await shot('view-compact', false);
-    await main.getByLabel('Вид строк календаря').selectOption('detailed');
+    await pickView('Подробный');
     await shot('view-detailed', false);
-    await main.getByLabel('Вид строк календаря').selectOption('normal');
+    await pickView('Обычный');
 
     // 7. Телефон: строка и окошко с категорией и местами
     await page.setViewportSize({ width: 390, height: 844 });

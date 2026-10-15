@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 09.10.2026 20:55 Алматы · vm
+# коммит e4a647a (claude/brave-clarke-6gyjif)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/mobile-adaptation.spec.ts' '-g' 'цели не ниже 44 px'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/mobile-adaptation.spec.ts:122:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (18.6s)
+
+  1 passed (30.9s)
+
+# код выхода 0 · 33 с

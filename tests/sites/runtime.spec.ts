@@ -89,7 +89,8 @@ for (const vp of WIDTHS) {
 
 test.describe('цена «от» (Q-276)', () => {
   test('в исходном HTML числа нет: место под цену скрыто до ответа API', async ({ request }) => {
-    const html = await (await request.get(`http://127.0.0.1:${PORT}/`)).text();
+    // MKT7: IP-хост Worker отвергает 404 без вопроса к API, поэтому запрос идёт с хостом сайта стенда
+    const html = await (await request.get(`http://127.0.0.1:${PORT}/`, { headers: { host: `stepnoy.localhost:${PORT}` } })).text();
     expect(html).toContain('data-from-price="standard-double" hidden');
     expect(html).not.toMatch(/25\s?000/);
   });

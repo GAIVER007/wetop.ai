@@ -1,0 +1,99 @@
+# Сквозные (e2e) · 08.10.2026 12:49 Алматы · vm
+# коммит 2f32e84 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/site-builder-licensed.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/site-builder-licensed.spec.ts:29:1 › лицензии нет: всё видно, правка, ИИ, «Текст» и сохранение закрыты; полоса проекта говорит почему (5.7s)
+  ✓   2 tests/ui/site-builder-licensed.spec.ts:49:1 › срок лицензии вышел: та же закрытая правка, слова «Срок лицензии вышел»; первый экран без лицензии (1.9s)
+  ✓   3 tests/ui/site-builder-licensed.spec.ts:62:1 › режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление (5.9s)
+  ✓   4 tests/ui/site-builder-licensed.spec.ts:78:1 › режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз (14.5s)
+  ✓   5 tests/ui/site-builder-licensed.spec.ts:102:1 › варианты оформления на первом экране: три карточки с выбором, сайт создаётся с выбранным оформлением (9.6s)
+  ✘   6 tests/ui/site-builder-licensed.spec.ts:124:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ (18.7s)
+  ✓   7 tests/ui/site-builder-licensed.spec.ts:156:1 › закладки: звёздочка с подписью, закреплённый список сверху, снять закладку (4.6s)
+  ✓   8 tests/ui/site-builder-licensed.spec.ts:172:1 › знания проекта: сохраняются отдельно от черновика и переживают обновление (3.0s)
+  ✘   9 tests/ui/site-builder-licensed.spec.ts:193:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала (20.0s)
+  ✓  10 tests/ui/site-builder-licensed.spec.ts:221:3 › снимки и доступность ключевых состояний: light (20.3s)
+  ✓  11 tests/ui/site-builder-licensed.spec.ts:221:3 › снимки и доступность ключевых состояний: dark (20.7s)
+
+
+  1) tests/ui/site-builder-licensed.spec.ts:124:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('main').visible().getByTestId('ed-tool-select')
+    Expected: "true"
+    Received: "false"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').visible().getByTestId('ed-tool-select') with timeout 15000ms
+      - waiting for getByRole('main').visible().getByTestId('ed-tool-select')
+        34 × locator resolved to <button role="radio" type="button" aria-checked="false" aria-keyshortcuts="S" data-testid="ed-tool-select" class="ed-preview__device-btn">…</button>
+           - unexpected value "false"
+
+
+      147 |   await expect(frame(page).locator('#sec-hero')).toContainText('Тихо у вокзала');
+      148 |   await page.keyboard.press('s');
+    > 149 |   await expect(m.getByTestId('ed-tool-select')).toHaveAttribute('aria-checked', 'true');
+          |                                                 ^
+      150 |   await m.getByTestId('ed-save').click();
+      151 |   await expect(m.getByTestId('ed-message')).toHaveText('Черновик сохранён: версия 3');
+      152 |   // ни одного запроса к ИИ: в разговоре пусто
+        at /home/user/wetop.ai/tests/ui/site-builder-licensed.spec.ts:149:49
+
+    Error Context: test-results/site-builder-licensed-«Выб-8dda7--отменяет-сохранение-без-ИИ/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-builder-licensed-«Выб-8dda7--отменяет-сохранение-без-ИИ/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-builder-licensed-«Выб-8dda7--отменяет-сохранение-без-ИИ/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/site-builder-licensed.spec.ts:193:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('platform-site-builder-result')
+    Expected substring: "Marina» действует"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('platform-site-builder-result') with timeout 15000ms
+      - waiting for getByTestId('platform-site-builder-result')
+
+
+      207 |   await list.getByTestId('platform-site-builder-form').nth(1).getByLabel('Действует по (включительно)').fill(day);
+      208 |   await list.getByTestId('platform-site-builder-form').nth(1).getByTestId('platform-site-builder-trial').click();
+    > 209 |   await expect(page.getByTestId('platform-site-builder-result')).toContainText('Marina» действует');
+          |                                                                  ^
+      210 |   await expect(list.getByTestId('platform-site-builder-form').nth(1)).toContainText('пробный');
+      211 |   await clean(page);
+      212 |   await shot(page, 'platform-licenses-light-1440');
+        at /home/user/wetop.ai/tests/ui/site-builder-licensed.spec.ts:209:66
+
+    Error Context: test-results/site-builder-licensed-«Пла-c3c87-ключает-конструктор-филиала/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-builder-licensed-«Пла-c3c87-ключает-конструктор-филиала/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-builder-licensed-«Пла-c3c87-ключает-конструктор-филиала/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/site-builder-licensed.spec.ts:124:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ 
+    tests/ui/site-builder-licensed.spec.ts:193:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала 
+  9 passed (2.5m)
+
+# код выхода 1 · 2 мин 31 с

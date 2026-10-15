@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 14.10.2026 16:36 Алматы · MacBook-Air-Urij.local
+# коммит 10fa924 (claude/ui5-fullpass-20261014), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/booking-price-nights.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (3.8s)
+  ✓  2 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1280px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (2.0s)
+  ✓  3 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1366px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (1.5s)
+  ✓  4 tests/ui/booking-price-nights.spec.ts:29:3 › календарь 1440px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка (1.5s)
+
+  4 passed (23.3s)
+
+# код выхода 0 · 25 с

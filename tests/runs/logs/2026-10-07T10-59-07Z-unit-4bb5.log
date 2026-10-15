@@ -1,0 +1,85 @@
+# Модульные (unit) · 07.10.2026 15:59 Алматы · vm
+# коммит 086ce66 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-59-07Z-unit-4bb5.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 2 failed) 280ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 165ms
+     × MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет 112ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(330) } to deeply equal { 'GET /onboarding': 'self', …(328) }
+
+- Expected
++ Received
+
+@@ -115,10 +115,11 @@
+    "GET /market/night": "reports",
+    "GET /market/occupancy": "reports",
+    "GET /marketing/site": "settings",
+    "GET /marketing/site/brief": "settings",
+    "GET /marketing/site/draft": "settings",
++   "GET /marketing/site/generations/:id": "settings",
+    "GET /onboarding": "self",
+    "GET /platform/organizations": "platform",
+    "GET /platform/support/conversations": "platform",
+    "GET /platform/support/conversations/:id": "platform",
+    "GET /platform/support/conversations/:id/actions": "platform",
+@@ -278,10 +279,11 @@
+    "POST /inventory/categories": "property",
+    "POST /inventory/categories/:code/rate-plan": "property",
+    "POST /inventory/rooms": "property",
+    "POST /market/competitors": "rates",
+    "POST /marketing/site": "settings",
++   "POST /marketing/site/generations": "settings",
+    "POST /marketing/site/versions": "settings",
+    "POST /onboarding": "settings",
+    "POST /platform/support/conversations/:id/close": "platform",
+    "POST /platform/support/conversations/:id/knowledge-draft": "platform",
+    "POST /platform/support/conversations/:id/release": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:436:20
+    434|       .map(([key]) => key);
+    435|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    436|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    437|   });
+    438|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > MKT4: у рантайма сайтов один путь, только GET; чтения версии по id и других путей рантайма нет
+AssertionError: версия сайта по id не читается ни рантаймом, ни управлением: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "GET /marketing/site/generations/:id",
++ ]
+
+ ❯ apps/api/src/auth/route-access.test.ts:444:81
+    442|     expect(runtime).toEqual(['GET /sites-runtime/current']);
+    443|     const byId = Object.keys(actual).filter((key) => /\/(marketing\/si…
+    444|     expect(byId, 'версия сайта по id не читается ни рантаймом, ни упра…
+       |                                                                                 ^
+    445|   });
+    446|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  10:59:09
+   Duration  8.79s (transform 73%, import 24%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-59-07Z-unit-4bb5.json
+
+# код выхода 1 · 10 с

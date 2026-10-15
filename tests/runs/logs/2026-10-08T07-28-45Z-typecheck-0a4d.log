@@ -1,0 +1,23 @@
+# Типы (typecheck) · 08.10.2026 12:28 Алматы · vm
+# коммит 9ae75aa (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 26
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/site-generation.test.ts(532,78): error TS2345: Argument of type '{ generate(request: GenerationBotRequest): Promise<unknown>; edit(): Promise<unknown>; }' is not assignable to parameter of type 'GenerationBot'.
+  Property 'assistant' is missing in type '{ generate(request: GenerationBotRequest): Promise<unknown>; edit(): Promise<unknown>; }' but required in type 'GenerationBot'.
+tests/integration/site-generation.test.ts(559,74): error TS2345: Argument of type '{ generate(request: GenerationBotRequest): Promise<unknown>; edit(): Promise<unknown>; }' is not assignable to parameter of type 'GenerationBot'.
+  Property 'assistant' is missing in type '{ generate(request: GenerationBotRequest): Promise<unknown>; edit(): Promise<unknown>; }' but required in type 'GenerationBot'.
+tests/integration/site-generation.test.ts(560,74): error TS2345: Argument of type '{ generate(request: GenerationBotRequest): Promise<unknown>; edit(): Promise<unknown>; }' is not assignable to parameter of type 'GenerationBot'.
+  Property 'assistant' is missing in type '{ generate(request: GenerationBotRequest): Promise<unknown>; edit(): Promise<unknown>; }' but required in type 'GenerationBot'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 54 с

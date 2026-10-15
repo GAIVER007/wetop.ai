@@ -130,6 +130,17 @@ export interface SiteSpec {
 export interface Env {
   SITES_API_URL: string;
   SITES_RUNTIME_KEY: string;
-  /** `dev` или `staging`; окружения `production` в MKT4 нет, поэтому индексация везде закрыта */
+  /** `dev`, `staging` или `production` (MKT7); индексация только в `production` и только при основном хосте */
   SITES_ENV: string;
+  /**
+   * MKT7, Q-271: отдельный домен сайтов клиентов; хост превью `preview.<SITES_BASE_DOMAIN>`. Не задан: превью нет
+   * (любой хост идёт обычным путём). Боевое значение задаёт инфраструктура
+   */
+  SITES_BASE_DOMAIN?: string;
+}
+
+/** MKT7: ответ `GET /sites-runtime/preview`: одна версия из токена, без ключа сайта и брони */
+export interface RuntimePreview extends Omit<RuntimeCurrent, 'state'> {
+  state: 'PREVIEW';
+  expiresAt: string;
 }

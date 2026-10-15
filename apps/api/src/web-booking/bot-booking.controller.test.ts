@@ -184,6 +184,7 @@ describe('бронь из чата продавца /bot/booking-intents (DATA_M
       organizationId: ORG,
       locationId: 'loc-a',
       propertyId: SITE.propertyId,
+      bookingTrackedSiteId: SITE.id,
       lifecycle: 'active',
       scenario: 'sales',
     });

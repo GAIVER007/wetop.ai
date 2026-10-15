@@ -96,6 +96,9 @@ const ACTION_RU: Record<string, string> = {
   'channex.booking.cancelled': 'бронь из канала отменена',
   'channex.setup': 'Менеджер каналов: объект и категории',
   'channex.fullSync': 'Менеджер каналов: полная выгрузка',
+  'channex.availabilityRead': 'Остатки в каналах проверены',
+  'location.salon_created': 'Салон создан',
+  'location.restaurant_created': 'Ресторан создан',
   'rates.bulk': 'цены / ограничения изменены',
   'unit.block': 'ячейка заблокирована',
   'unit.unblock': 'блокировка снята',
@@ -196,6 +199,11 @@ export default async function JournalPage({
     const str = u.toString();
     return str ? `/journal?${str}` : '/journal';
   };
+  // разделы журнала по сущностям гостиницы (брони, ячейки, гости, объект) у салона и ресторана пусты
+  const filters =
+    desk.vertical === 'HOSPITALITY'
+      ? FILTERS
+      : FILTERS.filter(([t]) => t === null || t === 'user' || t === 'organization');
   const sectionLabel = FILTERS.find(([t]) => (t ?? undefined) === type)?.[1];
   const conditions = [
     needle ? `по запросу «${needle}»` : '',
@@ -230,7 +238,7 @@ export default async function JournalPage({
               key={`q-${needle}`}
               name="q"
               aria-label="Поиск в журнале"
-              placeholder="Номер брони"
+              placeholder={desk.vertical === 'HOSPITALITY' ? 'Номер брони' : 'Действие или сотрудник'}
               defaultValue={needle}
             />
           </Field>
@@ -318,7 +326,7 @@ export default async function JournalPage({
         </form>
       </details>
       <nav className="chips" aria-label="Раздел журнала">
-        {FILTERS.map(([t, label]) => (
+        {filters.map(([t, label]) => (
           <Link
             key={label}
             href={href({ type: t })}
@@ -364,6 +372,7 @@ const ENTITY_RU: Record<string, string> = {
   Charge: 'Начисление',
   Folio: 'Счёт',
   organization: 'Организация',
+  location: 'Филиал',
   user: 'Сотрудник',
 };
 

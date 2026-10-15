@@ -1,0 +1,30 @@
+{
+ "/hotel-settings/stay": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:«Категории номеров» 152x17"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Настройки объекта",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

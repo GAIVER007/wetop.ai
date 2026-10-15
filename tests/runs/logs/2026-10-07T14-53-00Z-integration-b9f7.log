@@ -1,0 +1,97 @@
+# Интеграционные (integration) · 07.10.2026 19:53 Алматы · vm
+# коммит b2a7421 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T14-53-00Z-integration-b9f7.json' 'tests/integration/site-publication.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:2076) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-publication.test.ts (15 tests | 3 failed) 3572ms
+   ❯ MKT7 публикация управляемого сайта (15)
+     ✓ §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 932ms
+     ✓ §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает 72ms
+     ✓ MKT7 доводка: хосты сайта счётчика управляемого сайта ровно ACTIVE-домены; чужой хост уходит при синхронизации 95ms
+     × MKT7 доводка: старый /analytics/sites не правит и не удаляет сайт счётчика управляемого сайта; внешний как раньше 131ms
+     × §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается 46ms
+     ✓ §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим 127ms
+     ✓ §31–§32: выбранный канонический сайт (даже на паузе) публикация не подменяет, продавец на другой не переходит 116ms
+     ✓ §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит 136ms
+     ✓ §84: тариф брони только явный, связанный или канонический; первый активный не берётся 408ms
+     ✓ §50, §59: публикация и откат на паузе меняют версию, но сайт не открывается до возобновления 149ms
+     ✓ §44–§47: публикуется только голова черновика, документ перепроверяется: медиа и неактивная категория 277ms
+     ✓ §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика 120ms
+     ✓ §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400 26ms
+     × §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет 59ms
+     ✓ §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503 95ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > MKT7 доводка: старый /analytics/sites не правит и не удаляет сайт счётчика управляемого сайта; внешний как раньше
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/integration/site-publication.test.ts:426:60
+    424|       );
+    425|     expect(await asOwner(() => sites.updateSite(managed, { hosts: ['ro…
+    426|     expect(await asOwner(() => sites.deleteSite(managed))).toBe(false);
+       |                                                            ^
+    427|     expect(await db.trackedSite.findUniqueOrThrow({ where: { id: manag…
+    428|     // внешний сайт: создание, правка и удаление по прежнему контракту
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается
+AssertionError: expected null to match object { status: 'PAUSED', hosts: [] }
+
+- Expected:
+{
+  "hosts": [],
+  "status": "PAUSED",
+}
+
++ Received:
+null
+
+ ❯ tests/integration/site-publication.test.ts:447:31
+    445|     expect(after.state).toBe('ARCHIVED');
+    446|     expect(after.domains.map((d) => d.status)).toEqual(['REMOVED']);
+    447|     expect(after.trackedSite).toMatchObject({ status: 'PAUSED', hosts:…
+       |                               ^
+    448|     expect(await pointerOf('main')).toBeNull();
+    449|     expect(await agentSite('main')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет
+AssertionError: expected undefined to be 'BOOKING_SOURCE_NOT_ELIGIBLE' // Object.is equality
+
+- Expected:
+"BOOKING_SOURCE_NOT_ELIGIBLE"
+
++ Received:
+undefined
+
+ ❯ tests/integration/site-publication.test.ts:615:132
+    613|     // приостановленный сайт выбрать нельзя
+    614|     const paused = (await siteRow('main')).trackedSiteId!;
+    615|     expect((await call('PUT', '/marketing/site/booking-source', { loca…
+       |                                                                                                                                    ^
+    616|       'BOOKING_SOURCE_NOT_ELIGIBLE',
+    617|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 12 passed (15)
+   Start at  14:53:01
+   Duration  9.16s (tests 52%, transform 34%, import 14%)
+
+JSON report written to /tmp/pms-test-2026-10-07T14-53-00Z-integration-b9f7.json
+
+# код выхода 1 · 10 с

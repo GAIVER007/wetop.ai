@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
@@ -14,6 +15,7 @@ import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Grid, SectionTitle, cx } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
+import { ReportsTabs } from './reports-tabs';
 import '../directory.css';
 import './reports.css';
 
@@ -30,6 +32,17 @@ export default async function ReportsHubPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  // Ресторан: перенаправление на финансы ресторана (выручка, расходы — основной отчёт)
+  if (me.context?.vertical === 'FOOD_SERVICE') {
+    const { redirect } = await import('next/navigation');
+    redirect('/restaurant-finance');
+  }
+  // Салон: упрощённый хаб отчётов
+  if (me.context?.vertical === 'BEAUTY') {
+    const { redirect } = await import('next/navigation');
+    redirect('/management/analytics');
+  }
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const from = sp.from || cal.month.from;
@@ -76,6 +89,7 @@ export default async function ReportsHubPage({
         ) : undefined
       }
     >
+      <ReportsTabs current="documents" />
       <section className="reports-controls" aria-label="Период">
         <form method="get" className="reports-toolbar" data-testid="reports-period-form">
           <Field inline label="С">
@@ -203,14 +217,14 @@ export default async function ReportsHubPage({
               value={d && formatPercent(d.occupancy.percent)}
               hint={
                 d
-                  ? `занято ${formatInt(d.occupancy.occupiedNights)} из ${formatInt(d.occupancy.unitNights)} ночей`
+                  ? `занято ${formatInt(d.occupancy.occupiedNights)} из ${formatInt(d.occupancy.sellableNights)} ночей к продаже`
                   : undefined
               }
             />
             <ReportCard
               href="/market"
               testId="report-market"
-              title="Загрузка конкурентов"
+              title="Анализ конкурентов"
               hint="ваша загрузка рядом с ближайшими отелями на каждую ночь, подсказки к цене"
             />
             <ReportCard
@@ -229,11 +243,11 @@ export default async function ReportsHubPage({
           </Group>
           <Group title="День">
             <ReportCard
-              href="/today"
+              href="/finance"
               testId="report-day"
               title="Сводка дня"
               value={day && `${day.counts.arrivals} / ${day.counts.departures}`}
-              hint="заезды / выезды сегодня, на Главной"
+              hint="заезды / выезды сегодня, в «Финансах»"
             />
             <ReportCard
               href="/reservations?view=inhouse"

@@ -1,0 +1,64 @@
+# Модульные (unit) · 07.10.2026 21:15 Алматы · vm
+# коммит 40003ac (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T16-15-29Z-unit-c963.json' 'apps/api/src/marketing-site/asset-image.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/marketing-site/asset-image.test.ts (9 tests | 2 failed) 740ms
+   ❯ MKT8: обработка изображения сайта (9)
+     ✓ EXIF, камера и GPS есть во входе и отсутствуют в сохранённом; поворот применён к пикселям 35ms
+     ✓ SHA-256 от готовых байтов: тот же файл даёт тот же хэш; EXIF не меняет картинку, но и в хэш не попадает 20ms
+     ✓ картинка: длинная сторона до 2400 без увеличения; логотип до 1600 с прозрачностью 542ms
+     ✓ фавиконка: PNG 512×512, пропорции сохранены, поля прозрачные, без растяжения и увеличения 68ms
+     ✓ WebP и PNG на входе принимаются 19ms
+     ✓ вредные и чужие файлы: SVG под видом PNG, HTML под видом JPG, GIF, обрезанный JPEG, случайные байты, пусто 25ms
+     × анимированный WebP отклоняется 19ms
+     ✓ 10 МиБ + 1 байт: отказ до декодирования 1ms
+     × бомба: заголовок обещает больше 40 млн точек или сторону больше 12 000 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/marketing-site/asset-image.test.ts > MKT8: обработка изображения сайта > анимированный WebP отклоняется
+AssertionError: expected undefined to be 2 // Object.is equality
+
+- Expected:
+2
+
++ Received:
+undefined
+
+ ❯ apps/api/src/marketing-site/asset-image.test.ts:139:54
+    137|     const frame = await solid(16, 16).png().toBuffer();
+    138|     const animated = await sharp([frame, frame], { join: { animated: t…
+    139|     expect((await sharp(animated).metadata()).pages).toBe(2);
+       |                                                      ^
+    140|     expect(await rejected(animated)).toBe('UNSUPPORTED_MEDIA_TYPE');
+    141|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/marketing-site/asset-image.test.ts > MKT8: обработка изображения сайта > бомба: заголовок обещает больше 40 млн точек или сторону больше 12 000
+AssertionError: expected 'IMAGE_DECODE_FAILED' to be 'IMAGE_TOO_LARGE' // Object.is equality
+
+Expected: "IMAGE_TOO_LARGE"
+Received: "IMAGE_DECODE_FAILED"
+
+ ❯ apps/api/src/marketing-site/asset-image.test.ts:150:51
+    148|
+    149|   it('бомба: заголовок обещает больше 40 млн точек или сторону больше …
+    150|     expect(await rejected(pngHeader(7000, 7000))).toBe('IMAGE_TOO_LARG…
+       |                                                   ^
+    151|     expect(await rejected(pngHeader(12_001, 10))).toBe('IMAGE_TOO_LARG…
+    152|     // а заголовок в пределах, но без данных: просто не декодируется
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  16:15:30
+   Duration  2.55s (transform 58%, tests 31%, import 11%)
+
+JSON report written to /tmp/pms-test-2026-10-07T16-15-29Z-unit-c963.json
+
+# код выхода 1 · 4 с

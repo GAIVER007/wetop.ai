@@ -14,6 +14,9 @@ import { FIXTURE_API, expect, test } from './fixtures';
  * рисуется в двух местах оболочки (панель и меню профиля); плюс стенд работает на `next dev`, где React
  * умышленно вызывает эффекты и рендер по два раза — это шум разработки, а не рейсы живой стойки.
  *
+ * У «Номерного фонда» семь источников (сводка, места, категории, динамика, занятость, каналы и их сопоставление,
+ * 09.10.2026) плюс оболочка: бюджет 12 и отсутствие повторов, как у «Каналов».
+ *
  * Старые адреса `/hotel-settings/{check-in,description,penalties,photos,amenities}` здесь не считаются: это не
  * экраны, а redirect() на «Настройки объекта», «Цены» и «Интеграции». Переадресация по определению проходит
  * оболочку дважды — уходящий рендер и целевой, — и удвоение видно даже там, где экран берёт данные
@@ -45,6 +48,8 @@ for (const screen of [
   '/inventory',
   '/rooms/categories',
   '/rooms/availability',
+  // «Загрузка конкурентов» (ADR-142): одна сводка /market/occupancy; история ночи только при открытой панели
+  '/market',
   '/management/analytics',
   '/management/analytics/occupancy',
   // «По номерам» (REP3): один запрос /desk/dashboard/units
@@ -68,7 +73,7 @@ for (const screen of [
   '/hotel-settings',
   '/hotel-settings/stay',
   '/hotel-settings/services',
-  // «Справочники» (ADR-152): способы оплаты и статьи кассы по одному запросу
+  // «Справочники» (ADR-185): способы оплаты и статьи кассы по одному запросу
   '/hotel-settings/directories',
   // «Сотрудники» (TEAM1): люди и приглашения — по одному запросу
   '/team',
@@ -84,14 +89,22 @@ for (const screen of [
     await request.post(`${API}/__test/reset`);
     await page.goto(screen);
     await page.waitForLoadState('networkidle');
-    const { total, byRequest } = await hits(request);
+    const { byRequest } = await hits(request);
     const seen = JSON.stringify(byRequest);
-    const twice = Object.entries(byRequest).filter(
-      ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
-    );
+    const shell = (key: string) => SHELL.includes(key.split(' ')[1]!.split('?')[0]!);
+    const twice = Object.entries(byRequest).filter(([key, n]) => n > 1 && !shell(key));
+    // опрос оболочки (свежесть каналов) может сходить второй раз за показ, повтор ему разрешён выше; в бюджет экрана
+    // он идёт один раз, иначе итог зависел бы от того, успел ли таймер оболочки сработать до `networkidle`
+    const total = Object.entries(byRequest).reduce((sum, [key, n]) => sum + (shell(key) ? 1 : n), 0);
     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+    // «Финансы» с 13.10 денежный экран эталона (ADR-180): отчёт, долги, операции, касса, услуги,
+    // прошлый отрезок операций и отчёта для сравнений плиток; «Главная» /today спрашивает свои
+    // источники (день, доска, прогноз, сторож). Старый счёт слитого экрана:
+    // источникам кассы добавились блоки бывшей Главной (/chessboard, /desk/dashboard за прогноз и
+    // за вчера, /desk/today, /guard/status) и прошлый отрезок операций для сравнений плиток;
+    // каждый путь по-прежнему спрашивается один раз
     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
-      ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      screen === '/finance' || screen === '/today' ? 11 : ['/channels', '/channels/sync', '/inventory'].includes(screen) ? 12 : 10,
     );
   });
 }

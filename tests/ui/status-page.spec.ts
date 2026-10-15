@@ -20,7 +20,7 @@ test('без входа: всё работает, четыре части сло
   await expect(page.getByTestId('status-overall')).toContainText('Все части WETOP работают.');
   for (const key of ['app', 'database', 'channels', 'booking'])
     await expect(page.getByTestId(`status-${key}`)).toContainText('Работает');
-  await expect(page.locator('.topmenu')).toHaveCount(0);
+  await expect(page.locator('.sidenav')).toHaveCount(0);
   await context.close();
 });
 

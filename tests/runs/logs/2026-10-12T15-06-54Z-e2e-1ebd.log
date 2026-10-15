@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 12.10.2026 20:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e8d6b5 (claude/order-rating-qr), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'оценка по QR'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:60081) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/food-ui/restaurant.spec.ts:448:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (6.6s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:448:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main').getByRole('heading', { name: 'Ссылка недействительна' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('main').getByRole('heading', { name: 'Ссылка недействительна' }) with timeout 5000ms
+      - waiting for locator('main').getByRole('heading', { name: 'Ссылка недействительна' })
+
+
+      494 |   await expect(main.getByTestId('rate-done')).toContainText('Спасибо');
+      495 |   await phone.reload();
+    > 496 |   await expect(main.getByRole('heading', { name: 'Ссылка недействительна' })).toBeVisible();
+          |                                                                               ^
+      497 |   await guest.close();
+      498 |
+      499 |   // оценка легла на заказ и на официанта; второй раз ни по ссылке, ни новой ссылкой
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/food-ui/restaurant.spec.ts:496:79
+
+    Error Context: test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:448:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+
+# код выхода 1 · 12 с

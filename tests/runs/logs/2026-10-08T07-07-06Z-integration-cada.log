@@ -1,0 +1,334 @@
+# Интеграционные (integration) · 08.10.2026 12:07 Алматы · vm
+# коммит 22c6e31 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T07-07-06Z-integration-cada.json' 'tests/integration/licensed-site-builder-db.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/licensed-site-builder-db.test.ts (11 tests | 11 failed) 154ms
+   ❯ MKT9.2 licensed site builder: инварианты базы (11)
+     × один филиал, один сайт навсегда: второй сайт нельзя даже после архива первого 25ms
+     × знания проекта: до 5000 знаков 4ms
+     × лицензия: у пробной нужен срок, только гостиничный филиал, одна строка на филиал 5ms
+     × лицензию приложение только читает и только своей организации; служба пишет, удалять не может никто 3ms
+     × разговор ИИ: новая задача только в QUEUED, режим из словаря, ключ запроса один раз на сайт 3ms
+     × разговор ИИ: форма состояния, переходы, конечное состояние не меняется, LICENSE_UNAVAILABLE в словаре 2ms
+     × разговор ИИ: ограничение ответа по размеру, база только своего сайта, версий не создаёт 18ms
+     × разговор ИИ: RLS и права (приложение ставит и читает своё, менять и удалять не может) 4ms
+     × LICENSE_UNAVAILABLE есть и у задач сборки 14ms
+     × закладки: только версия своего сайта, одна на версию, не больше 20 на сайт, подпись до 120 10ms
+     × закладки: RLS (своё ставит и снимает, чужое не видит) 9ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы
+error: relation "site_builder_entitlements" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/licensed-site-builder-db.test.ts:104:5
+    102|   afterAll(async () => {
+    103|     if (!sql) return;
+    104|     await sql.query(`DELETE FROM site_builder_entitlements WHERE locat…
+       |     ^
+    105|     await sql.query(`DELETE FROM marketing_sites WHERE id = ANY($1::uu…
+    106|     await sql.query(`DELETE FROM locations WHERE id = ANY($1::uuid[])`…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > один филиал, один сайт навсегда: второй сайт нельзя даже после архива первого
+AssertionError: promise resolved "Result{ command: 'INSERT', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "INSERT",
++   "fields": [],
++   "oid": 0,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/licensed-site-builder-db.test.ts:119:8
+    117|       await expect(
+    118|         insert(attempt, 'marketing_sites', { id: randomUUID(), locatio…
+    119|       ).rejects.toThrow(/marketing_sites_location_id_key/);
+       |        ^
+    120|     });
+    121|     const index = await sql.query(
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:115:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > знания проекта: до 5000 знаков
+error: column "builder_instructions" of relation "marketing_sites" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/licensed-site-builder-db.test.ts:38:21
+     36|         await sql.query('SAVEPOINT probe');
+     37|         try {
+     38|           const r = await sql.query(q, params);
+       |                     ^
+     39|           await sql.query('RELEASE SAVEPOINT probe');
+     40|           return r;
+ ❯ tests/integration/licensed-site-builder-db.test.ts:131:7
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:130:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > лицензия: у пробной нужен срок, только гостиничный филиал, одна строка на филиал
+AssertionError: expected [Function] to throw error matching /site_builder_entitlements_trial_until/ but got 'relation "site_builder_entitlements" …'
+
+- Expected:
+/site_builder_entitlements_trial_until/
+
++ Received:
+"relation \"site_builder_entitlements\" does not exist"
+
+ ❯ tests/integration/licensed-site-builder-db.test.ts:138:130
+    136|   it('лицензия: у пробной нужен срок, только гостиничный филиал, одна …
+    137|     await probe(async (attempt) => {
+    138|       await expect(insert(attempt, 'site_builder_entitlements', { loca…
+       |                                                                                                                                  ^
+    139|         /site_builder_entitlements_trial_until/,
+    140|       );
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:13
+ ❯ tests/integration/licensed-site-builder-db.test.ts:137:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > лицензию приложение только читает и только своей организации; служба пишет, удалять не может никто
+error: relation "site_builder_entitlements" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/licensed-site-builder-db.test.ts:38:21
+     36|         await sql.query('SAVEPOINT probe');
+     37|         try {
+     38|           const r = await sql.query(q, params);
+       |                     ^
+     39|           await sql.query('RELEASE SAVEPOINT probe');
+     40|           return r;
+ ❯ tests/integration/licensed-site-builder-db.test.ts:156:7
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:155:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > разговор ИИ: новая задача только в QUEUED, режим из словаря, ключ запроса один раз на сайт
+AssertionError: expected [Function] to throw error matching /QUEUED/ but got 'relation "site_ai_runs" does not exist'
+
+- Expected:
+/QUEUED/
+
++ Received:
+"relation \"site_ai_runs\" does not exist"
+
+ ❯ tests/integration/licensed-site-builder-db.test.ts:178:103
+    176|   it('разговор ИИ: новая задача только в QUEUED, режим из словаря, клю…
+    177|     await probe(async (attempt) => {
+    178|       await expect(aiRun(attempt, siteA1, { status: 'RUNNING', started…
+       |                                                                                                       ^
+    179|       await expect(aiRun(attempt, siteA1, { mode: 'BUILD' })).rejects.…
+    180|       const key = randomUUID();
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:13
+ ❯ tests/integration/licensed-site-builder-db.test.ts:177:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > разговор ИИ: форма состояния, переходы, конечное состояние не меняется, LICENSE_UNAVAILABLE в словаре
+error: relation "site_ai_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/licensed-site-builder-db.test.ts:38:21
+     36|         await sql.query('SAVEPOINT probe');
+     37|         try {
+     38|           const r = await sql.query(q, params);
+       |                     ^
+     39|           await sql.query('RELEASE SAVEPOINT probe');
+     40|           return r;
+ ❯ aiRun tests/integration/licensed-site-builder-db.test.ts:60:5
+ ❯ tests/integration/licensed-site-builder-db.test.ts:190:19
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:189:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > разговор ИИ: ограничение ответа по размеру, база только своего сайта, версий не создаёт
+AssertionError: expected [Function] to throw error matching /другого сайта/ but got 'relation "site_ai_runs" does not exist'
+
+- Expected:
+/другого сайта/
+
++ Received:
+"relation \"site_ai_runs\" does not exist"
+
+ ❯ tests/integration/licensed-site-builder-db.test.ts:209:73
+    207|       const own = await version(attempt, siteA1);
+    208|       const foreign = await version(attempt, siteB);
+    209|       await expect(aiRun(attempt, siteA1, { base_version_id: foreign }…
+       |                                                                         ^
+    210|       const run = await aiRun(attempt, siteA1, { base_version_id: own,…
+    211|       await setAi(attempt, run, `status = 'RUNNING', attempts = 1, sta…
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:206:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > разговор ИИ: RLS и права (приложение ставит и читает своё, менять и удалять не может)
+error: relation "site_ai_runs" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/licensed-site-builder-db.test.ts:38:21
+     36|         await sql.query('SAVEPOINT probe');
+     37|         try {
+     38|           const r = await sql.query(q, params);
+       |                     ^
+     39|           await sql.query('RELEASE SAVEPOINT probe');
+     40|           return r;
+ ❯ aiRun tests/integration/licensed-site-builder-db.test.ts:60:5
+ ❯ tests/integration/licensed-site-builder-db.test.ts:226:17
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:225:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > LICENSE_UNAVAILABLE есть и у задач сборки
+error: new row for relation "generation_runs" violates check constraint "generation_runs_error_code"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/licensed-site-builder-db.test.ts:38:21
+     36|         await sql.query('SAVEPOINT probe');
+     37|         try {
+     38|           const r = await sql.query(q, params);
+       |                     ^
+     39|           await sql.query('RELEASE SAVEPOINT probe');
+     40|           return r;
+ ❯ tests/integration/licensed-site-builder-db.test.ts:247:7
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:244:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > закладки: только версия своего сайта, одна на версию, не больше 20 на сайт, подпись до 120
+AssertionError: expected [Function] to throw error matching /другого сайта/ but got 'relation "marketing_site_version_book…'
+
+- Expected:
+/другого сайта/
+
++ Received:
+"relation \"marketing_site_version_bookmarks\" does not exist"
+
+ ❯ tests/integration/licensed-site-builder-db.test.ts:254:148
+    252|     await probe(async (attempt) => {
+    253|       const foreign = await version(attempt, siteB);
+    254|       await expect(insert(attempt, 'marketing_site_version_bookmarks',…
+       |                                                                                                                                                    ^
+    255|         /другого сайта/,
+    256|       );
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:252:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  |integration| tests/integration/licensed-site-builder-db.test.ts > MKT9.2 licensed site builder: инварианты базы > закладки: RLS (своё ставит и снимает, чужое не видит)
+error: relation "marketing_site_version_bookmarks" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/licensed-site-builder-db.test.ts:38:21
+     36|         await sql.query('SAVEPOINT probe');
+     37|         try {
+     38|           const r = await sql.query(q, params);
+       |                     ^
+     39|           await sql.query('RELEASE SAVEPOINT probe');
+     40|           return r;
+ ❯ tests/integration/licensed-site-builder-db.test.ts:283:7
+ ❯ probe tests/integration/licensed-site-builder-db.test.ts:35:7
+ ❯ tests/integration/licensed-site-builder-db.test.ts:279:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed (11)
+   Start at  07:07:07
+   Duration  4.57s (transform 69%, import 24%, tests 7%)
+
+JSON report written to /tmp/pms-test-2026-10-08T07-07-06Z-integration-cada.json
+
+# код выхода 1 · 6 с

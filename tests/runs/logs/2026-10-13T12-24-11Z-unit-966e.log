@@ -1,0 +1,30 @@
+# Модульные (unit) · 13.10.2026 17:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит b25addf (codex/organizations-card-editor), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-24-11Z-unit-966e.json' 'apps/api/src/hotel/organization-summary.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ❯ |unit| apps/api/src/hotel/organization-summary.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/organization-summary.test.ts [ apps/api/src/hotel/organization-summary.test.ts ]
+Error: Cannot find module './organization-summary' imported from /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP/apps/api/src/hotel/organization-summary.test.ts
+ ❯ apps/api/src/hotel/organization-summary.test.ts:2:1
+      1| import { describe, expect, it, vi } from 'vitest';
+      2| import { OrganizationSummaryService } from './organization-summary';
+       | ^
+      3| import { withSignedInUser } from '../auth/request-context';
+      4| const actor=(fn:()=>Promise<unknown>)=>withSignedInUser({userId:'user'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  05:24:13
+   Duration  119ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-24-11Z-unit-966e.json
+
+# код выхода 1 · 3 с

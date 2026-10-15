@@ -1,6 +1,6 @@
 import { PAYMENT_METHOD_RU } from '@pms/domain';
 /** Способы оплаты словами — экран «Финансы за период» и выгрузка CSV (ADR-113) */
-// один источник подписей (DATA_MODEL §21.6, ADR-152 У10): домен
+// один источник подписей (DATA_MODEL §21.6, ADR-185 У10): домен
 export const METHOD_RU: Record<string, string> = PAYMENT_METHOD_RU;
 
 export type OperationKind = 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';

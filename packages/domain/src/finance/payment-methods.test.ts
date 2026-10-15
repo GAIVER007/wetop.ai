@@ -9,7 +9,7 @@ import {
   resolvePaymentMethodSettings,
 } from './payment-methods';
 
-describe('способы оплаты объекта (DATA_MODEL §21.6, ADR-152)', () => {
+describe('способы оплаты объекта (DATA_MODEL §21.6, ADR-185)', () => {
   it('восемь настраиваемых способов, EXTERNAL не настраивается, у каждого есть подпись', () => {
     expect(CONFIGURABLE_PAYMENT_METHODS).toEqual([
       'CASH',

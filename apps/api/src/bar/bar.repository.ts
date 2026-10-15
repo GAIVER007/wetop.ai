@@ -1,10 +1,12 @@
 import 'reflect-metadata';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
 import { randomUUID } from 'node:crypto';
-import { Inject, Injectable } from '@nestjs/common';
-import { allocateFifo, LUXX_APARTS_PROPERTY, salePriceFromMarkup } from '@pms/domain';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { allocateFifo, foodCashBalances, foodLocal, LUXX_APARTS_PROPERTY, salePriceFromMarkup, zonedStartOfDay } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyRef } from '../database/property-ref';
+import { currentLocationId, currentOrganizationId } from '../auth/request-context';
+import { growthPercent, monthBounds, shiftDate } from './bar-period';
 import { auditUserId } from '../accounts/actor';
 
 export interface BarReceiptInput {
@@ -33,6 +35,16 @@ export interface BarProductInput {
   minimumStockUnits: bigint;
 }
 
+/** Правка карточки товара (ADR-157): без кода, цены и архива, у них свои маршруты и правила */
+export interface BarProductPatch {
+  name: string;
+  categoryId: string | null;
+  barcode: string | null;
+  unitsPerPackage: number;
+  markupBasis: number | null;
+  minimumStockUnits: bigint;
+}
+
 export interface BarSupplierInput {
   name: string;
   phone: string | null;
@@ -53,6 +65,7 @@ export interface BarRepository {
   createProduct(input: BarProductInput): Promise<unknown>;
   setProductActive(id: string, active: boolean): Promise<unknown | null>;
   setProductPrice(id: string, salePriceMinor: bigint): Promise<unknown | null>;
+  updateProduct(id: string, patch: BarProductPatch): Promise<unknown | null>;
   suppliers(): Promise<unknown[]>;
   createSupplier(input: BarSupplierInput): Promise<unknown>;
   setSupplierActive(id: string, active: boolean): Promise<unknown | null>;
@@ -62,11 +75,11 @@ export interface BarRepository {
   folios(): Promise<unknown[]>;
   movements(): Promise<unknown[]>;
   report(): Promise<unknown>;
-  sellRetail(input: BarRetailSaleInput): Promise<{ kind: 'not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>;
-  sellToFolio(input: BarFolioSaleInput): Promise<{ kind: 'folio_not_found' | 'product_not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>;
+  sellRetail(input: BarRetailSaleInput): Promise<{ kind: 'not_found' | 'no_cash' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>;
+  sellToFolio(input: BarFolioSaleInput): Promise<{ kind: 'folio_not_found' | 'product_not_found' | 'no_folio' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>;
   reverseSale(id: string, restock: boolean, reason: string): Promise<{ kind: 'not_found' | 'already_reversed' } | { kind: 'reversed'; id: string; status: 'REVERSED'; restocked: boolean }>;
   writeOff(input: BarWriteOffInput): Promise<{ kind: 'not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; movementsCreated: number; costMinor: string }>;
-  payReceipt(id: string, input: BarSupplierPaymentInput): Promise<{ kind: 'not_found' | 'not_posted' } | { kind: 'overpayment'; dueAmount: bigint } | { kind: 'paid'; id: string; receiptId: string; paidAmount: string; dueAmount: string }>;
+  payReceipt(id: string, input: BarSupplierPaymentInput): Promise<{ kind: 'not_found' | 'not_posted' | 'no_cash' } | { kind: 'overpayment'; dueAmount: bigint } | { kind: 'insufficient_cash'; available: bigint } | { kind: 'paid'; id: string; receiptId: string; paidAmount: string; dueAmount: string }>;
   inventoryCount(input: BarInventoryCountInput): Promise<{ kind: 'not_found' } | { kind: 'surplus_requires_cost'; systemUnits: bigint } | { kind: 'adjusted'; id: string; systemUnits: string; actualUnits: string; differenceUnits: string; costMinor: string }>;
   createReceipt(input: BarReceiptInput): Promise<unknown>;
   postReceipt(id: string): Promise<{ kind: 'not_found' | 'already_posted' } | { kind: 'posted'; id: string; status: 'POSTED'; lotsCreated: number; movementsCreated: number; pricesUpdated: number }>;
@@ -76,32 +89,61 @@ export const BAR_REPOSITORY = Symbol('BAR_REPOSITORY');
 @Injectable()
 export class PrismaBarRepository implements BarRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-  private propertyId() { return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name); }
+  /**
+   * Область бара (§44, ADR-178): выбранный филиал любого направления; у гостиницы ещё её объект (счёт гостя и касса
+   * гостиницы). Без выбранного филиала прежний гостиничный путь через объект организации.
+   */
+  private async scope(): Promise<{ locationId: string; propertyId: string | null; vertical: string; timezone: string; currency: string }> {
+    const chosen = currentLocationId();
+    if (chosen) {
+      const organizationId = currentOrganizationId();
+      const location = await this.prisma.db.location.findFirst({
+        where: { id: chosen, status: 'ACTIVE', business: { status: 'ACTIVE', ...(organizationId ? { organizationId } : {}) } },
+        select: { id: true, timezone: true, currency: true, business: { select: { vertical: true } }, property: { select: { id: true } } },
+      });
+      if (!location) throw new ForbiddenException('Выберите доступный филиал');
+      return { locationId: location.id, propertyId: location.property?.id ?? null, vertical: location.business.vertical, timezone: location.timezone, currency: location.currency };
+    }
+    const ref = await propertyRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const property = await this.prisma.db.property.findUniqueOrThrow({ where: { id: ref.id }, select: { locationId: true, currency: true } });
+    return { locationId: property.locationId, propertyId: ref.id, vertical: 'HOSPITALITY', timezone: ref.timezone, currency: property.currency };
+  }
+  /** Остатки кассы ресторана по способам (§35, §45): тот же расчёт, что у самой кассы */
+  private async restaurantBalances(tx: any, locationId: string) {
+    const [payments, ops] = await Promise.all([
+      tx.restaurantPayment.groupBy({ by: ['method'], where: { locationId, status: 'COMPLETED' }, _sum: { amount: true } }),
+      tx.restaurantCashOperation.groupBy({ by: ['kind', 'method', 'methodTo'], where: { locationId, status: 'COMPLETED' }, _sum: { amount: true } }),
+    ]);
+    return foodCashBalances(
+      payments.map((p: any) => ({ method: p.method, amount: p._sum.amount ?? 0n, status: 'COMPLETED' as const })),
+      ops.map((o: any) => ({ kind: o.kind, method: o.method, methodTo: o.methodTo, amount: o._sum.amount ?? 0n, status: 'COMPLETED' as const })),
+    ) as Record<string, bigint>;
+  }
   async categories() {
-    return (this.prisma.db as any).barCategory.findMany({ where: { propertyId: await this.propertyId() }, orderBy: { name: 'asc' } });
+    return (this.prisma.db as any).barCategory.findMany({ where: { locationId: (await this.scope()).locationId }, orderBy: { name: 'asc' } });
   }
   async createCategory(input: BarCategoryInput) {
-    const propertyId = await this.propertyId();
-    const row = await (this.prisma.db as any).barCategory.create({ data: { propertyId, ...input } });
+    const { propertyId, locationId } = await this.scope();
+    const row = await (this.prisma.db as any).barCategory.create({ data: { propertyId, locationId, ...input } });
     await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_category', entityId: row.id, action: 'bar.category.created', after: { name: row.name, defaultMarkupBasis: row.defaultMarkupBasis } } });
     return row;
   }
   async setCategoryActive(id: string, active: boolean) {
-    const propertyId = await this.propertyId();
-    const existing = await (this.prisma.db as any).barCategory.findFirst({ where: { id, propertyId } });
+    const { locationId } = await this.scope();
+    const existing = await (this.prisma.db as any).barCategory.findFirst({ where: { id, locationId } });
     if (!existing) return null;
     const row = await (this.prisma.db as any).barCategory.update({ where: { id }, data: { active } });
     await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_category', entityId: id, action: 'bar.category.active_changed', after: { active } } });
     return row;
   }
   async products() {
-    const rows = await (this.prisma.db as any).barProduct.findMany({ where: { propertyId: await this.propertyId() }, include: { category: true }, orderBy: { name: 'asc' } });
+    const rows = await (this.prisma.db as any).barProduct.findMany({ where: { locationId: (await this.scope()).locationId }, include: { category: true }, orderBy: { name: 'asc' } });
     return rows.map((row: any) => ({ ...row, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() }));
   }
   async createProduct(input: BarProductInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.scope();
     const row = await (this.prisma.db as any).barProduct.create({ data: {
-      propertyId, code: input.code, name: input.name, categoryId: input.categoryId, barcode: input.barcode,
+      propertyId, locationId, code: input.code, name: input.name, categoryId: input.categoryId, barcode: input.barcode,
       unitsPerPackage: input.unitsPerPackage, markupBasis: input.markupBasis, salePrice: input.salePriceMinor,
       minimumStockUnits: input.minimumStockUnits,
     } });
@@ -109,33 +151,45 @@ export class PrismaBarRepository implements BarRepository {
     return { ...row, salePrice: row.salePrice.toString(), salePriceMinor: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() };
   }
   async setProductActive(id: string, active: boolean) {
-    const propertyId = await this.propertyId();
-    const existing = await (this.prisma.db as any).barProduct.findFirst({ where: { id, propertyId } });
+    const { locationId } = await this.scope();
+    const existing = await (this.prisma.db as any).barProduct.findFirst({ where: { id, locationId } });
     if (!existing) return null;
     const row = await (this.prisma.db as any).barProduct.update({ where: { id }, data: { active } });
     await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_product', entityId: id, action: 'bar.product.active_changed', after: { active } } });
     return { ...row, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() };
   }
+  async updateProduct(id: string, patch: BarProductPatch) {
+    const { locationId } = await this.scope();
+    const existing = await (this.prisma.db as any).barProduct.findFirst({ where: { id, locationId } });
+    if (!existing) return null;
+    const row = await (this.prisma.db as any).barProduct.update({ where: { id }, data: {
+      name: patch.name, categoryId: patch.categoryId, barcode: patch.barcode,
+      unitsPerPackage: patch.unitsPerPackage, markupBasis: patch.markupBasis,
+      minimumStockUnits: patch.minimumStockUnits,
+    } });
+    await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_product', entityId: id, action: 'bar.product.updated', before: { name: existing.name, barcode: existing.barcode, minimumStockUnits: existing.minimumStockUnits.toString() }, after: { name: row.name, barcode: row.barcode, minimumStockUnits: row.minimumStockUnits.toString() } } });
+    return { ...row, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() };
+  }
   async setProductPrice(id: string, salePriceMinor: bigint) {
-    const propertyId = await this.propertyId();
-    const existing = await (this.prisma.db as any).barProduct.findFirst({ where: { id, propertyId } });
+    const { locationId } = await this.scope();
+    const existing = await (this.prisma.db as any).barProduct.findFirst({ where: { id, locationId } });
     if (!existing) return null;
     const row = await (this.prisma.db as any).barProduct.update({ where: { id }, data: { salePrice: salePriceMinor } });
     await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_product', entityId: id, action: 'bar.product.price_changed', before: { salePrice: existing.salePrice.toString() }, after: { salePrice: salePriceMinor.toString() } } });
     return { ...row, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString() };
   }
   async suppliers() {
-    return (this.prisma.db as any).barSupplier.findMany({ where: { propertyId: await this.propertyId() }, orderBy: { name: 'asc' } });
+    return (this.prisma.db as any).barSupplier.findMany({ where: { locationId: (await this.scope()).locationId }, orderBy: { name: 'asc' } });
   }
   async createSupplier(input: BarSupplierInput) {
-    const propertyId = await this.propertyId();
-    const row = await (this.prisma.db as any).barSupplier.create({ data: { propertyId, ...input } });
+    const { propertyId, locationId } = await this.scope();
+    const row = await (this.prisma.db as any).barSupplier.create({ data: { propertyId, locationId, ...input } });
     await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_supplier', entityId: row.id, action: 'bar.supplier.created', after: { name: row.name } } });
     return row;
   }
   async setSupplierActive(id: string, active: boolean) {
-    const propertyId = await this.propertyId();
-    const existing = await (this.prisma.db as any).barSupplier.findFirst({ where: { id, propertyId } });
+    const { locationId } = await this.scope();
+    const existing = await (this.prisma.db as any).barSupplier.findFirst({ where: { id, locationId } });
     if (!existing) return null;
     const row = await (this.prisma.db as any).barSupplier.update({ where: { id }, data: { active } });
     await this.prisma.db.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_supplier', entityId: id, action: 'bar.supplier.active_changed', after: { active } } });
@@ -143,7 +197,7 @@ export class PrismaBarRepository implements BarRepository {
   }
   async receipts() {
     const rows = await (this.prisma.db as any).barReceipt.findMany({
-      where: { propertyId: await this.propertyId() }, include: { supplier: true, payments: { select: { amount: true } }, _count: { select: { lines: true } } },
+      where: { locationId: (await this.scope()).locationId }, include: { supplier: true, payments: { select: { amount: true } }, _count: { select: { lines: true } } },
       orderBy: [{ receivedDate: 'desc' }, { createdAt: 'desc' }],
     });
     return rows.map((row: any) => {
@@ -154,24 +208,46 @@ export class PrismaBarRepository implements BarRepository {
     });
   }
   async stock() {
-    const propertyId = await this.propertyId();
+    const { locationId } = await this.scope();
     const rows = await (this.prisma.db as any).barProduct.findMany({
-      where: { propertyId }, include: { category: true, lots: { where: { remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true } } }, orderBy: { name: 'asc' },
+      where: { locationId },
+      include: {
+        category: true,
+        lots: { where: { remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true, expiresOn: true } },
+        // последний проведённый приход товара (ADR-157, макет): поставщик, цена закупки и дата; у товара своего поставщика в модели нет
+        receiptLines: {
+          where: { receipt: { status: 'POSTED' } }, orderBy: { receipt: { receivedDate: 'desc' } }, take: 1,
+          select: { unitCost: true, receipt: { select: { receivedDate: true, supplier: { select: { id: true, name: true } } } } },
+        },
+      },
+      orderBy: { name: 'asc' },
     });
     return rows.map((row: any) => {
       const available = row.lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits), 0n);
       const stockCost = row.lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits) * BigInt(lot.unitCost), 0n);
+      const expiries = row.lots.map((lot: any) => lot.expiresOn).filter(Boolean).map((day: Date) => day.toISOString().slice(0, 10)).sort();
+      const last = row.receiptLines[0] ?? null;
       const product = { ...row };
       delete product.lots;
-      return { ...product, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString(), availableUnits: available.toString(), stockCostMinor: stockCost.toString() };
+      delete product.receiptLines;
+      return {
+        ...product, salePrice: row.salePrice.toString(), minimumStockUnits: row.minimumStockUnits.toString(),
+        availableUnits: available.toString(), stockCostMinor: stockCost.toString(),
+        lastUnitCostMinor: last ? last.unitCost.toString() : null,
+        lastReceivedDate: last ? last.receipt.receivedDate.toISOString().slice(0, 10) : null,
+        lastSupplier: last ? last.receipt.supplier : null,
+        nearestExpiry: expiries[0] ?? null,
+      };
     });
   }
   async sales() {
-    const rows = await (this.prisma.db as any).barSale.findMany({ where: { propertyId: await this.propertyId() }, include: { lines: { include: { product: true } } }, orderBy: { createdAt: 'desc' }, take: 100 });
+    const rows = await (this.prisma.db as any).barSale.findMany({ where: { locationId: (await this.scope()).locationId }, include: { lines: { include: { product: true } } }, orderBy: { createdAt: 'desc' }, take: 100 });
     return rows.map((row: any) => ({ ...row, totalRevenue: row.totalRevenue.toString(), totalCost: row.totalCost.toString(), lines: row.lines.map((line: any) => ({ ...line, quantityUnits: line.quantityUnits.toString(), salePrice: line.salePrice.toString(), revenue: line.revenue.toString(), cost: line.cost.toString() })) }));
   }
   async folios() {
-    const propertyId = await this.propertyId();
+    const { propertyId } = await this.scope();
+    // счёт гостя есть только у гостиницы
+    if (!propertyId) return [];
     const rows = await (this.prisma.db as any).folio.findMany({
       where: { status: 'OPEN', reservationItem: { reservation: { propertyId } } },
       include: { reservationItem: { include: { reservation: { include: { primaryGuest: true } }, allocations: { include: { inventoryUnit: true }, orderBy: { startDate: 'desc' }, take: 1 } } } },
@@ -180,34 +256,78 @@ export class PrismaBarRepository implements BarRepository {
     return rows.map((row: any) => ({ id: row.id, confirmationNumber: row.reservationItem.reservation.confirmationNumber, guestName: row.reservationItem.reservation.primaryGuest ? `${row.reservationItem.reservation.primaryGuest.firstName} ${row.reservationItem.reservation.primaryGuest.lastName}` : 'Гость не указан', unitCode: row.reservationItem.allocations[0]?.inventoryUnit?.code ?? null }));
   }
   async movements() {
-    const rows = await (this.prisma.db as any).barStockMovement.findMany({ where: { propertyId: await this.propertyId() }, include: { product: true }, orderBy: { createdAt: 'desc' }, take: 200 });
+    const rows = await (this.prisma.db as any).barStockMovement.findMany({ where: { locationId: (await this.scope()).locationId }, include: { product: true }, orderBy: { createdAt: 'desc' }, take: 200 });
     return rows.map((row: any) => ({ ...row, units: row.units.toString(), unitCost: row.unitCost.toString(), amountMinor: (BigInt(row.units < 0n ? -row.units : row.units) * BigInt(row.unitCost)).toString() }));
   }
   async report() {
-    const propertyId = await this.propertyId();
-    const [receipts, sales, lots, writeOffs] = await Promise.all([
-      (this.prisma.db as any).barReceipt.findMany({ where: { propertyId, status: 'POSTED' }, include: { payments: { select: { amount: true } } } }),
-      (this.prisma.db as any).barSale.findMany({ where: { propertyId, status: 'POSTED' }, select: { totalRevenue: true, totalCost: true } }),
-      (this.prisma.db as any).barStockLot.findMany({ where: { propertyId, remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true } }),
-      (this.prisma.db as any).barStockMovement.findMany({ where: { propertyId, kind: 'WRITE_OFF' }, select: { units: true, unitCost: true } }),
+    const { locationId, timezone } = await this.scope();
+    const today = foodLocal(new Date(), timezone).date;
+    const { prevMonthStart, monthStart, nextMonthStart } = monthBounds(today);
+    // границы месяца для продаж: начало суток в поясе объекта, а не по UTC (AGENTS.md §13)
+    const at = (day: string) => zonedStartOfDay(day, timezone);
+    const popularFrom = at(shiftDate(today, -29));
+    const [receipts, sales, lots, writeOffs, popularLines] = await Promise.all([
+      (this.prisma.db as any).barReceipt.findMany({ where: { locationId, status: 'POSTED' }, include: { payments: { select: { amount: true } } } }),
+      (this.prisma.db as any).barSale.findMany({ where: { locationId, status: 'POSTED' }, select: { totalRevenue: true, totalCost: true, createdAt: true } }),
+      (this.prisma.db as any).barStockLot.findMany({ where: { locationId, remainingUnits: { gt: 0 } }, select: { remainingUnits: true, unitCost: true } }),
+      (this.prisma.db as any).barStockMovement.findMany({ where: { locationId, kind: 'WRITE_OFF' }, select: { units: true, unitCost: true } }),
+      (this.prisma.db as any).barSaleLine.findMany({
+        where: { sale: { locationId, status: 'POSTED', createdAt: { gte: popularFrom } } },
+        select: { productId: true, quantityUnits: true, product: { select: { name: true } } },
+      }),
     ]);
+    const inMonth = (from: string, to: string) => (day: string) => day >= from && day < to;
+    const thisMonth = inMonth(monthStart, nextMonthStart);
+    const lastMonth = inMonth(prevMonthStart, monthStart);
+    const receiptDay = (row: any) => row.receivedDate.toISOString().slice(0, 10);
+    const sumReceipts = (match: (day: string) => boolean) =>
+      receipts.filter((row: any) => match(receiptDay(row))).reduce((sum: bigint, row: any) => sum + BigInt(row.totalAmount), 0n);
+    const saleIn = (from: Date, to: Date) => sales.filter((row: any) => row.createdAt >= from && row.createdAt < to);
+    const salesMonth = saleIn(at(monthStart), at(nextMonthStart));
+    const salesPrev = saleIn(at(prevMonthStart), at(monthStart));
+    const revenueOf = (rows: any[]) => rows.reduce((sum: bigint, row: any) => sum + BigInt(row.totalRevenue), 0n);
+    const costOf = (rows: any[]) => rows.reduce((sum: bigint, row: any) => sum + BigInt(row.totalCost), 0n);
+    const popularMap = new Map<string, { productId: string; name: string; units: bigint }>();
+    for (const line of popularLines) {
+      const entry = popularMap.get(line.productId) ?? { productId: line.productId, name: line.product.name, units: 0n };
+      entry.units += BigInt(line.quantityUnits);
+      popularMap.set(line.productId, entry);
+    }
+    const popular = [...popularMap.values()]
+      .sort((a, b) => (a.units === b.units ? a.name.localeCompare(b.name, 'ru') : a.units > b.units ? -1 : 1))
+      .slice(0, 5)
+      .map((entry) => ({ productId: entry.productId, name: entry.name, units: entry.units.toString() }));
+    const month = {
+      monthStart,
+      purchasesMinor: sumReceipts(thisMonth).toString(),
+      purchasesPrevMinor: sumReceipts(lastMonth).toString(),
+      revenueMinor: revenueOf(salesMonth).toString(),
+      revenuePrevMinor: revenueOf(salesPrev).toString(),
+      grossProfitMinor: (revenueOf(salesMonth) - costOf(salesMonth)).toString(),
+      purchasesGrowth: growthPercent(sumReceipts(thisMonth), sumReceipts(lastMonth)),
+      revenueGrowth: growthPercent(revenueOf(salesMonth), revenueOf(salesPrev)),
+    };
     const purchases = receipts.reduce((sum: bigint, row: any) => sum + BigInt(row.totalAmount), 0n);
     const paid = receipts.reduce((sum: bigint, row: any) => sum + row.payments.reduce((part: bigint, payment: any) => part + BigInt(payment.amount), 0n), 0n);
     const revenue = sales.reduce((sum: bigint, row: any) => sum + BigInt(row.totalRevenue), 0n);
     const cost = sales.reduce((sum: bigint, row: any) => sum + BigInt(row.totalCost), 0n);
     const stockCost = lots.reduce((sum: bigint, row: any) => sum + BigInt(row.remainingUnits) * BigInt(row.unitCost), 0n);
     const writeOff = writeOffs.reduce((sum: bigint, row: any) => sum + (BigInt(row.units) < 0n ? -BigInt(row.units) : BigInt(row.units)) * BigInt(row.unitCost), 0n);
-    return { purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString() };
+    return { purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString(), month, popular };
   }
   async sellRetail(input: BarRetailSaleInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId, vertical, currency } = await this.scope();
+    // деньги бара: касса гостиницы, касса ресторана (§45); у салона кассы пока нет
+    if (!propertyId && vertical !== 'FOOD_SERVICE') return { kind: 'no_cash' as const };
     return this.prisma.db.$transaction(async (tx) => {
-      const replay = await (tx as any).barSale.findFirst({ where: { propertyId, idempotencyKey: input.idempotencyKey } });
+      // касса ресторана: одна запись за раз на филиал, как у самой кассы
+      if (!propertyId) await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR UPDATE`;
+      const replay = await (tx as any).barSale.findFirst({ where: { locationId, idempotencyKey: input.idempotencyKey } });
       if (replay) return { kind: 'posted' as const, id: replay.id, status: 'POSTED' as const, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
-      const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, propertyId, active: true } });
+      const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, locationId, active: true } });
       if (!product) return { kind: 'not_found' as const };
-      await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE property_id = ${propertyId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
-      const lots = await (tx as any).barStockLot.findMany({ where: { propertyId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
+      await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE location_id = ${locationId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
+      const lots = await (tx as any).barStockLot.findMany({ where: { locationId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
       let fifo;
       try {
         fifo = allocateFifo(lots.map((lot: any) => ({ lotId: lot.id, receivedAt: lot.receivedAt.toISOString(), availableUnits: lot.remainingUnits, unitCostMinor: lot.unitCost })), input.quantityUnits);
@@ -215,28 +335,35 @@ export class PrismaBarRepository implements BarRepository {
         return { kind: 'insufficient_stock' as const, availableUnits: lots.reduce((sum: bigint, lot: any) => sum + lot.remainingUnits, 0n) };
       }
       const revenue = product.salePrice * input.quantityUnits;
-      const cash = await (tx as any).cashOperation.create({ data: { propertyId, kind: 'INCOME', method: input.method, amount: revenue, note: `Бар: ${product.name}`, createdById: auditUserId() } });
-      const sale = await (tx as any).barSale.create({ data: { propertyId, cashOperationId: cash.id, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency: 'KZT', totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
+      const note = `Бар: ${product.name}`;
+      const cashLink = propertyId
+        ? { cashOperationId: (await (tx as any).cashOperation.create({ data: { propertyId, kind: 'INCOME', method: input.method, amount: revenue, note, createdById: auditUserId() } })).id }
+        : { restaurantCashOperationId: (await (tx as any).restaurantCashOperation.create({ data: { locationId, kind: 'INCOME', method: input.method, amount: revenue, currency, note, createdById: auditUserId() } })).id };
+      const sale = await (tx as any).barSale.create({ data: { propertyId, locationId, ...cashLink, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency, totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
       for (const allocation of fifo.allocations) {
         await (tx as any).barStockLot.update({ where: { id: allocation.lotId }, data: { remainingUnits: { decrement: allocation.units } } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: product.id, lotId: allocation.lotId, kind: 'SALE', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_SALE', sourceId: sale.id, createdById: auditUserId() } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: allocation.lotId, kind: 'SALE', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_SALE', sourceId: sale.id, createdById: auditUserId() } });
       }
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_sale', entityId: sale.id, action: 'bar.sale.posted', after: { quantityUnits: input.quantityUnits.toString(), revenue: revenue.toString(), cost: fifo.totalCostMinor.toString() } } });
       return { kind: 'posted' as const, id: sale.id, status: 'POSTED' as const, revenueMinor: revenue.toString(), costMinor: fifo.totalCostMinor.toString() };
     });
   }
   async sellToFolio(input: BarFolioSaleInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId, timezone } = await this.scope();
+    // счёт гостя есть только у гостиницы (§44)
+    if (!propertyId) return { kind: 'no_folio' as const };
+    // дата услуги: сегодня по часам объекта (docs/metrics.md §5, Q-292); без неё начисление выпадало из периодных отчётов
+    const serviceDate = new Date(`${foodLocal(new Date(), timezone).date}T00:00:00Z`);
     return this.prisma.db.$transaction(async (tx) => {
-      const replay = await (tx as any).barSale.findFirst({ where: { propertyId, idempotencyKey: input.idempotencyKey } });
+      const replay = await (tx as any).barSale.findFirst({ where: { locationId, idempotencyKey: input.idempotencyKey } });
       if (replay) return { kind: 'posted' as const, id: replay.id, status: 'POSTED' as const, chargeId: replay.chargeId, revenueMinor: replay.totalRevenue.toString(), costMinor: replay.totalCost.toString() };
       await tx.$queryRaw`SELECT f.id FROM folios f JOIN reservation_items i ON i.id = f.reservation_item_id JOIN reservations r ON r.id = i.reservation_id WHERE f.id = ${input.folioId}::uuid AND r.property_id = ${propertyId}::uuid AND f.status = 'OPEN' FOR UPDATE OF f`;
       const folio = await (tx as any).folio.findFirst({ where: { id: input.folioId, status: 'OPEN', reservationItem: { reservation: { propertyId } } } });
       if (!folio) return { kind: 'folio_not_found' as const };
-      const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, propertyId, active: true } });
+      const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, locationId, active: true } });
       if (!product) return { kind: 'product_not_found' as const };
-      await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE property_id = ${propertyId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
-      const lots = await (tx as any).barStockLot.findMany({ where: { propertyId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
+      await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE location_id = ${locationId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
+      const lots = await (tx as any).barStockLot.findMany({ where: { locationId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
       let fifo;
       try {
         fifo = allocateFifo(lots.map((lot: any) => ({ lotId: lot.id, receivedAt: lot.receivedAt.toISOString(), availableUnits: lot.remainingUnits, unitCostMinor: lot.unitCost })), input.quantityUnits);
@@ -244,30 +371,32 @@ export class PrismaBarRepository implements BarRepository {
         return { kind: 'insufficient_stock' as const, availableUnits: lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits), 0n) };
       }
       const revenue = BigInt(product.salePrice) * input.quantityUnits;
-      const charge = await (tx as any).charge.create({ data: { folioId: folio.id, kind: 'SERVICE', description: `Бар: ${product.name}`, quantity: Number(input.quantityUnits), unitPrice: product.salePrice, amount: revenue, createdBy: auditUserId() } });
-      const sale = await (tx as any).barSale.create({ data: { propertyId, folioId: folio.id, chargeId: charge.id, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency: folio.currency, totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
+      const charge = await (tx as any).charge.create({ data: { folioId: folio.id, kind: 'SERVICE', description: `Бар: ${product.name}`, quantity: Number(input.quantityUnits), unitPrice: product.salePrice, amount: revenue, serviceDate, createdBy: auditUserId() } });
+      const sale = await (tx as any).barSale.create({ data: { propertyId, locationId, folioId: folio.id, chargeId: charge.id, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency: folio.currency, totalRevenue: revenue, totalCost: fifo.totalCostMinor, createdById: auditUserId(), lines: { create: [{ productId: product.id, quantityUnits: input.quantityUnits, salePrice: product.salePrice, revenue, cost: fifo.totalCostMinor }] } } });
       for (const allocation of fifo.allocations) {
         await (tx as any).barStockLot.update({ where: { id: allocation.lotId }, data: { remainingUnits: { decrement: allocation.units } } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: product.id, lotId: allocation.lotId, kind: 'SALE', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_SALE', sourceId: sale.id, createdById: auditUserId() } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: allocation.lotId, kind: 'SALE', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_SALE', sourceId: sale.id, createdById: auditUserId() } });
       }
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_sale', entityId: sale.id, action: 'bar.sale.folio_posted', after: { folioId: folio.id, chargeId: charge.id, quantityUnits: input.quantityUnits.toString(), revenue: revenue.toString(), cost: fifo.totalCostMinor.toString() } } });
       return { kind: 'posted' as const, id: sale.id, status: 'POSTED' as const, chargeId: charge.id, revenueMinor: revenue.toString(), costMinor: fifo.totalCostMinor.toString() };
     });
   }
   async reverseSale(id: string, restock: boolean, reason: string) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.scope();
     return this.prisma.db.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT id FROM bar_sales WHERE id = ${id}::uuid AND property_id = ${propertyId}::uuid FOR UPDATE`;
-      const sale = await (tx as any).barSale.findFirst({ where: { id, propertyId } });
+      await tx.$queryRaw`SELECT id FROM bar_sales WHERE id = ${id}::uuid AND location_id = ${locationId}::uuid FOR UPDATE`;
+      const sale = await (tx as any).barSale.findFirst({ where: { id, locationId } });
       if (!sale) return { kind: 'not_found' as const };
       if (sale.status !== 'POSTED') return { kind: 'already_reversed' as const };
-      const movements = await (tx as any).barStockMovement.findMany({ where: { propertyId, sourceType: 'BAR_SALE', sourceId: id, kind: 'SALE' } });
+      const movements = await (tx as any).barStockMovement.findMany({ where: { locationId, sourceType: 'BAR_SALE', sourceId: id, kind: 'SALE' } });
       if (restock) for (const movement of movements) {
         await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE id = ${movement.lotId}::uuid FOR UPDATE`;
         await (tx as any).barStockLot.update({ where: { id: movement.lotId }, data: { remainingUnits: { increment: -movement.units } } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: movement.productId, lotId: movement.lotId, kind: 'SALE_RETURN', units: -movement.units, unitCost: movement.unitCost, sourceType: 'BAR_SALE_RETURN', sourceId: id, note: reason, createdById: auditUserId() } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: movement.productId, lotId: movement.lotId, kind: 'SALE_RETURN', units: -movement.units, unitCost: movement.unitCost, sourceType: 'BAR_SALE_RETURN', sourceId: id, note: reason, createdById: auditUserId() } });
       }
       if (sale.cashOperationId) await (tx as any).cashOperation.update({ where: { id: sale.cashOperationId }, data: { status: 'VOIDED' } });
+      if (sale.restaurantCashOperationId)
+        await (tx as any).restaurantCashOperation.update({ where: { id: sale.restaurantCashOperationId }, data: { status: 'VOIDED', voidedAt: new Date(), voidedById: auditUserId() } });
       if (sale.chargeId) await (tx as any).charge.update({ where: { id: sale.chargeId }, data: { voidedAt: new Date() } });
       await (tx as any).barSale.update({ where: { id }, data: { status: 'REVERSED', reversedAt: new Date() } });
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_sale', entityId: id, action: 'bar.sale.reversed', after: { restock, reason } } });
@@ -275,12 +404,12 @@ export class PrismaBarRepository implements BarRepository {
     });
   }
   async writeOff(input: BarWriteOffInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.scope();
     return this.prisma.db.$transaction(async (tx) => {
-      const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, propertyId, active: true } });
+      const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, locationId, active: true } });
       if (!product) return { kind: 'not_found' as const };
-      await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE property_id = ${propertyId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
-      const lots = await (tx as any).barStockLot.findMany({ where: { propertyId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
+      await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE location_id = ${locationId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
+      const lots = await (tx as any).barStockLot.findMany({ where: { locationId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
       let fifo;
       try {
         fifo = allocateFifo(lots.map((lot: any) => ({ lotId: lot.id, receivedAt: lot.receivedAt.toISOString(), availableUnits: lot.remainingUnits, unitCostMinor: lot.unitCost })), input.quantityUnits);
@@ -290,18 +419,18 @@ export class PrismaBarRepository implements BarRepository {
       const sourceId = randomUUID();
       for (const allocation of fifo.allocations) {
         await (tx as any).barStockLot.update({ where: { id: allocation.lotId }, data: { remainingUnits: { decrement: allocation.units } } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: product.id, lotId: allocation.lotId, kind: 'WRITE_OFF', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_WRITE_OFF', sourceId, note: input.reason, createdById: auditUserId() } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: allocation.lotId, kind: 'WRITE_OFF', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_WRITE_OFF', sourceId, note: input.reason, createdById: auditUserId() } });
       }
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_write_off', entityId: sourceId, action: 'bar.stock.written_off', after: { productId: product.id, quantityUnits: input.quantityUnits.toString(), cost: fifo.totalCostMinor.toString(), reason: input.reason } } });
       return { kind: 'posted' as const, id: sourceId, movementsCreated: fifo.allocations.length, costMinor: fifo.totalCostMinor.toString() };
     });
   }
   async createReceipt(input: BarReceiptInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.scope();
     const totalAmount = input.lines.reduce((s, l) => s + l.quantityUnits * l.unitCostMinor, 0n);
     const row = await (this.prisma.db as any).barReceipt.create({
       data: {
-        propertyId, supplierId: input.supplierId, documentNumber: input.documentNumber,
+        propertyId, locationId, supplierId: input.supplierId, documentNumber: input.documentNumber,
         documentDate: new Date(`${input.documentDate}T00:00:00Z`), receivedDate: new Date(`${input.receivedDate}T00:00:00Z`),
         currency: input.currency, totalAmount, note: input.note, createdById: auditUserId(),
         lines: { create: input.lines.map((l) => ({ productId: l.productId, quantityUnits: l.quantityUnits, unitCost: l.unitCostMinor, amount: l.quantityUnits * l.unitCostMinor, markupBasis: Number(l.markupBasis), calculatedPrice: salePriceFromMarkup(l.unitCostMinor, l.markupBasis) })) },
@@ -320,17 +449,17 @@ export class PrismaBarRepository implements BarRepository {
     };
   }
   async postReceipt(id: string) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.scope();
     return this.prisma.db.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${id}::uuid FOR UPDATE`;
-      const receipt = await (tx as any).barReceipt.findFirst({ where: { id, propertyId }, include: { lines: true } });
+      const receipt = await (tx as any).barReceipt.findFirst({ where: { id, locationId }, include: { lines: true } });
       if (!receipt) return { kind: 'not_found' as const };
       if (receipt.status !== 'DRAFT') return { kind: 'already_posted' as const };
       const now = new Date();
       for (const line of receipt.lines) {
         await (tx as any).barProduct.update({ where: { id: line.productId }, data: { salePrice: line.calculatedPrice } });
-        const lot = await (tx as any).barStockLot.create({ data: { propertyId, productId: line.productId, receiptLineId: line.id, receivedUnits: line.quantityUnits, remainingUnits: line.quantityUnits, unitCost: line.unitCost, receivedAt: now } });
-        await (tx as any).barStockMovement.create({ data: { propertyId, productId: line.productId, lotId: lot.id, kind: 'RECEIPT', units: line.quantityUnits, unitCost: line.unitCost, sourceType: 'BAR_RECEIPT', sourceId: receipt.id, createdById: auditUserId() } });
+        const lot = await (tx as any).barStockLot.create({ data: { propertyId, locationId, productId: line.productId, receiptLineId: line.id, receivedUnits: line.quantityUnits, remainingUnits: line.quantityUnits, unitCost: line.unitCost, receivedAt: now } });
+        await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: line.productId, lotId: lot.id, kind: 'RECEIPT', units: line.quantityUnits, unitCost: line.unitCost, sourceType: 'BAR_RECEIPT', sourceId: receipt.id, createdById: auditUserId() } });
       }
       await (tx as any).barReceipt.update({ where: { id }, data: { status: 'POSTED', postedAt: now } });
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_receipt', entityId: id, action: 'bar.receipt.posted', after: { lines: receipt.lines.length, totalAmount: receipt.totalAmount.toString() } } });
@@ -338,34 +467,43 @@ export class PrismaBarRepository implements BarRepository {
     });
   }
   async payReceipt(id: string, input: BarSupplierPaymentInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId, vertical, currency } = await this.scope();
+    if (!propertyId && vertical !== 'FOOD_SERVICE') return { kind: 'no_cash' as const };
     return this.prisma.db.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${id}::uuid AND property_id = ${propertyId}::uuid FOR UPDATE`;
-      const receipt = await (tx as any).barReceipt.findFirst({ where: { id, propertyId }, include: { supplier: true, payments: { select: { amount: true } } } });
+      if (!propertyId) await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR UPDATE`;
+      await tx.$queryRaw`SELECT id FROM bar_receipts WHERE id = ${id}::uuid AND location_id = ${locationId}::uuid FOR UPDATE`;
+      const receipt = await (tx as any).barReceipt.findFirst({ where: { id, locationId }, include: { supplier: true, payments: { select: { amount: true } } } });
       if (!receipt) return { kind: 'not_found' as const };
       if (receipt.status !== 'POSTED') return { kind: 'not_posted' as const };
       const alreadyPaid = receipt.payments.reduce((sum: bigint, payment: any) => sum + BigInt(payment.amount), 0n);
       const dueAmount = BigInt(receipt.totalAmount) - alreadyPaid;
       if (input.amountMinor > dueAmount) return { kind: 'overpayment' as const, dueAmount };
       const now = new Date();
-      const cash = await (tx as any).cashOperation.create({ data: {
-        propertyId, kind: 'EXPENSE', method: input.method, amount: input.amountMinor,
-        note: input.note ?? `Оплата поставщику ${receipt.supplier.name}, документ ${receipt.documentNumber}`,
-        occurredAt: now, createdById: auditUserId(),
-      } });
-      const payment = await (tx as any).barSupplierPayment.create({ data: { receiptId: id, cashOperationId: cash.id, amount: input.amountMinor, paidAt: now, createdById: auditUserId() } });
+      const note = input.note ?? `Оплата поставщику ${receipt.supplier.name}, документ ${receipt.documentNumber}`;
+      let cashLink: { cashOperationId: string } | { restaurantCashOperationId: string };
+      if (propertyId) {
+        const cash = await (tx as any).cashOperation.create({ data: { propertyId, kind: 'EXPENSE', method: input.method, amount: input.amountMinor, note, occurredAt: now, createdById: auditUserId() } });
+        cashLink = { cashOperationId: cash.id };
+      } else {
+        // расход кассы ресторана не уводит способ оплаты в минус (§35, §45)
+        const available = (await this.restaurantBalances(tx, locationId))[input.method] ?? 0n;
+        if (input.amountMinor > available) return { kind: 'insufficient_cash' as const, available };
+        const cash = await (tx as any).restaurantCashOperation.create({ data: { locationId, kind: 'EXPENSE', method: input.method, amount: input.amountMinor, currency, note, occurredAt: now, createdById: auditUserId() } });
+        cashLink = { restaurantCashOperationId: cash.id };
+      }
+      const payment = await (tx as any).barSupplierPayment.create({ data: { receiptId: id, ...cashLink, amount: input.amountMinor, paidAt: now, createdById: auditUserId() } });
       const remaining = dueAmount - input.amountMinor;
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_supplier_payment', entityId: payment.id, action: 'bar.supplier_payment.created', after: { receiptId: id, amount: input.amountMinor.toString(), dueAmount: remaining.toString(), method: input.method } } });
       return { kind: 'paid' as const, id: payment.id, receiptId: id, paidAmount: input.amountMinor.toString(), dueAmount: remaining.toString() };
     });
   }
   async inventoryCount(input: BarInventoryCountInput) {
-    const propertyId = await this.propertyId();
+    const { propertyId, locationId } = await this.scope();
     return this.prisma.db.$transaction(async (tx) => {
-      const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, propertyId, active: true } });
+      const product = await (tx as any).barProduct.findFirst({ where: { id: input.productId, locationId, active: true } });
       if (!product) return { kind: 'not_found' as const };
-      await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE property_id = ${propertyId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
-      const lots = await (tx as any).barStockLot.findMany({ where: { propertyId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
+      await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE location_id = ${locationId}::uuid AND product_id = ${input.productId}::uuid AND remaining_units > 0 ORDER BY received_at, id FOR UPDATE`;
+      const lots = await (tx as any).barStockLot.findMany({ where: { locationId, productId: input.productId, remainingUnits: { gt: 0 } }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }] });
       const systemUnits = lots.reduce((sum: bigint, lot: any) => sum + BigInt(lot.remainingUnits), 0n);
       if (input.actualUnits > systemUnits) return { kind: 'surplus_requires_cost' as const, systemUnits };
       const difference = input.actualUnits - systemUnits;
@@ -376,7 +514,7 @@ export class PrismaBarRepository implements BarRepository {
         cost = fifo.totalCostMinor;
         for (const allocation of fifo.allocations) {
           await (tx as any).barStockLot.update({ where: { id: allocation.lotId }, data: { remainingUnits: { decrement: allocation.units } } });
-          await (tx as any).barStockMovement.create({ data: { propertyId, productId: product.id, lotId: allocation.lotId, kind: 'INVENTORY_ADJUSTMENT', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_INVENTORY_COUNT', sourceId, note: `${input.reason}; по системе ${systemUnits}; факт ${input.actualUnits}`, createdById: auditUserId() } });
+          await (tx as any).barStockMovement.create({ data: { propertyId, locationId, productId: product.id, lotId: allocation.lotId, kind: 'INVENTORY_ADJUSTMENT', units: -allocation.units, unitCost: allocation.unitCostMinor, sourceType: 'BAR_INVENTORY_COUNT', sourceId, note: `${input.reason}; по системе ${systemUnits}; факт ${input.actualUnits}`, createdById: auditUserId() } });
         }
       }
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_inventory_count', entityId: sourceId, action: 'bar.inventory.counted', after: { productId: product.id, systemUnits: systemUnits.toString(), actualUnits: input.actualUnits.toString(), differenceUnits: difference.toString(), cost: cost.toString(), reason: input.reason } } });

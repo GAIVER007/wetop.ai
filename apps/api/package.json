@@ -15,16 +15,19 @@
     "supertest": "^7.2.2"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1147.0",
+    "@aws-sdk/s3-request-presigner": "^3.1147.0",
     "@nestjs/common": "^12.0.1",
     "@nestjs/core": "^12.0.1",
     "@nestjs/platform-express": "12.1.1",
+    "@pms/database": "*",
+    "@pms/domain": "*",
+    "@pms/imports": "*",
+    "@pms/shared": "*",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "@pms/database": "*",
-    "@pms/domain": "*",
-    "@pms/imports": "*",
-    "@pms/shared": "*"
+    "sharp": "^0.35.5"
   }
 }

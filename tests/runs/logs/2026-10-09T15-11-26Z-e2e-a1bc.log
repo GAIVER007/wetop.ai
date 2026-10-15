@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 09.10.2026 20:11 Алматы · vm
+# коммит c1fd258 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-statistics.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (4.5s)
+  ✓  2 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (3.4s)
+  ✓  3 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (3.3s)
+  ✓  4 tests/ui/chessboard-statistics.spec.ts:56:1 › today statistics stay available when the calendar shows another month (7.1s)
+  ✓  5 tests/ui/chessboard-statistics.spec.ts:70:1 › empty booking base shows zero occupancy and no urgent bookings (1.9s)
+  ✓  6 tests/ui/chessboard-statistics.spec.ts:84:3 › daily widgets light: accessible labels and contrasts (4.4s)
+  ✓  7 tests/ui/chessboard-statistics.spec.ts:84:3 › daily widgets dark: accessible labels and contrasts (4.3s)
+  ✓  8 tests/ui/chessboard-statistics.spec.ts:101:3 › desktop daily widgets light: accessible pointer targets (4.2s)
+  ✓  9 tests/ui/chessboard-statistics.spec.ts:101:3 › desktop daily widgets dark: accessible pointer targets (4.2s)
+
+  9 passed (49.9s)
+
+# код выхода 0 · 51 с

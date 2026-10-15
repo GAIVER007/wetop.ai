@@ -1,3 +1,12 @@
+// CSS первым: globals.css объявляет порядок слоёв каскада (DESIGN.md §20.6), и любой CSS,
+// импортированный компонентом выше, объявил бы свой слой раньше и перевернул порядок (MV8.5 DS0b).
+import './globals.css';
+import './components.css';
+import './workspace.css';
+import './tokens.css';
+import './premium.css';
+import '../components/shell/sidebar.css';
+import '../components/shell/side-nav.css';
 import { headers } from 'next/headers';
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
@@ -17,19 +26,9 @@ import type { DeskShell } from '../lib/desk-person';
 import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
-import './globals.css';
-import './workspace.css';
-import './today/desk.css';
-import './today/dashboard.css';
-import './management/hotel.css';
-import './tokens.css';
-import './premium.css';
-import '../components/shell/sidebar.css';
-import '../components/shell/top-menu.css';
-import './hotel-settings/settings.css';
-import './control.css';
-// Общие непрозрачные поверхности без бликов — последними (DESIGN.md §20, 01.10.2026).
-import './glass.css';
+import { isPublicEntryPath } from '../lib/public-entry';
+import { DevAgentation } from '../components/dev-agentation';
+import { inter } from './fonts';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
@@ -44,16 +43,10 @@ export const viewport = {
   viewportFit: 'cover' as const,
 };
 
-/** Public entry screens must never start authenticated hotel requests from the workspace shell. */
-function isPublicEntryPath(path: string): boolean {
-  return ['/create', '/login', '/register', '/invite', '/auth/fallback', '/status'].some(
-    (entry) => path === entry || path.startsWith(`${entry}/`),
-  );
-}
-
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
-  const shell=await deskShell();
-  if(shell.access.unknown) return 'Филиал недоступен';
+  const shell = await deskShell();
+  if (shell.branchNeeded) return field === 'name' ? 'Выберите филиал' : 'Откройте список филиалов';
+  if (shell.access.unknown) return 'Филиал недоступен';
   if (shell.vertical !== 'HOSPITALITY') {
     const branch = await selectedWorkspaceBranch().catch(() => null);
     return branch
@@ -83,7 +76,7 @@ export default async function RootLayout({
   // при включённом замке уводят на `/login` раньше, чем токен подтверждения дойдёт до API.
   if (isPublicEntryPath(path)) {
     return (
-      <html lang="ru" suppressHydrationWarning>
+      <html lang="ru" className={inter.variable} suppressHydrationWarning>
         <head>
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         </head>
@@ -92,6 +85,7 @@ export default async function RootLayout({
           <ThemeProvider>
             <ToastProvider>{children}</ToastProvider>
           </ThemeProvider>
+          {process.env.APP_UI_TEST !== '1' && <DevAgentation />}
         </body>
       </html>
     );
@@ -102,7 +96,7 @@ export default async function RootLayout({
   // уход на вход здесь не решаются: их решает заголовок объекта ниже, а часам хватит пояса платформы
   const timezone = workspaceTimezone().catch(() => FALLBACK_TIMEZONE);
   return (
-    <html lang="ru" suppressHydrationWarning>
+    <html lang="ru" className={inter.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
@@ -150,12 +144,13 @@ export default async function RootLayout({
         <Suspense fallback={null}>
           <WorkspaceAssistant desk={desk} />
         </Suspense>
+        {process.env.APP_UI_TEST !== '1' && <DevAgentation />}
       </body>
     </html>
   );
 }
 
 async function WorkspaceAssistant({ desk }: { desk: Promise<DeskShell> }) {
-  const shell=await desk;
+  const shell = await desk;
   return shell.vertical !== 'HOSPITALITY' || shell.access.unknown ? null : <AssistantWidget />;
 }

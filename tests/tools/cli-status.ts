@@ -4,12 +4,8 @@
  *
  * Запуск: npm run test:status [-- <набор>]
  */
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { ROOT, changedSince, codeFingerprint, currentBranch, headCommit } from './git-state';
 import {
-  JOURNAL_FILE,
-  JOURNAL_MD,
   SUITES,
   almatyTime,
   assess,
@@ -19,6 +15,7 @@ import {
   type AssessState,
   type SuiteName,
 } from './journal';
+import { readJournalText } from './journal-files';
 
 const VERDICT: Record<AssessState, string> = {
   never: '⚪ полного прогона в журнале нет — гонять',
@@ -35,8 +32,7 @@ function main(): void {
     console.error(`Нет набора «${filter}». Есть: ${Object.keys(SUITES).join(', ')}`);
     process.exit(2);
   }
-  const file = resolve(ROOT, JOURNAL_FILE);
-  const runs = parseJournal(existsSync(file) ? readFileSync(file, 'utf8') : '');
+  const runs = parseJournal(readJournalText(ROOT));
   const now = new Date();
   console.log(
     `Код ${headCommit().slice(0, 7)} (${currentBranch()}) · записей в журнале: ${runs.length} · ${almatyTime(now.toISOString())} Алматы\n`,
@@ -91,7 +87,7 @@ function main(): void {
   }
 
   if (todo.length) console.log(`Гонять:\n${todo.map((c) => `  ${c}`).join('\n')}\n`);
-  console.log(`История прогонов: ${JOURNAL_MD}`);
+  console.log('История прогонов таблицей: npm run test:journal');
 }
 
 main();

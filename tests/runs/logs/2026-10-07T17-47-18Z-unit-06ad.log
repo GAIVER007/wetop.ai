@@ -1,0 +1,66 @@
+# Модульные (unit) · 07.10.2026 22:47 Алматы · vm
+# коммит 0c2e0d8 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T17-47-18Z-unit-06ad.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 167ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 114ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 50ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(346) } to deeply equal { 'GET /onboarding': 'self', …(350) }
+
+- Expected
++ Received
+
+@@ -121,13 +121,10 @@
+    "GET /marketing/site/booking-source": "settings",
+    "GET /marketing/site/brief": "settings",
+    "GET /marketing/site/draft": "settings",
+    "GET /marketing/site/generations/:id": "settings",
+    "GET /marketing/site/publications": "settings",
+-   "GET /marketing/site/versions": "settings",
+-   "GET /marketing/site/versions/:id": "settings",
+-   "GET /marketing/site/versions/:id/diff": "settings",
+    "GET /onboarding": "self",
+    "GET /platform/organizations": "platform",
+    "GET /platform/support/conversations": "platform",
+    "GET /platform/support/conversations/:id": "platform",
+    "GET /platform/support/conversations/:id/actions": "platform",
+@@ -299,11 +296,10 @@
+    "POST /marketing/site/preview": "settings",
+    "POST /marketing/site/publish": "settings",
+    "POST /marketing/site/resume": "settings",
+    "POST /marketing/site/rollback": "settings",
+    "POST /marketing/site/versions": "settings",
+-   "POST /marketing/site/versions/:id/restore": "settings",
+    "POST /onboarding": "settings",
+    "POST /platform/support/conversations/:id/close": "platform",
+    "POST /platform/support/conversations/:id/knowledge-draft": "platform",
+    "POST /platform/support/conversations/:id/release": "platform",
+    "POST /platform/support/conversations/:id/reply": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:459:20
+    457|       .map(([key]) => key);
+    458|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    459|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    460|   });
+    461|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  17:47:20
+   Duration  10.18s (transform 61%, import 37%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-07T17-47-18Z-unit-06ad.json
+
+# код выхода 1 · 12 с

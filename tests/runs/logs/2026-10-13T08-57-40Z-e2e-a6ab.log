@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 13.10.2026 13:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 31ed391 (claude/fix-food-daybar-390), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'real API screenshots|date'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/food-ui/ds1c-date-bar.spec.ts:10:1 › ресторан: день по прежним адресам, форма брони с обязательными датой и временем (1.3s)
+[WebServer] (node:94370) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '164053570'
+[WebServer] }
+  ✓  2 tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe (30.4s)
+
+  2 passed (37.2s)
+
+# код выхода 0 · 39 с

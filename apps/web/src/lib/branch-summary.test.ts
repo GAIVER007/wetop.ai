@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { summarizeBranches } from './branch-summary';
 const row = (currency: string, occupied: number, capacity: number, amount: string) => ({
   branch: { currency }, stats: {
-    occupancy: { unitNights: capacity, occupiedNights: occupied, blockedNights: 0, freeNights: capacity - occupied, percent: 0 },
+    occupancy: { unitNights: capacity, occupiedNights: occupied, blockedNights: 0, freeNights: capacity - occupied, sellableNights: capacity, percent: 0 },
     arrivals: { count: 1, guests: 2, cancelled: 0, noShow: 0 },
-    revenue: { accommodationMinor: amount, servicesMinor: '0', penaltiesMinor: '0', adjustmentsMinor: '0', totalMinor: amount },
+    revenue: { accommodationMinor: amount, servicesMinor: '0', penaltiesMinor: '0', adjustmentsMinor: '0', totalMinor: amount, nightsMinor: '0' },
     payments: { totalMinor: amount, count: 1, byMethod: [] }, refundsMinor: '100',
   },
 });

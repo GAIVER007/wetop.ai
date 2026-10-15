@@ -10,8 +10,13 @@ export class DashboardController {
   constructor(@Inject(DashboardService) private readonly service: DashboardService) {}
 
   @Get('dashboard')
-  dashboard(@Query('from') from?: string, @Query('to') to?: string, @Query('fund') fund?: string) {
-    return this.service.dashboard(from, to, fund ?? 'all');
+  dashboard(
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('fund') fund?: string,
+    @Query('category') category?: string,
+  ) {
+    return this.service.dashboard(from, to, fund ?? 'all', category || undefined);
   }
 
   /** «По номерам» (REP3): клетки шахматки до единицы; отчёт — под правом отчётов */

@@ -256,6 +256,9 @@ test('ключ создания: после отказа проверки нов
   const submit = page.locator('[data-pmsw="submit"]');
   await submit.click();
   await expect(submit).toBeDisabled();
+  // ждём, пока виджет получит 403 и сбросит проверку: кнопка гаснет уже от щелчка, и новый токен,
+  // решённый до ответа сервера, сброс стёр бы, а кнопка осталась бы выключенной (CI #145 и #148)
+  await expect.poll(() => tsState(page).then((t) => t.resets)).toBe(1);
   await solve(page, 'tok-new');
   await submit.click();
   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();

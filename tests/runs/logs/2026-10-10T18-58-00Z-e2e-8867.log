@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 10.10.2026 23:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит a153d2d (claude/platform-superadmin), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/platform-overview.spec.ts' '-g' 'подписи колец'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/platform-overview.spec.ts:53:1 › подписи колец направлений и статусов читаются целиком на 1440 px рядом с левой колонкой (5.3s)
+
+
+  1) tests/ui/platform-overview.spec.ts:53:1 › подписи колец направлений и статусов читаются целиком на 1440 px рядом с левой колонкой 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "Гостиница",
+    +   "работает",
+    +   "пробный",
+    + ]
+
+      64 |     els.filter((el) => el.scrollWidth > el.clientWidth).map((el) => el.textContent),
+      65 |   );
+    > 66 |   expect(clipped).toEqual([]);
+         |                   ^
+      67 | });
+      68 |
+      69 | test('таблица клиентов: направления, филиалы, дата подключения; поиск и отборы работают на месте', async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/tests/ui/platform-overview.spec.ts:66:19
+
+    Error Context: test-results/platform-overview-подписи--3e378-0-px-рядом-с-левой-колонкой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-overview-подписи--3e378-0-px-рядом-с-левой-колонкой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-overview-подписи--3e378-0-px-рядом-с-левой-колонкой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/platform-overview.spec.ts:53:1 › подписи колец направлений и статусов читаются целиком на 1440 px рядом с левой колонкой 
+
+# код выхода 1 · 14 с

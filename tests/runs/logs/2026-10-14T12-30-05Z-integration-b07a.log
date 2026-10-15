@@ -1,0 +1,160 @@
+# Интеграционные (integration) · 14.10.2026 17:30 Алматы · MacBook-Air-Urij.local
+# коммит 519326e (claude/food-fix-01-20261014), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-30-05Z-integration-b07a.json' 'tests/integration/food-fix-01.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01
+
+ ❯ |integration| tests/integration/food-fix-01.test.ts (7 tests | 6 failed) 457ms
+   ❯ FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL (7)
+     × выплата оклада видна из второго филиала того же бизнеса 96ms
+     × второй филиал не может выплатить тот же оклад ещё раз 38ms
+     × процент считает закрытые заказы всех филиалов бизнеса 13ms
+     × дневная выручка идёт в день закрытия заказа, не открытия 21ms
+     ✓ вчерашняя дельта выручки тоже считается по дате закрытия 9ms
+     × касса отдаёт период целиком, а не последние 100 строк 39ms
+     × границы периода кассы включительны по поясу филиала 15ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/food-fix-01.test.ts > FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL
+PrismaClientKnownRequestError: 
+Invalid `prisma.auditLog.deleteMany()` invocation:
+
+
+Database error. Code: `P0001`. Message: `audit_logs: журнал только дописывается (append-only), DELETE запрещён; уборка тестовых данных ставит set_config('wetop.audit_purge','on',true) в своей транзакции`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/food-fix-01.test.ts:115:5
+    113|   afterAll(async () => {
+    114|     const here = { location: { business: { organizationId: org } } };
+    115|     await db.auditLog.deleteMany({ where: { organizationId: org } });
+       |     ^
+    116|     await db.restaurantPayment.deleteMany({ where: here });
+    117|     await db.restaurantCashOperation.deleteMany({ where: here });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/food-fix-01.test.ts > FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL > выплата оклада видна из второго филиала того же бизнеса
+AssertionError: expected '0' to be '200000' // Object.is equality
+
+Expected: "200000"
+Received: "0"
+
+ ❯ tests/integration/food-fix-01.test.ts:138:27
+    136|     );
+    137|     const row = await payrollRow(location2, '2026-09', e);
+    138|     expect(row.paidMinor).toBe('200000');
+       |                           ^
+    139|     expect(row.remainingMinor).toBe('0');
+    140|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |integration| tests/integration/food-fix-01.test.ts > FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL > второй филиал не может выплатить тот же оклад ещё раз
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "id": "b500d11c-5b98-42b6-a2ad-e9ed1d31fa5f",
++   "remainingMinor": "0",
+  }
+
+ ❯ tests/integration/food-fix-01.test.ts:151:6
+    149|     await expect(
+    150|       at(location2, () => svc.payout(e, { period: '2026-09', method: '…
+    151|     ).rejects.toBeInstanceOf(ConflictException);
+       |      ^
+    152|     const ops = await db.restaurantCashOperation.findMany({
+    153|       where: { location: { businessId: business }, employeeId: e, stat…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |integration| tests/integration/food-fix-01.test.ts > FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL > процент считает закрытые заказы всех филиалов бизнеса
+AssertionError: expected '10000' to be '15000' // Object.is equality
+
+Expected: "15000"
+Received: "10000"
+
+ ❯ tests/integration/food-fix-01.test.ts:164:33
+    162|     const fromL1 = await payrollRow(location1, '2026-09', e);
+    163|     const fromL2 = await payrollRow(location2, '2026-09', e);
+    164|     expect(fromL1.percentMinor).toBe('15000');
+       |                                 ^
+    165|     expect(fromL2.percentMinor).toBe('15000');
+    166|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |integration| tests/integration/food-fix-01.test.ts > FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL > дневная выручка идёт в день закрытия заказа, не открытия
+AssertionError: expected '0' to be '100000' // Object.is equality
+
+Expected: "100000"
+Received: "0"
+
+ ❯ tests/integration/food-fix-01.test.ts:179:38
+    177|       tiles: { revenueMinor: string };
+    178|     };
+    179|     expect(day14.tiles.revenueMinor).toBe('100000');
+       |                                      ^
+    180|     expect(day13.tiles.revenueMinor).toBe('0');
+    181|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |integration| tests/integration/food-fix-01.test.ts > FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL > касса отдаёт период целиком, а не последние 100 строк
+AssertionError: expected [ { …(6) }, { …(6) }, { …(6) }, …(97) ] to have a length of 120 but got 100
+
+- Expected
++ Received
+
+- 120
++ 100
+
+ ❯ tests/integration/food-fix-01.test.ts:213:26
+    211|       payments: { paidAt: string | Date }[];
+    212|     };
+    213|     expect(out.payments).toHaveLength(120);
+       |                          ^
+    214|   });
+    215|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |integration| tests/integration/food-fix-01.test.ts > FOOD-FIX-01: деньги ресторана (ADR-181), настоящая PostgreSQL > границы периода кассы включительны по поясу филиала
+PrismaClientKnownRequestError: 
+Invalid `prisma.restaurantCashOperation.update()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Restaurant cash operation is immutable`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/food-fix-01.test.ts:235:5
+    233|     await pay('2026-08-12T00:00:00+05:00'); // уже вне периода
+    234|     const operationOutside = await income(location1, 1_000n);
+    235|     await db.restaurantCashOperation.update({
+       |     ^
+    236|       where: { id: operationOutside.id },
+    237|       data: { occurredAt: new Date('2026-08-12T00:00:00+05:00') },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 1 passed (7)
+   Start at  16:30:06
+   Duration  2.40s (transform 42%, tests 30%, import 28%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-30-05Z-integration-b07a.json
+
+# код выхода 1 · 4 с

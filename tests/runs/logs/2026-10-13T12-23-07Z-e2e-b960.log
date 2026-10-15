@@ -1,0 +1,77 @@
+# Сквозные (e2e) · 13.10.2026 17:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 25a8873 (claude/booking-rules), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '--repeat-each=3' '-g' 'оценка по QR'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+[WebServer] (node:86103) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (4.0s)
+  ✘  2 tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (2.3s)
+  ✘  3 tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (2.4s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      620 |   const statuses: number[] = [];
+      621 |   for (let i = 0; i < 121; i++) statuses.push((await publicGet('y'.repeat(43), '203.0.113.9')).status());
+    > 622 |   expect(statuses.slice(0, 120).every((s) => s === 404)).toBe(true);
+          |                                                          ^
+      623 |   expect(statuses[120]).toBe(429);
+      624 | });
+      625 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/restaurant.spec.ts:622:58
+
+    Error Context: test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит-repeat1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит-repeat1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит-repeat1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      620 |   const statuses: number[] = [];
+      621 |   for (let i = 0; i < 121; i++) statuses.push((await publicGet('y'.repeat(43), '203.0.113.9')).status());
+    > 622 |   expect(statuses.slice(0, 120).every((s) => s === 404)).toBe(true);
+          |                                                          ^
+      623 |   expect(statuses[120]).toBe(429);
+      624 | });
+      625 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk/tests/food-ui/restaurant.spec.ts:622:58
+
+    Error Context: test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит-repeat2/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит-repeat2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-оценка-по-QR-§4-b2c1e--оценка-замена-ссылки-лимит-repeat2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+    tests/food-ui/restaurant.spec.ts:547:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит 
+  1 passed (15.7s)
+
+# код выхода 1 · 17 с

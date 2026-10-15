@@ -1,0 +1,41 @@
+{
+ "/finance": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Финансы",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Все операции 96x21",
+    "A:20260913-TEST1 110x20",
+    "A:20260913-TEST2 110x20",
+    "A:20260913-TEST3 110x20",
+    "A:20260913-TEST4 110x20",
+    "A:20260913-TEST5 110x20",
+    "A:20260913-TEST6 110x20",
+    "A:20260913-TEST7 110x20",
+    "A:Все расходы 102x20",
+    "A:Подробнее 78x21",
+    "A:80 000 ₸ к сбору — 5 броней 175x18",
+    "A:1 бронь с просроченным долгом  312x36"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Финансы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 12,
+   "h1": "Финансы",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

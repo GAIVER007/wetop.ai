@@ -1,0 +1,74 @@
+# Интеграционные (integration) · 07.10.2026 13:18 Алматы · vm
+# коммит 012c06d (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-18-00Z-integration-a2b1.json' 'tests/integration/site-brief.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/site-brief.test.ts (11 tests | 2 failed) 1101ms
+   ❯ MKT5 site brief (11)
+     ✓ строгий scope: без филиала и с одним бизнесом 409, чужой, архивный, салон и ресторан 403, филиал гостиницы 200 139ms
+     ✓ право settings: администратор без него получает 403 6ms
+     ✓ точный филиал: объект, категории, продавец и Channex только филиала А 26ms
+     ✓ второй филиал той же организации видит только своё 17ms
+     ✓ сторожевые строки ПД, инструкций продавца, мастера и id провайдера в бриф не попадают 18ms
+     ✓ старый продавец организации без филиала и чужой агент не подставляются; у филиала без агента продавца нет 12ms
+     ✓ агент есть, профиля нет: 200, продавец MISSING NO_PROFILE; объект без сопоставления: NO_MAPPING 16ms
+     ✓ ключа Channex нет: 200, NO_KEY, данные платформы на месте 16ms
+     × отказы Channex: 200, источник недоступен, факты платформы остаются, текст ошибки провайдера не уходит 25ms
+     × кэш Channex 10 минут; refresh=1 читает заново; хэш не зависит от времени сбора 52ms
+     ✓ только чтение: таблицы организации не меняются; строки MarketingSite нет и не появляется 113ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-brief.test.ts > MKT5 site brief > отказы Channex: 200, источник недоступен, факты платформы остаются, текст ошибки провайдера не уходит
+AssertionError: 401: expected [] to deeply equal [ { source: 'CHANNEX', …(1) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "code": "DENIED",
+-     "source": "CHANNEX",
+-   },
+- ]
++ []
+
+ ❯ tests/integration/site-brief.test.ts:504:56
+    502|         cx.state.mode = mode;
+    503|         const r = await briefOf(a1, '?refresh=1');
+    504|         expect(r.body.sourceUnavailable, String(mode)).toEqual([{ sour…
+       |                                                        ^
+    505|         expect(r.body.input.channelContent).toBeNull();
+    506|         expect(r.body.input.identity.locationName).toBe('Филиал А');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/site-brief.test.ts > MKT5 site brief > кэш Channex 10 минут; refresh=1 читает заново; хэш не зависит от времени сбора
+AssertionError: expected 2 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 2
+
+ ❯ tests/integration/site-brief.test.ts:522:35
+    520|     expect(cx.state.calls.length).toBe(calls);
+    521|     const fresh = await briefOf(a1, '?refresh=1');
+    522|     expect(cx.state.calls.length).toBe(calls + 1);
+       |                                   ^
+    523|     expect(cached.body.briefHash).toBe(first.body.briefHash);
+    524|     expect(fresh.body.briefHash).toBe(first.body.briefHash);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+   Start at  08:18:02
+   Duration  6.61s (transform 51%, tests 28%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-18-00Z-integration-a2b1.json
+
+# код выхода 1 · 8 с

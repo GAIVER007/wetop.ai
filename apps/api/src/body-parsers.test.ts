@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import express from 'express';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_JSON_LIMIT, SITE_VERSION_BODY_LIMIT, isSiteVersionSave, useApiBodyParsers } from './body-parsers';
+import { BAR_SCAN_BODY_LIMIT, DEFAULT_JSON_LIMIT, SITE_VERSION_BODY_LIMIT, isBarReceiptScan, isSiteVersionSave, useApiBodyParsers } from './body-parsers';
 
 /** Разбор тела API (MKT3): 300 КБ только у сохранения версии сайта, остальным прежние 100 КБ */
 function app() {
@@ -37,11 +37,23 @@ describe('разбор тела API', () => {
     expect(big.status).toBe(413);
   });
 
+  it('скан накладной бара принимает фото в base64, а больше 12 МБ отклоняет 413', async () => {
+    expect(isBarReceiptScan({ method: 'POST', path: '/bar/receipts/scan' })).toBe(true);
+    expect(isBarReceiptScan({ method: 'POST', path: '/bar/receipts/scan/' })).toBe(true);
+    expect(isBarReceiptScan({ method: 'GET', path: '/bar/receipts/scan' })).toBe(false);
+    expect(isBarReceiptScan({ method: 'POST', path: '/bar/receipts' })).toBe(false);
+    const ok = await request(app()).post('/bar/receipts/scan').send(body(8 * 1024 * 1024));
+    expect(ok.status).toBe(200);
+    const big = await request(app()).post('/bar/receipts/scan').send(body(BAR_SCAN_BODY_LIMIT));
+    expect(big.status).toBe(413);
+  });
+
   it('другие маршруты и методы по-прежнему режутся на 100 КБ, и JSON, и urlencoded', async () => {
     for (const [method, path] of [
       ['post', '/marketing/site'],
       ['post', '/reservations'],
       ['patch', '/marketing/site/versions'],
+      ['post', '/bar/receipts'],
     ] as const) {
       const r = await request(app())[method](path).send(body(DEFAULT_JSON_LIMIT + 10));
       expect(r.status, `${method} ${path}`).toBe(413);

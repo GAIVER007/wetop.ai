@@ -1,0 +1,50 @@
+# Типы (typecheck) · 10.10.2026 17:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2341cfb (claude/platform-superadmin), незакоммиченных файлов набора: 14
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/market/collector.service.ts(8,8): error TS2305: Module '"@pms/domain"' has no exported member 'AvailabilityLevel'.
+apps/api/src/market/market.repository.ts(6,8): error TS2305: Module '"@pms/domain"' has no exported member 'AvailabilityLevel'.
+apps/api/src/market/market.repository.ts(230,101): error TS2322: Type 'null' is not assignable to type 'number | NestedIntFilter<"CompetitorOccupancy"> | undefined'.
+apps/api/src/market/market.repository.ts(336,13): error TS2322: Type 'number | null' is not assignable to type 'number'.
+  Type 'null' is not assignable to type 'number'.
+apps/api/src/market/market.repository.ts(342,13): error TS2322: Type 'number | null' is not assignable to type 'number | IntFieldUpdateOperationsInput'.
+  Type 'null' is not assignable to type 'number | IntFieldUpdateOperationsInput'.
+packages/database/src/folio.ts(5,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(8,43): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(13,15): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/pool-timeouts.test.ts(3,35): error TS2459: Module '"./index"' declares 'PrismaClient' locally, but it is not exported.
+packages/database/src/pool-timeouts.test.ts(69,32): error TS7006: Parameter 't' implicitly has an 'any' type.
+packages/database/src/property-chain.ts(1,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+tests/integration/competitor-availability-level.test.ts(50,7): error TS2322: Type '{ occupancyBp?: number | null; availabilityLevel?: "SOLD_OUT" | "FEW_LEFT" | "AVAILABLE" | null; propertyId: string; competitorId: string; stayDate: Date; observedOn: Date; source: "AI_AGENT"; }' is not assignable to type '((Without<CompetitorOccupancyCreateInput, CompetitorOccupancyUncheckedCreateInput> & CompetitorOccupancyUncheckedCreateInput) | (Without<...> & CompetitorOccupancyCreateInput)) & object'.
+  Type '{ occupancyBp?: number | null; availabilityLevel?: "SOLD_OUT" | "FEW_LEFT" | "AVAILABLE" | null; propertyId: string; competitorId: string; stayDate: Date; observedOn: Date; source: "AI_AGENT"; }' is not assignable to type 'Without<CompetitorOccupancyCreateInput, CompetitorOccupancyUncheckedCreateInput> & CompetitorOccupancyUncheckedCreateInput & object'.
+    Type '{ occupancyBp?: number | null; availabilityLevel?: "SOLD_OUT" | "FEW_LEFT" | "AVAILABLE" | null; propertyId: string; competitorId: string; stayDate: Date; observedOn: Date; source: "AI_AGENT"; }' is not assignable to type 'CompetitorOccupancyUncheckedCreateInput'.
+      Types of property 'occupancyBp' are incompatible.
+        Type 'number | null' is not assignable to type 'number'.
+          Type 'null' is not assignable to type 'number'.
+tests/integration/competitor-availability-level.test.ts(73,62): error TS2339: Property 'level' does not exist on type 'MarketReading'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/market/collector.service.ts(8,8): error TS2305: Module '"@pms/domain"' has no exported member 'AvailabilityLevel'.
+apps/api/src/market/market.repository.ts(6,8): error TS2305: Module '"@pms/domain"' has no exported member 'AvailabilityLevel'.
+apps/api/src/market/market.repository.ts(230,101): error TS2322: Type 'null' is not assignable to type 'number | NestedIntFilter<"CompetitorOccupancy"> | undefined'.
+apps/api/src/market/market.repository.ts(336,13): error TS2322: Type 'number | null' is not assignable to type 'number'.
+  Type 'null' is not assignable to type 'number'.
+apps/api/src/market/market.repository.ts(342,13): error TS2322: Type 'number | null' is not assignable to type 'number | IntFieldUpdateOperationsInput'.
+  Type 'null' is not assignable to type 'number | IntFieldUpdateOperationsInput'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/market/page.tsx(5,3): error TS2305: Module '"@pms/domain"' has no exported member 'competitorPlatform'.
+apps/web/src/app/platform/overview.tsx(123,15): error TS2322: Type '{ label: string | undefined; valueMinor: string; }[]' is not assignable to type 'DonutItem[]'.
+  Type '{ label: string | undefined; valueMinor: string; }' is not assignable to type 'DonutItem'.
+    Types of property 'label' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+# код выхода 1 · 8 мин 38 с

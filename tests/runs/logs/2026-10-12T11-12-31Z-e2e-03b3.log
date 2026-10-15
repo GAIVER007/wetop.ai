@@ -1,0 +1,245 @@
+# Сквозные (e2e) · 12.10.2026 16:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6e415bc (claude/ui-master-pass2), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-extend.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/record-tabs.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/finance-card-actions.spec.ts' 'tests/ui/manager-actions.spec.ts' 'tests/ui/booking-compact.spec.ts' 'tests/ui/booking-dates.spec.ts' 'tests/ui/accessibility.spec.ts' 'tests/ui/dashboard-desk.spec.ts'
+
+Running 90 tests using 1 worker
+
+  ✓   1 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 1440px (4.1m)
+  ✘   2 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 1440px (6.1m)
+  ✓   3 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 390px (2.9m)
+  ✓   4 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 390px (4.5m)
+  ✘   5 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 1440px (24.0s)
+  ✓   6 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 1440px (16.6s)
+  ✓   7 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 390px (6.1s)
+  ✓   8 tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 390px (4.8s)
+  ✓   9 tests/ui/booking-compact.spec.ts:3:1 › быстрые даты сохраняют гостя, заметки и позволяют создать бронь (2.9s)
+  ✓  10 tests/ui/booking-compact.spec.ts:30:1 › боковое окно компактно, псевдонимная бронь и мобильный экран (7.8s)
+  ✓  11 tests/ui/booking-compact.spec.ts:64:1 › пустой филиал не позволяет создать бронь без категории (2.3s)
+  ✓  12 tests/ui/booking-dates.spec.ts:9:1 › invalid departure preserves input, marks field and clears price (2.6s)
+  ✓  13 tests/ui/booking-dates.spec.ts:35:1 › equal, empty, later arrival and recovery work on mobile (2.4s)
+  ✓  14 tests/ui/booking-dates.spec.ts:59:1 › pending quote blocks submit and old responses cannot restore old period (6.7s)
+  ✓  15 tests/ui/booking-dates.spec.ts:83:1 › failed quote and availability can be retried without reopening (6.3s)
+  ✓  16 tests/ui/booking-dates.spec.ts:112:1 › calendar and keyboard produce the same period (2.5s)
+  ✓  17 tests/ui/booking-dates.spec.ts:129:1 › occupied selection stays visible and cannot silently become unassigned (7.6s)
+  ✓  18 tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (8.7s)
+  ✓  19 tests/ui/chessboard-card.spec.ts:45:1 › двойной клик открывает полную карточку брони (5.3s)
+  ✓  20 tests/ui/chessboard-card.spec.ts:51:1 › действия по статусу: подтверждённой: заселить, проживающему: выселить (10.3s)
+  ✓  21 tests/ui/chessboard-card.spec.ts:73:1 › повторный щелчок по той же плашке закрывает панель, по другой переключает её (22.5s)
+  ✓  22 tests/ui/chessboard-card.spec.ts:93:1 › панель брони не висит всегда: нет при загрузке, закрывается щелчком мимо и сменой периода (13.1s)
+  ✓  23 tests/ui/chessboard-card.spec.ts:127:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (42.5s)
+  ✓  24 tests/ui/chessboard-card.spec.ts:173:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (31.4s)
+  ✓  25 tests/ui/chessboard-card.spec.ts:208:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (16.1s)
+  ✓  26 tests/ui/chessboard-card.spec.ts:236:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (19.4s)
+  ✓  27 tests/ui/chessboard-card.spec.ts:252:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (10.0s)
+  ✓  28 tests/ui/chessboard-extend.spec.ts:24:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (8.2s)
+  ✓  29 tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (16.1s)
+  ✓  30 tests/ui/chessboard-extend.spec.ts:82:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (5.5s)
+  ✓  31 tests/ui/chessboard-extend.spec.ts:115:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (6.8s)
+  ✓  32 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (9.4s)
+  ✓  33 tests/ui/chessboard-month.spec.ts:29:1 › все 31 день помещаются по ширине окна (6.7s)
+  ✓  34 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (17.1s)
+  ✘  35 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (50.5s)
+  ✓  36 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (22.9s)
+  ✓  37 tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (19.7s)
+  ✓  38 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (22.4s)
+  ✓  39 tests/ui/chessboard-month.spec.ts:94:1 › 30 дней: окно от сегодня, длина окна в раскрывашке, масштаб «День / Неделя / Месяц» в полосе (27.0s)
+  ✓  40 tests/ui/chessboard-month.spec.ts:132:1 › в месяце открываются брони, свободные даты и группы номеров (29.3s)
+  ✓  41 tests/ui/chessboard-month.spec.ts:176:3 › месячная сетка: light, читаемость и адаптивность (1.6m)
+  ✓  42 tests/ui/chessboard-month.spec.ts:176:3 › месячная сетка: dark, читаемость и адаптивность (38.9s)
+  ✓  43 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (3.8s)
+  ✓  44 tests/ui/chessboard-week.spec.ts:31:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (3.5s)
+  ✓  45 tests/ui/chessboard-week.spec.ts:86:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (1.8s)
+  ✓  46 tests/ui/chessboard-week.spec.ts:118:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (4.2s)
+  ✓  47 tests/ui/chessboard-week.spec.ts:118:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (4.3s)
+  ✓  48 tests/ui/chessboard-week.spec.ts:118:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (7.7s)
+  ✓  49 tests/ui/chessboard-week.spec.ts:138:1 › в неделе работают бронь, категории и создание на воскресенье (6.9s)
+  ✓  50 tests/ui/chessboard-week.spec.ts:178:3 › неделя помещается на экране: light, обе панели и телефон (12.8s)
+  ✓  51 tests/ui/chessboard-week.spec.ts:178:3 › неделя помещается на экране: dark, обе панели и телефон (12.9s)
+  ✓  52 tests/ui/chessboard-week.spec.ts:217:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (3.0s)
+  ✓  53 tests/ui/dashboard-desk.spec.ts:19:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (2.1s)
+  ✓  54 tests/ui/dashboard-desk.spec.ts:29:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (2.1s)
+  ✓  55 tests/ui/dashboard-desk.spec.ts:37:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (1.9s)
+  ✓  56 tests/ui/dashboard-desk.spec.ts:46:1 › 7. краткие подписи без декоративных разделителей (2.3s)
+  ✓  57 tests/ui/dashboard-desk.spec.ts:50:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (2.1s)
+  ✓  58 tests/ui/dashboard-desk.spec.ts:84:1 › 9. размеры шрифта на главной и в «Аналитике»: общая шкала и утверждённый акцент загрузки (6.6s)
+  ✓  59 tests/ui/dashboard-desk.spec.ts:126:1 › 10. заголовок страницы и панели брони — по шкале §6 (5.5s)
+  ✓  60 tests/ui/finance-card-actions.spec.ts:34:1 › порядок: «Принять оплату» первой, затем проживание и услуги, затем оплаты; запросы оплаты свёрнуты ниже (1.8s)
+  ✓  61 tests/ui/finance-card-actions.spec.ts:59:1 › возврат кнопкой «Вернуть»: форма с остатком платежа по умолчанию, после возврата строка и баланс обновлены (2.0s)
+  ✓  62 tests/ui/finance-card-actions.spec.ts:82:1 › «Изменить» платёж: панель справа, новый способ и сумма; прежний остаётся аннулированным (1.7s)
+  ✓  63 tests/ui/finance-card-actions.spec.ts:106:1 › «Аннулировать» платёж: вопрос с суммой, строка остаётся аннулированной, остаток к оплате вырос (1.7s)
+  ✓  64 tests/ui/finance-card-actions.spec.ts:129:1 › скидка 10 % от проживания ложится отдельной строкой со знаком минус; сумма скидки — тоже (2.0s)
+  ✓  65 tests/ui/finance-card-actions.spec.ts:155:1 › цена проживания: «Изменить цену» у строки проживания, новая цена в счёте и в шапке брони (1.3s)
+  ✓  66 tests/ui/finance-card-actions.spec.ts:174:1 › администратор: оплату принимает, но без «Вернуть», «Изменить», «Аннулировать» и скидки; у управляющего они есть (4.5s)
+  ✓  67 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 1440px (2.8s)
+  ✓  68 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: light, 390px (2.4s)
+  ✓  69 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 1440px (2.5s)
+  ✓  70 tests/ui/finance-card-actions.spec.ts:199:5 › доступность «Счетов» с возвратом и панелью правки платежа: dark, 390px (2.4s)
+  ✓  71 tests/ui/manager-actions.spec.ts:32:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (1.7s)
+  ✓  72 tests/ui/manager-actions.spec.ts:74:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (2.0s)
+  ✓  73 tests/ui/manager-actions.spec.ts:138:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (3.8s)
+  ✓  74 tests/ui/manager-actions.spec.ts:207:1 › карточка: предварительная бронь названа словом, место за ней держится (742ms)
+  ✓  75 tests/ui/manager-actions.spec.ts:226:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (900ms)
+  ✘  76 tests/ui/manager-actions.spec.ts:242:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» открывает ящик броней без места (19.0s)
+  ✓  77 tests/ui/manager-actions.spec.ts:286:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (4.9s)
+  ✓  78 tests/ui/manager-actions.spec.ts:346:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.7s)
+  ✓  79 tests/ui/manager-actions.spec.ts:369:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (3.0s)
+  ✓  80 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (4.1s)
+  ✓  81 tests/ui/premium.spec.ts:27:1 › shell: панель, меню профиля, поиск (2.4s)
+  ✓  82 tests/ui/premium.spec.ts:46:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (6.2s)
+  ✓  83 tests/ui/premium.spec.ts:83:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (10.3s)
+  ✘  84 tests/ui/premium.spec.ts:125:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (3.2m)
+  ✓  85 tests/ui/premium.spec.ts:183:1 › вход не пускает с чужой почтой и чужим паролем (3.7s)
+  ✓  86 tests/ui/premium.spec.ts:200:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (5.3s)
+  ✓  87 tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера (3.3s)
+  ✓  88 tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони (2.7s)
+  ✓  89 tests/ui/record-tabs.spec.ts:93:1 › якорь внутри карточки переключает вкладку: «Продлить или переселить» → «Действия» (1.9s)
+  ✓  90 tests/ui/record-tabs.spec.ts:108:1 › переход между бронями без перезагрузки открывает вкладку из адреса — и из карточки, и внутри панели (3.6s)
+
+
+  1) tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 1440px ─────────────────
+
+    Test timeout of 360000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 360000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      78 |         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      79 |         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    > 80 |         const result = await new AxeBuilder({ page })
+         |                        ^
+      81 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      82 |           .analyze();
+      83 |         const violations = result.violations.map((v) => ({
+        at AxeBuilder.analyze (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/accessibility.spec.ts:80:24
+
+    Error Context: test-results/accessibility-доступность-всех-разделов-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность-всех-разделов-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность-всех-разделов-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 1440px ──────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      135 |       await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+      136 |       const dialog = page.getByRole('dialog');
+    > 137 |       await expect(dialog).toBeVisible();
+          |                            ^
+      138 |       const report = [];
+      139 |       for (const tab of ['Обзор', 'Счета', 'Действия', 'История']) {
+      140 |         await dialog.getByRole('tab', { name: tab, exact: true }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/accessibility.spec.ts:137:28
+
+    Error Context: test-results/accessibility-доступность--bdc48--форм-и-drawer-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность--bdc48--форм-и-drawer-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность--bdc48--форм-и-drawer-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 ──
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/chessboard-month-переключе-de05e-яца-2026-12-01-→-2027-01-01/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-переключе-de05e-яца-2026-12-01-→-2027-01-01/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-переключе-de05e-яца-2026-12-01-→-2027-01-01/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/manager-actions.spec.ts:242:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» открывает ящик броней без места 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('assign-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('assign-form') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('assign-form')
+
+
+      275 |   await expect(page).toHaveURL(/\/reservations\/20260913-SHOWUN$/);
+      276 |   await cardTab(page, 'Действия');
+    > 277 |   await expect(page.getByRole('main').getByTestId('assign-form')).toBeVisible();
+          |                                                                   ^
+      278 | });
+      279 |
+      280 | /**
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/manager-actions.spec.ts:277:67
+
+    Error Context: test-results/manager-actions-шахматка-п-d60f0-ывает-ящик-броней-без-места/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manager-actions-шахматка-п-d60f0-ывает-ящик-броней-без-места/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/manager-actions-шахматка-п-d60f0-ывает-ящик-броней-без-места/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/premium.spec.ts:125:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.goto: Test timeout of 180000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3151/management/analytics", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/fixtures.ts:163:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/premium.spec.ts:176:16
+
+    Error Context: test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 1440px ──────────────────
+    tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 1440px ───────
+    tests/ui/chessboard-month.spec.ts:53:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 ───
+    tests/ui/manager-actions.spec.ts:242:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» открывает ящик броней без места 
+    tests/ui/premium.spec.ts:125:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+  85 passed (35.7m)
+
+# код выхода 1 · 35 мин 41 с

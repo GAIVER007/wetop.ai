@@ -1,7 +1,6 @@
 'use client';
 import { useRef, useState, type ReactNode } from 'react';
 const steps = [
-  ['Объект', 'Проверьте, какие данные будет использовать продавец.'],
   ['Инструкция', 'Опишите стиль общения и задачи. Сохраните инструкцию перед проверкой.'],
   ['Подключения', 'Настройте модель и выберите канал общения с гостями.'],
   ['Проверка', 'Задайте вопрос от лица гостя и проверьте ответ.'],
@@ -53,7 +52,7 @@ export function SetupWizard({ children }: { children: ReactNode[] }) {
         >
           Назад
         </button>
-        <span className="muted">Изменения сохраняются кнопками внутри шага.</span>
+        <span className="muted">Сохраните изменения перед следующим шагом.</span>
         {step < steps.length - 1 ? (
           <button type="button" className="btn" onClick={() => go(step + 1)}>
             Далее

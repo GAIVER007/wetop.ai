@@ -1,6 +1,6 @@
-import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
+import { test, expect, type Page, type APIRequestContext } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
-const api = 'http://127.0.0.1:55824';
+const api = `http://127.0.0.1:${process.env.FOOD_UI_API_PORT ?? '55824'}`;
 const date = '2026-10-12';
 async function settled(page: Page) {
   await page.evaluate(async () => {
@@ -108,7 +108,7 @@ async function create(page: Page, walkIn = false) {
   if (walkIn)
     await dialog
       .getByRole('combobox', { name: 'Стол', exact: true })
-      .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+      .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
   await dialog
     .getByRole('button', { name: walkIn ? 'Посадить' : 'Создать бронь', exact: true })
     .click();
@@ -124,7 +124,7 @@ test('empty restaurant catalog and complete persisted desk flow', async ({ page,
   await page.getByRole('button', { name: /19:00, Анна Тестовая/ }).click();
   await dialog
     .getByRole('combobox', { name: 'Назначить стол', exact: true })
-    .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+    .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
   await dialog.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await expect(dialog).toContainText('Основной зал, Стол 7');
   await dialog.getByRole('button', { name: 'Подтвердить', exact: true }).click();
@@ -150,18 +150,23 @@ test('walk-in is seated immediately and persisted after reload', async ({ page, 
   await expect(dialog).toContainText('За столом');
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await page.reload();
+  // щелчок по столу открывает карточку стола (макет, экран 2), бронь из неё
   await page.getByRole('button', { name: 'Стол 7, За столом' }).click();
+  await expect(page.getByTestId('table-panel')).toContainText('Анна Тестовая');
+  await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
   await expect(dialog.getByRole('button', { name: 'Снять стол', exact: true })).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Завершить', exact: true }).click();
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await expect(page.getByRole('button', { name: 'Стол 7, Свободен' })).toBeVisible();
 });
 test('real API screenshots, keyboard and axe', async ({ page, request }) => {
+  // 16 переходов с axe и снимками: под нагрузкой машины (load 7+) каждый 1,5–5 с, общий предел 90 с мал
+  test.setTimeout(240_000);
   await seed(page, request);
   const d = await create(page);
   await d
     .getByRole('combobox', { name: 'Назначить стол', exact: true })
-    .selectOption({ label: 'Основной зал, Стол 7, 4 мест' });
+    .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await d.getByRole('button', { name: 'Подтвердить', exact: true }).click();
   await d.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
@@ -196,7 +201,8 @@ test('real API screenshots, keyboard and axe', async ({ page, request }) => {
       }
       await page.goto(`/floor-plan?date=${date}&time=19:00`);
       await page.getByRole('button', { name: 'Стол 7, Подтверждено' }).click();
-      await expect(page.getByRole('dialog')).toBeVisible();
+      await page.getByTestId('table-panel').getByRole('button', { name: 'Открыть бронь' }).click();
+      await expect(page.getByRole('dialog', { name: 'Бронирование' })).toBeVisible();
       await settled(page);
       await page.screenshot({
         path: `${shots}/reservation-drawer-${theme}-${width}.png`,
@@ -274,9 +280,102 @@ test('overlap and archived catalog preserve creation draft and idempotency key',
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Клиенты появятся после первого бронирования');
 });
+test('правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется', async ({
+  page,
+  request,
+}) => {
+  const { headers, table, period } = await seed(page, request);
+  const res = (startsAt: string, partySize = 2, tableId: string | null = table.id) =>
+    request.post(`${api}/food-service/reservations`, {
+      headers: { ...headers, 'Idempotency-Key': crypto.randomUUID() },
+      data: { servicePeriodId: period.id, startsAt, partySize, source: 'DESK', tableId, customer: { firstName: 'Правила' } },
+    });
+  // ближайший понедельник через неделю-две и понедельник через 60+ дней: период «Ужин» только по понедельникам
+  const monday = (minDays: number) => {
+    const d = new Date(Date.now() + minDays * 86_400_000);
+    while (d.getUTCDay() !== 1) d.setUTCDate(d.getUTCDate() + 1);
+    return d.toISOString().slice(0, 10);
+  };
+  const near = monday(7),
+    far = monday(60);
+  const before = await (await request.get(`${api}/food-service/booking-rules`, { headers })).json();
+  expect(before).toEqual({ rules: { bufferMinutes: 0, horizonDays: null, maxPartySize: null }, closedDays: [] });
+  const first = await (await res(`${date}T19:00:00+05:00`)).json();
+  // до правил: следующая посадка встык к 21:00 принимается
+  expect((await res(`${date}T21:00:00+05:00`, 2, null)).ok()).toBe(true);
+  const put = await request.put(`${api}/food-service/booking-rules`, {
+    headers,
+    data: { bufferMinutes: 30, horizonDays: 30, maxPartySize: 6 },
+  });
+  expect(put.ok()).toBe(true);
+  const refused = async (r: Promise<import('@playwright/test').APIResponse>, text: string) => {
+    const response = await r;
+    expect(response.status()).toBe(409);
+    expect((await response.json()).message).toContain(text);
+  };
+  await refused(res(`${date}T21:00:00+05:00`), 'занят');
+  await refused(res(`${near}T19:00:00+05:00`, 7), 'не больше 6 гостей');
+  await refused(res(`${far}T19:00:00+05:00`), 'не дальше чем на 30 дней');
+  const closed = await (
+    await request.post(`${api}/food-service/closed-days`, { headers, data: { day: near, reason: 'Санитарный день' } })
+  ).json();
+  await refused(res(`${near}T19:00:00+05:00`, 2, null), 'не принимает брони');
+  expect(
+    (await request.post(`${api}/food-service/closed-days`, { headers, data: { day: near } })).status(),
+  ).toBe(409);
+  expect((await request.delete(`${api}/food-service/closed-days/${closed.id}`, { headers })).ok()).toBe(true);
+  expect((await res(`${near}T19:00:00+05:00`, 2, null)).ok()).toBe(true);
+  // правило ужесточили: заметку старой брони менять можно, число гостей поднять нельзя
+  await request.put(`${api}/food-service/booking-rules`, {
+    headers,
+    data: { bufferMinutes: 30, horizonDays: 30, maxPartySize: 1 },
+  });
+  const token = { expectedStatus: first.status, expectedUpdatedAt: first.updatedAt };
+  const notes = await request.patch(`${api}/food-service/reservations/${first.id}`, {
+    headers,
+    data: { ...token, notes: 'У окна' },
+  });
+  expect(notes.ok()).toBe(true);
+  const updated = await notes.json();
+  await refused(
+    request.patch(`${api}/food-service/reservations/${first.id}`, {
+      headers,
+      data: { expectedStatus: updated.status, expectedUpdatedAt: updated.updatedAt, partySize: 3 },
+    }),
+    'не больше 1 гостя',
+  );
+});
+
+test('правила брони: экран настроек сохраняет правила, закрывает и открывает день', async ({ page, request }) => {
+  const { headers } = await seed(page, request);
+  await page.goto('/restaurant-settings?section=bookings');
+  const rules = page.getByTestId('booking-rules');
+  await rules.getByLabel('Перерыв между посадками за одним столом').selectOption('30');
+  await rules.getByLabel('Гостей в одной брони не больше').fill('6');
+  await rules.getByRole('button', { name: 'Сохранить правила' }).click();
+  await expect(rules.getByRole('status')).toContainText('Правила сохранены');
+  const api_ = async () => (await request.get(`${api}/food-service/booking-rules`, { headers })).json();
+  expect((await api_()).rules).toEqual({ bufferMinutes: 30, horizonDays: null, maxPartySize: 6 });
+  const day = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
+  await rules.getByLabel('Закрыть день').fill(day);
+  await rules.getByLabel('Причина').fill('Банкет');
+  await rules.getByRole('button', { name: 'Закрыть день', exact: true }).click();
+  const shown = day.split('-').reverse().join('.');
+  await expect(rules.getByRole('listitem')).toContainText([`${shown}Банкет`]);
+  const axe = await new AxeBuilder({ page }).include('[data-testid="booking-rules"]').analyze();
+  expect(axe.violations).toEqual([]);
+  await rules.getByRole('button', { name: `Открыть день ${shown}` }).click();
+  await expect(rules).toContainText('Закрытых дней впереди нет');
+  expect((await api_()).closedDays).toEqual([]);
+});
+
 test('stale token refreshes drawer without automatic mutation retry', async ({ page, request }) => {
   const { headers } = await seed(page, request);
   const d = await create(page);
+  // After creation the form calls router.refresh(). The status must change out of band only after
+  // that refresh lands: a late refresh would show the new status before the click, and the stale
+  // token would never be tested.
+  await expect(page.getByLabel('Состояние столов')).toContainText('Без стола 1');
   const rows = await (
     await request.get(`${api}/food-service/reservations?date=${date}`, { headers })
   ).json();
@@ -467,6 +566,9 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await d.getByLabel('Заметка').fill('Обновлено');
   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(d).toContainText('Обновлено');
+  // Правка сохранилась и refresh доехал: доска позади панели показывает новое число гостей.
+  // Без этого следующее действие гонится с обновлением и токен стареет (та же болезнь, что adabb06e3)
+  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 5 гостей');
   await expect(
     d
       .getByRole('combobox', { name: 'Назначить стол', exact: true })
@@ -495,6 +597,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await d.getByRole('button', { name: 'Изменить бронь', exact: true }).click();
   await d.getByLabel('Количество гостей').fill('2');
   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(page.getByRole('main')).toContainText('Анна Тестовая, 2 гостя');
   await d.getByRole('combobox', { name: 'Назначить стол', exact: true }).selectOption(table.id);
   await d.getByRole('button', { name: 'Назначить стол', exact: true }).click();
   await expect(d.locator('dl')).toContainText('Основной зал, Стол 7');
@@ -576,10 +679,24 @@ test('creation 503 keeps the draft and retry key; invalid period stays inline', 
   expect(rows.items).toHaveLength(1);
   expect(rows.items[0].notes).toBe('Сохранённый ввод');
 });
+test('чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается', async ({
+  page,
+  request,
+}) => {
+  // без обёртки `fixtures.ts` адрес сразу после goto ещё `/calendar`, а отложенный переход рвёт следующий goto
+  await seed(page, request);
+  await page.goto('/calendar');
+  expect(new URL(page.url()).pathname).toBe('/today');
+  await expect(page.locator('meta#__next-page-redirect')).toHaveCount(0);
+  await page.goto('/orders');
+  await expect(page).toHaveURL(/\/orders$/);
+});
 test('Food excludes every registered foreign workspace route before API requests', async ({
   page,
   request,
 }) => {
+  // каждый чужой маршрут компилируется dev-сервером впервые: под нагрузкой 90 с на весь обход мало
+  test.setTimeout(240_000);
   await seed(page, request);
   const before = (await (await request.get(`${api}/__test/calls`)).json()).length;
   for (const route of [
@@ -588,7 +705,7 @@ test('Food excludes every registered foreign workspace route before API requests
     '/onboarding',
     '/calendar',
     '/appointments',
-    '/employees',
+    // `/employees` больше не чужой: у ресторана это «Сотрудники» (ADR-159), проверяет restaurant.spec.ts
     '/services',
     '/beauty',
     '/chessboard',
@@ -601,7 +718,8 @@ test('Food excludes every registered foreign workspace route before API requests
     '/hotel-settings',
   ]) {
     await page.goto(route);
-    await expect(page).toHaveURL(/\/today$/);
+    // первый заход на маршрут компилируется dev-сервером; под нагрузкой редирект дольше 5 секунд
+    await expect(page).toHaveURL(/\/today$/, { timeout: 15000 });
   }
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
   expect(

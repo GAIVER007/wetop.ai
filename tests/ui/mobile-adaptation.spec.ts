@@ -5,8 +5,8 @@ import { FIXTURE_API } from './fixtures';
  * Мобильная версия стойки (02.10.2026, поручение владельца «особое внимание телефону»).
  *
  * Четыре дефекта, найденные живым проходом на 390 px:
- * 1) `.workspace .page` на телефоне оставлял снизу 40 px — последние ~30 px контента прятались под
- *    нижней навигацией (70 px): компенсацию имели только экраны со своими `:has()`-правилами.
+ * 1) После перехода на скрытое меню нижней панели больше нет: экраны должны сохранять
+ *    доступную кнопку меню и не создавать горизонтальную прокрутку.
  * 2) Шапка «Календаря» ставила `flex-wrap: nowrap`, и заголовок зажимался в колонку по буквам,
  *    пока три кнопки действий занимали ширину.
  * 3) Чипы отборов «Броней» и «Финансов» — 30 px (`--control-h-sm`): меньше цели 44 px
@@ -22,15 +22,13 @@ test.beforeEach(async ({ page, request }) => {
   await page.setViewportSize(PHONE);
 });
 
-test('телефон: низ страницы не прячется под нижней навигацией', async ({ page }) => {
+test('телефон: скрытое меню доступно на основных маршрутах без нижней панели и переполнения', async ({ page }) => {
   test.slow(); // обход 13 разделов: на холодном `next dev` первая сборка каждого занимает секунды
-  // Экраны без собственных `:has()`-компенсаций — они и страдали; у /channels своё правило 16px
   for (const route of [
     '/guests',
     '/finance',
     '/inventory',
     '/channels',
-    '/today',
     '/reservations',
     '/management/analytics',
     '/reports',
@@ -40,15 +38,9 @@ test('телефон: низ страницы не прячется под ни�
     '/team',
   ]) {
     await page.goto(route);
-    const nav = page.locator('.bottom-navigation');
-    await expect(nav).toBeVisible();
-    const navHeight = (await nav.boundingBox())?.height ?? 0;
-    // На части экранов (вкладки тарифов) несколько .page — мерим видимую
-    const padBottom = await page
-      .locator('.page:visible')
-      .first()
-      .evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
-    expect(padBottom, `${route}: padding-bottom ${padBottom} < панель ${navHeight}`).toBeGreaterThanOrEqual(navHeight);
+    await expect(page.locator('.bottom-navigation')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Открыть меню' })).toBeVisible();
+    await expect(page.getByRole('main')).toBeVisible();
     // и страница не едет вбок
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
@@ -91,20 +83,26 @@ test('телефон: сводка и управление оставляют с
   expect((await summary.boundingBox())!.height).toBeLessThanOrEqual(280);
   const board = await grid.boundingBox();
   expect(board!.y, `сетка начинается на ${Math.round(board!.y)} px`).toBeLessThanOrEqual(700);
-  const navigation = await page.locator('.bottom-navigation').boundingBox();
-  expect(navigation!.y - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
-  await expect(page.getByRole('group', { name: 'Вид календаря' })).toBeVisible();
+  expect(PHONE.height - board!.y, 'первый экран показывает минимум 80 px сетки').toBeGreaterThanOrEqual(80);
+  // с 09.10 период живёт в раскрывашке «Октябрь 2026 ▾» только полями «С» и «По» (образец владельца), готовых
+  // периодов в ней нет; длина окна 7 / 14 / 30 дней стоит в своей раскрывашке
+  await page.getByTestId('board-period-button').click();
+  await expect(page.getByLabel('Период: с', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Период: по', { exact: true })).toBeVisible();
 });
 
-test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
+test('узкий телефон: плитки финансов в две колонки без перелива вбок', async ({ page }) => {
+  // денежный экран по эталону 13.10 (ADR-180): четыре плитки на телефоне парами, свёртка «Отчёты и управление» снята
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  await page.getByText('Отчёты и управление', { exact: true }).click();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const columns = await page
-    .locator('.finance-kpis')
+    .locator('.fin-kpis')
     .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
-  expect(columns).toBe(1);
+  expect(columns).toBe(2);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+  ).toBeLessThanOrEqual(1);
 });
 
 test('телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px', async ({ page }) => {
@@ -117,7 +115,6 @@ test('телефон: кнопки, поля и вкладки разделов 
     '/finance',
     '/finance?tab=cash',
     '/guests',
-    '/today',
     '/reservations',
     '/management/analytics',
     '/reports',
@@ -132,6 +129,10 @@ test('телефон: кнопки, поля и вкладки разделов 
     const small = await page.evaluate(() =>
       [...document.querySelectorAll('button, select, input, a.btn')]
         .filter((el) => {
+          // закрытый <details> прячет содержимое, но Chrome сохраняет его геометрию:
+          // скрытые цели (календарь выбора периода) не считаются
+          if (!(el as HTMLElement).checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }))
+            return false;
           const r = el.getBoundingClientRect();
           return r.height > 0 && r.width > 0 && r.height < 44;
         })
@@ -148,7 +149,6 @@ test('телефон: поля не мельче 16 px — иначе iOS зум
   // Главной, 14 px у «Броней», «Финансов», «Кассы» и «Отчётов» — плотные полосы разделов
   // перебивали общее правило (`.finance-toolbar .field--inline .inp` специфичнее `.workspace .inp`).
   for (const route of [
-    '/today',
     '/chessboard',
     '/reservations',
     '/reservations/new',
@@ -170,6 +170,9 @@ test('телефон: поля не мельче 16 px — иначе iOS зум
     const small = await page.evaluate(() =>
       [...document.querySelectorAll('input, select, textarea')]
         .filter((el) => {
+          // скрытые поля (календарь периода в закрытом <details>) не считаются: Chrome хранит их геометрию
+          if (!(el as HTMLElement).checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }))
+            return false;
           const r = el.getBoundingClientRect();
           const type = (el as HTMLInputElement).type;
           if (['checkbox', 'radio', 'hidden'].includes(type)) return false;

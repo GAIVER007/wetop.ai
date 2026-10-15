@@ -1,0 +1,139 @@
+# Сквозные (e2e) · 09.10.2026 17:32 Алматы · vm
+# коммит 8940508 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/branches.spec.ts' 'tests/ui/platform-access.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 2 workers
+
+  ✓   2 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (7.1s)
+  ✓   3 tests/ui/platform-access.spec.ts:88:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (6.5s)
+  ✓   4 tests/ui/platform-access.spec.ts:110:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (6.0s)
+  ✘   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (23.7s)
+  ✓   5 tests/ui/platform-access.spec.ts:149:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (6.0s)
+  ✓   7 tests/ui/platform-access.spec.ts:177:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (4.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   8 tests/ui/platform-access.spec.ts:197:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (6.3s)
+  ✓   9 tests/ui/platform-access.spec.ts:220:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (7.1s)
+  ✘   6 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (22.8s)
+  ✓  10 tests/ui/platform-access.spec.ts:277:5 › доступность: «Организации» и состояния расширения, light, 1440px (19.8s)
+[WebServer] [browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+  ✘  11 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (30.4s)
+  ✓  12 tests/ui/platform-access.spec.ts:277:5 › доступность: «Организации» и состояния расширения, dark, 1440px (18.8s)
+  ✓  13 tests/ui/platform-access.spec.ts:277:5 › доступность: «Организации» и состояния расширения, light, 390px (13.9s)
+  ✓  14 tests/ui/platform-access.spec.ts:277:5 › доступность: «Организации» и состояния расширения, dark, 390px (14.6s)
+
+
+  1) tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('heading', { name: 'Тестовый филиал у парка' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('heading', { name: 'Тестовый филиал у парка' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { name: 'Тестовый филиал у парка' })
+
+
+      15 |   await expect(main.getByRole('status')).toContainText('Филиал создан');
+      16 |   await page.reload();
+    > 17 |   await expect(main.getByRole('heading', { name: 'Тестовый филиал у парка' })).toBeVisible();
+         |                                                                                ^
+      18 |   await expect(
+      19 |     main.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
+      20 |   ).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/branches.spec.ts:17:80
+
+    Error Context: test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('region', { name: 'Итоги по филиалам' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('region', { name: 'Итоги по филиалам' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('region', { name: 'Итоги по филиалам' })
+
+
+      49 |   // одна страница: организация, итоги, филиалы и таблица всех организаций видны сразу, без раскрывашек
+      50 |   await expect(main.getByRole('heading', { name: 'Организации', level: 1 })).toBeVisible();
+    > 51 |   await expect(main.getByRole('region', { name: 'Итоги по филиалам' })).toBeVisible();
+         |                                                                         ^
+      52 |   await expect(main.getByTestId('platform-organizations')).toBeVisible();
+      53 |   // служебные ID на экран не выводятся, «реквизитов» и «объекта / филиала» в словах нет
+      54 |   await expect(main).not.toContainText('ID филиала');
+        at /home/user/wetop.ai/tests/ui/branches.spec.ts:51:73
+
+    Error Context: test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.mobile-navigation').getByRole('button', { name: /Филиал Север Тестовая/ })
+    Expected: "true"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.mobile-navigation').getByRole('button', { name: /Филиал Север Тестовая/ }) with timeout 15000ms
+      - waiting for locator('.mobile-navigation').getByRole('button', { name: /Филиал Север Тестовая/ })
+
+
+      148 |   const mobile = page.locator('.mobile-navigation');
+      149 |   await mobile.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+    > 150 |   await expect(mobile.getByRole('button', { name: /Филиал Север Тестовая/ })).toHaveAttribute(
+          |                                                                               ^
+      151 |     'aria-pressed',
+      152 |     'true',
+      153 |   );
+        at /home/user/wetop.ai/tests/ui/branches.spec.ts:150:79
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор ─────────────
+    tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload 
+    tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+  11 passed (2.0m)
+
+# код выхода 1 · 2 мин 4 с

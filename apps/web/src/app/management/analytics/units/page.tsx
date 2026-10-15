@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../../lib/vertical-guard';
 import { Suspense } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../../../lib/search-params';
 import { hotelToday } from '../../../../lib/hotel-api';
@@ -14,6 +15,7 @@ import '../analytics.css';
  * за период — та же полоса периода и тип фонда, что у соседних вкладок, сравнения с прошлым отрезком нет.
  */
 export default async function UnitsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseAnalyticsQuery(sp, today, 'units');

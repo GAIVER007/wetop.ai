@@ -37,7 +37,7 @@ test('порядок: «Принять оплату» первой, затем �
   const panel = await openAccounts(page);
   const pay = panel.getByTestId('payment-form');
   await expect(pay).toBeVisible();
-  await expect(pay.getByRole('button', { name: 'Принять оплату', exact: true })).toBeVisible();
+  await expect(pay.getByRole('button', { name: 'Проверить оплату', exact: true })).toBeVisible();
   const payY = await top(pay);
   const chargesY = await top(panel.getByTestId('folio-charges-title'));
   const paymentsY = await top(panel.getByTestId('folio-payments-title'));
@@ -68,7 +68,8 @@ test('возврат кнопкой «Вернуть»: форма с остат
   await expect(form.getByLabel('Сумма возврата')).toHaveValue('8000.00');
   await form.getByLabel('Сумма возврата').fill('500');
   await form.getByLabel('Причина возврата').fill('ранний выезд');
-  await form.getByRole('button', { name: 'вернуть' }).click();
+  await form.getByRole('button', { name: 'Проверить возврат', exact: true }).click();
+  await form.getByRole('button', { name: 'Подтвердить возврат', exact: true }).click();
   await expect(panel.getByText(/Возвраты:/)).toContainText('500 ₸');
   await expect(row.locator('td').nth(3)).toContainText('500 ₸');
   await expect(panel.getByTestId('refund-form')).toHaveCount(0);
@@ -160,8 +161,12 @@ test('цена проживания: «Изменить цену» у строк
   await expect(form.getByLabel('Цена проживания')).not.toHaveValue('');
   await form.getByLabel('Цена проживания').fill('55000');
   await form.getByRole('button', { name: 'Сохранить цену' }).click();
-  await expect(panel.getByTestId('finance-done')).toContainText('Цена проживания изменена: 55 000 ₸');
-  await expect(panel.getByTestId('charge-row').first().locator('td').nth(3)).toContainText('55 000 ₸');
+  await expect(panel.getByTestId('finance-done')).toContainText(
+    'Цена проживания изменена: 55 000 ₸',
+  );
+  await expect(panel.getByTestId('charge-row').first().locator('td').nth(3)).toContainText(
+    '55 000 ₸',
+  );
   await expect(page.getByTestId('booking-head')).toContainText('55 000 ₸');
   await expect(panel.getByTestId('stay-price-form')).toHaveCount(0);
 });
@@ -176,13 +181,17 @@ test('администратор: оплату принимает, но без �
   await expect(panel.getByTestId('payment-form')).toBeVisible();
   for (const id of ['refund-btn', 'payment-edit', 'payment-void'])
     await expect(panel.getByTestId(id)).toHaveCount(0);
-  await expect(panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' })).toHaveCount(0);
+  await expect(
+    panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' }),
+  ).toHaveCount(0);
 
   await asRole(request, 'MANAGER');
   panel = await openAccounts(page);
   for (const id of ['refund-btn', 'payment-edit', 'payment-void'])
     await expect(panel.getByTestId(id).first()).toBeVisible();
-  await expect(panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' })).toHaveCount(1);
+  await expect(
+    panel.getByTestId('charge-form').getByRole('option', { name: 'скидка' }),
+  ).toHaveCount(1);
 });
 
 for (const scheme of ['light', 'dark'] as const)
@@ -199,6 +208,11 @@ for (const scheme of ['light', 'dark'] as const)
       expect(page1.violations).toEqual([]);
       await panel.getByTestId('payment-row').first().getByTestId('payment-edit').click();
       await expect(page.getByTestId('payment-edit-form')).toBeVisible();
+      // axe меряет контраст сквозь анимацию открытия панели: ждём её конца, как `settled` в
+      // beauty-schedule.spec.ts (CI release-checks 37835129463: ложные 3,06 и 2,62 в тёмной теме)
+      await page.locator('dialog[open]').evaluate(async (el) => {
+        await Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished));
+      });
       const drawer = await new AxeBuilder({ page }).include('dialog').analyze();
       expect(drawer.violations).toEqual([]);
       // страница не шире экрана на телефоне

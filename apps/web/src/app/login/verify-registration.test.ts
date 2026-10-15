@@ -43,6 +43,16 @@ it.each(['BEAUTY', 'FOOD_SERVICE'] as const)(
     expect(redirect).toHaveBeenLastCalledWith('/register/complete');
   },
 );
+it('verification without registration context goes through branch resolution, not straight to /today', async () => {
+  vi.spyOn(authApi, 'verifyEmail').mockResolvedValue({
+    token: 'synthetic-new',
+    expiresAt: '2030-01-01T00:00:00Z',
+  } as never);
+  vi.spyOn(authApi, 'registrationContext').mockResolvedValue(null as never);
+  await verifyEmailAction('synthetic-verification');
+  expect(set).not.toHaveBeenCalled();
+  expect(redirect).toHaveBeenLastCalledWith('/scope/resolve?next=%2Ftoday');
+});
 it('Hospitality verification retains its current destination', async () => {
   vi.spyOn(authApi, 'verifyEmail').mockResolvedValue({
     token: 'synthetic-new',

@@ -1,0 +1,81 @@
+# Сквозные (e2e) · 14.10.2026 15:04 Алматы · MacBook-Air-Urij.local
+# коммит 113546e (claude/ui5-fullpass-20261014), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ui5-audit.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 65 tests using 1 worker
+
+  ✓   1 tests/ui/ui5-audit.spec.ts:46:5 › аудит /today (4.1s)
+  ✓   2 tests/ui/ui5-audit.spec.ts:46:5 › аудит /chessboard (6.1s)
+  ✓   3 tests/ui/ui5-audit.spec.ts:46:5 › аудит /tasks (2.8s)
+  ✓   4 tests/ui/ui5-audit.spec.ts:46:5 › аудит /guests (4.1s)
+  ✓   5 tests/ui/ui5-audit.spec.ts:46:5 › аудит /guests?q=Тест (2.8s)
+  ✓   6 tests/ui/ui5-audit.spec.ts:46:5 › аудит /guests/ui-guest (3.1s)
+  ✓   7 tests/ui/ui5-audit.spec.ts:46:5 › аудит /guests/birthdays (1.9s)
+  ✓   8 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reservations (2.6s)
+  ✓   9 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reservations/new?unit=M03 (2.3s)
+  ✓  10 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reservations/20260913-TESTAA (3.0s)
+  ✓  11 tests/ui/ui5-audit.spec.ts:46:5 › аудит /inventory (5.6s)
+  ✓  12 tests/ui/ui5-audit.spec.ts:46:5 › аудит /units/R01 (3.1s)
+  ✓  13 tests/ui/ui5-audit.spec.ts:46:5 › аудит /rooms/categories (2.6s)
+  ✓  14 tests/ui/ui5-audit.spec.ts:46:5 › аудит /rooms/availability (1.9s)
+  ✓  15 tests/ui/ui5-audit.spec.ts:46:5 › аудит /finance (3.4s)
+  ✓  16 tests/ui/ui5-audit.spec.ts:46:5 › аудит /finance?tab=cash (2.9s)
+  ✓  17 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar (2.6s)
+  ✓  18 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/products (2.2s)
+  ✓  19 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/receipts (2.0s)
+  ✓  20 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/receipts/new (2.2s)
+  ✓  21 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/suppliers (2.0s)
+  ✓  22 tests/ui/ui5-audit.spec.ts:46:5 › аудит /bar/operations (2.2s)
+  ✓  23 tests/ui/ui5-audit.spec.ts:46:5 › аудит /sales (2.2s)
+  ✓  24 tests/ui/ui5-audit.spec.ts:46:5 › аудит /market (2.0s)
+  ✓  25 tests/ui/ui5-audit.spec.ts:46:5 › аудит /channels (2.9s)
+  ✓  26 tests/ui/ui5-audit.spec.ts:46:5 › аудит /channels/events (1.6s)
+  ✓  27 tests/ui/ui5-audit.spec.ts:46:5 › аудит /channel-manager (2.6s)
+  ✓  28 tests/ui/ui5-audit.spec.ts:46:5 › аудит /ai-agents (1.9s)
+  ✓  29 tests/ui/ui5-audit.spec.ts:46:5 › аудит /ai-seller (2.9s)
+  ✓  30 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing (2.3s)
+  ✓  31 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/ads (2.3s)
+  ✓  32 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/content (2.2s)
+  ✓  33 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/budget (2.2s)
+  ✓  34 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/budget/expenses (5.0s)
+  ✓  35 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/budget/analytics (4.3s)
+  ✓  36 tests/ui/ui5-audit.spec.ts:46:5 › аудит /marketing/analytics (2.0s)
+  ✓  37 tests/ui/ui5-audit.spec.ts:46:5 › аудит /website (2.1s)
+  ✓  38 tests/ui/ui5-audit.spec.ts:46:5 › аудит /website/booking (2.1s)
+  ✓  39 tests/ui/ui5-audit.spec.ts:46:5 › аудит /website/analytics (3.8s)
+  ✓  40 tests/ui/ui5-audit.spec.ts:46:5 › аудит /website/settings (3.1s)
+  ✓  41 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports (2.7s)
+  ✓  42 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/overview (2.8s)
+  ✓  43 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/finance (2.8s)
+  ✓  44 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/occupancy (2.5s)
+  ✓  45 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/units (4.2s)
+  ✓  46 tests/ui/ui5-audit.spec.ts:46:5 › аудит /reports/form-910 (2.1s)
+  ✓  47 tests/ui/ui5-audit.spec.ts:46:5 › аудит /management/analytics (2.8s)
+  ✓  48 tests/ui/ui5-audit.spec.ts:46:5 › аудит /management/analytics/occupancy (2.4s)
+  ✓  49 tests/ui/ui5-audit.spec.ts:46:5 › аудит /management/analytics/channels (2.3s)
+  ✓  50 tests/ui/ui5-audit.spec.ts:46:5 › аудит /management/analytics/units (4.6s)
+  ✓  51 tests/ui/ui5-audit.spec.ts:46:5 › аудит /team (2.1s)
+  ✓  52 tests/ui/ui5-audit.spec.ts:46:5 › аудит /team/roles (1.9s)
+  ✓  53 tests/ui/ui5-audit.spec.ts:46:5 › аудит /profile (2.1s)
+  ✓  54 tests/ui/ui5-audit.spec.ts:46:5 › аудит /profile/access (18.4s)
+  ✓  55 tests/ui/ui5-audit.spec.ts:46:5 › аудит /branches (4.7s)
+  ✓  56 tests/ui/ui5-audit.spec.ts:46:5 › аудит /hotel-settings (3.8s)
+  ✓  57 tests/ui/ui5-audit.spec.ts:46:5 › аудит /hotel-settings/stay (2.1s)
+  ✓  58 tests/ui/ui5-audit.spec.ts:46:5 › аудит /hotel-settings/services (1.8s)
+  ✓  59 tests/ui/ui5-audit.spec.ts:46:5 › аудит /connections (2.5s)
+  ✓  60 tests/ui/ui5-audit.spec.ts:46:5 › аудит /connections/channex (2.4s)
+  ✓  61 tests/ui/ui5-audit.spec.ts:46:5 › аудит /journal (2.6s)
+  ✓  62 tests/ui/ui5-audit.spec.ts:46:5 › аудит /incidents (2.6s)
+  ✓  63 tests/ui/ui5-audit.spec.ts:46:5 › аудит /help (2.1s)
+  ✓  64 tests/ui/ui5-audit.spec.ts:46:5 › аудит /status (1.7s)
+  ✓  65 tests/ui/ui5-audit.spec.ts:46:5 › аудит /design-system (16.0s)
+
+  65 passed (3.7m)
+
+# код выхода 0 · 3 мин 42 с

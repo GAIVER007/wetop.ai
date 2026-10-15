@@ -1,0 +1,257 @@
+# Сквозные (e2e) · 14.10.2026 15:39 Алматы · MacBook-Air-Urij.local
+# коммит 6b03be4 (claude/site-photos-20261014)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'segments.spec'
+
+Running 11 tests using 1 worker
+
+  ✘   1 tests/site/segments.spec.ts:60:3 › /for/hostels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (11.0s)
+  ✘   2 tests/site/segments.spec.ts:60:3 › /for/mini-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (11.1s)
+  ✘   3 tests/site/segments.spec.ts:60:3 › /for/apart-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.6s)
+  ✘   4 tests/site/segments.spec.ts:60:3 › /for/beauty-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.6s)
+  ✘   5 tests/site/segments.spec.ts:60:3 › /for/barbershops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.5s)
+  ✘   6 tests/site/segments.spec.ts:60:3 › /for/spa/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.4s)
+  ✘   7 tests/site/segments.spec.ts:60:3 › /for/nail-studios/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.5s)
+  ✘   8 tests/site/segments.spec.ts:60:3 › /for/cafes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.5s)
+  ✘   9 tests/site/segments.spec.ts:60:3 › /for/bars/ — герой с интерфейсом, возможности, вопросы и призыв своего направления (10.4s)
+  ✓  10 tests/site/segments.spec.ts:119:1 › карточки направлений на главной ведут на страницы по типам объектов (561ms)
+  ✓  11 tests/site/segments.spec.ts:132:1 › страницы направлений ведут карточками на свои типы бизнеса (490ms)
+
+
+  1) tests/site/segments.spec.ts:60:3 › /for/hostels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.landing > .hotel-growth').locator('img')
+    Expected: "/photos/hostel.jpg"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.landing > .hotel-growth').locator('img') with timeout 10000ms
+      - waiting for locator('.landing > .hotel-growth').locator('img')
+
+
+      104 |     // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+      105 |     const about = page.locator('.landing > .hotel-growth');
+    > 106 |     await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
+          |                                        ^
+      107 |     expect(
+      108 |       await about.locator('.hotel-growth__text').count(),
+      109 |       'текст о формате',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:106:40
+
+    Error Context: test-results/segments--for-hostels-—-ге-f7cd0-и-призыв-своего-направления/error-context.md
+
+  2) tests/site/segments.spec.ts:60:3 › /for/mini-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.landing > .hotel-growth').locator('img')
+    Expected: "/photos/minihotel.jpg"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.landing > .hotel-growth').locator('img') with timeout 10000ms
+      - waiting for locator('.landing > .hotel-growth').locator('img')
+
+
+      104 |     // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+      105 |     const about = page.locator('.landing > .hotel-growth');
+    > 106 |     await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
+          |                                        ^
+      107 |     expect(
+      108 |       await about.locator('.hotel-growth__text').count(),
+      109 |       'текст о формате',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:106:40
+
+    Error Context: test-results/segments--for-mini-hotels--ca822-и-призыв-своего-направления/error-context.md
+
+  3) tests/site/segments.spec.ts:60:3 › /for/apart-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.landing > .hotel-growth').locator('img')
+    Expected: "/photos/aparthotel.jpg"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.landing > .hotel-growth').locator('img') with timeout 10000ms
+      - waiting for locator('.landing > .hotel-growth').locator('img')
+
+
+      104 |     // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+      105 |     const about = page.locator('.landing > .hotel-growth');
+    > 106 |     await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
+          |                                        ^
+      107 |     expect(
+      108 |       await about.locator('.hotel-growth__text').count(),
+      109 |       'текст о формате',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:106:40
+
+    Error Context: test-results/segments--for-apart-hotels-f8efa-и-призыв-своего-направления/error-context.md
+
+  4) tests/site/segments.spec.ts:60:3 › /for/beauty-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.landing > .hotel-growth').locator('img')
+    Expected: "/photos/salon.jpg"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.landing > .hotel-growth').locator('img') with timeout 10000ms
+      - waiting for locator('.landing > .hotel-growth').locator('img')
+
+
+      104 |     // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+      105 |     const about = page.locator('.landing > .hotel-growth');
+    > 106 |     await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
+          |                                        ^
+      107 |     expect(
+      108 |       await about.locator('.hotel-growth__text').count(),
+      109 |       'текст о формате',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:106:40
+
+    Error Context: test-results/segments--for-beauty-salon-35f36-и-призыв-своего-направления/error-context.md
+
+  5) tests/site/segments.spec.ts:60:3 › /for/barbershops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.landing > .hotel-growth').locator('img')
+    Expected: "/photos/barbershop.jpg"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.landing > .hotel-growth').locator('img') with timeout 10000ms
+      - waiting for locator('.landing > .hotel-growth').locator('img')
+
+
+      104 |     // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+      105 |     const about = page.locator('.landing > .hotel-growth');
+    > 106 |     await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
+          |                                        ^
+      107 |     expect(
+      108 |       await about.locator('.hotel-growth__text').count(),
+      109 |       'текст о формате',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:106:40
+
+    Error Context: test-results/segments--for-barbershops--a3c73-и-призыв-своего-направления/error-context.md
+
+  6) tests/site/segments.spec.ts:60:3 › /for/spa/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.landing > .hotel-growth').locator('img')
+    Expected: "/photos/spa.jpg"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.landing > .hotel-growth').locator('img') with timeout 10000ms
+      - waiting for locator('.landing > .hotel-growth').locator('img')
+
+
+      104 |     // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+      105 |     const about = page.locator('.landing > .hotel-growth');
+    > 106 |     await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
+          |                                        ^
+      107 |     expect(
+      108 |       await about.locator('.hotel-growth__text').count(),
+      109 |       'текст о формате',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:106:40
+
+    Error Context: test-results/segments--for-spa-—-герой--3aa66-и-призыв-своего-направления/error-context.md
+
+  7) tests/site/segments.spec.ts:60:3 › /for/nail-studios/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.landing > .hotel-growth').locator('img')
+    Expected: "/photos/nails.jpg"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.landing > .hotel-growth').locator('img') with timeout 10000ms
+      - waiting for locator('.landing > .hotel-growth').locator('img')
+
+
+      104 |     // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+      105 |     const about = page.locator('.landing > .hotel-growth');
+    > 106 |     await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
+          |                                        ^
+      107 |     expect(
+      108 |       await about.locator('.hotel-growth__text').count(),
+      109 |       'текст о формате',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:106:40
+
+    Error Context: test-results/segments--for-nail-studios-aeb6c-и-призыв-своего-направления/error-context.md
+
+  8) tests/site/segments.spec.ts:60:3 › /for/cafes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.landing > .hotel-growth').locator('img')
+    Expected: "/photos/cafe.jpg"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.landing > .hotel-growth').locator('img') with timeout 10000ms
+      - waiting for locator('.landing > .hotel-growth').locator('img')
+
+
+      104 |     // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+      105 |     const about = page.locator('.landing > .hotel-growth');
+    > 106 |     await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
+          |                                        ^
+      107 |     expect(
+      108 |       await about.locator('.hotel-growth__text').count(),
+      109 |       'текст о формате',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:106:40
+
+    Error Context: test-results/segments--for-cafes-—-геро-9bb80-и-призыв-своего-направления/error-context.md
+
+  9) tests/site/segments.spec.ts:60:3 › /for/bars/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.landing > .hotel-growth').locator('img')
+    Expected: "/photos/bar.jpg"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.landing > .hotel-growth').locator('img') with timeout 10000ms
+      - waiting for locator('.landing > .hotel-growth').locator('img')
+
+
+      104 |     // Фотополоса «о формате»: своё фото подтипа (не общее фото направления) и текст рядом
+      105 |     const about = page.locator('.landing > .hotel-growth');
+    > 106 |     await expect(about.locator('img')).toHaveAttribute('src', segment.photo);
+          |                                        ^
+      107 |     expect(
+      108 |       await about.locator('.hotel-growth__text').count(),
+      109 |       'текст о формате',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/segments.spec.ts:106:40
+
+    Error Context: test-results/segments--for-bars-—-герой-55fab-и-призыв-своего-направления/error-context.md
+
+  9 failed
+    tests/site/segments.spec.ts:60:3 › /for/hostels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:60:3 › /for/mini-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:60:3 › /for/apart-hotels/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:60:3 › /for/beauty-salons/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:60:3 › /for/barbershops/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:60:3 › /for/spa/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:60:3 › /for/nail-studios/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:60:3 › /for/cafes/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+    tests/site/segments.spec.ts:60:3 › /for/bars/ — герой с интерфейсом, возможности, вопросы и призыв своего направления 
+  2 passed (2.1m)
+
+# код выхода 1 · 2 мин 8 с

@@ -1,0 +1,19 @@
+# Модульные (unit) · 13.10.2026 14:33 Алматы · MacBook-Air-Urij.local
+# коммит 66fe9e5 (claude/scope-remember-branch-20261013), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-33-41Z-unit-f445.json' 'apps/web/src/lib/scope-resolve.test.ts' 'apps/web/src/app/scope/resolve/route.test.ts' 'apps/web/src/lib/session.test.ts' 'apps/web/src/lib/scope-pointer.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-urijzapojnov-Documents-ChatGPT-WETOP/a8708228-98f1-45e4-a395-95f6ac3385d1/scratchpad/scope-wt
+
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 3ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (10 tests) 5ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (5 tests) 15ms
+
+ Test Files  4 passed (4)
+      Tests  24 passed (24)
+   Start at  13:33:42
+   Duration  210ms (transform 75%, import 15%, tests 7%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T09-33-41Z-unit-f445.json
+
+# код выхода 0 · 1 с

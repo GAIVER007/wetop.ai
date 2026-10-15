@@ -15,7 +15,9 @@ import {
 } from '@nestjs/common';
 import { piiStorageMode } from '@pms/shared';
 import { GuestsService } from './guests.service';
+import { RESTRICTED_GUESTS_MESSAGE } from '@pms/domain';
 import { Access } from '../auth/access.decorator';
+import { OrganizationLevel } from '../auth/organization-level.decorator';
 
 /**
  * Где лежат данные гостей (ADR-072): `real` — база в Казахстане, введённое хранится как есть; `pseudonymized` —
@@ -31,7 +33,9 @@ export class PiiStorageController {
   }
 }
 
+// Гости организационные (O3=A): у `Guest` нет ключа филиала, ограниченному сотруднику закрыто всё, что читает или правит гостя
 @Access('desk')
+@OrganizationLevel(RESTRICTED_GUESTS_MESSAGE)
 @RequiresBusinessCapability('hospitality.reservations')
 @Controller('guests')
 export class GuestsController {
@@ -62,6 +66,14 @@ export class GuestsController {
       to?: string;
       visits?: string;
       sort?: string;
+      view?: string;
+      source?: string;
+      debt?: string;
+      fresh?: string;
+      nocontact?: string;
+      period?: string;
+      periodFrom?: string;
+      periodTo?: string;
     },
   ) {
     return this.service.directory(query);

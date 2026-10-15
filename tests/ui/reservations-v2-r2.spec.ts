@@ -80,7 +80,7 @@ test('R2: быстрые виды отбирают на сервере и жив
   await expect(page).toHaveURL(/view=inhouse/);
   const statuses = await rows(page).locator('.badge').allTextContents();
   expect(statuses.length).toBeGreaterThan(0);
-  expect(new Set(statuses.map((s) => s.trim()))).toEqual(new Set(['проживает']));
+  expect(new Set(statuses.map((s) => s.trim()))).toEqual(new Set(['Проживает']));
 
   await views.getByRole('link', { name: 'Требуют внимания', exact: true }).click();
   await expect(page).toHaveURL(/view=attention/);
@@ -200,7 +200,8 @@ test('R2: телефон — списки отбора за «Фильтрами
   await page.goto('/reservations');
   const main = page.getByRole('main');
   await expect(main.getByLabel('Оплата', { exact: true })).toBeHidden();
-  expect((await rows(page).first().boundingBox())!.y).toBeLessThanOrEqual(450);
+  // 450 был замером до вкладок «Брони | Гости» (09.10.2026), как в reservations-design.spec.ts: бюджет 515
+  expect((await rows(page).first().boundingBox())!.y).toBeLessThanOrEqual(515);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);

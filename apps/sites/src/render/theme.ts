@@ -79,6 +79,7 @@ img{max-width:100%;height:auto}
 .site-header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--border)}
 .site-header .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;padding-top:12px;padding-bottom:12px}
 .brand{font-weight:700;font-size:20px;color:var(--text);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.brand__logo{height:32px;width:auto;max-width:160px;margin-right:8px;object-fit:contain}
 .nav{display:flex;flex-wrap:wrap;gap:4px 16px;margin-right:auto}
 .nav a{color:var(--text);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
 .nav a:hover{color:var(--accent);text-decoration:underline}

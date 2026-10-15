@@ -1,19 +1,25 @@
 import 'reflect-metadata';
 import {
   BadRequestException,
+  GoneException,
   Inject,
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import {
+  normalizeSiteHost,
   SITE_SPEC_SCHEMA_VERSION,
+  siteSpecAssetRefs,
   siteSpecCategoryCodes,
   siteSpecHash,
   validateSiteSpec,
 } from '@pms/domain';
 import { withServiceDatabase } from '../auth/request-context';
 import { publicApiUrl } from '../analytics/analytics.service';
+import { previewSecretFromEnv, verifyPreviewToken } from '../marketing-site/preview-token';
+import { signedAssetMap } from '../marketing-site/asset-refs';
+import { SITE_ASSET_STORAGE, signedUrlTtl, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { resolveSiteHost } from './host-resolver';
 import {
   SITES_RUNTIME_REPOSITORY,
@@ -55,6 +61,15 @@ export interface RuntimeCurrent {
   publicFacts: PublicFacts | null;
 }
 
+/** MKT7: контракт `GET /sites-runtime/preview`: одна версия из токена, без ключа сайта и брони, до `expiresAt` */
+export interface RuntimePreview extends Omit<RuntimeCurrent, 'state'> {
+  state: 'PREVIEW';
+  expiresAt: string;
+}
+
+/** Ссылка превью устарела: отличается от испорченной только кодом, без подробностей */
+export const PREVIEW_EXPIRED = { code: 'preview_expired', message: 'Ссылка предпросмотра устарела' };
+
 /**
  * Публичный рантайм видит только **текущую опубликованную** версию сайта, разрешённого по хосту (инвариант R1, S3).
  * Организация, филиал и объект берутся из строки сайта, а не из запроса. Документ перед выдачей проходит тот же
@@ -62,13 +77,16 @@ export interface RuntimeCurrent {
  */
 @Injectable()
 export class SitesRuntimeService {
-  constructor(@Inject(SITES_RUNTIME_REPOSITORY) private readonly repo: SitesRuntimeRepository) {}
+  constructor(
+    @Inject(SITES_RUNTIME_REPOSITORY) private readonly repo: SitesRuntimeRepository,
+    @Inject(SITE_ASSET_STORAGE) private readonly storage: SiteAssetStorage | null,
+  ) {}
 
   async current(query: { host?: unknown; knownSpecHash?: unknown }, now = new Date()): Promise<RuntimeCurrent> {
     const known = query.knownSpecHash;
     if (known !== undefined && (typeof known !== 'string' || !HASH_RE.test(known)))
       throw new BadRequestException('knownSpecHash: sha256 в hex');
-    const siteId = resolveSiteHost(query.host);
+    const siteId = await this.siteIdFor(query.host);
     if (!siteId) throw new NotFoundException(SITE_NOT_FOUND);
     const row = await withServiceDatabase(() => this.repo.publishedSite(siteId));
     if (!row) throw new NotFoundException(SITE_NOT_FOUND);
@@ -76,7 +94,7 @@ export class SitesRuntimeService {
     return {
       siteId: row.siteId,
       state: 'PUBLISHED',
-      primaryHost: null,
+      primaryHost: row.primaryHost ?? null,
       defaultLocale,
       versionId: row.versionId,
       schemaVersion: row.schemaVersion,
@@ -85,8 +103,53 @@ export class SitesRuntimeService {
       publicKey: row.publicKey,
       bookingEnabled: row.bookingEnabled,
       publicApiUrl: publicApiUrl(),
-      assets: {},
+      // опубликованная версия всегда уже публиковалась: удержанный удалённый ассет ей годится (откат, план MKT8 §8)
+      assets: await this.assets(row, true),
       publicFacts: await this.facts(row, now),
+    };
+  }
+
+  /**
+   * Хост → сайт (MKT7): карта dev и test действует только вне `production` (MKT4); дальше только домен `ACTIVE` из
+   * `site_domains`. Снятый, ждущий и неизвестный хост одинаково «сайта нет»
+   */
+  private async siteIdFor(raw: unknown): Promise<string | null> {
+    const mapped = resolveSiteHost(raw);
+    if (mapped) return mapped;
+    const host = normalizeSiteHost(raw);
+    return host ? withServiceDatabase(() => this.repo.siteIdByHost(host)) : null;
+  }
+
+  /**
+   * Превью (MKT7): ключ рантайма сам ничего не читает, нужен действующий токен, подписанный управлением; читается ровно
+   * версия из токена. Испорченный токен 404, истёкший 410, нет секрета 503 (превью закрыто, а не открыто)
+   */
+  async preview(query: { token?: unknown }, now = new Date()): Promise<RuntimePreview> {
+    const secret = previewSecretFromEnv();
+    if (!secret) throw new ServiceUnavailableException({ code: 'preview_disabled', message: 'Предпросмотр недоступен' });
+    const checked = verifyPreviewToken(query.token, secret, Math.floor(now.getTime() / 1000));
+    if (!checked.ok) {
+      if (checked.reason === 'expired') throw new GoneException(PREVIEW_EXPIRED);
+      throw new NotFoundException(SITE_NOT_FOUND);
+    }
+    const row = await withServiceDatabase(() => this.repo.previewSite(checked.siteId, checked.versionId));
+    if (!row) throw new NotFoundException(SITE_NOT_FOUND);
+    const defaultLocale = this.checkedLocale(row);
+    return {
+      siteId: row.siteId,
+      state: 'PREVIEW',
+      primaryHost: null,
+      defaultLocale,
+      versionId: row.versionId,
+      schemaVersion: row.schemaVersion,
+      specHash: row.specHash,
+      spec: row.spec,
+      publicKey: null,
+      bookingEnabled: false,
+      publicApiUrl: publicApiUrl(),
+      assets: await this.assets(row, await withServiceDatabase(() => this.repo.versionPublished(row.siteId, row.versionId))),
+      publicFacts: await this.facts(row, now),
+      expiresAt: new Date(checked.exp * 1000).toISOString(),
     };
   }
 
@@ -108,6 +171,22 @@ export class SitesRuntimeService {
     }
     const site = row.spec['site'] as { defaultLocale: string };
     return site.defaultLocale;
+  }
+
+  /**
+   * MKT8: подписанные GET только по ссылкам этой версии и только ассетов филиала сайта нужного вида; отдельного чтения
+   * ассета по id у рантайма нет. Хранилище не настроено или сбой: пусто, картинки просто не выводятся
+   */
+  private async assets(row: PublishedSiteRow, historical: boolean): Promise<Record<string, string>> {
+    const refs = siteSpecAssetRefs(row.spec);
+    if (!refs.length || !this.storage) return {};
+    try {
+      const rows = await withServiceDatabase(() => this.repo.assets(row.locationId, refs.map((r) => r.assetId)));
+      return await signedAssetMap(this.storage, refs, rows, historical, signedUrlTtl());
+    } catch (error) {
+      console.error(JSON.stringify({ event: 'sites_runtime.assets_failed', siteId: row.siteId, error: (error as Error).name }));
+      return {};
+    }
   }
 
   /** Белый список `publicFacts` (§4.4): не загрузились, значит null, а не выдуманные значения */

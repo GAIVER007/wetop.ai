@@ -1,0 +1,51 @@
+# Модульные (unit) · 07.10.2026 15:46 Алматы · vm
+# коммит 4f0e531 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T10-46-21Z-unit-31f1.json' 'packages/domain/src/marketing/generation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/marketing/generation.test.ts (15 tests | 1 failed) 93ms
+   ✓ бюджет генерации сайтов (Q-274) (4)
+     ✓ умолчание 150 000; число из окружения; ноль, минус и мусор выключают, а не снимают предел 7ms
+     ✓ расход это вход плюс выход; кэш уже внутри входа и второй раз не считается 1ms
+     ✓ сумма по всем платным вызовам: неудачная первая ступень и удачная запасная складываются 1ms
+     ✓ сутки бюджета строго UTC 1ms
+   ✓ повторы (2)
+     ✓ MODEL_UNAVAILABLE, TIMEOUT и SCHEMA_INVALID повторяются до трёх попыток через 30, 60 и 120 с 1ms
+     ✓ бюджет, неизвестный расход, смена брифа и базы, отказ модели конечны сразу 0ms
+   ✓ языки сайта из брифа (1)
+     ✓ подсказки продавца без повторов в его порядке; без них русский 2ms
+   ❯ проверка ответа модели платформой (7)
+     ✓ годный документ проходит тот же валидатор SiteSpec и дополнительные правила 9ms
+     ✓ проза, не объект и неверная схема отклонены 6ms
+     ✓ языки ровно как задано, язык по умолчанию первый 4ms
+     ✓ категории только из брифа: в карточках и в ценах 4ms
+     × до MKT8 ни одной картинки: ассет, логотип, галерея и картинка героя отклонены 21ms
+     ✓ контакты, юридические данные и ссылки не выдумываются 10ms
+     ✓ больше 256 КБ отклонено 21ms
+   ✓ ошибки проверки для повтора: только путь и код (1)
+     ✓ кодирует в 500 знаков, вырезает чужой текст из пути, читает обратно 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/generation.test.ts > проверка ответа модели платформой > до MKT8 ни одной картинки: ассет, логотип, галерея и картинка героя отклонены
+AssertionError: expected [] to include 'asset_not_allowed'
+ ❯ packages/domain/src/marketing/generation.test.ts:198:61
+    196|     const logo = goodSpec();
+    197|     logo.site.brand = { logo: { assetId: '6f1c2a90-3b4d-4e5f-8a6b-7c8d…
+    198|     expect(codes(checkGeneratedSpec(logo, INPUT, LOCALES))).toContain(…
+       |                                                             ^
+    199|     const hero = goodSpec();
+    200|     hero.pages[0].sections[0].variant = 'IMAGE_FULL';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  10:46:22
+   Duration  941ms (transform 77%, tests 14%, import 9%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T10-46-21Z-unit-31f1.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,1691 @@
+# Интеграционные (integration) · 08.10.2026 12:21 Алматы · vm
+# коммит 9ae75aa (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 19
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-08T07-21-03Z-integration-cd7c.json' 'tests/integration/marketing-site.test.ts' 'tests/integration/site-generation.test.ts' 'tests/integration/site-editor.test.ts' 'tests/integration/site-publication.test.ts' 'tests/integration/site-assets.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/site-generation.test.ts (16 tests | 16 failed) 1435ms
+   ❯ MKT6 site generation (16)
+     × счастливый путь: бриф → задача → воркер → версия AI revision 1, публикация не тронута, журнал без документа 357ms
+     × постановка: только свой сайт, без версии, с текущим брифом, строгое тело, повтор ключа даёт ту же задачу 107ms
+     × сайт с версией: 409, INITIAL не правка 78ms
+     × лимит постановок: 10 за час на человека 67ms
+     × BRIEF_CHANGED: данные филиала изменились после постановки, модель не вызывается 48ms
+     × BASE_VERSION_CHANGED: человек сохранил версию, пока шла генерация; ручная версия остаётся последней 56ms
+     × неверный ответ модели: версия не создаётся, повтор только с путём и кодом, расход всех попыток суммируется 50ms
+     × неверный вывод «проза вместо JSON у бота»: задача ждёт повтора, версии нет 52ms
+     × неверный вывод «не тот язык»: задача ждёт повтора, версии нет 65ms
+     × неверный вывод «больше 256 КБ»: задача ждёт повтора, версии нет 64ms
+     × бюджет: расход дня считается по организации, исчерпан, модель не вызывается; соседняя организация не затронута 44ms
+     × неизвестный расход: потерянный ответ даёт USAGE_UNAVAILABLE и запрещает платные вызовы организации до следующих суток UTC 42ms
+     × неполный расход в ответе бота: известная часть записана, задача USAGE_UNAVAILABLE, версии нет 46ms
+     × повтор не переносит вчерашний run на сегодняшний бюджет: BUDGET_DAY_CHANGED без вызова 60ms
+     × падение воркера: до отправки задача возвращается в очередь, после отправки расход неизвестен 48ms
+     × очередь: два воркера не берут одну задачу; одна организация идёт по одной, разные параллельно 36ms
+ ❯ |integration| tests/integration/site-publication.test.ts (15 tests | 15 failed) 718ms
+   ❯ MKT7 публикация управляемого сайта (15)
+     × §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 68ms
+     × §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает 34ms
+     × MKT7 доводка: хосты сайта счётчика управляемого сайта ровно ACTIVE-домены; чужой хост уходит при синхронизации 19ms
+     × MKT7 доводка: старый /analytics/sites не правит и не удаляет сайт счётчика управляемого сайта; внешний как раньше 4ms
+     × §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается 2ms
+     × §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим 5ms
+     × §31–§32: выбранный канонический сайт (даже на паузе) публикация не подменяет, продавец на другой не переходит 11ms
+     × §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит 11ms
+     × §84: тариф брони только явный, связанный или канонический; первый активный не берётся 4ms
+     × §50, §59: публикация и откат на паузе меняют версию, но сайт не открывается до возобновления 2ms
+     × §44–§47: публикуется только голова черновика, документ перепроверяется: картинки (MKT8) и неактивная категория 4ms
+     × §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика 3ms
+     × §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400 2ms
+     × §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет 60ms
+     × §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503 3ms
+ ❯ |integration| tests/integration/site-editor.test.ts (14 tests | 14 failed) 1081ms
+   ❯ MKT9 site editor (14)
+     × история версий: до 100, новые сверху, без документа; чтение с документом; смысловая разница 283ms
+     × чужой филиал: версия, разница и восстановление неотличимы от несуществующих (404); чужая картинка не сохраняется 61ms
+     × восстановление как новый черновик: r1 → новая r4 от r3, источник MANUAL, опубликованная не меняется; устаревшая база 409 46ms
+     × откат MKT7 меняет только опубликованную, восстановление MKT9 только голову 46ms
+     × восстановление версии с картинкой, удалённой из библиотеки: 409 ASSET_UNAVAILABLE, головы нет 59ms
+     × PATCH: постановка, повтор того же ключа, неверная база, пустая и длинная команда, параллельная задача; журнал без текста 30ms
+     × PATCH, воркер: бот получает базу и команду без организации; новая версия AI base+1 с родителем; опубликованная не тронута 32ms
+     × PATCH: ИИ меняет телефон → SCHEMA_INVALID и повтор с путями ошибок; голова сменилась до повтора → BASE_VERSION_CHANGED без модели 33ms
+     × гонка: ИИ работает с r1, человек сохраняет r2 → результат ИИ не применён, версии r3 от ИИ нет 37ms
+     × SECTION: цель проверяется при постановке; бот получает цель; меняется только цель; другая секция → отказ 31ms
+     × бюджет общий для всех видов задач: исчерпан → BUDGET_EXCEEDED без вызова бота 32ms
+     × предел постановок в час считает и правки: 10 задач за час → 429 35ms
+     × архивный сайт: правка, восстановление и сохранение отклоняются 30ms
+     × окно «Создать сайт»: пожелания к первой версии хранятся в задаче, уходят боту отдельным полем, наружу и в журнал не попадают 95ms
+ ❯ |integration| tests/integration/site-assets.test.ts (11 tests | 11 failed) 803ms
+   ❯ MKT8 библиотека изображений сайта (10)
+     × §17, §20, §33–§35: загрузка снимает EXIF и GPS, хранит только готовую копию, SHA от неё; ключа объекта наружу нет 94ms
+     × §25–§27, §86: повтор той же картинки возвращает тот же ассет; другой вид и другой филиал отдельно; гонка даёт одного 45ms
+     × §12–§15, §88: чужие и вредные файлы, предел 10 МиБ, лишние поля, вид: отказ без записи в хранилище и базу 22ms
+     × §75: запись в хранилище не удалась: строки нет, 503; без права settings 403 23ms
+     × §31, §32, §36: список без удалённых и без ключа объекта; ALT правится; чужой ассет 404 34ms
+     × §39, §85: ассет только из черновиков после удаления уходит и из хранилища 14ms
+     × §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть 12ms
+     × §28, §29, гонка удаления и публикации: удержано, если версия успела опубликоваться; иначе публикация отказывает 4ms
+     × §57–§64, §89–§91: фото Channex точного объекта; адрес не из браузера; SSRF, мусор и повтор 46ms
+     × §104: больше 30 загрузок и импортов в час: 429 14ms
+   ❯ MKT8 хранилище не настроено (1)
+     × §6: метаданные читаются, загрузка и импорт 503 без запасного хранилища 38ms
+(node:5224) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[Nest] 5224  - 10/08/2026, 7:21:18 AM   ERROR [ExceptionsHandler] PayloadTooLargeError: request entity too large
+    at readStream (/home/user/wetop.ai/node_modules/raw-body/index.js:163:17)
+    at getRawBody (/home/user/wetop.ai/node_modules/raw-body/index.js:116:12)
+    at read (/home/user/wetop.ai/node_modules/body-parser/lib/read.js:113:3)
+    at jsonParser (/home/user/wetop.ai/node_modules/body-parser/lib/types/json.js:60:5)
+    at __vite_ssr_import_0__.default.urlencoded.extended (/home/user/wetop.ai/apps/api/src/body-parsers.ts:30:55)
+    at Layer.handleRequest (/home/user/wetop.ai/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/user/wetop.ai/node_modules/router/index.js:342:13)
+    at /home/user/wetop.ai/node_modules/router/index.js:297:9
+    at processParams (/home/user/wetop.ai/node_modules/router/index.js:582:12)
+    at next (/home/user/wetop.ai/node_modules/router/index.js:291:5) {
+  expected: 153633,
+  length: 153633,
+  limit: 102400,
+  type: 'entity.too.large'
+}
+ ❯ |integration| tests/integration/marketing-site.test.ts (37 tests | 29 failed) 796ms
+   ❯ MKT3 marketing site core (37)
+     ❯ scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице (9)
+       × указателя нет: 409 «Выберите филиал» 47ms
+       × выбран только бизнес: 409 «Выберите филиал» 24ms
+       × чужой филиал: 403, без отката в организацию 9ms
+       × архивный филиал: 403, без отката в организацию 12ms
+       × архивный бизнес: 403, без отката в организацию 12ms
+       × филиал из другого бизнеса: 403, без отката в организацию 8ms
+       × несуществующий филиал: 403, без отката в организацию 13ms
+       ✓ салон и ресторан: 403 5ms
+       ✓ без права settings (администратор): 403 3ms
+     ❯ создание сайта (6)
+       × сайта нет: пустой ответ, черновика нет 41ms
+       × тело принимает только имя и адрес: филиал, бизнес и организация из тела дают 400 4ms
+       × неверный и зарезервированный адрес: 400 4ms
+       × создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409 3ms
+       × адрес занят сайтом другого филиала: 409, без молчаливой замены 3ms
+       × чужой филиал той же организации видит только свой сайт 21ms
+     ❯ версии (6)
+       × первая версия: baseRevision 0 → ревизия 1, хэш канонической записи, источник MANUAL 20ms
+       × устаревшая ревизия: 409, новой версии нет 14ms
+       × неверный документ: 400 со списком ошибок, версия не пишется 21ms
+       × следующая версия: ревизия 2 с родителем 1, черновик отдаёт документ 16ms
+       × два одновременных сохранения с одной ревизией: одно проходит, второе 409, новая версия ровно одна 43ms
+       × у сайта без версий годится только baseRevision 0: иначе 409 14ms
+     ❯ база: изоляция, неизменяемость, принадлежность (7)
+       × чужая организация не видит ни сайтов, ни версий; своя видит свои 13ms
+       × API чужой организации не видит сайт и не может писать в него 12ms
+       × роль приложения не меняет и не удаляет версии 3ms
+       × даже владелец таблицы не меняет и не удаляет версию: сторож без исключений 2ms
+       × указатели сайта и родитель версии не ведут на другой сайт 5ms
+       ✓ организация только для чтения не пишет: 403, читать может 27ms
+       × филиал сайта не меняется после создания 1ms
+     ❯ база: инварианты MKT3 без API (поручение владельца по ревью) (5)
+       × tracked_site_id только объекта того же филиала: чужой филиал отклонён, свой проходит, итог NULL 1ms
+       ✓ зарезервированный адрес не проходит и мимо API: admin и www отклонены, обычный адрес проходит 7ms
+       ✓ версия мимо API (3)
+         ✓ schema_version совпадает с schemaVersion документа 10ms
+         ✓ источник: AI без задачи генерации (MKT6) и IMPORT отклонены, MANUAL проходит 7ms
+         ✓ страховка базы 384 КБ: JSONB больше неё отклонён, документ поменьше проходит 21ms
+     ❯ размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) (4)
+       × документ больше 100 КБ и меньше 256 КБ доходит до проверки и сохраняется 3ms
+       × SiteSpec больше 256 КБ проходит HTTP-разбор и получает 400 too_large от проверки, а не 413 2ms
+       × тело больше транспортного предела 300 КБ: 413, версия не пишется 2ms
+       ✓ другой маршрут JSON по-прежнему режется на 100 КБ: создание сайта с телом 150 КБ даёт 413 11ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 85 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице > указателя нет: 409 «Выберите филиал»
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице > выбран только бизнес: 409 «Выберите филиал»
+AssertionError: POST /marketing/site: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ tests/integration/marketing-site.test.ts:200:47
+    198|       ] as const) {
+    199|         const r = await call(method, path, { scope, body });
+    200|         expect(r.status, `${method} ${path}`).toBe(409);
+       |                                               ^
+    201|         expect(r.body.message).toBe('Выберите филиал');
+    202|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице > чужой филиал: 403, без отката в организацию
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице > архивный филиал: 403, без отката в организацию
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице > архивный бизнес: 403, без отката в организацию
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице > филиал из другого бизнеса: 403, без отката в организацию
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице > несуществующий филиал: 403, без отката в организацию
+AssertionError: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ tests/integration/marketing-site.test.ts:215:30
+    213|       expect(r.status).toBe(403);
+    214|       const created = await call('POST', '/marketing/site', { scope, b…
+    215|       expect(created.status).toBe(403);
+       |                              ^
+    216|     });
+    217|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > сайта нет: пустой ответ, черновика нет
+AssertionError: expected { status: 200, …(1) } to deeply equal { status: 200, body: { site: null } }
+
+- Expected
++ Received
+
+  {
+    "body": {
++     "archived": false,
++     "builder": {
++       "access": "off",
++       "activeUntil": null,
++       "status": null,
++     },
++     "instructions": null,
++     "locationName": "Loc f748",
+      "site": null,
+    },
+    "status": 200,
+  }
+
+ ❯ tests/integration/marketing-site.test.ts:233:52
+    231|   describe('создание сайта', () => {
+    232|     it('сайта нет: пустой ответ, черновика нет', async () => {
+    233|       expect(await call('GET', '/marketing/site')).toEqual({ status: 2…
+       |                                                    ^
+    234|       expect((await call('GET', '/marketing/site/draft')).status).toBe…
+    235|       const save = await call('POST', '/marketing/site/versions', { bo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > тело принимает только имя и адрес: филиал, бизнес и организация из тела дают 400
+AssertionError: {"locationId":"05dcb799-45bb-47dd-a6a3-08ff9c496ed3"}: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/integration/marketing-site.test.ts:242:49
+    240|       for (const extra of [{ locationId: a2 }, { businessId: hotel }, …
+    241|         const r = await call('POST', '/marketing/site', { body: { name…
+    242|         expect(r.status, JSON.stringify(extra)).toBe(400);
+       |                                                 ^
+    243|       }
+    244|       expect(await db.marketingSite.count({ where: { slug: 'spoof-site…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > неверный и зарезервированный адрес: 400
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/integration/marketing-site.test.ts:248:103
+    246|
+    247|     it('неверный и зарезервированный адрес: 400', async () => {
+    248|       expect((await call('POST', '/marketing/site', { body: { name: 'С…
+       |                                                                                                       ^
+    249|       expect((await call('POST', '/marketing/site', { body: { name: 'С…
+    250|       expect((await call('POST', '/marketing/site', { body: { name: ' …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ tests/integration/marketing-site.test.ts:255:24
+    253|     it('создаёт сайт филиала из scope в состоянии DRAFT; второй сайт ф…
+    254|       const r = await call('POST', '/marketing/site', { body: { name: …
+    255|       expect(r.status).toBe(201);
+       |                        ^
+    256|       expect(r.body.site).toMatchObject({ name: 'Степной ветер', slug:…
+    257|       const row = await db.marketingSite.findUniqueOrThrow({ where: { …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > адрес занят сайтом другого филиала: 409, без молчаливой замены
+AssertionError: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ tests/integration/marketing-site.test.ts:268:24
+    266|     it('адрес занят сайтом другого филиала: 409, без молчаливой замены…
+    267|       const r = await call('POST', '/marketing/site', { scope: A2, bod…
+    268|       expect(r.status).toBe(409);
+       |                        ^
+    269|       expect(r.body.message).toMatch(/адрес/i);
+    270|       const ok = await call('POST', '/marketing/site', { scope: A2, bo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > чужой филиал той же организации видит только свой сайт
+TypeError: Cannot read properties of null (reading 'slug')
+ ❯ tests/integration/marketing-site.test.ts:277:28
+    275|       const own = await call('GET', '/marketing/site');
+    276|       const other = await call('GET', '/marketing/site', { scope: A2 }…
+    277|       expect(own.body.site.slug).toBe('stepnoy-veter');
+       |                            ^
+    278|       expect(other.body.site.slug).toBe('second-site');
+    279|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > первая версия: baseRevision 0 → ревизия 1, хэш канонической записи, источник MANUAL
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:285:24
+    283|     it('первая версия: baseRevision 0 → ревизия 1, хэш канонической за…
+    284|       const r = await call('POST', '/marketing/site/versions', { body:…
+    285|       expect(r.status).toBe(201);
+       |                        ^
+    286|       expect(r.body.version).toMatchObject({
+    287|         revision: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > устаревшая ревизия: 409, новой версии нет
+AssertionError: expected 403 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:303:24
+    301|     it('устаревшая ревизия: 409, новой версии нет', async () => {
+    302|       const r = await call('POST', '/marketing/site/versions', { body:…
+    303|       expect(r.status).toBe(409);
+       |                        ^
+    304|       expect(await db.marketingSiteVersion.count({ where: { site: { lo…
+    305|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > неверный документ: 400 со списком ошибок, версия не пишется
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/integration/marketing-site.test.ts:317:92
+    315|       const negative = await call('POST', '/marketing/site/versions', …
+    316|       expect(negative.status).toBe(400);
+    317|       expect(await db.marketingSiteVersion.count({ where: { site: { lo…
+       |                                                                                            ^
+    318|     });
+    319|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > следующая версия: ревизия 2 с родителем 1, черновик отдаёт документ
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:324:24
+    322|       next.site.displayName.ru = 'Степной ветер, обновлено';
+    323|       const r = await call('POST', '/marketing/site/versions', { body:…
+    324|       expect(r.status).toBe(201);
+       |                        ^
+    325|       expect(r.body.version.revision).toBe(2);
+    326|       const rows = await db.marketingSiteVersion.findMany({ where: { s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > два одновременных сохранения с одной ревизией: одно проходит, второе 409, новая версия ровно одна
+AssertionError: expected [ 403, 403, 403 ] to deeply equal [ 201, 409, 409 ]
+
+- Expected
++ Received
+
+  [
+-   201,
+-   409,
+-   409,
++   403,
++   403,
++   403,
+  ]
+
+ ❯ tests/integration/marketing-site.test.ts:341:51
+    339|       };
+    340|       const results = await Promise.all([1, 2, 3].map((n) => call('POS…
+    341|       expect(results.map((r) => r.status).sort()).toEqual([201, 409, 4…
+       |                                                   ^
+    342|       const rows = await db.marketingSiteVersion.findMany({ where: { s…
+    343|       expect(rows.map((r) => r.revision).sort()).toEqual([1, 2, 3]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > у сайта без версий годится только baseRevision 0: иначе 409
+AssertionError: expected 403 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:350:24
+    348|     it('у сайта без версий годится только baseRevision 0: иначе 409', …
+    349|       const r = await call('POST', '/marketing/site/versions', { scope…
+    350|       expect(r.status).toBe(409);
+       |                        ^
+    351|     });
+    352|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > чужая организация не видит ни сайтов, ни версий; своя видит свои
+AssertionError: expected [ +0, +0 ] to deeply equal [ 2, 3 ]
+
+- Expected
++ Received
+
+  [
+-   2,
+-   3,
++   0,
++   0,
+  ]
+
+ ❯ tests/integration/marketing-site.test.ts:371:32
+    369|         });
+    370|       expect(await seen(orgB)).toEqual([0, 0]);
+    371|       expect(await seen(orgA)).toEqual([2, 3]);
+       |                                ^
+    372|       expect(await seen('')).toEqual([0, 0]);
+    373|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > API чужой организации не видит сайт и не может писать в него
+AssertionError: expected { site: null, archived: false, …(3) } to deeply equal { site: null }
+
+- Expected
++ Received
+
+  {
++   "archived": false,
++   "builder": {
++     "access": "off",
++     "activeUntil": null,
++     "status": null,
++   },
++   "instructions": null,
++   "locationName": "Loc dfd7",
+    "site": null,
+  }
+
+ ❯ tests/integration/marketing-site.test.ts:377:22
+    375|     it('API чужой организации не видит сайт и не может писать в него',…
+    376|       const r = await call('GET', '/marketing/site', { user: 'B', scop…
+    377|       expect(r.body).toEqual({ site: null });
+       |                      ^
+    378|       const spoof = await call('GET', '/marketing/site', { user: 'B', …
+    379|       expect(spoof.status).toBe(403);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > роль приложения не меняет и не удаляет версии
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/marketing-site.test.ts:391:121
+    389|       await asApp(orgA, async () => {
+    390|         await sql.query('SAVEPOINT probe');
+    391|         await expect(sql.query(`UPDATE marketing_site_versions SET spe…
+       |                                                                                                                         ^
+    392|         await sql.query('ROLLBACK TO SAVEPOINT probe');
+    393|         await expect(sql.query(`DELETE FROM marketing_site_versions WH…
+ ❯ asApp tests/integration/marketing-site.test.ts:84:14
+ ❯ tests/integration/marketing-site.test.ts:389:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > даже владелец таблицы не меняет и не удаляет версию: сторож без исключений
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/marketing-site.test.ts:407:112
+    405|       try {
+    406|         await sql.query('SAVEPOINT probe');
+    407|         await expect(sql.query(`UPDATE marketing_site_versions SET spe…
+       |                                                                                                                ^
+    408|         await sql.query('ROLLBACK TO SAVEPOINT probe');
+    409|         await expect(sql.query(`DELETE FROM marketing_site_versions WH…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > указатели сайта и родитель версии не ведут на другой сайт
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/marketing-site.test.ts:416:22
+    414|
+    415|     it('указатели сайта и родитель версии не ведут на другой сайт', as…
+    416|       const siteA1 = await db.marketingSite.findFirstOrThrow({ where: …
+       |                      ^
+    417|       const siteA2 = await db.marketingSite.findFirstOrThrow({ where: …
+    418|       const foreign = await db.marketingSiteVersion.findFirstOrThrow({…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > филиал сайта не меняется после создания
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/marketing-site.test.ts:461:22
+    459|
+    460|     it('филиал сайта не меняется после создания', async () => {
+    461|       const siteA2 = await db.marketingSite.findFirstOrThrow({ where: …
+       |                      ^
+    462|       await expect(
+    463|         sql.query(`UPDATE marketing_sites SET location_id = $1 WHERE i…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: инварианты MKT3 без API (поручение владельца по ревью) > tracked_site_id только объекта того же филиала: чужой филиал отклонён, свой проходит, итог NULL
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/marketing-site.test.ts:501:22
+    499|
+    500|     it('tracked_site_id только объекта того же филиала: чужой филиал о…
+    501|       const siteA1 = await db.marketingSite.findFirstOrThrow({ where: …
+       |                      ^
+    502|       const [ownSite, otherSite] = await Promise.all([
+    503|         property(randomUUID(), a1).then((p) => trackedSite(p.id)),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) > документ больше 100 КБ и меньше 256 КБ доходит до проверки и сохраняется
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ head tests/integration/marketing-site.test.ts:600:20
+    598|     const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify…
+    599|     async function head(): Promise<{ siteId: string; revision: number …
+    600|       const site = await db.marketingSite.findFirstOrThrow({ where: { …
+       |                    ^
+    601|       return { siteId: site.id, revision: site.latestVersion?.revision…
+    602|     }
+ ❯ tests/integration/marketing-site.test.ts:605:36
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) > SiteSpec больше 256 КБ проходит HTTP-разбор и получает 400 too_large от проверки, а не 413
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ head tests/integration/marketing-site.test.ts:600:20
+    598|     const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify…
+    599|     async function head(): Promise<{ siteId: string; revision: number …
+    600|       const site = await db.marketingSite.findFirstOrThrow({ where: { …
+       |                    ^
+    601|       return { siteId: site.id, revision: site.latestVersion?.revision…
+    602|     }
+ ❯ tests/integration/marketing-site.test.ts:622:36
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/85]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > размер тела: 256 КБ SiteSpec действительно принимается (решение владельца 06.10.2026) > тело больше транспортного предела 300 КБ: 413, версия не пишется
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ head tests/integration/marketing-site.test.ts:600:20
+    598|     const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify…
+    599|     async function head(): Promise<{ siteId: string; revision: number …
+    600|       const site = await db.marketingSite.findFirstOrThrow({ where: { …
+       |                    ^
+    601|       return { siteId: site.id, revision: site.latestVersion?.revision…
+    602|     }
+ ❯ tests/integration/marketing-site.test.ts:634:36
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §17, §20, §33–§35: загрузка снимает EXIF и GPS, хранит только готовую копию, SHA от неё; ключа объекта наружу нет
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ tests/integration/site-assets.test.ts:315:50
+    313|     const raw = await photo(1);
+    314|     const res = await upload(raw);
+    315|     expect(res.status, JSON.stringify(res.body)).toBe(201);
+       |                                                  ^
+    316|     const asset = res.body.asset;
+    317|     expect(Object.keys(asset).sort()).toEqual(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §25–§27, §86: повтор той же картинки возвращает тот же ассет; другой вид и другой филиал отдельно; гонка даёт одного
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ ❯ tests/integration/site-assets.test.ts:346:26
+    344|     const puts = storage.puts;
+    345|     const again = await upload(raw);
+    346|     expect(again.status).toBe(200);
+       |                          ^
+    347|     // повтор находит готовый ассет до записи: в хранилище не пишет во…
+    348|     expect(storage.puts).toBe(puts);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §12–§15, §88: чужие и вредные файлы, предел 10 МиБ, лишние поля, вид: отказ без записи в хранилище и базу
+AssertionError: expected { status: 403, body: { …(2) } } to match object { status: 415, …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "body": {
+-     "code": "UNSUPPORTED_MEDIA_TYPE",
++     "code": "SITE_BUILDER_NOT_ENABLED",
+    },
+-   "status": 415,
++   "status": 403,
+  }
+
+ ❯ tests/integration/site-assets.test.ts:371:17
+    369|     const rows = await db.siteAsset.count({ where: { locationId: L.a }…
+    370|     const svg = await upload(Buffer.from('<svg xmlns="http://www.w3.or…
+    371|     expect(svg).toMatchObject({ status: 415, body: { code: 'UNSUPPORTE…
+       |                 ^
+    372|     const html = await upload(Buffer.from('<!doctype html><script>aler…
+    373|     expect(html.status).toBe(415);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §75: запись в хранилище не удалась: строки нет, 503; без права settings 403
+AssertionError: expected { status: 403, body: { …(2) } } to match object { status: 503, …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "body": {
+-     "code": "ASSET_STORAGE_FAILED",
++     "code": "SITE_BUILDER_NOT_ENABLED",
+    },
+-   "status": 503,
++   "status": 403,
+  }
+
+ ❯ tests/integration/site-assets.test.ts:392:17
+    390|     storage.failPut = true;
+    391|     const res = await upload(await photo(5));
+    392|     expect(res).toMatchObject({ status: 503, body: { code: 'ASSET_STOR…
+       |                 ^
+    393|     expect(await db.siteAsset.count({ where: { locationId: L.a } })).t…
+    394|     storage.failPut = false;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §31, §32, §36: список без удалённых и без ключа объекта; ALT правится; чужой ассет 404
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/site-assets.test.ts:404:81
+    402|     expect(list.status).toBe(200);
+    403|     expect(list.body.storage).toBe('READY');
+    404|     expect(list.body.assets.map((a: { id: string }) => a.id)).toContai…
+       |                                                                                 ^
+    405|     expect(JSON.stringify(list.body)).not.toContain('storageRef');
+    406|     for (const a of list.body.assets) expect(storage.verify(a.previewU…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §39, §85: ассет только из черновиков после удаления уходит и из хранилища
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/site-assets.test.ts:426:78
+    424|   it('§39, §85: ассет только из черновиков после удаления уходит и из …
+    425|     const created = (await upload(await photo(7))).body.asset;
+    426|     const ref = (await db.siteAsset.findUniqueOrThrow({ where: { id: c…
+       |                                                                              ^
+    427|     const res = await call('DELETE', `/marketing/site/assets/${created…
+    428|     expect(res.body).toEqual({ deleted: true, retainedForPublishedHist…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §38–§43, §84: картинка опубликованной версии удалена: библиотека её прячет, сайт и откат продолжают видеть
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-assets.test.ts:147:24
+    145|   async function createSite(key: keyof typeof L) {
+    146|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    147|     expect(res.status).toBe(201);
+       |                        ^
+    148|   }
+    149|   async function save(key: keyof typeof L, spec: Spec) {
+ ❯ tests/integration/site-assets.test.ts:439:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §28, §29, гонка удаления и публикации: удержано, если версия успела опубликоваться; иначе публикация отказывает
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-assets.test.ts:147:24
+    145|   async function createSite(key: keyof typeof L) {
+    146|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    147|     expect(res.status).toBe(201);
+       |                        ^
+    148|   }
+    149|   async function save(key: keyof typeof L, spec: Spec) {
+ ❯ tests/integration/site-assets.test.ts:488:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §57–§64, §89–§91: фото Channex точного объекта; адрес не из браузера; SSRF, мусор и повтор
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ ❯ tests/integration/site-assets.test.ts:537:50
+    535|     const bOnly = channexPhotoId('https://img.channex.io/b-only.jpg');
+    536|     const res = await call('POST', '/marketing/site/assets/channex/imp…
+    537|     expect(res.status, JSON.stringify(res.body)).toBe(200);
+       |                                                  ^
+    538|     expect(res.body.imported).toHaveLength(1);
+    539|     expect(res.body.imported[0]).toMatchObject({ photoId: ids[0], crea…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 библиотека изображений сайта > §104: больше 30 загрузок и импортов в час: 429
+AssertionError: expected 403 to be less than 300
+ ❯ tests/integration/site-assets.test.ts:572:100
+    570|   it('§104: больше 30 загрузок и импортов в час: 429', async () => {
+    571|     const raw = await photo(11);
+    572|     for (let i = 0; i < 30; i++) expect((await upload(raw, 'IMAGE', { …
+       |                                                                                                    ^
+    573|     expect((await upload(raw, 'IMAGE', { location: L.rate })).status).…
+    574|     expect((await call('POST', '/marketing/site/assets/channex/import'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/85]⎯
+
+ FAIL  |integration| tests/integration/site-assets.test.ts > MKT8 хранилище не настроено > §6: метаданные читаются, загрузка и импорт 503 без запасного хранилища
+AssertionError: expected 403 to be 503 // Object.is equality
+
+- Expected
++ Received
+
+- 503
++ 403
+
+ ❯ tests/integration/site-assets.test.ts:631:23
+    629|     form.append('file', new Blob([new Uint8Array(await photo(12))]), '…
+    630|     const up = await fetch(`${base}/marketing/site/assets`, { method: …
+    631|     expect(up.status).toBe(503);
+       |                       ^
+    632|     expect((await up.json()).code).toBe('ASSET_STORAGE_UNAVAILABLE');
+    633|     const imp = await fetch(`${base}/marketing/site/assets/channex/imp…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > история версий: до 100, новые сверху, без документа; чтение с документом; смысловая разница
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:247:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > чужой филиал: версия, разница и восстановление неотличимы от несуществующих (404); чужая картинка не сохраняется
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:281:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > восстановление как новый черновик: r1 → новая r4 от r3, источник MANUAL, опубликованная не меняется; устаревшая база 409
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:301:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > откат MKT7 меняет только опубликованную, восстановление MKT9 только голову
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:328:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > восстановление версии с картинкой, удалённой из библиотеки: 409 ASSET_UNAVAILABLE, головы нет
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:349:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > PATCH: постановка, повтор того же ключа, неверная база, пустая и длинная команда, параллельная задача; журнал без текста
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:360:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > PATCH, воркер: бот получает базу и команду без организации; новая версия AI base+1 с родителем; опубликованная не тронута
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:387:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > PATCH: ИИ меняет телефон → SCHEMA_INVALID и повтор с путями ошибок; голова сменилась до повтора → BASE_VERSION_CHANGED без модели
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:416:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > гонка: ИИ работает с r1, человек сохраняет r2 → результат ИИ не применён, версии r3 от ИИ нет
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:436:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > SECTION: цель проверяется при постановке; бот получает цель; меняется только цель; другая секция → отказ
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:451:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > бюджет общий для всех видов задач: исчерпан → BUDGET_EXCEEDED без вызова бота
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:479:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > предел постановок в час считает и правки: 10 задач за час → 429
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:495:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > архивный сайт: правка, восстановление и сохранение отклоняются
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ save tests/integration/site-editor.test.ts:144:30
+    142|   async function save(w: World, baseRevision: number, spec: Spec): Pro…
+    143|     const r = await call(w, 'POST', '/marketing/site/versions', { base…
+    144|     expect(r.status, r.text).toBe(201);
+       |                              ^
+    145|     return r.body.version;
+    146|   }
+ ❯ tests/integration/site-editor.test.ts:509:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/85]⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor > окно «Создать сайт»: пожелания к первой версии хранятся в задаче, уходят боту отдельным полем, наружу и в журнал не попадают
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ tests/integration/site-editor.test.ts:522:30
+    520|     expect((await call(w, 'POST', '/marketing/site/generations', { req…
+    521|     const r = await call(w, 'POST', '/marketing/site/generations', { r…
+    522|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    523|     expect(r.body.run.type).toBe('INITIAL');
+    524|     expect(r.text).not.toContain('ПОЖЕЛАНИЕ_ВЛАДЕЛЬЦА');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > счастливый путь: бриф → задача → воркер → версия AI revision 1, публикация не тронута, журнал без документа
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:251:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > постановка: только свой сайт, без версии, с текущим брифом, строгое тело, повтор ключа даёт ту же задачу
+AssertionError: expected 403 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 403
+
+ ❯ tests/integration/site-generation.test.ts:299:26
+    297|
+    298|     const stale = await request(w, 'f'.repeat(64));
+    299|     expect(stale.status).toBe(409);
+       |                          ^
+    300|     expect(await db.generationRun.count({ where: { siteId: w.site } })…
+    301|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > сайт с версией: 409, INITIAL не правка
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:323:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > лимит постановок: 10 за час на человека
+AssertionError: expected 403 to be 429 // Object.is equality
+
+- Expected
++ Received
+
+- 429
++ 403
+
+ ❯ tests/integration/site-generation.test.ts:340:22
+    338|     await sql.query(`UPDATE generation_runs SET status = 'CANCELLED', …
+    339|     const r = await request(w, (await briefOf(w)).briefHash);
+    340|     expect(r.status).toBe(429);
+       |                      ^
+    341|   });
+    342|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > BRIEF_CHANGED: данные филиала изменились после постановки, модель не вызывается
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:345:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > BASE_VERSION_CHANGED: человек сохранил версию, пока шла генерация; ручная версия остаётся последней
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:354:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > неверный ответ модели: версия не создаётся, повтор только с путём и кодом, расход всех попыток суммируется
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:372:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > неверный вывод «проза вместо JSON у бота»: задача ждёт повтора, версии нет
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > неверный вывод «не тот язык»: задача ждёт повтора, версии нет
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > неверный вывод «больше 256 КБ»: задача ждёт повтора, версии нет
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:408:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[57/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > бюджет: расход дня считается по организации, исчерпан, модель не вызывается; соседняя организация не затронута
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:426:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[58/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > неизвестный расход: потерянный ответ даёт USAGE_UNAVAILABLE и запрещает платные вызовы организации до следующих суток UTC
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:464:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[59/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > неполный расход в ответе бота: известная часть записана, задача USAGE_UNAVAILABLE, версии нет
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:485:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[60/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > повтор не переносит вчерашний run на сегодняшний бюджет: BUDGET_DAY_CHANGED без вызова
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:493:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[61/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > падение воркера: до отправки задача возвращается в очередь, после отправки расход неизвестен
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:507:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[62/85]⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > очередь: два воркера не берут одну задачу; одна организация идёт по одной, разные параллельно
+AssertionError: {"code":"SITE_BUILDER_NOT_ENABLED","message":"Конструктор сайта не подключён для этого филиала"}: expected 403 to be 202 // Object.is equality
+
+- Expected
++ Received
+
+- 202
++ 403
+
+ ❯ queued tests/integration/site-generation.test.ts:168:30
+    166|     const brief = await briefOf(w);
+    167|     const r = await request(w, brief.briefHash);
+    168|     expect(r.status, r.text).toBe(202);
+       |                              ^
+    169|     return { id: r.body.run.id, input: brief.input };
+    170|   }
+ ❯ tests/integration/site-generation.test.ts:529:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[63/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-publication.test.ts:127:24
+    125|     slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
+    126|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    127|     expect(res.status).toBe(201);
+       |                        ^
+    128|   }
+    129|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+ ❯ tests/integration/site-publication.test.ts:287:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[64/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/integration/site-publication.test.ts:376:66
+    374|
+    375|   it('§82: пауза канонического управляемого сайта: указатель остаётся,…
+    376|     expect((await call('POST', '/marketing/site/pause')).status).toBe(…
+       |                                                                  ^
+    377|     const managed = (await siteRow('main')).trackedSiteId!;
+    378|     expect(await pointerOf('main')).toBe(managed);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[65/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > MKT7 доводка: хосты сайта счётчика управляемого сайта ровно ACTIVE-домены; чужой хост уходит при синхронизации
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/site-publication.test.ts:385:18
+    383|
+    384|   it('MKT7 доводка: хосты сайта счётчика управляемого сайта ровно ACTI…
+    385|     const site = await siteRow('main');
+       |                  ^
+    386|     const real = `${slugs.main}.${BASE_DOMAIN}`;
+    387|     // строку подменили в обход публикации (старый путь, ручной SQL): …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[66/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > MKT7 доводка: старый /analytics/sites не правит и не удаляет сайт счётчика управляемого сайта; внешний как раньше
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/site-publication.test.ts:395:18
+    393|
+    394|   it('MKT7 доводка: старый /analytics/sites не правит и не удаляет сай…
+    395|     const site = await siteRow('main');
+       |                  ^
+    396|     const managed = site.trackedSiteId!;
+    397|     const before = await db.trackedSite.findUniqueOrThrow({ where: { i…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[67/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/site-publication.test.ts:443:20
+    441|
+    442|   it('§83: архив снимает указатель с управляемого сайта, внешний A сам…
+    443|     const before = await siteRow('main');
+       |                    ^
+    444|     const res = await call('POST', '/marketing/site/archive');
+    445|     expect(res.status, JSON.stringify(res.body)).toBe(200);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[68/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-publication.test.ts:127:24
+    125|     slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
+    126|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    127|     expect(res.status).toBe(201);
+       |                        ^
+    128|   }
+    129|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+ ❯ tests/integration/site-publication.test.ts:457:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[69/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §31–§32: выбранный канонический сайт (даже на паузе) публикация не подменяет, продавец на другой не переходит
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-publication.test.ts:127:24
+    125|     slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
+    126|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    127|     expect(res.status).toBe(201);
+       |                        ^
+    128|   }
+    129|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+ ❯ tests/integration/site-publication.test.ts:468:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[70/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-publication.test.ts:127:24
+    125|     slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
+    126|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    127|     expect(res.status).toBe(201);
+       |                        ^
+    128|   }
+    129|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+ ❯ tests/integration/site-publication.test.ts:479:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[71/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §84: тариф брони только явный, связанный или канонический; первый активный не берётся
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-publication.test.ts:127:24
+    125|     slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
+    126|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    127|     expect(res.status).toBe(201);
+       |                        ^
+    128|   }
+    129|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+ ❯ tests/integration/site-publication.test.ts:493:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[72/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §50, §59: публикация и откат на паузе меняют версию, но сайт не открывается до возобновления
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/site-publication.test.ts:530:20
+    528|   it('§50, §59: публикация и откат на паузе меняют версию, но сайт не …
+    529|     const host = `${slugs.rates}.${BASE_DOMAIN}`;
+    530|     const before = await siteRow('rates');
+       |                    ^
+    531|     const journal = await publications(before.id);
+    532|     const earlier = journal.find((p) => p.action === 'PUBLISH' && p.ve…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[73/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §44–§47: публикуется только голова черновика, документ перепроверяется: картинки (MKT8) и неактивная категория
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-publication.test.ts:127:24
+    125|     slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
+    126|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    127|     expect(res.status).toBe(201);
+       |                        ^
+    128|   }
+    129|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+ ❯ tests/integration/site-publication.test.ts:548:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[74/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-publication.test.ts:127:24
+    125|     slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
+    126|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    127|     expect(res.status).toBe(201);
+       |                        ^
+    128|   }
+    129|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+ ❯ tests/integration/site-publication.test.ts:613:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[75/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/site-publication.test.ts:628:18
+    626|
+    627|   it('§90: превью чужой версии и чужим филиалом: отказ без подробносте…
+    628|     const own = (await siteRow('race')).latestVersionId!;
+       |                  ^
+    629|     expect((await call('POST', '/marketing/site/preview', { location: …
+    630|     expect((await call('POST', '/marketing/site/preview', { user: 'B',…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[76/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/site-publication.test.ts:642:21
+    640|     expect(await pointerOf('auto')).toBeNull();
+    641|     // приостановленный сайт выбрать нельзя
+    642|     const paused = (await siteRow('main')).trackedSiteId!;
+       |                     ^
+    643|     expect((await call('PUT', '/marketing/site/booking-source', { loca…
+    644|       'BOOKING_SOURCE_NOT_ELIGIBLE',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[77/85]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ createSite tests/integration/site-publication.test.ts:127:24
+    125|     slugs[key] = `mkt7-${key}-${randomUUID().slice(0, 6)}`;
+    126|     const res = await call('POST', '/marketing/site', { location: L[ke…
+    127|     expect(res.status).toBe(201);
+       |                        ^
+    128|   }
+    129|   async function save(key: keyof typeof L, revision: number, spec: Spe…
+ ❯ tests/integration/site-publication.test.ts:650:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[78/85]⎯
+
+
+ Test Files  5 failed (5)
+      Tests  85 failed | 8 passed (93)
+   Start at  07:21:04
+   Duration  14.18s (tests 44%, import 38%, transform 18%)
+
+JSON report written to /tmp/pms-test-2026-10-08T07-21-03Z-integration-cd7c.json
+
+# код выхода 1 · 15 с

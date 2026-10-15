@@ -1,0 +1,142 @@
+# Модульные (unit) · 07.10.2026 18:08 Алматы · vm
+# коммит 1b4215e (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T13-08-34Z-unit-0a26.json' 'apps/sites/src/worker.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/sites/src/worker.test.ts (21 tests | 5 failed) 149ms
+   ✓ страница сайта (9)
+     ✓ главная: 200, HTML с lang, H1, заголовки безопасности, короткий кэш, noindex в dev 93ms
+     ✓ скрипты только WETOP: счётчик и виджет с ключом связанного сайта, своих встроенных скриптов нет 6ms
+     ✓ согласие на счётчик: data-consent="wait" 3ms
+     ✓ бронь выключена у сайта счётчика: ни виджета, ни Turnstile в CSP 2ms
+     ✓ связанного сайта счётчика нет: ни одного внешнего скрипта, script-src none 3ms
+     ✓ вторая страница по адресу, хвостовая косая черта 301, неизвестный путь 404 в оболочке сайта 4ms
+     ✓ HEAD без тела; POST 405 2ms
+     ✓ robots.txt и sitemap.xml по хосту 2ms
+     ✓ стили: файл с хэшем, долгий неизменяемый кэш, без запроса к API 1ms
+   ✓ цена «от» (Q-276) (3)
+     ✓ главная: скрипт цен в CSP через self, числа цены в HTML нет 2ms
+     ✓ файл цен: JavaScript, долгий кэш, без запроса к API 1ms
+     ✓ бронь сайта выключена: ни скрипта цен, ни секции цен, ни self в script-src 2ms
+   ✓ отказы без имени сайта (4)
+     ✓ неизвестный хост 404: нейтральная страница, имени нет 1ms
+     ✓ неверный документ: 503, не кэшируется 1ms
+     ✓ незнакомая секция в документе: 503 и запись в лог, а не частичная страница 2ms
+     ✓ сайт не запрашивает API за favicon.ico 0ms
+   ❯ MKT7: основной хост и превью (5)
+     × не основной хост: 301 на основной с тем же путём и запросом 10ms
+     × превью: только версия из токена, без скриптов WETOP, noindex, private no-store, без referrer 2ms
+     × превью: robots.txt запрещает всё, карты сайта нет, без токена API не спрашивается 2ms
+     × превью: истёкшая ссылка 410, испорченная 404, нейтрально и без имени сайта 1ms
+     × хост не имя (IP, одна часть): 404 без запроса к API 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/sites/src/worker.test.ts > MKT7: основной хост и превью > не основной хост: 301 на основной с тем же путём и запросом
+AssertionError: expected 200 to be 301 // Object.is equality
+
+- Expected
++ Received
+
+- 301
++ 200
+
+ ❯ apps/sites/src/worker.test.ts:207:24
+    205|     const { get } = runtime({ 'old.sites.test': ok({ primaryHost: 'lux…
+    206|     const res = await get('https://old.sites.test/privacy?utm_source=x…
+    207|     expect(res.status).toBe(301);
+       |                        ^
+    208|     expect(res.headers.get('location')).toBe('https://luxx.sites.test/…
+    209|     const { get: same } = runtime({ 'luxx.sites.test': ok({ primaryHos…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/sites/src/worker.test.ts > MKT7: основной хост и превью > превью: только версия из токена, без скриптов WETOP, noindex, private no-store, без referrer
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ apps/sites/src/worker.test.ts:216:24
+    214|     const { get, calls } = previewRuntime({ status: 200, body: preview…
+    215|     const res = await get('https://preview.sites.test/?token=<скрыто>');
+    216|     expect(res.status).toBe(200);
+       |                        ^
+    217|     expect(calls).toEqual(['/sites-runtime/preview?token=<скрыто>']);
+    218|     const html = await res.text();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/sites/src/worker.test.ts > MKT7: основной хост и превью > превью: robots.txt запрещает всё, карты сайта нет, без токена API не спрашивается
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ apps/sites/src/worker.test.ts:231:27
+    229|     const { get, calls } = previewRuntime({ status: 200, body: preview…
+    230|     const robots = await get('https://preview.sites.test/robots.txt');
+    231|     expect(robots.status).toBe(200);
+       |                           ^
+    232|     expect(await robots.text()).toContain('Disallow: /');
+    233|     expect((await get('https://preview.sites.test/sitemap.xml?token=ab…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/sites/src/worker.test.ts > MKT7: основной хост и превью > превью: истёкшая ссылка 410, испорченная 404, нейтрально и без имени сайта
+AssertionError: expected 404 to be 410 // Object.is equality
+
+- Expected
++ Received
+
+- 410
++ 404
+
+ ❯ apps/sites/src/worker.test.ts:242:28
+    240|   it('превью: истёкшая ссылка 410, испорченная 404, нейтрально и без и…
+    241|     const expired = await previewRuntime({ status: 410, body: { code: …
+    242|     expect(expired.status).toBe(410);
+       |                            ^
+    243|     expect(expired.headers.get('cache-control')).toBe('private, no-sto…
+    244|     const bad = await previewRuntime({ status: 404 }).get('https://pre…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/sites/src/worker.test.ts > MKT7: основной хост и превью > хост не имя (IP, одна часть): 404 без запроса к API
+AssertionError: expected [ '/sites-runtime/current', …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "/sites-runtime/current",
++   "/sites-runtime/current",
++ ]
+
+ ❯ apps/sites/src/worker.test.ts:253:19
+    251|     expect((await get('http://127.0.0.1/')).status).toBe(404);
+    252|     expect((await get('http://localhost/')).status).toBe(404);
+    253|     expect(calls).toEqual([]);
+       |                   ^
+    254|   });
+    255| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 16 passed (21)
+   Start at  13:08:35
+   Duration  1.03s (transform 74%, tests 19%, import 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T13-08-34Z-unit-0a26.json
+
+# код выхода 1 · 2 с

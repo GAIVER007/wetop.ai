@@ -2,43 +2,36 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 /**
- * Главная как ряд понятных блоков (plans/site-home-clear-blocks-2026-10-01.md). Владелец 01.10.2026: «информация
- * непонятная, блоки тоже непонятно какие там есть». Правило страницы: каждый блок виден целиком без вкладок и
- * переключателей, у каждого свой надзаголовок и заголовок, который называет блок словами; порядок блоков фиксирован;
- * меню шапки и карта разделов на первом экране ведут на эти блоки.
+ * Главная LAND2 v2 (09.10.2026, по снимку владельца; пометки владельца 13.10.2026): hero с дашборд-мокапом,
+ * «Три направления» с фото, «Возможности» тремя вкладками, «Продажи, маркетинг, ИИ» тремя витринами
+ * с примерами, «Команда», под ней «Запуск», FAQ рядом с карточкой призыва. Слова «пилот» на странице нет (решение владельца
+ * 09.10.2026), примеры подписаны вымышленными, якоря `#market` и `#ai-sellers` живут на карточках.
  */
 const BLOCKS = [
-  { id: 'audience', title: /Отели, хостелы и апартаменты/ },
-  { id: 'features', title: /Что умеет WETOP/ },
-  // фишка №1 (ADR-142): сразу за возможностями
-  { id: 'market', title: /Загрузка конкурентов/ },
-  { id: 'sales', title: /Откуда приходят брони/ },
-  { id: 'ai-sellers', title: /ИИ-продавец/ },
-  { id: 'team', title: /Команда и доступ/ },
-  { id: 'start', title: /четыре шага/i },
-  { id: 'faq', title: /Вопросы и ответы/ },
+  { id: 'audience', title: /Три направления. Одна платформа/ },
+  { id: 'features', title: /Главные возможности WETOP/ },
+  { id: 'sales', title: /Больше клиентов без лишней работы/ },
+  { id: 'team', title: /Команда и контроль доступа/ },
+  { id: 'faq', title: /Частые вопросы/ },
 ];
 
-/** Блоки прежних версий главной: абстрактные лозунги, вкладки и дубли возможностей. Их на странице больше нет. */
+/** Секции прежних версий главной: их на странице больше нет (слиты или удалены). */
 const GONE = ['about', 'workflow', 'product-details', 'toolkit', 'control'];
 
-test('новая главная сразу называет гостиничный продукт и дает мобильную навигацию', async ({ page }) => {
+test('главная объясняет платформу и оставляет регистрацию в мобильной шапке', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-
-  await expect(page.getByRole('heading', { level: 1 })).toContainText(
-    'Управляйте отелем из одного окна',
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Управляйте бронированиями, клиентами и командой из одного окна',
   );
-  const mobileNav = page.getByRole('navigation', { name: 'Разделы главной' });
-  await expect(mobileNav).toBeVisible();
-  await expect(mobileNav.getByRole('link')).toHaveCount(4);
-  await expect(page.locator('main > div').first()).toHaveCSS('padding-bottom', /[1-9]/);
-
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await expect(mobileNav).toBeHidden();
+  await expect(page.getByRole('navigation', { name: 'Разделы главной' })).toHaveCount(0);
+  await expect(page.locator('.site-header__register')).toBeVisible();
+  await expect(page.locator('.mobile-menu__button')).toBeVisible();
 });
 
-test('блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами', async ({ page }) => {
+test('блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами', async ({
+  page,
+}) => {
   await page.goto('/');
   const ids = await page
     .locator('main section[id]')
@@ -46,151 +39,155 @@ test('блоки идут в заданном порядке, у каждого 
   expect(ids.filter((id) => BLOCKS.some((b) => b.id === id))).toEqual(BLOCKS.map((b) => b.id));
   for (const block of BLOCKS) {
     const section = page.locator(`#${block.id}`);
-    await expect(section.locator('.eyebrow').first(), `надзаголовок #${block.id}`).toBeVisible();
-    await expect(section.getByRole('heading', { level: 2 }), `заголовок #${block.id}`).toContainText(
-      block.title,
-    );
+    // Единый финал (10.10.2026) без надзаголовка: заголовок «Частые вопросы» по центру сам за себя
+    if (block.id !== 'faq') {
+      await expect(
+        section.locator('.eyebrow, .public-intro__eyebrow').first(),
+        `надзаголовок #${block.id}`,
+      ).toBeVisible();
+    }
+    await expect(
+      section.getByRole('heading', { level: 2 }).first(),
+      `заголовок #${block.id}`,
+    ).toContainText(block.title);
   }
   for (const id of GONE) {
     await expect(page.locator(`#${id}`), `старый блок #${id}`).toHaveCount(0);
   }
+  // «Запуск за четыре шага» живёт внутри секции команды, со своим заголовком
+  await expect(page.locator('#team #start').getByRole('heading', { level: 2 })).toContainText(
+    'Запуск за четыре шага',
+  );
+  // Старые якоря #market и #ai-sellers живут на витринах «Продаж, маркетинга, ИИ», старые ссылки не ломаются
+  await expect(page.locator('#sales #ai-sellers')).toHaveCount(1);
+  await expect(page.locator('#sales #market')).toHaveCount(1);
 });
 
-test('содержимое блоков видно сразу: без вкладок, восемь возможностей, четыре входа броней, три карточки команды', async ({
-  page,
-}) => {
+test('«Возможности» вкладками, три витрины продаж, четыре шага', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-  await expect(page.locator('main [role="tablist"]')).toHaveCount(0);
-  const features = page.locator('#features .card');
-  await expect(features).toHaveCount(8);
-  for (const card of await features.all()) await expect(card).toBeVisible();
-  await expect(page.locator('#features')).toContainText(/Шахматка/);
-  await expect(page.locator('#features')).toContainText(/Каналы продаж/);
-  await expect(page.locator('#features')).toContainText(/Счета и оплаты/);
-  await expect(page.locator('#sales .card')).toHaveCount(5); // четыре входа и карточка с калькулятором
-  await expect(page.locator('#sales a[href="/calculator/"]')).toBeVisible();
-  await expect(page.locator('#team .card')).toHaveCount(3);
-  await expect(page.locator('#ai-sellers')).toContainText(/отдельное расширение/i);
-  await expect(page.locator('#faq details')).toHaveCount(6);
+  const tabs = page.locator('#features').getByRole('tab');
+  await expect(tabs).toHaveText([/Работа бизнеса/, /Маркетинг/, /Продажи с ИИ/]);
+  // Все 15 карточек есть в HTML, видна только первая вкладка
+  await expect(page.locator('#features .card')).toHaveCount(15);
+  const panel = page.locator('#features').getByRole('tabpanel');
+  await expect(panel).toHaveCount(1);
+  await expect(panel.locator('.card')).toHaveCount(6);
+  await expect(panel).toContainText(/Шахматка/);
+  await tabs.nth(1).click();
+  await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#features').getByRole('tabpanel')).toContainText(/Загрузка конкурентов/);
+  // Клавиатура: стрелка вправо переводит на следующую вкладку
+  await tabs.nth(1).press('ArrowRight');
+  await expect(tabs.nth(2)).toBeFocused();
+  await expect(page.locator('#features').getByRole('tabpanel')).toContainText(/ИИ-продавец/);
+  // По согласованному дизайну бейджи убраны, вкладки сохраняют все карточки.
+  await expect(page.locator('#features .features__soon')).toHaveCount(0);
+  await expect(page.locator('#sales .growth__module')).toHaveCount(3);
+  await expect(page.locator('#team .team-start__cards .card')).toHaveCount(3);
+  await expect(page.locator('#start .step')).toHaveCount(4);
+  await expect(page.locator('#faq details')).toHaveCount(5);
   await expect(page.locator('#faq details summary').first()).toBeVisible();
 });
 
-/**
- * 02.10.2026, поручение владельца «сделай максимально понятной и удобной». Страницу нельзя было просмотреть:
- * в каждой карточке лежал абзац в три-пять строк, двадцать одинаковых прямоугольников подряд, а две кнопки
- * первого экрана не помещались в колонку и вставали в столбик разной ширины. Эти три проверки держат правку.
- */
-test('первый экран: две кнопки стоят в одну строку, факты уехали в полосу под ним', async ({ page }) => {
+test('первый экран: две кнопки в строку, направления сразу после Hero', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const tops = await page
-    .locator('.hero .hero__actions a')
+    .locator('.public-intro__actions a')
     .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
-  expect(tops.length, 'кнопок на первом экране две').toBe(2);
-  expect(tops[0], 'кнопки первого экрана встали в столбик').toBe(tops[1]);
-  // три факта под чертой ушли с первого экрана: он и без них в семь уровней
-  await expect(page.locator('.hero .hero__points')).toHaveCount(0);
-
-  // полоса фактов сразу под первым экраном: четыре коротких ответа «что это даёт»
-  const facts = page.locator('.facts__item');
-  await expect(facts).toHaveCount(4);
-  for (const fact of await facts.all()) {
-    await expect(fact.getByRole('heading', { level: 2 })).toBeVisible();
-    expect((await fact.innerText()).length, 'факт должен читаться одним взглядом').toBeLessThan(120);
-  }
-  const order = await page
-    .locator('main section')
-    .evaluateAll((els) => els.map((el) => el.className));
-  expect(order.findIndex((c) => c.includes('facts')), 'полоса фактов идёт сразу за первым экраном').toBe(1);
+  expect(tops).toHaveLength(2);
+  expect(tops[0]).toBe(tops[1]);
+  const ids = await page.locator('main section').evaluateAll((els) => els.map((el) => el.id));
+  expect(ids.slice(0, 2)).toEqual(['product', 'audience']);
+  await expect(page.locator('.facts')).toHaveCount(0);
 });
 
 test('карточки блоков читаются одной фразой, а не абзацем', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const long: string[] = [];
-  for (const block of ['#features', '#sales', '#team', '#audience']) {
+  for (const block of ['#features', '#team', '#audience']) {
     for (const text of await page.locator(`${block} .card__text`).allInnerTexts()) {
       if (text.length > 108) long.push(`${block}: ${text.length} знаков: ${text.slice(0, 40)}`);
     }
   }
   expect(long, 'текст карточки длиннее одной фразы').toEqual([]);
-  // «Что умеет WETOP»: восемь строк-пунктов в две колонки вместо восьми карточек-колонок
-  await expect(page.locator('#features .card-grid--2')).toBeVisible();
-  await expect(page.locator('#features .card--compact')).toHaveCount(8);
-  const titles = await page.locator('#features .card__title').allInnerTexts();
-  expect(titles, 'заголовок карточки в две строки').not.toContain('Аналитика и финансы за период');
+  // «Возможности»: сетка 3 в ряд на компьютере, компактные карточки
+  await expect(page.locator('#features .card-grid--3:visible')).toHaveCount(1);
+  await expect(page.locator('#features .card--compact')).toHaveCount(15);
 });
 
-test('ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки', async ({
+test('«Продажи, маркетинг, ИИ»: примеры подписаны вымышленными, ИИ назван отдельным расширением', async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-  const link = page.locator('#sales .card > .link-arrow');
-  await expect(link).toHaveCount(1);
-  const card = page.locator('#sales .card', { has: page.locator('> .link-arrow') });
-  const linkBox = (await link.boundingBox())!;
-  const cardBox = (await card.boundingBox())!;
-  expect(Math.round(linkBox.height), 'ссылка переносится на вторую строку').toBeLessThan(48);
-  expect(
-    Math.round(linkBox.width),
-    'ссылка растянута во всю ширину карточки, а не по тексту',
-  ).toBeLessThan(Math.round(cardBox.width) - 48);
+  const market = page.locator('#market');
+  await expect(market).toContainText('Маркетинг, который видит рынок');
+  await expect(market).toContainText('Средняя цена на 17 октября');
+  await expect(market).toContainText('Пример сравнения цен. Данные вымышленные.');
+  await expect(market.getByRole('link', { name: /Смотреть рынок/ })).toHaveAttribute(
+    'href',
+    /\/market$/,
+  );
+  const ai = page.locator('#ai-sellers');
+  await expect(ai).toContainText('ИИ-продавец');
+  await expect(ai).toContainText('Пример диалога. Данные вымышленные.');
+  await expect(ai).toContainText(/Отдельное расширение/);
+  // чат-мокап не имитирует интерфейс: внутри панели нет кнопок и полей
+  await expect(
+    ai.locator('.growth__panel a, .growth__panel button, .growth__panel input'),
+  ).toHaveCount(0);
+  await expect(page.locator('#sales')).not.toContainText(/пилот/i);
+  // Лента заявок трёх направлений: четыре канала, имена площадок буквами, а не логотипами, пример подписан
+  const feed = page.locator('#channels-feed');
+  await expect(feed.locator('.growth__feed > li')).toHaveCount(4);
+  await expect(feed).toContainText('Booking.com');
+  await expect(feed).toContainText('Пример ленты заявок. Данные вымышленные.');
+  const axe = await new AxeBuilder({ page }).include('#sales').analyze();
+  expect(axe.violations).toEqual([]);
 });
 
-test('первый экран: карта разделов ведёт на блоки страницы', async ({ page }) => {
+test('первый экран: дашборд подписан примером и не имитирует кнопки', async ({ page }) => {
+  await page.goto('/');
+  const preview = page.locator('.public-intro__figure img');
+  await expect(preview).toBeVisible();
+  await expect(preview).toHaveAttribute('alt', /Гостиница/);
+  await expect.poll(() => preview.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+  await expect(preview.locator('..').locator('a, button, [role="button"]')).toHaveCount(0);
+  await expect(page.locator('.public-intro__figure')).toContainText(
+    'Пример интерфейса. Данные вымышленные.',
+  );
+});
+
+test('первый экран: мокап переключается между гостиницей, салоном и рестораном', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-  const map = page.locator('.hero .product-map');
-  await expect(map).toBeVisible();
-  const tiles = map.getByRole('link');
-  await expect(tiles).toHaveCount(6);
-  for (const word of ['Операции', 'Продажи', 'Команда', 'Финансы', 'Аналитика', 'ИИ-продавцы']) {
-    await expect(map).toContainText(word);
-  }
-  const hrefs = await tiles.evaluateAll((els) => els.map((el) => el.getAttribute('href')));
-  for (const href of hrefs) expect(['#features', '#sales', '#team', '#ai-sellers']).toContain(href);
-  await expect(map.locator('.vertical-status')).toHaveCount(0);
-  await expect(page.locator('.hero')).toContainText(/Схема разделов/);
-  await tiles.filter({ hasText: 'Продажи' }).click();
-  await expect(page.locator('#sales')).toBeInViewport();
+  const switcher = page.getByRole('group', { name: 'Показать экран для направления' });
+  const preview = page.locator('.public-intro__figure img');
+  await expect(switcher.getByRole('button', { name: 'Гостиница' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(preview).toHaveAttribute('src', '/design-only/hospitality.svg');
+  await switcher.getByRole('button', { name: 'Салон' }).click();
+  await expect(switcher.getByRole('button', { name: 'Салон' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(preview).toHaveAttribute('src', '/design-only/beauty.svg');
+  await expect(preview).toHaveAttribute('alt', /Салон/);
+  await switcher.getByRole('button', { name: 'Ресторан' }).click();
+  await expect(preview).toHaveAttribute('src', '/design-only/restaurant.svg');
+  await expect(preview).toHaveAttribute('alt', /Ресторан/);
+  await expect.poll(() => preview.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
 });
 
 /**
- * 03.10.2026, решение владельца: внутренней дорожной карты на странице нет. «Направления», «Первое направление:
- * Hospitality», «Следующее направление» и «подключить его пока нельзя» говорили посетителю, что продукт недоделан,
- * а салону, что ему сюда нельзя. Салоны теперь зовут словами, но без обещания функций, которых в системе нет.
+ * 03.10.2026, решение владельца: внутренней дорожной карты на странице нет; 09.10.2026 владелец
+ * подтвердил: слова «пилот» не используем нигде.
  */
-test('на главной нет дорожной карты направлений', async ({ page }) => {
+test('на главной нет дорожной карты направлений и слова «пилот»', async ({ page }) => {
   await page.goto('/');
   const text = await page.locator('main').innerText();
-  for (const word of [
-    'Первое направление',
-    'Следующее направление',
-    'Hospitality',
-    'Beauty',
-    'пока нельзя',
-  ]) {
+  for (const word of ['Первое направление', 'Следующее направление', 'пока нельзя']) {
     expect(text, `слово дорожной карты на главной: ${word}`).not.toContain(word);
   }
-});
-
-test('салоны и студии названы среди тех, кого подключаем, со ссылкой написать', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/');
-  const invite = page.locator('#audience .invite');
-  await expect(invite).toBeVisible();
-  await expect(invite).toContainText(/Салоны и студии/);
-  await expect(invite).toContainText(/подключаем/i);
-  // приглашение ведёт на почту из site.config.ts, а не на регистрацию: салонных функций в системе ещё нет
-  await expect(invite.locator('a[href^="mailto:"]')).toHaveCount(1);
-  await expect(invite.locator('[data-auth="register"]')).toHaveCount(0);
-  // записи, мастера и расписание услуг не обещаются (DESIGN.md §19.9)
-  const text = await page.locator('main').innerText();
-  for (const word of ['журнал записи', 'мастеров', 'онлайн-запись']) {
-    expect(text, `обещание салонной функции: ${word}`).not.toContain(word);
-  }
+  expect(text).not.toMatch(/пилот/i);
 });
 
 /**
@@ -213,19 +210,51 @@ test('меню шапки ведёт на блоки, а не на абстра�
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const nav = page.getByRole('navigation', { name: 'Основная навигация' });
-  const hrefs = await nav.getByRole('link').evaluateAll((els) => els.map((el) => el.getAttribute('href')));
-  expect(hrefs).toEqual(['/#audience', '/#features', '/#sales', '/#start']);
+  const hrefs = await nav
+    .getByRole('link')
+    .evaluateAll((els) => els.map((el) => el.getAttribute('href')));
+  expect(hrefs).toEqual(['/#product', '/#audience', '/#features', '/#sales', '/#start']);
+});
+
+test('карточка призыва и подвал: правовые страницы, контакты, без чисел клиентов', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const final = page.locator('#get-started');
+  await expect(final.getByRole('heading', { level: 2 })).toContainText(
+    'Попробуйте WETOP в своём бизнесе',
+  );
+  await expect(final.locator('[data-auth="register"]')).toHaveCount(1);
+  await expect(final.getByRole('link', { name: 'Связаться с нами' })).toHaveAttribute(
+    'href',
+    /^mailto:/,
+  );
+  await expect(final).toContainText('Контакты:');
+  await expect(final).not.toContainText(/тысяч|клиентов уже/i);
+  const footer = page.locator('.site-footer');
+  await expect(footer.locator('a[href="/calculator/"]')).toHaveCount(0);
+  await expect(footer.getByRole('navigation', { name: 'Правовая информация' })).toBeVisible();
+  await expect(footer.getByRole('link', { name: 'Политика конфиденциальности' })).toHaveAttribute(
+    'href',
+    '/privacy/',
+  );
+  await expect(footer.getByRole('link', { name: 'Пользовательское соглашение' })).toHaveAttribute(
+    'href',
+    '/terms/',
+  );
 });
 
 test('в текстах главной нет длинного тире и разделителя « · »', async ({ page }) => {
   await page.goto('/');
   const text = await page.locator('main').innerText();
-  expect(text, 'длинное тире в тексте главной (AGENTS.md §19)').not.toContain('—');
+  expect(text, 'длинное тире в тексте главной (CLAUDE.md §5)').not.toContain('—');
   expect(text).not.toContain(' · ');
 });
 
 for (const width of [320, 390, 768, 1440]) {
-  test(`главная помещается в ${width} px и открывает регистрацию с первого экрана`, async ({ page }) => {
+  test(`главная помещается в ${width} px и открывает регистрацию с первого экрана`, async ({
+    page,
+  }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
@@ -236,10 +265,9 @@ for (const width of [320, 390, 768, 1440]) {
         ),
       ),
     ).toBeLessThanOrEqual(1);
-    // кнопка «Смотреть возможности»: плитки карты разделов ведут на тот же блок, но это другие ссылки
-    await page.locator('.hero .hero__actions a[href="#features"]').click();
+    await page.locator('.public-intro__actions a[href="#features"]').click();
     await expect(page.locator('#features')).toBeInViewport();
-    await page.locator('.hero [data-auth="register"]').click();
+    await page.locator('.public-intro [data-auth="register"]').click();
     await expect(page.getByRole('dialog')).toBeVisible();
   });
 }
@@ -258,26 +286,30 @@ test('блоки доступны в обеих темах', async ({ page }) =>
   }
 });
 
-test('FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор', async ({ page }) => {
+test('FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор', async ({
+  page,
+}) => {
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
   await page.goto('/');
   await page.getByRole('button', { name: 'Переключить тему' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await page.getByText('Можно продавать номера и отдельные койки?', { exact: true }).click();
-  await expect(page.locator('#faq details[open]')).toContainText('отдельные единицы');
+  await page
+    .getByText('Чем WETOP отличается для гостиницы, салона и ресторана?', { exact: true })
+    .click();
+  await expect(page.locator('#faq details[open]')).toContainText('план зала');
 });
 
-test('«Загрузка конкурентов»: четыре пункта, пример помечен примером, кнопка ведёт в раздел стойки, сбор ИИ не обещан готовым', async ({
-  page,
-}) => {
-  await page.goto('/');
-  const block = page.locator('#market');
-  await expect(block.locator('.seller-details__steps > li')).toHaveCount(4);
-  await expect(block.getByRole('complementary')).toContainText('Пример');
-  await expect(block.getByRole('link', { name: /Открыть раздел/ })).toHaveAttribute('href', /\/market$/);
-  await expect(block).toContainText(/готовим/);
-  const axe = await new AxeBuilder({ page }).include('#market').analyze();
-  expect(axe.violations).toEqual([]);
-});
+/** Правовые страницы: открываются, доступны и подписаны редакцией. */
+for (const path of ['/privacy/', '/terms/'] as const) {
+  test(`${path}: заголовок, редакция, доступность`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.locator('.legal__meta')).toContainText(/Редакция от/);
+    const axe = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(axe.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+}

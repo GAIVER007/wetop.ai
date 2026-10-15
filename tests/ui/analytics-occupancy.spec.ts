@@ -45,7 +45,10 @@ test('по умолчанию — сегодняшний день: пять пл
   const kpis = main.getByTestId('pa-occupancy-kpis');
   for (const label of ['Загрузка', 'Занято', 'Свободно', 'Заблокировано', 'Без размещения'])
     await expect(kpis).toContainText(label);
-  await expect(kpis.locator('.kpi')).toHaveCount(5);
+  // при «Всех» с номерами и койками загрузка идёт двумя плитками (ADR-155, Q-287): номера и койки порознь
+  await expect(kpis).toContainText('Загрузка номеров');
+  await expect(kpis).toContainText('Загрузка коек');
+  await expect(kpis.locator('.kpi')).toHaveCount(6);
   const table = main.getByTestId('statistics-table');
   await expect(table.locator('tbody tr')).toHaveCount(3);
   await expect(table.locator('thead')).toContainText('Мест');
@@ -69,7 +72,9 @@ test('по умолчанию — сегодняшний день: пять пл
   await expect(rank).toContainText('к среднему');
 });
 
-test('знаменатель прежний: заблокированное место остаётся в фонде загрузки', async ({ page }) => {
+test('знаменатель по ADR-155: закрытое для продажи место вычитается из фонда загрузки', async ({
+  page,
+}) => {
   const main = page.getByRole('main');
   // закрываем одну свободную на сегодня койку женского номера
   const board = await (
@@ -102,13 +107,15 @@ test('знаменатель прежний: заблокированное ме
   expect(block).toBeGreaterThanOrEqual(1);
   // места категории не теряются: занято + свободно + блок = весь фонд категории
   expect(occupied + freeNow + block).toBe(units);
-  // загрузка = занято / весь фонд, а не занято / (фонд − блок)
+  // загрузка = занято / (фонд − закрытое для продажи), ADR-155; до 09.10.2026 было занято / весь фонд
   const expected = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
-    Math.round((occupied / units) * 1000) / 10,
+    Math.round((occupied / (units - block)) * 1000) / 10,
   );
   await expect(cells.nth(6)).toContainText(`${expected} %`);
   await expect(main.getByTestId('pa-kpi-blocked')).not.toHaveText('0');
-  await expect(main.locator('.kpi--occupancy .kpi__hint')).toContainText('из 72 мест фонда');
+  await expect(main.locator('.kpi--occupancy .kpi__hint')).toContainText(
+    `из ${72 - block} мест, доступных к продаже`,
+  );
 });
 
 test('без размещения: групповая бронь на три койки без места — три проживания и ссылка разместить', async ({

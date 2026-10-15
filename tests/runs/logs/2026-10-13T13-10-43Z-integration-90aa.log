@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 13.10.2026 18:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит b25addf (codex/organizations-card-editor), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-10-43Z-integration-90aa.json' 'tests/integration/organization-feedback.test.ts' 'tests/integration/business-card-metadata.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |integration| tests/integration/business-card-metadata.test.ts (5 tests) 1437ms
+ ✓ |integration| tests/integration/organization-feedback.test.ts (3 tests) 721ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  06:10:54
+   Duration  20.93s (import 55%, transform 30%, tests 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-10-43Z-integration-90aa.json
+
+# код выхода 0 · 32 с

@@ -1,0 +1,30 @@
+{
+ "/reservations/20260913-TESTAA": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бронь 20260913-TESTAA",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:Гость Тестовый 118x19"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бронь 20260913-TESTAA",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Бронь 20260913-TESTAA",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

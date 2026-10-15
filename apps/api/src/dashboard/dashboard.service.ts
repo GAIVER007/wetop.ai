@@ -91,7 +91,12 @@ export class DashboardService {
         ? { knownChannels: [...channex.KNOWN_CHANNEL_KEYS].map((k) => channex.otaChannelLabel(k)) }
         : {}),
     };
-    const current = buildChannelEfficiency(await this.repo.stays(q.from!, q.to!), q.from!, q.to!, opts);
+    const current = buildChannelEfficiency(
+      await this.repo.stays(q.from!, q.to!),
+      q.from!,
+      q.to!,
+      opts,
+    );
     const previous =
       q.compareFrom !== undefined
         ? buildChannelEfficiency(
@@ -105,20 +110,34 @@ export class DashboardService {
   }
 
   /** `fund` — тип фонда (Аналитика v2, AN1): номера и койки считаются раздельно, оба отрезка одним типом */
-  async dashboard(from?: string, to?: string, fund: string = 'all'): Promise<DashboardView> {
+  async dashboard(
+    from?: string,
+    to?: string,
+    fund: string = 'all',
+    category?: string,
+  ): Promise<DashboardView> {
     this.checked(from, to, fund);
+    if (category !== undefined && (category.length === 0 || category.length > 64))
+      throw new BadRequestException('category: код категории, не длиннее 64 знаков');
     const prev = previousPeriod(from!, to!);
     // Последовательно: у API пул на 5 соединений, а шахматка сама ходит в базу в несколько запросов
-    const current = await this.period(from!, to!, fund as DashboardFund);
-    const previous = await this.period(prev.from, prev.to, fund as DashboardFund);
+    const current = await this.period(from!, to!, fund as DashboardFund, category);
+    const previous = await this.period(prev.from, prev.to, fund as DashboardFund, category);
     return { current, previous };
   }
 
-  private async period(from: string, to: string, fund: DashboardFund): Promise<DashboardPeriod> {
+  private async period(
+    from: string,
+    to: string,
+    fund: DashboardFund,
+    category?: string,
+  ): Promise<DashboardPeriod> {
     // Шахматка сама ходит в базу в четыре запроса — её держим отдельно; остальные четыре выборки
     // друг от друга не зависят и идут одновременно. Было десять рейсов подряд на один экран, и на
     // задержках сети до Сингапура это стоило секунд (разбор «всё тормозит», 16.09.2026).
     const board = await this.repo.board(from, to);
+    if (category !== undefined && !board.categories.some((c) => c.code === category))
+      throw new BadRequestException('category: такой категории в объекте нет');
     const [stays, charges, payments, refundsMinor] = await Promise.all([
       this.repo.stays(from, to),
       this.repo.charges(from, to),
@@ -138,6 +157,7 @@ export class DashboardService {
         refundsMinor,
       },
       fund,
+      category !== undefined ? { category } : {},
     );
   }
 }

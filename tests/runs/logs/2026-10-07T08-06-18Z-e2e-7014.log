@@ -1,0 +1,75 @@
+# Сквозные (e2e) · 07.10.2026 13:06 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv8-audit-20261007), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' '--grep' 'во время переключения'
+[WebServer] (node:52216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52271) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:52276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '3306081583'
+[WebServer] }
+  ✘  1 tests/branches-ui/today.spec.ts:272:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action (7.5s)
+
+
+  1) tests/branches-ui/today.spec.ts:272:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#main-content')
+    Expected: 1
+    Received: 2
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#main-content') with timeout 5000ms
+      - waiting for locator('#main-content')
+        14 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      303 |       await held;
+      304 |       await expect(page.getByTestId('beauty-today')).not.toBeVisible();
+    > 305 |       await expect(page.locator('#main-content')).toHaveCount(1);
+          |                                                   ^
+      306 |       await page.locator('.skip-link').focus();
+      307 |       await page.keyboard.press('Enter');
+      308 |       await expect(page.getByRole('main')).toBeFocused();
+        at /Users/urijzapojnov/wetop-mv8-audit-20261007/tests/branches-ui/today.spec.ts:305:51
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-5c395-та-настоящего-server-action/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-5c395-та-настоящего-server-action/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-5c395-та-настоящего-server-action/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-5c395-та-настоящего-server-action/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/today.spec.ts:272:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action
+
+# код выхода 1 · 17 с

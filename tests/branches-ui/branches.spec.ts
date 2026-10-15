@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-const api = 'http://127.0.0.1:55864';
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
 type Fixture = {
   business: string;
   otherBusiness: string;
@@ -25,13 +25,26 @@ async function reset(request: import('@playwright/test').APIRequestContext): Pro
   return res.json();
 }
 async function choose(page: Page, name: string) {
-  await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
-  await page
-    .getByRole('region', { name: 'Выбор филиала' })
-    .getByRole('button')
-    .filter({ hasText: name })
-    .click();
+  const region = page.getByRole('region', { name: 'Выбор филиала' });
+  // щелчок до гидрации кнопки теряется (страница уже нарисована, обработчика ещё нет): повторяем, пока панель
+  // не откроется; так падал release-checks #252 после смены оболочки на боковое меню
+  await expect(async () => {
+    if (!(await region.isVisible()))
+      await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+    await expect(region).toBeVisible({ timeout: 3000 });
+  }).toPass({ timeout: 20000 });
+  await region.getByRole('button').filter({ hasText: name }).click();
 }
+// Match the accepted MV8 setup: switching is tested independently of the Hospitality training modal.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    const get = Storage.prototype.getItem;
+    Storage.prototype.getItem = function (key: string) {
+      const value = get.call(this, key);
+      return value === null && key.startsWith('wetop.tour.v1:') ? 'done' : value;
+    };
+  });
+});
 test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
   test('несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается', async ({
     page,
@@ -41,12 +54,13 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await page.goto('/scope/resolve?next=%2Ftoday');
     await expect(page).toHaveURL(/\/branches$/);
     expect(await scopeCookie(page)).toBe('');
-    await expect(
-      page.getByRole('heading', { name: 'Сводка по гостиничным филиалам', exact: true }),
-    ).toBeVisible();
-    // Смешанная организация: в гостиничной сводке только отель, салон и рестораны не показываются нулями
-    const summary = page.getByRole('table', { name: 'Статистика по филиалам' });
-    await expect(summary.getByRole('rowheader')).toHaveText(['Тестовый отель']);
+    await expect(page.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
+    await expect(page.locator('.org-card--HOSPITALITY')).toHaveCount(1);
+    await expect(page.locator('.org-card--BEAUTY')).toHaveCount(1);
+    await expect(page.locator('.org-card--BEAUTY')).toContainText('Учёт оплат не подключён');
+    await expect(page.locator('.org-card--HOSPITALITY .org-branch-rows')).toContainText(
+      'Тестовый отель',
+    );
   });
 
   test('устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране', async ({
@@ -109,20 +123,26 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     const hotelB = await (await request.post(`${api}/__test/second-hotel`)).json();
     await setScope(page, `business=${f.hotel};location=${f.locations[4]}`);
     await page.goto('/today');
-    await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     // MV8: рабочий экран дня один на все направления
     await choose(page, 'Тестовый филиал Центр');
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     await choose(page, 'Тестовый салон');
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByTestId('beauty-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
     await choose(page, 'Тестовый филиал Парк');
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByTestId('food-today')).toBeVisible();
+    await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
     expect(await scopeCookie(page)).toBe(`business=${f.business};location=${f.locations[1]}`);
     await choose(page, 'Тестовый отель');
     await expect(page).toHaveURL(/\/today$/);
+    // Гостиница уходит с общего /today на единые «Финансы»: ждём выбранный филиал перед переключателем.
+    await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText(
+      'Тестовый отель',
+    );
+    await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toBeEnabled();
+    await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     await choose(page, 'Гостиница Б');
     // у второго отеля ещё нет номеров: выбор ведёт в его настройку (MV3: владелец с выбранным филиалом попадает в общий
     // экран настройки)
@@ -169,7 +189,7 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
     ),
   ).toBe(`business=${f.business};location=${f.locations[1]}`);
   await page.reload();
-  await expect(page.getByTestId('food-today')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
   await page.goto('/floor-plan');
   await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
   await choose(page, 'Другой тестовый бизнес');
@@ -178,19 +198,36 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   );
   await choose(page, 'Тестовый салон');
   await expect(page).toHaveURL(/\/today$/);
-  await expect(page.getByTestId('beauty-today')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
   await page.goto('/calendar');
   await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
   await choose(page, 'Тестовый отель');
   await expect(page).toHaveURL(/\/today$/);
-  // The accepted branch action preserves a safe Hospitality collection or falls back to Today.
-  await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+  // The accepted branch action preserves a safe Hospitality collection or falls back to the landing.
+  await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
   expect(
     decodeURIComponent(
       (await page.context().cookies()).find((c) => c.name === 'wetop_scope')!.value,
     ),
   ).toBe(`business=${f.hotel};location=${f.locations[4]}`);
   await page.reload();
-  await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+});
+
+test('restaurant-only organization keeps financial widgets without lower panels', async ({
+  page,
+  request,
+}) => {
+  await reset(request);
+  try {
+    await request.post(`${api}/__test/control`, { data: { org: 'B' } });
+    await page.goto('/branches');
+    await expect(page.locator('.org-reference--service')).toBeVisible();
+    await expect(page.locator('.org-bottom, .org-object-results')).toHaveCount(0);
+    await expect(page.getByText('Доход от оплат', { exact: true })).toBeVisible();
+  } finally {
+    await request.post(`${api}/__test/control`, { data: { org: 'A' } });
+    await request.post(`${api}/__test/cleanup`);
+  }
 });

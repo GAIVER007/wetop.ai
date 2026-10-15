@@ -1,0 +1,72 @@
+# Модульные (unit) · 10.10.2026 14:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 421bd69 (claude/market-ai-collector), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T09-41-34Z-unit-be6a.json' 'apps/api/src/market' 'packages/domain/src/market' 'scripts/market'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/168d77cf-79c6-4478-bce4-ce5db6198900/scratchpad/collector-wt
+
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (27 tests) 336ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 584ms
+ ✓ |unit| apps/api/src/marketing-site/asset-storage.test.ts (8 tests) 310ms
+ ✓ |unit| packages/domain/src/marketing/builder.test.ts (18 tests) 333ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (14 tests) 88ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (39 tests) 607ms
+ ✓ |unit| packages/domain/src/marketing/edit.test.ts (30 tests) 621ms
+ ✓ |unit| packages/domain/src/marketing/conversation.test.ts (9 tests) 26ms
+ ✓ |unit| packages/domain/src/marketing/diff.test.ts (9 tests) 167ms
+ ✓ |unit| apps/api/src/marketing-site/asset-fetch.test.ts (50 tests) 127ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 39ms
+ ✓ |unit| packages/domain/src/marketing/host.test.ts (26 tests) 164ms
+ ✓ |unit| packages/domain/src/marketing/assets.test.ts (10 tests) 126ms
+ ✓ |unit| packages/domain/src/marketing/generation.test.ts (18 tests) 435ms
+ ✓ |unit| apps/api/src/marketing-site/preview-token.test.ts (5 tests) 10ms
+ ✓ |unit| scripts/market/pages.test.ts (4 tests) 23ms
+ ✓ |unit| scripts/market/collect.test.ts (9 tests) 62ms
+ ✓ |unit| apps/api/src/marketing-site/asset-image.test.ts (9 tests) 1091ms
+   ✓ MKT8: обработка изображения сайта (9)
+     ✓ картинка: длинная сторона до 2400 без увеличения; логотип до 1600 с прозрачностью 809ms
+ ❯ |unit| apps/api/src/market/market.service.test.ts (7 tests | 1 failed) 52ms
+   ❯ MarketService (7)
+     ✓ пустой раздел: окно 14 ночей с сегодня, сравнение со вчера, своя загрузка из календаря 9ms
+     ✓ параметры окна проверяются словами 4ms
+     ✓ конкурент создаётся, журнал пишется; дубль имени и пустое имя: 400 2ms
+     ✓ не больше 15 действующих конкурентов; архивный место освобождает 2ms
+     × снимки пишутся сегодняшним днём объекта и видны в таблице; пустое снимает значение 27ms
+     ✓ ночь вне окна, повтор ночи, неверный процент, чужой или убранный конкурент: отказ 2ms
+     ✓ история ночи: дни снимков, значения конкурентов и средняя рынка; неверная дата — 400 1ms
+ ✓ |unit| apps/api/src/market/collector.controller.test.ts (8 tests) 520ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/market/market.service.test.ts > MarketService > снимки пишутся сегодняшним днём объекта и видны в таблице; пустое снимает значение
+AssertionError: expected { date: '2026-10-03', bp: 9000, …(3) } to deeply equal { date: '2026-10-03', bp: 9000, …(1) }
+
+- Expected
++ Received
+
+  {
+    "bp": 9000,
+    "count": 1,
+    "date": "2026-10-03",
++   "tight": 1,
++   "withLevel": 1,
+  }
+
+ ❯ apps/api/src/market/market.service.test.ts:144:31
+    142|     const v = await service.occupancy({});
+    143|     expect(v.board.competitors[0]!.cells.slice(0, 2).map((x) => x.bp))…
+    144|     expect(v.board.market[0]).toEqual({ date: '2026-10-03', bp: 9000, …
+       |                               ^
+    145|     await service.writeOccupancy(c.id, { entries: [{ date: '2026-10-04…
+    146|     expect(repo.readingsStore).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 19 passed (20)
+      Tests  1 failed | 347 passed (348)
+   Start at  02:41:50
+   Duration  14.10s (transform 65%, import 24%, tests 10%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T09-41-34Z-unit-be6a.json
+
+# код выхода 1 · 30 с

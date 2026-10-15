@@ -1,6 +1,8 @@
 import type { WebVertical } from './vertical-landing';
 import type { ActionPreview } from './action-preview';
+import type { GuestMainStay } from '@pms/domain';
 export type { ActionPreview } from './action-preview';
+export type { GuestMainStay, GuestMainStayKind, GuestStayMoney } from '@pms/domain';
 
 /**
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
@@ -65,11 +67,50 @@ export interface InventoryUnit {
   block: { dateTo: string; type: string; reason: string | null } | null;
 }
 
+export interface TrendValue {
+  now: number;
+  before: number;
+  delta: number;
+  /** null: в начале периода было 0, процент не определён */
+  percent: number | null;
+}
+/** Динамика сводки фонда за период (GET /inventory/trend) */
+export interface InventoryTrend {
+  days: number;
+  from: string;
+  to: string;
+  metrics: Record<
+    'totalUnits' | 'rooms' | 'beds' | 'onSale' | 'unavailable' | 'needsCleaning',
+    TrendValue
+  >;
+}
+/** Фото категории из библиотеки сайта (GET /inventory/photos): url подписан, null без хранилища */
+export interface CategoryPhoto {
+  assetId: string;
+  url: string | null;
+  alt: string | null;
+  width: number;
+  height: number;
+}
+/** Кто в месте сегодня (GET /inventory/occupancy) */
+export interface UnitOccupancy {
+  code: string;
+  state: 'FREE' | 'STAYING' | 'ARRIVING';
+  guest: string | null;
+  confirmationNumber: string | null;
+  startDate: string | null;
+  endDate: string | null;
+}
+
 /** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */
 const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/', '/seller-agents'];
 
 /** Explicit test/demo sources are isolated from normal and production API access. */
-async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
+async function backendFetch(
+  path: string,
+  options: RequestInit = {},
+  reportScope?: string,
+): Promise<Response> {
   const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
   const demo =
     process.env.NODE_ENV === 'development' &&
@@ -91,6 +132,7 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
         ...(await sessionHeader()),
         // указатель выбора Business и филиала (Platform P2, К1): проверяет API, стойка только пересылает
         ...(await requestScopeHeader()),
+        ...(reportScope ? { 'x-wetop-scope': reportScope } : {}),
         ...(testing ? { 'x-wetop-test-client': '1' } : {}),
         ...(demo ? { 'x-wetop-demo-client': '1' } : {}),
       },
@@ -197,10 +239,55 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
+/** Фото и договор объекта (ADR-158, DATA_MODEL §32.3): файл идёт в API стойки, оттуда в закрытое хранилище */
+export interface PropertyMediaItem {
+  id: string;
+  kind: 'PHOTO' | 'CONTRACT';
+  position: number;
+  fileName: string | null;
+  byteSize: number;
+  width: number | null;
+  height: number | null;
+  alt: string | null;
+  url: string | null;
+}
+export interface PropertyMediaList {
+  storage: 'READY' | 'OFF';
+  limits: { maxBytes: number; maxPhotos: number };
+  photos: PropertyMediaItem[];
+  contract: PropertyMediaItem | null;
+}
+export const propertyMediaApi = {
+  list: () => getJson<PropertyMediaList>('/hotel/media'),
+  upload: async (kind: 'photos' | 'contract', file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/hotel/media/${kind}`, { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  removePhoto: (id: string) =>
+    sendJson<unknown>('DELETE', `/hotel/media/photos/${encodeURIComponent(id)}`, {}),
+  removeContract: () => sendJson<unknown>('DELETE', '/hotel/media/contract', {}),
+};
+
+/** Фото блюда ресторана (DATA_MODEL §37): одно на блюдо, загрузка заменяет прежнее */
+export const dishPhotoApi = {
+  upload: async (id: string, file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/food-service/menu/items/${encodeURIComponent(id)}/photo`, {
+      method: 'POST',
+      body: form,
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  remove: (id: string) =>
+    sendJson<unknown>('DELETE', `/food-service/menu/items/${encodeURIComponent(id)}/photo`, {}),
+};
+
 /** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
 export const hotelSettingsApi = {
-  update: (patch: Record<string, string | null>) =>
-    sendJson<unknown>('PATCH', '/hotel/settings', patch),
+  update: (patch: Record<string, unknown>) => sendJson<unknown>('PATCH', '/hotel/settings', patch),
 };
 
 /** Услуга каталога «Настроек объекта» (SET3): весь каталог, с архивными; код — ссылка для правки, в стойке не виден */
@@ -217,7 +304,7 @@ export type CatalogServiceInput = {
   price?: string;
   active?: boolean;
 };
-/** Способы оплаты объекта (DATA_MODEL §21.6, ADR-152): включённые и порядок; правят владелец и управляющий */
+/** Способы оплаты объекта (DATA_MODEL §21.6, ADR-185): включённые и порядок; правят владелец и управляющий */
 export interface PaymentMethodSettingRow {
   method: string;
   enabled: boolean;
@@ -246,6 +333,9 @@ export const api = {
     getJson<{ storage: PiiStorage }>('/system/pii-storage')
       .then((r): PiiStorage => (r.storage === 'real' ? 'real' : 'pseudonymized'))
       .catch((): PiiStorage => 'pseudonymized'),
+  inventoryTrend: (days: 7 | 30 | 90) => getJson<InventoryTrend>(`/inventory/trend?days=${days}`),
+  inventoryPhotos: () => getJson<Record<string, CategoryPhoto[]>>('/inventory/photos'),
+  inventoryOccupancy: () => getJson<UnitOccupancy[]>('/inventory/occupancy'),
   inventoryUnits: (category?: string) =>
     getJson<InventoryUnit[]>(
       category ? `/inventory/units?category=${encodeURIComponent(category)}` : '/inventory/units',
@@ -452,6 +542,8 @@ export interface SignedIn {
   role?: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа» */
   platformAdmin?: boolean;
+  /** У человека область доступа (DATA_MODEL §31.1): организационные разделы ему закрыты */
+  restricted?: boolean;
 }
 
 /** Расширение «ИИ-продавец» организации (ADR-083, Q-183): `expired` — срок вышел, раздел только для чтения */
@@ -513,9 +605,11 @@ export interface RegistrationContext {
 }
 
 export const authApi = {
-  registrationContext: (token?: string) => getJson<RegistrationContext | null>(
-    '/auth/registration-context', token ? { authorization: `Bearer ${token}` } : {},
-  ),
+  registrationContext: (token?: string) =>
+    getJson<RegistrationContext | null>(
+      '/auth/registration-context',
+      token ? { authorization: `Bearer ${token}` } : {},
+    ),
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
   // адрес посетителя уезжает заголовком: лимиты входа по адресу (С-5, ТЗ аудита 25.09.2026) считает API
   login: (body: { email: string; password: string }, info?: AuthClientInfo) =>
@@ -588,6 +682,7 @@ export const authApi = {
       phoneCountry: string;
       phone: string;
       privacyAccepted: boolean;
+      locale?: string;
     },
     info?: AuthClientInfo,
   ) =>
@@ -624,14 +719,35 @@ export const authApi = {
     email: string,
     role: InviteRole,
     info: AuthClientInfo,
+    extra: AuthInviteExtra = {},
   ): Promise<AuthInvite> => {
     const res = await backendFetch('/auth/invites', {
       method: 'POST',
       headers: authHeaders(info, token),
-      body: JSON.stringify({ email, role }),
+      body: JSON.stringify({ email, role, ...extra }),
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite;
+  },
+  /** Бизнесы и филиалы организации для выбора области доступа (DATA_MODEL §31.1) */
+  accessStructure: async (token: string, info: AuthClientInfo): Promise<AuthAccessStructure> => {
+    const res = await backendFetch('/auth/access-structure', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthAccessStructure;
+  },
+  /** Заменить назначения сотрудника; пустой список: вся организация. 400/403 словами */
+  setMemberScopes: async (
+    token: string,
+    userId: string,
+    scopes: AuthScope[],
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}/scopes`, {
+      method: 'PUT',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ scopes }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
   /** Отозвать ожидающее приглашение (аудит 26.09, С-10): 404 — его нет или оно не по роли вошедшего */
   revokeInvite: async (token: string, id: string, info: AuthClientInfo): Promise<void> => {
@@ -654,6 +770,19 @@ export const authApi = {
       method: 'DELETE',
       headers: authHeaders(info, token),
     });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  /** Приостановить или возобновить доступ (DATA_MODEL §31.2): человек остаётся в команде, не входит; 403 словами */
+  setMemberSuspended: async (
+    token: string,
+    userId: string,
+    suspended: boolean,
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(
+      `/auth/members/${encodeURIComponent(userId)}/${suspended ? 'suspend' : 'resume'}`,
+      { method: 'POST', headers: authHeaders(info, token) },
+    );
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
   /** Роль между управляющим и администратором — только владелец */
@@ -1258,6 +1387,9 @@ export interface UnitCard {
     guestLabel: string;
   }>;
   housekeepingHistory: Array<{ at: string; from: string; to: string }>;
+  /** Заведено и последнее изменение, UTC ISO */
+  createdAt: string;
+  updatedAt: string;
 }
 async function deleteJson<T>(path: string): Promise<T> {
   const res = await backendFetch(path, { method: 'DELETE' });
@@ -1363,6 +1495,24 @@ export interface GuestDirectoryRow {
     confirmationNumber: string | null;
   } | null;
   lastCancelledAt: string | null;
+  /** «Гости и бронирования»: основное проживание строки (заселён, иначе ближайшее, иначе последнее); null, если проживания нет */
+  stay: GuestMainStay | null;
+}
+/** Быстрые виды над таблицей «Гостей и бронирований» */
+export type GuestDirectoryView =
+  'all' | 'today' | 'inhouse' | 'expected' | 'departures' | 'attention';
+/** Плитки: вся база гостей организации без отборов; заезды и выезды ещё и за вчера */
+export interface GuestDirectoryKpi {
+  /** всего гостей в базе организации */
+  all: number;
+  inhouse: number;
+  arrivalsToday: number;
+  departuresToday: number;
+  expected: number;
+  attention: number;
+  none: number;
+  arrivalsYesterday: number;
+  departuresYesterday: number;
 }
 /** Предпросмотр гостя панелью (G3, ТЗ §17): контакты, «сейчас», история, долг из Folio */
 export interface GuestPreview extends Omit<GuestDirectoryRow, 'id'> {
@@ -1371,6 +1521,23 @@ export interface GuestPreview extends Omit<GuestDirectoryRow, 'id'> {
   hasFolios: boolean;
   debtMinor: string;
   currency: string;
+  notes: string | null;
+  visits: Array<{
+    confirmationNumber: string;
+    arrivalDate: string;
+    departureDate: string;
+    nights: number;
+    unitCode: string | null;
+    accommodationTypeName: string;
+    status: string;
+  }>;
+  services: Array<{
+    id: string;
+    description: string;
+    quantity: number;
+    amountMinor: string;
+    serviceDate: string | null;
+  }>;
 }
 export interface GuestDirectoryResult {
   total: number;
@@ -1384,6 +1551,9 @@ export interface GuestDirectoryResult {
     /** G7: без активного проживания — не живёт, не ожидается и не выезжал за 30 дней */
     NONE: number;
   };
+  /** Числа быстрых видов при текущих поиске, отборах и статусе */
+  views: Record<GuestDirectoryView, number>;
+  kpi: GuestDirectoryKpi;
   rows: GuestDirectoryRow[];
 }
 /** Задача стойки (DATA_MODEL §22) и раскладка списка по срокам */
@@ -1583,6 +1753,27 @@ export interface PeriodDebts {
   }>;
   truncated: boolean;
 }
+/** Деньги за период по дням (RPT2.4a, ADR-155): поступления, возвраты, расходы и поток раздельно */
+export interface PeriodCashFlow {
+  from: string;
+  to: string;
+  currency: string;
+  truncated: boolean;
+  days: Array<{ date: string } & PeriodCashFlowSums>;
+  totals: PeriodCashFlowSums;
+  expensesByCategory: Array<{ category: string; amountMinor: string }>;
+}
+export interface PeriodCashFlowSums {
+  receiptsMinor: string;
+  receiptsCashMinor: string;
+  receiptsOffCashMinor: string;
+  refundsMinor: string;
+  refundsCashMinor: string;
+  netReceiptsMinor: string;
+  incomeMinor: string;
+  expenseMinor: string;
+  cashFlowMinor: string;
+}
 /** Оплаты и возвраты за период (ADR-113, F2) — раздел «Оплаты и возвраты» и выгрузка CSV */
 export type OperationKind = 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
 export interface PeriodOperations {
@@ -1678,9 +1869,11 @@ export const financeApi = {
     if (filter.limit) qs.set('limit', String(filter.limit));
     return getJson<PeriodOperations>(`/finance/operations?${qs}`);
   },
+  cashflow: (from: string, to: string) =>
+    getJson<PeriodCashFlow>(`/finance/cashflow?${new URLSearchParams({ from, to })}`),
   // касса (DATA_MODEL §21)
   cash: () => getJson<CashBalances>('/finance/cash'),
-  /** справочник статей без остатков: «Настройки объекта → Справочники» (ADR-152) */
+  /** справочник статей без остатков: «Настройки объекта → Справочники» (ADR-185) */
   cashCategories: () => getJson<CashCategory[]>('/finance/cash/categories'),
   createCashCategory: (body: unknown) =>
     sendJson<CashCategory[]>('POST', '/finance/cash/categories', body),
@@ -1811,9 +2004,14 @@ export interface DashboardView {
 }
 export const dashboardApi = {
   /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-114); по умолчанию весь фонд */
-  period: (from: string, to: string, fund: DashboardFund = 'all') =>
+  period: (from: string, to: string, fund: DashboardFund = 'all', category?: string) =>
     getJson<DashboardView>(
-      `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+      `/desk/dashboard?${new URLSearchParams({
+        from,
+        to,
+        ...(fund === 'all' ? {} : { fund }),
+        ...(category ? { category } : {}),
+      })}`,
     ),
   /** «По номерам» (REP3): те же клетки шахматки до единицы, под правом отчётов */
   units: (from: string, to: string, fund: DashboardFund = 'all') =>
@@ -1858,6 +2056,8 @@ export interface TrackedSite {
   /** Виджет бронирования (срез 9) */
   bookingEnabled: boolean;
   bookingRatePlan: { id: string; code: string; name: string } | null;
+  /** MKT7: сайт счётчика управляемого сайта WETOP; настраивается только в «Маркетинг → Публикация сайта» */
+  managed?: boolean;
 }
 export interface TrackedSiteCard {
   site: TrackedSite;
@@ -1921,6 +2121,405 @@ export interface SiteReport {
     charged: Array<{ currency: string; chargedMinor: string }>;
   };
 }
+/** MKT7: состояние управляемого сайта для страницы публикации; документа здесь нет */
+export interface MarketingSiteSummary {
+  id: string;
+  name: string;
+  slug: string;
+  state: 'DRAFT' | 'PUBLISHED' | 'PAUSED' | 'ARCHIVED';
+  latest: { id: string; revision: number } | null;
+  published: { id: string; revision: number } | null;
+  /** Действующий основной адрес; до публикации null */
+  url: string | null;
+  /** Адрес, который получит сайт при публикации; null, если адрес сайтов не настроен */
+  proposedUrl: string | null;
+}
+
+export interface SitePublicationRow {
+  id: string;
+  action: 'PUBLISH' | 'ROLLBACK' | 'PAUSE' | 'RESUME' | 'ARCHIVE';
+  versionId: string | null;
+  revision: number | null;
+  previousVersionId: string | null;
+  previousRevision: number | null;
+  actorId: string | null;
+  createdAt: string;
+}
+
+export interface BookingSourceView {
+  canonicalTrackedSiteId: string | null;
+  /** Действующие тарифы объекта для явного выбора тарифа брони при публикации */
+  ratePlans: Array<{ id: string; code: string; name: string }>;
+  options: Array<{
+    id: string;
+    name: string;
+    status: 'ACTIVE' | 'PAUSED';
+    bookingEnabled: boolean;
+    bookingRatePlan: { id: string; code: string; name: string } | null;
+    managed: boolean;
+  }>;
+}
+
+/** «Маркетинг → Сайт и SEO», публикация (MKT7): всё в строгом scope филиала, хост сайта браузер не передаёт */
+/** MKT9.2: лицензия конструктора сайта филиала глазами стойки */
+export interface SiteBuilderState {
+  access: 'active' | 'expired' | 'off';
+  status: 'TRIAL' | 'ACTIVE' | 'OFF' | null;
+  activeUntil: string | null;
+}
+
+export interface MarketingSiteCurrent {
+  site: MarketingSiteSummary | null;
+  /** Сайт филиала в архиве: нового не будет (один филиал, один сайт) */
+  archived: boolean;
+  locationName: string | null;
+  builder: SiteBuilderState;
+  instructions: string | null;
+}
+
+export const marketingSiteApi = {
+  current: () => getJson<MarketingSiteCurrent>('/marketing/site'),
+  publications: () =>
+    getJson<{ publications: SitePublicationRow[] }>('/marketing/site/publications'),
+  bookingSource: () => getJson<BookingSourceView>('/marketing/site/booking-source'),
+  preview: (versionId: string) =>
+    sendJson<{ url: string; expiresAt: string }>('POST', '/marketing/site/preview', { versionId }),
+  publish: (expectedVersionId: string, bookingRatePlanId?: string) =>
+    sendJson<{ site: MarketingSiteSummary; changed: boolean }>('POST', '/marketing/site/publish', {
+      expectedVersionId,
+      ...(bookingRatePlanId ? { bookingRatePlanId } : {}),
+    }),
+  pause: () => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/pause', {}),
+  resume: () => sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/resume', {}),
+  rollback: (versionId: string) =>
+    sendJson<{ site: MarketingSiteSummary }>('POST', '/marketing/site/rollback', { versionId }),
+  archive: () =>
+    sendJson<{ site: { id: string; state: 'ARCHIVED' } }>('POST', '/marketing/site/archive', {}),
+  setBookingSource: (trackedSiteId: string | null) =>
+    sendJson<BookingSourceView>('PUT', '/marketing/site/booking-source', { trackedSiteId }),
+};
+
+/** MKT8: изображение библиотеки сайта; ключа объекта и адреса бакета нет, только подписанный адрес на срок */
+export interface SiteAssetView {
+  id: string;
+  kind: 'IMAGE' | 'LOGO' | 'FAVICON';
+  status: 'READY';
+  source: 'UPLOAD' | 'CHANNEX_IMPORT';
+  mimeType: string;
+  byteSize: number;
+  width: number;
+  height: number;
+  sha256: string;
+  defaultAlt: Record<string, string> | null;
+  createdAt: string;
+  previewUrl: string | null;
+}
+
+export interface SiteAssetLibrary {
+  storage: 'READY' | 'OFF';
+  limits: { maxUploadBytes: number };
+  assets: SiteAssetView[];
+}
+
+export interface ChannexPhotoChoice {
+  photoId: string;
+  description: string | null;
+  forRoomType: boolean;
+  position: number;
+}
+
+/** «Маркетинг → Изображения сайта» (MKT8): библиотека филиала в строгом scope; файл уходит в API, не в хранилище */
+export const siteAssetsApi = {
+  list: () => getJson<SiteAssetLibrary>('/marketing/site/assets'),
+  upload: async (file: File, kind: string): Promise<{ asset: SiteAssetView; created: boolean }> => {
+    const form = new FormData();
+    form.append('kind', kind);
+    form.append('file', file, file.name);
+    const res = await backendFetch('/marketing/site/assets', { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { asset: SiteAssetView; created: boolean };
+  },
+  updateAlt: (id: string, defaultAlt: Record<string, string> | null) =>
+    sendJson<{ asset: SiteAssetView }>(
+      'PATCH',
+      `/marketing/site/assets/${encodeURIComponent(id)}`,
+      { defaultAlt },
+    ),
+  remove: (id: string) =>
+    sendJson<{ deleted: true; retainedForPublishedHistory: boolean }>(
+      'DELETE',
+      `/marketing/site/assets/${encodeURIComponent(id)}`,
+      {},
+    ),
+  channexPhotos: () =>
+    getJson<{ state: string; photos: ChannexPhotoChoice[] }>('/marketing/site/assets/channex'),
+  importChannex: (photoIds: string[]) =>
+    sendJson<{
+      imported: Array<{ photoId: string; created: boolean; asset: SiteAssetView }>;
+      failed: Array<{ photoId: string; code: string }>;
+    }>('POST', '/marketing/site/assets/channex/import', { photoIds }),
+};
+
+/** MKT9: метаданные версии сайта в истории; документ отдельно */
+export interface SiteVersionMeta {
+  id: string;
+  revision: number;
+  /** MKT9.2: подпись закладки или null */
+  bookmark?: string | null;
+  parentVersionId: string | null;
+  source: 'MANUAL' | 'AI' | 'IMPORT';
+  generationRunId: string | null;
+  createdById: string | null;
+  createdAt: string;
+  specHash: string;
+  isLatest: boolean;
+  isPublished: boolean;
+}
+
+export interface SiteSpecErrorView {
+  path: string;
+  code: string;
+  message: string;
+}
+
+/** Смысловое изменение версии (`diffSiteSpecs` домена): у стойки только слова, без JSON */
+export interface SiteChangeView {
+  area: 'site' | 'page' | 'section' | 'asset';
+  kind: 'added' | 'removed' | 'moved' | 'changed' | 'variant' | 'replaced';
+  field?: string;
+  pageId?: string;
+  sectionId?: string;
+  sectionType?: string;
+  label?: string;
+  from?: string;
+  to?: string;
+  slot?: string;
+}
+
+/** MKT9.2: структура ответа ассистента по режиму (проверена платформой) */
+export interface DesignDirectionView {
+  id: string;
+  name: string;
+  shortDescription: string;
+  theme: {
+    preset: string;
+    accent: string;
+    typography: string;
+    radius: string;
+    density: string;
+    colorScheme: string;
+  };
+  heroVariant: string;
+  sectionOrder: string[];
+}
+export type AssistantPayloadView =
+  | { kind: 'CHAT'; suggestBuild: boolean; suggestPublish: boolean }
+  | {
+      kind: 'QUESTIONS';
+      questions: Array<{ id: string; question: string; options: string[]; allowCustom: boolean }>;
+    }
+  | {
+      kind: 'PLAN';
+      summary: string;
+      affectedPages: string[];
+      affectedSections: string[];
+      steps: string[];
+      tradeoffs: string[];
+      buildInstruction: string;
+    }
+  | { kind: 'DESIGN'; directions: DesignDirectionView[] };
+
+export interface AssistantRunView {
+  id: string;
+  mode: 'CHAT' | 'PLAN' | 'DESIGN';
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED';
+  baseVersionId: string | null;
+  userText: string;
+  assistantText: string | null;
+  payload: AssistantPayloadView | null;
+  errorCode: string | null;
+}
+
+/** MKT9.2: запись разговора сайта: сборка или разговорная задача */
+export interface SiteConversationItem {
+  id: string;
+  kind: 'BUILD' | 'ASSISTANT';
+  mode: string;
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED';
+  userText: string | null;
+  assistantText: string | null;
+  payload: AssistantPayloadView | null;
+  baseVersionId: string | null;
+  outputVersionId: string | null;
+  target: { pageId: string; sectionId: string } | null;
+  fromPlanId: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+  errorCode: string | null;
+}
+
+export interface GenerationRunView {
+  id: string;
+  type: 'INITIAL' | 'PATCH' | 'SECTION' | 'SEO';
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED';
+  baseVersionId: string | null;
+  outputVersionId: string | null;
+  errorCode: string | null;
+  target?: { pageId: string; sectionId: string } | null;
+}
+
+export interface SiteDraftView {
+  site: MarketingSiteSummary;
+  version: {
+    revision: number;
+    specHash: string;
+    source: string;
+    createdAt: string;
+    spec: Record<string, unknown>;
+  } | null;
+}
+
+/**
+ * Ответ API редактору как есть: при отказе нужен не только текст, но и код (`VERSION_CONFLICT`, `ASSET_UNAVAILABLE`,
+ * `BASE_VERSION_CHANGED`) и пути ошибок проверки, чтобы показать их у полей
+ */
+export type EditorReply<T> =
+  | { ok: true; data: T }
+  | {
+      ok: false;
+      status: number;
+      code: string | null;
+      message: string;
+      errors: SiteSpecErrorView[];
+      paths: Array<{ path: string; code: string }>;
+    };
+
+async function editorCall<T>(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  path: string,
+  body?: unknown,
+): Promise<EditorReply<T>> {
+  const res = await backendFetch(path, {
+    method,
+    ...(body !== undefined
+      ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }
+      : {}),
+  });
+  let json: Record<string, unknown> = {};
+  try {
+    json = (await res.json()) as Record<string, unknown>;
+  } catch {
+    /* тело не JSON */
+  }
+  if (res.ok) return { ok: true, data: json as T };
+  const message = Array.isArray(json['message'])
+    ? (json['message'] as string[]).join('; ')
+    : typeof json['message'] === 'string'
+      ? json['message']
+      : `HTTP ${res.status}`;
+  return {
+    ok: false,
+    status: res.status,
+    code: typeof json['code'] === 'string' ? json['code'] : null,
+    message:
+      res.status >= 500 && res.status !== 503
+        ? `Сервер ответил ошибкой ${res.status}: проверьте результат перед повтором`
+        : message,
+    errors: Array.isArray(json['errors']) ? (json['errors'] as SiteSpecErrorView[]) : [],
+    paths: Array.isArray(json['paths'])
+      ? (json['paths'] as Array<{ path: string; code: string }>)
+      : [],
+  };
+}
+
+/** «Маркетинг → Редактор сайта» (MKT9): черновик, история, разница, восстановление и ИИ-правки в строгом scope */
+export const siteEditorApi = {
+  draft: () => getJson<SiteDraftView>('/marketing/site/draft'),
+  versions: () =>
+    getJson<{ versions: SiteVersionMeta[]; bookmarks?: SiteVersionMeta[] }>(
+      '/marketing/site/versions',
+    ),
+  brief: () =>
+    getJson<{
+      briefHash: string;
+      input: {
+        identity: {
+          displayNameCandidate: string;
+          address?: string | null;
+          phone?: string | null;
+          email?: string | null;
+        };
+        stay?: { checkInTime: string | null; checkOutTime: string | null };
+        accommodations: Array<{ categoryCode: string; name: string }>;
+      };
+    }>('/marketing/site/brief'),
+  version: (id: string) =>
+    editorCall<{ version: SiteVersionMeta & { spec: Record<string, unknown> } }>(
+      'GET',
+      `/marketing/site/versions/${encodeURIComponent(id)}`,
+    ),
+  diff: (id: string, against: string) =>
+    editorCall<{ from: SiteVersionMeta; to: SiteVersionMeta; changes: SiteChangeView[] }>(
+      'GET',
+      `/marketing/site/versions/${encodeURIComponent(id)}/diff?against=${encodeURIComponent(against)}`,
+    ),
+  save: (baseRevision: number, spec: unknown) =>
+    editorCall<{ version: { id: string; revision: number } }>('POST', '/marketing/site/versions', {
+      baseRevision,
+      spec,
+    }),
+  restore: (id: string, baseRevision: number) =>
+    editorCall<{
+      version: { id: string; revision: number };
+      restoredFrom: { id: string; revision: number };
+    }>('POST', `/marketing/site/versions/${encodeURIComponent(id)}/restore`, { baseRevision }),
+  generate: (body: Record<string, unknown>) =>
+    editorCall<{ run: GenerationRunView }>('POST', '/marketing/site/generations', body),
+  run: (id: string) =>
+    editorCall<{ run: GenerationRunView }>(
+      'GET',
+      `/marketing/site/generations/${encodeURIComponent(id)}`,
+    ),
+  // ── MKT9.2: лицензированный конструктор ──
+  bootstrap: () =>
+    editorCall<{ created: boolean; site: MarketingSiteSummary }>(
+      'POST',
+      '/marketing/site/bootstrap',
+      {},
+    ),
+  conversation: () =>
+    editorCall<{ items: SiteConversationItem[] }>('GET', '/marketing/site/conversation?limit=100'),
+  assistant: (body: Record<string, unknown>) =>
+    editorCall<{ run: AssistantRunView }>('POST', '/marketing/site/assistant', body),
+  assistantRun: (id: string) =>
+    editorCall<{ run: AssistantRunView }>(
+      'GET',
+      `/marketing/site/assistant/${encodeURIComponent(id)}`,
+    ),
+  approve: (id: string, instruction?: string) =>
+    editorCall<{ run: GenerationRunView }>(
+      'POST',
+      `/marketing/site/assistant/${encodeURIComponent(id)}/approve`,
+      instruction ? { instruction } : {},
+    ),
+  context: () => editorCall<{ instructions: string | null }>('GET', '/marketing/site/context'),
+  saveContext: (instructions: string) =>
+    editorCall<{ instructions: string | null }>('PATCH', '/marketing/site/context', {
+      instructions,
+    }),
+  bookmark: (id: string, label: string) =>
+    editorCall<{ bookmark: { versionId: string; revision: number; label: string } }>(
+      'PUT',
+      `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`,
+      { label },
+    ),
+  removeBookmark: (id: string) =>
+    editorCall<{ removed: boolean }>(
+      'DELETE',
+      `/marketing/site/versions/${encodeURIComponent(id)}/bookmark`,
+    ),
+};
+
 export const analyticsApi = {
   sites: () => getJson<TrackedSite[]>('/analytics/sites'),
   card: (id: string) => getJson<TrackedSiteCard>(`/analytics/sites/${encodeURIComponent(id)}`),
@@ -2122,9 +2721,23 @@ export interface SellerConversationRow {
   hasContact: boolean;
 }
 
+export interface SellerConversationNote {
+  id: string;
+  author: string;
+  authorUserId: string | null;
+  text: string;
+  at: string | null;
+}
+export interface SellerHandling {
+  assignee: { userId: string | null; name: string } | null;
+  nextStep: string | null;
+}
 export interface SellerConversationCard {
   id: string;
   mode: string;
+  /** S2.6: кто отвечает за диалог и что дальше; внутренние заметки гостю не видны */
+  handling: SellerHandling;
+  notes: SellerConversationNote[];
   stage: string;
   leadData: Record<string, unknown>;
   contact: {
@@ -2143,6 +2756,12 @@ export interface SellerSummary {
   replies: number;
   leads: number;
   slaBreaches: number;
+  /** S2.9: диалоги суток, где подключился человек или нужен человек */
+  handoffs: number;
+  /** Доля диалогов суток без человека, десятые доли процента; null: диалогов не было */
+  automatedPermille: number | null;
+  /** Среднее время от вопроса гостя до первого ответа продавца, секунды; null: ответов не было */
+  avgFirstReplySeconds: number | null;
 }
 
 export interface SellerExtractResult {
@@ -2169,6 +2788,15 @@ export interface SellerWhatsAppView {
 }
 
 /** Инструкция продавцу одним текстом (ADR-097) */
+/** Версия инструкции (DATA_MODEL §33): текст целиком не отдаётся, только начало и длина */
+export interface SellerPromptVersion {
+  id: string;
+  length: number;
+  preview: string;
+  createdAt: string;
+  author: string | null;
+}
+
 export interface SellerPromptView {
   saved: boolean;
   text: string;
@@ -2291,6 +2919,13 @@ export const sellerApi = {
   catalog: () => getJson<AgentCatalogView>('/ai-seller/catalog'),
   prompt: () => getJson<SellerPromptView>('/ai-seller/prompt'),
   savePrompt: (text: string) => sendJson<SellerPromptView>('PUT', '/ai-seller/prompt', { text }),
+  promptVersions: () => getJson<{ items: SellerPromptVersion[] }>('/ai-seller/prompt/versions'),
+  restorePromptVersion: (id: string) =>
+    sendJson<SellerPromptView>(
+      'POST',
+      `/ai-seller/prompt/versions/${encodeURIComponent(id)}/restore`,
+      {},
+    ),
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
   extract: (story: string) =>
     sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),
@@ -2334,6 +2969,18 @@ export const sellerApi = {
     sendJson<{ ok: true }>('POST', `/ai-seller/conversations/${encodeURIComponent(id)}/reply`, {
       text,
     }),
+  setHandling: (id: string, body: { nextStep?: string; assignee?: 'me' | null }) =>
+    sendJson<SellerHandling>(
+      'PATCH',
+      `/ai-seller/conversations/${encodeURIComponent(id)}/handling`,
+      body,
+    ),
+  addNote: (id: string, text: string) =>
+    sendJson<SellerConversationNote>(
+      'POST',
+      `/ai-seller/conversations/${encodeURIComponent(id)}/notes`,
+      { text },
+    ),
   knowledge: () =>
     getJson<{ items: Array<{ source: string; chunks: number; createdAt: string | null }> }>(
       '/ai-seller/knowledge',
@@ -2367,7 +3014,35 @@ export interface PlatformOrganization {
   createdAt: string;
   members: number;
   owners: string[];
+  /** Владелец заведён главным администратором и ещё не задал пароль: ему можно выслать ссылку */
+  ownerPending: boolean;
+  /** Направления бизнесов организации по порядку создания, без повторов */
+  verticals: PlatformVertical[];
+  /** Число филиалов во всех бизнесах организации */
+  locations: number;
   aiSeller: ExtensionAccessView & { note: string | null; updatedAt: string | null };
+}
+
+export type PlatformVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+
+/**
+ * Обзор платформы (срез P1, `plans/platform-superadmin-2026-10-10.md`): итоги, рост подключений за 12 месяцев,
+ * направления и статусы. Денег здесь нет: платежи платформе не ведутся (ADR-102, Q-PA-1, Q-PA-2).
+ */
+export interface PlatformOverview {
+  totals: {
+    organizations: number;
+    active: number;
+    trial: number;
+    readOnly: number;
+    suspended: number;
+    newLast30d: number;
+    usersTotal: number;
+    activeUsers: number;
+  };
+  growth: Array<{ month: string; added: number; total: number }>;
+  verticals: Array<{ vertical: PlatformVertical; organizations: number }>;
+  statuses: Array<{ status: SignedInOrganization['status']; organizations: number }>;
 }
 
 /** Изменение расширения: статус, дата «до» (`ГГГГ-ММ-ДД`, включительно; пусто — бессрочно) и заметка */
@@ -2378,13 +3053,76 @@ export interface ExtensionChangeBody {
 }
 
 /** Раздел «Платформа» (DATA_MODEL §16, ADR-083): только главному администратору, остальным API отвечает 403 */
+/** MKT9.2: гостиничный филиал организации с лицензией конструктора сайта («Платформа → Организации») */
+export interface PlatformSiteBuilderLocation {
+  id: string;
+  name: string;
+  status: string;
+  businessName: string;
+  site: { state: string; slug: string } | null;
+  license: {
+    access: 'active' | 'expired' | 'off';
+    status: 'TRIAL' | 'ACTIVE' | 'OFF' | null;
+    activeUntil: string | null;
+    note: string | null;
+    updatedAt: string | null;
+  };
+}
+
 export const platformApi = {
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
+  /** Обзор платформы: только главному администратору, остальным API отвечает 403 */
+  overview: () => getJson<PlatformOverview>('/platform/overview'),
+  siteBuilder: (organizationId: string) =>
+    getJson<{ items: PlatformSiteBuilderLocation[] }>(
+      `/platform/organizations/${encodeURIComponent(organizationId)}/site-builder`,
+    ),
+  changeSiteBuilder: (organizationId: string, locationId: string, body: ExtensionChangeBody) =>
+    sendJson<PlatformSiteBuilderLocation>(
+      'PUT',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/site-builder/${encodeURIComponent(locationId)}`,
+      body,
+    ),
   changeAiSeller: (organizationId: string, body: ExtensionChangeBody) =>
     sendJson<PlatformOrganization>(
       'PUT',
       `/platform/organizations/${encodeURIComponent(organizationId)}/extensions/ai-seller`,
       body,
+    ),
+  /** Создание организации главным администратором (ORG2, ADR-ORG2, Q-283): владельцу уходит ссылка «задайте пароль» */
+  create: (body: { name: string; ownerEmail: string; vertical: 'HOSPITALITY' | 'BEAUTY' }) =>
+    sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>(
+      'POST',
+      '/platform/organizations',
+      body,
+    ),
+  /** Ссылка владельцу ещё раз: только тому, кто пароль ещё не задал */
+  ownerLink: (organizationId: string) =>
+    sendJson<{ organization: PlatformOrganization; ownerLinkSent: boolean }>(
+      'POST',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/owner-link`,
+      {},
+    ),
+  /** Название организации (ORG1, ADR-ORG1) */
+  rename: (organizationId: string, name: string) =>
+    sendJson<PlatformOrganization>(
+      'PATCH',
+      `/platform/organizations/${encodeURIComponent(organizationId)}`,
+      { name },
+    ),
+  /** Архив вместо удаления (ORG1, ADR-ORG1, Q-282): люди не входят, данные целы */
+  archive: (organizationId: string) =>
+    sendJson<PlatformOrganization>(
+      'POST',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/archive`,
+      {},
+    ),
+  /** Возврат из архива: прежний статус, а при его потере «только чтение» */
+  restore: (organizationId: string) =>
+    sendJson<PlatformOrganization>(
+      'POST',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/restore`,
+      {},
     ),
   /** Оплата счётом (Q-141 — А, ADR-102): «оплата получена» — ACTIVE, обратно — READ_ONLY */
   changeStatus: (organizationId: string, body: { status: 'ACTIVE' | 'READ_ONLY'; note: string }) =>
@@ -2618,6 +3356,37 @@ export interface AuthInvite {
   role?: InviteRole;
   /** Может ли вошедший его отозвать: тот, кто вправе позвать с этой ролью */
   revocable?: boolean;
+  /** Что указал пригласивший и назначения (DATA_MODEL §31.3); старый API этого не присылает */
+  firstName?: string | null;
+  lastName?: string | null;
+  position?: string | null;
+  scopes?: AuthScope[];
+}
+
+/** Назначение: роль в бизнесе целиком (`locationId` null) или в одном филиале (DATA_MODEL §31.1) */
+export interface AuthScope {
+  role: InviteRole;
+  businessId: string;
+  locationId: string | null;
+}
+
+/** Необязательное в приглашении: имя, фамилия, телефон, должность и область доступа */
+export interface AuthInviteExtra {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  position?: string;
+  scopes?: AuthScope[];
+}
+
+/** Бизнесы и филиалы организации для назначений */
+export interface AuthAccessStructure {
+  businesses: Array<{
+    id: string;
+    name: string;
+    vertical: string;
+    locations: Array<{ id: string; name: string }>;
+  }>;
 }
 
 /** Человек своей организации в блоке «Сотрудники» (ADR-107) */
@@ -2636,6 +3405,14 @@ export interface AuthMember {
   phone: string | null;
   position: string | null;
   detailsEditable: boolean;
+  /** Доступ приостановлен (DATA_MODEL §31.2) */
+  suspended: boolean;
+  /** Этот вошедший может приостановить или возобновить его доступ */
+  suspendable: boolean;
+  /** Назначения по бизнесам и филиалам (DATA_MODEL §31.1); пусто: вся организация */
+  scopes: AuthScope[];
+  /** Этот вошедший может заменить ему назначения */
+  scopesEditable: boolean;
 }
 
 export interface AuthInvitePreview {
@@ -2668,6 +3445,11 @@ export interface InventoryCategory {
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
+  /** Выбор фото категории целиком, порядок как в списке (DATA_MODEL §31) */
+  setPhotos: (code: string, assetIds: string[]) =>
+    sendJson<{ count: number }>('PUT', `/inventory/categories/${encodeURIComponent(code)}/photos`, {
+      assetIds,
+    }),
   save: (resource: 'categories' | 'rooms', body: Record<string, unknown>, code?: string) =>
     sendJson<{ code?: string }>(
       code ? 'PATCH' : 'POST',
@@ -2696,6 +3478,23 @@ const ipHeader = (ip?: string | null): Record<string, string> =>
 
 /** Fixed guest operations: no browser-supplied backend path or credentials. */
 export const wizardApi = {
+  message: (token: string, body: unknown, ip?: string | null) =>
+    sendJson<{ requestId: string; state: string }>('POST', '/wizard/message', body, {
+      'x-wizard-token': token,
+      ...ipHeader(ip),
+    }),
+  generate: (token: string, body: unknown, ip?: string | null) =>
+    sendJson<{ id: string; state: string }>('POST', '/wizard/generate', body, {
+      'x-wizard-token': token,
+      ...ipHeader(ip),
+    }),
+  scan: (token: string, body: unknown, ip?: string | null) =>
+    sendJson<{ id: string; state: string }>('POST', '/wizard/scan', body, {
+      'x-wizard-token': token,
+      ...ipHeader(ip),
+    }),
+  scanStatus: (token: string) =>
+    getJson<import('./wizard-types').WizardState>('/wizard/scan', { 'x-wizard-token': token }),
   open: (token: string, ref: string, ip?: string | null) =>
     sendJson<import('./wizard-types').WizardState>(
       'POST',
@@ -2707,6 +3506,10 @@ export const wizardApi = {
     sendJson<import('./wizard-types').WizardState>('PATCH', '/wizard/config', body, {
       'x-wizard-token': token,
     }),
+  survey: (token: string, body: unknown) =>
+    sendJson<{ ok: true }>('POST', '/wizard/survey', body, { 'x-wizard-token': token }),
+  event: (token: string, body: unknown) =>
+    sendJson<{ ok: true }>('POST', '/wizard/event', body, { 'x-wizard-token': token }),
 };
 
 export interface SellerAgentCard {
@@ -2762,6 +3565,7 @@ export const branchesApi = {
   list: () =>
     getJson<{
       organization: { id: string; name: string; status: string };
+      businesses?: BusinessCardView[];
       items: BranchItem[];
       canCreate: boolean;
     }>('/branches'),
@@ -2771,7 +3575,10 @@ export const branchesApi = {
     address: string;
     currency: string;
     timezone: string;
-    vertical?: 'HOSPITALITY' | 'BEAUTY';
+    vertical?: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+    businessId?: string;
+    newBusinessId?: string;
+    businessName?: string;
   }) => sendJson<BranchItem>('POST', '/branches', body),
 };
 
@@ -2784,6 +3591,8 @@ export interface BeautyServiceRow {
   priceMinor: string;
   currency: string;
   active: boolean;
+  /** DONE выбранного филиала за 30 местных календарных дней, Q-BS-7. */
+  popularity?: { completedVisits: number; totalCompletedVisits: number } | null;
   /** Что про услугу говорит текущий филиал; null, значит он её не включал */
   location: {
     enabled: boolean;
@@ -2792,7 +3601,13 @@ export interface BeautyServiceRow {
   } | null;
   /** Действующая цена в филиале, посчитанная домéном; null, когда филиал не выбран */
   effective:
-    | { sellable: true; priceMinor: string; currency: string; durationMinutes: number; overridden: boolean }
+    | {
+        sellable: true;
+        priceMinor: string;
+        currency: string;
+        durationMinutes: number;
+        overridden: boolean;
+      }
     | { sellable: false; reason: 'SERVICE_INACTIVE' | 'NOT_ENABLED' | 'CURRENCY_MISMATCH' }
     | null;
 }
@@ -2894,14 +3709,24 @@ export interface BeautyCustomerRow {
   lastName: string | null;
   phone: string | null;
   status: string;
+  /** завершённые записи (DONE) бизнеса; деньги это снимки цен записей (Q-252) */
+  visits: number;
+  lastVisitAt: string | null;
+  /** День последнего визита в поясе филиала, где он состоялся. */
+  lastVisitLocalDate?: string | null;
+  /** средний чек в тиынах по валюте с наибольшим числом визитов; null, пока визитов нет */
+  avgCheckMinor: string | null;
+  avgCheckCurrency: string | null;
 }
 
 export const beautyApi = {
   customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
   services: () =>
-    getJson<{ locationId: string | null; locationCurrency: string | null; items: BeautyServiceRow[] }>(
-      '/beauty/services',
-    ),
+    getJson<{
+      locationId: string | null;
+      locationCurrency: string | null;
+      items: BeautyServiceRow[];
+    }>('/beauty/services'),
   createService: (body: unknown) => sendJson<BeautyServiceRow>('POST', '/beauty/services', body),
   updateService: (id: string, body: unknown) =>
     sendJson<BeautyServiceRow>('PATCH', `/beauty/services/${encodeURIComponent(id)}`, body),
@@ -2917,11 +3742,9 @@ export const beautyApi = {
   updateEmployee: (id: string, body: unknown) =>
     sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}`, body),
   setEmployeeServices: (id: string, serviceIds: string[]) =>
-    sendJson<BeautyEmployeeRow>(
-      'PUT',
-      `/beauty/employees/${encodeURIComponent(id)}/services`,
-      { serviceIds },
-    ),
+    sendJson<BeautyEmployeeRow>('PUT', `/beauty/employees/${encodeURIComponent(id)}/services`, {
+      serviceIds,
+    }),
   schedule: (employee?: string) =>
     getJson<BeautySchedule>(
       employee ? `/beauty/schedule?employee=${encodeURIComponent(employee)}` : '/beauty/schedule',
@@ -2945,18 +3768,20 @@ export const beautyApi = {
       undefined,
     ),
   setEmployeeLocations: (id: string, locationIds: string[]) =>
-    sendJson<BeautySchedule>(
-      'PUT',
-      `/beauty/employees/${encodeURIComponent(id)}/locations`,
-      { locationIds },
-    ),
+    sendJson<BeautySchedule>('PUT', `/beauty/employees/${encodeURIComponent(id)}/locations`, {
+      locationIds,
+    }),
   day: (date?: string) =>
-    getJson<BeautyDay>(date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments'),
+    getJson<BeautyDay>(
+      date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments',
+    ),
   createAppointment: (body: unknown) => sendJson<BeautyDay>('POST', '/beauty/appointments', body),
   moveAppointment: (id: string, body: unknown) =>
     sendJson<BeautyDay>('PATCH', `/beauty/appointments/${encodeURIComponent(id)}`, body),
   setAppointmentStatus: (id: string, status: string) =>
-    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, { status }),
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, {
+      status,
+    }),
 };
 
 // ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────
@@ -2969,6 +3794,45 @@ export interface MarketCompetitor {
   url: string | null;
   note: string | null;
   active: boolean;
+  /** DATA_MODEL §23.1 */
+  district: string | null;
+  category: string | null;
+  address: string | null;
+  dataSource: string | null;
+  monitoring: MarketMonitoring;
+  refreshHours: number | null;
+  autoRefresh: boolean;
+}
+export type MarketMonitoring = 'OCCUPANCY' | 'PRICE' | 'BOTH';
+/** Цены конкурентов по ночам (DATA_MODEL §23.1): деньги целыми строкой в минорных единицах, нет цены это null */
+export interface MarketRates {
+  today: string;
+  from: string;
+  days: number;
+  currency: string | null;
+  board: {
+    competitors: Array<{
+      id: string;
+      cells: Array<{ date: string; priceMinor: string | null; source: MarketSource | null }>;
+      avgMinor: string | null;
+      /** Десятые доли процента: 50 = +5 % */
+      changePermille: number | null;
+      lastObservedOn: string | null;
+    }>;
+    market: Array<{
+      date: string;
+      avgMinor: string | null;
+      minMinor: string | null;
+      maxMinor: string | null;
+      count: number;
+    }>;
+    summary: {
+      marketAvgMinor: string | null;
+      minMinor: string | null;
+      maxMinor: string | null;
+      competitorsWithData: number;
+    };
+  };
 }
 export interface MarketCell {
   date: string;
@@ -2976,6 +3840,8 @@ export interface MarketCell {
   bp: number | null;
   deltaBp: number | null;
   source: MarketSource | null;
+  /** Уровень наличия со страницы сборщика или из процента (DATA_MODEL §23.1); у старых ответов поля нет */
+  level?: 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE' | null;
 }
 export type MarketInsightKind = 'high-behind' | 'high' | 'low-ahead' | 'low' | 'missing';
 export interface MarketInsight {
@@ -3006,7 +3872,14 @@ export interface MarketView {
       sources: MarketSource[];
       lastObservedOn: string | null;
     }>;
-    market: Array<{ date: string; bp: number | null; count: number }>;
+    /** `tight` из `withLevel` соседей почти полны («нет мест» или «мало мест») */
+    market: Array<{
+      date: string;
+      bp: number | null;
+      count: number;
+      tight?: number;
+      withLevel?: number;
+    }>;
     gap: Array<{ date: string; bp: number | null }>;
     summary: {
       marketBp: number | null;
@@ -3031,6 +3904,24 @@ export interface MarketNightHistory {
   }>;
   pickupBp: number | null;
 }
+/** Хаб «Продажи» (SALES2.2): сводка периода; деньги строкой в минорных единицах, неизвестное `null`, а не ноль */
+export interface SalesSummary {
+  period: { from: string; to: string };
+  previousPeriod: { from: string; to: string };
+  bookings: { current: number; previous: number };
+  offers: { current: number; previous: number };
+  conversionPermille: { current: number | null; previous: number | null };
+  revenue: { currentMinor: string; previousMinor: string; currency: string | null };
+  competitors: { count: number; lastObservedOn: string | null; addedLast30: number };
+}
+
+export const salesApi = {
+  summary: (from: string, to: string) =>
+    getJson<SalesSummary>(
+      `/sales/summary?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+};
+
 export const marketApi = {
   night: (date: string) =>
     getJson<MarketNightHistory>(`/market/night?date=${encodeURIComponent(date)}`),
@@ -3043,7 +3934,23 @@ export const marketApi = {
     const tail = qs.toString();
     return getJson<MarketView>(`/market/occupancy${tail ? `?${tail}` : ''}`);
   },
-  createCompetitor: (body: unknown) => sendJson<MarketCompetitor>('POST', '/market/competitors', body),
+  rates: (q: { from?: string; days?: number; asOf?: string; compare?: number }) => {
+    const qs = new URLSearchParams();
+    if (q.from) qs.set('from', q.from);
+    if (q.days) qs.set('days', String(q.days));
+    if (q.asOf) qs.set('asOf', q.asOf);
+    if (q.compare !== undefined) qs.set('compare', String(q.compare));
+    const tail = qs.toString();
+    return getJson<MarketRates>(`/market/rates${tail ? `?${tail}` : ''}`);
+  },
+  writeRates: (id: string, entries: Array<{ date: string; price: string | null }>) =>
+    sendJson<{ saved: number; cleared: number }>(
+      'PUT',
+      `/market/competitors/${encodeURIComponent(id)}/rates`,
+      { entries },
+    ),
+  createCompetitor: (body: unknown) =>
+    sendJson<MarketCompetitor>('POST', '/market/competitors', body),
   updateCompetitor: (id: string, body: unknown) =>
     sendJson<MarketCompetitor>('PATCH', `/market/competitors/${encodeURIComponent(id)}`, body),
   writeOccupancy: (id: string, entries: Array<{ date: string; percent: string | null }>) =>
@@ -3052,6 +3959,48 @@ export const marketApi = {
       `/market/competitors/${encodeURIComponent(id)}/occupancy`,
       { entries },
     ),
+};
+
+/** Расход маркетинга (МКТ-В1/В2, DATA_MODEL §41.1). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+export interface MarketingExpenseRow {
+  id: string;
+  date: string;
+  platform: string;
+  campaign: string | null;
+  category: string;
+  description: string | null;
+  /** Сумма в валюте ввода, minor units */
+  amount: string;
+  currency: string;
+  fxRate: string;
+  /** Сумма в валюте отчётности организации, minor units, по курсу на дату операции */
+  baseAmount: string;
+  countedInBudget: boolean;
+}
+
+export interface MarketingBudgetView {
+  month: string;
+  today: string;
+  reportingCurrency: string;
+  locationCurrency: string;
+  plan: string | null;
+  prevSpent: string;
+  expenses: MarketingExpenseRow[];
+}
+
+export const marketingBudgetApi = {
+  view: (month?: string) =>
+    getJson<MarketingBudgetView>(
+      `/marketing/budget${month ? `?month=${encodeURIComponent(month)}` : ''}`,
+    ),
+  setPlan: (body: unknown) =>
+    sendJson<{ month: string; amount: string }>('PUT', '/marketing/budget', body),
+  createExpense: (body: unknown) =>
+    sendJson<MarketingExpenseRow>('POST', '/marketing/expenses', body),
+  updateExpense: (id: string, body: unknown) =>
+    sendJson<MarketingExpenseRow>('PATCH', `/marketing/expenses/${encodeURIComponent(id)}`, body),
+  deleteExpense: (id: string) =>
+    deleteJson<{ ok: true }>(`/marketing/expenses/${encodeURIComponent(id)}`),
 };
 
 export interface SharedOnboardingState {
@@ -3067,52 +4016,347 @@ export interface SharedOnboardingState {
 }
 export const sharedOnboardingApi = {
   status: () => getJson<SharedOnboardingState>('/onboarding'),
-  save: (body: { action: 'save' | 'next' | 'back' | 'complete'; draft: Record<string, unknown>; updatedAt: string | null }) =>
-    sendJson<SharedOnboardingState>('POST', '/onboarding', body),
+  save: (body: {
+    action: 'save' | 'next' | 'back' | 'complete';
+    draft: Record<string, unknown>;
+    updatedAt: string | null;
+  }) => sendJson<SharedOnboardingState>('POST', '/onboarding', body),
 };
 
-export interface BarCategoryRow { id: string; name: string; defaultMarkupBasis: number; active: boolean }
+export interface BarCategoryRow {
+  id: string;
+  name: string;
+  defaultMarkupBasis: number;
+  active: boolean;
+}
 export interface BarProductRow {
-  id: string; code: string; name: string; categoryId: string | null; unitsPerPackage: number;
-  markupBasis: number | null; salePrice: string; minimumStockUnits: string; active: boolean;
+  id: string;
+  code: string;
+  name: string;
+  categoryId: string | null;
+  barcode: string | null;
+  unitsPerPackage: number;
+  markupBasis: number | null;
+  salePrice: string;
+  minimumStockUnits: string;
+  active: boolean;
   category?: BarCategoryRow | null;
 }
-export interface BarSupplierRow { id: string; name: string; phone: string | null; email: string | null; active: boolean }
+export interface BarSupplierRow {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  active: boolean;
+}
 export interface BarReceiptRow {
-  id: string; documentNumber: string; documentDate: string; receivedDate: string; status: 'DRAFT' | 'POSTED' | 'REVERSED';
-  totalAmount: string; paidAmount: string; dueAmount: string; supplier: BarSupplierRow; _count: { lines: number };
+  id: string;
+  documentNumber: string;
+  documentDate: string;
+  receivedDate: string;
+  status: 'DRAFT' | 'POSTED' | 'REVERSED';
+  totalAmount: string;
+  paidAmount: string;
+  dueAmount: string;
+  supplier: BarSupplierRow;
+  _count: { lines: number };
 }
-export interface BarStockRow extends BarProductRow { availableUnits: string; stockCostMinor: string }
+export interface BarStockRow extends BarProductRow {
+  availableUnits: string;
+  stockCostMinor: string;
+  /** Последний проведённый приход (ADR-157): цена закупки, дата приёмки и поставщик; приходов нет, тогда null */
+  lastUnitCostMinor: string | null;
+  lastReceivedDate: string | null;
+  lastSupplier: { id: string; name: string } | null;
+  /** Ближайший срок годности среди партий с остатком */
+  nearestExpiry: string | null;
+}
 export interface BarSaleRow {
-  id: string; status: 'POSTED' | 'REVERSED'; totalRevenue: string; totalCost: string; createdAt: string;
-  lines: Array<{ id: string; productId: string; quantityUnits: string; salePrice: string; revenue: string; cost: string; product: { name: string } }>;
+  id: string;
+  status: 'POSTED' | 'REVERSED';
+  totalRevenue: string;
+  totalCost: string;
+  createdAt: string;
+  lines: Array<{
+    id: string;
+    productId: string;
+    quantityUnits: string;
+    salePrice: string;
+    revenue: string;
+    cost: string;
+    product: { name: string };
+  }>;
 }
-export interface BarFolioRow { id: string; confirmationNumber: string; guestName: string; unitCode: string | null }
-export interface BarMovementRow { id: string; kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT'; units: string; unitCost: string; amountMinor: string; note: string | null; createdAt: string; product: { name: string } }
-export interface BarReport { purchasesMinor: string; supplierPaidMinor: string; revenueMinor: string; costMinor: string; grossProfitMinor: string; writeOffMinor: string; stockCostMinor: string; supplierDebtMinor: string }
+export interface BarFolioRow {
+  id: string;
+  confirmationNumber: string;
+  guestName: string;
+  unitCode: string | null;
+}
+export interface BarMovementRow {
+  id: string;
+  productId: string;
+  kind: 'RECEIPT' | 'SALE' | 'WRITE_OFF' | 'SALE_RETURN' | 'INVENTORY_ADJUSTMENT';
+  units: string;
+  unitCost: string;
+  amountMinor: string;
+  note: string | null;
+  createdAt: string;
+  product: { name: string };
+}
+export interface BarReport {
+  purchasesMinor: string;
+  supplierPaidMinor: string;
+  revenueMinor: string;
+  costMinor: string;
+  grossProfitMinor: string;
+  writeOffMinor: string;
+  stockCostMinor: string;
+  supplierDebtMinor: string;
+  /** Текущий месяц объекта к прошлому (ADR-157); прирост null, если в прошлом месяце не было сумм */
+  month?: {
+    monthStart: string;
+    purchasesMinor: string;
+    purchasesPrevMinor: string;
+    revenueMinor: string;
+    revenuePrevMinor: string;
+    grossProfitMinor: string;
+    purchasesGrowth: number | null;
+    revenueGrowth: number | null;
+  };
+  /** Популярные товары за последние 30 дней, штуки строкой */
+  popular?: Array<{ productId: string; name: string; units: string }>;
+}
+/** Строка накладной из ИИ-скана (ADR-157): товар найден по штрихкоду или названию, иначе `productId: null` */
+export interface BarScanLine {
+  productId: string | null;
+  name: string;
+  barcode: string | null;
+  quantityUnits: string;
+  unitCostMinor: string;
+}
+export interface BarScanResult {
+  supplierId: string | null;
+  supplierName: string | null;
+  documentNumber: string | null;
+  documentDate: string | null;
+  lines: BarScanLine[];
+  warnings: string[];
+}
 export const barApi = {
   categories: () => getJson<BarCategoryRow[]>('/bar/categories'),
   createCategory: (body: unknown) => sendJson<BarCategoryRow>('POST', '/bar/categories', body),
-  setCategoryActive: (id: string, active: boolean) => sendJson<BarCategoryRow>('PATCH', `/bar/categories/${encodeURIComponent(id)}/active`, { active }),
+  setCategoryActive: (id: string, active: boolean) =>
+    sendJson<BarCategoryRow>('PATCH', `/bar/categories/${encodeURIComponent(id)}/active`, {
+      active,
+    }),
   products: () => getJson<BarProductRow[]>('/bar/products'),
   createProduct: (body: unknown) => sendJson<BarProductRow>('POST', '/bar/products', body),
-  setProductActive: (id: string, active: boolean) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/active`, { active }),
-  setProductPrice: (id: string, salePriceMinor: string) => sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/price`, { salePriceMinor }),
+  setProductActive: (id: string, active: boolean) =>
+    sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/active`, { active }),
+  setProductPrice: (id: string, salePriceMinor: string) =>
+    sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}/price`, {
+      salePriceMinor,
+    }),
+  updateProduct: (id: string, body: unknown) =>
+    sendJson<BarProductRow>('PATCH', `/bar/products/${encodeURIComponent(id)}`, body),
   suppliers: () => getJson<BarSupplierRow[]>('/bar/suppliers'),
   createSupplier: (body: unknown) => sendJson<BarSupplierRow>('POST', '/bar/suppliers', body),
-  setSupplierActive: (id: string, active: boolean) => sendJson<BarSupplierRow>('PATCH', `/bar/suppliers/${encodeURIComponent(id)}/active`, { active }),
+  setSupplierActive: (id: string, active: boolean) =>
+    sendJson<BarSupplierRow>('PATCH', `/bar/suppliers/${encodeURIComponent(id)}/active`, {
+      active,
+    }),
   receipts: () => getJson<BarReceiptRow[]>('/bar/receipts'),
   stock: () => getJson<BarStockRow[]>('/bar/stock'),
   sales: () => getJson<BarSaleRow[]>('/bar/sales'),
   folios: () => getJson<BarFolioRow[]>('/bar/folios'),
   movements: () => getJson<BarMovementRow[]>('/bar/movements'),
   report: () => getJson<BarReport>('/bar/report'),
-  createReceipt: (body: unknown) => sendJson<{ id: string; status: 'DRAFT' }>('POST', '/bar/receipts', body),
-  postReceipt: (id: string) => sendJson<{ id: string; status: 'POSTED' }>('POST', `/bar/receipts/${encodeURIComponent(id)}/post`, {}),
-  sellRetail: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/retail', body),
-  sellToFolio: (body: unknown) => sendJson<{ id: string; status: 'POSTED'; chargeId: string; revenueMinor: string; costMinor: string }>('POST', '/bar/sales/folio', body),
-  reverseSale: (id: string, body: unknown) => sendJson<{ id: string; status: 'REVERSED'; restocked: boolean }>('POST', `/bar/sales/${encodeURIComponent(id)}/reverse`, body),
-  writeOff: (body: unknown) => sendJson<{ id: string; movementsCreated: number; costMinor: string }>('POST', '/bar/write-offs', body),
-  payReceipt: (id: string, body: unknown) => sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>('POST', `/bar/receipts/${encodeURIComponent(id)}/payments`, body),
-  inventoryCount: (body: unknown) => sendJson<{ id: string; systemUnits: string; actualUnits: string; differenceUnits: string; costMinor: string }>('POST', '/bar/inventory-counts', body),
+  createReceipt: (body: unknown) =>
+    sendJson<{ id: string; status: 'DRAFT' }>('POST', '/bar/receipts', body),
+  postReceipt: (id: string) =>
+    sendJson<{ id: string; status: 'POSTED' }>(
+      'POST',
+      `/bar/receipts/${encodeURIComponent(id)}/post`,
+      {},
+    ),
+  sellRetail: (body: unknown) =>
+    sendJson<{ id: string; status: 'POSTED'; revenueMinor: string; costMinor: string }>(
+      'POST',
+      '/bar/sales/retail',
+      body,
+    ),
+  sellToFolio: (body: unknown) =>
+    sendJson<{
+      id: string;
+      status: 'POSTED';
+      chargeId: string;
+      revenueMinor: string;
+      costMinor: string;
+    }>('POST', '/bar/sales/folio', body),
+  reverseSale: (id: string, body: unknown) =>
+    sendJson<{ id: string; status: 'REVERSED'; restocked: boolean }>(
+      'POST',
+      `/bar/sales/${encodeURIComponent(id)}/reverse`,
+      body,
+    ),
+  writeOff: (body: unknown) =>
+    sendJson<{ id: string; movementsCreated: number; costMinor: string }>(
+      'POST',
+      '/bar/write-offs',
+      body,
+    ),
+  payReceipt: (id: string, body: unknown) =>
+    sendJson<{ id: string; receiptId: string; paidAmount: string; dueAmount: string }>(
+      'POST',
+      `/bar/receipts/${encodeURIComponent(id)}/payments`,
+      body,
+    ),
+  inventoryCount: (body: unknown) =>
+    sendJson<{
+      id: string;
+      systemUnits: string;
+      actualUnits: string;
+      differenceUnits: string;
+      costMinor: string;
+    }>('POST', '/bar/inventory-counts', body),
+  scanReceipt: (body: { fileName: string; mediaType: string; dataBase64: string }) =>
+    sendJson<BarScanResult>('POST', '/bar/receipts/scan', body),
+};
+
+/** MV9: fixed read-only report queries for a branch returned by GET /branches. No mutations or arbitrary paths. */
+/** Отчёт ресторана за период по филиалу (контекст филиала заголовком, как у `branchReportDay`) */
+export async function branchFoodPeriod(
+  branch: Pick<BranchItem, 'locationId' | 'location'>,
+  from: string,
+  to: string,
+): Promise<import('./food-types').FoodPeriodReport> {
+  const response = await backendFetch(
+    `/food-service/period-report?${new URLSearchParams({ from, to })}`,
+    {},
+    `business=${branch.location.businessId};location=${branch.locationId}`,
+  );
+  if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
+  return response.json();
+}
+export async function branchReportDay(
+  branch: Pick<BranchItem, 'vertical' | 'locationId' | 'location'>,
+  date: string,
+  cursor?: string,
+): Promise<
+  BeautyDay | import('./food-types').FoodPage<import('./food-types').RestaurantReservation>
+> {
+  const q = new URLSearchParams({ date });
+  if (branch.vertical === 'FOOD_SERVICE') {
+    q.set('limit', '100');
+    if (cursor) q.set('cursor', cursor);
+  } else if (branch.vertical !== 'BEAUTY') throw new Error('Нет адаптера отчёта');
+  const path = `${branch.vertical === 'BEAUTY' ? '/beauty/appointments' : '/food-service/reservations'}?${q}`;
+  const response = await backendFetch(
+    path,
+    {},
+    `business=${branch.location.businessId};location=${branch.locationId}`,
+  );
+  if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
+  return response.json();
+}
+
+/**
+ * Оценка официанта с телефона гостя (§40): страница `/rate/<ключ>` без входа зовёт API своим сервером и передаёт
+ * адрес посетителя для лимита. `null`: ссылка недействительна (404), причину гостю не называем.
+ */
+export const orderRatingApi = {
+  preview: async (
+    token: string,
+    info: AuthClientInfo,
+  ): Promise<{ placeName: string; waiterName: string | null; orderNumber: number } | null> => {
+    const res = await backendFetch(`/public/order-rating/${encodeURIComponent(token)}`, {
+      headers: authHeaders(info),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as {
+      placeName: string;
+      waiterName: string | null;
+      orderNumber: number;
+    };
+  },
+  rate: async (
+    token: string,
+    body: { stars: number; comment: string | null },
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/public/order-rating/${encodeURIComponent(token)}`, {
+      method: 'POST',
+      headers: authHeaders(info),
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+};
+
+/** Cards belong to businesses inside the current organization. */
+export interface BusinessCardView {
+  id: string;
+  name: string;
+  vertical: WebVertical;
+  description: string | null;
+  coverUrl: string | null;
+  updatedAt: string;
+  canEdit: boolean;
+  canUpload: boolean;
+  hasCover: boolean;
+}
+export const businessCardsApi = {
+  save: async (id: string, form: FormData): Promise<BusinessCardView> => {
+    const res = await backendFetch(`/branches/businesses/${encodeURIComponent(id)}/card`, {
+      method: 'POST',
+      body: form,
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as BusinessCardView;
+  },
+};
+
+export interface OrganizationMoney {
+  currency: string;
+  receiptsMinor: string;
+  expensesMinor: string;
+  orders: number;
+  averageMinor: string | null;
+}
+export interface OrganizationSummary {
+  from: string;
+  to: string;
+  complete: boolean;
+  covered: number;
+  total: number;
+  orders: number;
+  currencies: OrganizationMoney[];
+  rows: Array<{
+    id: string;
+    businessId: string;
+    name: string;
+    state: 'READY' | 'UNAVAILABLE' | 'ERROR';
+    currencies: OrganizationMoney[];
+    orders: number;
+  }>;
+}
+export interface ArchivedBranch {
+  id: string;
+  name: string;
+  address: string | null;
+  businessName: string;
+  vertical: WebVertical;
+}
+export const organizationSummaryApi = {
+  load: (from: string, to: string) =>
+    getJson<OrganizationSummary>(`/branches/summary?${new URLSearchParams({ from, to })}`),
+};
+export const branchLifecycleApi = {
+  archived: () => getJson<ArchivedBranch[]>('/branches/locations/archived'),
+  archive: (id: string) =>
+    sendJson('POST', `/branches/locations/${encodeURIComponent(id)}/archive`, {}),
+  restore: (id: string) =>
+    sendJson('POST', `/branches/locations/${encodeURIComponent(id)}/restore`, {}),
 };

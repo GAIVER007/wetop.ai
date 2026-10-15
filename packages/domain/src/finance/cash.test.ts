@@ -176,7 +176,7 @@ describe('сверка наличных (§21.4)', () => {
   });
 });
 
-describe('плитки кассы по настройке способов объекта (DATA_MODEL §21.6, ADR-152)', () => {
+describe('плитки кассы по настройке способов объекта (DATA_MODEL §21.6, ADR-185)', () => {
   const src = {
     payments: [{ method: 'BANK_TRANSFER_PERSON', amountMinor: 1_000n }],
     refunds: [],

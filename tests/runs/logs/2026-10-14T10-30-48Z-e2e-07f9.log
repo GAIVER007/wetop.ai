@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 14.10.2026 15:30 Алматы · MacBook-Air-Urij.local
+# коммит 8cfb5e4 (claude/ui5-fullpass-20261014)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' 'tests/food-ui/ui5-audit.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /today (2.7s)
+  ✓   2 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /floor-plan (2.2s)
+  ✓   3 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /dining-areas (2.4s)
+  ✓   4 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /table-reservations (2.0s)
+  ✓   5 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /orders (2.0s)
+  ✓   6 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /kitchen (1.8s)
+  ✓   7 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /menu (1.8s)
+  ✓   8 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /stock (2.1s)
+  ✓   9 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /drinks (3.1s)
+  ✓  10 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /customers (2.6s)
+  ✓  11 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /restaurant-finance (2.0s)
+  ✓  12 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /restaurant-settings (2.2s)
+  ✓  13 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /payroll (2.1s)
+  ✓  14 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /help (2.1s)
+  ✘  15 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /reports (1.8s)
+
+
+  1) tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /reports ────────────────────────────────────
+
+    Error: page.evaluate: Execution context was destroyed, most likely because of a navigation
+
+       at ../ui5-audit-core.ts:11
+
+       9 |
+      10 | export async function ui5Facts(page: Page, isPhone: boolean) {
+    > 11 |   return page.evaluate((phone) => {
+         |               ^
+      12 |     const main = document.querySelector('main');
+      13 |     const below: string[] = [];
+      14 |     let minFont = 99;
+        at ui5Facts (/Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/ui5-audit-core.ts:11:15)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract/tests/food-ui/ui5-audit.spec.ts:40:27
+
+    Error Context: test-results/ui5-audit-аудит-food-reports/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui5-audit-аудит-food-reports/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui5-audit-аудит-food-reports/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /reports ─────────────────────────────────────
+  14 passed (39.7s)
+
+# код выхода 1 · 41 с

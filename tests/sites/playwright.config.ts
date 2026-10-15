@@ -25,7 +25,8 @@ export default defineConfig({
   webServer: {
     command: `SITES_PREVIEW_PORT=${PORT} npx tsx apps/sites/src/dev-server.ts --fixture`,
     cwd: '../..',
-    url: `http://127.0.0.1:${PORT}/robots.txt`,
+    // MKT7: Worker отвечает 404 на IP-хост без вопроса к API, поэтому готовность ждём по порту, а не по адресу
+    port: PORT,
     reuseExistingServer: false,
     timeout: 60_000,
   },

@@ -1,0 +1,30 @@
+{
+ "/channels": {
+  "390": [
+   {
+    "cols": 6,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     170,
+     171
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ],
+  "1440": [
+   {
+    "cols": 6,
+    "noHead": false,
+    "rows": 4,
+    "rowHeights": [
+     28,
+     29
+    ],
+    "widerThanViewport": false,
+    "hasOwnScroll": true
+   }
+  ]
+ }
+}

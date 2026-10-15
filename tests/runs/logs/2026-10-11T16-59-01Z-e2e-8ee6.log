@@ -1,0 +1,183 @@
+# Сквозные (e2e) · 11.10.2026 21:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит 13b99b0 (codex/compact-navigation-20261011)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/marketing.spec.ts' '--grep' 'салон доступен|меню:|салон заводится' '--workers=1'
+[WebServer] (node:99878) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99967) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99968) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:99974) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/beauty-branch.spec.ts:46:1 › салон заводится той же формой и открывается своим рабочим местом (19.8s)
+(node:154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:175) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/beauty-branch.spec.ts:116:3 › салон доступен и в светлой теме (3.9s)
+(node:194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/beauty-branch.spec.ts:116:3 › салон доступен и в тёмной теме (3.6s)
+(node:225) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (17.9s)
+
+
+  1) tests/ui/beauty-branch.spec.ts:46:1 › салон заводится той же формой и открывается своим рабочим местом 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('heading', { name: 'Пока нечего показывать' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('heading', { name: 'Пока нечего показывать' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { name: 'Пока нечего показывать' })
+
+
+      53 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Календарь');
+      54 |   await expect(main).toContainText('Студия Айна');
+    > 55 |   await expect(main.getByRole('heading', { name: 'Пока нечего показывать' })).toBeVisible();
+         |                                                                               ^
+      56 |   await page.screenshot({ path: `${SNAPSHOTS}/salon-1440.png`, fullPage: true });
+      57 | });
+      58 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/beauty-branch.spec.ts:55:79
+
+    Error Context: test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-branch.spec.ts:116:3 › салон доступен и в светлой теме ────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "aria-prohibited-attr: 1",
+    +   "link-in-text-block: 2",
+    +   "scrollable-region-focusable: 1",
+    + ]
+
+      126 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      127 |       .analyze();
+    > 128 |     expect(audit.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+          |                                                                       ^
+      129 |     await page.screenshot({ path: `${SNAPSHOTS}/salon-${theme}.png`, fullPage: true });
+      130 |   });
+      131 | }
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/beauty-branch.spec.ts:128:71
+
+    Error Context: test-results/beauty-branch-салон-доступен-и-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-доступен-и-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-доступен-и-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-branch.spec.ts:116:3 › салон доступен и в тёмной теме ─────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "aria-prohibited-attr: 1",
+    +   "link-in-text-block: 2",
+    +   "scrollable-region-focusable: 1",
+    + ]
+
+      126 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      127 |       .analyze();
+    > 128 |     expect(audit.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+          |                                                                       ^
+      129 |     await page.screenshot({ path: `${SNAPSHOTS}/salon-${theme}.png`, fullPage: true });
+      130 |   });
+      131 | }
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/beauty-branch.spec.ts:128:71
+
+    Error Context: test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator: locator('.sidenav').locator('.sidenav__items').getByRole('link', { name: 'Сайт и SEO', exact: true })
+    Expected: focused
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeFocused" locator('.sidenav').locator('.sidenav__items').getByRole('link', { name: 'Сайт и SEO', exact: true }) with timeout 15000ms
+      - waiting for locator('.sidenav').locator('.sidenav__items').getByRole('link', { name: 'Сайт и SEO', exact: true })
+
+
+      38 |   await page.keyboard.press('ArrowRight');
+      39 |   const item = menu.locator('.sidenav__items').getByRole('link', { name: 'Сайт и SEO', exact: true });
+    > 40 |   await expect(item).toBeFocused();
+         |                      ^
+      41 |   await expect(item).toHaveAttribute('href', '/marketing');
+      42 |   // Escape закрывает панель и возвращает фокус на кнопку
+      43 |   await page.keyboard.press('Escape');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/sidebar-nav/tests/ui/marketing.spec.ts:40:22
+
+    Error Context: test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-меню-«Маркетинг»-43a68-авиатура-как-у-других-групп/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/beauty-branch.spec.ts:46:1 › салон заводится той же формой и открывается своим рабочим местом 
+    tests/ui/beauty-branch.spec.ts:116:3 › салон доступен и в светлой теме ─────────────────────────
+    tests/ui/beauty-branch.spec.ts:116:3 › салон доступен и в тёмной теме ──────────────────────────
+    tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп 
+
+# код выхода 1 · 54 с

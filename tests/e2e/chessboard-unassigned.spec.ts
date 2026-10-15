@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { hospitalityStatus } from '../../apps/web/src/lib/status/hospitality';
 
 /**
  * Брони без ячейки в календаре — паритет со строкой «Без номера» в Legacy: проживание без назначения
@@ -109,9 +110,9 @@ test('бронь без ячейки видна в блоке «Без ячей�
   // ── прибрать за собой: отмена, и бронь уходит из блока ────────────────────────────────────
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText(hospitalityStatus.CANCELLED.label);
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
   // отменённой брони в ящике нет (строки может не быть вовсе, если других броней без места нет)
   const rest = page.getByRole('main').getByTestId('unassigned-stays');

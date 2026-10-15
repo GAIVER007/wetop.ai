@@ -1,0 +1,27 @@
+# Модульные (unit) · 12.10.2026 13:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0b43c55 (claude/ui-master-final-20261011), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-57-40Z-unit-15c2.json' 'apps/api/src/market/collector.controller.test.ts' 'tests/unit/guard-run.test.ts' 'tests/unit/design-slop.test.ts' 'apps/web/src/app/beauty/empty-workspaces.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 5ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (4 tests) 12ms
+ ✓ |unit| apps/api/src/market/collector.controller.test.ts (8 tests) 137ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 5158ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 923ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 1115ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 1088ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 597ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 886ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 530ms
+
+ Test Files  4 passed (4)
+      Tests  38 passed (38)
+   Start at  01:57:41
+   Duration  5.31s (tests 70%, transform 16%, import 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-57-40Z-unit-15c2.json
+
+# код выхода 0 · 6 с

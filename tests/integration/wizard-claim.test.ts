@@ -1,12 +1,13 @@
 import { it, expect } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { createPrismaClient } from '@pms/database';
+import { isLocalDatabase } from '../tools/seed-local';
 import { WizardService } from '../../apps/api/src/wizard/wizard.service';
 import { SellerAgentsService } from '../../apps/api/src/wizard/seller-agents.service';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 
-it.skipIf(!process.env.DATABASE_URL?.includes('@127.0.0.1:55432/'))(
+it.skipIf(!isLocalDatabase(process.env.DATABASE_URL ?? ''))(
   'claim is idempotent, owner-only and isolated across organizations',
   async () => {
     const db = createPrismaClient();

@@ -1,0 +1,136 @@
+# Модульные (unit) · 07.10.2026 21:35 Алматы · MacBook-Air-Urij.local
+# коммит 5e8e1f2 (codex/mv10-vertical-ai-20261007)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T16-35-11Z-unit-cb08.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/db-restore-prod.test.ts' 'apps/api/src/guests/guests.controller.test.ts' '--pool=forks' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv10-20261007
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 66593ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 2801ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1580ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 3588ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2862ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 4591ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 3598ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 3389ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 4619ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 4497ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 5412ms
+     ✓ локальные правки в клоне — не затирает их 3194ms
+     ✓ историю ветки переписали — не выкладывает поверх 5588ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 4348ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 4848ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 7967ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 3705ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 6 failed) 1985554ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ без --yes-replace-production ничего не делает 2807ms
+     × данные и все миграции прав одной транзакцией, права после данных и по порядку 10015ms
+     × смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 15377ms
+     × схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 1921976ms
+     × пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 8039ms
+     × транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 14377ms
+     × после восстановления wetop_app читает users целиком: отказ, API не запускать 12919ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (16 tests) 1225ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > данные и все миграции прав одной транзакцией, права после данных и по порядку
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:96:3
+     94|   });
+     95|
+     96|   it('данные и все миграции прав одной транзакцией, права после данных…
+       |   ^
+     97|     expect(privilegeMigrations.length, 'миграции прав в репозитории').…
+     98|     const s = sandbox();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > смешанная schema-миграция с GRANT не выполняется второй раз после восстановления
+AssertionError: expected null to be +0 // Object.is equality
+
+- Expected:
+0
+
++ Received:
+null
+
+ ❯ tests/unit/db-restore-prod.test.ts:120:27
+    118|     const s = sandbox();
+    119|     const r = s.run([s.dump, '--yes-replace-production']);
+    120|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    121|     const sql = s.read('restore.sql');
+    122|     expect(sql).not.toContain('-- права: 20261005000058_food_service_d…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления
+AssertionError: expected null to be +0 // Object.is equality
+
+- Expected:
+0
+
++ Received:
+null
+
+ ❯ tests/unit/db-restore-prod.test.ts:128:62
+    126|   it('схема public из копии не пересоздаётся: её записи вычеркнуты из …
+    127|     const s = sandbox();
+    128|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+       |                                                              ^
+    129|     const used = s.read('used-list');
+    130|     expect(used).toContain('TABLE DATA public reservations');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:135:3
+    133|   });
+    134|
+    135|   it('пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma среза…
+       |   ^
+    136|     const s = sandbox();
+    137|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:144:3
+    142|   });
+    143|
+    144|   it('транзакция упала: код 1 и прямое «откатилось целиком», пароль в …
+       |   ^
+    145|     const s = sandbox({ psqlFails: true });
+    146|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > после восстановления wetop_app читает users целиком: отказ, API не запускать
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:152:3
+    150|   });
+    151|
+    152|   it('после восстановления wetop_app читает users целиком: отказ, API …
+       |   ^
+    153|     const s = sandbox({ check: 'открыто' });
+    154|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  6 failed | 33 passed (39)
+   Start at  20:35:14
+   Duration  2070.40s (tests 99%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T16-35-11Z-unit-cb08.json
+
+# код выхода 1 · 34 мин 33 с

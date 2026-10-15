@@ -1,0 +1,32 @@
+# Модульные (unit) · 07.10.2026 20:01 Алматы · MacBook-Air-Urij.local
+# коммит b6db018 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-01-51Z-unit-d0b2.json' 'apps/api/src/ai-seller/vertical-tools.test.ts' '--pool=threads' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv10-20261007
+
+ ❯ |unit| apps/api/src/ai-seller/vertical-tools.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/vertical-tools.test.ts [ apps/api/src/ai-seller/vertical-tools.test.ts ]
+Error: Cannot find module './generated/prisma/client' imported from /Users/urijzapojnov/wetop-mv10-20261007/packages/database/src/index.ts
+ ❯ packages/database/src/index.ts:8:1
+      6| import { PrismaPg } from '@prisma/adapter-pg';
+      7| import pg from 'pg';
+      8| import { PrismaClient, type Prisma } from './generated/prisma/client';
+       | ^
+      9| import { databasePoolTimeouts } from './pool';
+     10| import { TenantPool, type TenantOf } from './rls';
+ ❯ apps/api/src/database/prisma.provider.ts:3:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  19:02:09
+   Duration  10.41s (worker 99%, environment 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-01-51Z-unit-d0b2.json
+
+# код выхода 1 · 30 с

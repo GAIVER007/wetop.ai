@@ -188,21 +188,21 @@ def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunn
         # Помощник отвечает по делу: эмодзи в разборе ошибки неуместны.
         channel_emoji = False
     else:
-        from src.ai.hotel_tools import build_registry as build_seller_registry
+        from src.ai.vertical_tools import build_vertical_registry
         from src.integrations.lead_writer import LeadWriter
 
         from src.ai.seller_booking import BookingRuntime
 
         # ADR-144: бронь из чата — предложение в Redis, согласие и канал из сообщения этого хода
-        registry = build_seller_registry(
-            get_providers,
-            booking=BookingRuntime(
-                redis_getter=dependencies.get_redis,
-                incoming_getter=dependencies.incoming_var.get,
-                conversation_getter=dependencies.conversation_id_var.get,
-                agent_getter=dependencies.agent_id_var.get,
-            ),
+        booking_runtime = BookingRuntime(
+            redis_getter=dependencies.get_redis,
+            incoming_getter=dependencies.incoming_var.get,
+            conversation_getter=dependencies.conversation_id_var.get,
+            agent_getter=dependencies.agent_id_var.get,
         )
+        async def seller_tools():
+            return await build_vertical_registry(get_providers, booking=booking_runtime)
+        registry = None
         lead_hook = LeadWriter(
             sessionmaker=dependencies.get_sessionmaker(), redis=dependencies.get_redis(),
             # Фабрика, а не готовый набор: режим внешней системы читается настройкой.
@@ -214,7 +214,8 @@ def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunn
     # а пустой реестр означал бы модель без инструментов.
     set_cascade_client(
         CascadeClient(
-            settings, http_client=dependencies.get_http_client(), tools=registry
+            settings, http_client=dependencies.get_http_client(), tools=registry,
+            tools_getter=seller_tools if role != ROLE_SUPPORT else None
         )
     )
 

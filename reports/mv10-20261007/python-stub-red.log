@@ -1,0 +1,17 @@
+..........F                                                              [100%]
+=================================== FAILURES ===================================
+_______________ test_bound_agent_cannot_use_stub_hotel_fallback ________________
+
+    async def test_bound_agent_cannot_use_stub_hotel_fallback():
+        p = Provider(context())
+        r = await build_vertical_registry(lambda: SimpleNamespace(mode="stub", availability=p))
+>       assert r.names == [] and p.reads == []
+E       AssertionError: assert (['check_avail..., 'get_price'] == []
+E
+E         Left contains 2 more items, first extra item: 'check_availability'
+E         Use -v to get more diff)
+
+/Users/urijzapojnov/wetop-mv10-20261007/apps/ai-seller/tests/test_vertical_tools.py:74: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_vertical_tools.py::test_bound_agent_cannot_use_stub_hotel_fallback
+1 failed, 10 passed in 1.24s

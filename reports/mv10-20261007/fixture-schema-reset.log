@@ -1,0 +1,184 @@
+NOTICE:  drop cascades to 194 other objects
+DETAIL:  drop cascades to table pms_test._test_migrations
+drop cascades to table pms_test._test_meta
+drop cascades to type pms_test."AccommodationKind"
+drop cascades to type pms_test."InventoryUnitKind"
+drop cascades to type pms_test."HousekeepingStatus"
+drop cascades to type pms_test."InventoryBlockType"
+drop cascades to table pms_test.properties
+drop cascades to table pms_test.buildings
+drop cascades to table pms_test.floors
+drop cascades to table pms_test.accommodation_types
+drop cascades to table pms_test.physical_rooms
+drop cascades to table pms_test.inventory_units
+drop cascades to table pms_test.housekeeping_events
+drop cascades to table pms_test.inventory_blocks
+drop cascades to table pms_test.audit_logs
+drop cascades to type pms_test."ReservationSource"
+drop cascades to type pms_test."ReservationStatus"
+drop cascades to type pms_test."Gender"
+drop cascades to table pms_test.reservations
+drop cascades to table pms_test.reservation_items
+drop cascades to table pms_test.stay_guests
+drop cascades to table pms_test.allocations
+drop cascades to table pms_test.guests
+drop cascades to table pms_test.guest_documents
+drop cascades to table pms_test.rate_plans
+drop cascades to table pms_test.rate_plan_accommodation_types
+drop cascades to table pms_test.daily_rates
+drop cascades to table pms_test.restrictions
+drop cascades to type pms_test."ExternalEventStatus"
+drop cascades to table pms_test.channel_mappings
+drop cascades to table pms_test.external_events
+drop cascades to type pms_test."ChannelOutboxKind"
+drop cascades to type pms_test."ChannelOutboxStatus"
+drop cascades to table pms_test.channel_outbox
+drop cascades to type pms_test."FolioStatus"
+drop cascades to type pms_test."ChargeKind"
+drop cascades to type pms_test."PaymentMethod"
+drop cascades to type pms_test."PaymentStatus"
+drop cascades to table pms_test.folios
+drop cascades to table pms_test.services
+drop cascades to table pms_test.charges
+drop cascades to table pms_test.payments
+drop cascades to table pms_test.payment_allocations
+drop cascades to table pms_test.refunds
+drop cascades to type pms_test."CancellationPenalty"
+drop cascades to type pms_test."ExternalEventVia"
+drop cascades to type pms_test."TrackedSiteStatus"
+drop cascades to type pms_test."WebSourceKind"
+drop cascades to type pms_test."WebDevice"
+drop cascades to table pms_test.tracked_sites
+drop cascades to table pms_test.web_sessions
+drop cascades to table pms_test.web_pageviews
+drop cascades to table pms_test.web_events
+drop cascades to type pms_test."IncidentClass"
+drop cascades to type pms_test."IncidentSeverity"
+drop cascades to type pms_test."IncidentStatus"
+drop cascades to type pms_test."IncidentResolvedBy"
+drop cascades to table pms_test.system_incidents
+drop cascades to type pms_test."OrganizationStatus"
+drop cascades to type pms_test."UserStatus"
+drop cascades to table pms_test.organizations
+drop cascades to table pms_test.users
+drop cascades to table pms_test.memberships
+drop cascades to table pms_test.sessions
+drop cascades to table pms_test.invites
+drop cascades to table pms_test.password_resets
+drop cascades to table pms_test.email_verifications
+drop cascades to table pms_test.user_errors
+drop cascades to type pms_test."SellerAddressForm"
+drop cascades to type pms_test."SellerEmoji"
+drop cascades to type pms_test."SellerReplyLength"
+drop cascades to table pms_test.seller_profiles
+drop cascades to type pms_test."MembershipRole"
+drop cascades to type pms_test."ExtensionKind"
+drop cascades to type pms_test."ExtensionStatus"
+drop cascades to table pms_test.platform_admins
+drop cascades to table pms_test.organization_extensions
+drop cascades to function pms_test.audit_logs_immutable()
+drop cascades to table pms_test.seller_agents
+drop cascades to table pms_test.wizard_sessions
+drop cascades to table pms_test.wizard_drafts
+drop cascades to table pms_test.wizard_jobs
+drop cascades to table pms_test.wizard_messages
+drop cascades to table pms_test.wizard_surveys
+drop cascades to table pms_test.wizard_events
+drop cascades to function pms_test.app_current_org()
+drop cascades to function pms_test.app_audit_organization(text,text,uuid)
+drop cascades to function pms_test.audit_logs_organization()
+drop cascades to function pms_test.app_property_visible(uuid)
+drop cascades to type pms_test."BusinessVertical"
+drop cascades to type pms_test."BusinessStatus"
+drop cascades to type pms_test."LocationStatus"
+drop cascades to table pms_test.businesses
+drop cascades to table pms_test.locations
+drop cascades to function pms_test.seller_agents_check_chain()
+drop cascades to function pms_test.seller_agent_ensure(uuid,text,boolean)
+drop cascades to function pms_test.seller_agents_backfill()
+drop cascades to function pms_test.seller_profiles_link_agent()
+drop cascades to function pms_test.seller_scope_precheck(uuid)
+drop cascades to function pms_test.seller_scope_assert(uuid)
+and 94 other objects (see server log for list)
+DROP SCHEMA
+
+> pms-lux@0.0.0 test:schema
+> tsx tests/tools/cli-test-schema.ts
+
+миграция 20260907000001_init_inventory — применена
+миграция 20260908000002_reservations_guests — применена
+миграция 20260909000003_rates_and_overbooking_guard — применена
+миграция 20260909000004_channel_mapping_external_events — применена
+миграция 20260909000005_channel_outbox — применена
+миграция 20260909000006_folio_payments — применена
+миграция 20260910000007_stay_rate_plan_and_penalty — применена
+миграция 20260910000008_external_event_received_via — применена
+миграция 20260912000009_web_analytics — применена
+миграция 20260912000010_web_booking — применена
+миграция 20260913000011_citizenship_alpha3 — применена
+миграция 20260913000012_system_incidents — применена
+миграция 20260915000013_accounts — применена
+миграция 20260915000014_password_login — применена
+миграция 20260916000014_session_token_hash — применена
+миграция 20260920000015_email_verification — применена
+миграция 20260920000016_property_organization — применена
+миграция 20260920000017_drop_login_codes — применена
+миграция 20260924000018_user_errors — применена
+миграция 20260924000019_seller_profiles — применена
+миграция 20260925000020_access_extensions — применена
+миграция 20260925000021_v17_document_dates_property_contacts — применена
+миграция 20260925000022_integrity_guards — применена
+миграция 20260926000023_seller_wizard — применена
+миграция 20260926000024_seller_prompt_text — применена
+миграция 20260926000025_unit_code_per_property — применена
+миграция 20260927000026_phase1_tenant_scope — применена
+миграция 20260927000026_rls_roles — применена
+миграция 20260927000027_tenant_columns — применена
+миграция 20260927000028_rls_policies — применена
+миграция 20260927000029_manager_role — применена
+миграция 20260927000030_platform_p1_business_location — применена
+миграция 20260928000031_remove_legacy_pms_fields — применена
+миграция 20260928000032_platform_p1_location_not_null — применена
+миграция 20260929000033_rls_credential_grants — применена
+миграция 20260930000034_revoke_supabase_api_roles — применена
+миграция 20260930000035_business_agent_identity — применена
+миграция 20260930000036_seller_agent_scope_expand — применена
+миграция 20260930000037_direct_sales_discounts — применена
+миграция 20260930000038_rls_integration_grants — применена
+миграция 20260930000039_seller_profile_agent_key — применена
+миграция 20261001000040_reservation_creation_key — применена
+миграция 20261001000041_channex_property_metadata — применена
+миграция 20261002000040_cashbox — применена
+миграция 20261002000041_cash_reconciliations — применена
+миграция 20261002000042_users_last_login_grant — применена
+миграция 20261003000043_function_search_path — применена
+миграция 20261003000044_beauty_domain — применена
+миграция 20261003000044_competitor_occupancy — применена
+миграция 20261003000045_beauty_function_search_path — применена
+миграция 20261003000046_payment_requests — применена
+миграция 20261003000047_seller_booking_intents — применена
+миграция 20261003000048_fiscal_receipts — применена
+миграция 20261003000049_desk_tasks — применена
+миграция 20261003000050_membership_contacts — применена
+миграция 20261004000051_bar_inventory — применена
+миграция 20261004000051_food_service_vertical — применена
+миграция 20261004000052_onboarding_progress — применена
+миграция 20261005000053_bar_function_search_path — применена
+миграция 20261005000054_bar_force_rls — применена
+миграция 20261005000055_bar_property_guard_dispatch — применена
+миграция 20261005000056_bar_ownership_guards — применена
+миграция 20261005000057_bar_external_parent_guards — применена
+миграция 20261005000058_food_service_domain — применена
+миграция 20261005000059_food_service_grants — применена
+миграция 20261006000060_marketing_site_core — применена
+миграция 20261006000061_marketing_site_grants — применена
+миграция 20261007000062_generation_run_core — применена
+миграция 20261007000063_generation_run_grants — применена
+миграция 20261007000064_marketing_publication_domains — применена
+миграция 20261007000065_marketing_publication_grants — применена
+миграция 20261007000066_site_assets — применена
+миграция 20261007000067_site_asset_grants — применена
+сид: единиц 88, тарифов 1, цен 2580, броней 10 (без ячейки 0), сегодня 2026-10-07
+схема создана; миграций применено сейчас 73, всего 73
+данные не копировались (схема не пуста; освежить — --refresh)
+копия данных от: 2026-10-07T17:50:28.773Z (сид)

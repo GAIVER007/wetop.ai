@@ -1,0 +1,39 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_________________ test_each_concurrent_generate_owns_registry __________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109cfba80>
+
+    async def test_each_concurrent_generate_owns_registry(monkeypatch):
+        settings = llm_env(monkeypatch)
+        current = ContextVar('test_vertical', default='beauty')
+        async def factory():
+            name = current.get()
+            await asyncio.sleep(0)
+            r = ToolRegistry()
+            async def read(): return name
+            r.register(ToolSpec(name=name, description=name, parameters={"type": "object", "properties": {}}, handler=read))
+            return r
+        router = ScriptedRouter({PRIMARY: [chat_response(FINAL, model=PRIMARY), chat_response(FINAL, model=PRIMARY)]})
+>       client = CascadeClient(settings, http_client=router.http_client(), tools_getter=factory)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: CascadeClient.__init__() got an unexpected keyword argument 'tools_getter'
+
+/Users/urijzapojnov/wetop-mv10-20261007/apps/ai-seller/tests/test_vertical_llm.py:18: TypeError
+______________ test_no_tools_generation_never_loads_agent_context ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109c12210>
+
+    async def test_no_tools_generation_never_loads_agent_context(monkeypatch):
+        settings = llm_env(monkeypatch)
+        async def factory(): raise AssertionError('not an agent turn')
+        router = ScriptedRouter({PRIMARY: [chat_response(FINAL, model=PRIMARY)]})
+>       client = CascadeClient(settings, http_client=router.http_client(), tools_getter=factory)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: CascadeClient.__init__() got an unexpected keyword argument 'tools_getter'
+
+/Users/urijzapojnov/wetop-mv10-20261007/apps/ai-seller/tests/test_vertical_llm.py:30: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_vertical_llm.py::test_each_concurrent_generate_owns_registry
+FAILED tests/test_vertical_llm.py::test_no_tools_generation_never_loads_agent_context
+2 failed in 10.91s

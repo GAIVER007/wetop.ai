@@ -1,3 +1,5 @@
+import { VerticalToolsService } from './vertical-tools.service';
+import { VerticalToolsController } from './vertical-tools.controller';
 import { AgentTelegramService } from './agent-telegram.service';
 import { AgentTelegramController } from './agent-telegram.controller';
 import 'reflect-metadata';
@@ -33,9 +35,10 @@ import { SellerSyncService } from './seller-sync.service';
  */
 @Module({
   imports: [PlatformModule],
-  controllers: [AgentTelegramController, AiSellerController, BusinessAgentsController, AgentInstructionsController],
+  controllers: [VerticalToolsController, AgentTelegramController, AiSellerController, BusinessAgentsController, AgentInstructionsController],
   providers: [
     PrismaService,
+    VerticalToolsService,
     { provide: SELLER_CONNECTION, useClass: EnvSellerConnection },
     { provide: SELLER_PROFILES, useClass: PrismaSellerProfilesRepository },
     { provide: SELLER_FACTS, useClass: PrismaSellerFactsRepository },

@@ -1,0 +1,46 @@
+{
+  "results": [
+    {
+      "tool": "get_beauty_services",
+      "items": [
+        {
+          "name": "Услуга",
+          "category": null,
+          "durationMinutes": 45,
+          "priceMinor": "12000",
+          "currency": "KZT"
+        }
+      ],
+      "forgedScope": "denied-before-HTTP",
+      "foreignTool": "denied-before-HTTP"
+    },
+    {
+      "tool": "get_food_service_periods",
+      "items": [
+        {
+          "name": "Ужин",
+          "weekday": 2,
+          "timeFrom": "18:00",
+          "timeTo": "23:00",
+          "endsNextDay": false,
+          "defaultDurationMinutes": 90
+        }
+      ],
+      "forgedScope": "denied-before-HTTP",
+      "foreignTool": "denied-before-HTTP"
+    }
+  ],
+  "hotelTools": [
+    "check_availability",
+    "get_price"
+  ],
+  "HTTPPaths": [
+    "/bot/agent-context",
+    "/bot/agent-context",
+    "/bot/agent-context",
+    "/bot/agent-context",
+    "/bot/food-service-periods",
+    "/bot/beauty-services",
+    "/bot/agent-context"
+  ]
+}

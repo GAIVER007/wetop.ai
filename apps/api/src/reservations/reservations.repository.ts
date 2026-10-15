@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import {
+  lockOpenFolios,
   ensureFolioWithAccommodation,
   recordExternalPayment,
   isOverlapViolation,
@@ -1322,6 +1323,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { id: true },
     });
     if (!folio) return;
+    await lockOpenFolios(this.db, [folio.id]);
     const charge = await this.db.charge.create({
       data: {
         folioId: folio.id,

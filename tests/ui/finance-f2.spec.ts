@@ -72,13 +72,14 @@ test('F2: способ в «Оплатах по способам» ведёт к
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await main.getByTestId('payments-table').getByRole('link', { name: 'Наличные' }).click();
   await expect(page).toHaveURL(/op=payment&method=CASH#operations$/);
-  const methods = page.getByLabel('Способ оплаты', { exact: true });
+  const filters = page.getByRole('region', { name: 'Фильтры операций' });
+  const methods = filters.getByLabel('Способ оплаты', { exact: true });
   await expect(methods).toHaveValue('CASH');
   await expect(main.getByTestId('ops-meta')).toContainText('по отбору');
   for (const row of await main.getByTestId('op-row').all())
     await expect(row).toContainText('Наличные');
   await methods.selectOption('');
-  await page.getByRole('button', { name: 'Показать', exact: true }).click();
+  await filters.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(methods).toHaveValue('');
   await expect(page.getByLabel('Тип операции', { exact: true })).toHaveValue('payment');
 });

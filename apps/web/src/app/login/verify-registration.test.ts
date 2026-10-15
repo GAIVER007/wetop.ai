@@ -49,9 +49,12 @@ it('verification without registration context goes through branch resolution, no
     expiresAt: '2030-01-01T00:00:00Z',
   } as never);
   vi.spyOn(authApi, 'registrationContext').mockResolvedValue(null as never);
-  await verifyEmailAction('synthetic-verification');
+  const result = await verifyEmailAction('synthetic-verification');
   expect(set).not.toHaveBeenCalled();
-  expect(redirect).toHaveBeenLastCalledWith('/scope/resolve?next=%2Ftoday');
+  // `/scope/resolve` это обработчик маршрута: redirect() из серверного действия рендерит его цель на сервере, и адрес
+  // остаётся `/scope/resolve` при содержимом «Финансов» (гейт main 38358117502). Туда идём загрузкой страницы.
+  expect(result).toEqual({ error: null, redirectTo: '/scope/resolve?next=%2Ftoday' });
+  expect(redirect).not.toHaveBeenCalled();
 });
 it('Hospitality verification retains its current destination', async () => {
   vi.spyOn(authApi, 'verifyEmail').mockResolvedValue({

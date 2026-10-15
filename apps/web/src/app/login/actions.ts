@@ -102,6 +102,8 @@ export async function setPassword(
 
 export interface AuthActionResult {
   error: string | null;
+  /** Куда перейти загрузкой страницы, а не переходом Next: цель не страница, а обработчик маршрута */
+  redirectTo?: string;
 }
 
 /** Текст для человека: своё сообщение API — как есть, сбой связи — одной фразой. */
@@ -162,7 +164,11 @@ export async function verifyEmailAction(token: string): Promise<AuthActionResult
   // `/scope/resolve` (SCOPE-HARDENING: «сюда ведут все входы»). Прямой `/today` без указателя
   // обрывался на полпути: страница успевала отдать каркас до серверного redirect, и человек
   // оставался на `/today` без филиала (login-access, 09.10.2026).
-  redirect(pilot ? '/register/complete' : scoped ? '/today' : scopeResolvePath('/today'));
+  // `/scope/resolve` это обработчик маршрута, а не страница: redirect() из серверного действия рендерит его цель на
+  // сервере, и в адресе оставался `/scope/resolve` при содержимом «Финансов» (гейт main 38358117502, 13.10.2026).
+  // Туда переходит панель загрузкой страницы, как вход по паролю: браузер сам проходит 307 и показывает настоящий адрес.
+  if (!pilot && !scoped) return { error: null, redirectTo: scopeResolvePath('/today') };
+  redirect(pilot ? '/register/complete' : '/today');
 }
 
 export interface ResendState {

@@ -65,12 +65,15 @@ def test_lead_hook_takes_providers_from_the_factory(runner) -> None:
     assert hook._providers_getter().mode == "stub"
 
 
-def test_model_sees_both_tools(runner) -> None:
+async def test_model_sees_both_tools(runner) -> None:
     """Реестр отдан каскаду: без этого модель про наличие и цену не спросит. С 03.10 (ADR-144) у продавца
     ещё бронь из чата: предложение и оформление после явного «да» гостя."""
     from src.ai.llm import get_cascade_client
 
-    names = [spec["function"]["name"] for spec in get_cascade_client()._tools.specs_for_openai()]
+    client = get_cascade_client()
+    assert client._tools_getter is not None
+    registry = await client._tools_getter()
+    names = [spec["function"]["name"] for spec in registry.specs_for_openai()]
     assert names == ["check_availability", "get_price", "book_quote", "book_confirm"]
 
 

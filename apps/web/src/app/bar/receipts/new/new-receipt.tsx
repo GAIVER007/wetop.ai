@@ -3,6 +3,7 @@ import { startTransition, useActionState, useEffect, useRef, useState } from 're
 import type { BarProductRow, BarSupplierRow } from '../../../../lib/api';
 import { formatMoney, minorToInput } from '../../../../lib/money';
 import { Button, Field, Input, Select, Textarea } from '../../../../components/ui';
+import { BarContextFields, type BarFormContext } from '../../context';
 import {
   createBarReceiptAction,
   scanBarReceiptAction,
@@ -68,7 +69,7 @@ const parseBasis = parseMinor;
 const divideRoundUp = (valueMinor: bigint, divisor: bigint) => (valueMinor + divisor - 1n) / divisor;
 const roundUpToTenTenge = (minorUnits: bigint) => divideRoundUp(minorUnits, 1_000n) * 1_000n;
 
-export function NewReceipt({ products, suppliers, today }: { products: BarProductRow[]; suppliers: BarSupplierRow[]; today: string }) {
+export function NewReceipt({ products, suppliers, today, context }: { products: BarProductRow[]; suppliers: BarSupplierRow[]; today: string; context: BarFormContext }) {
   const [state, action, pending] = useActionState(createBarReceiptAction, initial);
   const [scanState, scanDispatch, scanPending] = useActionState(scanBarReceiptAction, scanInitial);
   const [lines, setLines] = useState<LineDraft[]>(() => [emptyLine()]);
@@ -137,6 +138,7 @@ export function NewReceipt({ products, suppliers, today }: { products: BarProduc
           <ul className="bar-scan-warnings">{scanState.scan.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
         )}
       </section>
+      <BarContextFields context={context} />
       <input type="hidden" name="lineCount" value={lines.length} />
       <div className="bar-form-grid">
         <Field label="Поставщик" controlId="bar-supplier" {...(supplierGuess ? { hint: `В документе: «${supplierGuess}». Такого поставщика ещё нет: заведите его на вкладке «Поставщики»` } : {})}>
@@ -156,6 +158,7 @@ export function NewReceipt({ products, suppliers, today }: { products: BarProduc
             index={index}
             line={line}
             products={products}
+            currency={context.currency}
             onChange={(part) => patch(line.key, part)}
             {...(lines.length > 1 ? { remove: () => setLines((all) => all.filter((item) => item.key !== line.key)) } : {})}
           />
@@ -174,10 +177,12 @@ export function NewReceipt({ products, suppliers, today }: { products: BarProduc
   );
 }
 
-function ReceiptLine({ index, line, products, onChange, remove }: {
+function ReceiptLine({ index, line, products, currency, onChange, remove }: {
   index: number;
   line: LineDraft;
   products: BarProductRow[];
+  /** Валюта объекта (D-CUR): подписи сумм; цена по наценке утверждена только для тенге */
+  currency: string;
   onChange: (part: Partial<LineDraft>) => void;
   remove?: () => void;
 }) {
@@ -210,7 +215,7 @@ function ReceiptLine({ index, line, products, onChange, remove }: {
       </div>
     )}
     <Field label="Кол-во, шт."><Input name={`quantityUnits.${index}`} inputMode="numeric" pattern="[0-9]+" value={line.quantity} onChange={(event) => onChange({ quantity: event.target.value })} required /></Field>
-    <Field label="Закупка за 1 шт., ₸"><Input name={`unitCost.${index}`} inputMode="decimal" value={line.unitCost} onChange={(event) => onChange({ unitCost: event.target.value })} required /></Field>
+    <Field label={`Закупка за 1 шт., ${currency === 'KZT' ? '₸' : currency}`}><Input name={`unitCost.${index}`} inputMode="decimal" value={line.unitCost} onChange={(event) => onChange({ unitCost: event.target.value })} required /></Field>
     <Field label="Наценка, %"><Input name={`markup.${index}`} inputMode="decimal" value={line.markup} onChange={(event) => onChange({ markup: event.target.value })} required /></Field>
     <div className="bar-line-tools">
       <Button type="button" tone="ghost" size="xs" onClick={() => onChange(line.mode === 'existing' ? { mode: 'new', productId: '', code: line.code || suggestCode(line.name) } : { mode: 'existing' })}>
@@ -219,8 +224,8 @@ function ReceiptLine({ index, line, products, onChange, remove }: {
       {remove && <Button type="button" tone="ghost" size="xs" onClick={remove} aria-label={`Убрать строку ${index + 1}`}>Убрать</Button>}
     </div>
     <div className="bar-line-calculation" aria-live="polite">
-      <span>Сумма закупки: <b>{purchaseAmount === null ? 'Введите количество и цену' : formatMoney(purchaseAmount)}</b></span>
-      <span>Рекомендованная продажа: <b>{recommendedPrice === null ? 'Введите цену и наценку' : formatMoney(recommendedPrice)}</b></span>
+      <span>Сумма закупки: <b>{purchaseAmount === null ? 'Введите количество и цену' : formatMoney(purchaseAmount, currency)}</b></span>
+      <span>Рекомендованная продажа: <b>{currency !== 'KZT' ? 'Автоматическая цена для этой валюты еще не утверждена' : recommendedPrice === null ? 'Введите цену и наценку' : formatMoney(recommendedPrice, currency)}</b></span>
       {line.mode === 'new'
         ? <small>Карточка товара создастся вместе с приходом: рекомендованная цена станет ценой продажи.</small>
         : <small>{product ? 'После проведения рекомендованная цена станет текущей. Её можно изменить во вкладке «Товары».' : 'Выберите товар или нажмите «Нет в списке», чтобы создать карточку.'}</small>}

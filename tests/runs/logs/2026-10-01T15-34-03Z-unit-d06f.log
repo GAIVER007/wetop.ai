@@ -1,0 +1,109 @@
+# Модульные (unit) · 01.10.2026 20:34 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-34-03Z-unit-d06f.json' 'apps/api/src/rates/rate-plans.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/rates/rate-plans.test.ts (9 tests | 2 failed) 32ms
+   ✓ «Тарифные планы»: правило отмены (4)
+     ✓ список: правило, категории по названию и брони, которые правка заденет 6ms
+     ✓ правка: новое правило, журнал «было/стало» с числом затронутых броней 3ms
+     ✓ то же правило — без записи и без журнала 1ms
+     ✓ неизвестное правило или лишнее поле — 400 словами, неизвестный тариф — 404 2ms
+   ❯ «Тарифные планы»: выключить и включить тариф (5)
+     × тариф без помех выключается: запись, журнал «было/стало», в списке «не действует» 11ms
+     ✓ помехи: каналы, сайт, производные и брони впереди — 409 со всеми причинами, без записи 2ms
+     × включить обратно можно всегда; то же значение — без записи и журнала 3ms
+     ✓ оба поля сразу, не булево, неизвестное поле — 400; неизвестный тариф — 404 1ms
+     ✓ производный тариф от выключенного родителя не создаётся 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: выключить и включить тариф > тариф без помех выключается: запись, журнал «было/стало», в списке «не действует»
+AssertionError: expected "vi.fn()" to be called with arguments: [ { data: ObjectContaining{…} } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -1,15 +1,15 @@
+  [
+    {
+-     "data": ObjectContaining {
++     "data": {
+        "action": "rate_plan.active.updated",
+        "after": {
+          "active": false,
+          "upcomingReservations": 0,
+        },
+        "before": {
+-         "active": true,
++         "active": false,
+        },
+        "entityId": "plan-flex",
+        "entityType": "RatePlan",
+        "userId": "u1",
+      },
+
+
+Number of calls: 1
+
+ ❯ apps/api/src/rates/rate-plans.test.ts:198:32
+    196|       expect.objectContaining({ where: { id: 'plan-flex' }, data: { ac…
+    197|     );
+    198|     expect(db.auditLog.create).toHaveBeenCalledWith({
+       |                                ^
+    199|       data: expect.objectContaining({
+    200|         userId: 'u1',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: выключить и включить тариф > включить обратно можно всегда; то же значение — без записи и журнала
+AssertionError: expected "vi.fn()" to be called with arguments: [ { data: ObjectContaining{…} } ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    {
+-     "data": ObjectContaining {
++     "data": {
+        "action": "rate_plan.active.updated",
+        "after": {
+          "active": true,
+          "upcomingReservations": 2,
+        },
+        "before": {
+-         "active": false,
++         "active": true,
+        },
++       "entityId": "plan-off",
++       "entityType": "RatePlan",
++       "userId": "u1",
+      },
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/api/src/rates/rate-plans.test.ts:250:32
+    248|     const saved = await asManager(() => service.update('rate-off', { a…
+    249|     expect(saved).toMatchObject({ code: 'rate-off', active: true });
+    250|     expect(db.auditLog.create).toHaveBeenCalledWith({
+       |                                ^
+    251|       data: expect.objectContaining({
+    252|         action: 'rate_plan.active.updated',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  15:34:04
+   Duration  1.65s (transform 75%, import 22%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-34-03Z-unit-d06f.json
+
+# код выхода 1 · 3 с

@@ -7,6 +7,8 @@ import { Page } from '../../../components/page';
 import { Badge, Button, EmptyState, SectionTitle, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { toggleBarCatalogAction } from '../actions';
+import { loadBarContext } from '../load-context';
+import { BarCommandForm } from '../command-form';
 import { SupplierForm } from './supplier-form';
 import { BarTabs } from '../tabs';
 import '../bar.css';
@@ -20,6 +22,8 @@ export default async function BarSuppliersPage() {
   const failed = [suppliers, receipts].find((result) => !result.ok);
   if (failed && !failed.ok) throw failed.error;
   if (!suppliers.ok || !receipts.ok) return null;
+  // контекст денежных форм: сервер сверяет объект и валюту (D-CUR); у салона вместо объекта филиал
+  const context = await loadBarContext();
   const totals = new Map<string, { purchased: bigint; paid: bigint; due: bigint; documents: number }>();
   for (const receipt of receipts.value) {
     if (receipt.status !== 'POSTED') continue;
@@ -36,7 +40,7 @@ export default async function BarSuppliersPage() {
     <BarTabs current="suppliers" />
     <details className="panel bar-supplier-panel bar-details">
       <summary>Новый поставщик</summary>
-      <SupplierForm />
+      <SupplierForm context={context} />
     </details>
     <section className="bar-suppliers-table">
       <SectionTitle>Поставщики и расчёты</SectionTitle>
@@ -50,17 +54,17 @@ export default async function BarSuppliersPage() {
                 <td><b>{supplier.name}</b></td>
                 <td>{[supplier.phone, supplier.email].filter(Boolean).join(', ') || 'нет'}</td>
                 <td>{total && total.due > 0n
-                  ? <Badge tone="warn">{formatMoney(total.due.toString())}</Badge>
-                  : formatMoney('0')}</td>
-                <td><details className="bar-row-details"><summary>Расчёты</summary><p>Приходов: {total?.documents ?? 0}</p><p>Закуплено: {formatMoney((total?.purchased ?? 0n).toString())}</p><p>Оплачено: {formatMoney((total?.paid ?? 0n).toString())}</p></details></td>
+                  ? <Badge tone="warn">{formatMoney(total.due.toString(), context.currency)}</Badge>
+                  : formatMoney('0', context.currency)}</td>
+                <td><details className="bar-row-details"><summary>Расчёты</summary><p>Приходов: {total?.documents ?? 0}</p><p>Закуплено: {formatMoney((total?.purchased ?? 0n).toString(), context.currency)}</p><p>Оплачено: {formatMoney((total?.paid ?? 0n).toString(), context.currency)}</p></details></td>
                 <td className="bar-supplier-actions">
                   {total && total.due > 0n && <Link className="btn btn--secondary btn--xs" href="/bar/receipts" prefetch={false}>К оплате</Link>}
-                  <form action={toggleBarCatalogAction}>
+                  <BarCommandForm context={context} action={toggleBarCatalogAction}>
                     <input type="hidden" name="kind" value="supplier" />
                     <input type="hidden" name="id" value={supplier.id} />
                     <input type="hidden" name="active" value={String(!supplier.active)} />
                     <Button type="submit" tone="ghost" size="xs">{supplier.active ? 'В архив' : 'Восстановить'}</Button>
-                  </form>
+                  </BarCommandForm>
                 </td>
               </tr>;
             })}</tbody>

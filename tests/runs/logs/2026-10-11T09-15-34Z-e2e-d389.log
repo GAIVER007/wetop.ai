@@ -1,0 +1,636 @@
+# Сквозные (e2e) · 11.10.2026 14:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит bd2b9dd (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/runtime-audit/playwright.bar.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✘   1 tests/e2e/a25-bar-money.spec.ts:67:1 › UI-02 currency comes from real USD report (25.7s)
+  ✘   2 tests/e2e/a25-bar-money.spec.ts:225:1 › UI-01 real KZT user flow and expected/API/SQL/DOM reconciliation (2.0m)
+  ✘   3 tests/e2e/a25-bar-money.spec.ts:306:1 › UI-02 real compatible USD retail, stock, history and cash (2.0m)
+  ✘   4 tests/e2e/a25-bar-money.spec.ts:373:1 › UI-03 branch switching clears drafts, including controlled delay and focus (2.0m)
+[WebServer] ⨯ Error: История закупок содержит несовместимую валюту. Денежный расчет требует отдельной сверки.
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async BarPage (src/app/bar/page.tsx:74:93)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 409,
+[WebServer]   digest: 'API_409'
+[WebServer] }
+  ✘   5 tests/e2e/a25-bar-money.spec.ts:413:1 › UI-04 real mixed-history guard is explicit, not zero success (20.6s)
+  ✘   6 tests/e2e/a25-bar-money.spec.ts:436:1 › UI-05 non-KZT auto price refusal preserves editable input (2.0m)
+[WebServer] ⨯ Error: История закупок содержит несовместимую валюту. Денежный расчет требует отдельной сверки.
+[WebServer]     at getJson (src/lib/api.ts:197:11)
+[WebServer]     at async BarPage (src/app/bar/page.tsx:74:93)
+[WebServer]   195 |         /* тело не JSON */
+[WebServer]   196 |       }
+[WebServer] > 197 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   198 |   }
+[WebServer]   199 |   return (await res.json()) as T;
+[WebServer]   200 | } {
+[WebServer]   status: 409,
+[WebServer]   digest: 'API_409'
+[WebServer] }
+  ✘   7 tests/e2e/a25-bar-money.spec.ts:458:1 › UI-07 unavailable stock and cross-property draft have no partial effect (20.7s)
+  ✘   8 tests/e2e/a25-bar-money.spec.ts:479:1 › UI-09 exact large minor price stays exact in input and DOM (20.8s)
+  ✘   9 tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 390 light real USD (20.7s)
+  ✘  10 tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 390 dark real USD (20.6s)
+  ✘  11 tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 1440 light real USD (20.6s)
+  ✘  12 tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 1440 dark real USD (20.6s)
+  ✘  13 tests/e2e/a25-bar-money.spec.ts:529:1 › UI-08 duplicate command, fresh command and REVERSED replay (2.0m)
+  ✘  14 tests/e2e/a25-bar-money.spec.ts:587:1 › UI-06 supplier void restores cash and debt (2.0m)
+  ✘  15 tests/e2e/a25-bar-money.spec.ts:672:1 › UI-07 server validation retains draft and has no receipt effects (2.0m)
+  ✘  16 tests/e2e/a25-bar-money.spec.ts:737:1 › UI-10 empty scope and actual read failure never become successful zeros (20.9s)
+  ✘  17 tests/e2e/a25-bar-money.spec.ts:770:1 › UI-09 negative fractional profit and zero stock remain exact (2.0m)
+  ✘  18 tests/e2e/a25-bar-money.spec.ts:811:1 › UI-10 normal STAFF read and settings permission refusal (141ms)
+
+
+  1) tests/e2e/a25-bar-money.spec.ts:67:1 › UI-02 currency comes from real USD report ──────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.stat').filter({ hasText: 'Выручка бара' })
+    Expected substring: "USD"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" locator('.stat').filter({ hasText: 'Выручка бара' }) with timeout 20000ms
+      - waiting for locator('.stat').filter({ hasText: 'Выручка бара' })
+        - waiting for "http://127.0.0.1:3127/register/setup" navigation to finish...
+        - navigated to "http://127.0.0.1:3127/register/setup"
+
+
+      76 |   });
+      77 |   writeFileSync(evidence + '/usd-current-api.json', JSON.stringify(report, null, 2));
+    > 78 |   await expect(page.locator('.stat').filter({ hasText: 'Выручка бара' })).toContainText('USD');
+         |                                                                           ^
+      79 | });
+      80 | const query = async (sql: string, params: unknown[] = []) => {
+      81 |   const db = new pg.Client({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:78:75
+
+    Error Context: test-results/a25-bar-money-UI-02-currency-comes-from-real-USD-report/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-02-currency-comes-from-real-USD-report/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-02-currency-comes-from-real-USD-report/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/a25-bar-money.spec.ts:225:1 › UI-01 real KZT user flow and expected/API/SQL/DOM reconciliation 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.fill: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('.bar-catalogs section').filter({ has: getByRole('heading', { name: 'Поставщики', exact: true }) }).locator('input[name=name]')
+
+
+      147 |     .locator('.bar-catalogs section')
+      148 |     .filter({ has: page.getByRole('heading', { name: 'Поставщики', exact: true }) });
+    > 149 |   await suppliers.locator('input[name=name]').fill(name + ' supplier');
+          |                                               ^
+      150 |   await suppliers.getByRole('button', { name: 'Добавить', exact: true }).click();
+      151 |   await expect(suppliers.getByRole('status')).toHaveText('Поставщик добавлен');
+      152 |   const products = page.locator('.bar-products-catalog');
+        at createCatalog (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:149:47)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:229:9
+
+    Error Context: test-results/a25-bar-money-UI-01-real-K-941e7--API-SQL-DOM-reconciliation/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-01-real-K-941e7--API-SQL-DOM-reconciliation/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-01-real-K-941e7--API-SQL-DOM-reconciliation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/a25-bar-money.spec.ts:306:1 › UI-02 real compatible USD retail, stock, history and cash 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.innerText: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('.bar-sale-form').first().locator('option').filter({ hasText: 'A25 USD goods' })
+
+
+      173 |   await form
+      174 |     .locator('select[name=productId]')
+    > 175 |     .selectOption({ label: await form.locator('option').filter({ hasText: name }).innerText() });
+          |                                                                                   ^
+      176 |   await form.locator('input[name=quantityUnits]').fill(qty);
+      177 |   await form.getByRole('button', { name: 'Продать', exact: true }).click();
+      178 |   await expect(form.getByRole('status')).toContainText('Продажа записана');
+        at sell (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:175:83)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:310:9
+
+    Error Context: test-results/a25-bar-money-UI-02-real-c-dfea2-tail-stock-history-and-cash/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-02-real-c-dfea2-tail-stock-history-and-cash/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-02-real-c-dfea2-tail-stock-history-and-cash/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/a25-bar-money.spec.ts:373:1 › UI-03 branch switching clears drafts, including controlled delay and focus 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.fill: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('input[name=documentNumber]')
+
+
+      375 | }) => {
+      376 |   await enter(page, 'KZT');
+    > 377 |   await page.locator('input[name=documentNumber]').fill('OLD-SCOPE-DRAFT');
+          |                                                    ^
+      378 |   await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+      379 |   await page.getByRole('button', { name: new RegExp(scope('USD').name) }).click();
+      380 |   await expect(page).toHaveURL(/\/today/);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:377:52
+
+    Error Context: test-results/a25-bar-money-UI-03-branch-ba78a--controlled-delay-and-focus/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-03-branch-ba78a--controlled-delay-and-focus/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-03-branch-ba78a--controlled-delay-and-focus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/a25-bar-money.spec.ts:413:1 › UI-04 real mixed-history guard is explicit, not zero success 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Бар', exact: true })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Бар', exact: true }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'Бар', exact: true })
+
+
+      53 |   ]);
+      54 |   await page.goto('/bar');
+    > 55 |   await expect(page.getByRole('heading', { name: 'Бар', exact: true })).toBeVisible();
+         |                                                                         ^
+      56 | }
+      57 | test.beforeAll(async () => {
+      58 |   const login = await fetch(api + '/auth/login', {
+        at enter (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:55:73)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:425:3
+
+    Error Context: test-results/a25-bar-money-UI-04-real-m-ae801-s-explicit-not-zero-success/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-04-real-m-ae801-s-explicit-not-zero-success/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-04-real-m-ae801-s-explicit-not-zero-success/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/a25-bar-money.spec.ts:436:1 › UI-05 non-KZT auto price refusal preserves editable input 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('.bar-receipt-form').locator('select[name=supplierId]')
+
+
+      437 |   await enter(page, 'USD');
+      438 |   const form = page.locator('.bar-receipt-form');
+    > 439 |   await form.locator('select[name=supplierId]').selectOption({ label: 'A25 USD goods supplier' });
+          |                                                 ^
+      440 |   await form.locator('input[name=documentNumber]').fill('A25-USD-DRAFT');
+      441 |   await form.locator('select[name="productId.0"]').selectOption({ label: 'A25 USD goods' });
+      442 |   await form.locator('input[name="quantityUnits.0"]').fill('1');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:439:49
+
+    Error Context: test-results/a25-bar-money-UI-05-non-KZ-77add-al-preserves-editable-input/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-05-non-KZ-77add-al-preserves-editable-input/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-05-non-KZ-77add-al-preserves-editable-input/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/a25-bar-money.spec.ts:458:1 › UI-07 unavailable stock and cross-property draft have no partial effect 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Бар', exact: true })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Бар', exact: true }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'Бар', exact: true })
+
+
+      53 |   ]);
+      54 |   await page.goto('/bar');
+    > 55 |   await expect(page.getByRole('heading', { name: 'Бар', exact: true })).toBeVisible();
+         |                                                                         ^
+      56 | }
+      57 | test.beforeAll(async () => {
+      58 |   const login = await fetch(api + '/auth/login', {
+        at enter (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:55:73)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:461:3
+
+    Error Context: test-results/a25-bar-money-UI-07-unavai-4b5ef-raft-have-no-partial-effect/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-07-unavai-4b5ef-raft-have-no-partial-effect/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-07-unavai-4b5ef-raft-have-no-partial-effect/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/e2e/a25-bar-money.spec.ts:479:1 › UI-09 exact large minor price stays exact in input and DOM 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Стоимость остатка' }) }).locator('.stat__value')
+    Expected: "90 071 992 547 409,93 USD"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Стоимость остатка' }) }).locator('.stat__value') with timeout 20000ms
+      - waiting for locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Стоимость остатка' }) }).locator('.stat__value')
+
+
+      482 |   await legacyStock('USD', 'A25 exact goods', '1', '9007199254740993', '9007199254740993');
+      483 |   await enter(page, 'USD');
+    > 484 |   await expect(stat(page, 'Стоимость остатка')).toHaveText('90 071 992 547 409,93 USD');
+          |                                                 ^
+      485 |   await expect(page.locator('.bar-price-form input[name=salePrice]').first()).toHaveValue(
+      486 |     '90071992547409.93',
+      487 |   );
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:484:49
+
+    Error Context: test-results/a25-bar-money-UI-09-exact--51014-tays-exact-in-input-and-DOM/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-09-exact--51014-tays-exact-in-input-and-DOM/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-09-exact--51014-tays-exact-in-input-and-DOM/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 390 light real USD ──────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+    Expected: "20 USD"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value') with timeout 20000ms
+      - waiting for locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+
+
+      512 |       await enter(page, 'USD');
+      513 |       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    > 514 |       await expect(stat(page, 'Выручка бара')).toHaveText('20 USD');
+          |                                                ^
+      515 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      516 |         true,
+      517 |       );
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:514:48
+
+    Error Context: test-results/a25-bar-money-UI-visual-390-light-real-USD/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-visual-390-light-real-USD/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-visual-390-light-real-USD/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 390 dark real USD ──────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+    Expected: "20 USD"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value') with timeout 20000ms
+      - waiting for locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+
+
+      512 |       await enter(page, 'USD');
+      513 |       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    > 514 |       await expect(stat(page, 'Выручка бара')).toHaveText('20 USD');
+          |                                                ^
+      515 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      516 |         true,
+      517 |       );
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:514:48
+
+    Error Context: test-results/a25-bar-money-UI-visual-390-dark-real-USD/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-visual-390-dark-real-USD/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-visual-390-dark-real-USD/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 1440 light real USD ────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+    Expected: "20 USD"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value') with timeout 20000ms
+      - waiting for locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+
+
+      512 |       await enter(page, 'USD');
+      513 |       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    > 514 |       await expect(stat(page, 'Выручка бара')).toHaveText('20 USD');
+          |                                                ^
+      515 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      516 |         true,
+      517 |       );
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:514:48
+
+    Error Context: test-results/a25-bar-money-UI-visual-1440-light-real-USD/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-visual-1440-light-real-USD/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-visual-1440-light-real-USD/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 1440 dark real USD ─────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+    Expected: "20 USD"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value') with timeout 20000ms
+      - waiting for locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+
+
+      512 |       await enter(page, 'USD');
+      513 |       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    > 514 |       await expect(stat(page, 'Выручка бара')).toHaveText('20 USD');
+          |                                                ^
+      515 |       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      516 |         true,
+      517 |       );
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:514:48
+
+    Error Context: test-results/a25-bar-money-UI-visual-1440-dark-real-USD/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-visual-1440-dark-real-USD/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-visual-1440-dark-real-USD/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/e2e/a25-bar-money.spec.ts:529:1 › UI-08 duplicate command, fresh command and REVERSED replay 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('.bar-sale-form').first().locator('select[name=productId]')
+
+
+      534 |   const form = page.locator('.bar-sale-form').first();
+      535 |   const prepare = async (key?: string) => {
+    > 536 |     await form.locator('select[name=productId]').selectOption(goods.product);
+          |                                                  ^
+      537 |     await form.locator('input[name=quantityUnits]').fill('1');
+      538 |     if (key)
+      539 |       await form.locator('input[name=idempotencyKey]').evaluate((node: HTMLInputElement, key) => {
+        at prepare (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:536:50)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:543:9
+
+    Error Context: test-results/a25-bar-money-UI-08-duplic-b4c0f-command-and-REVERSED-replay/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-08-duplic-b4c0f-command-and-REVERSED-replay/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-08-duplic-b4c0f-command-and-REVERSED-replay/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/e2e/a25-bar-money.spec.ts:587:1 › UI-06 supplier void restores cash and debt ───────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.fill: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('.bar-catalogs section').filter({ has: getByRole('heading', { name: 'Поставщики', exact: true }) }).locator('input[name=name]')
+
+
+      147 |     .locator('.bar-catalogs section')
+      148 |     .filter({ has: page.getByRole('heading', { name: 'Поставщики', exact: true }) });
+    > 149 |   await suppliers.locator('input[name=name]').fill(name + ' supplier');
+          |                                               ^
+      150 |   await suppliers.getByRole('button', { name: 'Добавить', exact: true }).click();
+      151 |   await expect(suppliers.getByRole('status')).toHaveText('Поставщик добавлен');
+      152 |   const products = page.locator('.bar-products-catalog');
+        at createCatalog (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:149:47)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:595:11
+
+    Error Context: test-results/a25-bar-money-UI-06-supplier-void-restores-cash-and-debt/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-06-supplier-void-restores-cash-and-debt/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-06-supplier-void-restores-cash-and-debt/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/e2e/a25-bar-money.spec.ts:672:1 › UI-07 server validation retains draft and has no receipt effects 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.fill: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('.bar-catalogs section').filter({ has: getByRole('heading', { name: 'Поставщики', exact: true }) }).locator('input[name=name]')
+
+
+      147 |     .locator('.bar-catalogs section')
+      148 |     .filter({ has: page.getByRole('heading', { name: 'Поставщики', exact: true }) });
+    > 149 |   await suppliers.locator('input[name=name]').fill(name + ' supplier');
+          |                                               ^
+      150 |   await suppliers.getByRole('button', { name: 'Добавить', exact: true }).click();
+      151 |   await expect(suppliers.getByRole('status')).toHaveText('Поставщик добавлен');
+      152 |   const products = page.locator('.bar-products-catalog');
+        at createCatalog (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:149:47)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:676:9
+
+    Error Context: test-results/a25-bar-money-UI-07-server-52627--and-has-no-receipt-effects/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-07-server-52627--and-has-no-receipt-effects/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-07-server-52627--and-has-no-receipt-effects/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/e2e/a25-bar-money.spec.ts:737:1 › UI-10 empty scope and actual read failure never become successful zeros 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+    Expected: "0 ₸"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value') with timeout 20000ms
+      - waiting for locator('.stat').filter({ has: locator('.stat__label').filter({ hasText: 'Выручка бара' }) }).locator('.stat__value')
+
+
+      741 |   await newScope('KZT', 'A25 empty ' + Date.now());
+      742 |   await enter(page, 'KZT');
+    > 743 |   await expect(stat(page, 'Выручка бара')).toHaveText('0 ₸');
+          |                                            ^
+      744 |   await expect(page.getByText('Приходов пока нет', { exact: true })).toBeVisible();
+      745 |   await expect(
+      746 |     page.locator('.bar-sale-form').first().getByRole('button', { name: 'Продать', exact: true }),
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:743:44
+
+    Error Context: test-results/a25-bar-money-UI-10-empty--613b9-ver-become-successful-zeros/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-10-empty--613b9-ver-become-successful-zeros/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-10-empty--613b9-ver-become-successful-zeros/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/e2e/a25-bar-money.spec.ts:770:1 › UI-09 negative fractional profit and zero stock remain exact 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.innerText: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('.bar-sale-form').first().locator('option').filter({ hasText: 'A25 fraction goods' })
+
+
+      173 |   await form
+      174 |     .locator('select[name=productId]')
+    > 175 |     .selectOption({ label: await form.locator('option').filter({ hasText: name }).innerText() });
+          |                                                                                   ^
+      176 |   await form.locator('input[name=quantityUnits]').fill(qty);
+      177 |   await form.getByRole('button', { name: 'Продать', exact: true }).click();
+      178 |   await expect(form.getByRole('status')).toContainText('Продажа записана');
+        at sell (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:175:83)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:776:11
+
+    Error Context: test-results/a25-bar-money-UI-09-negati-3ce0c-and-zero-stock-remain-exact/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-09-negati-3ce0c-and-zero-stock-remain-exact/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-09-negati-3ce0c-and-zero-stock-remain-exact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/e2e/a25-bar-money.spec.ts:811:1 › UI-10 normal STAFF read and settings permission refusal 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "60000"
+    Received: "0"
+
+      816 |   try {
+      817 |     const report = await call('KZT', '/bar/report');
+    > 818 |     expect(report.revenueMinor).toBe('60000');
+          |                                 ^
+      819 |     await enter(page, 'KZT');
+      820 |     await expect(stat(page, 'Выручка бара')).toHaveText('600 ₸');
+      821 |     const form = page.locator('.bar-price-form').first();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix/tests/e2e/a25-bar-money.spec.ts:818:33
+
+    Error Context: test-results/a25-bar-money-UI-10-normal-dd889-settings-permission-refusal/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/a25-bar-money-UI-10-normal-dd889-settings-permission-refusal/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/a25-bar-money-UI-10-normal-dd889-settings-permission-refusal/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18 failed
+    tests/e2e/a25-bar-money.spec.ts:67:1 › UI-02 currency comes from real USD report ───────────────
+    tests/e2e/a25-bar-money.spec.ts:225:1 › UI-01 real KZT user flow and expected/API/SQL/DOM reconciliation 
+    tests/e2e/a25-bar-money.spec.ts:306:1 › UI-02 real compatible USD retail, stock, history and cash 
+    tests/e2e/a25-bar-money.spec.ts:373:1 › UI-03 branch switching clears drafts, including controlled delay and focus 
+    tests/e2e/a25-bar-money.spec.ts:413:1 › UI-04 real mixed-history guard is explicit, not zero success 
+    tests/e2e/a25-bar-money.spec.ts:436:1 › UI-05 non-KZT auto price refusal preserves editable input 
+    tests/e2e/a25-bar-money.spec.ts:458:1 › UI-07 unavailable stock and cross-property draft have no partial effect 
+    tests/e2e/a25-bar-money.spec.ts:479:1 › UI-09 exact large minor price stays exact in input and DOM 
+    tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 390 light real USD ───────────────────────────
+    tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 390 dark real USD ────────────────────────────
+    tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 1440 light real USD ──────────────────────────
+    tests/e2e/a25-bar-money.spec.ts:509:5 › UI-visual 1440 dark real USD ───────────────────────────
+    tests/e2e/a25-bar-money.spec.ts:529:1 › UI-08 duplicate command, fresh command and REVERSED replay 
+    tests/e2e/a25-bar-money.spec.ts:587:1 › UI-06 supplier void restores cash and debt ─────────────
+    tests/e2e/a25-bar-money.spec.ts:672:1 › UI-07 server validation retains draft and has no receipt effects 
+    tests/e2e/a25-bar-money.spec.ts:737:1 › UI-10 empty scope and actual read failure never become successful zeros 
+    tests/e2e/a25-bar-money.spec.ts:770:1 › UI-09 negative fractional profit and zero stock remain exact 
+    tests/e2e/a25-bar-money.spec.ts:811:1 › UI-10 normal STAFF read and settings permission refusal 
+
+# код выхода 1 · 19 мин 42 с

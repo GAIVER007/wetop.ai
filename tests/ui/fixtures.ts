@@ -53,19 +53,19 @@ const THEME_APPLY_MS = 400;
 const THEME_TRANSITION_MS = 600;
 
 async function settleTheme(page: Page, scheme: 'light' | 'dark' | 'no-preference'): Promise<void> {
-  // Выражения строкой: в корневом tsconfig нет библиотеки DOM, `document` тут не типизирован
-  if (scheme === 'light' || scheme === 'dark') {
-    await page
-      .waitForFunction(`document.documentElement.dataset.theme === '${scheme}'`, null, {
-        timeout: THEME_APPLY_MS,
-      })
-      .catch(() => undefined);
-  }
+  // Выражения строкой: в корневом tsconfig нет библиотеки DOM, `document` тут не типизирован.
+  // Одно условие, а не два ожидания подряд (trace release-checks 38137335254): тема применилась позже 400 мс, ожидание
+  // переходов прошло за 38 мс, пока тема была прежней и переходов не было, и замер поймал 23 перехода в полёте.
+  // Бюджет тот же, 400 + 600 мс.
+  const applied =
+    scheme === 'light' || scheme === 'dark'
+      ? `document.documentElement.dataset.theme === '${scheme}' && `
+      : '';
   await page
     .waitForFunction(
-      "!document.getAnimations().some((a) => a.constructor.name === 'CSSTransition')",
+      `${applied}!document.getAnimations().some((a) => a.constructor.name === 'CSSTransition')`,
       null,
-      { timeout: THEME_TRANSITION_MS },
+      { timeout: THEME_APPLY_MS + THEME_TRANSITION_MS },
     )
     .catch(() => undefined);
 }

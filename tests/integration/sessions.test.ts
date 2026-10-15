@@ -30,7 +30,7 @@ describe.skipIf(!url)('sessions repository (integration, DATABASE_URL required)'
   const session = (
     userId: string,
     organizationId: string,
-    opts: { expiresAt?: Date; userAgent?: string } = {},
+    opts: { expiresAt?: Date; issuedAt?: Date; userAgent?: string } = {},
   ) =>
     // Сессии заводит AuthService своей таблицей; у репозитория учётных записей такого метода больше
     // нет (ADR-053, вход по коду снят) — здесь пишем строку напрямую, как это делает AuthService.
@@ -40,6 +40,7 @@ describe.skipIf(!url)('sessions repository (integration, DATABASE_URL required)'
         userId,
         organizationId,
         expiresAt: opts.expiresAt ?? new Date(Date.now() + 30 * day),
+        ...(opts.issuedAt ? { issuedAt: opts.issuedAt } : {}),
         userAgent: opts.userAgent ?? null,
       },
     });
@@ -73,8 +74,10 @@ describe.skipIf(!url)('sessions repository (integration, DATABASE_URL required)'
   });
 
   it('в списке только живые сессии этого человека, новые сверху, с агентом', async () => {
-    await session(me.userId, me.organizationId, { userAgent: 'первый' });
-    await session(me.userId, me.organizationId, { userAgent: 'второй' });
+    const firstIssuedAt = new Date(Date.now() - 2000);
+    const secondIssuedAt = new Date(firstIssuedAt.getTime() + 1000);
+    await session(me.userId, me.organizationId, { userAgent: 'первый', issuedAt: firstIssuedAt });
+    await session(me.userId, me.organizationId, { userAgent: 'второй', issuedAt: secondIssuedAt });
     await session(me.userId, me.organizationId, {
       expiresAt: new Date(Date.now() - 1000),
       userAgent: 'протух',

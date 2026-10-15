@@ -1,4 +1,5 @@
-import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
+import { test, expect } from '../ui/fixtures';
+import type { Page, APIRequestContext } from '@playwright/test';
 import type { BeautyDay } from '../../apps/web/src/lib/api';
 
 type Fixture = { business: string; locations: string[] };
@@ -9,7 +10,7 @@ type CreatedEntity = { id: string };
  * базе стенда. Записи заводятся на прошедшие дни периода и проводятся до «Выполнено»: хаб продаж и финансы считают
  * выручку из снимков цен, мастера и услуги по выручке. Снимки экранов: reports/unified-growth-2026-10-14.
  */
-const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
+const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '26814'}`;
 const shots = 'reports/unified-growth-2026-10-14';
 const pointer = (business: string, location: string) => `business=${business};location=${location}`;
 const almatyToday = () =>

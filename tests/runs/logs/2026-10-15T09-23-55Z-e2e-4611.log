@@ -1,0 +1,51 @@
+# Сквозные (e2e) · 15.10.2026 14:23 Алматы · vm
+# коммит 9fd75a6 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 97
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--timeout=120000' 'tests/ui/bar-payment-methods.spec.ts' 'tests/ui/bar.spec.ts' 'tests/ui/bar-reference.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 29 tests using 1 worker
+
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-payment-methods.spec.ts:25:1 › быстрая продажа: Halyk первым, Kaspi выключен и не предлагается (6.7s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-payment-methods.spec.ts:36:1 › оплата поставщику: список по настройке, счёт организации остаётся умолчанием, пока включён (3.2s)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-payment-methods.spec.ts:45:1 › объект оставил только депозит и гарантию: форма говорит словами, кнопки продажи нет (4.6s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 1333 (3.0s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 390 (3.2s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:15:1 › inventory direct entry and existing handler (4.6s)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:21:1 › inventory uses the existing stock and action (3.8s)
+  ✓   8 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:30:1 › sort stock preserves the loaded quantities (3.2s)
+  ✓   9 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:38:1 › mobile quick actions open the existing forms (4.7s)
+  ✓  10 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 light (4.3s)
+  ✓  11 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 dark (4.6s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 light (4.7s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 dark (4.2s)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 light (4.3s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 dark (4.3s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 1333 (6.7s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-mTmZnD/worker-0/tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 390 (5.8s)
+  ✓  18 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:23:1 › обзор как на макете: пять KPI, графики, компактная доска и подробности (6.0s)
+  ✓  19 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:75:1 › быстрая продажа одной строкой и фильтры доски (5.4s)
+  ✓  20 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:100:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (6.5s)
+  ✓  21 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:133:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (5.2s)
+  ✓  22 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:150:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (3.9s)
+  ✓  23 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:164:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (3.6s)
+  ✓  24 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:176:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (9.3s)
+  ✓  25 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:205:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (2.8s)
+  ✓  26 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:217:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (8.1s)
+  ✓  27 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:243:1 › операции: списание с причиной, журнал продаж и лента движений (5.1s)
+  ✓  28 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:269:3 › доступность и телефон: light (9.5s)
+  ✓  29 [main-ui-1] › ../.wetop-main-ui-mTmZnD/worker-1/tests/ui/bar.spec.ts:269:3 › доступность и телефон: dark (9.0s)
+
+  29 passed (3.8m)
+
+# код выхода 0 · 3 мин 49 с

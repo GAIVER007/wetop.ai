@@ -1,6 +1,7 @@
 import { formatMoney } from '../../apps/web/src/lib/money';
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { settleStreaming } from '../ui/fixtures';
 import {
   beautyToday,
   foodToday,
@@ -15,7 +16,7 @@ import { instantOf } from '../../apps/web/src/app/beauty/time';
  * изолированная PostgreSQL. Синтетические только вход и строки базы; ответы домена не подменяются. Ожидаемые числа
  * тест считает из ответа того же API за тот же день филиала.
  */
-const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '26864'}`;
 const shots = 'reports/mv8-vertical-today-2026-10-06/screenshots';
 type Fixture = {
   business: string;
@@ -56,6 +57,21 @@ async function choose(page: Page, name: string) {
     .getByRole('button')
     .filter({ hasText: name })
     .click();
+  await settleStreaming(page);
+}
+function settleNavigations(page: Page) {
+  const goto = page.goto.bind(page);
+  page.goto = async (url, options) => {
+    const response = await goto(url, options);
+    await settleStreaming(page);
+    return response;
+  };
+  const reload = page.reload.bind(page);
+  page.reload = async (options) => {
+    const response = await reload(options);
+    await settleStreaming(page);
+    return response;
+  };
 }
 const callsSince = async (request: APIRequestContext, from: number) =>
   ((await (await request.get(`${api}/__test/calls`)).json()) as string[]).slice(from);
@@ -114,6 +130,7 @@ const value = (page: Page, id: string) => page.getByTestId(id);
 
 /** Окно гостиничного обучения поверх Главной перехватило бы щелчки: пройденным оно не считается только в своём тесте */
 test.beforeEach(async ({ page }, info) => {
+  settleNavigations(page);
   if (info.title.includes('обучение само открывается')) return;
   await page.addInitScript(() => {
     const get = Storage.prototype.getItem;

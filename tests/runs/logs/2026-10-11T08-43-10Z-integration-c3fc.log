@@ -1,0 +1,23 @@
+# Интеграционные (integration) · 11.10.2026 13:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 31160f0 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-43-10Z-integration-c3fc.json' 'tests/integration/connection-schema-a29.test.ts' 'tests/integration/bar-api-bootstrap.test.ts' 'tests/integration/bar-money-fixes.test.ts' 'tests/integration/auth-timezone-a26.test.ts' 'tests/integration/auth-timezone-matrix-a26.test.ts' 'tests/integration/auth-date-consumers-a26.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ✓ |integration| tests/integration/bar-money-fixes.test.ts (35 tests) 3927ms
+ ✓ |integration| tests/integration/auth-timezone-matrix-a26.test.ts (1 test) 6034ms
+   ✓ A26 timezone matrix, application roles and pools (1)
+     ✓ keeps epochs, HTTP expiry and tenant isolation across database defaults and process zones 6033ms
+ ✓ |integration| tests/integration/bar-api-bootstrap.test.ts (5 tests) 1053ms
+ ✓ |integration| tests/integration/connection-schema-a29.test.ts (7 tests) 272ms
+ ✓ |integration| tests/integration/auth-timezone-a26.test.ts (1 test) 144ms
+ ✓ |integration| tests/integration/auth-date-consumers-a26.test.ts (1 test) 124ms
+
+ Test Files  6 passed (6)
+      Tests  50 passed (50)
+   Start at  01:43:10
+   Duration  12.63s (tests 97%, import 2%, transform 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T08-43-10Z-integration-c3fc.json
+
+# код выхода 0 · 13 с

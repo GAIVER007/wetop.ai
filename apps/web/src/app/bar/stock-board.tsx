@@ -15,6 +15,7 @@ import {
   writeOffBarAction,
   type BarActionResult,
 } from './actions';
+import { BarContextFields, type BarFormContext } from './context';
 import { STATUS_LABEL, STATUS_TONE, recommendedPriceMinor, stockStatusOf } from './stock-status';
 import { suggestCode } from './receipts/new/new-receipt';
 
@@ -23,6 +24,8 @@ import { suggestCode } from './receipts/new/new-receipt';
  * и нижний ряд (приходы, популярные), справа карточка выбранного товара: таблица остаётся на экране (§1 п. 5).
  */
 const initial: BarActionResult = { error: null, ok: 0 };
+/** Знак валюты в поле суммы: тенге значком, остальные кодом (как formatMoney) */
+const currencySign = (currency: string) => (currency === 'KZT' ? '₸' : currency);
 const PERIODS = [
   { id: 'all', label: 'За все время', days: null },
   { id: '30', label: 'За 30 дней', days: 30 },
@@ -65,6 +68,7 @@ export function ProductAvatar({ name, size }: { name: string; size?: 'lg' }) {
 }
 
 export function StockBoard({
+  context,
   stock,
   categories,
   suppliers,
@@ -73,6 +77,8 @@ export function StockBoard({
   initialProduct,
   bottom,
 }: {
+  /** Объект и валюта для скрытых полей денежных форм (D-CUR) */
+  context: BarFormContext;
   stock: BarStockRow[];
   categories: BarCategoryRow[];
   suppliers: BarSupplierRow[];
@@ -383,12 +389,12 @@ export function StockBoard({
                       </td>
                       <td data-label="Ед.">шт.</td>
                       <td data-label="Цена продажи">
-                        <b>{formatMoney(item.salePrice)}</b>
+                        <b>{formatMoney(item.salePrice, context.currency)}</b>
                       </td>
                       <td data-label="Цена закупки">
                         {item.lastUnitCostMinor === null
                           ? 'нет'
-                          : formatMoney(item.lastUnitCostMinor)}
+                          : formatMoney(item.lastUnitCostMinor, context.currency)}
                       </td>
                       <td data-label="Статус">
                         <Badge tone={STATUS_TONE[state]}>{STATUS_LABEL[state]}</Badge>
@@ -438,10 +444,11 @@ export function StockBoard({
           }
         >
           {selected === 'new' ? (
-            <NewProductCard key="new" categories={categories} onClose={() => setSelected(null)} />
+            <NewProductCard key="new" context={context} categories={categories} onClose={() => setSelected(null)} />
           ) : current ? (
             <ProductCard
               key={current.id}
+              context={context}
               product={current}
               categories={categories}
               movements={movements.filter((movement) => movement.productId === current.id)}
@@ -499,6 +506,7 @@ function CardField({
 }
 
 function ProductCard({
+  context,
   product,
   categories,
   movements,
@@ -507,6 +515,7 @@ function ProductCard({
   onClose,
   onDelete,
 }: {
+  context: BarFormContext;
   product: BarStockRow;
   categories: BarCategoryRow[];
   movements: BarMovementRow[];
@@ -528,6 +537,11 @@ function ProductCard({
   const [price, setPrice] = useState(minorToInput(product.salePrice));
   const [priceNote, setPriceNote] = useState<string | null>(null);
   const reprice = () => {
+    // D-CUR: цена по наценке (вверх до 10 тенге) утверждена только для тенге
+    if (context.currency !== 'KZT') {
+      setPriceNote('Автоматическая цена для этой валюты еще не утверждена: укажите цену продажи сами.');
+      return;
+    }
     const match = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(markup.trim());
     if (!product.lastUnitCostMinor) {
       setPriceNote('Закупочной цены ещё нет: сначала занесите приход.');
@@ -544,6 +558,7 @@ function ProductCard({
   const id = (name: string) => `bar-card-${name}`;
   const info = (
     <form action={action} className="bar-card-form">
+      <BarContextFields context={context} />
       <input type="hidden" name="id" value={product.id} />
       <input type="hidden" name="unitsPerPackage" value={String(product.unitsPerPackage)} />
       <input type="hidden" name="barcode" value={product.barcode ?? ''} />
@@ -592,7 +607,7 @@ function ProductCard({
           />
         </CardField>
         <CardField label="Закупочная цена" htmlFor={id('cost')}>
-          <Affix suffix="₸">
+          <Affix suffix={currencySign(context.currency)}>
             <Input
               id={id('cost')}
               value={
@@ -604,7 +619,7 @@ function ProductCard({
           </Affix>
         </CardField>
         <CardField label="Цена продажи" htmlFor={id('price')}>
-          <Affix suffix="₸">
+          <Affix suffix={currencySign(context.currency)}>
             <Input
               id={id('price')}
               name="salePrice"
@@ -635,7 +650,7 @@ function ProductCard({
           value={product.markupBasis !== null || markupTouched ? markup : ''}
         />
         <CardField label="Себестоимость остатка" htmlFor={id('stock-cost')}>
-          <Affix suffix="₸">
+          <Affix suffix={currencySign(context.currency)}>
             <Input id={id('stock-cost')} value={minorToInput(product.stockCostMinor)} readOnly />
           </Affix>
         </CardField>
@@ -749,6 +764,7 @@ function ProductCard({
           className="bar-card-writeoff"
           aria-label={`Списание: ${product.name}`}
         >
+          <BarContextFields context={context} />
           <input type="hidden" name="productId" value={product.id} />
           <Input
             name="quantityUnits"
@@ -789,9 +805,11 @@ function ProductCard({
 }
 
 function NewProductCard({
+  context,
   categories,
   onClose,
 }: {
+  context: BarFormContext;
   categories: BarCategoryRow[];
   onClose: () => void;
 }) {
@@ -816,6 +834,7 @@ function NewProductCard({
         </Button>
       </header>
       <form action={action} className="bar-card-form">
+        <BarContextFields context={context} />
         <div className="bar-card-grid">
           <CardField label="Название товара" htmlFor={id('name')}>
             <Input
@@ -855,7 +874,7 @@ function NewProductCard({
           </CardField>
 
           <CardField label="Цена продажи" htmlFor={id('price')}>
-            <Affix suffix="₸">
+            <Affix suffix={currencySign(context.currency)}>
               <Input id={id('price')} name="salePrice" inputMode="decimal" required />
             </Affix>
           </CardField>

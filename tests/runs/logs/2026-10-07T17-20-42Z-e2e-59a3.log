@@ -1,0 +1,74 @@
+# Сквозные (e2e) · 07.10.2026 22:20 Алматы · MacBook-Air-Urij.local
+# коммит 5e8e1f2 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' 'tests/branches-ui/vertical-ai.spec.ts' '--grep' 'MV10 BEAUTY light 1440'
+[WebServer] (node:10271) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10297) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10329) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:10348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10371) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 BEAUTY light 1440 server binding and accessible shared agent screen (9.1s)
+
+
+  1) tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 BEAUTY light 1440 server binding and accessible shared agent screen
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator:  getByRole('button', { name: /Ваш рассказ/ })
+    Expected: disabled
+    Received: enabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('button', { name: /Ваш рассказ/ }) with timeout 5000ms
+      - waiting for getByRole('button', { name: /Ваш рассказ/ })
+        14 × locator resolved to <button type="button" aria-current="step" class="agent-wizard__step">…</button>
+           - unexpected value "enabled"
+
+
+      39 |       if (vertical !== 'HOSPITALITY') {
+      40 |         await expect(page.getByText('Правила бронирования', { exact: true })).toHaveCount(0);
+    > 41 |         await expect(page.getByRole('button', { name: /Ваш рассказ/ })).toBeDisabled();
+         |                                                                         ^
+      42 |         await expect(page.getByRole('button', { name: 'Сгенерировать инструкцию', exact: true })).toHaveCount(0);
+      43 |         const instruction = page.getByRole('textbox', { name: 'Инструкция', exact: true });
+      44 |         await expect(instruction).toBeVisible();
+        at /Users/urijzapojnov/wetop-mv10-20261007/tests/branches-ui/vertical-ai.spec.ts:41:73
+
+    Error Context: test-results/vertical-ai-MV10-BEAUTY-li-90412-essible-shared-agent-screen/error-context.md
+
+    Error Context: test-results/vertical-ai-MV10-BEAUTY-li-90412-essible-shared-agent-screen/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/vertical-ai-MV10-BEAUTY-li-90412-essible-shared-agent-screen/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/vertical-ai-MV10-BEAUTY-li-90412-essible-shared-agent-screen/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/vertical-ai.spec.ts:31:5 › MV10 BEAUTY light 1440 server binding and accessible shared agent screen
+
+# код выхода 1 · 21 с

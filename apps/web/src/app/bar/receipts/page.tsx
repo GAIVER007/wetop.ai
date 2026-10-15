@@ -8,6 +8,8 @@ import { Page } from '../../../components/page';
 import { Badge, Button, EmptyState, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { postBarReceiptAction } from '../actions';
+import { loadBarContext } from '../load-context';
+import { BarCommandForm } from '../command-form';
 import { SupplierPaymentForm } from '../supplier-payment-form';
 import { BarTabs } from '../tabs';
 import '../bar.css';
@@ -20,6 +22,8 @@ export default async function BarReceiptsPage() {
   const [receipts, methods] = await Promise.all([settle(barApi.receipts()), settle(barApi.paymentMethods())]);
   if (!receipts.ok) throw receipts.error;
   if (!methods.ok) throw methods.error;
+  // контекст денежных форм: сервер сверяет объект и валюту (D-CUR); у салона вместо объекта филиал
+  const context = await loadBarContext();
   return <Page width="wide" className="bar-subpage" title="Бар: приходы" subtitle="Документы поставщиков: черновики, проведённые приходы, оплата и долг." actions={
     <Link className="btn" href="/bar/receipts/new" prefetch={false}>Новый приход</Link>
   }>
@@ -32,13 +36,13 @@ export default async function BarReceiptsPage() {
           <tbody>{receipts.value.map((receipt) => <tr key={receipt.id}>
             <td data-label="Документ"><b>{receipt.documentNumber}</b> <small>{displayDate(receipt.receivedDate.slice(0, 10))}</small><small>{receipt._count.lines} позиций</small></td>
             <td data-label="Поставщик">{receipt.supplier.name}</td>
-            <td data-label="Сумма">{formatMoney(receipt.totalAmount)}<small>Оплачено: {formatMoney(receipt.paidAmount)}</small></td>
-            <td data-label="Долг">{formatMoney(receipt.dueAmount)}</td>
+            <td data-label="Сумма">{formatMoney(receipt.totalAmount, context.currency)}<small>Оплачено: {formatMoney(receipt.paidAmount, context.currency)}</small></td>
+            <td data-label="Долг">{formatMoney(receipt.dueAmount, context.currency)}</td>
             <td data-label="Статус"><Badge tone={receipt.status === 'POSTED' ? 'ok' : 'neutral'}>{receipt.status === 'POSTED' ? 'Проведён' : 'Черновик'}</Badge></td>
             <td>{receipt.status === 'DRAFT'
-              ? <form action={postBarReceiptAction}><input type="hidden" name="id" value={receipt.id} /><Button size="xs" type="submit">Провести</Button></form>
+              ? <BarCommandForm context={context} action={postBarReceiptAction}><input type="hidden" name="id" value={receipt.id} /><Button size="xs" type="submit">Провести</Button></BarCommandForm>
               : BigInt(receipt.dueAmount) > 0n
-                ? <SupplierPaymentForm receiptId={receipt.id} dueAmount={receipt.dueAmount} methods={methods.value.supplier} />
+                ? <SupplierPaymentForm receiptId={receipt.id} dueAmount={receipt.dueAmount} context={context} methods={methods.value.supplier} />
                 : <Badge tone="ok">Оплачено</Badge>}</td>
           </tr>)}</tbody>
         </Table>}

@@ -1,14 +1,26 @@
 import { cache } from 'react';
 import { unstable_rethrow } from 'next/navigation';
 import { authApi } from './api';
-import { authRequired } from './session';
+import { authRequired, redirectToLoginIfRequired } from './session';
+import { ApiError } from './api-error';
 import { UNKNOWN_SHELL, deskShellOf, type DeskShell } from './desk-person';
 
 /**
  * Один `/auth/me` на отрисовку: меню, подпись и «Выйти» спрашивают одно и то же (бюджет рейсов —
  * `tests/ui/requests.spec.ts`). Отказ API здесь не превращается в «никто не вошёл» — это решает вызывающий.
  */
-export const currentMe = cache(() => authApi.me());
+export const currentMe = cache(async () => {
+  let me: Awaited<ReturnType<typeof authApi.me>>;
+  try {
+    me = await authApi.me();
+  } catch (error) {
+    // Only an invalid session requests login. Permission and network failures stay distinct.
+    if (error instanceof ApiError && error.status === 401) await redirectToLoginIfRequired();
+    throw error;
+  }
+  if (!me.user) await redirectToLoginIfRequired();
+  return me;
+});
 
 /**
  * Что оболочка стойки знает о вошедшем (ADR-083, ADR-107). Макет не ждёт ответа: обещание уходит в меню, и пункты

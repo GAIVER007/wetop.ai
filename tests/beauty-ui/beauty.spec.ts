@@ -1,6 +1,7 @@
-import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
+import { test, expect } from '../ui/fixtures';
+import type { Page, APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
+const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '26814'}`;
 // Ближайший понедельник после сегодняшнего дня по поясу филиала стенда (Asia/Almaty): тесты заводят мастеру
 // рабочий понедельник. Дата была зашита как 2026-10-12, и с полуночи 13.10 по Алматы отсутствие на этот день
 // стало прошедшим: список отсутствий показывает только идущие и будущие (`schedule.ts`, `dateTo >= сегодня`)
@@ -126,12 +127,10 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await expect(panel).toBeHidden();
   await expect(page).toHaveURL(/\/services$/);
   await page.reload();
-  await page
-    .getByRole('row')
-    .filter({ hasText: 'Тестовая стрижка' })
-    .getByRole('button', { name: 'Изменить' })
-    .click();
+  // Незавершённая настройка филиала возобновляет созданную услугу в той же карточке.
   panel = page.getByRole('dialog');
+  await expect(panel.getByLabel('Название', { exact: true })).toHaveValue('Тестовая стрижка');
+  await expect(panel.getByLabel(/Цена каталога, тиын/)).toHaveValue('1200000');
   await panel.getByLabel('Филиал оказывает эту услугу').check();
   await panel.getByRole('button', { name: 'Сохранить для филиала' }).click();
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');

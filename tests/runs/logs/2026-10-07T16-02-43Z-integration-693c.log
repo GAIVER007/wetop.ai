@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 07.10.2026 21:02 Алматы · MacBook-Air-Urij.local
+# коммит b6db018 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T16-02-43Z-integration-693c.json' 'tests/integration/finance-operations.test.ts' 'tests/integration/mv10-vertical-tools.test.ts' '--pool=forks' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv10-20261007
+
+ ❯ |integration| tests/integration/finance-operations.test.ts (2 tests | 1 failed) 278ms
+   ❯ оплаты и возвраты за период — запрос (integration, ADR-113 F2) (2)
+     × операции периода новыми первыми: время по часам объекта, статус аннулированной, способ возврата, бронь 20ms
+     ✓ границы суток — по поясу объекта; отборы по типу и способу; предел строк 8ms
+ ✓ |integration| tests/integration/mv10-vertical-tools.test.ts (5 tests) 480ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/finance-operations.test.ts > оплаты и возвраты за период — запрос (integration, ADR-113 F2) > операции периода новыми первыми: время по часам объекта, статус аннулированной, способ возврата, бронь
+AssertionError: expected '2031-05-10 21:30' to match /^2031-05-11 0[12]:30$/
+
+- Expected:
+/^2031-05-11 0[12]:30$/
+
++ Received:
+"2031-05-10 21:30"
+
+ ❯ tests/integration/finance-operations.test.ts:194:29
+    192|       guestLabel: 'Тестов Операций',
+    193|     });
+    194|     expect(got[3]!.localAt).toMatch(/^2031-05-11 0[12]:30$/);
+       |                             ^
+    195|     expect(summary).toEqual(
+    196|       expect.arrayContaining([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 6 passed (7)
+   Start at  20:02:45
+   Duration  2.77s (tests 38%, import 32%, transform 29%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T16-02-43Z-integration-693c.json
+
+# код выхода 1 · 4 с

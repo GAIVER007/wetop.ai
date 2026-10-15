@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 15.10.2026 14:23 Алматы · vm
+# коммит 9fd75a6 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 41
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T09-23-45Z-integration-495b.json' 'tests/integration/bar-payment-methods.test.ts' 'tests/integration/bar-location.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:30321) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-payment-methods.test.ts (3 tests) 1141ms
+ ✓ |integration| tests/integration/bar-location.test.ts (5 tests) 127ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  09:23:46
+   Duration  8.23s (transform 51%, tests 26%, import 23%)
+
+JSON report written to /tmp/pms-test-2026-10-15T09-23-45Z-integration-495b.json
+
+# код выхода 0 · 10 с

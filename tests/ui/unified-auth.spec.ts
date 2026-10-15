@@ -1,11 +1,17 @@
 import { expect, openProfileMenu, test } from './fixtures';
+import { authPorts } from './worker-ports';
 
-const SITE = 'http://127.0.0.1:3002';
-const APP = 'http://127.0.0.1:3102';
-const API = 'http://127.0.0.1:4313';
+const worker = Number(process.env.TEST_PARALLEL_INDEX || '0');
+const ports = authPorts()[worker]!;
+const SITE = `http://127.0.0.1:${ports.site}`;
+const APP = `http://127.0.0.1:${ports.web}`;
+const API = `http://127.0.0.1:${ports.api}`;
+const PROXY = `http://127.0.0.1:${ports.proxy}`;
 // Только синтетическая учётная запись локального fixture API, без базы и отправки писем.
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
+  await request.post(`${PROXY}/__a27/network`, { data: { unavailable: false } });
+  await request.get(`${SITE}/`);
 });
 async function login(page: import('@playwright/test').Page) {
   const dialog = page.getByRole('dialog');
@@ -18,7 +24,7 @@ for (const path of ['/today', '/chessboard', '/reservations']) {
     page,
     context,
   }) => {
-    await page.goto(path);
+    await page.goto(`${APP}${path}`, { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
     await login(page);
     // гостиничный /today с 09.10 ведёт в единые «Финансы» (plans/finance-home-merge-2026-10-09.md)
@@ -27,17 +33,17 @@ for (const path of ['/today', '/chessboard', '/reservations']) {
     const cookie = (await context.cookies(APP)).find((c) => c.name === 'wetop_session');
     expect(cookie?.httpOnly).toBe(true);
     expect(cookie?.sameSite).toBe('Lax');
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(`${APP}${landed}`);
   });
 }
 test('старые адреса открывают только формы на главной', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto(`${APP}/login`, { waitUntil: 'domcontentloaded' });
   await expect(
     page.getByRole('dialog').getByRole('heading', { name: 'Вход в WETOP' }),
   ).toBeVisible();
   await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
-  await page.goto(`${APP}/register`);
+  await page.goto(`${APP}/register`, { waitUntil: 'domcontentloaded' });
   await expect(
     page.getByRole('dialog').getByRole('heading', { name: 'Новый аккаунт' }),
   ).toBeVisible();
@@ -46,18 +52,19 @@ test('сессия работает в новой вкладке; выход в�
   page,
   context,
 }) => {
-  await page.goto('/login');
+  await page.goto(`${APP}/login`, { waitUntil: 'domcontentloaded' });
   await login(page);
   await expect(page).toHaveURL(`${APP}/today`);
   const tab = await context.newPage();
-  await tab.goto(`${APP}/profile/access`);
+  await tab.goto(`${APP}/profile/access`, { waitUntil: 'domcontentloaded' });
   await expect(
     tab.getByRole('heading', { name: 'Управление доступом', exact: true }),
   ).toBeVisible();
-  await expect(tab.getByTestId('session-list')).toBeVisible();
+  // next dev оставляет скрытую копию потокового фрагмента вне области (TESTING.md, release-checks #188/#189)
+  await expect(tab.getByRole('region', { name: 'Где вы вошли' }).getByTestId('session-list')).toBeVisible();
   await tab.getByRole('button', { name: 'Завершить все сеансы' }).click();
   await expect(tab).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
-  await page.goto('/today');
+  await page.goto(`${APP}/today`, { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(`${SITE}/?next=%2Ftoday#login`);
   await tab.close();
 });
@@ -65,7 +72,7 @@ test('выход через меню снимает сессию и снова �
   page,
   context,
 }) => {
-  await page.goto('/login');
+  await page.goto(`${APP}/login`);
   await login(page);
   await expect(page).toHaveURL(`${APP}/today`);
   await openProfileMenu(page);
@@ -81,7 +88,7 @@ test('регистрация на главной → письмо → подтв
   page,
   context,
 }) => {
-  await page.goto('/register');
+  await page.goto(`${APP}/register`);
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Почта').fill('new@example.invalid');
   await dialog.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');

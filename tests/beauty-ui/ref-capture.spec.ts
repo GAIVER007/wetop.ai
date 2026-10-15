@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
  */
 const phase = process.env['REF_PHASE'];
 const out = `reports/ui44-beauty-2026-10-13/${phase}`;
-const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '55814'}`;
+const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '26814'}`;
 
 test.skip(!phase, 'только для сравнения с эталоном: REF_PHASE=before|after');
 

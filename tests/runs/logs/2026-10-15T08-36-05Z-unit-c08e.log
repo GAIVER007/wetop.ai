@@ -1,0 +1,39 @@
+# Модульные (unit) · 15.10.2026 13:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 19f069d (codex/release-gate-followup-20261015)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T08-36-05Z-unit-c08e.json' 'tests/unit/db-backup-offsite.test.ts' 'tests/unit/guard-run.test.ts' 'apps/api/src/ai-seller/ai-seller.controller.test.ts' 'apps/api/src/ai-seller/business-agents.controller.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /private/tmp/wetop-pr532-repair
+
+ ✓  unit  tests/unit/guard-run.test.ts (8 tests) 5516ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1633ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 906ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 900ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 640ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 876ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 550ms
+ ✓  unit  tests/unit/db-backup-offsite.test.ts (12 tests | 1 skipped) 4331ms
+   ✓ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     ✓ последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 416ms
+     ✓ шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 536ms
+   ✓ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     ✓ ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 424ms
+     ✓ настройки читаются из .env клона, как у db-backup.sh 429ms
+     ✓ Telegram: токен в адресе через stdin, а не аргументом 364ms
+   ✓ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     ✓ ночная копия старше 26 часов: наружу не несём, сообщаем 370ms
+     ✓ R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 588ms
+     ✓ размер в R2 не совпал: сбой, статус не тронут 604ms
+     ✓ rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 378ms
+ ✓  unit  apps/api/src/ai-seller/ai-seller.controller.test.ts (74 tests) 148ms
+ ✓  unit  apps/api/src/ai-seller/business-agents.controller.test.ts (32 tests) 102ms
+
+ Test Files  4 passed (4)
+      Tests  125 passed | 1 skipped (126)
+   Start at  01:36:05
+   Duration  11.40s (tests 90%, import 5%, transform 4%)
+
+JSON report written to /tmp/pms-test-2026-10-15T08-36-05Z-unit-c08e.json
+
+# код выхода 0 · 12 с

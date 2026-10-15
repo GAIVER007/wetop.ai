@@ -1,0 +1,18 @@
+# Модульные (unit) · 13.10.2026 13:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 763f56d (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-06-54Z-unit-96f6.json' 'apps/web/src/app/login'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/app/login/verify-registration.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 11ms
+
+ Test Files  3 passed (3)
+      Tests  16 passed (16)
+   Start at  01:06:55
+   Duration  382ms (transform 79%, import 18%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-06-54Z-unit-96f6.json
+
+# код выхода 0 · 1 с

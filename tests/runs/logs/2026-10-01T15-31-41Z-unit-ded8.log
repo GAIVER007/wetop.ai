@@ -1,0 +1,16 @@
+# Модульные (unit) · 01.10.2026 20:31 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-31-41Z-unit-ded8.json' 'apps/web/src/app/reservations/new/summary.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/reservations/new/summary.test.ts (3 tests) 6ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  15:31:42
+   Duration  336ms (transform 70%, import 24%, tests 3%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-31-41Z-unit-ded8.json
+
+# код выхода 0 · 1 с

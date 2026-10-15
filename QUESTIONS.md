@@ -1401,6 +1401,13 @@ ADR-152 включил гейт на каждый пуш кода в `main`. П�
 | Q-293 | Подписи «Отмена брони» и «Залог» в настройках объекта (ADR-158, §32) это текст для карточки, а штраф считает тариф (`cancellation_penalty`). Должна ли подпись объекта подставляться в новые тарифы по умолчанию, или тариф остаётся единственным источником правды, а подпись только справочной? | OPEN · РЕШЕНИЕ | Сделано справочно: подпись не меняет ни штраф, ни залог, ни доступность. Подстановка в тарифы это финансовая логика, без ответа не делаю |
 | Q-294 | Фото объекта и договор (PDF) на экране «Настройки объекта» (верстка владельца 09.10.2026, ADR-158). Загрузка изображений сейчас живёт только в библиотеке конструктора сайта: она требует лицензию конструктора (MKT9.2, `assertSiteBuilderWrite`) и включённое закрытое хранилище (`SITE_ASSET_STORAGE`, по умолчанию off), PDF библиотека не принимает. Варианты: (А) фото объекта берут из той же библиотеки, но загрузка из настроек не требует лицензии; договор отдельный вид файла в том же хранилище; (Б) отдельное хранилище документов объекта. Нужен ответ: включено ли хранилище на рабочем сервере и можно ли отвязать загрузку фото от лицензии конструктора | CLOSED · 09.10.2026, вариант А по поручению «продолжай что осталось» (отменить можно в любой момент) | Сделано: `property_media` (`DATA_MODEL.md` §32.3), загрузка без лицензии конструктора. Осталось владельцу: включить `SITE_ASSET_STORAGE=s3` на сервере, иначе загрузка отвечает «Хранилище файлов не включено» |
 
+## Q-A28-STARTUP-SCHEMA: PostgreSQL startup options and selected schema
+
+Status: OPEN, recorded 2026-10-08. Scope: frozen target main e77f8951166a90f1751bbd9674896d9d4546035a and the local A28 candidate.
+
+A read-only probe on the owned synthetic PostgreSQL 16 database reproduced an inherited defect: a nonempty URL options parameter overrides the PoolConfig search_path option. The configured test schema is then absent from the effective connection search_path. The UTC patch preserves the existing option precedence and correctly sets UTC; it did not introduce the schema omission. Evidence: a28-evidence/startup-options-independent-defect.json.
+
+Separate repair decision required: approve composing inherited URL/environment options with the explicitly configured search_path and UTC, including first-query direct/service/tenant regressions. Confirm whether any deployment intentionally uses a URL search_path different from DATABASE_SCHEMA: [ЗАПОЛНИТЬ]. No startup-schema product repair is included in Task 2.8, and no production state was inspected or changed for this finding.
 ## Супер-админка платформы: пакеты, биллинг, роли (10.10.2026)
 
 Из `plans/platform-superadmin-2026-10-10.md`. Владелец дал ТЗ «Супер-админка платформы» с макетом дашборда.
@@ -1587,6 +1594,16 @@ API записи и правки журнала не даёт. Применен�
 
 Открыт 13.10.2026. Для месячных виджетов владелец утвердил реальные полученные оплаты. В выбранном main-срезе есть payments гостиницы и restaurant_payments ресторана, но источник фактических оплат салона в исполняемом API не найден. Нельзя заменять оплату ценой записи. До подключения утверждённого источника салон помечается «Учёт оплат не подключён», общая сводка явно неполная. Расширение финансовой модели Beauty требует отдельного плана и утверждения.
 
+## Q-QA-1: что значит «невозвратный тариф» (ТЗ QA 01.10.2026, пункт Q-01; PR #212)
+
+Открыт 01.10.2026, перенесён при слиянии с `main` 15.10.2026 (прежний номер Q-269 занят другим вопросом). У тарифа
+«Невозвратный тариф Островок -10%» правило «стоимость всего проживания», а панель отмены говорит «отмена заранее
+бесплатна при любом правиле». Панель описывает код верно: момент штрафа задаёт `penaltyDue` (Q-103, ответ
+управляющего 10.09.2026: заранее бесплатно на всех каналах, штраф с дня заезда и при незаезде), правило тарифа
+задаёт только сумму. Варианты: (а) оставить как есть и переименовать тариф словами владельца, например «Без
+возврата в день заезда»; (б) ввести у тарифа второй признак «штраф с момента брони» и считать по нему отмену и
+предоплату: это правило о деньгах и о тарифах Channex, правка DATA_MODEL и ADR, агент сам его не вводит (AGENTS.md §15).
+До ответа: (а), название не трогаем. Статус: OPEN · РЕШЕНИЕ.
 
 ## Release blocker, 15.10.2026: PR538 registration context and Beauty race
 

@@ -24,7 +24,7 @@ import json
 import logging
 import re
 import time
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -258,9 +258,11 @@ class CascadeClient:
         *,
         http_client: httpx.AsyncClient | None = None,
         tools: ToolRegistry | None = None,
+        tools_getter: Callable[[], Awaitable[ToolRegistry]] | None = None,
     ) -> None:
         self._settings = settings
         self._tools = tools if tools is not None else ToolRegistry()
+        self._tools_getter = tools_getter
         self._client: AsyncOpenAI | None = None
         self._emergency_client: AsyncOpenAI | None = None
         # httpx пишет полный URL запроса на INFO; в нём бывает токен.
@@ -373,6 +375,9 @@ class CascadeClient:
 
         hooks = before_call is not None or on_call is not None
         try:
+            registry = self._tools
+            if use_tools and self._tools_getter is not None:
+                registry = await self._tools_getter()
             for model in self.models:
                 started = time.perf_counter()
                 outcome, text, usage = await self._attempt(
@@ -381,6 +386,7 @@ class CascadeClient:
                     masker,
                     use_tools=use_tools,
                     max_tool_rounds=max_tool_rounds,
+                    registry=registry,
                     api_key=api_key,
                     before_call=before_call,
                     report=report if hooks else None,
@@ -428,6 +434,7 @@ class CascadeClient:
         *,
         use_tools: bool,
         max_tool_rounds: int,
+        registry: ToolRegistry | None = None,
         api_key: str | None = None,
         before_call: Callable[[], bool] | None = None,
         report: Callable[[CallUsage], None] | None = None,
@@ -443,10 +450,13 @@ class CascadeClient:
         """
         client = self._client_for(model, api_key)
         settings = self._settings
-        tools = self._tools.specs_for_openai() if use_tools else []
+        selected = registry if registry is not None else self._tools
+        tools = selected.specs_for_openai() if use_tools else []
         # Копия: раунды инструментов дописывают сообщения, а следующая
         # ступень должна начать с исходного замаскированного списка.
         convo = list(messages)
+        if use_tools and getattr(selected, "system_message", None):
+            convo.append({"role": "system", "content": selected.system_message})
         if settings.llm_prompt_cache_mark and vendor_of(model) in _CACHE_MARK_VENDORS:
             convo = _with_cache_mark(convo)
         tokens = Usage()
@@ -508,7 +518,7 @@ class CascadeClient:
                 # Результаты маскируются той же таблицей: инструмент поверх CRM
                 # отдаёт ПД клиента, а модель их видеть не должна.
                 convo.append(_assistant_message(message))
-                convo.extend(masker.mask(await self._tools.dispatch(message.tool_calls)))
+                convo.extend(masker.mask(await selected.dispatch(message.tool_calls)))
         except Exception as exc:  # APIResponseValidationError, сбой разбора и всё прочее
             logger.exception("модель %s: ответ не разобран", model)
             if in_flight and report is not None:

@@ -1,4 +1,5 @@
 import { canManageStaff, parseMembershipRole } from '@pms/domain';
+import { unstable_rethrow } from 'next/navigation';
 import { authApi } from '../../lib/api';
 import { clientInfo, sessionToken } from '../../lib/session';
 import { TeamNavigation } from '../../components/team-navigation';
@@ -18,7 +19,10 @@ import './team.css';
  */
 export default async function TeamPage() {
   const token = await sessionToken();
-  const me = await currentMe().catch(() => ({ user: null }));
+  const me = await currentMe().catch((error: unknown) => {
+    unstable_rethrow(error);
+    return { user: null };
+  });
   const role = me.user?.role ? parseMembershipRole(me.user.role) : null;
   const team = !!token && !!me.user?.organization && !!role && canManageStaff(role);
   const info = await clientInfo();

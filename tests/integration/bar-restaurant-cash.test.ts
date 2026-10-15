@@ -79,6 +79,15 @@ describe('бар: деньги по направлению филиала (integ
     ).toMatchObject({ kind: 'paid', paidAmount: '100000' });
     const expense = await prisma.db.restaurantCashOperation.findFirstOrThrow({ where: { locationId: location, kind: 'EXPENSE' } });
     expect(expense.amount).toBe(100000n);
+    // Правило владельца 13.10.2026: долг поставщику уменьшают только завершённые операции кассы, ресторанной тоже
+    expect(await as('FOOD_SERVICE', () => repo.report())).toMatchObject({ currency: 'KZT', supplierPaidMinor: '100000', supplierDebtMinor: '200000' });
+    await prisma.db.restaurantCashOperation.update({ where: { id: expense.id }, data: { status: 'VOIDED', voidedAt: new Date() } });
+    expect(await as('FOOD_SERVICE', () => repo.report())).toMatchObject({ supplierPaidMinor: '0', supplierDebtMinor: '300000' });
+    // Повтор тем же ключом ищется по филиалу (D-KEY, §44): исходная продажа, второй нет
+    expect(
+      await as('FOOD_SERVICE', () => repo.sellRetail({ productId: product, quantityUnits: 2n, method: 'CASH', idempotencyKey: `sale-${tag}` })),
+    ).toMatchObject({ kind: 'posted', id: barSale.id, status: 'POSTED' });
+    expect(await prisma.db.barSale.count({ where: { locationId: location } })).toBe(1);
     // счёт гостя только у гостиницы
     expect(
       await as('FOOD_SERVICE', () =>
@@ -88,6 +97,10 @@ describe('бар: деньги по направлению филиала (integ
     expect(await as('FOOD_SERVICE', () => repo.reverseSale(barSale.id, true, 'Ошибка кассира'))).toMatchObject({ kind: 'reversed' });
     const voided = await prisma.db.restaurantCashOperation.findUniqueOrThrow({ where: { id: income[0]!.id } });
     expect(voided.status).toBe('VOIDED');
+    // повтор после отмены возвращает отменённую исходную продажу, а не проводит новую
+    expect(
+      await as('FOOD_SERVICE', () => repo.sellRetail({ productId: product, quantityUnits: 2n, method: 'CASH', idempotencyKey: `sale-${tag}` })),
+    ).toMatchObject({ kind: 'posted', id: barSale.id, status: 'REVERSED' });
   });
 
   it('салон: склад работает, продажа и оплата закрыты до кассы салона', async () => {

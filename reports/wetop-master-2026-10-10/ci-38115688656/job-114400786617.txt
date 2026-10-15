@@ -1,0 +1,848 @@
+﻿2026-10-11T05:48:06.3401837Z Current runner version: '2.337.0'
+2026-10-11T05:48:06.3421290Z ##[group]Runner Image Provisioner
+2026-10-11T05:48:06.3421844Z Hosted Compute Agent
+2026-10-11T05:48:06.3422265Z Version: 20261002.596
+2026-10-11T05:48:06.3422650Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-11T05:48:06.3423093Z Build Date: 2026-10-02T22:28:27Z
+2026-10-11T05:48:06.3423599Z Worker ID: {c6a10a4c-7c52-43b0-bc99-8058d93a80b9}
+2026-10-11T05:48:06.3424028Z Region: centralus
+2026-10-11T05:48:06.3424408Z Cloud: Azure
+2026-10-11T05:48:06.3424758Z ##[endgroup]
+2026-10-11T05:48:06.3425738Z ##[group]Operating System
+2026-10-11T05:48:06.3426215Z Ubuntu
+2026-10-11T05:48:06.3426538Z 24.04.5
+2026-10-11T05:48:06.3426889Z LTS
+2026-10-11T05:48:06.3427349Z ##[endgroup]
+2026-10-11T05:48:06.3427828Z ##[group]Runner Image
+2026-10-11T05:48:06.3428281Z Image: ubuntu-24.04
+2026-10-11T05:48:06.3428636Z Version: 20261004.327.1
+2026-10-11T05:48:06.3429479Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-11T05:48:06.3430445Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-11T05:48:06.3431110Z ##[endgroup]
+2026-10-11T05:48:06.3431814Z ##[group]GITHUB_TOKEN Permissions
+2026-10-11T05:48:06.3433274Z Contents: read
+2026-10-11T05:48:06.3433623Z Metadata: read
+2026-10-11T05:48:06.3433954Z ##[endgroup]
+2026-10-11T05:48:06.3435778Z Secret source: Actions
+2026-10-11T05:48:06.3436396Z Cache mode: write
+2026-10-11T05:48:06.3436825Z Prepare workflow directory
+2026-10-11T05:48:06.3656820Z Prepare all required actions
+2026-10-11T05:48:06.3690863Z Getting action download info
+2026-10-11T05:48:06.5855943Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-11T05:48:06.6699801Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-11T05:48:06.7620085Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-11T05:48:06.9713622Z Complete job name: Канонический вход и сохранённые login-lock требования
+2026-10-11T05:48:07.0176169Z ##[group]Run actions/checkout@v4
+2026-10-11T05:48:07.0176579Z with:
+2026-10-11T05:48:07.0176821Z   repository: GAIVER007/wetop.ai
+2026-10-11T05:48:07.0179256Z   token: ***
+2026-10-11T05:48:07.0179488Z   ssh-strict: true
+2026-10-11T05:48:07.0179725Z   ssh-user: git
+2026-10-11T05:48:07.0179972Z   persist-credentials: true
+2026-10-11T05:48:07.0180236Z   clean: true
+2026-10-11T05:48:07.0180481Z   sparse-checkout-cone-mode: true
+2026-10-11T05:48:07.0180762Z   fetch-depth: 1
+2026-10-11T05:48:07.0180994Z   fetch-tags: false
+2026-10-11T05:48:07.0181236Z   show-progress: true
+2026-10-11T05:48:07.0181473Z   lfs: false
+2026-10-11T05:48:07.0181693Z   submodules: false
+2026-10-11T05:48:07.0181939Z   set-safe-directory: true
+2026-10-11T05:48:07.0182211Z   allow-unsafe-pr-checkout: false
+2026-10-11T05:48:07.0182568Z ##[endgroup]
+2026-10-11T05:48:07.0830751Z Syncing repository: GAIVER007/wetop.ai
+2026-10-11T05:48:07.0832494Z ##[group]Getting Git version info
+2026-10-11T05:48:07.0833149Z Working directory is '/home/runner/work/wetop.ai/wetop.ai'
+2026-10-11T05:48:07.0843557Z [command]/usr/bin/git version
+2026-10-11T05:48:07.0937843Z git version 2.55.0
+2026-10-11T05:48:07.0950728Z ##[endgroup]
+2026-10-11T05:48:07.0963414Z Temporarily overriding HOME='/home/runner/work/_temp/8eeb7319-f309-4481-bf71-5678b25f3886' before making global git config changes
+2026-10-11T05:48:07.0964607Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-11T05:48:07.0967157Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/wetop.ai/wetop.ai
+2026-10-11T05:48:07.1008657Z Deleting the contents of '/home/runner/work/wetop.ai/wetop.ai'
+2026-10-11T05:48:07.1013630Z ##[group]Initializing the repository
+2026-10-11T05:48:07.1016463Z [command]/usr/bin/git init /home/runner/work/wetop.ai/wetop.ai
+2026-10-11T05:48:07.1097187Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-11T05:48:07.1098413Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-11T05:48:07.1099200Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-11T05:48:07.1099808Z hint: call:
+2026-10-11T05:48:07.1100139Z hint:
+2026-10-11T05:48:07.1100560Z hint: 	git config --global init.defaultBranch <name>
+2026-10-11T05:48:07.1101068Z hint:
+2026-10-11T05:48:07.1101540Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-11T05:48:07.1102303Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-11T05:48:07.1102908Z hint:
+2026-10-11T05:48:07.1103243Z hint: 	git branch -m <name>
+2026-10-11T05:48:07.1103626Z hint:
+2026-10-11T05:48:07.1104166Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-11T05:48:07.1110065Z Initialized empty Git repository in /home/runner/work/wetop.ai/wetop.ai/.git/
+2026-10-11T05:48:07.1115977Z [command]/usr/bin/git remote add origin https://github.com/GAIVER007/wetop.ai
+2026-10-11T05:48:07.1395969Z ##[endgroup]
+2026-10-11T05:48:07.1396728Z ##[group]Disabling automatic garbage collection
+2026-10-11T05:48:07.1400525Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-11T05:48:07.1577546Z ##[endgroup]
+2026-10-11T05:48:07.1578275Z ##[group]Setting up auth
+2026-10-11T05:48:07.1583424Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-11T05:48:07.1611153Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-11T05:48:07.1899085Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-11T05:48:07.1927585Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-11T05:48:07.2103012Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T05:48:07.2130870Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-11T05:48:07.2302728Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-11T05:48:07.2393299Z ##[endgroup]
+2026-10-11T05:48:07.2393974Z ##[group]Fetching the repository
+2026-10-11T05:48:07.2400989Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +5306d26c936e92e21eb66f9f38fd6f09cc6bbd51:refs/remotes/origin/claude/a28-money-port-2026-10-10
+2026-10-11T05:48:16.8244073Z From https://github.com/GAIVER007/wetop.ai
+2026-10-11T05:48:16.8245966Z  * [new ref]         5306d26c936e92e21eb66f9f38fd6f09cc6bbd51 -> origin/claude/a28-money-port-2026-10-10
+2026-10-11T05:48:16.8249317Z ##[endgroup]
+2026-10-11T05:48:16.8250467Z ##[group]Determining the checkout info
+2026-10-11T05:48:16.8253240Z ##[endgroup]
+2026-10-11T05:48:16.8253862Z [command]/usr/bin/git sparse-checkout disable
+2026-10-11T05:48:16.8296128Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-11T05:48:16.8323860Z ##[group]Checking out the ref
+2026-10-11T05:48:16.8325342Z [command]/usr/bin/git checkout --progress --force -B claude/a28-money-port-2026-10-10 refs/remotes/origin/claude/a28-money-port-2026-10-10
+2026-10-11T05:48:17.8153830Z Switched to a new branch 'claude/a28-money-port-2026-10-10'
+2026-10-11T05:48:17.8169360Z branch 'claude/a28-money-port-2026-10-10' set up to track 'origin/claude/a28-money-port-2026-10-10'.
+2026-10-11T05:48:17.8202111Z ##[endgroup]
+2026-10-11T05:48:17.8239326Z [command]/usr/bin/git log -1 --format=%H
+2026-10-11T05:48:17.8260473Z 5306d26c936e92e21eb66f9f38fd6f09cc6bbd51
+2026-10-11T05:48:17.8444599Z ##[group]Run actions/setup-node@v4
+2026-10-11T05:48:17.8444931Z with:
+2026-10-11T05:48:17.8445081Z   node-version-file: .nvmrc
+2026-10-11T05:48:17.8445236Z   cache: npm
+2026-10-11T05:48:17.8445371Z   always-auth: false
+2026-10-11T05:48:17.8445515Z   check-latest: false
+2026-10-11T05:48:17.8446904Z   token: ***
+2026-10-11T05:48:17.8447042Z ##[endgroup]
+2026-10-11T05:48:17.9368452Z Resolved .nvmrc as 24
+2026-10-11T05:48:17.9398996Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-11T05:48:17.9401814Z (node:2079) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-11T05:48:17.9402369Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-11T05:48:17.9403439Z ##[group]Environment details
+2026-10-11T05:48:18.1832351Z node: v24.21.0
+2026-10-11T05:48:18.1832654Z npm: 11.19.0
+2026-10-11T05:48:18.1832855Z yarn: 1.22.22
+2026-10-11T05:48:18.1833509Z ##[endgroup]
+2026-10-11T05:48:18.1859536Z [command]/opt/hostedtoolcache/node/24.21.0/x64/bin/npm config get cache
+2026-10-11T05:48:18.3413474Z /home/runner/.npm
+2026-10-11T05:48:18.4740628Z Cache hit for: node-cache-Linux-x64-npm-b6b65ec4100a0353a45f428fc09f1206dbc0c98ec35317ec255cde3d896b0047
+2026-10-11T05:48:18.4803477Z (node:2079) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-11T05:48:19.6244987Z Received 130023424 of 265014639 (49.1%), 124.0 MBs/sec
+2026-10-11T05:48:20.1812690Z Received 265014639 of 265014639 (100.0%), 162.4 MBs/sec
+2026-10-11T05:48:20.1813296Z Cache Size: ~253 MB (265014639 B)
+2026-10-11T05:48:20.1896003Z [command]/usr/bin/tar -xf /home/runner/work/_temp/8266f2af-531e-417d-bf9d-5381678c0ac3/cache.tzst -P -C /home/runner/work/wetop.ai/wetop.ai --use-compress-program unzstd
+2026-10-11T05:48:20.4805424Z Cache restored successfully
+2026-10-11T05:48:20.4912989Z Cache restored from key: node-cache-Linux-x64-npm-b6b65ec4100a0353a45f428fc09f1206dbc0c98ec35317ec255cde3d896b0047
+2026-10-11T05:48:20.5163136Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-11T05:48:20.5163379Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-11T05:48:20.5358775Z shell: /usr/bin/bash -e {0}
+2026-10-11T05:48:20.5358968Z ##[endgroup]
+2026-10-11T05:48:31.5173013Z 
+2026-10-11T05:48:31.5178968Z added 483 packages in 11s
+2026-10-11T05:48:31.7224722Z ##[group]Run npm run generate -w @pms/database
+2026-10-11T05:48:31.7224975Z [36;1mnpm run generate -w @pms/database[0m
+2026-10-11T05:48:31.7276872Z shell: /usr/bin/bash -e {0}
+2026-10-11T05:48:31.7277039Z ##[endgroup]
+2026-10-11T05:48:31.9182241Z 
+2026-10-11T05:48:31.9182838Z > @pms/database@0.0.0 generate
+2026-10-11T05:48:31.9183096Z > prisma generate
+2026-10-11T05:48:31.9183182Z 
+2026-10-11T05:48:32.3140165Z [prisma.config] DATABASE_URL (или DIRECT_URL) не задан в .env — генерация клиента работает, миграции нет. Значение вписывает владелец (SECURITY.md §3).
+2026-10-11T05:48:32.3157914Z Loaded Prisma config from prisma.config.ts.
+2026-10-11T05:48:32.3158165Z 
+2026-10-11T05:48:32.3979282Z Prisma schema loaded from prisma/schema.prisma.
+2026-10-11T05:48:33.3444635Z ┌─────────────────────────────────────────────────────────┐
+2026-10-11T05:48:33.3445206Z │  Update available 7.10.0 -> 8.0.0-rc.22                 │
+2026-10-11T05:48:33.3445729Z │                                                         │
+2026-10-11T05:48:33.3446143Z │  This is a major update - please follow the guide at    │
+2026-10-11T05:48:33.3446559Z │  https://pris.ly/d/major-version-upgrade                │
+2026-10-11T05:48:33.3446874Z │                                                         │
+2026-10-11T05:48:33.3447129Z │  Run the following to update                            │
+2026-10-11T05:48:33.3447424Z │    npm i --save-dev prisma@latest                       │
+2026-10-11T05:48:33.3447865Z │    npm i @prisma/client@latest                          │
+2026-10-11T05:48:33.3448153Z └─────────────────────────────────────────────────────────┘
+2026-10-11T05:48:33.3449819Z 
+2026-10-11T05:48:33.3450181Z ✔ Generated Prisma Client (7.10.0) to ./src/generated/prisma in 545ms
+2026-10-11T05:48:33.3450348Z 
+2026-10-11T05:48:33.3863550Z ##[group]Run npx playwright install --with-deps chromium
+2026-10-11T05:48:33.3863809Z [36;1mnpx playwright install --with-deps chromium[0m
+2026-10-11T05:48:33.3915613Z shell: /usr/bin/bash -e {0}
+2026-10-11T05:48:33.3915758Z ##[endgroup]
+2026-10-11T05:48:33.8576021Z Installing dependencies...
+2026-10-11T05:48:33.8630539Z Switching to root user to install dependencies...
+2026-10-11T05:48:33.9328356Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-11T05:48:33.9706474Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-10-11T05:48:33.9737544Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-10-11T05:48:33.9763096Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-10-11T05:48:33.9780322Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-10-11T05:48:33.9808457Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-10-11T05:48:34.0550937Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1375 kB]
+2026-10-11T05:48:34.0649073Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [306 kB]
+2026-10-11T05:48:34.0680689Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1702 kB]
+2026-10-11T05:48:34.0789225Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [342 kB]
+2026-10-11T05:48:34.0806589Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1761 kB]
+2026-10-11T05:48:34.0869211Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [401 kB]
+2026-10-11T05:48:34.0908348Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [55.0 kB]
+2026-10-11T05:48:34.0909157Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+2026-10-11T05:48:34.1371526Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1121 kB]
+2026-10-11T05:48:34.1415194Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [228 kB]
+2026-10-11T05:48:34.1761361Z Get:23 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.3 kB]
+2026-10-11T05:48:34.1800247Z Get:24 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [548 kB]
+2026-10-11T05:48:34.1868618Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1220 kB]
+2026-10-11T05:48:34.1880132Z Get:25 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [492 kB]
+2026-10-11T05:48:34.1898882Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [245 kB]
+2026-10-11T05:48:34.1916653Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1669 kB]
+2026-10-11T05:48:34.1945069Z Get:26 https://packages.microsoft.com/ubuntu/24.04/prod noble/main all Packages [640 B]
+2026-10-11T05:48:34.1983673Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [383 kB]
+2026-10-11T05:48:34.2001352Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [49.8 kB]
+2026-10-11T05:48:34.2008643Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+2026-10-11T05:48:38.9530907Z Fetched 12.3 MB in 1s (13.6 MB/s)
+2026-10-11T05:48:39.4513419Z Reading package lists...
+2026-10-11T05:48:39.4758810Z Reading package lists...
+2026-10-11T05:48:39.6332169Z Building dependency tree...
+2026-10-11T05:48:39.6337297Z Reading state information...
+2026-10-11T05:48:39.7463287Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+2026-10-11T05:48:39.7463910Z libasound2t64 set to manually installed.
+2026-10-11T05:48:39.7464432Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-11T05:48:39.7465351Z libatk-bridge2.0-0t64 set to manually installed.
+2026-10-11T05:48:39.7465866Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-11T05:48:39.7466088Z libatk1.0-0t64 set to manually installed.
+2026-10-11T05:48:39.7466354Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-11T05:48:39.7466582Z libatspi2.0-0t64 set to manually installed.
+2026-10-11T05:48:39.7466803Z libcairo2 is already the newest version (1.18.0-3build1).
+2026-10-11T05:48:39.7467008Z libcairo2 set to manually installed.
+2026-10-11T05:48:39.7467319Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+2026-10-11T05:48:39.7467793Z libcups2t64 set to manually installed.
+2026-10-11T05:48:39.7468149Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+2026-10-11T05:48:39.7468492Z libdbus-1-3 set to manually installed.
+2026-10-11T05:48:39.7468839Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+2026-10-11T05:48:39.7469184Z libdrm2 set to manually installed.
+2026-10-11T05:48:39.7469407Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+2026-10-11T05:48:39.7469617Z libgbm1 set to manually installed.
+2026-10-11T05:48:39.7469839Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.9).
+2026-10-11T05:48:39.7470061Z libglib2.0-0t64 set to manually installed.
+2026-10-11T05:48:39.7470285Z libnspr4 is already the newest version (2:4.35-1.1build1).
+2026-10-11T05:48:39.7470491Z libnspr4 set to manually installed.
+2026-10-11T05:48:39.7470697Z libnss3 is already the newest version (2:3.98-1ubuntu0.2).
+2026-10-11T05:48:39.7470897Z libnss3 set to manually installed.
+2026-10-11T05:48:39.7471120Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+2026-10-11T05:48:39.7471339Z libpango-1.0-0 set to manually installed.
+2026-10-11T05:48:39.7471551Z libx11-6 is already the newest version (2:1.8.7-1build1).
+2026-10-11T05:48:39.7471746Z libx11-6 set to manually installed.
+2026-10-11T05:48:39.7471945Z libxcb1 is already the newest version (1.15-1ubuntu2).
+2026-10-11T05:48:39.7472139Z libxcb1 set to manually installed.
+2026-10-11T05:48:39.7472353Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+2026-10-11T05:48:39.7472573Z libxcomposite1 set to manually installed.
+2026-10-11T05:48:39.7472791Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+2026-10-11T05:48:39.7472995Z libxdamage1 set to manually installed.
+2026-10-11T05:48:39.7473203Z libxext6 is already the newest version (2:1.3.4-1build2).
+2026-10-11T05:48:39.7473395Z libxext6 set to manually installed.
+2026-10-11T05:48:39.7473599Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+2026-10-11T05:48:39.7473804Z libxfixes3 set to manually installed.
+2026-10-11T05:48:39.7474015Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+2026-10-11T05:48:39.7474223Z libxkbcommon0 set to manually installed.
+2026-10-11T05:48:39.7474437Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+2026-10-11T05:48:39.7474645Z libxrandr2 set to manually installed.
+2026-10-11T05:48:39.7474855Z xvfb is already the newest version (2:21.1.12-1ubuntu1.8).
+2026-10-11T05:48:39.7475137Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+2026-10-11T05:48:39.7475429Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+2026-10-11T05:48:39.7475647Z libfontconfig1 set to manually installed.
+2026-10-11T05:48:39.7475865Z fonts-liberation is already the newest version (1:2.1.5-3).
+2026-10-11T05:48:39.7476079Z fonts-liberation set to manually installed.
+2026-10-11T05:48:39.7476291Z The following additional packages will be installed:
+2026-10-11T05:48:39.7476483Z   xfonts-encodings xfonts-utils
+2026-10-11T05:48:39.7476641Z Recommended packages:
+2026-10-11T05:48:39.7476794Z   fonts-ipafont-mincho fonts-tlwg-loma
+2026-10-11T05:48:39.7605655Z The following NEW packages will be installed:
+2026-10-11T05:48:39.7606087Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+2026-10-11T05:48:39.7608092Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+2026-10-11T05:48:39.7608463Z   xfonts-utils
+2026-10-11T05:48:39.7610114Z The following packages will be upgraded:
+2026-10-11T05:48:39.7612106Z   libfreetype6
+2026-10-11T05:48:39.7735223Z 1 upgraded, 9 newly installed, 0 to remove and 22 not upgraded.
+2026-10-11T05:48:39.7735595Z Need to get 21.5 MB of archives.
+2026-10-11T05:48:39.7735946Z After this operation, 79.5 MB of additional disk space will be used.
+2026-10-11T05:48:39.7736348Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-11T05:48:39.8239944Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+2026-10-11T05:48:39.8900820Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+2026-10-11T05:48:39.9779945Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+2026-10-11T05:48:40.0097345Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+2026-10-11T05:48:40.0702054Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+2026-10-11T05:48:40.1751617Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libfreetype6 amd64 2.13.2+dfsg-1ubuntu0.2 [403 kB]
+2026-10-11T05:48:40.2098473Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+2026-10-11T05:48:40.2477026Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+2026-10-11T05:48:40.2796095Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+2026-10-11T05:48:40.3142392Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+2026-10-11T05:48:40.4876065Z Fetched 21.5 MB in 1s (39.0 MB/s)
+2026-10-11T05:48:40.5026693Z Selecting previously unselected package fonts-ipafont-gothic.
+2026-10-11T05:48:40.5211385Z (Reading database ... 
+2026-10-11T05:48:40.5211561Z (Reading database ... 5%
+2026-10-11T05:48:40.5211987Z (Reading database ... 10%
+2026-10-11T05:48:40.5212167Z (Reading database ... 15%
+2026-10-11T05:48:40.5212314Z (Reading database ... 20%
+2026-10-11T05:48:40.5212470Z (Reading database ... 25%
+2026-10-11T05:48:40.5212608Z (Reading database ... 30%
+2026-10-11T05:48:40.5212743Z (Reading database ... 35%
+2026-10-11T05:48:40.5212964Z (Reading database ... 40%
+2026-10-11T05:48:40.5213178Z (Reading database ... 45%
+2026-10-11T05:48:40.5213396Z (Reading database ... 50%
+2026-10-11T05:48:40.5240139Z (Reading database ... 55%
+2026-10-11T05:48:40.6317214Z (Reading database ... 60%
+2026-10-11T05:48:40.8371003Z (Reading database ... 65%
+2026-10-11T05:48:41.0421557Z (Reading database ... 70%
+2026-10-11T05:48:41.2435430Z (Reading database ... 75%
+2026-10-11T05:48:41.3873788Z (Reading database ... 80%
+2026-10-11T05:48:41.5922057Z (Reading database ... 85%
+2026-10-11T05:48:41.7977473Z (Reading database ... 90%
+2026-10-11T05:48:41.9556494Z (Reading database ... 95%
+2026-10-11T05:48:41.9556813Z (Reading database ... 100%
+2026-10-11T05:48:41.9557188Z (Reading database ... 203191 files and directories currently installed.)
+2026-10-11T05:48:41.9593252Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+2026-10-11T05:48:41.9961857Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-11T05:48:42.2456471Z Selecting previously unselected package fonts-freefont-ttf.
+2026-10-11T05:48:42.2552075Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+2026-10-11T05:48:42.2556630Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-11T05:48:42.3533161Z Selecting previously unselected package fonts-tlwg-loma-otf.
+2026-10-11T05:48:42.3624775Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+2026-10-11T05:48:42.3630847Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-11T05:48:42.3797172Z Selecting previously unselected package fonts-unifont.
+2026-10-11T05:48:42.3894373Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+2026-10-11T05:48:42.3900273Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+2026-10-11T05:48:42.5881176Z Selecting previously unselected package fonts-wqy-zenhei.
+2026-10-11T05:48:42.5973238Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+2026-10-11T05:48:42.6054433Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-11T05:48:43.0284551Z Preparing to unpack .../5-libfreetype6_2.13.2+dfsg-1ubuntu0.2_amd64.deb ...
+2026-10-11T05:48:43.0307039Z Unpacking libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) over (2.13.2+dfsg-1ubuntu0.1) ...
+2026-10-11T05:48:43.0505473Z Selecting previously unselected package xfonts-encodings.
+2026-10-11T05:48:43.0603707Z Preparing to unpack .../6-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+2026-10-11T05:48:43.0608974Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-11T05:48:43.0810518Z Selecting previously unselected package xfonts-utils.
+2026-10-11T05:48:43.0902051Z Preparing to unpack .../7-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+2026-10-11T05:48:43.0906958Z Unpacking xfonts-utils (1:7.7+6build3) ...
+2026-10-11T05:48:43.1151868Z Selecting previously unselected package xfonts-cyrillic.
+2026-10-11T05:48:43.1242986Z Preparing to unpack .../8-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+2026-10-11T05:48:43.1343726Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-11T05:48:43.1580914Z Selecting previously unselected package xfonts-scalable.
+2026-10-11T05:48:43.1673295Z Preparing to unpack .../9-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+2026-10-11T05:48:43.1678244Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-11T05:48:43.1999674Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-11T05:48:43.2085807Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-11T05:48:43.2099854Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-11T05:48:43.2113535Z Setting up libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) ...
+2026-10-11T05:48:43.2126494Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-11T05:48:43.2139907Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-11T05:48:43.2186347Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+2026-10-11T05:48:43.2198717Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+2026-10-11T05:48:43.2212177Z Setting up xfonts-utils (1:7.7+6build3) ...
+2026-10-11T05:48:43.2242004Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-11T05:48:43.2444852Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-11T05:48:43.2655597Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-10-11T05:48:43.4008590Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-10-11T05:48:43.4024888Z Not building database; man-db/auto-update is not 'true'.
+2026-10-11T05:48:43.4034943Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+2026-10-11T05:48:43.8528263Z 
+2026-10-11T05:48:43.8528855Z Running kernel seems to be up-to-date.
+2026-10-11T05:48:43.8529043Z 
+2026-10-11T05:48:43.8529114Z Restarting services...
+2026-10-11T05:48:43.8583846Z  systemctl restart php8.3-fpm.service
+2026-10-11T05:48:43.9353448Z 
+2026-10-11T05:48:43.9356553Z No containers need to be restarted.
+2026-10-11T05:48:43.9356795Z 
+2026-10-11T05:48:43.9356954Z No user sessions are running outdated binaries.
+2026-10-11T05:48:43.9357139Z 
+2026-10-11T05:48:43.9357387Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-11T05:48:44.6042042Z Downloading Chrome for Testing 153.0.8010.12 (playwright chromium v1243) from https://cdn.playwright.dev/builds/cft/153.0.8010.12/linux64/chrome-linux64.zip
+2026-10-11T05:48:44.9080159Z |                                                                                |   0% of 186.8 MiB
+2026-10-11T05:48:45.2476252Z |■■■■■■■■                                                                        |  10% of 186.8 MiB
+2026-10-11T05:48:45.3000956Z |■■■■■■■■■■■■■■■■                                                                |  20% of 186.8 MiB
+2026-10-11T05:48:45.3525435Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 186.8 MiB
+2026-10-11T05:48:45.3939536Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 186.8 MiB
+2026-10-11T05:48:45.4477563Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 186.8 MiB
+2026-10-11T05:48:45.4924861Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 186.8 MiB
+2026-10-11T05:48:45.5423879Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 186.8 MiB
+2026-10-11T05:48:45.6043466Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 186.8 MiB
+2026-10-11T05:48:45.6414144Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 186.8 MiB
+2026-10-11T05:48:45.7039504Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 186.8 MiB
+2026-10-11T05:48:47.6716510Z Chrome for Testing 153.0.8010.12 (playwright chromium v1243) downloaded to /home/runner/.cache/ms-playwright/chromium-1243
+2026-10-11T05:48:47.6719309Z Downloading FFmpeg (playwright ffmpeg v1011) from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+2026-10-11T05:48:47.9399860Z |                                                                                |   0% of 2.3 MiB
+2026-10-11T05:48:47.9736256Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+2026-10-11T05:48:47.9881687Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+2026-10-11T05:48:47.9993351Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+2026-10-11T05:48:48.0105756Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+2026-10-11T05:48:48.0187972Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+2026-10-11T05:48:48.0202303Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+2026-10-11T05:48:48.0296610Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+2026-10-11T05:48:48.0314519Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+2026-10-11T05:48:48.0408300Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+2026-10-11T05:48:48.0420709Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+2026-10-11T05:48:48.0800222Z FFmpeg (playwright ffmpeg v1011) downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+2026-10-11T05:48:48.0802187Z Downloading Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243) from https://cdn.playwright.dev/builds/cft/153.0.8010.12/linux64/chrome-headless-shell-linux64.zip
+2026-10-11T05:48:48.3854748Z |                                                                                |   0% of 114.3 MiB
+2026-10-11T05:48:48.7128801Z |■■■■■■■■                                                                        |  10% of 114.3 MiB
+2026-10-11T05:48:48.7641746Z |■■■■■■■■■■■■■■■■                                                                |  20% of 114.3 MiB
+2026-10-11T05:48:48.8015889Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 114.3 MiB
+2026-10-11T05:48:48.8304795Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 114.3 MiB
+2026-10-11T05:48:48.8636605Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 114.3 MiB
+2026-10-11T05:48:48.8871182Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 114.3 MiB
+2026-10-11T05:48:48.9162332Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 114.3 MiB
+2026-10-11T05:48:48.9505700Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 114.3 MiB
+2026-10-11T05:48:48.9796489Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 114.3 MiB
+2026-10-11T05:48:49.0248740Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 114.3 MiB
+2026-10-11T05:48:50.4911251Z Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1243
+2026-10-11T05:48:50.5554745Z ##[group]Run npx playwright test --config tests/ui/playwright.auth.config.ts --workers=2
+2026-10-11T05:48:50.5555297Z [36;1mnpx playwright test --config tests/ui/playwright.auth.config.ts --workers=2[0m
+2026-10-11T05:48:50.5607738Z shell: /usr/bin/bash -e {0}
+2026-10-11T05:48:50.5607883Z env:
+2026-10-11T05:48:50.5607996Z   UI_BROWSER_CHANNEL: chromium
+2026-10-11T05:48:50.5608131Z ##[endgroup]
+2026-10-11T05:48:53.1027471Z [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+2026-10-11T05:48:53.1027974Z [WebServer] 
+2026-10-11T05:48:53.1028163Z [WebServer]   To migrate automatically, run:
+2026-10-11T05:48:53.1028434Z [WebServer]   npx @next/codemod@canary middleware-to-proxy .
+2026-10-11T05:48:53.1028646Z [WebServer] 
+2026-10-11T05:48:53.1028912Z [WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+2026-10-11T05:48:59.7734774Z [WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+2026-10-11T05:48:59.7735305Z [WebServer] 
+2026-10-11T05:48:59.7735558Z [WebServer]   To migrate automatically, run:
+2026-10-11T05:48:59.7735938Z [WebServer]   npx @next/codemod@canary middleware-to-proxy .
+2026-10-11T05:48:59.7736506Z [WebServer] 
+2026-10-11T05:48:59.7736858Z [WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+2026-10-11T05:49:04.7378352Z 
+2026-10-11T05:49:04.7435632Z Running 18 tests using 2 workers
+2026-10-11T05:49:14.9899485Z [WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+2026-10-11T05:49:14.9931858Z [WebServer]     at getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:197:11)
+2026-10-11T05:49:14.9938649Z [WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+2026-10-11T05:49:14.9939423Z [WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+2026-10-11T05:49:14.9970461Z [WebServer]   195 |         /* тело не JSON */
+2026-10-11T05:49:14.9971009Z [WebServer]   196 |       }
+2026-10-11T05:49:14.9971506Z [WebServer] > 197 |     throw new ApiError(res.status, message);
+2026-10-11T05:49:14.9971951Z [WebServer]       |           ^
+2026-10-11T05:49:14.9972324Z [WebServer]   198 |   }
+2026-10-11T05:49:14.9979033Z [WebServer]   199 |   return (await res.json()) as T;
+2026-10-11T05:49:14.9979352Z [WebServer]   200 | } {
+2026-10-11T05:49:14.9979577Z [WebServer]   status: 403,
+2026-10-11T05:49:14.9979833Z [WebServer]   digest: 'API_403'
+2026-10-11T05:49:14.9980056Z [WebServer] }
+2026-10-11T05:49:33.4160489Z [WebServer] ⨯ Error: API /auth/me: HTTP 500
+2026-10-11T05:49:33.4171934Z [WebServer]     at getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:197:11)
+2026-10-11T05:49:33.4188983Z [WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+2026-10-11T05:49:33.4203323Z [WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+2026-10-11T05:49:33.4204307Z [WebServer]   195 |         /* тело не JSON */
+2026-10-11T05:49:33.4204804Z [WebServer]   196 |       }
+2026-10-11T05:49:33.4205327Z [WebServer] > 197 |     throw new ApiError(res.status, message);
+2026-10-11T05:49:33.4205800Z [WebServer]       |           ^
+2026-10-11T05:49:33.4206174Z [WebServer]   198 |   }
+2026-10-11T05:49:33.4206582Z [WebServer]   199 |   return (await res.json()) as T;
+2026-10-11T05:49:33.4206967Z [WebServer]   200 | } {
+2026-10-11T05:49:33.4207300Z [WebServer]   status: 500,
+2026-10-11T05:49:33.4207829Z [WebServer]   digest: 'API_500'
+2026-10-11T05:49:33.4208174Z [WebServer] }
+2026-10-11T05:49:51.2725404Z [WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+2026-10-11T05:49:51.2726213Z [WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+2026-10-11T05:49:51.2726893Z [WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+2026-10-11T05:49:51.2727567Z [WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+2026-10-11T05:49:51.2729340Z [WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+2026-10-11T05:49:51.2729891Z [WebServer]   146 |       throw error;
+2026-10-11T05:49:51.2730919Z [WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+2026-10-11T05:49:51.2731630Z [WebServer] > 148 |     throw new ApiError(
+2026-10-11T05:49:51.2732053Z [WebServer]       |           ^
+2026-10-11T05:49:51.2732436Z [WebServer]   149 |       503,
+2026-10-11T05:49:51.2732911Z [WebServer]   150 |       options.method && options.method !== 'GET'
+2026-10-11T05:49:51.2733718Z [WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+2026-10-11T05:49:51.2734528Z [WebServer]   status: 503,
+2026-10-11T05:49:51.2734905Z [WebServer]   digest: 'API_503'
+2026-10-11T05:49:51.2735236Z [WebServer] }
+2026-10-11T05:50:08.9947116Z [WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+2026-10-11T05:50:08.9974664Z [WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+2026-10-11T05:50:09.0039587Z [WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+2026-10-11T05:50:09.0053184Z [WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+2026-10-11T05:50:09.0099685Z [WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+2026-10-11T05:50:09.0141347Z [WebServer]   146 |       throw error;
+2026-10-11T05:50:09.0148854Z [WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+2026-10-11T05:50:09.0149604Z [WebServer] > 148 |     throw new ApiError(
+2026-10-11T05:50:09.0150049Z [WebServer]       |           ^
+2026-10-11T05:50:09.0150401Z [WebServer]   149 |       503,
+2026-10-11T05:50:09.0150875Z [WebServer]   150 |       options.method && options.method !== 'GET'
+2026-10-11T05:50:09.0151930Z [WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+2026-10-11T05:50:09.0152461Z [WebServer]   status: 503,
+2026-10-11T05:50:09.0152804Z [WebServer]   digest: 'API_503'
+2026-10-11T05:50:09.0153123Z [WebServer] }
+2026-10-11T05:50:28.3253744Z [WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+2026-10-11T05:50:28.3268975Z [WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+2026-10-11T05:50:28.3298878Z [WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+2026-10-11T05:50:28.3318602Z [WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+2026-10-11T05:50:28.3348523Z [WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+2026-10-11T05:50:28.3359700Z [WebServer]   146 |       throw error;
+2026-10-11T05:50:28.3389067Z [WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+2026-10-11T05:50:28.3418143Z [WebServer] > 148 |     throw new ApiError(
+2026-10-11T05:50:28.3428267Z [WebServer]       |           ^
+2026-10-11T05:50:28.3448100Z [WebServer]   149 |       503,
+2026-10-11T05:50:28.3478381Z [WebServer]   150 |       options.method && options.method !== 'GET'
+2026-10-11T05:50:28.3489110Z [WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+2026-10-11T05:50:28.3530334Z [WebServer]   status: 503,
+2026-10-11T05:50:28.3538794Z [WebServer]   digest: 'API_503'
+2026-10-11T05:50:28.3565724Z [WebServer] }
+2026-10-11T05:50:47.9432930Z [WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+2026-10-11T05:50:47.9470245Z [WebServer]     at backendFetch (test-results/auth-runtime-0/apps/web/src/lib/api.ts:148:11)
+2026-10-11T05:50:47.9470930Z [WebServer]     at async getJson (test-results/auth-runtime-0/apps/web/src/lib/api.ts:186:15)
+2026-10-11T05:50:47.9472040Z [WebServer]     at async Object.me (test-results/auth-runtime-0/apps/web/src/lib/api.ts:592:20)
+2026-10-11T05:50:47.9472678Z [WebServer]     at async (test-results/auth-runtime-0/apps/web/src/lib/desk-shell.ts:15:10)
+2026-10-11T05:50:47.9473097Z [WebServer]   146 |       throw error;
+2026-10-11T05:50:47.9501772Z [WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+2026-10-11T05:50:47.9502275Z [WebServer] > 148 |     throw new ApiError(
+2026-10-11T05:50:47.9502575Z [WebServer]       |           ^
+2026-10-11T05:50:47.9502828Z [WebServer]   149 |       503,
+2026-10-11T05:50:47.9503180Z [WebServer]   150 |       options.method && options.method !== 'GET'
+2026-10-11T05:50:47.9503993Z [WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+2026-10-11T05:50:47.9504338Z [WebServer]   status: 503,
+2026-10-11T05:50:47.9504585Z [WebServer]   digest: 'API_503'
+2026-10-11T05:50:47.9504819Z [WebServer] }
+2026-10-11T05:51:03.4835367Z ···FFTFFF·····F··F
+2026-10-11T05:51:03.4841791Z 
+2026-10-11T05:51:03.4848028Z   1) tests/ui/a27-auth-boundary.spec.ts:23:3 › session check 403 is a safe distinct failure and preserves the valid session 
+2026-10-11T05:51:03.4848382Z 
+2026-10-11T05:51:03.4848501Z     Error: expect(locator).toBeVisible() failed
+2026-10-11T05:51:03.4848629Z 
+2026-10-11T05:51:03.4848852Z     Locator: getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4849183Z     Expected: visible
+2026-10-11T05:51:03.4849389Z     Timeout: 15000ms
+2026-10-11T05:51:03.4849630Z     Error: element(s) not found
+2026-10-11T05:51:03.4849773Z 
+2026-10-11T05:51:03.4849855Z     Call log:
+2026-10-11T05:51:03.4850329Z       - Expect "toBeVisible" getByRole('heading', { name: 'Главная', exact: true }) with timeout 15000ms
+2026-10-11T05:51:03.4850837Z       - waiting for getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4851334Z         - waiting for "http://127.0.0.1:3102/finance" navigation to finish...
+2026-10-11T05:51:03.4851764Z         - navigated to "http://127.0.0.1:3102/finance"
+2026-10-11T05:51:03.4851955Z 
+2026-10-11T05:51:03.4851959Z 
+2026-10-11T05:51:03.4852019Z       63 |       .click();
+2026-10-11T05:51:03.4852218Z       64 |     await expect(page).toHaveURL(`${WEB}${target}`);
+2026-10-11T05:51:03.4852599Z     > 65 |     await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+2026-10-11T05:51:03.4852910Z          |                                                                               ^
+2026-10-11T05:51:03.4853172Z       66 |   });
+2026-10-11T05:51:03.4853358Z       67 | }
+2026-10-11T05:51:03.4853534Z       68 |
+2026-10-11T05:51:03.4853876Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/a27-auth-boundary.spec.ts:65:79
+2026-10-11T05:51:03.4854088Z 
+2026-10-11T05:51:03.4854437Z     Error Context: tests/ui/test-results/auth/a27-auth-boundary-session--7068e-preserves-the-valid-session/error-context.md
+2026-10-11T05:51:03.4854753Z 
+2026-10-11T05:51:03.4855128Z   2) tests/ui/a27-auth-boundary.spec.ts:23:3 › session check 500 is a safe distinct failure and preserves the valid session 
+2026-10-11T05:51:03.4855432Z 
+2026-10-11T05:51:03.4855567Z     Error: expect(locator).toBeVisible() failed
+2026-10-11T05:51:03.4855733Z 
+2026-10-11T05:51:03.4855887Z     Locator: getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4856086Z     Expected: visible
+2026-10-11T05:51:03.4856313Z     Timeout: 15000ms
+2026-10-11T05:51:03.4856547Z     Error: element(s) not found
+2026-10-11T05:51:03.4856679Z 
+2026-10-11T05:51:03.4856729Z     Call log:
+2026-10-11T05:51:03.4857030Z       - Expect "toBeVisible" getByRole('heading', { name: 'Главная', exact: true }) with timeout 15000ms
+2026-10-11T05:51:03.4857393Z       - waiting for getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4857848Z         - waiting for "http://127.0.0.1:3102/finance" navigation to finish...
+2026-10-11T05:51:03.4858204Z         - navigated to "http://127.0.0.1:3102/finance"
+2026-10-11T05:51:03.4858391Z 
+2026-10-11T05:51:03.4858395Z 
+2026-10-11T05:51:03.4859003Z       63 |       .click();
+2026-10-11T05:51:03.4859304Z       64 |     await expect(page).toHaveURL(`${WEB}${target}`);
+2026-10-11T05:51:03.4859751Z     > 65 |     await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+2026-10-11T05:51:03.4860389Z          |                                                                               ^
+2026-10-11T05:51:03.4860678Z       66 |   });
+2026-10-11T05:51:03.4860859Z       67 | }
+2026-10-11T05:51:03.4861032Z       68 |
+2026-10-11T05:51:03.4861364Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/a27-auth-boundary.spec.ts:65:79
+2026-10-11T05:51:03.4861620Z 
+2026-10-11T05:51:03.4862048Z     Error Context: tests/ui/test-results/auth/a27-auth-boundary-session--c76f9-preserves-the-valid-session/error-context.md
+2026-10-11T05:51:03.4862449Z 
+2026-10-11T05:51:03.4862771Z   3) tests/ui/a27-auth-boundary.spec.ts:71:5 › unavailable session API 1440 light: safe keyboard recovery without cookie deletion 
+2026-10-11T05:51:03.4863053Z 
+2026-10-11T05:51:03.4863141Z     Error: expect(locator).toBeVisible() failed
+2026-10-11T05:51:03.4863263Z 
+2026-10-11T05:51:03.4863412Z     Locator: getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4863621Z     Expected: visible
+2026-10-11T05:51:03.4863753Z     Timeout: 15000ms
+2026-10-11T05:51:03.4863899Z     Error: element(s) not found
+2026-10-11T05:51:03.4863993Z 
+2026-10-11T05:51:03.4864046Z     Call log:
+2026-10-11T05:51:03.4864487Z       - Expect "toBeVisible" getByRole('heading', { name: 'Главная', exact: true }) with timeout 15000ms
+2026-10-11T05:51:03.4865039Z       - waiting for getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4865485Z         - waiting for "http://127.0.0.1:3102/today" navigation to finish...
+2026-10-11T05:51:03.4865876Z         - navigated to "http://127.0.0.1:3102/today"
+2026-10-11T05:51:03.4866273Z         - waiting for "http://127.0.0.1:3102/finance" navigation to finish...
+2026-10-11T05:51:03.4866680Z         - navigated to "http://127.0.0.1:3102/finance"
+2026-10-11T05:51:03.4866878Z 
+2026-10-11T05:51:03.4866883Z 
+2026-10-11T05:51:03.4867156Z        99 |       await request.post(`${PROXY}/__a27/network`, { data: { unavailable: false } });
+2026-10-11T05:51:03.4867735Z       100 |       await page.keyboard.press('Enter');
+2026-10-11T05:51:03.4868127Z     > 101 |       await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+2026-10-11T05:51:03.4868440Z           |                                                                                 ^
+2026-10-11T05:51:03.4868674Z       102 |       await expect(page).not.toHaveURL(SITE);
+2026-10-11T05:51:03.4868852Z       103 |     });
+2026-10-11T05:51:03.4868973Z       104 |   }
+2026-10-11T05:51:03.4869201Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/a27-auth-boundary.spec.ts:101:81
+2026-10-11T05:51:03.4869389Z 
+2026-10-11T05:51:03.4869662Z     Error Context: tests/ui/test-results/auth/a27-auth-boundary-unavaila-95fa1-ery-without-cookie-deletion/error-context.md
+2026-10-11T05:51:03.4869949Z 
+2026-10-11T05:51:03.4870539Z   4) tests/ui/a27-auth-boundary.spec.ts:71:5 › unavailable session API 1440 dark: safe keyboard recovery without cookie deletion 
+2026-10-11T05:51:03.4870958Z 
+2026-10-11T05:51:03.4871103Z     Error: expect(locator).toBeVisible() failed
+2026-10-11T05:51:03.4871294Z 
+2026-10-11T05:51:03.4871551Z     Locator: getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4871862Z     Expected: visible
+2026-10-11T05:51:03.4872070Z     Timeout: 15000ms
+2026-10-11T05:51:03.4872301Z     Error: element(s) not found
+2026-10-11T05:51:03.4872452Z 
+2026-10-11T05:51:03.4872530Z     Call log:
+2026-10-11T05:51:03.4873018Z       - Expect "toBeVisible" getByRole('heading', { name: 'Главная', exact: true }) with timeout 15000ms
+2026-10-11T05:51:03.4873595Z       - waiting for getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4874304Z         - waiting for "http://127.0.0.1:3102/today" navigation to finish...
+2026-10-11T05:51:03.4874758Z         - navigated to "http://127.0.0.1:3102/today"
+2026-10-11T05:51:03.4875173Z         - waiting for "http://127.0.0.1:3102/finance" navigation to finish...
+2026-10-11T05:51:03.4875745Z         - navigated to "http://127.0.0.1:3102/finance"
+2026-10-11T05:51:03.4875940Z 
+2026-10-11T05:51:03.4875945Z 
+2026-10-11T05:51:03.4876117Z        99 |       await request.post(`${PROXY}/__a27/network`, { data: { unavailable: false } });
+2026-10-11T05:51:03.4876421Z       100 |       await page.keyboard.press('Enter');
+2026-10-11T05:51:03.4877011Z     > 101 |       await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+2026-10-11T05:51:03.4877757Z           |                                                                                 ^
+2026-10-11T05:51:03.4878155Z       102 |       await expect(page).not.toHaveURL(SITE);
+2026-10-11T05:51:03.4878580Z       103 |     });
+2026-10-11T05:51:03.4878760Z       104 |   }
+2026-10-11T05:51:03.4879109Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/a27-auth-boundary.spec.ts:101:81
+2026-10-11T05:51:03.4879396Z 
+2026-10-11T05:51:03.4879802Z     Error Context: tests/ui/test-results/auth/a27-auth-boundary-unavaila-c1376-ery-without-cookie-deletion/error-context.md
+2026-10-11T05:51:03.4880228Z 
+2026-10-11T05:51:03.4880712Z   5) tests/ui/a27-auth-boundary.spec.ts:71:5 › unavailable session API 390 light: safe keyboard recovery without cookie deletion 
+2026-10-11T05:51:03.4881124Z 
+2026-10-11T05:51:03.4881256Z     Error: expect(locator).toBeVisible() failed
+2026-10-11T05:51:03.4881440Z 
+2026-10-11T05:51:03.4881673Z     Locator: getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4881978Z     Expected: visible
+2026-10-11T05:51:03.4882179Z     Timeout: 15000ms
+2026-10-11T05:51:03.4882400Z     Error: element(s) not found
+2026-10-11T05:51:03.4882544Z 
+2026-10-11T05:51:03.4882619Z     Call log:
+2026-10-11T05:51:03.4883081Z       - Expect "toBeVisible" getByRole('heading', { name: 'Главная', exact: true }) with timeout 15000ms
+2026-10-11T05:51:03.4883643Z       - waiting for getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4884097Z         - waiting for "http://127.0.0.1:3102/today" navigation to finish...
+2026-10-11T05:51:03.4884482Z         - navigated to "http://127.0.0.1:3102/today"
+2026-10-11T05:51:03.4884667Z 
+2026-10-11T05:51:03.4884672Z 
+2026-10-11T05:51:03.4884917Z        99 |       await request.post(`${PROXY}/__a27/network`, { data: { unavailable: false } });
+2026-10-11T05:51:03.4885341Z       100 |       await page.keyboard.press('Enter');
+2026-10-11T05:51:03.4885879Z     > 101 |       await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+2026-10-11T05:51:03.4886359Z           |                                                                                 ^
+2026-10-11T05:51:03.4886717Z       102 |       await expect(page).not.toHaveURL(SITE);
+2026-10-11T05:51:03.4886984Z       103 |     });
+2026-10-11T05:51:03.4887172Z       104 |   }
+2026-10-11T05:51:03.4887518Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/a27-auth-boundary.spec.ts:101:81
+2026-10-11T05:51:03.4887948Z 
+2026-10-11T05:51:03.4888350Z     Error Context: tests/ui/test-results/auth/a27-auth-boundary-unavaila-54a23-ery-without-cookie-deletion/error-context.md
+2026-10-11T05:51:03.4888785Z 
+2026-10-11T05:51:03.4889280Z   6) tests/ui/a27-auth-boundary.spec.ts:71:5 › unavailable session API 390 dark: safe keyboard recovery without cookie deletion 
+2026-10-11T05:51:03.4889685Z 
+2026-10-11T05:51:03.4889814Z     Error: expect(locator).toBeVisible() failed
+2026-10-11T05:51:03.4890004Z 
+2026-10-11T05:51:03.4890231Z     Locator: getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4890535Z     Expected: visible
+2026-10-11T05:51:03.4890732Z     Timeout: 15000ms
+2026-10-11T05:51:03.4890967Z     Error: element(s) not found
+2026-10-11T05:51:03.4891108Z 
+2026-10-11T05:51:03.4891184Z     Call log:
+2026-10-11T05:51:03.4891802Z       - Expect "toBeVisible" getByRole('heading', { name: 'Главная', exact: true }) with timeout 15000ms
+2026-10-11T05:51:03.4892356Z       - waiting for getByRole('heading', { name: 'Главная', exact: true })
+2026-10-11T05:51:03.4892948Z         - waiting for "http://127.0.0.1:3102/today" navigation to finish...
+2026-10-11T05:51:03.4893320Z         - navigated to "http://127.0.0.1:3102/today"
+2026-10-11T05:51:03.4893710Z         - waiting for "http://127.0.0.1:3102/finance" navigation to finish...
+2026-10-11T05:51:03.4894095Z         - navigated to "http://127.0.0.1:3102/finance"
+2026-10-11T05:51:03.4894283Z 
+2026-10-11T05:51:03.4894288Z 
+2026-10-11T05:51:03.4894530Z        99 |       await request.post(`${PROXY}/__a27/network`, { data: { unavailable: false } });
+2026-10-11T05:51:03.4894949Z       100 |       await page.keyboard.press('Enter');
+2026-10-11T05:51:03.4895477Z     > 101 |       await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+2026-10-11T05:51:03.4895965Z           |                                                                                 ^
+2026-10-11T05:51:03.4896317Z       102 |       await expect(page).not.toHaveURL(SITE);
+2026-10-11T05:51:03.4896584Z       103 |     });
+2026-10-11T05:51:03.4896760Z       104 |   }
+2026-10-11T05:51:03.4897095Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/a27-auth-boundary.spec.ts:101:81
+2026-10-11T05:51:03.4897382Z 
+2026-10-11T05:51:03.4897884Z     Error Context: tests/ui/test-results/auth/a27-auth-boundary-unavaila-c563b-ery-without-cookie-deletion/error-context.md
+2026-10-11T05:51:03.4898320Z 
+2026-10-11T05:51:03.4898702Z   7) tests/ui/login-lock.spec.ts:40:1 › после входа рабочее место открывается, обычный выход снова закрывает доступ 
+2026-10-11T05:51:03.4899016Z 
+2026-10-11T05:51:03.4899134Z     Test timeout of 45000ms exceeded.
+2026-10-11T05:51:03.4899332Z 
+2026-10-11T05:51:03.4899500Z     Error: locator.fill: Test timeout of 45000ms exceeded.
+2026-10-11T05:51:03.4899938Z     Call log:
+2026-10-11T05:51:03.4900206Z       - waiting for getByLabel('Email', { exact: true })
+2026-10-11T05:51:03.4900618Z         - waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+2026-10-11T05:51:03.4901074Z         - navigated to "http://127.0.0.1:3002/?next=%2Ftoday#login"
+2026-10-11T05:51:03.4901298Z 
+2026-10-11T05:51:03.4901303Z 
+2026-10-11T05:51:03.4901548Z       21 | async function signIn(page: import('@playwright/test').Page): Promise<void> {
+2026-10-11T05:51:03.4901949Z       22 |   await page.goto('/login');
+2026-10-11T05:51:03.4902301Z     > 23 |   await page.getByLabel('Email', { exact: true }).fill(EMAIL);
+2026-10-11T05:51:03.4902674Z          |                                                   ^
+2026-10-11T05:51:03.4903113Z       24 |   await page.getByLabel('Пароль', { exact: true }).fill(PASSWORD);
+2026-10-11T05:51:03.4903638Z       25 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+2026-10-11T05:51:03.4904042Z       26 |   await expect(page).toHaveURL(/\/finance/);
+2026-10-11T05:51:03.4904486Z         at signIn (/home/runner/work/wetop.ai/wetop.ai/tests/ui/login-lock.spec.ts:23:51)
+2026-10-11T05:51:03.4904990Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/login-lock.spec.ts:43:3
+2026-10-11T05:51:03.4905253Z 
+2026-10-11T05:51:03.4905984Z     Error Context: tests/ui/test-results/auth/login-lock-после-входа-раб-4d0c6-ыход-снова-закрывает-доступ/error-context.md
+2026-10-11T05:51:03.4906399Z 
+2026-10-11T05:51:03.4906744Z   8) tests/ui/login-lock.spec.ts:56:1 › ссылка из письма подтверждает почту при включенном замке ───
+2026-10-11T05:51:03.4907074Z 
+2026-10-11T05:51:03.4907221Z     Error: expect(page).toHaveURL(expected) failed
+2026-10-11T05:51:03.4907421Z 
+2026-10-11T05:51:03.4907534Z     Expected pattern: /\/finance/
+2026-10-11T05:51:03.4908264Z     Received string:  "http://127.0.0.1:3102/login/verify?token=ui-verify-1"
+2026-10-11T05:51:03.4908611Z     Timeout: 15000ms
+2026-10-11T05:51:03.4908735Z 
+2026-10-11T05:51:03.4908811Z     Call log:
+2026-10-11T05:51:03.4909208Z       - Expect "toHaveURL" with timeout 15000ms
+2026-10-11T05:51:03.4909665Z         34 × locator resolved to <html lang="ru" data-theme="light">…</html>
+2026-10-11T05:51:03.4910135Z            - unexpected value "http://127.0.0.1:3102/login/verify?token=ui-verify-1"
+2026-10-11T05:51:03.4910524Z 
+2026-10-11T05:51:03.4910529Z 
+2026-10-11T05:51:03.4910607Z       67 |
+2026-10-11T05:51:03.4910872Z       68 |   await page.goto('/login/verify?token=ui-verify-1');
+2026-10-11T05:51:03.4911227Z     > 69 |   await expect(page).toHaveURL(/\/finance/);
+2026-10-11T05:51:03.4911514Z          |                      ^
+2026-10-11T05:51:03.4911965Z       70 |   await expect(page.getByRole('heading', { name: 'Обзор бизнеса' })).toBeVisible();
+2026-10-11T05:51:03.4912326Z       71 | });
+2026-10-11T05:51:03.4912505Z       72 |
+2026-10-11T05:51:03.4912820Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/login-lock.spec.ts:69:22
+2026-10-11T05:51:03.4913082Z 
+2026-10-11T05:51:03.4913533Z     Error Context: tests/ui/test-results/auth/login-lock-ссылка-из-письм-1bad1--почту-при-включенном-замке/error-context.md
+2026-10-11T05:51:03.4913908Z 
+2026-10-11T05:51:03.4913983Z   8 failed
+2026-10-11T05:51:03.4914522Z     tests/ui/a27-auth-boundary.spec.ts:23:3 › session check 403 is a safe distinct failure and preserves the valid session 
+2026-10-11T05:51:03.4915337Z     tests/ui/a27-auth-boundary.spec.ts:23:3 › session check 500 is a safe distinct failure and preserves the valid session 
+2026-10-11T05:51:03.4916167Z     tests/ui/a27-auth-boundary.spec.ts:71:5 › unavailable session API 1440 light: safe keyboard recovery without cookie deletion 
+2026-10-11T05:51:03.4917002Z     tests/ui/a27-auth-boundary.spec.ts:71:5 › unavailable session API 1440 dark: safe keyboard recovery without cookie deletion 
+2026-10-11T05:51:03.4917944Z     tests/ui/a27-auth-boundary.spec.ts:71:5 › unavailable session API 390 light: safe keyboard recovery without cookie deletion 
+2026-10-11T05:51:03.4918793Z     tests/ui/a27-auth-boundary.spec.ts:71:5 › unavailable session API 390 dark: safe keyboard recovery without cookie deletion 
+2026-10-11T05:51:03.4919528Z     tests/ui/login-lock.spec.ts:40:1 › после входа рабочее место открывается, обычный выход снова закрывает доступ 
+2026-10-11T05:51:03.4920153Z     tests/ui/login-lock.spec.ts:56:1 › ссылка из письма подтверждает почту при включенном замке ────
+2026-10-11T05:51:03.4920519Z   10 passed (2.2m)
+2026-10-11T05:51:03.5093085Z ##[error]Process completed with exit code 1.
+2026-10-11T05:51:03.5152364Z ##[group]Run actions/upload-artifact@v4
+2026-10-11T05:51:03.5152545Z with:
+2026-10-11T05:51:03.5152666Z   name: ui-auth-results
+2026-10-11T05:51:03.5152795Z   path: test-results
+2026-10-11T05:51:03.5152927Z   if-no-files-found: ignore
+2026-10-11T05:51:03.5153067Z   compression-level: 6
+2026-10-11T05:51:03.5153192Z   overwrite: false
+2026-10-11T05:51:03.5153317Z   include-hidden-files: false
+2026-10-11T05:51:03.5153480Z ##[endgroup]
+2026-10-11T05:51:03.6271949Z (node:4902) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-11T05:51:03.6272432Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-11T05:51:09.7088668Z With the provided path, there will be 85190 files uploaded
+2026-10-11T05:51:09.7089240Z Artifact name is valid!
+2026-10-11T05:51:09.7089521Z Root directory input is valid!
+2026-10-11T05:51:10.5058165Z Beginning upload of artifact content to blob storage
+2026-10-11T05:51:13.6860512Z (node:4902) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-11T05:51:14.1964085Z Uploaded bytes 8388608
+2026-10-11T05:51:14.5748631Z Uploaded bytes 16777216
+2026-10-11T05:51:15.1511728Z Uploaded bytes 25165824
+2026-10-11T05:51:16.0942764Z Uploaded bytes 33554432
+2026-10-11T05:51:16.6366406Z Uploaded bytes 41943040
+2026-10-11T05:51:17.1270616Z Uploaded bytes 50331648
+2026-10-11T05:51:17.7755290Z Uploaded bytes 58720256
+2026-10-11T05:51:18.2310079Z Uploaded bytes 67108864
+2026-10-11T05:51:18.7782745Z Uploaded bytes 75497472
+2026-10-11T05:51:19.2626686Z Uploaded bytes 83886080
+2026-10-11T05:51:19.8233920Z Uploaded bytes 92274688
+2026-10-11T05:51:20.7983832Z Uploaded bytes 100663296
+2026-10-11T05:51:21.2898635Z Uploaded bytes 109051904
+2026-10-11T05:51:21.6936708Z Uploaded bytes 117440512
+2026-10-11T05:51:22.3438326Z Uploaded bytes 125829120
+2026-10-11T05:51:23.5544012Z Uploaded bytes 134217728
+2026-10-11T05:51:24.1535982Z Uploaded bytes 142606336
+2026-10-11T05:51:24.6901351Z Uploaded bytes 150994944
+2026-10-11T05:51:25.2750693Z Uploaded bytes 159383552
+2026-10-11T05:51:27.8792827Z Uploaded bytes 167772160
+2026-10-11T05:51:28.1746458Z Uploaded bytes 176160768
+2026-10-11T05:51:29.3153134Z Uploaded bytes 184549376
+2026-10-11T05:51:29.8652162Z Uploaded bytes 192937984
+2026-10-11T05:51:30.4245479Z Uploaded bytes 201326592
+2026-10-11T05:51:33.3719345Z Uploaded bytes 209715200
+2026-10-11T05:51:34.6472003Z Uploaded bytes 218103808
+2026-10-11T05:51:35.7096956Z Uploaded bytes 226492416
+2026-10-11T05:51:38.4950616Z Uploaded bytes 234881024
+2026-10-11T05:51:39.8306393Z Uploaded bytes 243269632
+2026-10-11T05:51:40.5536581Z Uploaded bytes 251658240
+2026-10-11T05:51:41.3623634Z Uploaded bytes 260046848
+2026-10-11T05:51:42.0875561Z Uploaded bytes 268435456
+2026-10-11T05:51:43.7320617Z Uploaded bytes 276824064
+2026-10-11T05:51:45.8238372Z Uploaded bytes 285212672
+2026-10-11T05:51:46.5809103Z Uploaded bytes 293601280
+2026-10-11T05:51:48.7532442Z Uploaded bytes 301989888
+2026-10-11T05:51:49.2007509Z Uploaded bytes 310378496
+2026-10-11T05:51:49.5994123Z Uploaded bytes 318767104
+2026-10-11T05:51:50.2191265Z Uploaded bytes 327155712
+2026-10-11T05:51:50.6838751Z Uploaded bytes 335544320
+2026-10-11T05:51:53.0396520Z Uploaded bytes 343932928
+2026-10-11T05:51:53.7170277Z Uploaded bytes 352321536
+2026-10-11T05:51:54.1863054Z Uploaded bytes 360710144
+2026-10-11T05:51:54.9618197Z Uploaded bytes 369098752
+2026-10-11T05:51:55.3690485Z Uploaded bytes 377487360
+2026-10-11T05:51:55.9544552Z Uploaded bytes 385875968
+2026-10-11T05:51:56.3889839Z Uploaded bytes 394264576
+2026-10-11T05:51:56.9383499Z Uploaded bytes 402653184
+2026-10-11T05:51:57.3794236Z Uploaded bytes 411041792
+2026-10-11T05:51:57.9322329Z Uploaded bytes 419430400
+2026-10-11T05:51:58.5833008Z Uploaded bytes 427819008
+2026-10-11T05:51:59.2319523Z Uploaded bytes 436207616
+2026-10-11T05:51:59.8696805Z Uploaded bytes 444596224
+2026-10-11T05:52:00.2053310Z Uploaded bytes 452984832
+2026-10-11T05:52:00.7977779Z Uploaded bytes 461373440
+2026-10-11T05:52:01.4451672Z Uploaded bytes 469762048
+2026-10-11T05:52:02.3499774Z Uploaded bytes 478150656
+2026-10-11T05:52:02.8586784Z Uploaded bytes 486539264
+2026-10-11T05:52:03.4133476Z Uploaded bytes 494927872
+2026-10-11T05:52:04.8198921Z Uploaded bytes 503316480
+2026-10-11T05:52:05.7126024Z Uploaded bytes 511705088
+2026-10-11T05:52:06.4708071Z Uploaded bytes 520093696
+2026-10-11T05:52:07.2597389Z Uploaded bytes 528482304
+2026-10-11T05:52:07.6309518Z Uploaded bytes 536870912
+2026-10-11T05:52:09.0639686Z Uploaded bytes 545259520
+2026-10-11T05:52:10.7765150Z Uploaded bytes 553648128
+2026-10-11T05:52:11.5693794Z Uploaded bytes 562036736
+2026-10-11T05:52:12.8489828Z Uploaded bytes 570425344
+2026-10-11T05:52:14.5172838Z Uploaded bytes 578813952
+2026-10-11T05:52:15.0837757Z Uploaded bytes 587202560
+2026-10-11T05:52:15.8081849Z Uploaded bytes 595591168
+2026-10-11T05:52:16.5190501Z Uploaded bytes 603979776
+2026-10-11T05:52:17.5093836Z Uploaded bytes 612368384
+2026-10-11T05:52:18.8977779Z Uploaded bytes 620756992
+2026-10-11T05:52:19.6546482Z Uploaded bytes 629145600
+2026-10-11T05:52:21.2251141Z Uploaded bytes 637534208
+2026-10-11T05:52:21.8190595Z Uploaded bytes 645922816
+2026-10-11T05:52:22.1488415Z Uploaded bytes 654311424
+2026-10-11T05:52:22.5993816Z Uploaded bytes 662700032
+2026-10-11T05:52:23.0844016Z Uploaded bytes 671088640
+2026-10-11T05:52:24.7611253Z Uploaded bytes 679477248
+2026-10-11T05:52:24.8798103Z Uploaded bytes 686279264
+2026-10-11T05:52:24.9219942Z Finished uploading artifact content to blob storage!
+2026-10-11T05:52:24.9221927Z SHA256 digest of uploaded artifact zip is 7b3a4c3df3f949f9a0c1d95686fd415b75ba201c0a089f4191aeb30cc4b45c28
+2026-10-11T05:52:24.9223498Z Finalizing artifact upload
+2026-10-11T05:52:25.1888715Z Artifact ui-auth-results.zip successfully finalized. Artifact ID 11693388906
+2026-10-11T05:52:25.1889279Z Artifact ui-auth-results has been successfully uploaded! Final size is 686279264 bytes. Artifact ID is 11693388906
+2026-10-11T05:52:25.1892554Z Artifact download URL: https://github.com/GAIVER007/wetop.ai/actions/runs/38115688656/artifacts/11693388906
+2026-10-11T05:52:25.2699587Z Post job cleanup.
+2026-10-11T05:52:25.3216729Z [command]/usr/bin/git version
+2026-10-11T05:52:25.3248718Z git version 2.55.0
+2026-10-11T05:52:25.3273439Z Temporarily overriding HOME='/home/runner/work/_temp/10059304-6af9-402d-9253-e5ce3c6fb29b' before making global git config changes
+2026-10-11T05:52:25.3274048Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-11T05:52:25.3277098Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/wetop.ai/wetop.ai
+2026-10-11T05:52:25.3309375Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-11T05:52:25.3336208Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-11T05:52:25.3547739Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-11T05:52:25.3568525Z http.https://github.com/.extraheader
+2026-10-11T05:52:25.3584367Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-11T05:52:25.3610041Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-11T05:52:25.3813114Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T05:52:25.3843116Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-11T05:52:25.4142558Z Cleaning up orphan processes
+2026-10-11T05:52:25.4379448Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

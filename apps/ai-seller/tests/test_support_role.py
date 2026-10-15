@@ -95,7 +95,11 @@ async def test_support_role_is_plain_text(build) -> None:
 
 async def test_seller_role_keeps_hotel_tools(build) -> None:
     build("seller")
-    assert _tool_names() == SELLER_TOOLS
+    from src.ai.llm import get_cascade_client
+    client = get_cascade_client()
+    assert client._tools_getter is not None
+    registry = await client._tools_getter()
+    assert [s["function"]["name"] for s in registry.specs_for_openai()] == SELLER_TOOLS
 
 
 async def test_seller_role_keeps_the_lead_writer(build) -> None:

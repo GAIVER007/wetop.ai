@@ -1,0 +1,72 @@
+# Сквозные (e2e) · 08.10.2026 11:09 Алматы · MacBook-Air-Urij.local
+# коммит 6b601a2 (codex/mv10-vertical-ai-20261007)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1' 'tests/branches-ui/vertical-ai.spec.ts' '--grep' 'FOOD_SERVICE light 1440'
+[WebServer] (node:83817) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83914) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83981) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83985) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:84212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/branches-ui/vertical-ai.spec.ts:34:5 › MV10 FOOD_SERVICE light 1440 server binding and accessible shared agent screen (38.4s)
+
+
+  1) tests/branches-ui/vertical-ai.spec.ts:34:5 › MV10 FOOD_SERVICE light 1440 server binding and accessible shared agent screen
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('status').filter({ hasText: 'Инструкция сохранена у этого агента.' })
+    Expected: "Инструкция сохранена у этого агента."
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('status').filter({ hasText: 'Инструкция сохранена у этого агента.' }) with timeout 5000ms
+      - waiting for getByRole('status').filter({ hasText: 'Инструкция сохранена у этого агента.' })
+
+
+      50 |           await instruction.fill(text);
+      51 |           await page.getByRole('button', { name: 'Сохранить инструкцию', exact: true }).click();
+    > 52 |           await expect(page.getByRole('status').filter({ hasText: 'Инструкция сохранена у этого агента.' })).toHaveText('Инструкция сохранена у этого агента.');
+         |                                                                                                              ^
+      53 |           await page.reload();
+      54 |           await expect(page.getByRole('textbox', { name: 'Как агент должен отвечать', exact: true })).toHaveValue(text);
+      55 |         }
+        at /Users/urijzapojnov/wetop-mv10-20261007/tests/branches-ui/vertical-ai.spec.ts:52:110
+
+    Error Context: test-results/vertical-ai-MV10-FOOD-SERV-3d3e8-essible-shared-agent-screen/error-context.md
+
+    Error Context: test-results/vertical-ai-MV10-FOOD-SERV-3d3e8-essible-shared-agent-screen/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/vertical-ai-MV10-FOOD-SERV-3d3e8-essible-shared-agent-screen/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/vertical-ai-MV10-FOOD-SERV-3d3e8-essible-shared-agent-screen/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/branches-ui/vertical-ai.spec.ts:34:5 › MV10 FOOD_SERVICE light 1440 server binding and accessible shared agent screen
+
+# код выхода 1 · 1 мин 53 с

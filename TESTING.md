@@ -377,6 +377,27 @@ npm run test:record -- e2e --workers=1
 - Код журнала: `tests/tools/journal.ts` (логика, покрыта тестом), `journal-files.ts` (запись и чтение
   файлов), `git-state.ts` (только чтение git), `cli-record.ts`, `cli-status.ts`, `cli-journal.ts`.
 
+## A29: обязательные auth и изоляция основного UI (08.10.2026)
+
+Канонический auth-набор запускается отдельно и сохраняет пять требований старого
+`login-lock`, семь `unified-auth` и шесть A27 boundary сценариев. Сопоставление требований:
+`reports/a29-auth-mapping.md`. Коллекция составляет 18 тестов, пересечения с другими
+наборами не складываются как уникальное покрытие.
+
+```sh
+npm run test:record -- e2e --config tests/ui/playwright.auth.config.ts --workers=2
+npm run test:record -- e2e --config tests/ui/playwright.config.ts --workers=2
+npm run test:record -- e2e --config tests/ui/playwright.assistant.config.ts
+```
+
+Основной UI использует два независимых набора web/site/fixture API с раздельными
+синтетическими данными. Историческая рекомендация одного worker от 19.09 относится
+к прежней общей фикстуре. Текущие два worker нельзя заменять одним ради прохождения.
+Карта транспортных замен и коллекции: `reports/a29-ui-harness-map.md`.
+
+`release-checks` включает отдельный auth job и три параллельных основных UI shards,
+каждый с двумя workers. Локальная проверка этих условий и результат удалённого Actions
+учитываются отдельно. Запуск workflow требует отдельного разрешения владельца.
 ## Грабли от 10.10.2026: две сессии в одном дереве и стенды сайта
 
 - Набор `tests/site` по умолчанию живёт на порту 4320. Когда в дереве работают две сессии, чужой

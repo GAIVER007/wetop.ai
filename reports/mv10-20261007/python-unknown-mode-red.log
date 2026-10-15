@@ -1,0 +1,19 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_anonymous_unknown_provider_mode_has_no_hotel_fallback __________
+
+    async def test_anonymous_unknown_provider_mode_has_no_hotel_fallback():
+        a = dependencies.agent_id_var.set(None)
+        o = dependencies.organization_id_var.set(None)
+        try:
+            registry = await build_vertical_registry(lambda: SimpleNamespace(mode='unknown'))
+>           assert registry.names == []
+E           AssertionError: assert ['check_avail..., 'get_price'] == []
+E
+E             Left contains 2 more items, first extra item: 'check_availability'
+E             Use -v to get more diff
+
+/Users/urijzapojnov/wetop-mv10-20261007/apps/ai-seller/tests/test_vertical_tools.py:91: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_vertical_tools.py::test_anonymous_unknown_provider_mode_has_no_hotel_fallback
+1 failed, 12 deselected in 2.00s

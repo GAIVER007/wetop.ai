@@ -1,0 +1,67 @@
+# Сквозные (e2e) · 01.10.2026 20:34 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/booking-group-guests.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/booking-group-guests.spec.ts:14:1 › 3 койки: поле «Гостей на место», подсказка и сводка считают 3 гостей (3.5s)
+  ✘  2 tests/ui/booking-group-guests.spec.ts:43:1 › 2 номера по 2 гостя: сводка считает 4 гостей; телефон без горизонтальной прокрутки (1.9s)
+
+
+  1) tests/ui/booking-group-guests.spec.ts:14:1 › 3 койки: поле «Гостей на место», подсказка и сводка считают 3 гостей 
+
+    Error: locator.selectOption: options[0].label: expected string, got object
+
+      17 |   const form = page.getByTestId('new-reservation-form');
+      18 |   await expect(form.getByTestId('availability')).toContainText(/свободно/);
+    > 19 |   await form.getByLabel('Категория *', { exact: true }).selectOption({ label: /Мужской общий номер/ });
+         |                                                         ^
+      20 |   await expect(form.getByLabel('Гостей', { exact: true })).toHaveValue('1');
+      21 |   await form.getByLabel('Количество мест', { exact: true }).fill('3');
+      22 |
+        at /home/user/wetop.ai/tests/ui/booking-group-guests.spec.ts:19:57
+
+    Error Context: test-results/booking-group-guests-3-кой-96348-а-и-сводка-считают-3-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-group-guests-3-кой-96348-а-и-сводка-считают-3-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-group-guests-3-кой-96348-а-и-сводка-считают-3-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/booking-group-guests.spec.ts:43:1 › 2 номера по 2 гостя: сводка считает 4 гостей; телефон без горизонтальной прокрутки 
+
+    Error: locator.selectOption: options[0].label: expected string, got object
+
+      48 |   const form = page.getByTestId('new-reservation-form');
+      49 |   await expect(form.getByTestId('availability')).toContainText(/свободно/);
+    > 50 |   await form.getByLabel('Категория *', { exact: true }).selectOption({ label: /Двухместный номер/ });
+         |                                                         ^
+      51 |   await form.getByLabel('Гостей', { exact: true }).fill('2');
+      52 |   await form.getByLabel('Количество мест', { exact: true }).fill('2');
+      53 |   await expect(form.getByLabel('Гостей на место', { exact: true })).toHaveValue('2');
+        at /home/user/wetop.ai/tests/ui/booking-group-guests.spec.ts:50:57
+
+    Error Context: test-results/booking-group-guests-2-ном-8152f-ез-горизонтальной-прокрутки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-group-guests-2-ном-8152f-ез-горизонтальной-прокрутки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-group-guests-2-ном-8152f-ез-горизонтальной-прокрутки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/booking-group-guests.spec.ts:14:1 › 3 койки: поле «Гостей на место», подсказка и сводка считают 3 гостей 
+    tests/ui/booking-group-guests.spec.ts:43:1 › 2 номера по 2 гостя: сводка считает 4 гостей; телефон без горизонтальной прокрутки 
+
+# код выхода 1 · 29 с

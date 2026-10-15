@@ -9,7 +9,7 @@ import { mkdirSync } from 'node:fs';
  * Идёт только с SITE_SHOTS=1 (локальное снятие), в гейте пропускается. Данные поверх /__test/seed-today:
  * служебные имена заменяются псевдонимами, день досеивается записями и столами, чтобы экран выглядел рабочим.
  */
-const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '26864'}`;
 const db = createPrismaClient(process.env.DATABASE_URL, 'pms_test');
 const dir = 'apps/site/public/screens';
 

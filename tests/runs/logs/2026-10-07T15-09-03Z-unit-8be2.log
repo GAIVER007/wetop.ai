@@ -1,0 +1,42 @@
+# Модульные (unit) · 07.10.2026 20:09 Алматы · MacBook-Air-Urij.local
+# коммит b6db018 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-09-03Z-unit-8be2.json' 'apps/api/src/ai-seller/agent-vertical.test.ts' '--pool=threads' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv10-20261007
+
+ ❯ |unit| apps/api/src/ai-seller/agent-vertical.test.ts (1 test | 1 failed) 22ms
+   × agent view preserves server-resolved business vertical 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/agent-vertical.test.ts > agent view preserves server-resolved business vertical
+AssertionError: expected { id: 'biz', name: 'Салон' } to deeply equal { id: 'biz', name: 'Салон', …(1) }
+
+- Expected
++ Received
+
+  {
+    "id": "biz",
+    "name": "Салон",
+-   "vertical": "BEAUTY",
+  }
+
+ ❯ apps/api/src/ai-seller/agent-vertical.test.ts:9:28
+      7|   const repo = new PrismaBusinessAgentsRepository({ db } as any);
+      8|   const result = await repo.get('org', 'agent');
+      9|   expect(result?.business).toEqual({ id: 'biz', name: 'Салон', vertica…
+       |                            ^
+     10| });
+     11|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  19:09:06
+   Duration  2.67s (transform 66%, import 33%, tests 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-09-03Z-unit-8be2.json
+
+# код выхода 1 · 6 с

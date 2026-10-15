@@ -1,3 +1,5 @@
+import { AiSellerModule } from '../../apps/api/src/ai-seller/ai-seller.module';
+import { SELLER_CONNECTION } from '../../apps/api/src/ai-seller/seller.connection';
 /** Local synthetic identity; real Food and Beauty HTTP guards/controllers/services/database. */
 import 'reflect-metadata';
 import { HotelModule } from '../../apps/api/src/hotel/hotel.module';
@@ -89,9 +91,11 @@ for (const [name, path, method] of [
 }
 Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({
-  imports: [FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule],
+  imports: [AiSellerModule, FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule],
   controllers: [FixtureController],
 })
+  .overrideProvider(SELLER_CONNECTION)
+  .useValue({ client: () => null, config: () => ({ baseUrl: null, serviceKey: null, publicUrl: null, syncEnabled: false }) })
   .overrideProvider(PrismaService)
   .useValue(prisma)
   .compile();
@@ -514,6 +518,9 @@ app.use(
                 await tx.building.deleteMany({ where: { property: properties } });
                 await tx.accommodationType.deleteMany({ where: { property: properties } });
                 await tx.property.deleteMany({ where: properties });
+                await tx.sellerProfile.deleteMany({ where: { organizationId: org } });
+                await tx.sellerAgent.deleteMany({ where: { organizationId: org } });
+                await tx.organizationExtension.deleteMany({ where: { organizationId: org } });
                 await tx.location.deleteMany({ where: { business: b } });
                 await tx.business.deleteMany({ where: b });
                 await tx.location.deleteMany({ where: { business: { organizationId: orgB } } });
@@ -554,7 +561,7 @@ app.use(
 );
 app.useGlobalGuards(new RoleGuard(new Reflector()));
 app.useGlobalInterceptors(new AuthorInterceptor(prisma));
-await app.listen(Number(process.env.BRANCHES_UI_API_PORT ?? '55864'), '127.0.0.1');
+await app.listen(Number(process.env.BRANCHES_UI_API_PORT ?? '26864'), '127.0.0.1');
 for (const signal of ['SIGTERM', 'SIGINT'] as const)
   process.on(signal, () => {
     void app

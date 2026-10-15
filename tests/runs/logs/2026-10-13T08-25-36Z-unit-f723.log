@@ -1,0 +1,23 @@
+# Модульные (unit) · 13.10.2026 13:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 890d0a7 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 108
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-25-36Z-unit-f723.json' 'apps/web/src/app/team/session-navigation-a27.test.ts' 'apps/web/src/lib/workspace-session-a27.test.ts' 'apps/web/src/app/bar'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ✓ |unit| apps/web/src/app/bar/stock-status.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (18 tests) 32ms
+ ✓ |unit| apps/web/src/lib/workspace-session-a27.test.ts (8 tests) 960ms
+   ✓ workspace session boundary (8)
+     ✓ redirects an API 401 using the existing login contract 957ms
+ ✓ |unit| apps/web/src/app/team/session-navigation-a27.test.ts (2 tests) 1546ms
+   ✓ team navigation preserves the common session redirect 1150ms
+   ✓ a non-session API failure retains the existing safe team fallback 395ms
+
+ Test Files  4 passed (4)
+      Tests  32 passed (32)
+   Start at  01:25:39
+   Duration  1.76s (tests 86%, transform 11%, import 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T08-25-36Z-unit-f723.json
+
+# код выхода 0 · 5 с

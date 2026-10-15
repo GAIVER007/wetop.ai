@@ -1,0 +1,30 @@
+# Модульные (unit) · 07.10.2026 20:00 Алматы · MacBook-Air-Urij.local
+# коммит b6db018 (codex/mv10-vertical-ai-20261007), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-00-37Z-unit-7b40.json' 'apps/api/src/ai-seller/vertical-tools.test.ts' '--pool=threads' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv10-20261007
+
+ ❯ |unit| apps/api/src/ai-seller/vertical-tools.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/vertical-tools.test.ts [ apps/api/src/ai-seller/vertical-tools.test.ts ]
+Error: Cannot find module './vertical-tools.service' imported from /Users/urijzapojnov/wetop-mv10-20261007/apps/api/src/ai-seller/vertical-tools.test.ts
+ ❯ apps/api/src/ai-seller/vertical-tools.test.ts:2:1
+      1| import { beforeEach, expect, it, vi } from 'vitest';
+      2| import { VerticalToolsService } from './vertical-tools.service';
+       | ^
+      3| const id = '11111111-1111-4111-8111-111111111111';
+      4| let agent: any;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  19:00:55
+   Duration  1.10s (worker 94%, environment 6%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-00-37Z-unit-7b40.json
+
+# код выхода 1 · 19 с

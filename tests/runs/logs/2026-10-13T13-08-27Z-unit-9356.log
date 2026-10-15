@@ -1,0 +1,31 @@
+# Модульные (unit) · 13.10.2026 18:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4448190 (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-08-27Z-unit-9356.json' 'tests/unit/bar-replay-conflict-fixes.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-fix
+
+ ❯ |unit| tests/unit/bar-replay-conflict-fixes.test.ts (3 tests | 1 failed) 2ms
+   ❯ D-KEY exact unique-conflict handling after transaction rollback (3)
+     × rereads a committed same-key operation through a fresh scoped transaction 1ms
+     ✓ does not mask a different database error 1ms
+     ✓ does not mask a different database error 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/bar-replay-conflict-fixes.test.ts > D-KEY exact unique-conflict handling after transaction rollback > rereads a committed same-key operation through a fresh scoped transaction
+{
+  code: 'P2002',
+  meta: { driverAdapterError: { cause: [Object] } },
+  stacks: []
+}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  06:08:29
+   Duration  1.13s (transform 57%, import 42%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-08-27Z-unit-9356.json
+
+# код выхода 1 · 4 с

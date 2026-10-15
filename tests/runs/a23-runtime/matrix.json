@@ -1,0 +1,317 @@
+[
+  {
+    "id": "D-KEY distinct keys allow independent legitimate sales",
+    "status": "PASS",
+    "source": "Approved D-KEY; wording clarification for TZ2.4",
+    "observations": [
+      0,
+      9
+    ]
+  },
+  {
+    "id": "SHIFT / A3-1: independently reconciled KZT shift",
+    "status": "PASS",
+    "source": "TZ2.2 §7; Q-BAR-1/4/5; DATA_MODEL §27",
+    "observations": [
+      10,
+      44
+    ]
+  },
+  {
+    "id": "A3-2 new currency writes and Folio mismatch reject atomically",
+    "status": "PASS",
+    "source": "Approved D-CUR; old observation A3 accepted foreign receipts",
+    "observations": [
+      45,
+      57
+    ]
+  },
+  {
+    "id": "A3-3 legacy mixed documents and drafts are guarded",
+    "status": "PASS",
+    "source": "Approved D-CUR; LEGACY_ONLY synthetic fixtures",
+    "observations": [
+      58,
+      81
+    ]
+  },
+  {
+    "id": "A3-3 same-product mixed lots block ambiguous cost paths",
+    "status": "PASS",
+    "source": "Approved D-CUR; LEGACY_ONLY synthetic fixtures",
+    "observations": [
+      82,
+      98
+    ]
+  },
+  {
+    "id": "A3-5: own scope excludes a different property and currency",
+    "status": "PASS",
+    "source": "DATA_MODEL BAR property boundary; narrow scope control",
+    "observations": [
+      99,
+      115
+    ]
+  },
+  {
+    "id": "A3-4 foreign property retail: sale currency follows its actual property",
+    "status": "PASS",
+    "source": "DATA_MODEL §21 cash currency; USD Property fixture permitted by schema",
+    "observations": [
+      116,
+      128
+    ]
+  },
+  {
+    "id": "D-CUR legacy cash sources never produce a false scalar total",
+    "status": "PASS",
+    "source": "Approved D-CUR existing historical settlement guard",
+    "observations": [
+      129,
+      140
+    ]
+  },
+  {
+    "id": "A3-6: malformed currency rejected atomically; cross-currency rejection branch recorded",
+    "status": "PASS",
+    "source": "service currency syntax and approved currency gap",
+    "observations": [
+      141,
+      148
+    ]
+  },
+  {
+    "id": "M1: repeated and concurrent receipt posting has one effective posting",
+    "status": "PASS",
+    "source": "DATA_MODEL §27 immutable posted receipt",
+    "observations": [
+      149,
+      162
+    ]
+  },
+  {
+    "id": "M2 sequential: identical retail replay has one cash and stock effect",
+    "status": "PASS",
+    "source": "bar idempotency key contract and DATA_MODEL §27",
+    "observations": [
+      163,
+      173
+    ]
+  },
+  {
+    "id": "M2 concurrent: same-key copies replay the one source without a 500",
+    "status": "PASS",
+    "source": "idempotent sequential response and atomic sale/cash",
+    "observations": [
+      174,
+      185
+    ]
+  },
+  {
+    "id": "M2 payload identity: product, quantity, method and retail/Folio reuse",
+    "status": "PASS",
+    "source": "TZ2.2 M2; no approved mismatch HTTP status",
+    "observations": [
+      186,
+      210
+    ]
+  },
+  {
+    "id": "D-KEY Folio identical and changed concurrent replays",
+    "status": "PASS",
+    "source": "Approved D-KEY",
+    "observations": [
+      211,
+      232
+    ]
+  },
+  {
+    "id": "M3: replay after reversal reports the persisted terminal status",
+    "status": "PASS",
+    "source": "truthful status and no repeated monetary effect",
+    "observations": [
+      233,
+      244
+    ]
+  },
+  {
+    "id": "M4 retail/retail: controlled race cannot oversell last unit",
+    "status": "PASS",
+    "source": "Q-BAR-8; DATA_MODEL §27 atomics",
+    "observations": [
+      245,
+      255
+    ]
+  },
+  {
+    "id": "M4 retail/writeoff: controlled shared stock race is atomic",
+    "status": "PASS",
+    "source": "Q-BAR-8; Q-BAR-1",
+    "observations": [
+      256,
+      266
+    ]
+  },
+  {
+    "id": "M5: partial payments, overpayment and concurrent debt limit",
+    "status": "PASS",
+    "source": "Q-BAR-4; amount and one cash source per payment",
+    "observations": [
+      267,
+      283
+    ]
+  },
+  {
+    "id": "M5 cash void: supplier debt agrees with surviving settlement",
+    "status": "PASS",
+    "source": "DATA_MODEL §21 VOIDED cash; Q-BAR-4 supplier debt",
+    "observations": [
+      284,
+      306
+    ]
+  },
+  {
+    "id": "M6: payment replay has no operation identity contract",
+    "status": "DESIGN_GAP",
+    "source": "Q-BAR-4; TZ2.2 M6 explicitly distinguishes legal partial payments",
+    "observations": [
+      307,
+      317
+    ]
+  },
+  {
+    "id": "M7: Folio Charge, real guest payment, no duplicate cash/sale",
+    "status": "PASS",
+    "source": "DATA_MODEL §§6/21; Q-BAR-5",
+    "observations": [
+      318,
+      331
+    ]
+  },
+  {
+    "id": "M7: closed/foreign Folio rejected atomically; payment currency mismatch",
+    "status": "PASS",
+    "source": "DATA_MODEL §6 and existing openFolio contract",
+    "observations": [
+      332,
+      346
+    ]
+  },
+  {
+    "id": "M8: retail return restocks original lots and repeats have no effect",
+    "status": "PASS",
+    "source": "DATA_MODEL §27 snapshot costs and sale return",
+    "observations": [
+      347,
+      359
+    ]
+  },
+  {
+    "id": "M9: return without restock keeps depletion; cost accounting gap explicit",
+    "status": "DESIGN_GAP",
+    "source": "plan §5 physical restock flag; TZ2.2 M9",
+    "observations": [
+      360,
+      372
+    ]
+  },
+  {
+    "id": "M10: unpaid Folio reversal cancels Charge without fictitious refund",
+    "status": "PASS",
+    "source": "DATA_MODEL §6 Charge and Refund are separate",
+    "observations": [
+      373,
+      382
+    ]
+  },
+  {
+    "id": "M10: paid Folio reversal and explicit Refund remain distinct",
+    "status": "PASS",
+    "source": "DATA_MODEL §6 Payment/Allocation/Refund balance",
+    "observations": [
+      383,
+      398
+    ]
+  },
+  {
+    "id": "M11: controlled real DB constraint failure after cash creation rolls back",
+    "status": "PASS",
+    "source": "TZ2.3 equivalent rollback; temporary check in own test schema only",
+    "observations": [
+      399,
+      409
+    ]
+  },
+  {
+    "id": "N1: price preview, persisted receipt calculatedPrice and posted salePrice",
+    "status": "PASS",
+    "source": "Q-BAR-2, ten-tenge ceiling in KZT only",
+    "observations": [
+      410,
+      425
+    ]
+  },
+  {
+    "id": "N2: category default, product override, line override and zero markup",
+    "status": "PASS",
+    "source": "Q-BAR-3; receipt-form.tsx inheritance contract and explicit API line",
+    "observations": [
+      426,
+      449
+    ]
+  },
+  {
+    "id": "N3 quantities/UUID: invalid inputs rejected with zero partial effect",
+    "status": "PASS",
+    "source": "integer/bigint fields and service validators",
+    "observations": [
+      450,
+      469
+    ]
+  },
+  {
+    "id": "N3 calendar: both dates exist and preserve calendar day",
+    "status": "PASS",
+    "source": "TZ2.3 dates",
+    "observations": [
+      470,
+      508
+    ]
+  },
+  {
+    "id": "N3 integer/bigint bounds: schema-invalid values do not become unhandled 500",
+    "status": "PASS",
+    "source": "native Int32/Int64 boundaries, no invented limits",
+    "observations": [
+      509,
+      523
+    ]
+  },
+  {
+    "id": "N3 exact bigint: valid money above JS safe integer persists exactly",
+    "status": "PASS",
+    "source": "DATA_MODEL §27 integer money; Postgres bigint range",
+    "observations": [
+      524,
+      529
+    ]
+  },
+  {
+    "id": "N4/5: writeoff FIFO, inventory shortage, no-op and denied surplus",
+    "status": "PASS",
+    "source": "Q-BAR-1/8/9; audit/physical ledger DATA_MODEL §27",
+    "observations": [
+      530,
+      546
+    ]
+  },
+  {
+    "id": "N6: archived product rejected; category/supplier historical boundary explicit",
+    "status": "DESIGN_GAP",
+    "source": "existing active contract without inventing historical restrictions",
+    "observations": [
+      547,
+      565
+    ]
+  }
+]

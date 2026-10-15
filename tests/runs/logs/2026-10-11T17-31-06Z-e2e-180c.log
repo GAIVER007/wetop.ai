@@ -1,0 +1,44 @@
+# Сквозные (e2e) · 11.10.2026 22:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит af75f8a (claude/a28-money-port-2026-10-10), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=2' 'tests/ui/theme-transition.spec.ts' 'tests/ui/bar.spec.ts' 'tests/ui/accessibility.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 22 tests using 2 workers
+
+  ✓   2 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные (2.5s)
+  ✓   3 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:74:1 › быстрая продажа одной строкой и фильтры доски (2.2s)
+  ✓   4 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:98:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (3.0s)
+  ✓   5 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:131:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (1.9s)
+  ✓   6 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (2.0s)
+  ✓   7 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:162:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.7s)
+  ✓   8 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:173:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (5.5s)
+  ✓   9 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:202:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.9s)
+  ✓  10 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:214:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (8.8s)
+  ✓  11 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:238:1 › операции: списание с причиной, журнал продаж и лента движений (4.2s)
+  ✓  12 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:252:3 › доступность и телефон: light (6.7s)
+  ✓  13 [main-ui-1] › ../.wetop-main-ui-GBl3c1/worker-1/tests/ui/bar.spec.ts:252:3 › доступность и телефон: dark (5.7s)
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 1440px (1.7m)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 1440px (42.0s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 390px (39.6s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 390px (42.1s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 1440px (5.8s)
+  ✓  18 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 1440px (3.8s)
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: light, 390px (3.8s)
+  ✓  20 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/accessibility.spec.ts:129:5 › доступность открытых форм и drawer: dark, 390px (3.6s)
+  ✓  21 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/theme-transition.spec.ts:11:1 › после смены темы тема применена и переходов цвета в полёте нет (1.7s)
+  ✓  22 [main-ui-0] › ../.wetop-main-ui-GBl3c1/worker-0/tests/ui/theme-transition.spec.ts:30:1 › axe замеряет после конца анимаций на странице (1.7s)
+
+  22 passed (4.4m)
+
+# код выхода 0 · 4 мин 25 с

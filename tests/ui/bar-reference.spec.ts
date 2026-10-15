@@ -1,4 +1,4 @@
-import {test,expect,FIXTURE_API} from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 for(const width of [1333,390]) test(`bar reference layout ${width}`,async({page})=>{
  await page.setViewportSize({width,height:973}); await page.goto('/bar');
  const main=page.getByRole('main').filter({visible:true});

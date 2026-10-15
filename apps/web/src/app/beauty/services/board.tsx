@@ -1,10 +1,11 @@
 'use client';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { parseBeautyServiceInput, parseLocationServiceInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
 import { Alert, Badge, Button, Field, Input, Select, Table } from '../../../components/ui';
 import { formatMoney } from '../../../lib/money';
 import type { BeautyServiceRow } from '../../../lib/api';
+import { pendingCreation, useCreationKey } from '../creation-key';
 import { saveBeautyService, saveLocationService } from '../actions';
 
 /**
@@ -24,12 +25,19 @@ export function ServicesBoard({
   items,
   locationCurrency,
   canEdit,
+  scopeKey = '',
 }: {
   items: BeautyServiceRow[];
   locationCurrency: string | null;
   canEdit: boolean;
+  scopeKey?: string;
 }) {
   const [editing, setEditing] = useState<Editing>(null);
+  useEffect(() => {
+    const id = pendingCreation(scopeKey, 'service');
+    const row = items.find((item) => item.id === id);
+    if (row) setEditing({ mode: 'edit', row });
+  }, [scopeKey, items]);
   return (
     <>
       <div className="beauty-bar">
@@ -119,6 +127,7 @@ export function ServicesBoard({
             key={editing.mode === 'edit' ? editing.row.id : 'new'}
             row={editing.mode === 'edit' ? editing.row : null}
             locationCurrency={locationCurrency}
+            scopeKey={scopeKey}
           />
         )}
       </Overlay>
@@ -129,10 +138,13 @@ export function ServicesBoard({
 function ServiceForm({
   row,
   locationCurrency,
+  scopeKey,
 }: {
+  scopeKey: string;
   row: BeautyServiceRow | null;
   locationCurrency: string | null;
 }) {
+  const creation = useCreationKey(scopeKey, 'service', Boolean(row));
   const [state, action, pending] = useActionState(saveBeautyService, null);
   const [locationState, locationAction, locationPending] = useActionState(
     saveLocationService,
@@ -141,12 +153,38 @@ function ServiceForm({
   // Проверяем тем же разбором, что API (SET3 делает так же): иначе серверное действие сбросило бы форму
   const [error, setError] = useState<string | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [original, setOriginal] = useState({
+    name: row?.name ?? '',
+    category: row?.category ?? '',
+    durationMinutes: String(row?.durationMinutes ?? 60),
+    priceMinor: row?.priceMinor ?? '0',
+    currency: row?.currency ?? locationCurrency ?? 'KZT',
+    active: row?.active ?? true,
+  });
+  const [draft, setDraft] = useState(original);
+  const submittedDraft = useRef(original);
+  useEffect(() => {
+    if (state?.message && !state.error) setOriginal(submittedDraft.current);
+  }, [state]);
+  const [local, setLocal] = useState({
+    enabled: row?.location?.enabled ?? false,
+    priceOverrideMinor: row?.location?.priceOverrideMinor ?? '',
+    durationOverrideMinutes:
+      row?.location?.durationOverrideMinutes == null
+        ? ''
+        : String(row.location.durationOverrideMinutes),
+  });
+  const resourceId = row?.id ?? state?.resourceId;
+  useEffect(() => {
+    if (locationState?.message) creation.clear();
+  }, [locationState?.message]);
   return (
     <>
       <form
         action={action}
         className="beauty-form"
         onSubmit={(event) => {
+          submittedDraft.current = { ...draft };
           const data = new FormData(event.currentTarget);
           const parsed = parseBeautyServiceInput({
             name: String(data.get('name') ?? ''),
@@ -165,8 +203,27 @@ function ServiceForm({
         }}
       >
         <input type="hidden" name="id" value={row?.id ?? ''} />
+        <input type="hidden" name="scopeKey" value={scopeKey} />
+        {row && (
+          <input
+            type="hidden"
+            name="changedFields"
+            value={JSON.stringify(
+              (Object.keys(draft) as Array<keyof typeof draft>).filter(
+                (key) => draft[key] !== original[key],
+              ),
+            )}
+          />
+        )}
+        {!row && <input type="hidden" name="creationId" value={creation.id} />}
         <Field label="Название">
-          <Input name="name" required maxLength={200} defaultValue={row?.name ?? ''} />
+          <Input
+            name="name"
+            required
+            maxLength={200}
+            value={draft.name}
+            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+          />
         </Field>
         <Field
           label={
@@ -175,14 +232,20 @@ function ServiceForm({
             </span>
           }
         >
-          <Input name="category" maxLength={100} defaultValue={row?.category ?? ''} />
+          <Input
+            name="category"
+            maxLength={100}
+            value={draft.category}
+            onChange={(e) => setDraft({ ...draft, category: e.target.value })}
+          />
         </Field>
         <Field label="Длительность, минут">
           <Input
             name="durationMinutes"
             inputMode="numeric"
             required
-            defaultValue={String(row?.durationMinutes ?? 60)}
+            value={draft.durationMinutes}
+            onChange={(e) => setDraft({ ...draft, durationMinutes: e.target.value })}
           />
         </Field>
         <Field
@@ -197,27 +260,41 @@ function ServiceForm({
             name="priceMinor"
             inputMode="numeric"
             required
-            defaultValue={row?.priceMinor ?? '0'}
+            value={draft.priceMinor}
+            onChange={(e) => setDraft({ ...draft, priceMinor: e.target.value })}
           />
         </Field>
         <Field label="Валюта цены каталога">
-          <Select name="currency" defaultValue={row?.currency ?? locationCurrency ?? 'KZT'}>
-            {['KZT', 'RUB', 'USD', 'EUR', 'UZS', 'GEL', 'AED'].map((code) => (
+          <Select
+            name="currency"
+            value={draft.currency}
+            onChange={(e) => setDraft({ ...draft, currency: e.target.value })}
+          >
+            {Array.from(
+              new Set([draft.currency, ...['KZT', 'RUB', 'USD', 'EUR', 'UZS', 'GEL', 'AED']]),
+            ).map((code) => (
               <option key={code}>{code}</option>
             ))}
           </Select>
         </Field>
         <label className="beauty-check">
-          <input type="checkbox" name="active" defaultChecked={row?.active ?? true} />
+          <input
+            type="checkbox"
+            name="active"
+            checked={draft.active}
+            onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
+          />
           Услуга активна
         </label>
-        {(error ?? state?.error) && <Alert>{error ?? state?.error}</Alert>}
+        {(creation.error || error || state?.error) && (
+          <Alert>{creation.error || error || state?.error}</Alert>
+        )}
         {!error && state?.message && <p role="status">{state.message}</p>}
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || (!row && !creation.id)}>
           {pending ? 'Сохраняем…' : 'Сохранить услугу'}
         </Button>
       </form>
-      {row && (
+      {resourceId && (
         <form
           action={locationAction}
           className="beauty-form"
@@ -237,9 +314,15 @@ function ServiceForm({
           }}
         >
           <h3>В этом филиале</h3>
-          <input type="hidden" name="id" value={row.id} />
+          <input type="hidden" name="id" value={resourceId} />
+          <input type="hidden" name="scopeKey" value={scopeKey} />
           <label className="beauty-check">
-            <input type="checkbox" name="enabled" defaultChecked={row.location?.enabled ?? false} />
+            <input
+              type="checkbox"
+              name="enabled"
+              checked={local.enabled}
+              onChange={(e) => setLocal({ ...local, enabled: e.target.checked })}
+            />
             Филиал оказывает эту услугу
           </label>
           <Field
@@ -253,7 +336,8 @@ function ServiceForm({
             <Input
               name="priceOverrideMinor"
               inputMode="numeric"
-              defaultValue={row.location?.priceOverrideMinor ?? ''}
+              value={local.priceOverrideMinor}
+              onChange={(e) => setLocal({ ...local, priceOverrideMinor: e.target.value })}
             />
           </Field>
           <Field
@@ -267,12 +351,8 @@ function ServiceForm({
             <Input
               name="durationOverrideMinutes"
               inputMode="numeric"
-              defaultValue={
-                row.location?.durationOverrideMinutes === null ||
-                row.location?.durationOverrideMinutes === undefined
-                  ? ''
-                  : String(row.location.durationOverrideMinutes)
-              }
+              value={local.durationOverrideMinutes}
+              onChange={(e) => setLocal({ ...local, durationOverrideMinutes: e.target.value })}
             />
           </Field>
           {(locationError ?? locationState?.error) && (

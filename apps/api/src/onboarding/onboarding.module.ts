@@ -31,6 +31,7 @@ import {
   currentUserId,
   hasSignedInActor,
 } from '../auth/request-context';
+import { readBeautyReadiness } from './beauty-readiness';
 import { PrismaService } from '../database/prisma.provider';
 
 type SharedDraft = {
@@ -117,6 +118,17 @@ export class SharedOnboardingService {
     const saved = await this.prisma.db.onboardingProgress.findUnique({
       where: { locationId: location.id },
     });
+    if (flow.vertical === 'BEAUTY') {
+      return this.prisma.db.$transaction(
+        async (tx) => {
+          await tx.$queryRaw`SELECT id FROM organizations WHERE id = ${currentOrganizationId()}::uuid FOR SHARE`;
+          await tx.$queryRaw`SELECT id FROM businesses WHERE id = ${location.businessId}::uuid FOR SHARE`;
+          await tx.$queryRaw`SELECT id FROM locations WHERE id = ${location.id}::uuid FOR SHARE`;
+          return this.beautyStatus(tx);
+        },
+        { maxWait: 5000, timeout: 10000 },
+      );
+    }
     if (saved && saved.flowVersion !== flow.version)
       throw new ConflictException('Версия настройки изменилась. Обратитесь к команде WETOP.');
     return {
@@ -156,7 +168,7 @@ export class SharedOnboardingService {
     if (!body || Object.keys(body).some((key) => !['action', 'draft', 'updatedAt'].includes(key)))
       throw new BadRequestException('Неизвестное поле запроса');
     const action = body.action;
-    if (!['save', 'next', 'back', 'complete'].includes(String(action)))
+    if (!['save', 'next', 'back', 'complete', 'apply-profile'].includes(String(action)))
       throw new BadRequestException('Неизвестное действие');
     const location = await this.context();
     if (
@@ -167,6 +179,9 @@ export class SharedOnboardingService {
       )
     )
       throw new ForbiddenException('Организация доступна только для чтения');
+    if (location.business.vertical === 'BEAUTY') return this.saveBeauty(body);
+    if (action === 'apply-profile')
+      throw new BadRequestException('Действие недоступно для этого направления');
     await this.prisma.db.$transaction(async (tx) => {
       // Serialize progress updates, including first insert. Recheck ownership inside the transaction.
       await tx.$executeRaw`SELECT 1 FROM locations WHERE id = ${location.id}::uuid FOR UPDATE`;
@@ -283,6 +298,206 @@ export class SharedOnboardingService {
       });
     });
     return this.status();
+  }
+  private async beautyStatus(db: DbTx) {
+    const location = await this.context(db);
+    const saved = await db.onboardingProgress.findUnique({ where: { locationId: location.id } });
+    if (saved && ![1, 2].includes(saved.flowVersion))
+      throw new ConflictException('Версия настройки не поддерживается. Обновите приложение.');
+    const persisted = (saved?.draft ?? {}) as Record<string, unknown>;
+    const actual = {
+      businessName: location.business.name,
+      locationName: location.name,
+      timezone: location.timezone,
+      currency: location.currency,
+    };
+    const configured = await readBeautyReadiness(
+      db,
+      location.businessId,
+      location.id,
+      location.currency,
+      true,
+    );
+    let validProfile = true;
+    try {
+      validateShared(actual);
+    } catch {
+      validProfile = false;
+    }
+    const profileApplied =
+      validProfile &&
+      (saved?.flowVersion === 2
+        ? persisted.profileApplied === true
+        : Boolean(saved?.completedAt) || configured.ready);
+    const completedFlowVersion =
+      saved?.flowVersion === 2 && persisted.completedFlowVersion === 2
+        ? 2
+        : saved?.completedAt
+          ? 1
+          : null;
+    const draft = Object.fromEntries(
+      FIELDS.map((key) => [
+        key,
+        typeof persisted[key] === 'string' && !profileApplied ? persisted[key] : actual[key],
+      ]),
+    );
+    const readiness = { ...configured, ready: profileApplied && configured.ready };
+    const currentStep = !profileApplied
+      ? !saved || saved.currentStep === 'welcome'
+        ? 'welcome'
+        : 'profile'
+      : (readiness.steps.find((step) => !step.done)?.id ?? 'review');
+    const writable = canWrite(
+      location.business.organization.status,
+      location.business.organization.trialEndsAt,
+      new Date(),
+    );
+    return {
+      vertical: 'BEAUTY' as const,
+      businessId: location.businessId,
+      locationId: location.id,
+      flowVersion: 2,
+      storedFlowVersion: saved?.flowVersion ?? null,
+      currentStep,
+      draft,
+      profileApplied,
+      completedFlowVersion,
+      readiness,
+      completedAt: saved?.completedAt?.toISOString() ?? null,
+      updatedAt: saved?.updatedAt.toISOString() ?? null,
+      canEdit: actorMay('settings') && writable,
+      permissions: {
+        profile: actorMay('settings') && writable,
+        complete: actorMay('settings') && writable,
+        services: actorMay('rates') && writable,
+        masters: actorMay('property') && writable,
+        skills: actorMay('property') && writable,
+        schedule: actorMay('property') && writable,
+      },
+    };
+  }
+  private async saveBeauty(body: Record<string, unknown>) {
+    return this.prisma.db.$transaction(
+      async (tx) => {
+        // Same order as every Beauty mutation. The business lock covers catalogue and all child writes.
+        await tx.$queryRaw`SELECT id FROM organizations WHERE id = ${currentOrganizationId()}::uuid FOR SHARE`;
+        await tx.$queryRaw`SELECT id FROM businesses WHERE id = ${currentBusinessId()}::uuid FOR UPDATE`;
+        await tx.$queryRaw`SELECT id FROM locations WHERE id = ${currentLocationId()}::uuid FOR UPDATE`;
+        const location = await this.context(tx);
+        if (location.business.vertical !== 'BEAUTY' || !actorMay('settings'))
+          throw new ForbiddenException('Настройка недоступна');
+        if (
+          !canWrite(
+            location.business.organization.status,
+            location.business.organization.trialEndsAt,
+            new Date(),
+          )
+        )
+          throw new ForbiddenException('Организация доступна только для чтения');
+        const state = await this.beautyStatus(tx);
+        if (state.updatedAt !== (body.updatedAt ?? null))
+          throw new ConflictException(
+            'Настройка изменена в другом окне. Сравните данные перед сохранением.',
+          );
+        const saved = await tx.onboardingProgress.findUnique({
+          where: { locationId: location.id },
+        });
+        const values = sharedDraft(body.draft);
+        let profileApplied = state.profileApplied;
+        let completedFlowVersion = state.completedFlowVersion;
+        let currentStep = state.currentStep;
+        if (body.action === 'complete') {
+          if (!state.readiness.ready)
+            throw new ConflictException(
+              'Салон ещё не готов. Завершите связанные услуги, мастера и график.',
+            );
+          if (state.completedFlowVersion === 2) return state;
+          completedFlowVersion = 2;
+          currentStep = 'review';
+          await tx.auditLog.create({
+            data: {
+              organizationId: currentOrganizationId(),
+              userId: currentUserId(),
+              entityType: 'Location',
+              entityId: location.id,
+              action: 'onboarding.beauty.complete',
+              after: { flowVersion: 2, chain: state.readiness.chain },
+            },
+          });
+        } else if (body.action === 'apply-profile') {
+          validateShared(values);
+          if (values.currency !== location.currency || values.timezone !== location.timezone) {
+            const used = await tx.location.findUnique({
+              where: { id: location.id },
+              select: {
+                property: { select: { id: true } },
+                _count: {
+                  select: {
+                    services: true,
+                    appointments: true,
+                    workingHours: true,
+                    employees: true,
+                  },
+                },
+              },
+            });
+            if (used?.property || Object.values(used?._count ?? {}).some((n) => n > 0))
+              throw new ConflictException(
+                'В филиале уже есть рабочие данные. Валюта и часовой пояс не изменены.',
+              );
+          }
+          if (values.businessName !== location.business.name)
+            await tx.business.update({
+              where: { id: location.businessId },
+              data: { name: values.businessName },
+            });
+          if (
+            values.locationName !== location.name ||
+            values.currency !== location.currency ||
+            values.timezone !== location.timezone
+          )
+            await tx.location.update({
+              where: { id: location.id },
+              data: {
+                name: values.locationName,
+                currency: values.currency,
+                timezone: values.timezone,
+              },
+            });
+          await tx.auditLog.create({
+            data: {
+              organizationId: currentOrganizationId(),
+              userId: currentUserId(),
+              entityType: 'Location',
+              entityId: location.id,
+              action: 'onboarding.beauty.profile',
+              after: { ...values, flowVersion: 2 },
+            },
+          });
+          profileApplied = true;
+          currentStep = 'services';
+        } else if (body.action === 'next' && currentStep === 'welcome') currentStep = 'profile';
+        else if (body.action === 'back' && !profileApplied) currentStep = 'welcome';
+        const metadata = {
+          profileApplied,
+          ...(completedFlowVersion ? { completedFlowVersion } : {}),
+        };
+        const data = {
+          flowVersion: 2,
+          currentStep,
+          draft: { ...values, ...metadata },
+          updatedAt: new Date(Math.max(Date.now(), (saved?.updatedAt.getTime() ?? 0) + 1)),
+          completedAt: saved?.completedAt ?? (body.action === 'complete' ? new Date() : null),
+        };
+        await tx.onboardingProgress.upsert({
+          where: { locationId: location.id },
+          create: { locationId: location.id, ...data },
+          update: data,
+        });
+        return this.beautyStatus(tx);
+      },
+      { maxWait: 5000, timeout: 10000 },
+    );
   }
 }
 @Access('self')

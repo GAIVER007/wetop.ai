@@ -104,10 +104,12 @@ test('мастер добавляется, умения ставятся и сн
   await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
+  await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
   await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
   await panel.getByRole('checkbox', { name: 'Стрижка' }).check();
-  await panel.getByRole('button', { name: 'Сохранить мастера', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Мастер добавлен');
+  await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
   await page.goto('/beauty/masters');
   // карточки вместо таблицы (ТЗ салона 09.10.2026): умения и филиалы остаются на виду
   const row = main.getByRole('listitem').filter({ hasText: 'Дина' });
@@ -122,10 +124,10 @@ test('мастер добавляется, умения ставятся и сн
   // снятая галочка должна сниматься, а не копиться
   await row.getByRole('button', { name: 'Открыть' }).click();
   const edit = page.getByRole('dialog');
-  await edit.getByRole('button', { name: 'Услуги', exact: true }).click();
+  await edit.getByRole('tab', { name: 'Услуги', exact: true }).click();
   await edit.getByRole('checkbox', { name: 'Стрижка' }).uncheck();
-  await edit.getByRole('button', { name: 'Сохранить мастера', exact: true }).click();
-  await expect(edit.getByRole('status')).toContainText('Мастер сохранён');
+  await edit.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(edit.getByRole('status')).toContainText('Услуги назначены');
   await page.goto('/beauty/masters');
   await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).toContainText('Маникюр');
   await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).not.toContainText(

@@ -19,6 +19,7 @@ export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 export interface BeautyScope {
   organizationId: string;
   businessId: string;
+  businessName?: string;
   /** Филиал из указателя запроса; его нет при просмотре каталога бизнеса */
   locationId: string | null;
   locationName: string | null;
@@ -49,7 +50,7 @@ export async function beautyScope(
       status: 'ACTIVE',
       id: pointed,
     },
-    select: { id: true },
+    select: { id: true, name: true },
   });
   if (!business) throw new NotFoundException('Салон в этой организации не настроен');
 
@@ -67,6 +68,7 @@ export async function beautyScope(
   return {
     organizationId,
     businessId: business.id,
+    ...(typeof business.name === 'string' ? {businessName:business.name} : {}),
     locationId: location?.id ?? null,
     locationName: location?.name ?? null,
     locationCurrency: location?.currency ?? null,
@@ -97,16 +99,21 @@ export async function beautyTransaction<T>(
   fn: (tx: DbTx) => Promise<T>,
 ): Promise<T> {
   try {
-    return await prisma.db.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT id FROM organizations WHERE id = ${scope.organizationId}::uuid FOR SHARE`;
-      await tx.$queryRaw`SELECT id FROM businesses WHERE id = ${scope.businessId}::uuid FOR SHARE`;
-      if (scope.locationId)
-        await tx.$queryRaw`SELECT id FROM locations WHERE id = ${scope.locationId}::uuid FOR SHARE`;
-      await assertWritable(tx);
-      await beautyScope({ db: tx }, scope.locationId !== null);
-      return fn(tx);
-    });
+    return await prisma.db.$transaction(
+      async (tx) => {
+        await tx.$queryRaw`SELECT id FROM organizations WHERE id = ${scope.organizationId}::uuid FOR SHARE`;
+        await tx.$queryRaw`SELECT id FROM businesses WHERE id = ${scope.businessId}::uuid FOR UPDATE`;
+        if (scope.locationId)
+          await tx.$queryRaw`SELECT id FROM locations WHERE id = ${scope.locationId}::uuid FOR UPDATE`;
+        await assertWritable(tx);
+        await beautyScope({ db: tx }, scope.locationId !== null);
+        return fn(tx);
+      },
+      { maxWait: 5000, timeout: 10000 },
+    );
   } catch (error) {
+    if ((error as { code?: string })?.code === 'P2002')
+      throw new ConflictException('Идентификатор уже занят. Проверьте сохранённые данные.');
     if (isOverlapViolation(error)) throw new ConflictException('Мастер в это время уже занят');
     throw error;
   }

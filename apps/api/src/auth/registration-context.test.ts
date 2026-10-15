@@ -27,13 +27,31 @@ it('first registration context is resolved only inside the signed-in organizatio
     auth as unknown as { registrationContext: (org: string) => Promise<unknown> }
   ).registrationContext('own');
   expect(calls[0]).toMatchObject({ where: { organizationId: 'own', status: 'ACTIVE' } });
-  expect(calls[1]).toMatchObject({ where: { businessId: 'b', status: 'ACTIVE' } });
+  expect(calls[2]).toMatchObject({ where: { businessId: 'b', status: 'ACTIVE' } });
   expect(result).toMatchObject({ businessId: 'b', locationId: 'l', vertical: 'FOOD_SERVICE' });
 });
 
 it('unknown persisted vertical yields no registration context', async () => {
   const auth = new AuthService(
     { db: { business: { findFirst: async () => ({ id: 'b', vertical: 'UNKNOWN' }) } } } as never,
+    {} as never,
+  );
+  expect(await auth.registrationContext('own')).toBeNull();
+});
+
+it('does not choose the earliest business when verification is reopened with multiple businesses', async () => {
+  const auth = new AuthService(
+    {
+      db: {
+        business: {
+          findFirst: async ({ where }: { where: { id?: unknown } }) =>
+            where.id
+              ? { id: 'second', vertical: 'BEAUTY', name: 'Другой' }
+              : { id: 'first', vertical: 'BEAUTY', name: 'Первый' },
+        },
+        location: { findFirst: async () => ({ id: 'location', name: 'Филиал' }) },
+      },
+    } as never,
     {} as never,
   );
   expect(await auth.registrationContext('own')).toBeNull();

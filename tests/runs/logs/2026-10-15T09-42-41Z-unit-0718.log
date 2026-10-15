@@ -1,0 +1,16 @@
+# Модульные (unit) · 15.10.2026 14:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 384a41b (codex/release-food-route-sync-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-15T09-42-41Z-unit-0718.json' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.agent-tmp/release-food-route-sync-20261014
+
+ ✓ |unit| tests/unit/ui-fixture-address.test.ts (3 tests) 11ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  02:42:42
+   Duration  81ms (tests 40%, transform 36%, import 17%, worker 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-15T09-42-41Z-unit-0718.json
+
+# код выхода 0 · 1 с

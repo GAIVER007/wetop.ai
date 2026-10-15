@@ -1,0 +1,102 @@
+# Сквозные (e2e) · 15.10.2026 14:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 384a41b (codex/release-food-route-sync-20261014)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts' 'tests/ui/unified-auth.spec.ts' '--grep' 'защищённая /today' '--workers=1'
+[WebServer] (node:82031) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82128) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:82134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82186) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82187) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82234) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82235) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:82241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:82247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:82277) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/unified-auth.spec.ts:23:3 › защищённая /today: главная → реальная cookie → исходный экран (18.6s)
+
+
+  1) tests/ui/unified-auth.spec.ts:23:3 › защищённая /today: главная → реальная cookie → исходный экран 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:3189/finance"
+    Received: "http://127.0.0.1:3189/today"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        4 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="__variable_14cd0a __variable_3c2cdc __variable_37214d">…</html>
+          - unexpected value "http://127.0.0.1:3089/?next=%2Ftoday#login"
+        - waiting for "http://127.0.0.1:3189/today" navigation to finish...
+        - navigated to "http://127.0.0.1:3189/today"
+        - locator resolved to <html lang="ru" class="inter_5bd4dcbe-module__C7Yz2a__variable">…</html>
+        28 × unexpected value "http://127.0.0.1:3189/today"
+           - locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__C7Yz2a__variable">…</html>
+        - unexpected value "http://127.0.0.1:3189/today"
+
+
+      30 |     // гостиничный /today с 09.10 ведёт в единые «Финансы» (plans/finance-home-merge-2026-10-09.md)
+      31 |     const landed = path === '/today' ? '/finance' : path;
+    > 32 |     await expect(page).toHaveURL(`${APP}${landed}`);
+         |                        ^
+      33 |     const cookie = (await context.cookies(APP)).find((c) => c.name === 'wetop_session');
+      34 |     expect(cookie?.httpOnly).toBe(true);
+      35 |     expect(cookie?.sameSite).toBe('Lax');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.agent-tmp/release-food-route-sync-20261014/tests/ui/unified-auth.spec.ts:32:24
+
+    Error Context: tests/ui/test-results/auth/unified-auth-защищённая-to-f6a40-ная-cookie-→-исходный-экран/error-context.md
+
+  1 failed
+    tests/ui/unified-auth.spec.ts:23:3 › защищённая /today: главная → реальная cookie → исходный экран 
+
+# код выхода 1 · 39 с

@@ -1,0 +1,45 @@
+# Модульные (unit) · 15.10.2026 14:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 384a41b (codex/release-food-route-sync-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-15T09-40-41Z-unit-c06a.json' 'tests/unit/ui-fixture-address.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.agent-tmp/release-food-route-sync-20261014
+
+ ❯ |unit| tests/unit/ui-fixture-address.test.ts (3 tests | 1 failed) 34ms
+   ✓ адрес подставного API в наборе UI (2)
+     ✓ ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API 29ms
+     ✓ FIXTURE_API берёт адрес из UI_FIXTURE_API, а 4311 оставляет умолчанием 0ms
+   ❯ адрес API в branches-ui (1)
+     × умолчание каждого спека совпадает с портом конфигурации стенда 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ui-fixture-address.test.ts > адрес API в branches-ui > умолчание каждого спека совпадает с портом конфигурации стенда
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "vertical-ai.spec.ts: 55864, ожидается 26864",
++ ]
+
+ ❯ tests/unit/ui-fixture-address.test.ts:54:24
+     52|         return port && port !== configured ? [`${file}: ${port}, ожида…
+     53|       });
+     54|     expect(mismatches).toEqual([]);
+       |                        ^
+     55|   });
+     56| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  02:40:42
+   Duration  115ms (tests 64%, transform 21%, import 10%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-15T09-40-41Z-unit-c06a.json
+
+# код выхода 1 · 1 с

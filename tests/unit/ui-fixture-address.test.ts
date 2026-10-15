@@ -37,3 +37,20 @@ describe('адрес подставного API в наборе UI', () => {
     expect(src).toMatch(/127\.0\.0\.1:4311/);
   });
 });
+
+
+describe('адрес API в branches-ui', () => {
+  it('умолчание каждого спека совпадает с портом конфигурации стенда', () => {
+    const root = resolve(UI, '../branches-ui');
+    const fallback = /BRANCHES_UI_API_PORT\s*(?:\?\?|\|\|)\s*['"](\d+)['"]/;
+    const configured = readFileSync(resolve(root, 'playwright.config.ts'), 'utf8').match(fallback)?.[1];
+    expect(configured).toBeDefined();
+    const mismatches = readdirSync(root)
+      .filter((file) => file.endsWith('.spec.ts'))
+      .flatMap((file) => {
+        const port = readFileSync(resolve(root, file), 'utf8').match(fallback)?.[1];
+        return port && port !== configured ? [`${file}: ${port}, ожидается ${configured}`] : [];
+      });
+    expect(mismatches).toEqual([]);
+  });
+});

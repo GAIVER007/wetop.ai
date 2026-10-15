@@ -1,0 +1,58 @@
+# Сквозные (e2e) · 15.10.2026 13:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 48e05c9 (codex/release-gate-followup-20261015)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--grep' 'empty setup through' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:78340) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete (7.7s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('dialog').getByLabel(/Цена каталога, тиын/)
+    Expected: "1200001"
+    Received: "1200000"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog').getByLabel(/Цена каталога, тиын/) with timeout 5000ms
+      - waiting for getByRole('dialog').getByLabel(/Цена каталога, тиын/)
+        14 × locator resolved to <input class="inp" required="" value="1200000" name="priceMinor" inputmode="numeric"/>
+           - unexpected value "1200000"
+
+
+      131 |   panel = page.getByRole('dialog');
+      132 |   await expect(panel.getByLabel('Название', { exact: true })).toHaveValue('Тестовая стрижка');
+    > 133 |   await expect(panel.getByLabel(/Цена каталога, тиын/)).toHaveValue('1200001');
+          |                                                         ^
+      134 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      135 |   await panel.getByRole('button', { name: 'Сохранить для филиала' }).click();
+      136 |   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+        at /private/tmp/wetop-pr532-repair/tests/beauty-ui/beauty.spec.ts:133:57
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+# код выхода 1 · 14 с

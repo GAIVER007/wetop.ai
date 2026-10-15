@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 15.10.2026 13:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 48e05c9 (codex/release-gate-followup-20261015)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--grep' 'empty setup through|салон: продажи' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:78672) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete (9.1s)
+  ✓  2 tests/beauty-ui/unified-growth.spec.ts:130:1 › салон: продажи, финансы и маркетинг на данных филиала (5.6s)
+
+  2 passed (19.7s)
+
+# код выхода 0 · 21 с

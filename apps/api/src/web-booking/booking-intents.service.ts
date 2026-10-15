@@ -88,7 +88,7 @@ export class BookingIntentsService {
     const category = text(b.category, 64);
     if (!category) throw new BadRequestException('category: код категории');
     const site = await this.sites.bookingSiteForAgent(agent);
-    if (!site || !site.organizationId || !site.bookingRatePlan)
+    if (!site || !site.organizationId || !site.propertyId || !site.bookingRatePlan)
       throw new NotFoundException('у агента нет сайта с включённым бронированием');
     const quote = await this.web.quoteForAgent(
       agent,

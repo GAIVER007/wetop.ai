@@ -39,6 +39,7 @@ import { RatesModule } from './rates/rates.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UnitsModule } from './units/units.module';
 import { WebBookingModule } from './web-booking/web-booking.module';
+import { SiteFormsModule } from './site-forms/site-forms.module';
 import { DataConnectionModule } from './database/connection';
 
 @Module({
@@ -76,6 +77,8 @@ import { DataConnectionModule } from './database/connection';
     DashboardModule,
     AnalyticsModule,
     WebBookingModule,
+    // SITE-4, SITE-5 (ADR-185): формы сайта салона и ресторана, заявки без слота
+    SiteFormsModule,
     GuardModule,
     FreshnessModule,
     // ИИ-помощник: подпись вошедшего для виджета, журнал ошибок человека (ТЗ ред. 1, ADR-079)

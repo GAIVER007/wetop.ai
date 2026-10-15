@@ -33,7 +33,9 @@ import { mail } from '@pms/integrations';
 import { BOOKING_MAILER } from './booking-mailer';
 import {
   ANALYTICS_REPOSITORY,
+  isHotelSite,
   type AnalyticsRepository,
+  type HotelSiteRecord,
   type SiteRecord,
 } from '../analytics/analytics.repository';
 import { CollectService } from '../analytics/collect.service';
@@ -315,7 +317,7 @@ export class WebBookingService {
   }
 
   /** Общий расчёт двух дверей: сайт уже найден и проверен вызывающим */
-  private async quoteForSite(site: SiteRecord, raw: unknown, now: Date): Promise<Quote> {
+  private async quoteForSite(site: HotelSiteRecord, raw: unknown, now: Date): Promise<Quote> {
     const parsed = parseQuoteRequest(raw, localDate(now, site.timezone));
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const { arrivalDate, departureDate, adults, promoCode } = parsed.value;
@@ -553,7 +555,7 @@ export class WebBookingService {
    * счётчика, ловушка для ботов и время сюда не входят. Зерно псевдонима гостя выводится из сайта и ключа создания,
    * а не случайно: повтор той же формы обязан дать тот же отпечаток.
    */
-  private reservationInput(site: SiteRecord, req: BookingRequest & { creationKey: string }) {
+  private reservationInput(site: HotelSiteRecord, req: BookingRequest & { creationKey: string }) {
     // ADR-018: настоящие ФИО и контакты: только в production-БД в РК; иначе псевдоним, как у каналов
     const guest = guestForStorage(req.guest, `web:${site.id}:${req.creationKey}`);
     const notes =
@@ -585,7 +587,7 @@ export class WebBookingService {
   private bookingResult(
     card: ReservationCard,
     req: BookingRequest,
-    site: SiteRecord,
+    site: HotelSiteRecord,
   ): BookingResult {
     const item = card.items[0];
     return {
@@ -613,7 +615,7 @@ export class WebBookingService {
       adults: number;
       lang: 'ru' | 'kk' | 'en' | 'zh';
     },
-    site: SiteRecord,
+    site: HotelSiteRecord,
     card: {
       confirmationNumber: string;
       arrivalDate: string;
@@ -665,7 +667,7 @@ export class WebBookingService {
     this.limits = newLimits();
   }
 
-  private async bookingSite(key: string, ctx: RequestContext): Promise<SiteRecord> {
+  private async bookingSite(key: string, ctx: RequestContext): Promise<HotelSiteRecord> {
     const site = key ? await this.sites.siteByKey(key) : null;
     if (!site || site.status !== 'ACTIVE' || !site.bookingEnabled || !site.bookingRatePlan) {
       throw new NotFoundException('бронирование с сайта выключено или сайт не найден');
@@ -682,7 +684,9 @@ export class WebBookingService {
    * (служебный контекст). Сайт другого объекта показывал бы цены и места Luxx и заводил брони своих гостей в фонде
    * Luxx (аудит 26.09, В-4; Q-194, ADR-095) — такому сайту честный отказ, пока расчёт не научится нескольким объектам.
    */
-  private async assertServingProperty(site: SiteRecord, message: string): Promise<SiteRecord> {
+  private async assertServingProperty(site: SiteRecord, message: string): Promise<HotelSiteRecord> {
+    // SITE-3: сайт салона или ресторана объекта не имеет: цен и брони номеров у него нет (у них свои `/w/beauty/*`, `/w/food/*`)
+    if (!isHotelSite(site)) throw new NotFoundException(message);
     // MKT1B BOOK-4: объект сайта и его цепочка, а не «самый ранний объект организации». Цепочка читается без арендатора:
     // чужую политика RLS спрятала бы, а отказ должен быть явным. Годится только действующая цепочка Hospitality одной
     // организации; её организация и становится контекстом расчёта и брони.
@@ -699,7 +703,7 @@ export class WebBookingService {
     ) {
       throw new NotFoundException(message);
     }
-    const verified: SiteRecord = { ...site, organizationId };
+    const verified: HotelSiteRecord = { ...site, organizationId };
     // Тот же объект видит и репозиторий брони в этом контексте: иначе цены и бронь ушли бы в другой
     const serving = await asSite(verified, () => this.uow.read((repo) => repo.property()));
     if (serving.id !== site.propertyId) throw new NotFoundException(message);

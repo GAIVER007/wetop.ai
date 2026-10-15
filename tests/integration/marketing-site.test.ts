@@ -193,7 +193,7 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
     }
   });
 
-  describe('scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице', () => {
+  describe('scope: 409 без выбора филиала, 403 на отклонённом выборе', () => {
     it.each([
       ['указателя нет', null],
       ['выбран только бизнес', pointer(hotel)],
@@ -223,11 +223,9 @@ describe.skipIf(!url)('MKT3 marketing site core', () => {
       expect(created.status).toBe(403);
     });
 
-    it('салон и ресторан: 403', async () => {
+    it('салон: конструктор открыт (SITE-3, ADR-185), сайта ещё нет', async () => {
       const r = await call('GET', '/marketing/site', { scope: pointer(beauty, salon) });
-      expect(r.status).toBe(403);
-      // отказ по направлению до базы, а не только перепроверкой бизнеса в транзакции
-      expect(r.body.message).toBe('Сайт и SEO пока доступны только гостиницам');
+      expect(r.status, JSON.stringify(r.body)).toBe(200);
     });
 
     it('без права settings (администратор): 403', async () => {

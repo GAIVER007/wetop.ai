@@ -32,13 +32,19 @@ function hostOf(origin: string): string | null {
   }
 }
 
+/** Формы сайта (SITE-4, SITE-5): `/w/beauty/*`, `/w/food/*`, `/w/lead` */
+const SITE_FORM_PATH = /^\/w\/(beauty\/|food\/|lead(\/|$|\?))/;
+function isSiteFormPath(req: Request): boolean {
+  return SITE_FORM_PATH.test(req.originalUrl ?? req.url ?? '');
+}
+
 /**
  * CORS для `/w/*`: виджет на сайте шлёт JSON — браузер делает preflight. Разрешаем только домены
  * активных сайтов (и свой хост — демо-страница); чужому Origin заголовков не даём, preflight — 204 всегда.
  */
 @Injectable()
 export class WidgetCorsMiddleware implements NestMiddleware {
-  private cache: { hosts: string[]; at: number } | null = null;
+  private cache: { hosts: string[]; formHosts: string[]; at: number } | null = null;
   constructor(@Inject(ANALYTICS_REPOSITORY) private readonly sites: AnalyticsRepository) {}
 
   async use(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -47,7 +53,7 @@ export class WidgetCorsMiddleware implements NestMiddleware {
       const originHost = hostOf(origin);
       const own = req.headers.host ? normalizeHost(req.headers.host) : null;
       const allowed =
-        !!originHost && (originHost === own || hostMatches(await this.hosts(), originHost));
+        !!originHost && (originHost === own || hostMatches(await this.hosts(isSiteFormPath(req)), originHost));
       if (allowed) {
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Vary', 'Origin');
@@ -63,9 +69,9 @@ export class WidgetCorsMiddleware implements NestMiddleware {
     next();
   }
 
-  private async hosts(): Promise<string[]> {
+  private async hosts(form: boolean): Promise<string[]> {
     const now = Date.now();
-    if (this.cache && now - this.cache.at < HOSTS_CACHE_MS) return this.cache.hosts;
+    if (this.cache && now - this.cache.at < HOSTS_CACHE_MS) return form ? this.cache.formHosts : this.cache.hosts;
     // MKT1B BOOK-1: сайты ВСЕХ организаций. Публичный путь не знает вошедшего, и `sites()` (объект вошедшего или объект
     // установки) отдавал браузеру второй гостиницы ответ без Access-Control-Allow-Origin. Это только допуск браузера:
     // ключ сайта и точный домен по-прежнему проверяет `bookingSite`.
@@ -73,8 +79,11 @@ export class WidgetCorsMiddleware implements NestMiddleware {
     const hosts = sites
       .filter((s) => s.status === 'ACTIVE' && s.bookingEnabled)
       .flatMap((s) => s.hosts);
-    this.cache = { hosts, at: now };
-    return hosts;
+    // SITE-4, SITE-5: формы записи, брони стола и заявки шлёт любой действующий сайт (салон, ресторан, гостиница без
+    // виджета брони); домен и ключ сайта по-прежнему проверяет сервис формы
+    const formHosts = sites.filter((s) => s.status === 'ACTIVE').flatMap((s) => s.hosts);
+    this.cache = { hosts, formHosts, at: now };
+    return form ? formHosts : hosts;
   }
 }
 

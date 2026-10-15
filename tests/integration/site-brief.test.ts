@@ -390,7 +390,7 @@ describe.skipIf(!url)('MKT5 site brief', () => {
     await sql?.end();
   });
 
-  it('строгий scope: без филиала и с одним бизнесом 409, чужой, архивный, салон и ресторан 403, филиал гостиницы 200', async () => {
+  it('строгий scope: без филиала и с одним бизнесом 409, чужой и архивный 403; гостиница, салон и ресторан 200 (SITE-3)', async () => {
     expect((await get(base, null)).status).toBe(409);
     const businessOnly = await get(base, pointer(hotel));
     expect(businessOnly.status).toBe(409);
@@ -399,11 +399,14 @@ describe.skipIf(!url)('MKT5 site brief', () => {
       pointer(otherHotel, b1),
       pointer(hotel, archivedLocation),
       pointer(archivedBusiness, inArchivedBusiness),
-      pointer(beauty, salon),
-      pointer(food, cafe),
     ])
       expect((await get(base, scope)).status, scope).toBe(403);
     expect((await get(base, pointer(hotel, a1))).status).toBe(200);
+    // SITE-3 (ADR-185): бриф салона и ресторана без объекта гостиницы, категорий номеров нет
+    for (const scope of [pointer(beauty, salon), pointer(food, cafe)]) {
+      const r = await get(base, scope);
+      expect(r.status, scope).toBe(200);
+    }
   });
 
   it('право settings: администратор без него получает 403', async () => {

@@ -860,7 +860,7 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       }).then(async (r) => ({ status: r.status, body: (await r.json()) as Record<string, unknown> }));
 
-    it('список гостиничных филиалов со статусом; пробный, активировать, продлить, выключить; журнал было и стало', async () => {
+    it('список филиалов со статусом; пробный, активировать, продлить, выключить; журнал было и стало', async () => {
       const w = await world('none');
       const list = await admin('GET', `/platform/organizations/${w.org}/site-builder`);
       expect(list.status).toBe(200);
@@ -879,12 +879,12 @@ describe.skipIf(!url)('MKT9.2 licensed site builder', () => {
       expect(logs.map((l) => (l.after as { status: string }).status)).toEqual(['TRIAL', 'ACTIVE', 'OFF']);
       expect(logs[0]!.before).toBeNull();
       expect(logs[1]!.before).toMatchObject({ status: 'TRIAL' });
-      // филиал другой организации и не гостиничный: 404
+      // филиал другой организации: 404 (направление с SITE-3 не ограничено)
       const stranger = await world('none');
       expect((await admin('PUT', `/platform/organizations/${w.org}/site-builder/${stranger.location}`, { status: 'ACTIVE' })).status).toBe(404);
     });
 
-    it('сохранение лицензии само перепроверяет филиал в своей транзакции: чужая организация или не гостиница, ничего не записано', async () => {
+    it('сохранение лицензии само перепроверяет филиал в своей транзакции: чужая организация, ничего не записано', async () => {
       const w = await world('none');
       const stranger = await world('none');
       const licenses = platform.get(SiteBuilderLicenses);

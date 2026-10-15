@@ -50,6 +50,7 @@ v2.11 (06.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; MKT1A,
 v2.15 (09.10.2026): §31 область доступа сотрудника (`membership_scopes`), приостановка членства, данные приглашения: утверждено владельцем 09.10.2026 («давай да делай дальше», Q-286…Q-290, ADR-156); миграции `20261009000072_membership_scopes` и `…073_membership_scopes_grants` на рабочей базе применяет владелец
 v2.13 (07.10.2026; **решения владельца Q-271 и Q-275 от 07.10.2026**; MKT7, `plans/mkt7-publication-preview-domains-2026-10-07.md`): §29.4 `marketing_site_publications` и §29.6 `site_domains` в базе, новый §29.11 `locations.booking_tracked_site_id` (канонический сайт брони филиала) с начальным заполнением; миграции `20261007000064_marketing_publication_domains` и `20261007000065_marketing_publication_grants`
 v2.14 (09.10.2026; **ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО**; O5a, ADR-153, `plans/guest-onboarding-ai-seller-2026-10-09.md`): §13.11 `email_verifications.wizard_session_id`: серверная связь подтверждения почты с гостевым черновиком (nullable FK на `wizard_sessions`, `ON DELETE SET NULL`, частичный уникальный индекс «одна живая связь на сессию»). Кода и миграции нет; миграцию применяет владелец до выкладки O5b
+v2.30 (15.10.2026; **миграции одобрены владельцем 15.10.2026, ADR-185**, план `plans/site-seo-flow-2026-10-15.md` срезы SITE-3/4/5): §11 `tracked_sites.location_id` (владелец сайта счётчика филиал, `property_id` необязательный), §29.12 лицензия конструктора любого направления, §19 `appointments.source`/`creation_key`/`creation_fingerprint`, §28 `RestaurantReservationSource.WEBSITE`, §46 `site_leads`; миграции `20261015000108_site_builder_all_verticals`, `20261015000109_website_appointments`, `20261015000110_site_leads`, `20261015000111_site_leads_grants`, на рабочей базе применяет владелец
 v2.29 (07.10.2026, номер версии при слиянии 15.10.2026; **по слову владельца «да давай делай дальше сам», ADR-185; план `plans/property-directories-2026-10-07.md`**): §21.6 «Способы оплаты объекта», таблица `payment_method_settings`; миграция `20261015000107_payment_method_settings`, на рабочей базе применяет владелец.
 v2.28 (13.10.2026; решение владельца по развилке 1 плана бара, ADR-178): §45 деньги бара ресторана в кассе ресторана; миграция №103, применяет владелец до выкладки
 v2.27 (13.10.2026; решение владельца по Q-REST-9, ADR-178): §44 бар на филиале: `location_id` у таблиц бара, объект гостиницы необязателен; миграция №102, применяет владелец до выкладки
@@ -973,7 +974,8 @@ payment; refund; manual availability; изменение guest document.
 
 ```
 id
-property_id           → Property
+property_id           → Property (nullable) ← v2.30: только у гостиничного сайта; по нему цены и бронь `/w/book`
+location_id           → Location            ← v2.30: владелец сайта у всех направлений; CHECK NOT NULL
 name
 hosts                 text[]     ← домены сайта; Origin/Referer приёмника должны совпадать
 public_key            ← ключ в коде счётчика: pms_ + 12 hex; не секрет, стоит в HTML сайта
@@ -985,6 +987,15 @@ updated_at
 ```
 
 **UNIQUE (public_key).**
+
+> **v2.30 (15.10.2026, SITE-3, ADR-185; миграция `20261015000108_site_builder_all_verticals`):** `location_id` UUID FK →
+> `locations` ON DELETE RESTRICT, индекс, заполнен из `properties.location_id`; CHECK `tracked_sites_location_required`
+> (филиал задан всегда); `property_id` стал необязательным. Триггер `tracked_site_location_guard`: объект заполняет филиал,
+> если его нет; заданный объект обязан быть объектом этого филиала; филиал после создания не меняется. RLS `rls_tenant`
+> переведена с объекта на цепочку филиал → бизнес → организация (сайт салона и ресторана объекта не имеет). Триггеры
+> `marketing_site_guard` и `location_booking_site_guard` сверяют сайт счётчика по `location_id`, журнал
+> (`app_audit_organization`, `TrackedSite`) берёт организацию через филиал. Бронь номеров `/w/book` и цены по-прежнему
+> только у сайта с объектом гостиницы; сайт без объекта принимает формы §19 (запись), §28 (бронь стола) и §46 (заявка).
 
 ### WebSession
 
@@ -1933,6 +1944,13 @@ businesses(id, organization_id)`, чтобы не разъехаться (уро
 `price` integer minor units, `notes`, `created_at` / `updated_at`. Пересечение записей одного мастера
 запрещает база — exclusion constraint на `(employee_id, tstzrange(starts_at, ends_at, '[)'))`, тот же
 механизм, что `allocations_no_overlap_per_unit` в §2, но своя таблица.
+
+**v2.30 (15.10.2026, SITE-4, ADR-185; миграция `20261015000109_website_appointments`):** `source AppointmentSource`
+(`DESK | WEBSITE`) NOT NULL DEFAULT `DESK`; `creation_key varchar(200)` NULL и `creation_fingerprint varchar(64)` NULL,
+ставятся вместе (CHECK `appointments_creation_pair`); UNIQUE (`location_id`, `creation_key`), у записей стойки ключа нет.
+Запись с сайта (`POST /w/beauty/book`): `source = WEBSITE`, ключ `site:<tracked_site_id>:<requestKey>`, повтор той же
+формы отдаёт ту же запись, другой запрос с тем же ключом 409; статус `BOOKED` («Записан»), автора нет
+(`created_by_id` NULL), клиент по телефону тем же путём, что у стойки.
 
 ### 19.1. Уточнение перед фазой 3 (v2.9, УТВЕРЖДЕНО владельцем 03.10.2026, ADR-138)
 
@@ -3040,6 +3058,11 @@ Status: BOOKED -> CONFIRMED/SEATED/CANCELLED/NO_SHOW; CONFIRMED -> SEATED/CANCEL
 
 Assignment requires active same-Location table/area, capacity >= partySize, no intersecting [startsAt,endsAt) BOOKED/CONFIRMED/SEATED assignments. Unassign only BOOKED/CONFIRMED. Move recalculates duration and revalidates capacity/overlap atomically. Status+updatedAt guards stale writes; audit rolls back with failure. Customer must be non-archived and same Organization; CustomerBusiness upsert and new customer are atomic with create.
 
+**v2.30 (15.10.2026, SITE-4, ADR-185; миграция `20261015000109_website_appointments`):** `RestaurantReservationSource`
+получает `WEBSITE`: бронь стола с формы сайта (`POST /w/food/reserve`), статус `BOOKED`, без стола, конец по
+длительности периода обслуживания, правила §43 те же, что у стойки; ключ создания `site:<tracked_site_id>:<requestKey>`
+в существующей паре `creation_key`/`creation_fingerprint`.
+
 All five tables have RLS through verified ownership chains and are in RLS_TENANT_TABLES. DB triggers enforce Food parent ownership, period/location, assignment/location, customer/Organization. New functions pin current_schema(), public, pg_temp. Catalog parent links are immutable in the API. Additive migration, no existing backfill; guarded down refuses any Food rows. Application rollback leaves data intact.
 
 ## 29. Маркетинг: управляемый сайт (v2.11, УТВЕРЖДЕНО владельцем 06.10.2026 как целевая архитектура, поэтапное внедрение; ADR-149, Q-272)
@@ -3360,8 +3383,8 @@ DRAFT | PUBLISHED | PAUSED ──archive──→ ARCHIVED (конечное)
 `site_builder_entitlements`: `location_id` PK и FK → `locations` ON DELETE RESTRICT; `status ExtensionStatus`
 (`TRIAL`, `ACTIVE`, `OFF`); `active_until timestamptz NULL` (пусто: бессрочно; у `TRIAL` обязателен, CHECK
 `site_builder_entitlements_trial_until`); `note varchar(300)` (номер счёта, без персональных данных); `updated_by` FK →
-`users` ON DELETE SET NULL; `created_at`, `updated_at`. Триггер `site_builder_entitlement_guard`: только филиал
-гостиничного бизнеса, филиал строки не меняется. Действует, если `TRIAL` или `ACTIVE` и срок не вышел (те же правила, что
+`users` ON DELETE SET NULL; `created_at`, `updated_at`. Триггер `site_builder_entitlement_guard`: филиал существует
+(v2.30, SITE-3: любое направление, прежде только гостиничный), филиал строки не меняется. Действует, если `TRIAL` или `ACTIVE` и срок не вышел (те же правила, что
 у расширений организации §16.3). Выдаёт, продлевает и выключает только главный администратор платформы служебной ролью;
 `wetop_app` только `SELECT`; удаления нет ни у кого, выключение это `OFF`. Заполнение миграцией: `ACTIVE` без срока
 только филиалам, у которых сайт уже был. Запись в конструкторе (создание сайта, сохранение, восстановление, весь ИИ,
@@ -4110,3 +4133,25 @@ UNIQUE `(location_id, month)`. RLS и права как у 41.1 (без `DELETE`
 ### Employee profile D3, утверждено 14.10.2026
 
 PEOPLE E1a использует существующий Employee.updatedAt как независимую ревизию профиля. DTO profileRevision передаёт точный UTC timestamp с шестью знаками микросекунд; PATCH expectedProfileRevision сравнивает тот же текст под блокировкой строки. Изменение name/phone/email/status и аудит атомарны, updatedAt растёт минимум на одну микросекунду. Пустой PATCH не продвигает ревизию. Services, locations, week и timeoffs не меняют эту ревизию. Legacy PATCH без токена совместим, но защиты stale write не получает. Схема и RLS не меняются; расширение видимости персональных полей не утверждено.
+
+## 46. Заявки с сайта без слота (v2.30, SITE-5; миграции одобрены владельцем 15.10.2026, ADR-185 п. 3, план `plans/site-seo-flow-2026-10-15.md` D3)
+
+«Перезвоните мне» и другие обращения с управляемого или внешнего сайта, у которых нет слота календаря. Заявку заводит
+публичный `POST /w/lead` от имени организации сайта, разбирает стойка (`/marketing/site/leads`, право `dialogs`).
+
+**`site_leads`:** `id` UUID PK; `organization_id` FK → `organizations`; `location_id` FK → `locations`; `tracked_site_id`
+FK → `tracked_sites` (все ON DELETE RESTRICT); `name varchar(100)`, `phone varchar(32)` (нормализованный `+7…`),
+`comment varchar(2000)` NULL (контакты в тексте маскируются, пока база не в РК, ADR-074); `kind SiteLeadKind`
+(`CALLBACK | OTHER`, умолчание `CALLBACK`); `status SiteLeadStatus` (`NEW | IN_PROGRESS | DONE | SPAM`, умолчание `NEW`);
+`request_key varchar(64)` и `request_fingerprint varchar(64)`; `source jsonb` NULL (метки перехода `utm_*`, `page`,
+`referrer`; только объект, CHECK); `created_at`, `updated_at`.
+
+- UNIQUE (`tracked_site_id`, `request_key`): повтор формы с тем же ключом отдаёт ту же заявку, другой запрос 409.
+- Индексы (`location_id`, `created_at`), (`organization_id`).
+- Триггер `site_lead_guard`: сайт заявки принадлежит филиалу заявки, филиал организации заявки; после создания меняется
+  только статус (и `updated_at`).
+- RLS `rls_tenant` (FORCE) по цепочке филиал → бизнес → организация, как у `marketing_sites`; вставка ещё требует
+  `organization_id = app_current_org()`. Гранты `wetop_app` и `wetop_service`: SELECT, INSERT, UPDATE (удаления нет),
+  отдельной миграцией прав `20261015000111_site_leads_grants` (её повторяет восстановление из копии).
+- Журнал: `site.lead.created` (без имени и телефона), `site.lead.status` (было и стало).
+- Откат `down.sql` удаляет таблицу и типы (заявки теряются).

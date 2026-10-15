@@ -13,7 +13,8 @@ export interface PublishedSiteRow {
   schemaVersion: string;
   specHash: string;
   spec: Record<string, unknown>;
-  propertyId: string;
+  /** Объект гостиницы; у сайта салона и ресторана null (SITE-3) */
+  propertyId: string | null;
   checkInTime: string | null;
   checkOutTime: string | null;
   /** Ключ связанного `TrackedSite` в `ACTIVE`; иначе null */
@@ -32,7 +33,8 @@ export interface CategoryFact {
 export interface SitesRuntimeRepository {
   /**
    * Сайт в `PUBLISHED` и версия **только по `published_version_id`**, одним запросом с цепочкой филиал `ACTIVE` →
-   * Business `ACTIVE` `HOSPITALITY` → объект этого филиала той же организации. `latest_version_id` не читается.
+   * Business `ACTIVE` (гостиница, салон, ресторан; SITE-3) → у гостиницы объект этого филиала той же организации.
+   * `latest_version_id` не читается.
    */
   publishedSite(siteId: string): Promise<PublishedSiteRow | null>;
   categories(propertyId: string, codes: string[]): Promise<CategoryFact[]>;
@@ -76,10 +78,12 @@ export class PrismaSitesRuntimeRepository implements SitesRuntimeRepository {
       FROM "marketing_sites" s
       JOIN "marketing_site_versions" v ON v."id" = s."published_version_id" AND v."site_id" = s."id"
       JOIN "locations" l ON l."id" = s."location_id" AND l."status" = 'ACTIVE'
-      JOIN "businesses" b ON b."id" = l."business_id" AND b."status" = 'ACTIVE' AND b."vertical" = 'HOSPITALITY'
-      JOIN "properties" p ON p."location_id" = l."id" AND p."organization_id" = b."organization_id"
-      LEFT JOIN "tracked_sites" t ON t."id" = s."tracked_site_id" AND t."property_id" = p."id"
-      WHERE s."id" = ${siteId}::uuid AND s."state" = 'PUBLISHED'`);
+      JOIN "businesses" b ON b."id" = l."business_id" AND b."status" = 'ACTIVE'
+        AND b."vertical" IN ('HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE')
+      LEFT JOIN "properties" p ON p."location_id" = l."id" AND p."organization_id" = b."organization_id"
+      LEFT JOIN "tracked_sites" t ON t."id" = s."tracked_site_id" AND t."location_id" = l."id"
+      WHERE s."id" = ${siteId}::uuid AND s."state" = 'PUBLISHED'
+        AND (b."vertical" <> 'HOSPITALITY' OR p."id" IS NOT NULL)`);
     return rows[0] ?? null;
   }
 
@@ -106,9 +110,11 @@ export class PrismaSitesRuntimeRepository implements SitesRuntimeRepository {
       FROM "marketing_sites" s
       JOIN "marketing_site_versions" v ON v."id" = ${versionId}::uuid AND v."site_id" = s."id"
       JOIN "locations" l ON l."id" = s."location_id" AND l."status" = 'ACTIVE'
-      JOIN "businesses" b ON b."id" = l."business_id" AND b."status" = 'ACTIVE' AND b."vertical" = 'HOSPITALITY'
-      JOIN "properties" p ON p."location_id" = l."id" AND p."organization_id" = b."organization_id"
-      WHERE s."id" = ${siteId}::uuid AND s."state" <> 'ARCHIVED'`);
+      JOIN "businesses" b ON b."id" = l."business_id" AND b."status" = 'ACTIVE'
+        AND b."vertical" IN ('HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE')
+      LEFT JOIN "properties" p ON p."location_id" = l."id" AND p."organization_id" = b."organization_id"
+      WHERE s."id" = ${siteId}::uuid AND s."state" <> 'ARCHIVED'
+        AND (b."vertical" <> 'HOSPITALITY' OR p."id" IS NOT NULL)`);
     return rows[0] ?? null;
   }
 

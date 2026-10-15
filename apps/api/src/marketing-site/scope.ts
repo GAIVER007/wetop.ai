@@ -18,7 +18,8 @@ import type { PrismaService } from '../database/prisma.provider';
  * организацию, «первый филиал» и «первый объект» здесь нет:
  * - указатель прислан, но сервер его не подтвердил (устаревший, чужой, архивный) → 403;
  * - указателя нет, выбрана организация или только бизнес → 409 «Выберите филиал»;
- * - бизнес выбора не гостиница → 403 (v0 только Hospitality).
+ * - направление бизнеса не из `SITE_VERTICALS` → 403. С SITE-3 (ADR-185) конструктор есть у гостиницы, салона и
+ *   ресторана; объект гостиницы нужен только гостиничным частям (категории номеров, тариф брони, Channex).
  */
 export interface SiteScope {
   organizationId: string;
@@ -27,6 +28,12 @@ export interface SiteScope {
 }
 
 export const CHOOSE_LOCATION = 'Выберите филиал';
+
+/** Направления с конструктором сайта (SITE-3, ADR-185) */
+export const SITE_VERTICALS = ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const;
+type SiteVertical = (typeof SITE_VERTICALS)[number];
+const isSiteVertical = (v: string | null): v is SiteVertical =>
+  v !== null && (SITE_VERTICALS as readonly string[]).includes(v);
 
 export function siteScope(pointerSent: boolean, permission: Permission = 'settings'): SiteScope {
   if (!hasSignedInActor() || !actorMay(permission)) throw new ForbiddenException(accessDeniedMessage(permission));
@@ -39,8 +46,8 @@ export function siteScope(pointerSent: boolean, permission: Permission = 'settin
       throw new ForbiddenException('Выбранный филиал недоступен: выберите филиал заново');
     throw new ConflictException(CHOOSE_LOCATION);
   }
-  if (currentVertical() !== 'HOSPITALITY')
-    throw new ForbiddenException('Сайт и SEO пока доступны только гостиницам');
+  if (!isSiteVertical(currentVertical()))
+    throw new ForbiddenException('Сайт и SEO для этого направления пока недоступны');
   return { organizationId, businessId, locationId };
 }
 
@@ -57,7 +64,7 @@ export async function siteBuilderAccessIn(tx: DbTx, locationId: string, now: Dat
 /** Перепроверка внутри транзакции под замком: бизнес и филиал ещё действуют, организация не только для чтения */
 async function recheck(tx: DbTx, scope: SiteScope, write: boolean, license: boolean): Promise<void> {
   const business = await tx.business.findFirst({
-    where: { id: scope.businessId, organizationId: scope.organizationId, status: 'ACTIVE', vertical: 'HOSPITALITY' },
+    where: { id: scope.businessId, organizationId: scope.organizationId, status: 'ACTIVE', vertical: { in: [...SITE_VERTICALS] } },
     select: { id: true },
   });
   const location = await tx.location.findFirst({

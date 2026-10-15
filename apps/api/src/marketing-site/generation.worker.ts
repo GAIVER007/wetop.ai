@@ -45,6 +45,7 @@ import { SiteBriefService } from './brief.service';
 import { GENERATION_BOT, type GenerationBot } from './generation.bot';
 import { checkSpecAssets } from './asset-refs';
 import { siteAiDay } from './ai-guards';
+import { SITE_VERTICALS } from './scope';
 
 /**
  * Воркер генерации сайта (MKT6, `docs/marketing/site-generation-v0.md`). `generation_runs` и есть очередь в Postgres,
@@ -350,7 +351,7 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
       this.prisma.db.organization.findUnique({ where: { id: run.organizationId }, select: { status: true, trialEndsAt: true } }),
       // точная цепочка, а не каждая строка по отдельности: бизнес этой организации, филиал этого бизнеса
       this.prisma.db.business.findFirst({
-        where: { id: run.businessId, organizationId: run.organizationId, status: 'ACTIVE', vertical: 'HOSPITALITY' },
+        where: { id: run.businessId, organizationId: run.organizationId, status: 'ACTIVE', vertical: { in: [...SITE_VERTICALS] } },
         select: { id: true },
       }),
       this.prisma.db.location.findFirst({ where: { id: run.locationId, businessId: run.businessId, status: 'ACTIVE' }, select: { id: true } }),

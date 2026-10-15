@@ -26,15 +26,20 @@ export interface ServingChain {
 
 export interface SiteRecord {
   id: string;
-  propertyId: string;
+  /** Объект гостиницы сайта; null у сайта салона и ресторана (SITE-3, ADR-185): цены и бронь `/w/book` только с объектом */
+  propertyId: string | null;
+  /** Филиал сайта (SITE-3): владелец сайта счётчика у всех направлений */
+  locationId: string;
   name: string;
   hosts: string[];
   publicKey: string;
   status: 'ACTIVE' | 'PAUSED';
   createdAt: Date;
+  /** Пояс объекта гостиницы, без объекта пояс филиала */
   timezone: string;
-  checkInTime: string;
-  checkOutTime: string;
+  /** Часы заезда и выезда объекта; у сайта без объекта null */
+  checkInTime: string | null;
+  checkOutTime: string | null;
   /** Виджет бронирования (срез 9) */
   bookingEnabled: boolean;
   bookingRatePlan: { id: string; code: string; name: string } | null;
@@ -45,6 +50,13 @@ export interface SiteRecord {
    * только публикация; старый путь `/analytics/sites` его читает, но не правит и не удаляет
    */
   managed?: boolean;
+}
+
+/** Гостиничный сайт счётчика: у него есть объект и часы заезда; только такой сайт считает цены и создаёт бронь `/w/book` */
+export type HotelSiteRecord = SiteRecord & { propertyId: string; checkInTime: string; checkOutTime: string };
+
+export function isHotelSite(site: SiteRecord): site is HotelSiteRecord {
+  return site.propertyId !== null && site.checkInTime !== null && site.checkOutTime !== null;
 }
 
 /**
@@ -189,6 +201,7 @@ export const ANALYTICS_REPOSITORY = Symbol('ANALYTICS_REPOSITORY');
 const SITE_SELECT = {
   id: true,
   propertyId: true,
+  locationId: true,
   name: true,
   hosts: true,
   publicKey: true,
@@ -199,12 +212,14 @@ const SITE_SELECT = {
   property: {
     select: { timezone: true, checkInTime: true, checkOutTime: true, organizationId: true },
   },
+  location: { select: { timezone: true, business: { select: { organizationId: true } } } },
   marketingSite: { select: { id: true } },
 } as const;
 
 type SiteRow = {
   id: string;
-  propertyId: string;
+  propertyId: string | null;
+  locationId: string | null;
   name: string;
   hosts: string[];
   publicKey: string;
@@ -217,24 +232,29 @@ type SiteRow = {
     checkInTime: string;
     checkOutTime: string;
     organizationId: string | null;
-  };
+  } | null;
+  location: { timezone: string; business: { organizationId: string } } | null;
   marketingSite: { id: string } | null;
 };
 
 const toRecord = (r: SiteRow): SiteRecord => ({
   id: r.id,
   propertyId: r.propertyId,
+  // CHECK tracked_sites_location_required: филиал есть у каждой строки; пустая строка не встречается
+  locationId: r.locationId ?? '',
   name: r.name,
   hosts: r.hosts,
   publicKey: r.publicKey,
   status: r.status,
   createdAt: r.createdAt,
-  timezone: r.property.timezone,
-  checkInTime: r.property.checkInTime,
-  checkOutTime: r.property.checkOutTime,
+  timezone: r.property?.timezone ?? r.location?.timezone ?? 'UTC',
+  checkInTime: r.property?.checkInTime ?? null,
+  checkOutTime: r.property?.checkOutTime ?? null,
   bookingEnabled: r.bookingEnabled,
   bookingRatePlan: r.bookingRatePlan,
-  organizationId: r.property.organizationId,
+  // Гостиничный сайт: организация объекта, как раньше (её сверяет `assertServingProperty`); без объекта: организация
+  // бизнеса филиала
+  organizationId: r.property ? r.property.organizationId : (r.location?.business.organizationId ?? null),
   managed: r.marketingSite !== null,
 });
 

@@ -7,6 +7,7 @@ import { WidgetCorsMiddleware } from './web-booking.module';
 const site = (id: string, hosts: string[], over: Partial<SiteRecord> = {}): SiteRecord => ({
   id,
   propertyId: `property-${id}`,
+  locationId: `location-${id}`,
   name: id,
   hosts,
   publicKey: `pms_${id.padEnd(12, '0')}`,
@@ -39,7 +40,7 @@ function middleware() {
   return new WidgetCorsMiddleware(repo);
 }
 
-async function corsFor(mw: WidgetCorsMiddleware, origin: string, method = 'OPTIONS') {
+async function corsFor(mw: WidgetCorsMiddleware, origin: string, method = 'OPTIONS', url = '/w/book') {
   const headers = new Map<string, string>();
   let status: number | null = null;
   let passed = false;
@@ -50,7 +51,7 @@ async function corsFor(mw: WidgetCorsMiddleware, origin: string, method = 'OPTIO
       return { end: () => undefined };
     },
   } as unknown as Response;
-  const req = { method, headers: { origin, host: 'api.wetop.ai' } } as unknown as Request;
+  const req = { method, url, originalUrl: url, headers: { origin, host: 'api.wetop.ai' } } as unknown as Request;
   await mw.use(req, res, () => {
     passed = true;
   });
@@ -76,5 +77,17 @@ describe('WidgetCorsMiddleware: домены сайтов всех органи�
     const get = await corsFor(mw, 'https://b.example', 'GET');
     expect(get.passed).toBe(true);
     expect(get.allow).toBe('https://b.example');
+  });
+});
+
+describe('WidgetCorsMiddleware: формы сайта салона и ресторана (SITE-4, SITE-5)', () => {
+  it('формы /w/beauty, /w/food и /w/lead допускают любой действующий сайт, бронь номеров по-прежнему только с виджетом', async () => {
+    const mw = middleware();
+    for (const url of ['/w/beauty/book', '/w/beauty/slots?k=x', '/w/food/reserve', '/w/lead'])
+      expect((await corsFor(mw, 'https://off.example', 'OPTIONS', url)).allow, url).toBe('https://off.example');
+    expect((await corsFor(mw, 'https://paused.example', 'OPTIONS', '/w/lead')).allow).toBeNull();
+    expect((await corsFor(mw, 'https://unknown.example', 'OPTIONS', '/w/lead')).allow).toBeNull();
+    expect((await corsFor(mw, 'https://off.example', 'OPTIONS', '/w/book')).allow).toBeNull();
+    expect((await corsFor(mw, 'https://off.example', 'OPTIONS', '/w/leadx')).allow).toBeNull();
   });
 });

@@ -133,14 +133,13 @@ describe.skipIf(!url)('MKT9.2 licensed site builder: инварианты баз
     });
   });
 
-  it('лицензия: у пробной нужен срок, только гостиничный филиал, одна строка на филиал', async () => {
+  it('лицензия: у пробной нужен срок, любой филиал (SITE-3), одна строка на филиал', async () => {
     await probe(async (attempt) => {
       await expect(insert(attempt, 'site_builder_entitlements', { location_id: locA2, status: 'TRIAL', updated_at: new Date() })).rejects.toThrow(
         /site_builder_entitlements_trial_until/,
       );
-      await expect(insert(attempt, 'site_builder_entitlements', { location_id: locSalon, status: 'ACTIVE', updated_at: new Date() })).rejects.toThrow(
-        /гостинич/,
-      );
+      // SITE-3 (ADR-185): конструктор у всех направлений, лицензию салона база принимает
+      await insert(attempt, 'site_builder_entitlements', { location_id: locSalon, status: 'ACTIVE', updated_at: new Date() });
       await insert(attempt, 'site_builder_entitlements', { location_id: locA2, status: 'ACTIVE', updated_at: new Date() });
       await expect(insert(attempt, 'site_builder_entitlements', { location_id: locA2, status: 'OFF', updated_at: new Date() })).rejects.toThrow(
         /site_builder_entitlements_pkey/,

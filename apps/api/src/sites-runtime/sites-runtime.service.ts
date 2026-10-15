@@ -193,7 +193,8 @@ export class SitesRuntimeService {
   private async facts(row: PublishedSiteRow, now: Date): Promise<PublicFacts | null> {
     const codes = siteSpecCategoryCodes(row.spec);
     try {
-      const found = await withServiceDatabase(() => this.repo.categories(row.propertyId, codes));
+      const propertyId = row.propertyId;
+      const found = propertyId ? await withServiceDatabase(() => this.repo.categories(propertyId, codes)) : [];
       const byCode = new Map(found.map((c) => [c.code, c]));
       return {
         loadedAt: now.toISOString(),

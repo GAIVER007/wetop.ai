@@ -3,7 +3,7 @@ import { requireVertical } from '../../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../../lib/api';
 import { hotelToday } from '../../../../lib/hotel-api';
-import { loadBarContext } from '../load-context';
+import { loadBarContext } from '../../load-context';
 import { Page } from '../../../../components/page';
 import { EmptyState } from '../../../../components/ui';
 import { Icon } from '../../../../components/icon';

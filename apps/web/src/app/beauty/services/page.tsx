@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
@@ -37,7 +38,12 @@ export default async function BeautyServicesPage() {
       title="Услуги"
       subtitle="Каталог услуг и условия в выбранном филиале."
     >
+      <p>
+        <Link href="/register/setup">Вернуться к настройке салона</Link>
+      </p>
       <ServicesBoard
+        key={loaded.value.locationId ?? 'catalog'}
+        scopeKey={loaded.value.locationId ?? ''}
         items={loaded.value.items}
         locationCurrency={loaded.value.locationCurrency}
         canEdit={canEdit}

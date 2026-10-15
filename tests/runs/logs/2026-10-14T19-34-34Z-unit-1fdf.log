@@ -1,0 +1,17 @@
+# Модульные (unit) · 15.10.2026 00:34 Алматы · MacBook-Air-Urij.local
+# коммит b46db14 (claude/core-01-20261014), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-34-34Z-unit-1fdf.json' 'tests/unit/local-db-start.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/core-01
+
+ ✓ |unit| tests/unit/local-db-start.test.ts (1 test) 1765ms
+   ✓ local-db start does not add a second set of stays to the populated test schema 1764ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  23:34:35
+   Duration  1.87s (tests 99%, transform 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T19-34-34Z-unit-1fdf.json
+
+# код выхода 0 · 3 с

@@ -10,7 +10,7 @@ import '../beauty/beauty.css';
 
 /** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средний чек считает API по DONE */
 export default async function CustomersPage() {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireVertical(['BEAUTY', 'FOOD_SERVICE']);
   if (me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers />;
   try {
     const { items } = await beautyApi.customers();

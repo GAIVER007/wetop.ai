@@ -25,6 +25,7 @@ import {
   currentBusinessId,
   currentLocationId,
   currentOrganizationId,
+  currentRole,
   currentScope,
   currentVertical,
   hasSignedInActor,
@@ -150,6 +151,14 @@ export class OnboardingService {
     return { needed: categories === 0, name: property.name, currency: property.currency };
   }
 
+  /** Первый объект (и с ним HOSPITALITY-бизнес с филиалом) заводит только владелец: как owner-only
+   * `POST /branches` (ADR-183, аудит CORE-01 U1-C); менеджер настраивает уже выбранный бизнес. */
+  private createFirstProperty(tx: DbTx, organizationId: string, currency: string) {
+    if (currentRole() !== 'OWNER')
+      throw new ForbiddenException('Новое направление создаёт владелец: выберите существующий отель или попросите владельца');
+    return createOrganizationProperty(tx, organizationId, currency);
+  }
+
   async provision(body: Record<string, unknown>, now = new Date()) {
     const organizationId = this.organizationId();
     const existing = await this.findProperty(organizationId);
@@ -179,7 +188,7 @@ export class OnboardingService {
       const property =
         existing ??
         (await this.findProperty(organizationId, tx)) ??
-        (await createOrganizationProperty(tx, organizationId, plan.ratePlan.currency));
+        (await this.createFirstProperty(tx, organizationId, plan.ratePlan.currency));
       // Повторный онбординг закрыт: объект с номерами уже настроен, второй прогон плодил бы дубли
       const already = await tx.accommodationType.count({ where: { propertyId: property.id } });
       if (already > 0)

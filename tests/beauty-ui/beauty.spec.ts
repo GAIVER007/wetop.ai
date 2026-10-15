@@ -136,9 +136,11 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await page.getByRole('button', { name: 'Добавить мастера' }).click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Тестовый мастер Анна');
+  await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
   await panel.getByRole('checkbox', { name: 'Тестовая стрижка' }).check();
-  await panel.getByRole('button', { name: 'Сохранить мастера' }).click();
-  await expect(panel.getByRole('status')).toContainText('Мастер добавлен');
+  await panel.getByRole('button', { name: 'Сохранить услуги' }).click();
+  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
   await page.reload();
   await page
     .getByRole('listitem')
@@ -146,7 +148,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
     .getByRole('button', { name: 'Открыть' })
     .click();
   panel = page.getByRole('dialog');
-  await panel.getByRole('button', { name: 'График', exact: true }).click();
+  await panel.getByRole('tab', { name: 'График', exact: true }).click();
   await panel
     .getByRole('group', { name: 'Понедельник', exact: true })
     .getByRole('button', { name: 'Сделать рабочим' })

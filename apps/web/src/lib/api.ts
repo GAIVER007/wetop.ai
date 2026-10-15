@@ -3620,6 +3620,8 @@ export interface BeautyEmployeeRow {
   active: boolean;
   locationIds: string[];
   serviceIds: string[];
+  servicesRevision?: string;
+  profileRevision?: string;
 }
 
 export interface BeautyWorkingInterval {
@@ -3644,6 +3646,7 @@ export interface BeautyTimeOff {
 
 /** График мастера в филиале: мастера бизнеса, неделя выбранного, его отсутствия и филиалы (срез B4) */
 export interface BeautySchedule {
+  businessName?: string;
   location: { id: string; name: string | null; timezone: string | null } | null;
   employees: Array<{ id: string; name: string; active: boolean; worksHere: boolean }>;
   employee: {
@@ -3655,6 +3658,7 @@ export interface BeautySchedule {
   } | null;
   locations: Array<{ id: string; name: string; assigned: boolean }>;
   week: BeautyWeekDay[];
+  weekRevision?: string | null;
   timeOffs: BeautyTimeOff[];
 }
 
@@ -3741,19 +3745,20 @@ export const beautyApi = {
   createEmployee: (body: unknown) => sendJson<BeautyEmployeeRow>('POST', '/beauty/employees', body),
   updateEmployee: (id: string, body: unknown) =>
     sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}`, body),
-  setEmployeeServices: (id: string, serviceIds: string[]) =>
+  setEmployeeServices: (id: string, serviceIds: string[], expectedRevision?: string) =>
     sendJson<BeautyEmployeeRow>('PUT', `/beauty/employees/${encodeURIComponent(id)}/services`, {
       serviceIds,
+      ...(expectedRevision ? { expectedRevision } : {}),
     }),
   schedule: (employee?: string) =>
     getJson<BeautySchedule>(
       employee ? `/beauty/schedule?employee=${encodeURIComponent(employee)}` : '/beauty/schedule',
     ),
-  setWorkingHours: (id: string, intervals: BeautyWorkingInterval[]) =>
-    sendJson<{ week: BeautyWeekDay[] }>(
+  setWorkingHours: (id: string, intervals: BeautyWorkingInterval[], expectedRevision?: string) =>
+    sendJson<{ week: BeautyWeekDay[]; weekRevision?: string }>(
       'PUT',
       `/beauty/employees/${encodeURIComponent(id)}/working-hours`,
-      { intervals },
+      { intervals, ...(expectedRevision ? { expectedRevision } : {}) },
     ),
   addTimeOff: (id: string, body: unknown) =>
     sendJson<{ timeOffs: BeautyTimeOff[]; affected: number }>(
@@ -4013,11 +4018,23 @@ export interface SharedOnboardingState {
   completedAt: string | null;
   updatedAt: string | null;
   canEdit: boolean;
+  profileApplied?: boolean;
+  storedFlowVersion?: number | null;
+  completedFlowVersion?: number | null;
+  readiness?: {
+    ready: boolean;
+    steps: Array<{ id: string; done: boolean; count: number; reason: string }>;
+    chain: { employeeId: string; serviceId: string } | null;
+  };
+  permissions?: Record<
+    'profile' | 'complete' | 'services' | 'masters' | 'skills' | 'schedule',
+    boolean
+  >;
 }
 export const sharedOnboardingApi = {
   status: () => getJson<SharedOnboardingState>('/onboarding'),
   save: (body: {
-    action: 'save' | 'next' | 'back' | 'complete';
+    action: 'save' | 'next' | 'back' | 'complete' | 'apply-profile';
     draft: Record<string, unknown>;
     updatedAt: string | null;
   }) => sendJson<SharedOnboardingState>('POST', '/onboarding', body),

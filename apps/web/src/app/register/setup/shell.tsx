@@ -6,9 +6,21 @@ import { onboardingFlow } from '@pms/domain';
 import { Alert, Button, Field, Input } from '../../../components/ui';
 import { OnboardingForm, type Row } from '../../onboarding/onboarding-form';
 import type { SharedOnboardingState, OnboardingStatus } from '../../../lib/api';
+import { BeautyChecklist } from './beauty-checklist';
 import { saveOnboarding } from './actions';
 
-export function OnboardingShell({
+export function OnboardingShell(props: {
+  initial: SharedOnboardingState;
+  hotel: OnboardingStatus | null;
+}) {
+  return props.initial.vertical === 'BEAUTY' ? (
+    <BeautyChecklist initial={props.initial} />
+  ) : (
+    <LegacyOnboardingShell {...props} />
+  );
+}
+
+function LegacyOnboardingShell({
   initial,
   hotel,
 }: {

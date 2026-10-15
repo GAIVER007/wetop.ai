@@ -1,5 +1,67 @@
 # DECISIONS (ADR)
 
+## ADR-184: модуль «Продвижение» единый для всех направлений (принят 15.10.2026)
+
+**Контекст.** Владелец 15.10.2026: сайт и SEO, реклама и анализ конкурентов собрать в одном разделе, одинаково
+для гостиницы, салона и ресторана. Сегодня конструктор сайта только у гостиницы (ADR-149), реклама только учётом
+бюджета (ADR-MKT-B1), конкуренты в «Управлении номерами» у гостиницы (ADR-142).
+
+**Решения владельца.**
+1. Раздел «Продвижение» вместо «Маркетинга» у всех направлений: Обзор, Сайт и SEO, Реклама, Конкуренты, Контент,
+   Бюджет. Адреса прежние.
+2. Сайты клиентов на домене платформы, отдельной страницей (адресом) под каждый сайт; отдельный домен не
+   покупается. Техническая форма — поддомен зоны платформы на Worker `apps/sites` (Q-271 сохраняется: не
+   `app.wetop.ai`, куки стойки не делятся), свои домены клиентов позже (MKT10).
+3. Реклама Meta строится в API без n8n. Приложение Meta проходит App Review (`ads_management`), подтверждает
+   владелец. Запуск кампании и любое изменение бюджета — только по нажатию клиента; без подтверждения деньги не
+   тратятся. Картинки от ИИ и автопубликация от ИИ (DATA_MODEL §29.10) по-прежнему запрещены.
+4. Конкуренты: структура для всех направлений; источники доводятся тестированием, граница ADR-142 п. 10
+   (без обхода защиты площадок) сохраняется.
+
+**Последствия.** План и срезы: `plans/promo-module-2026-10-15.md`. Таблицы рекламы и публичной записи с сайта
+вводятся через DATA_MODEL отдельными срезами; миграции применяет владелец (AGENTS.md §15).
+
+## ADR-183: CORE-SECURITY-FIX, границы скоупа по итогам CORE-01 (принят 15.10.2026)
+
+**Контекст.** Verification gate CORE-01 (`reports/core-01-2026-10-14/README.md`, PR #529) дал NO-GO:
+подтверждена рантаймом кросс-организационная запись через повтор события каналов (U2-1) и подтверждены кодом
+дыры границы назначений внутри организации (U2-2…U2-4, U1-C) и хвосты тихого Property-fallback (U1-D).
+Владелец поручил продолжать; правила пакета фиксируются здесь.
+
+**Решения.**
+
+1. **U2-1. Сброс события каналов привязан к объекту интеграционного скоупа.** `resetExternalEventAttempts`
+   дополняется `propertyId = currentIntegrationPropertyId()`; без скоупа сброс отказывает. Строки эпохи до
+   backfill (ADR-100) с `property_id IS NULL` повтором больше не сбрасываются: честный отказ, их чинит
+   владелец руками (таких путей в проде нет с 27.09). Репродукция CORE-01 теряет `.fails` и становится
+   постоянным стражем.
+2. **U2-2. Два эшелона для гостей.** Витринное правило задано параллельным CORE-SECURITY-FIX-01
+   (PR #535, O3=A): гости организационные, и ограниченному назначениями сотруднику контроллер гостей закрыт
+   целиком (`@OrganizationLevel`). Этот ADR добавляет второй эшелон на уровне данных
+   (`guests.repository.visible()`): даже если путь мимо контроллера появится, пользователь с назначениями
+   видит лишь гостя, связанного бронью или проживанием с Property его мест, либо гостя без единой брони.
+   Витрина — правило #535; слой данных — страховка, совместимость доказана совместным прогоном тестов
+   обоих пакетов. Без назначений организация целиком (ADR-083 не отменяется).
+3. **U2-3. Филиалы мастера меняет только тот, кому они назначены.** `PUT beauty/employees/:id/locations`
+   для пользователя с назначениями отказывает (403), если запрошенный состав добавляет или убирает филиал
+   вне его назначений; состав чужих филиалов мастера для него неприкосновенен.
+4. **U2-4. Онбординг подчиняется назначениям.** `GET/POST /onboarding` (право `self`) для пользователя с
+   назначениями отвечает 403 на филиал вне назначений (та же формула `roleAt`, что у ворот).
+5. **U1-C. Новый бизнес из онбординга — только владелец.** `POST /hotel/onboarding` на организационном
+   скоупе, когда гостиничного бизнеса нет и его надо создать, требует роль OWNER (как owner-only
+   `POST /branches`); выбранный существующий бизнес для менеджера работает как раньше.
+6. **U1-D. Ранний Property — только живой и детерминированный.** `organizationPropertyRef` исключает
+   Property архивных филиалов и бизнесов (организация с единственным архивным объектом получает честное
+   «нет объекта», прежние тесты, закреплявшие обратное, обновлены этим же решением);
+   `HotelService.property()` получает тот же порядок `createdAt asc`. Полное правило «отвергнутый указатель
+   у ненастроенного пользователя = отказ вместо тихой организации» НЕ принимается этим ADR: это смена
+   контракта многих легитимных организационных маршрутов, вопрос остаётся за CORE-02 (записан в отчёте).
+
+**Последствия.** Миграций нет. Каждый пункт red → green; репродукции CORE-01 переведены из `it.fails` в
+постоянные стражи там, где дефект закрыт. Не входят в пакет (отдельные задачи): нормализация телефона
+Customer (нужно решение владельца о бэкфилле), EXCLUDE для назначений столов, организационный охват
+диалогов ИИ-продавца (сверка с ADR-ами мультивертикали), P3-мелочи CORE-01.
+
 ## ADR-182: FOOD-FIX-02, выручка бара в отчётах, стража миграции 101, подтверждения деструктивных действий (принят 14.10.2026)
 
 **Контекст.** Хвосты аудита `reports/food-audit-2026-10-14/README.md` после FOOD-FIX-01 (ADR-181, PR #520):
@@ -134,6 +196,9 @@ CHECK тем же списком. В окне выбирается только 
 **Последствия.** Миграции 070 и 071 в общей цепочке, применяет владелец до выкладки кода. Пока у категории нет фото, панель места показывает заглушку «Фото ещё не добавлены».
 
 ## ADR-152: Главная гостиницы объединена с «Финансами» в один раздел (принят 09.10.2026)
+
+**Статус: отменён ADR-180 (13.10.2026) в части слияния: «Главная» снова отдельный `/today`.** Одноимённый
+ADR-152 «автоматическая выкладка стойки» (ниже в файле) это отдельное решение и остаётся в силе.
 
 **Контекст.** Поручение владельца 09.10.2026 со снимками обоих экранов: «подумай как главная перенести в раздел
 финансы, перенести и объединить там, сделать всё чётко, оставить всю логику, сделать это в одном разделе»;
@@ -7118,6 +7183,12 @@ Decision: cards occupy their content height; desktop metadata and cover use two 
 
 Consequence: no schema, financial, booking or permission changes. Photo upload remains unavailable until the documented storage is provisioned. Test the settings gate red then green and verify metadata save, archive/restore and mobile layout on synthetic data before publication.
 
+## ADR-ONBOARDING-BEAUTY-V2, 14.10.2026, утверждено владельцем
+Проблема: пилот не готовит салон, retry создаёт дубли, stale replace теряет изменения. Варианты: новый store/схема либо Location progress и штатные каталоги. Решение: shared shell, серверная B1-B4 readiness, Beauty v2 с ограниченными metadata существующего JSON. completedAt исторический; completedFlowVersion различает пилот и новый flow. Retry: creationId как существующий PK, atomic audit receipt с HMAC исходного нормализованного запроса через существующий SESSION_SECRET и scope. Без receipt/при архиве конфликт, ротация ключа может вызвать конфликт, legacy без ключа не защищён. Audit append-only, purge не расширяется. Revision replace: hash canonical состояния в write transaction, без revision legacy сохраняет поведение. Все Beauty mutations и complete: locks org SHARE, Business UPDATE, Location UPDATE, одинаковый порядок; другие Business не блокируются. Транзакции с timeout, не удерживаются между экранами. Незавершённый v2 progress требует apply-profile до создания ресурсов; legacy вне v2 совместим.
+
+Уточнение D2: scope fingerprint включает Organization, Business, исходный Location, тип и инициатора. Успешный replay гарантируется пока сохранены активный ресурс, append-only receipt и тот же SESSION_SECRET; календарный TTL не вводится, существующая политика хранения не меняется. Отсутствующий receipt при сохранённом PK или сохранившийся receipt без ресурса дают отказ, не новый create. Полное административное удаление и ресурса, и аудита стирает доказательство операции; такой purge не является штатным API-путём и не входит в гарантию восстановления. HMAC не объявляется анонимизацией. Известный внутренний Beauty create-caller: beauty/actions.ts; Food create остаётся отдельным API и не меняется. Profile CAS через updatedAt принадлежит PEOPLE после передачи.
+
+
 ## Active business cards with archived branches (14.10.2026)
 
 Problem: archiving the last branch left a large empty active card for test businesses. Owner requested removing test salon/restaurant cards while keeping history and a new organization usable without branches.
@@ -7125,3 +7196,11 @@ Problem: archiving the last branch left a large empty active card for test busin
 Decision: the read model lists active businesses with an active location or with no locations ever created. A business whose locations are all archived is hidden from active cards. Restore of a location makes its card visible again. Business status, identities, scope rules, history and financial queries are unchanged. A singleton card is centered; cover metadata that exists but has no readable URL is labelled temporarily unavailable.
 
 Validation: real PostgreSQL regression red then green, record counts and business status preserved, empty-new-project and restore cases; synthetic UI metadata/archive/reload/restore checks. No migration or additional write endpoint.
+
+## ADR-EMPLOYEE-COMMON-D2, 14.10.2026, утверждено владельцем
+Проблема: неизвестный результат create создаёт дубли; скрытые поля профиля/услуг перезаписывают независимые данные. Варианты: новая схема либо existing PK+atomic audit receipt. Решение: второй вариант, без миграций; create/profile/skills отдельные commands, child revisions в своих namespaces. Locks org SHARE, Business UPDATE, Location UPDATE; timeout 10s, maxWait 5s. Replay сравнивает первоначальный HMAC через существующий стабильный SESSION_SECRET, требует исходного scope/инициатора и текущих прав. При архиве, отсутствии receipt, retained receipt без ресурса или смене secret отказ без нового объекта. Календарный TTL не добавляется, audit append-only policy не меняется: успешное восстановление пока ресурс/receipt/ключ сохранены. Полное административное удаление ресурса и аудита вне гарантии. HMAC не объявляется анонимизацией. Conditional guard profileApplied читает существующий OnboardingProgress только для уже записанного v2; новый flow/schema не являются зависимостью этого patch. D3 profile CAS остаётся PEOPLE.
+
+## ADR-EMPLOYEE-PROFILE-D3, 14.10.2026, утверждено владельцем
+
+Проблема: две формы профиля могли перезаписать контакты и статус; timestamp через JavaScript Date терял микросекунды. Варианты: новая aggregate version либо существующий updatedAt только для профиля. Решение: второй вариант, raw PostgreSQL snapshot возвращает profileRevision UTC .6Z; PATCH проверяет expectedProfileRevision под FOR UPDATE в beautyTransaction, обновляет поля и audit в той же транзакции. GREATEST(clock_timestamp(), updated_at + 1 microsecond) обеспечивает монотонность. Дочерние услуги/филиалы/график/отсутствия имеют прежние независимые контракты. Новый профильный UI передаёт точный токен и только изменённые поля. При 409 читает текущий разрешённый профиль для сравнения, сохраняет черновик и не rebases токен автоматически; явная отмена загружает актуальную основу. Legacy PATCH без токена остаётся совместимым без CAS. Единственный внутренний Beauty caller это канонический saveBeautyEmployee; Food caller не изменён. Адрес /employees?employee=<uuid>#profile получает только разрешённую строку текущего scope. Несохранённые поля требуют явного решения; browser close использует native beforeunload. Account linking, общий onboarding, новая schema и новая политика видимости в решение не входят.
+

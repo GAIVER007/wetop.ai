@@ -1821,7 +1821,7 @@ MVP вводится вручную и используется всеми Busin
 | `id` | `uuid` PK | |
 | `organization_id` | `uuid` FK → `organizations` NOT NULL | бизнес принадлежит одной организации; у организации N бизнесов |
 | `name` | `varchar(200)` NOT NULL | «Luxx Hotels», «Alma Beauty» |
-| `vertical` | enum `BusinessVertical` NOT NULL | `HOSPITALITY`, `BEAUTY` — минимальный набор из задачи; вертикаль живёт здесь, не на организации и не на филиале |
+| `vertical` | enum `BusinessVertical` NOT NULL | `HOSPITALITY`, `BEAUTY`, с 04.10.2026 и `FOOD_SERVICE` (поправка MV1, см. хвост файла); вертикаль живёт здесь, не на организации и не на филиале |
 | `status` | enum `BusinessStatus` NOT NULL DEFAULT `ACTIVE` | `ACTIVE`, `ARCHIVED`; удаления строк нет, как во всём §13 |
 | `created_at` / `updated_at` | `timestamptz` NOT NULL | |
 
@@ -4091,3 +4091,13 @@ UNIQUE `(location_id, month)`. RLS и права как у 41.1 (без `DELETE`
 
 Добавление бренда и филиала, решение владельца 13.10.2026 («как правильно, так и сделай»): Business остаётся брендом внутри текущей Organization. Можно создать второй Business того же vertical. Новый бренд создаётся атомарно с первым объектом. Для нового филиала выбирается конкретный активный Business своей организации; совпадение vertical не заменяет выбор бренда. Используются существующие Business.name, vertical и Location.business_id, новых колонок нет. Старый контракт без выбора бизнес-идентификатора сохраняется для регистрации и прежних клиентов.
 
+
+### ONBOARDING Beauty v2, утверждено 14.10.2026
+Физическая схема не меняется. OnboardingProgress.draft содержит businessName/locationName/timezone/currency и серверные profileApplied:boolean, completedFlowVersion:1|2. Клиентские metadata запрещены. completedAt сохраняет первое историческое завершение; completedFlowVersion=2 означает явное завершение нового flow, текущая readiness вычисляется по данным. v1 нормализуется только при чтении, write конвертирует под revision. Профиль применяется отдельным apply-profile до создания ресурсов. Пригодный существующий салон признаётся по данным без повторной обязательной настройки.
+
+### Employee common D2/child revisions, утверждено 14.10.2026
+Схема не меняется. creationId использует существующий Employee PK, audit event содержит bounded creationReceipt {version:1,fingerprint:HMAC-SHA256,locationId}. HMAC покрывает исходный нормализованный запрос, Organization, Business, Location, тип и инициатора; контакты не копируются в receipt. servicesRevision/weekRevision вычисляются из канонического read snapshot и проверяются в write transaction. Legacy без ключа/revision сохраняет прежний контракт без новых гарантий. profileRevision CAS принадлежит PEOPLE, этот срез его не вводит.
+
+### Employee profile D3, утверждено 14.10.2026
+
+PEOPLE E1a использует существующий Employee.updatedAt как независимую ревизию профиля. DTO profileRevision передаёт точный UTC timestamp с шестью знаками микросекунд; PATCH expectedProfileRevision сравнивает тот же текст под блокировкой строки. Изменение name/phone/email/status и аудит атомарны, updatedAt растёт минимум на одну микросекунду. Пустой PATCH не продвигает ревизию. Services, locations, week и timeoffs не меняют эту ревизию. Legacy PATCH без токена совместим, но защиты stale write не получает. Схема и RLS не меняются; расширение видимости персональных полей не утверждено.

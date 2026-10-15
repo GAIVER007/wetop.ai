@@ -5407,6 +5407,7 @@ interface FixtureBeautyService {
   } | null;
 }
 interface FixtureBeautyEmployee {
+  profileRevision?: string;
   id: string;
   name: string;
   phone: string | null;
@@ -6521,7 +6522,8 @@ createServer(async (req, res) => {
         const name = String(body['name'] ?? '').trim();
         if (!name) return send(400, { message: 'Укажите имя мастера' });
         const row: FixtureBeautyEmployee = {
-          id: `emp-${fixtureBeautyEmployees.length + 1}-0000-4000-8000-000000000000`,
+          id: String(body['creationId'] || `00000000-0000-4000-8000-${String(fixtureBeautyEmployees.length+1).padStart(12,'0')}`),
+          profileRevision: new Date().toISOString().replace(/(\.\d{3})Z$/, '$1000Z'),
           name,
           phone: String(body['phone'] ?? '').trim() || null,
           email:
@@ -6536,11 +6538,18 @@ createServer(async (req, res) => {
         return send(200, row);
       }
       const patchEmployee = /^\/beauty\/employees\/([^/]+)$/.exec(path);
+      if (patchEmployee && req.method === 'GET') {
+        const row=fixtureBeautyEmployees.find(e=>e.id===decodeURIComponent(patchEmployee[1]!));
+        return row ? send(200,row) : send(404,{message:'Мастер не найден'});
+      }
       if (patchEmployee && req.method === 'PATCH') {
         const row = fixtureBeautyEmployees.find(
           (e) => e.id === decodeURIComponent(patchEmployee[1]!),
         );
         if (!row) return send(404, { message: 'Мастер не найден' });
+        if (body['expectedProfileRevision'] && body['expectedProfileRevision'] !== row.profileRevision)
+          return send(409, { message: 'Профиль изменён. Сравните актуальные данные.' });
+        row.profileRevision = new Date().toISOString().replace(/(\.\d{3})Z$/, '$1000Z');
         if (body['name'] !== undefined) row.name = String(body['name']).trim();
         if (body['phone'] !== undefined) row.phone = String(body['phone']).trim() || null;
         if (body['email'] !== undefined)

@@ -1,3 +1,4 @@
+import { LEAD_JS } from './render/lead-script';
 import { PRICES_JS } from './render/prices-script';
 import { SITE_CSS } from './render/theme';
 
@@ -13,3 +14,4 @@ function fnv1a(text: string): string {
 
 export const CSS_PATH = `/_wetop/site-${fnv1a(SITE_CSS)}.css`;
 export const PRICES_PATH = `/_wetop/prices-${fnv1a(PRICES_JS)}.js`;
+export const LEAD_PATH = `/_wetop/lead-${fnv1a(LEAD_JS)}.js`;

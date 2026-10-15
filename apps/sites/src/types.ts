@@ -59,6 +59,12 @@ export interface ImageRef {
   alt: LocalizedText;
 }
 
+/** SITE-2: цена снимком из данных WETOP, целые minor units строкой */
+export interface Money {
+  minor: string;
+  currency: string;
+}
+
 export interface Section {
   id: string;
   type: string;
@@ -86,7 +92,8 @@ export interface Page {
 export interface SiteSpec {
   schemaVersion: string;
   site: {
-    vertical: 'HOSPITALITY';
+    /** SITE-2: салон и ресторан рядом с гостиницей; схема та же `site-spec/0` */
+    vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
     displayName: LocalizedText;
     defaultLocale: Locale;
     locales: Locale[];
@@ -103,7 +110,11 @@ export interface SiteSpec {
     seo: {
       robots: 'INDEX' | 'NOINDEX';
       titleTemplate?: LocalizedText;
-      structuredData: { type: 'HOTEL' | 'HOSTEL' | 'APARTMENT' | 'LODGING'; includeAddress: boolean; includeGeo: boolean };
+      structuredData: {
+        type: 'HOTEL' | 'HOSTEL' | 'APARTMENT' | 'LODGING' | 'BEAUTY_SALON' | 'RESTAURANT' | 'CAFE';
+        includeAddress: boolean;
+        includeGeo: boolean;
+      };
     };
   };
   theme: {
@@ -117,6 +128,8 @@ export interface SiteSpec {
   navigation: {
     header: Array<{ label: LocalizedText; target: Target }>;
     headerCta?: Cta;
+    /** SITE-2: закреплённая внизу кнопка заявки и WhatsApp на телефоне */
+    mobileBar?: { book: boolean; whatsapp: boolean };
     footer: Array<{ label: LocalizedText; target: Target }>;
   };
   pages: Page[];

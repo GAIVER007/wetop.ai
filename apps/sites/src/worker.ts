@@ -1,9 +1,10 @@
 import { normalizeSiteHost, parseSitesBaseDomain, previewHost } from '../../../packages/domain/src/marketing/host';
 import { ContractClient, fetchPreview, type ContractResult } from './contract';
 import { apiOriginOf, BASE_SECURITY_HEADERS, CACHE, contentSecurityPolicy, safeAssetUrl } from './headers';
-import { RenderError, type RenderContext } from './render/context';
-import { CSS_PATH, PRICES_PATH } from './assets';
-import { pageNeedsPrices, renderNotFound, renderPage } from './render/page';
+import { RenderError, usesHotelWidget, type RenderContext } from './render/context';
+import { CSS_PATH, LEAD_PATH, PRICES_PATH } from './assets';
+import { pageNeedsLead, pageNeedsPrices, renderNotFound, renderPage } from './render/page';
+import { LEAD_JS } from './render/lead-script';
 import { PRICES_JS } from './render/prices-script';
 import { SITE_CSS } from './render/theme';
 import { robotsTxt, seoSettings, sitemapXml, type SeoSettings } from './seo';
@@ -14,7 +15,7 @@ import type { Env, Page, RuntimeCurrent, SiteSpec } from './types';
  * Ни сессии, ни куки `wetop_scope`, ни выбора организации; в API ходит только `GET /sites-runtime/current` и, на хосте
  * превью `preview.<SITES_BASE_DOMAIN>` (MKT7), `GET /sites-runtime/preview` с токеном из адреса.
  */
-export { CSS_PATH, PRICES_PATH };
+export { CSS_PATH, LEAD_PATH, PRICES_PATH };
 
 type Log = (event: Record<string, unknown>) => void;
 
@@ -41,6 +42,11 @@ export function createRuntime(
         return respond(request, SITE_CSS, 200, { 'Content-Type': 'text/css; charset=utf-8', 'Cache-Control': CACHE.immutable });
       if (url.pathname === PRICES_PATH)
         return respond(request, PRICES_JS, 200, {
+          'Content-Type': 'application/javascript; charset=utf-8',
+          'Cache-Control': CACHE.immutable,
+        });
+      if (url.pathname === LEAD_PATH)
+        return respond(request, LEAD_JS, 200, {
           'Content-Type': 'application/javascript; charset=utf-8',
           'Cache-Control': CACHE.immutable,
         });
@@ -138,12 +144,13 @@ export function createRuntime(
       previewToken,
     };
     const analytics = !preview && spec.integrations.analytics.mode === 'WETOP_TRACKER' && !!current.publicKey;
-    const bookingOnPage = bookingLive && !!page?.sections.some((s) => s.type === 'booking');
+    const bookingOnPage = bookingLive && !!page?.sections.some(usesHotelWidget);
     const csp = contentSecurityPolicy({
       apiOrigin,
       analytics,
       booking: bookingOnPage,
       prices: !!page && pageNeedsPrices(ctx),
+      lead: !!page && pageNeedsLead(ctx),
       imageOrigins: [...imageOrigins].sort(),
     });
     let html: string;

@@ -52,6 +52,31 @@ export interface UiStrings {
   notFoundText: string;
   home: string;
   book: string;
+  // SITE-2: салон, ресторан, форма заявки, закреплённая кнопка
+  appoint: string;
+  bookTable: string;
+  callback: string;
+  writeWhatsapp: string;
+  minutes: (n: number) => string;
+  grams: (n: number) => string;
+  priceFrom: (price: string) => string;
+  weekdays: readonly string[];
+  weekdaysShort: readonly string[];
+  formName: string;
+  formPhone: string;
+  formComment: string;
+  formService: string;
+  formMaster: string;
+  formAnyMaster: string;
+  formDate: string;
+  formTime: string;
+  formParty: string;
+  formSend: string;
+  formSending: string;
+  formDone: string;
+  formError: string;
+  formUnavailable: string;
+  quickActions: string;
 }
 
 const UI: Record<Locale, UiStrings> = {
@@ -75,6 +100,30 @@ const UI: Record<Locale, UiStrings> = {
     notFoundText: 'Такой страницы на сайте нет.',
     home: 'На главную',
     book: 'Забронировать',
+    appoint: 'Записаться',
+    bookTable: 'Забронировать стол',
+    callback: 'Перезвоните мне',
+    writeWhatsapp: 'WhatsApp',
+    minutes: (n: number) => `${n} мин`,
+    grams: (n: number) => `${n} г`,
+    priceFrom: (price: string) => `от ${price}`,
+    weekdays: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
+    weekdaysShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+    formName: 'Имя',
+    formPhone: 'Телефон',
+    formComment: 'Комментарий',
+    formService: 'Услуга',
+    formMaster: 'Мастер',
+    formAnyMaster: 'Любой мастер',
+    formDate: 'Дата',
+    formTime: 'Время',
+    formParty: 'Гостей',
+    formSend: 'Отправить',
+    formSending: 'Отправляем…',
+    formDone: 'Заявка принята. Мы свяжемся с вами.',
+    formError: 'Не удалось отправить. Попробуйте ещё раз или позвоните нам.',
+    formUnavailable: 'Онлайн-запись сейчас недоступна.',
+    quickActions: 'Быстрые действия',
   },
   kk: {
     skip: 'Мазмұнға өту',
@@ -96,6 +145,30 @@ const UI: Record<Locale, UiStrings> = {
     notFoundText: 'Сайтта мұндай бет жоқ.',
     home: 'Басты бетке',
     book: 'Брондау',
+    appoint: 'Жазылу',
+    bookTable: 'Үстел брондау',
+    callback: 'Маған қоңырау шалыңыз',
+    writeWhatsapp: 'WhatsApp',
+    minutes: (n: number) => `${n} мин`,
+    grams: (n: number) => `${n} г`,
+    priceFrom: (price: string) => `${price} бастап`,
+    weekdays: ['Жексенбі', 'Дүйсенбі', 'Сейсенбі', 'Сәрсенбі', 'Бейсенбі', 'Жұма', 'Сенбі'],
+    weekdaysShort: ['Жс', 'Дс', 'Сс', 'Ср', 'Бс', 'Жм', 'Сб'],
+    formName: 'Аты',
+    formPhone: 'Телефон',
+    formComment: 'Пікір',
+    formService: 'Қызмет',
+    formMaster: 'Шебер',
+    formAnyMaster: 'Кез келген шебер',
+    formDate: 'Күні',
+    formTime: 'Уақыты',
+    formParty: 'Қонақтар',
+    formSend: 'Жіберу',
+    formSending: 'Жіберілуде…',
+    formDone: 'Өтінім қабылданды. Біз сізбен хабарласамыз.',
+    formError: 'Жіберу мүмкін болмады. Қайталап көріңіз немесе бізге қоңырау шалыңыз.',
+    formUnavailable: 'Онлайн жазылу қазір қолжетімсіз.',
+    quickActions: 'Жылдам әрекеттер',
   },
   en: {
     skip: 'Skip to content',
@@ -117,6 +190,30 @@ const UI: Record<Locale, UiStrings> = {
     notFoundText: 'There is no such page on this site.',
     home: 'Go to home page',
     book: 'Book',
+    appoint: 'Book a visit',
+    bookTable: 'Book a table',
+    callback: 'Call me back',
+    writeWhatsapp: 'WhatsApp',
+    minutes: (n: number) => `${n} min`,
+    grams: (n: number) => `${n} g`,
+    priceFrom: (price: string) => `from ${price}`,
+    weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    formName: 'Name',
+    formPhone: 'Phone',
+    formComment: 'Comment',
+    formService: 'Service',
+    formMaster: 'Specialist',
+    formAnyMaster: 'Any specialist',
+    formDate: 'Date',
+    formTime: 'Time',
+    formParty: 'Guests',
+    formSend: 'Send',
+    formSending: 'Sending…',
+    formDone: 'Request received. We will contact you.',
+    formError: 'Could not send. Please try again or call us.',
+    formUnavailable: 'Online booking is not available right now.',
+    quickActions: 'Quick actions',
   },
 };
 export const ui = (locale: Locale): UiStrings => UI[locale] ?? UI.ru;

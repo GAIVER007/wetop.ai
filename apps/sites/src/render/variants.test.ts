@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SITE_SPEC_SECTIONS } from '@pms/domain';
-import { ctx, exampleSpec } from '../test/fixtures';
+import { ctx, exampleSpec, verticalSpec } from '../test/fixtures';
 import { SECTION_RENDERERS } from './sections';
 import type { Section } from '../types';
 
@@ -11,8 +11,8 @@ import type { Section } from '../types';
 const ASSET = 'https://assets.example.test/img.webp';
 
 function sectionOf(type: string, variant: string): Section {
-  const spec = exampleSpec();
-  const found = spec.pages.flatMap((p) => p.sections).find((s) => s.type === type)!;
+  const all = [exampleSpec(), verticalSpec('BEAUTY'), verticalSpec('FOOD_SERVICE')].flatMap((spec) => spec.pages.flatMap((p) => p.sections));
+  const found = all.find((s) => s.type === type)!;
   return { ...structuredClone(found), variant };
 }
 

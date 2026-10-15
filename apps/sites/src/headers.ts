@@ -13,6 +13,11 @@ export interface PolicyInput {
   /** Скрипт цены «от» (Q-276): свой файл с того же хоста и запрос к API за ценой */
   prices?: boolean;
   /**
+   * SITE-2: скрипт формы заявки салона, ресторана или «перезвоните»: свой файл с того же хоста, запрос к API и
+   * Turnstile (как у брони)
+   */
+  lead?: boolean;
+  /**
    * MKT8: origin-ы хранилища, с которых реально грузятся картинки страницы (подписанные GET). Только в `img-src`, ни в
    * скрипты, ни в соединения, ни во фреймы; ни `https:`, ни `*`
    */
@@ -22,12 +27,13 @@ export interface PolicyInput {
 export function contentSecurityPolicy(input: PolicyInput): string {
   const scripts: string[] = [];
   const connect: string[] = [];
-  if (input.apiOrigin && input.prices) scripts.push("'self'");
-  if (input.apiOrigin && (input.analytics || input.booking || input.prices)) {
+  if (input.apiOrigin && (input.prices || input.lead)) scripts.push("'self'");
+  if (input.apiOrigin && (input.analytics || input.booking || input.prices || input.lead)) {
     if (input.analytics || input.booking) scripts.push(input.apiOrigin);
     connect.push(input.apiOrigin);
   }
-  if (input.apiOrigin && input.booking) {
+  const turnstile = !!input.apiOrigin && (input.booking || !!input.lead);
+  if (turnstile) {
     scripts.push(TURNSTILE_ORIGIN);
     connect.push(TURNSTILE_ORIGIN);
   }
@@ -37,7 +43,7 @@ export function contentSecurityPolicy(input: PolicyInput): string {
     "style-src 'self' 'unsafe-inline'",
     ["img-src 'self' data:", ...(input.imageOrigins ?? [])].join(' '),
     `connect-src ${connect.length ? connect.join(' ') : "'none'"}`,
-    `frame-src ${input.apiOrigin && input.booking ? TURNSTILE_ORIGIN : "'none'"}`,
+    `frame-src ${turnstile ? TURNSTILE_ORIGIN : "'none'"}`,
     "base-uri 'none'",
     "form-action 'self'",
     "frame-ancestors 'none'",

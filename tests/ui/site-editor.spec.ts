@@ -312,7 +312,7 @@ test('ИИ с несохранёнными правками: «Сохранит�
   await expect(ai.getByLabel('Что изменить в этом блоке?')).toHaveValue('Ярче');
 });
 
-test('первый экран MKT9.2: «Сайт для …», без названия, адреса и примеров; факты филиала; сайт создаётся и открывается редактор', async ({ page, request }) => {
+test('первый экран MKT9.2 + SITE-1: «Сайт для …», без названия и адреса сайта; факты филиала; сайт создаётся и открывается редактор', async ({ page, request }) => {
   await control(request, { noSite: true });
   await page.goto('/marketing/site/editor');
   const m = main(page);
@@ -322,9 +322,10 @@ test('первый экран MKT9.2: «Сайт для …», без назва
   await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
   await expect(win.getByLabel('Название сайта')).toHaveCount(0);
   await expect(win.getByRole('list', { name: 'Примеры описаний' })).toHaveCount(0);
-  await expect(win.getByRole('button')).toHaveText(['Показать варианты оформления', 'Создать сайт']);
-  await expect(win.getByTestId('create-site-facts')).toContainText('Номера: Стандарт, Койка в общем номере');
-  await expect(win.getByTestId('create-site-facts')).toContainText('Адрес: ул. Вымышленная, 1');
+  await expect(win.getByTestId('create-site-designs')).toHaveText('Подобрать ИИ под мой запрос');
+  await expect(win.getByTestId('create-site-start')).toHaveText('Создать сайт');
+  await expect(win.getByTestId('create-site-facts')).toContainText('Стандарт');
+  await expect(win.getByTestId('create-site-facts')).toContainText('ул. Вымышленная, 1');
   await win.getByLabel('Опишите, каким должен быть сайт').fill('Спокойный сайт у вокзала');
   await win.getByTestId('create-site-start').click();
   await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');

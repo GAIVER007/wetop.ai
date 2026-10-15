@@ -21,7 +21,7 @@ import SalesPage from '../sales/page';
 import MarketingPage from '../marketing/page';
 
 describe('Разделы роста по направлению бизнеса', () => {
-  it('маркетинг салона: бюджет доступен, сайт «Скоро» без ссылки, тексты про клиентов салона', () => {
+  it('маркетинг салона: бюджет и «Сайт и SEO» доступны (SITE-1), тексты про клиентов салона', () => {
     const html = renderToStaticMarkup(
       createElement(BusinessGrowthScreen, { vertical: 'BEAUTY', mode: 'marketing' }),
     );
@@ -31,9 +31,10 @@ describe('Разделы роста по направлению бизнеса',
     // единая система: бюджет ведётся по филиалу любого направления
     expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/budget"');
-    // конструктор сайта API принимает только у гостиницы: у салона без ссылки
-    expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>Скоро</);
-    expect(html).not.toContain('href="/marketing/site/editor"');
+    // SITE-1: первый экран сайта открыт всем направлениям; публикация и изображения пока гостиничные, меню «⋯» нет
+    expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>Доступно</);
+    expect(html).toContain('href="/marketing/site/editor"');
+    expect(html).not.toContain('href="/marketing/site/assets"');
     expect(html).toContain('сайт салона');
     expect(html).toContain('Онлайн-запись');
     expect(html).not.toMatch(/гостиниц/);

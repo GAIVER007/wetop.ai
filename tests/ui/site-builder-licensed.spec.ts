@@ -103,20 +103,21 @@ test('режим «План»: вопросы с вариантами, план 
   await expect(ai(page).getByTestId('ed-plan-done')).toBeVisible();
 });
 
-test('варианты оформления на первом экране: три карточки с выбором, сайт создаётся с выбранным оформлением', async ({ page, request }) => {
+test('«Подобрать ИИ под мой запрос» на первом экране: три карточки от ИИ вместо готовых, сайт создаётся с выбранным оформлением', async ({ page, request }) => {
   await site(request, { noSite: true });
   await page.goto('/marketing/site/editor');
   const win = main(page).getByTestId('create-site');
   await win.getByLabel('Опишите, каким должен быть сайт').fill('Строго и по делу');
   await win.getByTestId('create-site-designs').click();
-  const cards = win.getByTestId('ed-design');
+  const cards = win.getByTestId('site-designs');
+  await expect(cards.getByRole('radio', { name: /Ночной город/ })).toBeVisible();
   await expect(cards.getByRole('radio')).toHaveCount(3);
   await expect(cards.getByRole('radio', { name: /Тёплый дом/ })).toBeChecked();
   await cards.getByText('Ночной город').click();
   await expect(cards.getByRole('radio', { name: /Ночной город/ })).toBeChecked();
   await clean(page);
   await shot(page, 'design-cards-light-1440');
-  await cards.getByTestId('ed-design-apply').click();
+  await win.getByTestId('create-site-start').click();
   await expect(main(page).getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
   await tab(page, 'Дизайн').click();
   await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');

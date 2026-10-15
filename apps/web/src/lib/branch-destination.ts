@@ -29,8 +29,15 @@ const pages = new Set([
   '/ai-agents',
   '/ai-seller',
   '/website',
+  // SITE-1: выбор филиала на экране «Сайт и SEO» переключает стойку тем же действием и остаётся на экране
+  '/marketing/site/editor',
   '/branches',
   '/platform',
+]);
+/** Экраны, общие для всех направлений: смена филиала любого направления на них остаётся на месте */
+export const SHARED_BRANCH_DESTINATIONS: ReadonlySet<string> = new Set([
+  '/management/analytics',
+  '/marketing/site/editor',
 ]);
 export function branchDestination(value: string): string {
   const path = value.split(/[?#]/, 1)[0] ?? '';

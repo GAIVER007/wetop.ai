@@ -1,7 +1,8 @@
 'use server';
 import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
-import { ApiError, marketingSiteApi, siteEditorApi, type EditorReply } from '../../../../lib/api';
+import { ApiError, branchesApi, marketingSiteApi, siteEditorApi, type EditorReply } from '../../../../lib/api';
+import { selectBranch } from '../../../branches/actions';
 
 /**
  * Действия редактора сайта (MKT9). Каждое зовёт API строгого scope филиала и возвращает стойке ответ как есть:
@@ -76,25 +77,67 @@ export async function sectionAction(baseVersionId: string, pageId: string, secti
 }
 
 /**
- * MKT9.2, первый экран «Сайт для …»: сайт заводится пустым телом (имя и адрес из филиала, повтор отдаёт тот же),
- * затем первая сборка ИИ с текстом человека как пожеланием или с выбранным направлением оформления. Хэш брифа тот, что
- * видел человек на этой странице
+ * MKT9.2 и SITE-1, первый экран «Сайт и SEO»: сайт заводится пустым телом (имя и адрес из филиала, повтор отдаёт тот же),
+ * затем первая сборка ИИ с текстом человека как пожеланием и с выбранным оформлением: готовым из набора домена
+ * (`presetId`, сервер берёт направление сам) или из ответа ИИ (`runId` + `id`). Хэш брифа тот, что видел человек на
+ * странице; у направления, где бриф на странице не читался (салон, ресторан до подключения API), его берёт сервер стойки
+ * сразу после заведения сайта, поэтому после включения API экран работает без правок.
  */
-export async function createSiteAction(input: { briefHash: string; instruction: string; design?: { runId: string; id: string } }) {
+export type SiteDesignChoice = { presetId: string } | { runId: string; id: string };
+
+export async function createSiteAction(input: { briefHash: string | null; instruction: string; design?: SiteDesignChoice }) {
   const site = await safe(() => siteEditorApi.bootstrap());
-  if (!site.ok) return { ok: false as const, siteCreated: false, message: site.message, code: site.code };
+  if (!site.ok) return { ok: false as const, siteCreated: false, status: site.status, message: site.message, code: site.code };
+  let briefHash = input.briefHash;
+  if (!briefHash) {
+    try {
+      briefHash = (await siteEditorApi.brief()).briefHash;
+    } catch (e) {
+      revalidatePath('/marketing/site');
+      return {
+        ok: false as const,
+        siteCreated: true,
+        status: e instanceof ApiError ? e.status : 0,
+        message: e instanceof Error ? e.message : 'Нет связи с сервером',
+        code: null,
+      };
+    }
+  }
   const text = input.instruction.trim();
+  const design = input.design;
   const reply = await safe(() =>
     siteEditorApi.generate({
       requestKey: randomUUID(),
-      expectedBriefHash: input.briefHash,
+      expectedBriefHash: briefHash,
       ...(text ? { instruction: text } : {}),
-      ...(input.design ? { designRunId: input.design.runId, designId: input.design.id } : {}),
+      ...(design && 'presetId' in design ? { designPresetId: design.presetId } : {}),
+      ...(design && 'runId' in design ? { designRunId: design.runId, designId: design.id } : {}),
     }),
   );
   revalidatePath('/marketing/site');
-  if (!reply.ok) return { ok: false as const, siteCreated: true, message: reply.message, code: reply.code };
+  if (!reply.ok) return { ok: false as const, siteCreated: true, status: reply.status, message: reply.message, code: reply.code };
   return { ok: true as const, siteCreated: true, run: reply.data.run };
+}
+
+/**
+ * SITE-1: выбор филиала на экране «Сайт и SEO». Тот же переключатель, что в шапке (`selectBranch`: кука указателя,
+ * проверка по списку филиалов сессии), и возврат на этот же экран; филиал ищется по `locationId` в ответе сервера
+ */
+export async function chooseSiteLocationAction(locationId: string): Promise<{ ok: false; message: string }> {
+  let branchId: string | null;
+  try {
+    const { items } = await branchesApi.list();
+    branchId = items.find((b) => b.locationId === locationId)?.id ?? null;
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : 'Не удалось загрузить филиалы' };
+  }
+  if (!branchId) return { ok: false, message: 'Филиал недоступен. Обновите страницу.' };
+  const form = new FormData();
+  form.set('id', branchId);
+  form.set('returnTo', '/marketing/site/editor');
+  // `selectBranch` заканчивается переходом (redirect): он уходит наружу как есть
+  await selectBranch(form);
+  return { ok: false, message: 'Не удалось переключить филиал' };
 }
 
 /** MKT9.2: «Показать варианты оформления» на первом экране: сайт заводится, ИИ предлагает три направления */

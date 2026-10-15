@@ -10,5 +10,6 @@ export * from './editor';
 export * from './diff';
 export * from './edit';
 export * from './builder';
+export * from './design-presets';
 export * from './conversation';
 export * from './budget';

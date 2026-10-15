@@ -5,8 +5,20 @@ import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { Alert } from '../../../../components/ui';
 import { loadErrorProps } from '../../../../lib/load-error';
-import { marketingSiteApi, siteAssetsApi, siteEditorApi, type SiteAssetView, type SiteConversationItem } from '../../../../lib/api';
+import {
+  ApiError,
+  branchesApi,
+  marketingSiteApi,
+  siteAssetsApi,
+  siteEditorApi,
+  type MarketingSiteCurrent,
+  type SiteAssetView,
+  type SiteConversationItem,
+} from '../../../../lib/api';
 import { deskShell } from '../../../../lib/desk-shell';
+import { loadSiteFacts, loadSiteLocations, type SiteStatus } from '../../../../lib/site-facts';
+import { siteFactsSource } from '../../../../lib/site-facts-source';
+import type { WebVertical } from '../../../../lib/vertical-landing';
 import { BackToModules } from '../../parts';
 import { SiteEditor } from './editor';
 import { CreateSite } from './create-site';
@@ -17,9 +29,32 @@ import '../../marketing.css';
  * Проект это филиал: один сайт навсегда, без названий и адресов на входе. Без действующей лицензии филиала всё видно,
  * но менять, просить ИИ и публиковать нельзя; проверяет это API, экран только не предлагает недоступное. Голова
  * черновика правится в браузере и сохраняется новой неизменяемой версией; публикация на своей странице (MKT7).
+ *
+ * SITE-1: первый экран открыт всем трём направлениям (филиал, факты, чат, дизайны). Пока API конструктора принимает
+ * только гостиницу, у салона и ресторана `GET /marketing/site` отвечает отказом по направлению: экран показывает
+ * первый экран без сайта, а создание сайта говорит словами сервера. После подключения API правок здесь не нужно.
  */
+const NO_SITE = (): MarketingSiteCurrent => ({
+  site: null,
+  archived: false,
+  locationName: null,
+  builder: { access: 'off', status: null, activeUntil: null },
+  instructions: null,
+});
+
+/** Отказ API по направлению (403 без кода): у салона и ресторана это «ещё не подключено», а не сбой страницы */
+const verticalDenied = (vertical: WebVertical, e: unknown) => vertical !== 'HOSPITALITY' && e instanceof ApiError && e.status === 403;
+
+function siteStatusOf(current: MarketingSiteCurrent): SiteStatus {
+  if (!current.site) return current.archived ? 'ARCHIVED' : 'NONE';
+  if (current.site.state === 'ARCHIVED') return 'ARCHIVED';
+  return current.site.published ? 'PUBLISHED' : 'DRAFT';
+}
+
 export default async function SiteEditorPage() {
-  await requireVertical(['HOSPITALITY']);
+  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const vertical: WebVertical = me.context?.vertical ?? 'HOSPITALITY';
+  const locationId = me.context?.locationId ?? null;
   const shell = await deskShell();
   const title = 'Редактор сайта';
   const brief = () =>
@@ -29,7 +64,14 @@ export default async function SiteEditorPage() {
     });
   const loaded = await marketingSiteApi
     .current()
+    .catch((e: unknown) => {
+      unstable_rethrow(e);
+      if (verticalDenied(vertical, e)) return { ...NO_SITE(), pending: true as const };
+      throw e;
+    })
     .then(async (current) => {
+      if ('pending' in current)
+        return { ok: true as const, current, draft: null, versions: [], bookmarks: [], conversation: [] as SiteConversationItem[], brief: null, assets: [] as SiteAssetView[] };
       if (!current.site)
         return { ok: true as const, current, draft: null, versions: [], bookmarks: [], conversation: [] as SiteConversationItem[], brief: await brief(), assets: [] as SiteAssetView[] };
       const [draft, versions, briefView, assets, conversation] = await Promise.all([
@@ -58,8 +100,10 @@ export default async function SiteEditorPage() {
       </Page>
     );
   const { current } = loaded;
+  // у направления, которое API ещё не подключил, лицензию сервер не сообщает: решит отказ на «Создать сайт»
+  const pending = 'pending' in current;
   const licensed = current.builder.access === 'active';
-  const readOnly = shell.readOnly || !licensed;
+  const readOnly = shell.readOnly || (!pending && !licensed);
   const site = current.site;
   const locationName = current.locationName ?? loaded.brief?.input.identity.displayNameCandidate ?? 'филиала';
 
@@ -74,25 +118,34 @@ export default async function SiteEditorPage() {
     );
 
   if (!site || !loaded.draft?.version || !site.latest) {
-    const input = loaded.brief?.input;
-    const facts = input
-      ? [
-          input.accommodations.length ? `Номера: ${input.accommodations.map((a) => a.name).join(', ')}` : null,
-          input.identity.address ? `Адрес: ${input.identity.address}` : null,
-          input.identity.phone ? `Телефон: ${input.identity.phone}` : null,
-          input.identity.email ? `Почта: ${input.identity.email}` : null,
-          input.stay?.checkInTime ? `Заезд с ${input.stay.checkInTime}` : null,
-        ].filter((f): f is string => !!f)
-      : [];
+    const source = siteFactsSource(locationId);
+    // без выбранного филиала спрашивает сервер: настоящий API ответит «Выберите филиал», и это будет видно в карточке
+    const [facts, locations] = await Promise.all([
+      loadSiteFacts(locationId ?? '', vertical, source),
+      loadSiteLocations(
+        source,
+        async () => (await branchesApi.list()).items.map((b) => ({ locationId: b.locationId, name: b.name, vertical: b.vertical })),
+        { locationId, siteStatus: pending ? null : siteStatusOf(current) },
+      ),
+    ]);
+    const name = facts.ok ? facts.data.location.name : locationName;
     return (
-      <Page crumbs={<BackToModules />} title={title}>
-        {!licensed && (
+      <Page crumbs={<BackToModules />} title="Сайт и SEO" width="full">
+        {!pending && !licensed && (
           <Alert boxed data-testid="ed-license-off">
             <b>Конструктор сайта не активен для этого филиала.</b> Создать сайт и просить ИИ нельзя. Подключить конструктор может главный
             администратор WETOP.
           </Alert>
         )}
-        <CreateSite locationName={locationName} briefHash={loaded.brief?.briefHash ?? null} facts={facts} readOnly={readOnly} />
+        <CreateSite
+          vertical={vertical}
+          locationName={name}
+          locationId={locationId ?? (facts.ok ? facts.data.location.id : null)}
+          briefHash={loaded.brief?.briefHash ?? null}
+          facts={facts}
+          locations={locations}
+          readOnly={readOnly}
+        />
       </Page>
     );
   }

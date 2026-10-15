@@ -112,16 +112,27 @@ const BUDGET_MENU = [
 
 /**
  * Живые модули по направлению. Бюджет ведётся по филиалу любого направления (API `/marketing/budget` от вертикали не
- * зависит). Конструктор сайта API пока принимает только у гостиницы (`marketing-site/scope.ts`), поэтому у салона и
- * ресторана он «Скоро» без ссылки, а не открытый экран с ошибкой 403.
+ * зависит). «Сайт и SEO» с SITE-1 открыт всем направлениям: первый экран (филиал, факты, чат, дизайны) работает у
+ * всех, а создание сайта салона и ресторана честно говорит словами сервера, пока API их не подключит.
  */
 export function liveModules(vertical: WebVertical): Set<Module['key']> {
   return new Set<Module['key']>(
-    vertical === 'HOSPITALITY' ? ['site', 'budget', 'competitors'] : ['budget'],
+    vertical === 'HOSPITALITY' ? ['site', 'budget', 'competitors'] : ['site', 'budget'],
   );
 }
 
-function ModuleCard({ module, live, soonForVertical }: { module: Module; live: boolean; soonForVertical: boolean }) {
+/** Публикация, изображения и бронирование сайта пока гостиничные экраны: меню «⋯» у сайта только у гостиницы */
+function ModuleCard({
+  module,
+  live,
+  soonForVertical,
+  hospitality,
+}: {
+  module: Module;
+  live: boolean;
+  soonForVertical: boolean;
+  hospitality: boolean;
+}) {
   const headingId = `${module.testId}-title`;
   return (
     <section
@@ -162,7 +173,7 @@ function ModuleCard({ module, live, soonForVertical }: { module: Module; live: b
               Открыть <Icon name="arrow" width={16} aria-hidden="true" />
             </Link>
           )}
-          {live && module.key !== 'competitors' && (
+          {live && module.key !== 'competitors' && (module.key !== 'site' || hospitality) && (
             <ActionMenu
               label={`Ещё действия: ${module.title}`}
               items={module.key === 'budget' ? BUDGET_MENU : SITE_MENU}
@@ -207,6 +218,7 @@ export function MarketingHub({
               module={m}
               live={live.has(m.key)}
               soonForVertical={!live.has(m.key) && !PREVIEW.has(m.key)}
+              hospitality={hospitality}
             />
           ))}
         </div>
@@ -261,15 +273,15 @@ export function MarketingHub({
                 <p>
                   {hospitality
                     ? 'Сайт, реклама и контент в одном рабочем пространстве. Доступность указана в каждом модуле.'
-                    : 'Начните с бюджета: внесите план месяца и расходы по каналам, аналитика посчитает остальное.'}
+                    : `Начните с сайта: WETOP уже знает ${copy.catalogTitle.toLowerCase()} филиала и предложит три дизайна.`}
                 </p>
               </div>
             </div>
             <Link
               className="btn btn--secondary marketing-start__cta"
-              href={hospitality ? '/marketing/site/editor' : '/marketing/budget'}
+              href="/marketing/site/editor"
             >
-              {hospitality ? 'Начать с сайта' : 'Открыть бюджет'}
+              Начать с сайта
             </Link>
           </section>
         </aside>

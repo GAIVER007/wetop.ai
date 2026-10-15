@@ -1,0 +1,224 @@
+import AxeBuilder from '@axe-core/playwright';
+import { mkdirSync } from 'node:fs';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
+
+/**
+ * SITE-1 (`plans/site-seo-flow-2026-10-15.md` §1 шаги 1–3): первый экран «Сайт и SEO» как у Lovable. Филиал со
+ * статусом сайта, «Что WETOP знает о филиале», чат с подсказками и диктовкой, три разных дизайна с живым мини-превью
+ * без ИИ, «Другие варианты», создание сайта гостиницы с выбранным готовым дизайном. Салон: тот же экран, создание
+ * честно говорит, что конструктор подключается. Стенд отвечает правилами API, данные вымышленные (ADR-010).
+ */
+const SHOTS = 'reports/site-1';
+const main = (page: Page) => page.getByRole('main').filter({ visible: true });
+const site = (request: { post: (url: string, o: { data: unknown }) => Promise<unknown> }, data: Record<string, unknown>) =>
+  request.post(`${FIXTURE_API}/__test/marketing-site`, { data });
+const axe = (page: Page) =>
+  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-testid="site-design-frame"]').analyze();
+const wide = (page: Page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll('main *')]
+      .filter((el) => el.getBoundingClientRect().right > innerWidth + 1 && !el.closest('.site-design__shot'))
+      .slice(0, 5)
+      .map((el) => `${el.tagName}.${el.className}`),
+  );
+/** Рамки превью рисуются, когда побывали в окне: перед снимком всей страницы прокручиваем к ним */
+async function paintPreviews(page: Page) {
+  const frames = main(page).getByTestId('site-design-frame');
+  for (let i = 0; i < (await frames.count()); i++) await frames.nth(i).scrollIntoViewIfNeeded();
+  await expect(frames.first()).toHaveAttribute('srcdoc', /<body/);
+  await page.waitForTimeout(300);
+  await page.evaluate('window.scrollTo(0, 0)');
+}
+const designIds = async (page: Page) => main(page).getByTestId('site-design-card').evaluateAll((els) => els.map((e) => e.getAttribute('data-design')));
+
+async function signIn(page: Page) {
+  await page.goto('/auth/fallback');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
+}
+
+test.beforeAll(() => mkdirSync(SHOTS, { recursive: true }));
+test.beforeEach(async ({ request }) => {
+  await request.post(`${FIXTURE_API}/__test/reset`);
+});
+
+test('гостиница: филиал → факты → чип → три дизайна → «Другие варианты» → создать с готовым дизайном', async ({ page, request }) => {
+  await site(request, { noSite: true });
+  await page.goto('/marketing/site/editor');
+  const win = main(page).getByTestId('create-site');
+  await expect(win.getByRole('heading', { name: 'Сайт для Luxx Aparts' })).toBeVisible();
+
+  // шаг 1: филиал со статусом сайта, текущий отмечен
+  const current = win.getByTestId('site-location').filter({ hasText: 'выбран' });
+  await expect(current).toHaveAttribute('aria-current', 'true');
+  await expect(current).toContainText('Гостиница');
+  await expect(current).toContainText('Нет сайта');
+
+  // карточка фактов: адрес, телефон, каталог с ценой в тенге, «ещё K», отзывы, пробел со ссылкой «Дополнить»
+  const facts = win.getByTestId('create-site-facts');
+  await expect(facts.getByRole('heading', { name: 'Что WETOP знает о филиале' })).toBeVisible();
+  await expect(facts).toContainText('ул. Вымышленная, 1');
+  await expect(facts).toContainText('+77000000000');
+  await expect(facts.getByTestId('site-facts-catalog')).toContainText('Стандарт');
+  await expect(facts.getByTestId('site-facts-catalog')).toContainText('от 18 500 ₸');
+  await expect(facts.getByTestId('site-facts-more')).toHaveText('и ещё 2 позиции');
+  await expect(facts).toContainText('Заезд с 14:00, выезд до 12:00');
+  await expect(facts).toContainText('4,7 из 5, 128 отзывов');
+  await expect(facts.getByRole('link', { name: /Дополнить: Нет WhatsApp/ })).toHaveAttribute('href', '/hotel-settings');
+
+  // шаг 2: подсказка-чип дописывает запрос и нажимается обратно
+  const chip = win.getByTestId('site-chip').filter({ hasText: 'Акцент на семейном отдыхе' });
+  await expect(win.getByTestId('site-chip')).toHaveText(['Сайт с онлайн-бронированием', 'Акцент на семейном отдыхе', 'Покажи трансфер']);
+  await win.getByLabel('Опишите, каким должен быть сайт').fill('Спокойный сайт у вокзала');
+  await chip.click();
+  await expect(chip).toHaveAttribute('aria-pressed', 'true');
+  await expect(win.getByLabel('Опишите, каким должен быть сайт')).toHaveValue('Спокойный сайт у вокзала. Акцент на семейном отдыхе');
+
+  // шаг 3: три разных дизайна с живым превью; клавиатурой стрелками выбирается следующий
+  const cards = win.getByTestId('site-design-card');
+  await expect(cards).toHaveCount(3);
+  await expect(win.getByTestId('site-design-frame')).toHaveCount(3);
+  await expect(win.getByTestId('site-design-frame').first()).toHaveAttribute('srcdoc', /Luxx Aparts[\s\S]*Забронировать[\s\S]*от 18 500 ₸/);
+  const first = await designIds(page);
+  expect(new Set(first).size).toBe(3);
+  await expect(win.getByRole('radio', { name: /Светлый минимал/ })).toBeChecked();
+  await win.getByRole('radio', { name: /Светлый минимал/ }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(win.getByRole('radio', { name: /Вечерний город/ })).toBeChecked();
+  await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран дизайн «Вечерний город».');
+  await expect.poll(async () => (await axe(page)).violations).toEqual([]);
+  await paintPreviews(page);
+  await page.screenshot({ path: `${SHOTS}/hotel-flow-1440.png`, fullPage: true });
+  await win.getByTestId('site-designs').screenshot({ path: `${SHOTS}/hotel-designs-1440.png` });
+
+  // «Другие варианты»: новая тройка, снова три разных
+  await win.getByTestId('site-designs-more').click();
+  const second = await designIds(page);
+  expect(new Set(second).size).toBe(3);
+  expect(second).not.toEqual(first);
+  await win.getByTestId('site-design-card').filter({ hasText: 'Яркий тёплый' }).click();
+  await expect(win.getByRole('radio', { name: /Яркий тёплый/ })).toBeChecked();
+  await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран дизайн «Яркий тёплый».');
+
+  // создать: сайт заводится, первая сборка с готовым дизайном, открывается редактор с его темой
+  await win.getByTestId('create-site-start').click();
+  await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');
+  await expect(main(page).getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
+  await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
+  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('WARM');
+});
+
+test('диктовка: фраза дописывается в запрос, язык выбирается; без поддержки браузера кнопки нет', async ({ page, request }) => {
+  await site(request, { noSite: true });
+  await page.goto('/marketing/site/editor');
+  // Chromium Playwright без сервиса распознавания: кнопки диктовки нет
+  const win = main(page).getByTestId('create-site');
+  await expect(win.getByTestId('site-chip').first()).toBeVisible();
+  const hasNative = await page.evaluate('Boolean(window.SpeechRecognition || window.webkitSpeechRecognition)');
+  if (!hasNative) await expect(win.getByTestId('site-mic')).toHaveCount(0);
+
+  await page.addInitScript(`window.SpeechRecognition = class {
+    start() { window.__dictationLang = this.lang; this.onresult({resultIndex:0,results:[{isFinal:true,0:{transcript:'Покажи номера с балконом'}}]}); }
+    stop() { window.__dictationStopped = true; this.onend?.(); }
+    abort() {}
+  };`);
+  await page.reload();
+  await win.getByLabel('Опишите, каким должен быть сайт').fill('Сайт у вокзала');
+  await win.getByLabel('Язык диктовки').selectOption('kk-KZ');
+  await win.getByTestId('site-mic').click();
+  await expect(win.getByLabel('Опишите, каким должен быть сайт')).toHaveValue('Сайт у вокзала Покажи номера с балконом');
+  expect(await page.evaluate('window.__dictationLang')).toBe('kk-KZ');
+  await expect(win.getByTestId('site-mic')).toHaveAttribute('aria-pressed', 'true');
+  await win.getByTestId('site-mic').click();
+  expect(await page.evaluate('window.__dictationStopped')).toBe(true);
+});
+
+test('факты без эндпоинта API: карточка собрана из брифа гостиницы, экран работает', async ({ page, request }) => {
+  await site(request, { noSite: true, factsApi: false });
+  await page.goto('/marketing/site/editor');
+  const facts = main(page).getByTestId('create-site-facts');
+  await expect(facts.getByTestId('site-facts-catalog')).toContainText('Стандарт');
+  await expect(facts.getByTestId('site-facts-catalog')).toContainText('Койка в общем номере');
+  await expect(facts).toContainText('ул. Вымышленная, 1');
+  // без эндпоинта статус сайта известен только у выбранного филиала; стенд без входа филиал не выбирал
+  await expect(main(page).getByTestId('site-location')).toContainText(['Тестовый центральный филиал']);
+  await expect(facts.getByRole('link', { name: /Дополнить: Нет цен/ })).toHaveAttribute('href', '/rates');
+});
+
+test('салон: выбор филиала переключает стойку, тот же экран с услугами и мастерами; создание честно «подключается»', async ({ page, request }) => {
+  test.setTimeout(120_000);
+  const salon = '5a1c0000-0000-4000-8000-00000000a001';
+  await signIn(page);
+  await request.post(`${FIXTURE_API}/branches`, {
+    headers: { 'x-wetop-test-client': '1' },
+    data: { id: salon, name: 'Студия Айна', address: 'пр. Абая, 1', currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'BEAUTY' },
+  });
+  await site(request, { noSite: true });
+  await page.goto('/marketing/site/editor');
+  const win = main(page).getByTestId('create-site');
+  const target = win.getByTestId('site-location').filter({ hasText: 'Студия Айна' });
+  await expect(target).toContainText('Салон');
+  await target.click();
+  await expect(win.getByRole('heading', { name: 'Сайт для Студия Айна' })).toBeVisible({ timeout: 30_000 });
+  await expect(page).toHaveURL(/\/marketing\/site\/editor$/);
+  await expect(win.getByTestId('site-location').filter({ hasText: 'выбран' })).toContainText('Студия Айна');
+  await expect(win.getByTestId('site-chip')).toHaveText(['Сайт для записи на услуги', 'Акцент на мастерах', 'Акция на первое посещение']);
+  await expect(win.getByTestId('create-site-facts').getByTestId('site-facts-staff')).toBeVisible();
+  await expect(win.getByTestId('site-design-frame').first()).toHaveAttribute('srcdoc', /Студия Айна[\s\S]*Записаться/);
+  await expect(main(page).getByTestId('ed-license-off')).toHaveCount(0);
+  await expect.poll(async () => (await axe(page)).violations).toEqual([]);
+  await paintPreviews(page);
+  await page.screenshot({ path: `${SHOTS}/salon-light-1440.png`, fullPage: true });
+  await win.getByTestId('site-chip').filter({ hasText: 'Акцент на мастерах' }).click();
+  await win.getByTestId('create-site-start').click();
+  await expect(win.getByTestId('create-site-error')).toHaveText(/Конструктор сайтов для салонов подключается/);
+  await expect(win.getByLabel('Опишите, каким должен быть сайт')).toHaveValue('Акцент на мастерах');
+  await expect(win.getByTestId('create-site-start')).toBeEnabled();
+});
+
+test('ресторан: меню с ценами, чипы ресторана, превью «Забронировать стол»', async ({ page, request }) => {
+  test.setTimeout(120_000);
+  const food = '5a1c0000-0000-4000-8000-00000000f001';
+  await signIn(page);
+  await request.post(`${FIXTURE_API}/branches`, {
+    headers: { 'x-wetop-test-client': '1' },
+    data: { id: food, name: 'Ресторан Дастархан', address: 'пр. Абая, 10', currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'FOOD_SERVICE' },
+  });
+  await site(request, { noSite: true });
+  await page.goto('/marketing/site/editor');
+  const win = main(page).getByTestId('create-site');
+  await win.getByTestId('site-location').filter({ hasText: 'Ресторан Дастархан' }).click();
+  await expect(win.getByRole('heading', { name: 'Сайт для Ресторан Дастархан' })).toBeVisible({ timeout: 30_000 });
+  await expect(win.getByTestId('site-chip')).toHaveText(['Сайт с меню и бронью столов', 'Акцент на банкетах', 'Покажи бизнес-ланч']);
+  await expect(win.getByTestId('site-facts-catalog')).toContainText('Бешбармак');
+  await expect(win.getByTestId('site-facts-catalog')).toContainText('4 500 ₸');
+  await expect(win.getByTestId('site-design-frame').first()).toHaveAttribute('srcdoc', /Ресторан Дастархан[\s\S]*Забронировать стол/);
+  await expect.poll(async () => (await axe(page)).violations).toEqual([]);
+  await paintPreviews(page);
+  await page.screenshot({ path: `${SHOTS}/restaurant-light-1440.png`, fullPage: true });
+});
+
+for (const theme of ['light', 'dark'] as const)
+  test(`снимки и доступность первого экрана гостиницы: ${theme}, 1440 и 390`, async ({ page, request }) => {
+    test.setTimeout(120_000);
+    await site(request, { noSite: true });
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      await page.goto('/marketing/site/editor');
+      await expect(main(page).getByTestId('site-design-frame')).toHaveCount(3);
+      expect(await wide(page)).toEqual([]);
+      // цели нажатия на телефоне не меньше 44 px: филиал, чипы, кнопки дизайна
+      if (width === 390) {
+        const small = await main(page)
+          .locator('.site-location, .site-chat__chips .chip, .site-start__actions .btn, .site-facts__gaps .btn')
+          .evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().height < 44).map((e) => e.textContent));
+        expect(small).toEqual([]);
+      }
+      await expect.poll(async () => (await axe(page)).violations).toEqual([]);
+      await paintPreviews(page);
+      await page.screenshot({ path: `${SHOTS}/hotel-${theme}-${width}.png`, fullPage: true });
+    }
+  });

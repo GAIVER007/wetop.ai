@@ -1,5 +1,7 @@
 import {
   applyDesignDirection,
+  designPresetById,
+  designPresetDirection,
   diffSiteSpecs,
   findSection,
   parseExtensionChange,
@@ -180,8 +182,11 @@ let bookmarks = new Map<string, string>();
 type License = ExtensionChange & { updatedAt: string };
 const ACTIVE_LICENSE = (): License => ({ status: 'ACTIVE', activeUntil: null, note: null, updatedAt: '2026-10-08T06:00:00.000Z' });
 let licenses = new Map<string, License>([[FIXTURE_LOCATION_ID, ACTIVE_LICENSE()]]);
+/** SITE-1: эндпоинтов фактов филиала нет (404), стойка собирает факты из существующих запросов */
+let factsApiOff = false;
 
 export function resetMarketingSiteFixture() {
+  factsApiOff = false;
   archived = false;
   instructions = null;
   aiRuns = [];
@@ -231,11 +236,19 @@ function record(action: Action, v: Version | null, previous: Version | null) {
   });
 }
 
+/** Статус сайта филиала стенда для списка филиалов (SITE-1) */
+export function fixtureSiteStatus(): 'NONE' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' {
+  if (archived) return 'ARCHIVED';
+  if (!exists) return 'NONE';
+  return published ? 'PUBLISHED' : 'DRAFT';
+}
+
 export function marketingSiteFixture(
   path: string,
   method: string,
   body: Record<string, unknown>,
   query: URLSearchParams = new URLSearchParams(),
+  vertical: string = 'HOSPITALITY',
 ): { status: number; data: unknown } | null {
   if (path === '/__test/marketing-site' && method === 'POST') {
     // новая ревизия черновика без сброса (как сохранение версии в MKT3): нужна для сценария отката
@@ -261,9 +274,14 @@ export function marketingSiteFixture(
     if (typeof body['aiFail'] === 'string') aiFail = body['aiFail'];
     if (body['rateRequired'] === true) rateRequired = true;
     if (typeof body['revisions'] === 'number') versions = Array.from({ length: body['revisions'] }, (_, i) => version(i + 1));
+    if (body['factsApi'] === false) factsApiOff = true;
     return { status: 200, data: { ok: true } };
   }
   if (!path.startsWith('/marketing/site')) return null;
+  // SITE-1: факты и филиалы отвечает стенд (`fixture-api.ts`), здесь только «эндпоинта ещё нет»
+  if (path === '/marketing/site/facts' || path === '/marketing/site/locations') return factsApiOff ? { status: 404, data: { message: 'Cannot GET ' + path } } : null;
+  // как `marketing-site/scope.ts`: API конструктора пока принимает только гостиницу, отказ без кода
+  if (vertical !== 'HOSPITALITY') return { status: 403, data: { message: 'Сайт и SEO пока доступны только гостиницам', statusCode: 403 } };
   if (path === '/marketing/site' && method === 'GET')
     return {
       status: 200,
@@ -479,7 +497,14 @@ function editorRoute(path: string, method: string, body: Record<string, unknown>
       return conflict('BASE_VERSION_CHANGED', 'Сайт уже изменили: обновите черновик и повторите');
     if (aiBusy()) return conflict('AI_BUSY', 'ИИ уже работает над этим сайтом: дождитесь результата');
     let design: DesignDirection | null = null;
-    if (body['designRunId']) {
+    // SITE-1: готовое оформление по id из набора домена; вместе с выбором из ответа ИИ нельзя
+    if (body['designPresetId'] !== undefined) {
+      if (body['designRunId'] !== undefined || body['designId'] !== undefined)
+        return { status: 400, data: { message: 'Оформление: либо designPresetId, либо designRunId и designId', statusCode: 400 } };
+      const preset = designPresetById(body['designPresetId']);
+      if (!preset) return { status: 400, data: { message: 'designPresetId: готовое оформление из набора', statusCode: 400 } };
+      design = designPresetDirection(preset);
+    } else if (body['designRunId']) {
       const from = aiRuns.find((r) => r.id === body['designRunId'] && r.mode === 'DESIGN' && r.status === 'SUCCEEDED');
       design = ((from?.payload?.['directions'] as DesignDirection[] | undefined) ?? []).find((d) => d.id === body['designId']) ?? null;
       if (!design) return { status: 404, data: { message: 'Вариант оформления не найден' } };

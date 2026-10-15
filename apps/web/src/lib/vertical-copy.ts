@@ -25,6 +25,14 @@ export interface VerticalCopy {
   photoSubject: string;
   /** иконка фото-формата */
   photoIcon: 'bed' | 'beauty' | 'kitchen';
+  /** родительный мн. ч.: «для гостиниц» / «для салонов» / «для ресторанов» */
+  businessesOf: string;
+  /** главная кнопка сайта (SITE-1): «Забронировать» / «Записаться» / «Забронировать стол» */
+  bookAction: string;
+  /** что продаёт филиал, для карточки фактов: «Номера и цены» / «Услуги и цены» / «Меню и цены» */
+  catalogTitle: string;
+  /** подсказки-чипы чата первого экрана «Сайт и SEO» (plans/site-seo-flow-2026-10-15.md §1 шаг 2) */
+  siteChips: readonly string[];
 }
 
 const COPY: Record<WebVertical, VerticalCopy> = {
@@ -39,6 +47,10 @@ const COPY: Record<WebVertical, VerticalCopy> = {
     conversionTo: 'в бронь',
     photoSubject: 'номера',
     photoIcon: 'bed',
+    businessesOf: 'гостиниц',
+    bookAction: 'Забронировать',
+    catalogTitle: 'Номера и цены',
+    siteChips: ['Сайт с онлайн-бронированием', 'Акцент на семейном отдыхе', 'Покажи трансфер'],
   },
   BEAUTY: {
     business: 'салон',
@@ -51,6 +63,10 @@ const COPY: Record<WebVertical, VerticalCopy> = {
     conversionTo: 'в запись',
     photoSubject: 'работы мастера',
     photoIcon: 'beauty',
+    businessesOf: 'салонов',
+    bookAction: 'Записаться',
+    catalogTitle: 'Услуги и цены',
+    siteChips: ['Сайт для записи на услуги', 'Акцент на мастерах', 'Акция на первое посещение'],
   },
   FOOD_SERVICE: {
     business: 'ресторан',
@@ -63,6 +79,10 @@ const COPY: Record<WebVertical, VerticalCopy> = {
     conversionTo: 'в заказ',
     photoSubject: 'блюда',
     photoIcon: 'kitchen',
+    businessesOf: 'ресторанов',
+    bookAction: 'Забронировать стол',
+    catalogTitle: 'Меню и цены',
+    siteChips: ['Сайт с меню и бронью столов', 'Акцент на банкетах', 'Покажи бизнес-ланч'],
   },
 };
 

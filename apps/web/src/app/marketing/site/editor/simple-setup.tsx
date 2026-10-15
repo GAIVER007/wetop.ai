@@ -26,6 +26,7 @@ import type { WebVertical } from '../../../../lib/vertical-landing';
 import { publishSimpleAction, saveDraftAction, uploadSitePhotoAction } from './actions';
 import type { Spec } from './fields';
 import { SitePreview } from './preview';
+import { TemplateGallery } from './template-gallery';
 
 /**
  * Простой экран сайта (SITE-1, решение владельца 15.10.2026): сайт это зеркало данных WETOP (услуги, цены, мастера,
@@ -226,26 +227,40 @@ export function SimpleSiteSetup({
           <legend>
             <span className="setup__n">1</span>Шаблон
           </legend>
-          <div className="setup__tpls" role="radiogroup" aria-label="Шаблон сайта">
-            {templates.map((tpl) => (
-              <button
-                key={tpl.id}
-                type="button"
-                role="radio"
-                aria-checked={current?.id === tpl.id}
-                className={cx('setup__tpl', current?.id === tpl.id && 'is-on')}
-                onClick={() => {
-                  const next = applySiteTemplate(specRef.current, tpl.id);
-                  if (next) apply(next as Spec);
-                }}
-                data-testid="setup-template-option"
-              >
-                <span className={cx('ed-design__swatch', `is-${tpl.direction.theme.preset.toLowerCase()}`)} aria-hidden="true" />
-                <b>{tpl.name}</b>
-                <span className="muted">{tpl.description}</span>
-              </button>
-            ))}
-          </div>
+          {facts ? (
+            <TemplateGallery
+              facts={facts}
+              templates={templates}
+              chosen={current?.id ?? null}
+              onChoose={(id) => {
+                const next = applySiteTemplate(specRef.current, id);
+                if (next) apply(next as Spec);
+              }}
+              disabled={readOnly || !!busy}
+              compact
+            />
+          ) : (
+            <div className="setup__tpls" role="radiogroup" aria-label="Шаблон сайта">
+              {templates.map((tpl) => (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={current?.id === tpl.id}
+                  className={cx('setup__tpl', current?.id === tpl.id && 'is-on')}
+                  onClick={() => {
+                    const next = applySiteTemplate(specRef.current, tpl.id);
+                    if (next) apply(next as Spec);
+                  }}
+                  data-testid="setup-template-option"
+                >
+                  <span className={cx('ed-design__swatch', `is-${tpl.direction.theme.preset.toLowerCase()}`)} aria-hidden="true" />
+                  <b>{tpl.name}</b>
+                  <span className="muted">{tpl.description}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </fieldset>
 
         <fieldset className="setup__step" disabled={readOnly || !!busy} data-testid="setup-photos">

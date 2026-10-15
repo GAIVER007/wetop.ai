@@ -1960,6 +1960,70 @@
     position: absolute;
     opacity: 0;
   }
+  /* SITE-1: карточка шаблона: превью кнопкой выбора, «Посмотреть» и «Выбрать» */
+  .site-design__cards--compact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .site-design__pick {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: none;
+    cursor: pointer;
+  }
+  .site-design__pick:focus-visible {
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .site-design__badge {
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--text-sm);
+  }
+  .site-design__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .tpl-viewer__body {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .tpl-viewer__text {
+    margin: 0;
+  }
+  .tpl-viewer__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .tpl-viewer__grow {
+    flex: 1 1 auto;
+  }
+  .tpl-viewer__stage {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .tpl-viewer__frame {
+    display: block;
+    width: 100%;
+    height: 70dvh;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--surface);
+  }
+  .tpl-viewer__stage.is-phone .tpl-viewer__frame {
+    width: 390px;
+    max-width: 100%;
+  }
   /* превью: документ сайта шириной в 2,5 карточки, уменьшенный в 2,5 раза; щелчки идут в карточку */
   .site-design__shot {
     position: relative;

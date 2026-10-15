@@ -11,7 +11,7 @@ const SHOTS = 'reports/site-1';
 const main = (page: Page) => page.getByRole('main').filter({ visible: true });
 const frame = (page: Page) => page.frameLocator('[data-testid="ed-frame"]');
 const axe = (page: Page) =>
-  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-testid="ed-frame"]').analyze();
+  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-testid="ed-frame"]').exclude('[data-testid="site-design-frame"]').analyze();
 // 1×1 PNG: фото для загрузки
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 
@@ -65,10 +65,15 @@ test('блоки: включить блок из шаблона и выключ�
   await expect(m.getByTestId('setup-status')).toContainText('Сохранено', { timeout: 10_000 });
   await cta.uncheck();
   await expect(frame(page).locator('section[id^="sec-cta"]')).toHaveCount(0);
-  const options = m.getByTestId('setup-template-option');
-  await expect(options).toHaveCount(3);
-  await options.nth(1).click();
-  await expect(options.nth(1)).toHaveAttribute('aria-checked', 'true');
+  const cards = m.getByTestId('setup-template').getByTestId('site-design-card');
+  await expect(cards).toHaveCount(3);
+  await expect(m.getByTestId('setup-template').getByTestId('site-design-frame')).toHaveCount(3);
+  await cards.nth(1).getByTestId('site-design-choose').click();
+  await expect(cards.nth(1).getByRole('radio')).toHaveAttribute('aria-checked', 'true');
+  // «Посмотреть» открывает сайт по шаблону целиком
+  await cards.nth(2).getByTestId('site-design-view').click();
+  await expect(page.getByTestId('tpl-viewer-frame')).toBeVisible();
+  await page.getByRole('button', { name: 'Закрыть', exact: true }).click();
   await expect(m.getByTestId('setup-status')).toContainText('Сохранено', { timeout: 10_000 });
 });
 

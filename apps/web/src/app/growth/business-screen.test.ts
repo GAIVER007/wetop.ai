@@ -27,7 +27,7 @@ describe('Разделы роста по направлению бизнеса',
     );
     expect(html).toContain('marketing-hub__modules');
     expect(html).toContain('Сайт и SEO');
-    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(4);
+    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(5);
     // единая система: бюджет ведётся по филиалу любого направления
     expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/budget"');

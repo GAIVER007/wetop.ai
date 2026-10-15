@@ -60,7 +60,7 @@ test('все разделы, карточки и печать открывают
     ['/channels/events', 'События'],
     ['/journal', 'Журнал операций'],
     ['/incidents', 'Неисправности'],
-    ['/marketing', 'Маркетинг'],
+    ['/marketing', 'Продвижение'],
     ['/website', 'Сайт и онлайн-бронирование'],
     ['/website/booking', 'Сайт и онлайн-бронирование'],
     ['/website/analytics', 'Сайт и онлайн-бронирование'],
@@ -127,12 +127,12 @@ test('вложенные разделы: раскрытие, один актив
   await page.goto('/finance');
   // Скрытое меню: прямой раздел находится в первом столбце, подраздел во втором.
   const menuPanel = page.locator('.sidenav__panel');
-  await goViaMenu(page, 'Продажи', 'Анализ конкурентов');
+  await goViaMenu(page, 'Продвижение', 'Конкуренты');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Конкуренты');
   // переход закрывает панель; кнопка показывает раздел текущего экрана
   await expect(page.locator('.sidenav__panel')).toBeHidden();
-  await expect(page.locator('.sidenav__current')).toHaveText('Продажи');
+  await expect(page.locator('.sidenav__current')).toHaveText('Продвижение');
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
@@ -141,7 +141,7 @@ test('вложенные разделы: раскрытие, один актив
   // вкладка модуля сайта подсвечивает один пункт «Сайт и SEO» группы «Маркетинг» (MKT2)
   await page.goto('/website/settings');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Сайт и SEO');
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Обзор');
   await page.goto('/connections');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Подключения');

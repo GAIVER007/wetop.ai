@@ -27,7 +27,10 @@ describe('Food workspace isolation', () => {
       '/team',
       '/sales',
       '/ai-agents',
+      // «Продвижение» (ADR-184): тот же состав, что у гостиницы, без «Конкурентов» до PROMO-8
       '/marketing',
+      '/marketing/ads',
+      '/marketing/content',
       '/marketing/budget',
       '/marketing/analytics',
       '/reports',
@@ -48,13 +51,13 @@ describe('Food workspace isolation', () => {
       'Финансы',
       'Команда',
       'Продажи',
-      'Маркетинг',
+      'Продвижение',
       'Отчёты',
       'Настройки',
       'Помощь',
       'Профиль',
     ]);
-    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 3, 3, 2, 3, 2, 4]);
+    expect(sections.filter((s) => !s.direct).map((s) => s.items.length)).toEqual([3, 5, 3, 3, 2, 5, 2, 4]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([
       ['/today', 'Главная'],
       ['/floor-plan', 'Зал'],

@@ -1025,7 +1025,7 @@
     "/marketing": {
       "rule": {
         "href": "/marketing",
-        "label": "Маркетинг",
+        "label": "Продвижение",
         "requires": "settings"
       },
       "gate": {
@@ -1040,8 +1040,8 @@
     },
     "/marketing/ads": {
       "rule": {
-        "href": "/marketing",
-        "label": "Маркетинг",
+        "href": "/marketing/ads",
+        "label": "Реклама",
         "requires": "settings"
       },
       "gate": {
@@ -1056,8 +1056,8 @@
     },
     "/marketing/content": {
       "rule": {
-        "href": "/marketing",
-        "label": "Маркетинг",
+        "href": "/marketing/content",
+        "label": "Контент",
         "requires": "settings"
       },
       "gate": {
@@ -1073,7 +1073,7 @@
     "/marketing/site": {
       "rule": {
         "href": "/marketing",
-        "label": "Маркетинг",
+        "label": "Продвижение",
         "requires": "settings"
       },
       "gate": {
@@ -1089,7 +1089,7 @@
     "/marketing/site/assets": {
       "rule": {
         "href": "/marketing",
-        "label": "Маркетинг",
+        "label": "Продвижение",
         "requires": "settings"
       },
       "gate": {
@@ -1105,7 +1105,7 @@
     "/marketing/site/editor": {
       "rule": {
         "href": "/marketing",
-        "label": "Маркетинг",
+        "label": "Продвижение",
         "requires": "settings"
       },
       "gate": {

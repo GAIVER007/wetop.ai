@@ -23,6 +23,9 @@ const routes = [
   // МКТ-В1/В2: «Бюджет» и «Аналитика» в группе «Маркетинг»
   '/marketing/budget',
   '/marketing/analytics',
+  // ADR-184: «Реклама» и «Контент» пунктами «Продвижения»
+  '/marketing/ads',
+  '/marketing/content',
   // «Показатели за период» (A1) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114): в меню их нет
   '/reports',
   '/finance',
@@ -45,7 +48,7 @@ const SECTIONS = [
   'Номерной фонд',
   'Финансы',
   'Продажи',
-  'Маркетинг',
+  'Продвижение',
   'Отчёты',
   'Настройки',
 ];
@@ -84,18 +87,18 @@ test('меню телефона: работа смены прямыми ссыл
   await page.keyboard.press('Space');
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await expect(menu.locator('.sidebar-section-toggle[aria-expanded="true"]')).toHaveCount(1);
-  await expect(menu.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Каналы продаж', exact: true })).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(menu.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(menu.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeFocused();
+  await expect(menu.getByRole('link', { name: 'Каналы продаж', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/market$/);
+  await expect(page).toHaveURL(/\/channels$/);
   await expect(menu).not.toBeVisible();
   // открыли снова: раздел текущей страницы раскрыт сам, пункт помечен
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Анализ конкурентов');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Каналы продаж');
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 

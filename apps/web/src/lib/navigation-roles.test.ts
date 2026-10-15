@@ -45,8 +45,10 @@ describe('меню по ролям', () => {
       '/bar',
       // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
       '/sales',
-      '/market',
       '/ai-agents',
+      // «Конкуренты» с ADR-184 в «Продвижении»: администратор смотрит их, как все отчёты (право `reports`),
+      // остальное «Продвижение» ему закрыто
+      '/market',
       '/reports',
       '/management/analytics',
       '/incidents',
@@ -57,6 +59,7 @@ describe('меню по ролям', () => {
       'guests',
       'finance',
       'sales',
+      'marketing',
       'reports',
       'settings',
     ]);
@@ -91,12 +94,17 @@ describe('меню по ролям', () => {
     expect(hrefs(CLOSED_ACCESS)).toEqual(everything.filter((h) => !h.startsWith('/platform')));
   });
 
-  it('«Маркетинг» по праву settings: владелец и управляющий видят группу, администратор нет (MKT2)', () => {
+  it('«Продвижение» по праву settings: владелец и управляющий видят группу, администратор нет (MKT2)', () => {
     for (const role of ['OWNER', 'MANAGER'] as const) {
       expect(menuSectionsFor(access(role)).map((s) => s.id)).toContain('marketing');
       expect(hrefs(access(role))).toContain('/marketing');
     }
-    expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).not.toContain('marketing');
+    // у администратора в группе только «Конкуренты» (право `reports`), хаба и бюджета нет
+    expect(
+      menuSectionsFor(access('STAFF'))
+        .find((s) => s.id === 'marketing')
+        ?.items.map((i) => i.href),
+    ).toEqual(['/market']);
     // адрес без пункта меню не открывает страницу: право то же, что у пункта
     expect(pageOpen(access('STAFF'), routeRule('/marketing')!.requires as 'settings')).toBe(false);
     expect(pageOpen(access('STAFF'), routeRule('/website/booking')!.requires as 'settings')).toBe(

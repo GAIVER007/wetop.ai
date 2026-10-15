@@ -58,11 +58,11 @@ async function signIn(page: Page) {
   await page.waitForURL('**/today');
 }
 
-test('пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку', async ({
+test('пункт «Конкуренты» в «Продвижении» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку', async ({
   page,
 }) => {
   await page.goto('/finance');
-  await goViaMenu(page, 'Продажи', 'Анализ конкурентов');
+  await goViaMenu(page, 'Продвижение', 'Конкуренты');
   await page.waitForURL('**/market');
   const main = page.getByRole('main');
   const grid = page.getByTestId('market-table');

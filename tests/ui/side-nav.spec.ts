@@ -19,6 +19,9 @@ const routes = [
   // МКТ-В1/В2: «Бюджет» и «Аналитика» в группе «Маркетинг»
   '/marketing/budget',
   '/marketing/analytics',
+  // ADR-184: «Реклама» и «Контент» пунктами «Продвижения»
+  '/marketing/ads',
+  '/marketing/content',
   '/reports',
   '/finance',
   '/bar',
@@ -38,7 +41,7 @@ const SECTIONS = [
   'Номерной фонд',
   'Финансы',
   'Продажи',
-  'Маркетинг',
+  'Продвижение',
   'Отчёты',
   'Настройки',
 ];
@@ -75,15 +78,10 @@ test('UI3.1: кнопка открывает разделы, наведение 
   await expect(nav.locator('.sidenav__section')).toHaveText(SECTIONS);
   // 3. наведение на раздел: его подразделы справа
   await expect(items).toHaveAttribute('aria-label', 'Продажи');
-  await expect(items.locator('a')).toHaveText([
-    'Обзор продаж',
-    'Анализ конкурентов',
-    'Каналы продаж',
-    'ИИ-продавцы',
-  ]);
+  await expect(items.locator('a')).toHaveText(['Обзор продаж', 'Каналы продаж', 'ИИ-продавцы']);
   // 4. щелчок: переход на страницу, панель закрыта
-  await items.getByRole('link', { name: 'Анализ конкурентов', exact: true }).click();
-  await expect(page).toHaveURL(/\/market$/);
+  await items.getByRole('link', { name: 'Каналы продаж', exact: true }).click();
+  await expect(page).toHaveURL(/\/channels$/);
   await expect(panel).toBeHidden();
   // 5. меню слева обновилось: новый раздел и его подразделы
   await expect(trigger).toHaveText('Продажи');
@@ -126,7 +124,7 @@ test('ТЗ §9: клавиатура, ↓ открывает, ↑↓ по раз
   const items = nav.locator('.sidenav__items:not([hidden])');
   await expect(items.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(items.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeFocused();
+  await expect(items.getByRole('link', { name: 'Каналы продаж', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(section('Продажи')).toBeFocused();
   await page.keyboard.press('Escape');
@@ -156,7 +154,7 @@ test('вложенные адреса показывают свой раздел
   await expect(nav.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
   // сайт: один пункт «Сайт и SEO» раздела «Маркетинг» (MKT2)
   await page.goto('/website/settings');
-  await expect(trigger).toHaveText('Маркетинг');
+  await expect(trigger).toHaveText('Продвижение');
   // страницы продавца: «ИИ-продавцы» в «Продажах» (S0)
   await page.goto('/ai-seller/dialogs');
   await expect(trigger).toHaveText('Продажи');

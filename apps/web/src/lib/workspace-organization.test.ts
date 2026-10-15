@@ -29,12 +29,15 @@ it('organizes the menu by tasks: desk screens first, groups only for multi-scree
   ]);
   expect(menuSections.find((s) => s.id === 'sales')?.items.map((i) => i.href)).toEqual([
     '/sales',
-    '/market',
     '/channels',
     '/ai-agents',
   ]);
+  // «Продвижение» (ADR-184): тот же состав у всех направлений, «Конкуренты» переехали из «Продаж»
   expect(menuSections.find((s) => s.id === 'marketing')?.items.map((i) => i.href)).toEqual([
     '/marketing',
+    '/marketing/ads',
+    '/market',
+    '/marketing/content',
     '/marketing/budget',
     '/marketing/analytics',
   ]);

@@ -15,12 +15,15 @@ describe('сайт в меню — одно место (ADR-117)', () => {
   const hrefs = sections.flatMap((section) => section.items.map((item) => item.href));
 
   // MKT2 (ADR-149): вход в сайт переехал из «Продаж» в группу «Маркетинг», адреса /website/* прежние
-  it('«Маркетинг»: своя группа, первый пункт «Сайт и SEO» ведёт в хаб /marketing', () => {
+  it('«Продвижение» (ADR-184): своя группа, первый пункт «Обзор» ведёт в хаб /marketing', () => {
     const marketing = sections.find((section) => section.id === 'marketing');
-    expect(marketing?.label).toBe('Маркетинг');
+    expect(marketing?.label).toBe('Продвижение');
     expect(marketing?.direct).toBeUndefined();
     expect(marketing?.items.map((item) => [item.href, item.label])).toEqual([
-      ['/marketing', 'Сайт и SEO'],
+      ['/marketing', 'Обзор'],
+      ['/marketing/ads', 'Реклама'],
+      ['/market', 'Конкуренты'],
+      ['/marketing/content', 'Контент'],
       // МКТ-В1 (ADR-MKT-B1): учёт бюджета и расходов маркетинга
       ['/marketing/budget', 'Бюджет'],
       // «Аналитика маркетинга» (10.10.2026): эффективность источников
@@ -54,7 +57,7 @@ describe('сайт в меню — одно место (ADR-117)', () => {
     expect(connections?.description).not.toMatch(/счётчик|бронировани/i);
   });
 
-  it('вкладки модуля подсвечивают один пункт меню: «Сайт и SEO» группы «Маркетинг»', () => {
+  it('вкладки модуля подсвечивают один пункт меню: «Обзор» группы «Продвижение»', () => {
     for (const path of ['/website', '/website/booking', '/website/analytics', '/website/settings']) {
       expect(activeNavigation(path)?.href).toBe('/website');
       expect(activeMenuRoute(path)).toBe('/marketing');

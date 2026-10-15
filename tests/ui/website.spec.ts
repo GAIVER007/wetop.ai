@@ -43,8 +43,11 @@ test('одна точка входа в меню и четыре вкладки 
   // MKT2: вход в сайт один, пункт «Маркетинг → Сайт и SEO» ведёт в хаб; у страниц /website/* пункта меню нет
   expect(hrefs.filter((href) => href?.startsWith('/website'))).toEqual([]);
   // МКТ-В1/В2: в группе «Маркетинг» сайт и SEO, бюджет и аналитика маркетинга; адресов сайта `/website` в меню нет
+  // ADR-184: группа «Продвижение»
   expect(hrefs.filter((href) => href?.startsWith('/marketing'))).toEqual([
     '/marketing',
+    '/marketing/ads',
+    '/marketing/content',
     '/marketing/budget',
     '/marketing/analytics',
   ]);
@@ -68,7 +71,7 @@ test('одна точка входа в меню и четыре вкладки 
       'aria-current',
       'page',
     );
-    await expect(page.locator('.sidenav__items [aria-current="page"]')).toHaveText('Сайт и SEO');
+    await expect(page.locator('.sidenav__items [aria-current="page"]')).toHaveText('Обзор');
   }
 });
 

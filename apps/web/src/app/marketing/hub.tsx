@@ -17,7 +17,7 @@ import type { WebVertical } from '../../lib/vertical-landing';
  * `/auth/me` через `requireVertical`, право `settings` проверяет общий `AccessGate`.
  */
 interface Module {
-  key: 'site' | 'budget' | 'ads' | 'content';
+  key: 'site' | 'budget' | 'ads' | 'content' | 'competitors';
   testId: string;
   title: string;
   icon: IconName;
@@ -58,6 +58,16 @@ const modules = (c: VerticalCopy): Module[] => [
       'Автоматическая настройка и оптимизация',
       'Подробная аналитика и отчёты',
     ],
+  },
+  {
+    // ADR-184: конкуренты в «Продвижении»; у гостиницы загрузка и цены соседей (ADR-142)
+    key: 'competitors',
+    testId: 'marketing-competitors',
+    title: 'Конкуренты',
+    icon: 'analytics',
+    href: '/market',
+    text: `Загрузка и цены ближайших конкурентов рядом с вашими и подсказки, когда поднять цену.`,
+    caps: ['Конкуренты рядом', 'Загрузка по датам', 'Подсказки к цене'],
   },
   {
     key: 'content',
@@ -106,7 +116,9 @@ const BUDGET_MENU = [
  * ресторана он «Скоро» без ссылки, а не открытый экран с ошибкой 403.
  */
 export function liveModules(vertical: WebVertical): Set<Module['key']> {
-  return new Set<Module['key']>(vertical === 'HOSPITALITY' ? ['site', 'budget'] : ['budget']);
+  return new Set<Module['key']>(
+    vertical === 'HOSPITALITY' ? ['site', 'budget', 'competitors'] : ['budget'],
+  );
 }
 
 function ModuleCard({ module, live, soonForVertical }: { module: Module; live: boolean; soonForVertical: boolean }) {
@@ -150,7 +162,7 @@ function ModuleCard({ module, live, soonForVertical }: { module: Module; live: b
               Открыть <Icon name="arrow" width={16} aria-hidden="true" />
             </Link>
           )}
-          {live && (
+          {live && module.key !== 'competitors' && (
             <ActionMenu
               label={`Ещё действия: ${module.title}`}
               items={module.key === 'budget' ? BUDGET_MENU : SITE_MENU}
@@ -181,7 +193,7 @@ export function MarketingHub({
   };
   return (
     <Page
-      title="Маркетинг"
+      title="Продвижение"
       subtitle={`Привлекайте ${copy.clientsAcc}, ведите рекламный бюджет и развивайте бренд ${copy.businessOf} с помощью ИИ.`}
     >
       <div

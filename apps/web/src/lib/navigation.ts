@@ -229,15 +229,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             description:
               'Что можно продать на выбранные даты: номера и койки, свободные весь срок.',
           },
-          {
-            // Фишка №1 (ADR-142): загрузка ближайших отелей рядом со своей; смотрят, кто видит отчёты
-            href: '/market',
-            requires: 'reports',
-            label: 'Анализ конкурентов',
-            icon: 'analytics',
-            description:
-              'Ваша загрузка рядом с загрузкой ближайших отелей на каждую ночь и подсказки к цене.',
-          },
         ],
       },
       {
@@ -336,15 +327,16 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   },
   {
     // MKT2 (ADR-149): маркетинг отдельно от «Продаж». Право прежнее, `settings`, как у сайта: своего права «маркетинг»
-    // нет (Q-273). Хаб `/marketing` первый вход, `/website/*` его продукт «Сайт и SEO», адреса не менялись
-    label: 'Маркетинг',
+    // нет (Q-273). Хаб `/marketing` первый вход, `/website/*` его продукт «Сайт и SEO», адреса не менялись.
+    // ADR-184: раздел называется «Продвижение»
+    label: 'Продвижение',
     items: [
       {
         href: '/marketing',
         requires: 'settings',
-        label: 'Маркетинг',
+        label: 'Продвижение',
         icon: 'send',
-        description: 'Сайт и SEO, а дальше реклама, контент и репутация.',
+        description: 'Сайт и SEO, реклама, конкуренты, контент и бюджет в одном разделе.',
       },
       {
         // МКТ-В1/В2 (ADR-MKT-B1): учёт рекламного бюджета и расходов; право раздела, как у хаба
@@ -361,6 +353,30 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Аналитика маркетинга',
         icon: 'analytics',
         description: 'Расходы, лиды и продажи по источникам: куда уходят деньги и что они приносят.',
+      },
+      {
+        // «Продвижение» (ADR-184): ИИ-таргетолог, пункт меню у всех направлений
+        href: '/marketing/ads',
+        requires: 'settings',
+        label: 'Реклама',
+        icon: 'channels',
+        description: 'ИИ-таргетолог: кампании Facebook и Instagram, запуск по вашему подтверждению.',
+      },
+      {
+        href: '/marketing/content',
+        requires: 'settings',
+        label: 'Контент',
+        icon: 'journal',
+        description: 'Посты, фото и план публикаций.',
+      },
+      {
+        // Фишка №1 (ADR-142): загрузка ближайших отелей рядом со своей; с ADR-184 в «Продвижении»
+        href: '/market',
+        requires: 'reports',
+        label: 'Анализ конкурентов',
+        icon: 'analytics',
+        description:
+          'Ваша загрузка рядом с загрузкой ближайших отелей на каждую ночь и подсказки к цене.',
       },
       {
         // ADR-117: сайт объекта — одно место (раньше «Аналитика сайта», «Настройки сайта» и панель в «Интеграциях»)
@@ -485,6 +501,27 @@ function direct(
 }
 
 /**
+ * «Продвижение» (ADR-184): один состав у всех направлений. «Конкуренты» сегодня только у гостиницы (мониторинг
+ * загрузки номеров, ADR-142); у салона и ресторана пункт появится со срезом PROMO-8.
+ */
+function promotionSection(vertical: WebVertical): MenuSection {
+  return {
+    id: 'marketing',
+    label: 'Продвижение',
+    icon: 'send' as IconName,
+    items: [
+      menuItem('/marketing', 'Обзор'),
+      menuItem('/marketing/ads', 'Реклама'),
+      ...(vertical === 'HOSPITALITY' ? [menuItem('/market', 'Конкуренты')] : []),
+      menuItem('/marketing/content', 'Контент'),
+      menuItem('/marketing/budget', 'Бюджет'),
+      menuItem('/marketing/analytics', 'Аналитика'),
+    ],
+    match: ['/website'],
+  };
+}
+
+/**
  * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
  * то же меню выдвижное. Работа смены одним щелчком; группы с несколькими экранами
  * («Продажи», «Маркетинг», «Отчёты», «Настройки») раскрывают список.
@@ -515,24 +552,14 @@ export const menuSections: MenuSection[] = [
     items: [
       // «Тарифы и цены» сняты 06.10.2026: цена категории — в «Категориях номеров»
       menuItem('/sales'),
-      menuItem('/market'),
+      // «Конкуренты» с ADR-184 в «Продвижении»
       menuItem('/channels'),
       menuItem('/ai-agents'),
     ],
     match: ['/ai-seller', '/channel-manager'],
   },
-  {
-    // MKT2: «Сайт и SEO» ведёт в хаб; страницы сайта (`/website/*`) подсвечивают его же (`activeMenuRoute`)
-    id: 'marketing',
-    label: 'Маркетинг',
-    icon: 'send',
-    items: [
-      menuItem('/marketing', 'Сайт и SEO'),
-      menuItem('/marketing/budget', 'Бюджет'),
-      menuItem('/marketing/analytics', 'Аналитика'),
-    ],
-    match: ['/website'],
-  },
+  // MKT2: страницы сайта (`/website/*`) подсвечивают хаб (`activeMenuRoute`); ADR-184: «Продвижение»
+  promotionSection('HOSPITALITY'),
   {
     // хаб REP1 плюс «Аналитика» одной группой; «Оплаты» — вкладка «Финансов» (ADR-134)
     id: 'reports',
@@ -592,17 +619,7 @@ export const beautyMenuSections: MenuSection[] = [
     items: [menuItem('/sales'), menuItem('/ai-agents')],
     match: ['/ai-seller'],
   },
-  {
-    id: 'marketing',
-    label: 'Маркетинг',
-    icon: 'send' as IconName,
-    items: [
-      menuItem('/marketing', 'Сайт и SEO'),
-      menuItem('/marketing/budget', 'Бюджет'),
-      menuItem('/marketing/analytics', 'Аналитика'),
-    ],
-    match: ['/website'],
-  },
+  promotionSection('BEAUTY'),
   {
     id: 'reports',
     label: 'Отчёты',
@@ -670,17 +687,7 @@ export const foodMenuSections: MenuSection[] = [
     icon: 'rates' as IconName,
     items: [menuItem('/sales'), menuItem('/ai-agents')],
   },
-  {
-    id: 'marketing',
-    label: 'Маркетинг',
-    icon: 'send' as IconName,
-    items: [
-      menuItem('/marketing', 'Сайт и SEO'),
-      menuItem('/marketing/budget', 'Бюджет'),
-      menuItem('/marketing/analytics', 'Аналитика'),
-    ],
-    match: ['/website'],
-  },
+  promotionSection('FOOD_SERVICE'),
   {
     id: 'reports',
     label: 'Отчёты',

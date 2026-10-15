@@ -46,7 +46,10 @@ describe('меню салона', () => {
       '/team',
       '/sales',
       '/ai-agents',
+      // «Продвижение» (ADR-184): тот же состав, что у гостиницы, без «Конкурентов» до PROMO-8
       '/marketing',
+      '/marketing/ads',
+      '/marketing/content',
       '/marketing/budget',
       '/marketing/analytics',
       '/reports',

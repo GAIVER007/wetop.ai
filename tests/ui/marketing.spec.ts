@@ -27,22 +27,24 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await page.goto('/finance');
   const menu = menuOf(page);
   const trigger = menu.locator('.sidenav__current');
-  // левое меню (ADR-161): ↓ открывает панель на текущем разделе, «Маркетинг» пятый
+  // левое меню (ADR-161): ↓ открывает панель на текущем разделе, «Продвижение» пятый
   await expect(async () => {
     await trigger.focus();
     await page.keyboard.press('ArrowDown');
     await expect(trigger).toHaveAttribute('aria-expanded', 'true', { timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
-  await expect(menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ })).toBeFocused();
+  await expect(menu.locator('.sidenav__section', { hasText: /^Продвижение$/ })).toBeFocused();
   // МКТ-В1/В2: в группе три пункта, поэтому → уводит фокус в подразделы, как у остальных групп меню
   await page.keyboard.press('ArrowRight');
-  const item = menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ });
+  const item = menu.locator('.sidenav__section', { hasText: /^Продвижение$/ });
   const items = menu.locator('.sidenav__items');
-  const siteLink = items.getByRole('link', { name: 'Сайт и SEO', exact: true });
+  const siteLink = items.getByRole('link', { name: 'Обзор', exact: true });
   await expect(item).toHaveAttribute('aria-expanded', 'true');
   await expect(siteLink).toBeFocused();
   await expect(siteLink).toHaveAttribute('href', '/marketing');
+  // ADR-184: «Продвижение» — обзор, реклама, конкуренты, контент, бюджет, аналитика
+  await expect(menu.locator('.sidenav__items:not([hidden]) a')).toHaveText(['Обзор', 'Реклама', 'Конкуренты', 'Контент', 'Бюджет', 'Аналитика']);
   await expect(items.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
@@ -62,11 +64,11 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await expect(siteLink).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/marketing$/);
-  await expect(trigger).toHaveText('Маркетинг');
-  await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Сайт и SEO');
+  await expect(trigger).toHaveText('Продвижение');
+  await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Обзор');
   // «Продажи» без сайта
   const salesList = await openSection(page, 'Продажи');
-  await expect(salesList.locator('a')).toHaveText(['Обзор продаж', 'Анализ конкурентов', 'Каналы продаж', 'ИИ-продавцы']);
+  await expect(salesList.locator('a')).toHaveText(['Обзор продаж', 'Каналы продаж', 'ИИ-продавцы']);
   await expect(
     menu.getByRole('link', { name: 'Сайт и онлайн-бронирование', includeHidden: true }),
   ).toHaveCount(0);
@@ -78,9 +80,9 @@ test('/website/* подсвечивает «Маркетинг», а не «Пр
   for (const path of WEBSITE) {
     await page.goto(path);
     const menu = menuOf(page);
-    await expect(menu.locator('.sidenav__current')).toHaveText('Маркетинг');
+    await expect(menu.locator('.sidenav__current')).toHaveText('Продвижение');
     await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveCount(1);
-    await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Сайт и SEO');
+    await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Обзор');
     // заголовок сайта прежний, над ним ссылка в хаб тем же приёмом, что у «Каналов продаж»
     await expect(main(page).getByRole('heading', { level: 1 })).toHaveText(
       'Сайт и онлайн-бронирование',
@@ -107,14 +109,17 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   expect(business, `хаб спросил данные: ${JSON.stringify(hits.byPath)}`).toEqual(['/marketing/budget']);
 
   const hub = main(page);
-  await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+  await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Продвижение');
   await expect(hub.locator('.page__subtitle')).toHaveText(
     'Привлекайте гостей, ведите рекламный бюджет и развивайте бренд гостиницы с помощью ИИ.',
   );
-  // четыре модуля одного вида, по порядку (МКТ-В1: «Бюджет» живой, работает с базой)
+  // пять модулей одного вида, по порядку (ADR-184: «Конкуренты» в «Продвижении»)
   const modules = hub.getByTestId('marketing-module');
-  await expect(modules).toHaveCount(4);
-  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет', 'Реклама', 'Контент']);
+  await expect(modules).toHaveCount(5);
+  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет', 'Реклама', 'Конкуренты', 'Контент']);
+  const competitors = hub.getByTestId('marketing-competitors');
+  await expect(competitors.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
+  await expect(competitors.getByRole('link', { name: 'Открыть: Конкуренты', exact: true })).toHaveAttribute('href', '/market');
 
   // «Сайт и SEO»: рабочий модуль, главная кнопка ведёт в конструктор, остальное в меню «⋯»
   const site = hub.getByTestId('marketing-site');
@@ -179,7 +184,7 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await menu.getByRole('menuitem', { name: 'Бронирование и аналитика' }).click();
   await expect(page).toHaveURL(/\/website$/);
   await expect(main(page).getByRole('heading', { level: 1 })).toHaveText('Сайт и онлайн-бронирование');
-  await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Маркетинг');
+  await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
 });
 
 test('экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных', async ({
@@ -191,7 +196,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await expect(page).toHaveURL(/\/marketing\/ads$/);
   const ads = main(page);
   await expect(ads.getByRole('heading', { level: 1 })).toHaveText('Реклама');
-  await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Маркетинг');
+  await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
   await expect(ads.getByTestId('marketing-ads-soon')).toContainText('Скоро');
   await expect(ads.getByRole('tab')).toHaveText(['Кампании', 'Аудитории', 'Креативы', 'Аналитика', 'Настройки']);
   const metrics = ads.getByTestId('marketing-ads-metrics');
@@ -253,7 +258,11 @@ test('администратор (без права settings): вкладки «
   await page.goto('/finance');
   const menu = menuOf(page);
   await expect(menu.locator('.sidenav__section', { hasText: /^Продажи$/ })).toHaveCount(1);
-  await expect(menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ })).toHaveCount(0);
+  // ADR-184: в «Продвижении» администратору виден только пункт «Конкуренты» (право `reports`)
+  await expect(menu.locator('.sidenav__section', { hasText: /^Продвижение$/ })).toHaveCount(1);
+  const promo = await openSection(page, 'Продвижение');
+  await expect(promo.locator('a')).toHaveText(['Конкуренты']);
+  await page.keyboard.press('Escape');
   for (const path of ['/marketing', '/website', '/marketing/ads', '/marketing/content']) {
     await page.goto(path);
     await expect(main(page).getByTestId('no-access')).toBeVisible();
@@ -273,7 +282,7 @@ for (const theme of ['light', 'dark'] as const) {
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
       await page.goto('/marketing');
-      await expect(main(page).getByRole('heading', { level: 1 })).toHaveText('Маркетинг');
+      await expect(main(page).getByRole('heading', { level: 1 })).toHaveText('Продвижение');
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       ).toBe(true);
@@ -305,9 +314,9 @@ for (const theme of ['light', 'dark'] as const) {
     // телефон: тот же раздел в выдвижном меню, цели не ниже 44 px
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-    const group = drawer.getByRole('button', { name: 'Маркетинг', exact: true });
+    const group = drawer.getByRole('button', { name: 'Продвижение', exact: true });
     await expect(group).toHaveAttribute('aria-expanded', 'true');
-    const item = drawer.getByRole('link', { name: 'Сайт и SEO', exact: true });
+    const item = drawer.getByRole('link', { name: 'Обзор', exact: true });
     await expect(item).toHaveAttribute('aria-current', 'page');
     for (const target of [group, item])
       expect((await target.boundingBox())!.height).toBeGreaterThanOrEqual(44);
@@ -343,7 +352,7 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(hub).toBeVisible();
   // единая система (14.10.2026): бюджет ведётся по филиалу любого направления; конструктор сайта API пока
   // принимает только у гостиницы, поэтому у салона он «Скоро» без ссылки
-  await expect(hub.getByTestId('marketing-module')).toHaveCount(4);
+  await expect(hub.getByTestId('marketing-module')).toHaveCount(5);
   await expect(hub.getByTestId('marketing-site-status')).toHaveText('Скоро');
   await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   await expect(

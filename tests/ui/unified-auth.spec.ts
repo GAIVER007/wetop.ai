@@ -27,8 +27,8 @@ for (const path of ['/today', '/chessboard', '/reservations']) {
     await page.goto(`${APP}${path}`, { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(`${SITE}/?next=${encodeURIComponent(path)}#login`);
     await login(page);
-    // гостиничный /today с 09.10 ведёт в единые «Финансы» (plans/finance-home-merge-2026-10-09.md)
-    const landed = path === '/today' ? '/finance' : path;
+    // После входа возвращаемся на исходный защищённый экран, включая отдельную главную /today.
+    const landed = path;
     await expect(page).toHaveURL(`${APP}${landed}`);
     const cookie = (await context.cookies(APP)).find((c) => c.name === 'wetop_session');
     expect(cookie?.httpOnly).toBe(true);

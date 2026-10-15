@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { createPrismaClient } from '@pms/database';
 import { randomUUID } from 'node:crypto';
-const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
+const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '26864'}`;
 const db = createPrismaClient(process.env.DATABASE_URL, 'pms_test');
 let fixture: { agents: Array<{ id: string; business: string; location: string; vertical: string }>; organizationId: string };
 test.beforeAll(async ({ request }) => {

@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { lockOpenFolios } from '@pms/database';
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@pms/database';
 import {
@@ -381,11 +382,7 @@ export const FINANCE_REPOSITORY = Symbol('FINANCE_REPOSITORY');
 export type TxClient = PrismaService['db'];
 
 /** Счёт закрыт или его нет: деньги в него не записываются (аудит 26.09, С-25) */
-export class FolioClosedError extends Error {
-  constructor(readonly folioId: string) {
-    super(`Счёт ${folioId} закрыт`);
-  }
-}
+export { FolioClosedError, lockOpenFolios } from '@pms/database';
 /** Закрыть можно только счёт с нулевым балансом — пересчитанным под блокировкой */
 /** Начисление уже сторнировано или платёж уже аннулирован — проверено под блокировкой, конфликт (409), как в сервисе */
 export class FinanceStateError extends Error {}
@@ -401,13 +398,6 @@ export class FolioBalanceError extends Error {
  * записи на те же счета не ждали друг друга по кругу. Раньше «счёт открыт» проверялось до транзакции записи, и
  * одновременное начисление ложилось в только что закрытый счёт (аудит 26.09, С-25).
  */
-export async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promise<void> {
-  for (const id of [...new Set(folioIds)].sort()) {
-    const rows = await tx.$queryRaw<Array<{ status: string }>>`
-      SELECT "status"::text AS status FROM "folios" WHERE "id" = ${id}::uuid FOR UPDATE`;
-    if (rows[0]?.status !== 'OPEN') throw new FolioClosedError(id);
-  }
-}
 
 /** Одна строка журнала. Пишется тем же клиентом, что и деньги, — своим или транзакционным. */
 export async function writeAudit(tx: TxClient, a: AuditEntry, createdId?: string): Promise<void> {

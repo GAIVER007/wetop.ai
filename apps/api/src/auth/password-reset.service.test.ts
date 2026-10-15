@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { hashSessionToken, verifyPassword } from '@pms/domain';
 import { AuthService } from './auth.service';
 import { PasswordResetService } from './password-reset.service';
@@ -166,6 +166,25 @@ describe('PasswordResetService.confirm', () => {
     await world.reset.confirm({ token: world.token, password: 'zhanga-parol-2026' }, NOW);
     expect(JSON.stringify(world.audit)).not.toContain('zhanga-parol-2026');
     expect(world.audit.map((a) => a.action)).toContain('user.password.changed');
+  });
+
+  it.each(['sessions', 'audit'] as const)('rolls back every reset change after %s persistence fails', async (fault) => {
+    const world = await withLink();
+    const session = await world.auth.login(
+      { email: 'admin@example.invalid', password: 'luxx-stoika-2026' }, NOW,
+    );
+    const before = structuredClone({ users: world.users, resets: world.resets, sessions: world.sessions, audit: world.audit });
+    const fail = () => { throw new Error('synthetic reset persistence fault'); };
+    const spy = fault === 'sessions'
+      ? vi.spyOn(world.db.session, 'updateMany').mockImplementationOnce(fail)
+      : vi.spyOn(world.db.auditLog, 'create').mockImplementationOnce(fail);
+    try {
+      await expect(world.reset.confirm({ token: world.token, password: 'zhanga-parol-2026' }, NOW))
+        .rejects.toThrow('synthetic reset persistence fault');
+    } finally { spy.mockRestore(); }
+    expect({ users: world.users, resets: world.resets, sessions: world.sessions, audit: world.audit }).toEqual(before);
+    await expect(world.auth.whoami(session.token, NOW)).resolves.not.toBeNull();
+    await expect(world.reset.confirm({ token: world.token, password: 'zhanga-parol-2026' }, NOW)).resolves.toBeUndefined();
   });
 });
 

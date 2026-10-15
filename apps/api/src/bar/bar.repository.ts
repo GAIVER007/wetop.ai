@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { FolioClosedError, lockOpenFolios } from '@pms/database';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
 import { randomUUID } from 'node:crypto';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
@@ -466,6 +467,15 @@ export class PrismaBarRepository implements BarRepository {
       const sale = await (tx as any).barSale.findFirst({ where: { id, locationId } });
       if (!sale) return { kind: 'not_found' as const };
       if (sale.status !== 'POSTED') return { kind: 'already_reversed' as const };
+      if (sale.chargeId) {
+        const charge = await tx.charge.findUniqueOrThrow({ where: { id: sale.chargeId }, select: { folioId: true } });
+        try {
+          await lockOpenFolios(tx, [charge.folioId]);
+        } catch (e) {
+          if (e instanceof FolioClosedError) throw new ConflictException(e.message);
+          throw e;
+        }
+      }
       const movements = await (tx as any).barStockMovement.findMany({ where: { locationId, sourceType: 'BAR_SALE', sourceId: id, kind: 'SALE' } });
       if (restock) for (const movement of movements) {
         await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE id = ${movement.lotId}::uuid FOR UPDATE`;

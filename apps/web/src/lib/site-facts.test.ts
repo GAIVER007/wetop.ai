@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { formatMoney } from './money';
-import { catalogPrice, loadSiteFacts, loadSiteLocations, weekHours, type SiteFactsSource } from './site-facts';
+import { catalogPrice, hoursLines, loadSiteFacts, loadSiteLocations, weekHours, type SiteFactsSource } from './site-facts';
 import { verticalCopy } from './vertical-copy';
 
 /**
@@ -90,8 +90,8 @@ describe('loadSiteFacts: эндпоинт и сборка без него', () =
     expect(r.data).toMatchObject({
       vertical: 'HOSPITALITY',
       location: { id: LOC, name: 'Luxx Aparts', address: 'ул. Вымышленная, 1', phone: '+77000000000', city: 'Алматы' },
-      catalog: { kind: 'rooms', items: [{ name: 'Стандарт', priceFrom: '1850000' }, { name: 'Койка в общем номере' }] },
-      hours: 'Заезд с 14:00, выезд до 12:00',
+      catalog: { kind: 'rooms', items: [{ code: 'std', name: 'Стандарт', priceFrom: { minor: '1850000', currency: 'KZT' } }, { code: 'bed', name: 'Койка в общем номере' }] },
+      hours: { days: [], checkInTime: '14:00', checkOutTime: '12:00' },
       photosCount: 0,
     });
     expect(r.data.gaps.map((g) => g.key)).toEqual(['photos']);
@@ -110,9 +110,10 @@ describe('loadSiteFacts: эндпоинт и сборка без него', () =
   it('салон без эндпоинта: цена и длительность филиала, только продаваемые; мастера этого филиала; неделя', async () => {
     const r = await loadSiteFacts(LOC, 'BEAUTY', source());
     if (!r.ok) throw new Error(r.message);
-    expect(r.data.catalog).toEqual({ kind: 'services', items: [{ name: 'Маникюр', price: '900000', durationMin: 75, category: 'Ногти' }] });
-    expect(r.data.staff).toEqual([{ name: 'Айгерим' }]);
-    expect(r.data.hours).toEqual(['Пн 10:00–20:00', 'Вс 11:00–18:00']);
+    expect(r.data.catalog).toEqual({ kind: 'services', items: [{ code: 'svc-1', name: 'Маникюр', price: { minor: '900000', currency: 'KZT' }, durationMin: 75, category: 'Ногти' }] });
+    expect(r.data.staff).toEqual([{ id: 'staff-1', name: 'Айгерим', specialization: null }]);
+    expect(r.data.hours.days).toEqual([{ weekday: 0, open: '11:00', close: '18:00' }, { weekday: 1, open: '10:00', close: '20:00' }]);
+    expect(hoursLines(r.data)).toEqual(['Пн 10:00–20:00', 'Вс 11:00–18:00']);
     expect(r.data.location).toMatchObject({ name: 'Салон на Абая', address: null });
     expect(r.data.gaps.map((g) => g.key)).toEqual(['address', 'phone', 'photos']);
   });
@@ -120,8 +121,8 @@ describe('loadSiteFacts: эндпоинт и сборка без него', () =
   it('ресторан без эндпоинта: активные блюда с категорией, сервис-периоды как часы', async () => {
     const r = await loadSiteFacts(LOC, 'FOOD_SERVICE', source({ branch: async () => ({ name: 'Ресторан Дастархан', address: 'пр. Абая, 10' }) }));
     if (!r.ok) throw new Error(r.message);
-    expect(r.data.catalog).toEqual({ kind: 'menu', items: [{ name: 'Бешбармак', price: '450000', category: 'Горячее' }] });
-    expect(r.data.hours).toEqual(['Вт 12:00–16:00']);
+    expect(r.data.catalog).toEqual({ kind: 'menu', items: [{ code: 'dish-1', name: 'Бешбармак', price: { minor: '450000', currency: 'KZT' }, category: 'Горячее', hasPhoto: false }] });
+    expect(hoursLines(r.data)).toEqual(['Вт 12:00–16:00']);
     expect(r.data.gaps.map((g) => g.key)).toEqual(['phone', 'photos']);
   });
 });
@@ -148,7 +149,8 @@ describe('loadSiteLocations', () => {
 
   it('эндпоинт есть: его ответ; отказ не 404: словами', async () => {
     const list = [{ id: LOC, name: 'Luxx', vertical: 'HOSPITALITY', siteStatus: 'PUBLISHED' }];
-    expect(await loadSiteLocations(source({ locations: async () => list }), async () => [], { locationId: null, siteStatus: null })).toEqual({ ok: true, data: list, source: 'api' });
+    // ответ SITE-2: `{ items }`
+    expect(await loadSiteLocations(source({ locations: async () => ({ items: list }) }), async () => [], { locationId: null, siteStatus: null })).toEqual({ ok: true, data: list, source: 'api' });
     const denied = source({ locations: async () => Promise.reject(Object.assign(new Error('Нет доступа'), { status: 403 })) });
     expect(await loadSiteLocations(denied, async () => [], { locationId: null, siteStatus: null })).toEqual({ ok: false, status: 403, message: 'Нет доступа' });
   });
@@ -156,17 +158,18 @@ describe('loadSiteLocations', () => {
 
 describe('цены и часы для карточки', () => {
   it('тенге через formatMoney, «от» у цены категории, мусор не печатается', () => {
-    expect(catalogPrice({ name: 'a', price: '900000' }, formatMoney)).toBe('9 000 ₸');
-    expect(catalogPrice({ name: 'a', priceFrom: 1850000 }, formatMoney)).toBe('от 18 500 ₸');
-    expect(catalogPrice({ name: 'a' }, formatMoney)).toBeNull();
-    expect(catalogPrice({ name: 'a', price: '12.5' }, formatMoney)).toBeNull();
+    const kzt = (minor: string) => ({ minor, currency: 'KZT' });
+    expect(catalogPrice({ code: 'a', name: 'a', price: kzt('900000') }, formatMoney)).toBe('9 000 ₸');
+    expect(catalogPrice({ code: 'a', name: 'a', priceFrom: kzt('1850000') }, formatMoney)).toBe('от 18 500 ₸');
+    expect(catalogPrice({ code: 'a', name: 'a' }, formatMoney)).toBeNull();
+    expect(catalogPrice({ code: 'a', name: 'a', price: kzt('12.5') }, formatMoney)).toBeNull();
   });
   it('неделя с понедельника, интервалы дня по порядку', () => {
     expect(
       weekHours([
-        { weekday: 0, from: '10:00', to: '12:00' },
-        { weekday: 3, from: '18:00', to: '23:00' },
-        { weekday: 3, from: '12:00', to: '15:00' },
+        { weekday: 0, open: '10:00', close: '12:00' },
+        { weekday: 3, open: '18:00', close: '23:00' },
+        { weekday: 3, open: '12:00', close: '15:00' },
       ]),
     ).toEqual(['Ср 12:00–15:00, 18:00–23:00', 'Вс 10:00–12:00']);
   });

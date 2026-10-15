@@ -4,9 +4,9 @@ import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * SITE-1 (`plans/site-seo-flow-2026-10-15.md` §1 шаги 1–3): первый экран «Сайт и SEO» как у Lovable. Филиал со
- * статусом сайта, «Что WETOP знает о филиале», чат с подсказками и диктовкой, три разных дизайна с живым мини-превью
- * без ИИ, «Другие варианты», создание сайта гостиницы с выбранным готовым дизайном. Салон: тот же экран, создание
- * честно говорит, что конструктор подключается. Стенд отвечает правилами API, данные вымышленные (ADR-010).
+ * статусом сайта, «Что WETOP знает о филиале», три готовых шаблона сайта своего сегмента (гостиница, салон, ресторан)
+ * с живым превью, чат с подсказками и диктовкой. «Создать сайт» по шаблону без ИИ сразу открывает редактор с готовым
+ * сайтом из данных филиала, у всех трёх направлений. Стенд отвечает правилами API, данные вымышленные (ADR-010).
  */
 const SHOTS = 'reports/site-1';
 const main = (page: Page) => page.getByRole('main').filter({ visible: true });
@@ -29,6 +29,7 @@ async function paintPreviews(page: Page) {
   await page.waitForTimeout(300);
   await page.evaluate('window.scrollTo(0, 0)');
 }
+const editor = (page: Page) => main(page).getByTestId('site-editor');
 const designIds = async (page: Page) => main(page).getByTestId('site-design-card').evaluateAll((els) => els.map((e) => e.getAttribute('data-design')));
 
 async function signIn(page: Page) {
@@ -44,7 +45,7 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
-test('гостиница: филиал → факты → чип → три дизайна → «Другие варианты» → создать с готовым дизайном', async ({ page, request }) => {
+test('гостиница: филиал → факты → чип → три шаблона гостиницы → создать по шаблону → редактор', async ({ page, request }) => {
   await site(request, { noSite: true });
   await page.goto('/marketing/site/editor');
   const win = main(page).getByTestId('create-site');
@@ -60,7 +61,7 @@ test('гостиница: филиал → факты → чип → три ди
   const facts = win.getByTestId('create-site-facts');
   await expect(facts.getByRole('heading', { name: 'Что WETOP знает о филиале' })).toBeVisible();
   await expect(facts).toContainText('ул. Вымышленная, 1');
-  await expect(facts).toContainText('+77000000000');
+  await expect(facts).toContainText('Телефон+7701');
   await expect(facts.getByTestId('site-facts-catalog')).toContainText('Стандарт');
   await expect(facts.getByTestId('site-facts-catalog')).toContainText('от 18 500 ₸');
   await expect(facts.getByTestId('site-facts-more')).toHaveText('и ещё 2 позиции');
@@ -76,38 +77,29 @@ test('гостиница: филиал → факты → чип → три ди
   await expect(chip).toHaveAttribute('aria-pressed', 'true');
   await expect(win.getByLabel('Опишите, каким должен быть сайт')).toHaveValue('Спокойный сайт у вокзала. Акцент на семейном отдыхе');
 
-  // шаг 3: три разных дизайна с живым превью; клавиатурой стрелками выбирается следующий
+  // шаг 3: три шаблона гостиницы с живым превью сайта из данных филиала; стрелками выбирается следующий
   const cards = win.getByTestId('site-design-card');
   await expect(cards).toHaveCount(3);
+  expect(await designIds(page)).toEqual(['hotel-classic', 'hotel-boutique', 'hotel-hostel']);
   await expect(win.getByTestId('site-design-frame')).toHaveCount(3);
-  await expect(win.getByTestId('site-design-frame').first()).toHaveAttribute('srcdoc', /Luxx Aparts[\s\S]*Забронировать[\s\S]*от 18 500 ₸/);
-  const first = await designIds(page);
-  expect(new Set(first).size).toBe(3);
-  await expect(win.getByRole('radio', { name: /Светлый минимал/ })).toBeChecked();
-  await win.getByRole('radio', { name: /Светлый минимал/ }).focus();
+  await expect(win.getByTestId('site-design-frame').first()).toHaveAttribute('srcdoc', /Luxx Aparts[\s\S]*Стандарт/);
+  await expect(win.getByRole('radio', { name: /Классический отель/ })).toBeChecked();
+  await win.getByRole('radio', { name: /Классический отель/ }).focus();
   await page.keyboard.press('ArrowRight');
-  await expect(win.getByRole('radio', { name: /Вечерний город/ })).toBeChecked();
-  await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран дизайн «Вечерний город».');
+  await expect(win.getByRole('radio', { name: /Бутик-отель/ })).toBeChecked();
+  await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Бутик-отель».');
+  // «Собрать с ИИ» доступна только с текстом; текст уже есть
+  await expect(win.getByTestId('create-site-ai')).toBeEnabled();
   await expect.poll(async () => (await axe(page)).violations).toEqual([]);
   await paintPreviews(page);
   await page.screenshot({ path: `${SHOTS}/hotel-flow-1440.png`, fullPage: true });
   await win.getByTestId('site-designs').screenshot({ path: `${SHOTS}/hotel-designs-1440.png` });
 
-  // «Другие варианты»: новая тройка, снова три разных
-  await win.getByTestId('site-designs-more').click();
-  const second = await designIds(page);
-  expect(new Set(second).size).toBe(3);
-  expect(second).not.toEqual(first);
-  await win.getByTestId('site-design-card').filter({ hasText: 'Яркий тёплый' }).click();
-  await expect(win.getByRole('radio', { name: /Яркий тёплый/ })).toBeChecked();
-  await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран дизайн «Яркий тёплый».');
-
-  // создать: сайт заводится, первая сборка с готовым дизайном, открывается редактор с его темой
+  // создать по шаблону: без ИИ, сразу редактор с готовым сайтом в теме шаблона, сайт правится
   await win.getByTestId('create-site-start').click();
-  await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');
-  await expect(main(page).getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
+  await expect(editor(page)).toBeVisible({ timeout: 15_000 });
   await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
-  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('WARM');
+  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');
 });
 
 test('диктовка: фраза дописывается в запрос, язык выбирается; без поддержки браузера кнопки нет', async ({ page, request }) => {
@@ -147,7 +139,7 @@ test('факты без эндпоинта API: карточка собрана 
   await expect(facts.getByRole('link', { name: /Дополнить: Нет цен/ })).toHaveAttribute('href', '/rates');
 });
 
-test('салон: выбор филиала переключает стойку, тот же экран с услугами и мастерами; создание честно «подключается»', async ({ page, request }) => {
+test('салон: выбор филиала переключает стойку, свои три шаблона, создание по шаблону открывает редактор', async ({ page, request }) => {
   test.setTimeout(120_000);
   const salon = '5a1c0000-0000-4000-8000-00000000a001';
   await signIn(page);
@@ -155,6 +147,17 @@ test('салон: выбор филиала переключает стойку,
     headers: { 'x-wetop-test-client': '1' },
     data: { id: salon, name: 'Студия Айна', address: 'пр. Абая, 1', currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'BEAUTY' },
   });
+  // данные салона: две услуги филиала с ценой и мастер филиала (как их заводит стойка)
+  const branches = (await (await request.get(`${FIXTURE_API}/branches`, { headers: { 'x-wetop-test-client': '1' } })).json()) as {
+    items: Array<{ id: string; businessId?: string; locationId: string }>;
+  };
+  const own = branches.items.find((b) => b.id === salon)!;
+  const scoped = { 'x-wetop-test-client': '1', 'x-wetop-scope': `business=${own.businessId ?? salon};location=${own.locationId}` };
+  for (const [name, priceMinor, durationMinutes] of [['Маникюр с покрытием', '900000', 75], ['Женская стрижка', '1200000', 60]] as const) {
+    const svc = (await (await request.post(`${FIXTURE_API}/beauty/services`, { headers: scoped, data: { name, durationMinutes, priceMinor, currency: 'KZT' } })).json()) as { id: string };
+    await request.put(`${FIXTURE_API}/beauty/services/${svc.id}/location`, { headers: scoped, data: { enabled: true } });
+  }
+  await request.post(`${FIXTURE_API}/beauty/employees`, { headers: scoped, data: { name: 'Айгерим Касымова' } });
   await site(request, { noSite: true });
   await page.goto('/marketing/site/editor');
   const win = main(page).getByTestId('create-site');
@@ -165,20 +168,26 @@ test('салон: выбор филиала переключает стойку,
   await expect(page).toHaveURL(/\/marketing\/site\/editor$/);
   await expect(win.getByTestId('site-location').filter({ hasText: 'выбран' })).toContainText('Студия Айна');
   await expect(win.getByTestId('site-chip')).toHaveText(['Сайт для записи на услуги', 'Акцент на мастерах', 'Акция на первое посещение']);
-  await expect(win.getByTestId('create-site-facts').getByTestId('site-facts-staff')).toBeVisible();
-  await expect(win.getByTestId('site-design-frame').first()).toHaveAttribute('srcdoc', /Студия Айна[\s\S]*Записаться/);
+  await expect(win.getByTestId('create-site-facts').getByTestId('site-facts-staff')).toContainText('Айгерим Касымова');
+  await expect(win.getByTestId('site-facts-catalog')).toContainText('Маникюр с покрытием');
+  await expect(win.getByTestId('site-design-frame').first()).toHaveAttribute('srcdoc', /Студия Айна/);
   await expect(main(page).getByTestId('ed-license-off')).toHaveCount(0);
   await expect.poll(async () => (await axe(page)).violations).toEqual([]);
   await paintPreviews(page);
   await page.screenshot({ path: `${SHOTS}/salon-light-1440.png`, fullPage: true });
-  await win.getByTestId('site-chip').filter({ hasText: 'Акцент на мастерах' }).click();
+  // три своих шаблона салона; выбранный создаётся сразу, без ИИ, и открывается редактор с услугами и мастерами
+  expect(await designIds(page)).toEqual(['beauty-studio', 'beauty-boutique', 'beauty-express']);
+  await win.getByTestId('site-design-card').filter({ hasText: 'Запись за минуту' }).click();
+  await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Запись за минуту».');
   await win.getByTestId('create-site-start').click();
-  await expect(win.getByTestId('create-site-error')).toHaveText(/Конструктор сайтов для салонов подключается/);
-  await expect(win.getByLabel('Опишите, каким должен быть сайт')).toHaveValue('Акцент на мастерах');
-  await expect(win.getByTestId('create-site-start')).toBeEnabled();
+  await expect(editor(page)).toBeVisible({ timeout: 15_000 });
+  await expect(main(page).getByTestId('create-site-error')).toHaveCount(0);
+  await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
+  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('WARM');
+  await page.screenshot({ path: `${SHOTS}/salon-editor-1440.png`, fullPage: true });
 });
 
-test('ресторан: меню с ценами, чипы ресторана, превью «Забронировать стол»', async ({ page, request }) => {
+test('ресторан: меню с ценами, чипы и три шаблона ресторана; создание по шаблону открывает редактор', async ({ page, request }) => {
   test.setTimeout(120_000);
   const food = '5a1c0000-0000-4000-8000-00000000f001';
   await signIn(page);
@@ -198,6 +207,12 @@ test('ресторан: меню с ценами, чипы ресторана, �
   await expect.poll(async () => (await axe(page)).violations).toEqual([]);
   await paintPreviews(page);
   await page.screenshot({ path: `${SHOTS}/restaurant-light-1440.png`, fullPage: true });
+  expect(await designIds(page)).toEqual(['food-cafe', 'food-restaurant', 'food-delivery']);
+  await win.getByTestId('site-design-card').filter({ hasText: 'Ресторан' }).filter({ hasText: 'Вечерний' }).click();
+  await win.getByTestId('create-site-start').click();
+  await expect(editor(page)).toBeVisible({ timeout: 15_000 });
+  await main(page).getByRole('tab', { name: 'Дизайн', exact: true }).click();
+  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');
 });
 
 for (const theme of ['light', 'dark'] as const)

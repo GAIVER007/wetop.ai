@@ -18,9 +18,10 @@ export interface DesignPreset extends DesignDirection {
   family: DesignPresetFamily;
 }
 
-const HOME_SALES = ['hero', 'features', 'accommodations', 'pricing', 'booking', 'gallery', 'faq', 'contacts'];
-const HOME_STORY = ['hero', 'about', 'gallery', 'accommodations', 'features', 'booking', 'faq', 'contacts'];
-const HOME_BOOKING_FIRST = ['hero', 'booking', 'accommodations', 'pricing', 'features', 'gallery', 'contacts', 'faq'];
+// Порядок блоков главной: типы всех трёх направлений (гостиница, салон, ресторан); чего на сайте нет, то пропускается
+const HOME_SALES = ['hero', 'features', 'accommodations', 'services', 'menu', 'pricing', 'staff', 'booking', 'leadForm', 'hours', 'gallery', 'faq', 'contacts'];
+const HOME_STORY = ['hero', 'about', 'gallery', 'staff', 'accommodations', 'services', 'menu', 'features', 'hours', 'booking', 'leadForm', 'faq', 'contacts'];
+const HOME_BOOKING_FIRST = ['hero', 'booking', 'leadForm', 'accommodations', 'services', 'menu', 'pricing', 'staff', 'hours', 'features', 'gallery', 'contacts', 'faq'];
 
 export const DESIGN_PRESETS: readonly DesignPreset[] = Object.freeze([
   // ---------- светлые ----------
@@ -148,3 +149,4 @@ export function pickDesignTriple(vertical: string | null | undefined, page: numb
     return pool[at]!;
   });
 }
+

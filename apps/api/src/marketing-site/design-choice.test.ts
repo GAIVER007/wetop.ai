@@ -50,3 +50,13 @@ describe('designAudit: в журнал только id', () => {
     expect(designAudit(null)).toEqual({});
   });
 });
+
+describe('шаблон готового сайта как оформление первой сборки ИИ (SITE-1)', () => {
+  it('id шаблона сегмента даёт его оформление; журнал пишет только id', () => {
+    const choice = parseDesignChoice({ designPresetId: 'beauty-boutique' });
+    if (!choice || !('preset' in choice)) throw new Error('ожидалось готовое оформление');
+    expect(choice.preset.id).toBe('beauty-boutique');
+    expect(choice.preset.theme.preset).toBe('NIGHT');
+    expect(designAudit(choice)).toEqual({ designPresetId: 'beauty-boutique' });
+  });
+});

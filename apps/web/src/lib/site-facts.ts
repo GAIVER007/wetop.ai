@@ -1,53 +1,27 @@
 /**
  * Факты филиала для первого экрана «Сайт и SEO» (SITE-1, `plans/site-seo-flow-2026-10-15.md` §1 шаг 1). Источник
- * правды: API `GET /marketing/site/facts?locationId=…` и `GET /marketing/site/locations` (делает соседний срез API).
- * Типы ниже повторяют его контракт поле в поле. Пока эндпоинта нет (404), факты собираются из уже существующих
- * запросов стойки по направлению: гостиница из брифа сайта, салон из услуг и мастеров, ресторан из меню и часов
- * работы. ИИ здесь нет: только то, что уже лежит в системе; чего нет, то идёт в «пробелы» со ссылкой «Дополнить».
+ * правды: API `GET /marketing/site/facts?locationId=…` и `GET /marketing/site/locations` (SITE-2), контракт `SiteFacts`
+ * домена. Пока эндпоинта нет (404, старый сервер), факты собираются из уже существующих запросов стойки по
+ * направлению в тот же контракт: гостиница из брифа сайта, салон из услуг и мастеров, ресторан из меню и часов работы.
+ * ИИ здесь нет: только то, что уже лежит в системе; чего нет, то идёт в «пробелы» со ссылкой «Дополнить».
  *
- * Деньги в каталоге: целые тиыны (ADR-008), числом или строкой, как пришло; на экран идут через `formatMoney`.
+ * Деньги в каталоге: целые тиыны строкой с валютой (ADR-008); на экран идут через `formatMoney`.
  */
-export type SiteVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
-export type SiteStatus = 'NONE' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-/** Сумма в тиынах: целое число или строка цифр */
-export type MinorAmount = number | string;
+import type {
+  SiteFacts,
+  SiteFactsCatalogItem,
+  SiteFactsGap,
+  SiteFactsHoursDay,
+  SiteFactsSiteStatus,
+  SiteFactsVertical,
+  SiteLocationListItem,
+} from '@pms/domain';
 
-export interface SiteFactsCatalogItem {
-  name: string;
-  price?: MinorAmount;
-  priceFrom?: MinorAmount;
-  durationMin?: number;
-  category?: string;
-}
+export type { SiteFacts, SiteFactsCatalogItem, SiteFactsGap };
+export type SiteVertical = SiteFactsVertical;
+export type SiteStatus = SiteFactsSiteStatus;
 
-export interface SiteFactsGap {
-  key: string;
-  label: string;
-  href: string;
-}
-
-export interface SiteFacts {
-  vertical: SiteVertical;
-  location: {
-    id: string;
-    name: string;
-    address: string | null;
-    phone: string | null;
-    whatsapp: string | null;
-    city: string | null;
-  };
-  catalog: { kind: 'rooms' | 'services' | 'menu'; items: SiteFactsCatalogItem[] };
-  staff: Array<{ name: string; role?: string }>;
-  hours: string | string[] | null;
-  photosCount: number;
-  reviews: { avg: number; count: number } | null;
-  gaps: SiteFactsGap[];
-}
-
-export interface SiteLocation {
-  id: string;
-  name: string;
-  vertical: SiteVertical;
+export interface SiteLocation extends Omit<SiteLocationListItem, 'siteStatus'> {
   /** `null`: статус неизвестен (список собран без эндпоинта, сайт читается только у выбранного филиала) */
   siteStatus: SiteStatus | null;
 }
@@ -64,7 +38,7 @@ export interface SiteFactsSource {
       input: {
         identity: { displayNameCandidate: string; address?: string | null; phone?: string | null; city?: string | null };
         stay?: { checkInTime: string | null; checkOutTime: string | null };
-        accommodations: Array<{ categoryCode: string; name: string }>;
+        accommodations: Array<{ categoryCode: string; name: string; capacityAdults?: number }>;
         channelContent?: { photoSummary?: { total: number } } | null;
       };
     }>;
@@ -75,6 +49,7 @@ export interface SiteFactsSource {
   beauty: {
     services: () => Promise<{
       items: Array<{
+        id?: string;
         name: string;
         category: string | null;
         durationMinutes: number;
@@ -83,12 +58,12 @@ export interface SiteFactsSource {
         effective: { sellable: true; priceMinor: string; durationMinutes: number } | { sellable: false } | null;
       }>;
     }>;
-    employees: () => Promise<{ locationId: string | null; items: Array<{ name: string; active: boolean; locationIds: string[] }> }>;
+    employees: () => Promise<{ locationId: string | null; items: Array<{ id?: string; name: string; active: boolean; locationIds: string[] }> }>;
     hours: () => Promise<Array<{ weekday: number; intervals: Array<{ timeFrom: string; timeTo: string }> }>>;
   };
   food: {
     categories: () => Promise<Array<{ id: string; name: string; active: boolean }>>;
-    items: () => Promise<Array<{ name: string; categoryId: string; priceMinor: string; active: boolean; photoUrl?: string | null }>>;
+    items: () => Promise<Array<{ id?: string; name: string; categoryId: string; priceMinor: string; active: boolean; photoUrl?: string | null }>>;
     periods: () => Promise<Array<{ name: string; weekday: number; timeFrom: string; timeTo: string; active: boolean }>>;
   };
   /** Филиал как его знает список филиалов стойки: имя, адрес */
@@ -109,16 +84,45 @@ async function optional<T>(load: () => Promise<T>, empty: T): Promise<T> {
   }
 }
 
+const KZT = 'KZT';
+const money = (minor: string) => ({ minor, currency: KZT });
+/** Код позиции каталога для документа сайта: id из данных, иначе порядковый */
+const code = (id: string | undefined, prefix: string, i: number) => (id && /^[A-Za-z0-9_-]{1,64}$/.test(id) ? id : `${prefix}-${i + 1}`);
+
 const WEEKDAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-/** Неделя по дням с понедельника: «Пн 10:00–20:00»; одинаковые дни не склеиваются, чтобы не врать про исключения */
-export function weekHours(rows: Array<{ weekday: number; from: string; to: string }>): string[] {
+/** Строки недели для карточки с понедельника: «Пн 10:00–20:00»; одинаковые дни не склеиваются, чтобы не врать */
+export function weekHours(days: SiteFactsHoursDay[]): string[] {
   const order = [1, 2, 3, 4, 5, 6, 0];
   return order
     .map((day) => {
-      const own = rows.filter((r) => r.weekday === day).sort((a, b) => (a.from < b.from ? -1 : 1));
-      return own.length ? `${WEEKDAYS[day]} ${own.map((r) => `${r.from}–${r.to}`).join(', ')}` : null;
+      const own = days.filter((r) => r.weekday === day).sort((a, b) => (a.open < b.open ? -1 : 1));
+      return own.length ? `${WEEKDAYS[day]} ${own.map((r) => `${r.open}–${r.close}`).join(', ')}` : null;
     })
     .filter((x): x is string => x !== null);
+}
+
+/** Часы для карточки: у гостиницы заезд и выезд, у остальных неделя */
+export function hoursLines(facts: SiteFacts): string[] {
+  if (facts.vertical === 'HOSPITALITY') {
+    const { checkInTime: inT, checkOutTime: outT } = facts.hours;
+    const line = [inT ? `Заезд с ${inT}` : null, outT ? `выезд до ${outT}` : null].filter(Boolean).join(', ');
+    return line ? [line] : [];
+  }
+  return weekHours(facts.hours.days);
+}
+
+/** Один интервал на день: самое раннее начало и самый поздний конец */
+function dayHull(rows: Array<{ weekday: number; from: string; to: string }>): SiteFactsHoursDay[] {
+  const byDay = new Map<number, SiteFactsHoursDay>();
+  for (const r of rows) {
+    const was = byDay.get(r.weekday);
+    byDay.set(r.weekday, {
+      weekday: r.weekday,
+      open: !was || r.from < was.open ? r.from : was.open,
+      close: !was || r.to > was.close ? r.to : was.close,
+    });
+  }
+  return [...byDay.values()].sort((a, b) => a.weekday - b.weekday);
 }
 
 const GAP = {
@@ -129,6 +133,7 @@ const GAP = {
   catalog: (href: string, label: string): SiteFactsGap => ({ key: 'catalog', label, href }),
   staff: (href: string): SiteFactsGap => ({ key: 'staff', label: 'Нет мастеров: блок «Мастера» не появится', href }),
 };
+const emptyHours = { days: [] as SiteFactsHoursDay[], checkInTime: null, checkOutTime: null };
 
 /** Гостиница: бриф сайта (то же, что видел первый экран MKT9.2), цены категорий и библиотека фото */
 async function hospitalityFacts(locationId: string, src: SiteFactsSource): Promise<SiteFacts> {
@@ -136,28 +141,30 @@ async function hospitalityFacts(locationId: string, src: SiteFactsSource): Promi
   const [prices, photos] = await Promise.all([optional(src.hospitality.prices, []), optional(src.hospitality.photos, 0)]);
   const id = brief.input.identity;
   const price = new Map(prices.map((p) => [p.code, p.priceMinor]));
-  const items: SiteFactsCatalogItem[] = brief.input.accommodations.map((a) => {
+  const items: SiteFactsCatalogItem[] = brief.input.accommodations.map((a, i) => {
     const minor = price.get(a.categoryCode);
-    return minor ? { name: a.name, priceFrom: minor } : { name: a.name };
+    return {
+      code: code(a.categoryCode, 'room', i),
+      name: a.name,
+      ...(minor && /^\d+$/.test(minor) ? { priceFrom: money(minor) } : {}),
+      ...(a.capacityAdults ? { capacityAdults: a.capacityAdults } : {}),
+    };
   });
   const stay = brief.input.stay;
-  const hours = stay?.checkInTime || stay?.checkOutTime
-    ? [stay.checkInTime ? `Заезд с ${stay.checkInTime}` : null, stay.checkOutTime ? `выезд до ${stay.checkOutTime}` : null].filter(Boolean).join(', ')
-    : null;
   const photosCount = Math.max(photos, brief.input.channelContent?.photoSummary?.total ?? 0);
   const gaps: SiteFactsGap[] = [];
   if (!id.phone) gaps.push(GAP.phone('/hotel-settings'));
   if (!id.address) gaps.push(GAP.address('/hotel-settings'));
   if (!items.length) gaps.push(GAP.catalog('/rooms/categories', 'Нет категорий номеров: нечего показать в каталоге'));
-  else if (!items.some((i) => i.priceFrom !== undefined)) gaps.push(GAP.catalog('/rates', 'Нет цен: на сайте не будет цены «от»'));
-  if (!hours) gaps.push(GAP.hours('/hotel-settings/stay', 'Нет времени заезда и выезда'));
+  else if (!items.some((i) => i.priceFrom)) gaps.push(GAP.catalog('/rates', 'Нет цен: на сайте не будет цены «от»'));
+  if (!stay?.checkInTime && !stay?.checkOutTime) gaps.push(GAP.hours('/hotel-settings/stay', 'Нет времени заезда и выезда'));
   if (!photosCount) gaps.push(GAP.photos('/marketing/site/assets'));
   return {
     vertical: 'HOSPITALITY',
     location: { id: locationId, name: id.displayNameCandidate, address: id.address ?? null, phone: id.phone ?? null, whatsapp: null, city: id.city ?? null },
     catalog: { kind: 'rooms', items },
     staff: [],
-    hours,
+    hours: { days: [], checkInTime: stay?.checkInTime ?? null, checkOutTime: stay?.checkOutTime ?? null },
     photosCount,
     reviews: null,
     gaps,
@@ -174,25 +181,27 @@ async function beautyFacts(locationId: string, src: SiteFactsSource): Promise<Si
   ]);
   const items: SiteFactsCatalogItem[] = services.items
     .filter((s) => s.effective?.sellable === true)
-    .map((s) => {
+    .map((s, i) => {
       const eff = s.effective as { priceMinor: string; durationMinutes: number };
-      return { name: s.name, price: eff.priceMinor, durationMin: eff.durationMinutes, ...(s.category ? { category: s.category } : {}) };
+      return { code: code(s.id, 'svc', i), name: s.name, price: money(eff.priceMinor), durationMin: eff.durationMinutes, ...(s.category ? { category: s.category } : {}) };
     });
-  const staff = employees.items.filter((e) => e.active && e.locationIds.includes(locationId)).map((e) => ({ name: e.name }));
-  const week = weekHours(hours.flatMap((d) => d.intervals.map((i) => ({ weekday: d.weekday, from: i.timeFrom, to: i.timeTo }))));
+  const staff = employees.items
+    .filter((e) => e.active && e.locationIds.includes(locationId))
+    .map((e, i) => ({ id: e.id ?? `staff-${i + 1}`, name: e.name, specialization: null }));
+  const days = dayHull(hours.flatMap((d) => d.intervals.map((i) => ({ weekday: d.weekday, from: i.timeFrom, to: i.timeTo }))));
   const gaps: SiteFactsGap[] = [];
   if (!branch?.address) gaps.push(GAP.address('/branches'));
   gaps.push(GAP.phone('/branches'));
   if (!items.length) gaps.push(GAP.catalog('/services', 'Нет услуг с ценой в этом филиале'));
   if (!staff.length) gaps.push(GAP.staff('/employees'));
-  if (!week.length) gaps.push(GAP.hours('/beauty/schedule', 'Нет графика работы'));
+  if (!days.length) gaps.push(GAP.hours('/beauty/schedule', 'Нет графика работы'));
   gaps.push(GAP.photos('/marketing/site/assets'));
   return {
     vertical: 'BEAUTY',
     location: { id: locationId, name: branch?.name ?? 'Салон', address: branch?.address ?? null, phone: null, whatsapp: null, city: null },
     catalog: { kind: 'services', items },
     staff,
-    hours: week.length ? week : null,
+    hours: { ...emptyHours, days },
     photosCount: 0,
     reviews: null,
     gaps,
@@ -209,24 +218,24 @@ async function foodFacts(locationId: string, src: SiteFactsSource): Promise<Site
   ]);
   const categoryName = new Map(categories.map((c) => [c.id, c.name]));
   const active = menu.filter((i) => i.active);
-  const items: SiteFactsCatalogItem[] = active.map((i) => {
+  const items: SiteFactsCatalogItem[] = active.map((i, n) => {
     const category = categoryName.get(i.categoryId);
-    return { name: i.name, price: i.priceMinor, ...(category ? { category } : {}) };
+    return { code: code(i.id, 'dish', n), name: i.name, price: money(i.priceMinor), ...(category ? { category } : {}), hasPhoto: !!i.photoUrl };
   });
-  const week = weekHours(periods.filter((p) => p.active).map((p) => ({ weekday: p.weekday, from: p.timeFrom, to: p.timeTo })));
+  const days = dayHull(periods.filter((p) => p.active).map((p) => ({ weekday: p.weekday, from: p.timeFrom, to: p.timeTo })));
   const photosCount = active.filter((i) => i.photoUrl).length;
   const gaps: SiteFactsGap[] = [];
   if (!branch?.address) gaps.push(GAP.address('/branches'));
   gaps.push(GAP.phone('/branches'));
   if (!items.length) gaps.push(GAP.catalog('/menu', 'Меню пустое: на сайте не будет блюд и цен'));
-  if (!week.length) gaps.push(GAP.hours('/restaurant-settings', 'Нет часов работы'));
+  if (!days.length) gaps.push(GAP.hours('/restaurant-settings', 'Нет часов работы'));
   if (!photosCount) gaps.push(GAP.photos('/menu'));
   return {
     vertical: 'FOOD_SERVICE',
     location: { id: locationId, name: branch?.name ?? 'Ресторан', address: branch?.address ?? null, phone: null, whatsapp: null, city: null },
     catalog: { kind: 'menu', items },
     staff: [],
-    hours: week.length ? week : null,
+    hours: { ...emptyHours, days },
     photosCount,
     reviews: null,
     gaps,
@@ -253,14 +262,15 @@ export async function loadSiteFacts(locationId: string, vertical: SiteVertical, 
   }
 }
 
-/** Список филиалов: эндпоинт, без него филиалы стойки (статус сайта известен только у выбранного) */
+/** Список филиалов: эндпоинт (`{ items }`), без него филиалы стойки (статус сайта известен только у выбранного) */
 export async function loadSiteLocations(
   src: Pick<SiteFactsSource, 'locations'>,
   fallback: () => Promise<Array<{ locationId: string; name: string; vertical: SiteVertical }>>,
   current: { locationId: string | null; siteStatus: SiteStatus | null },
 ): Promise<Loaded<SiteLocation[]>> {
   try {
-    return { ok: true, data: (await src.locations()) as SiteLocation[], source: 'api' };
+    const reply = (await src.locations()) as { items: SiteLocation[] } | SiteLocation[];
+    return { ok: true, data: Array.isArray(reply) ? reply : reply.items, source: 'api' };
   } catch (e) {
     if (statusOf(e) !== 404) return { ok: false, status: statusOf(e), message: messageOf(e, 'Не удалось получить список филиалов') };
   }
@@ -283,9 +293,7 @@ export async function loadSiteLocations(
 
 /** Цена позиции каталога для карточки: «12 500 ₸», «от 12 500 ₸»; без цены: null. Только целые тиыны */
 export function catalogPrice(item: SiteFactsCatalogItem, format: (minor: string) => string): string | null {
-  const raw = item.price ?? item.priceFrom;
-  if (raw === undefined || raw === null) return null;
-  const minor = String(raw);
-  if (!/^-?\d+$/.test(minor)) return null;
-  return item.price === undefined ? `от ${format(minor)}` : format(minor);
+  const m = item.price ?? item.priceFrom;
+  if (!m || !/^\d+$/.test(m.minor)) return null;
+  return item.price ? format(m.minor) : `от ${format(m.minor)}`;
 }

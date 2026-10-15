@@ -172,9 +172,10 @@ test('салон: продажи, финансы и маркетинг на да
   await expect(page.locator('main')).not.toContainText('номер');
   await page.screenshot({ path: `${shots}/beauty-content.png`, fullPage: true });
 
-  // гостиничные экраны салон не видит: уводит на его «Сегодня»
+  // гостиничный рынок салон не видит: уводит на его «Сегодня»
   await page.goto('/market');
   await expect(page).toHaveURL(/\/today/);
+  // SITE-1: «Сайт и SEO» салону открыт, на «Сегодня» не уводит (шаблоны салона проверяет `tests/ui/site-start.spec.ts`)
   await page.goto('/marketing/site/editor');
-  await expect(page).toHaveURL(/\/today/);
+  await expect(page).toHaveURL(/\/marketing\/site\/editor/);
 });

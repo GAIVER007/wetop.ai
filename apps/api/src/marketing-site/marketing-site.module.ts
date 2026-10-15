@@ -93,6 +93,21 @@ export class MarketingSiteController {
     return result;
   }
 
+  /**
+   * SITE-1: сайт из шаблона одним действием (сайт и первая версия из данных филиала, без ИИ) для всех направлений.
+   * Новый сайт 201, сайт без версии 200, сайт с версией 409
+   */
+  @Post('from-template')
+  async fromTemplate(
+    @Headers(SCOPE_HEADER) pointer: string | undefined,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: { status(code: number): unknown },
+  ) {
+    const result = await this.service.fromTemplate(!!pointer, body);
+    res.status(result.created ? 201 : 200);
+    return result;
+  }
+
   /** MKT9.2: знания проекта (постоянные указания ИИ этого сайта) */
   @Get('context')
   context(@Headers(SCOPE_HEADER) pointer?: string) {

@@ -12,7 +12,10 @@ import {
   diffSiteSpecs,
   parseBookmarkLabel,
   parseBuilderInstructions,
+  buildSiteFacts,
   siteSpecHash,
+  siteTemplateById,
+  templateSiteSpec,
   validateSiteSpec,
 } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
@@ -21,6 +24,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { publicationView } from './publication.service';
 import { assetUnavailable, checkSpecAssets } from './asset-refs';
 import { siteBuilderAccessIn, siteScope, siteTransaction, type SiteScope } from './scope';
+import { readSiteFactsSnapshot } from './site-facts.service';
 
 /**
  * Ядро управляемого сайта (MKT3, `DATA_MODEL.md` §29.2–§29.3). Сайт филиала и его неизменяемые версии `SiteSpec`:
@@ -184,6 +188,89 @@ export class MarketingSiteService {
         });
       } catch (error) {
         // соседний филиал занял тот же адрес между выбором и вставкой: ещё один круг с новым списком занятых
+        if (isUniqueViolation(error) && attempt < 2) continue;
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Сайт из шаблона (SITE-1, «Шаблоны готовых сайтов»): одним действием сайт филиала и его первая версия из данных
+   * филиала в оформлении шаблона своего сегмента (по три у гостиницы, салона и ресторана), без ИИ и без промптов. Тело `{ templateId }`; документ
+   * собирает сервер (`templateSiteSpec`), браузер передаёт только id шаблона. Сайт уже с версией: 409 `SITE_HAS_VERSION`
+   * (шаблон не затирает работу); сайт без версии (заведён раньше): версия ложится в него. Лицензия и запись как у
+   * сохранения версии
+   */
+  async fromTemplate(pointerSent: boolean, body: unknown) {
+    const scope = siteScope(pointerSent);
+    const input = strictBody(body, ['templateId']);
+    const template = siteTemplateById(input['templateId']);
+    if (!template) throw new BadRequestException('templateId: шаблон из набора');
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        return await siteTransaction(this.prisma, scope, true, async (tx) => {
+          // шаблон своего сегмента: гостиничный шаблон салону не подходит, и наоборот
+          const vertical = await tx.business.findUniqueOrThrow({ where: { id: scope.businessId }, select: { vertical: true } });
+          if (template.vertical !== vertical.vertical) throw new BadRequestException('templateId: шаблон другого направления');
+          const existing = await tx.marketingSite.findUnique({ where: { locationId: scope.locationId }, select: { state: true } });
+          if (existing?.state === 'ARCHIVED')
+            throw new ConflictException({ code: 'SITE_ARCHIVED', message: 'Сайт филиала в архиве: новый сайт для этого филиала не заводится' });
+          let site = existing ? await this.activeSite(tx, scope) : null;
+          if (site?.latestVersion)
+            throw new ConflictException({ code: 'SITE_HAS_VERSION', message: 'У сайта уже есть версия: шаблон её не заменяет, правьте сайт в редакторе' });
+
+          // факты в той же транзакции записи: документ ровно по данным филиала на момент создания
+          const facts = buildSiteFacts(
+            await readSiteFactsSnapshot(tx, { ...scope, vertical: vertical.vertical as 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' }),
+          );
+          const checked = validateSiteSpec(templateSiteSpec(facts, input['templateId']));
+          // заготовка проходит валидатор у каждого направления (тест домена); иначе это ошибка сервера, а не человека
+          if (!checked.ok) throw new Error(`Шаблон не прошёл проверку: ${checked.errors.join('; ')}`);
+
+          let created = false;
+          if (!site) {
+            const location = await tx.location.findUniqueOrThrow({ where: { id: scope.locationId }, select: { name: true } });
+            const name = [...location.name.trim()].slice(0, 120).join('') || 'Сайт';
+            const base = bootstrapSlug(name, new Set());
+            const taken = await tx.marketingSite.findMany({
+              where: { slug: { startsWith: base.slice(0, 30) }, state: { not: 'ARCHIVED' } },
+              select: { slug: true },
+            });
+            const slug = bootstrapSlug(name, new Set(taken.map((t) => t.slug)));
+            const fresh = await tx.marketingSite.create({
+              data: { locationId: scope.locationId, name, slug, createdById: currentUserId() },
+              select: { id: true },
+            });
+            await this.audit(tx, scope, fresh.id, 'marketing.site.created', { siteId: fresh.id, slug, via: 'template' });
+            site = (await this.activeSite(tx, scope))!;
+            created = true;
+          }
+          const specHash = siteSpecHash(checked.spec);
+          const version = await tx.marketingSiteVersion.create({
+            data: {
+              id: randomUUID(),
+              siteId: site.id,
+              revision: 1,
+              parentVersionId: null,
+              schemaVersion: checked.schemaVersion,
+              spec: checked.spec as Prisma.InputJsonObject,
+              specHash,
+              source: 'MANUAL',
+              createdById: currentUserId(),
+            },
+            select: { id: true },
+          });
+          await tx.marketingSite.update({ where: { id: site.id }, data: { latestVersionId: version.id } });
+          await this.audit(tx, scope, site.id, 'marketing.site.template_applied', {
+            siteId: site.id,
+            templateId: String(input['templateId']),
+            revision: 1,
+            specHash,
+          });
+          return { created, site: siteView((await this.activeSite(tx, scope))!) };
+        });
+      } catch (error) {
+        // соседний филиал занял тот же адрес или вторая вкладка завела версию: ещё круг, там будет 409 по существу
         if (isUniqueViolation(error) && attempt < 2) continue;
         throw error;
       }

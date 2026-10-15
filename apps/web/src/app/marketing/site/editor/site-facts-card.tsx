@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { formatMoney } from '../../../../lib/money';
-import { catalogPrice, type Loaded, type SiteFacts } from '../../../../lib/site-facts';
+import { catalogPrice, hoursLines, type Loaded, type SiteFacts } from '../../../../lib/site-facts';
 import { pluralRu } from '../../../../lib/plural';
 import { verticalCopy } from '../../../../lib/vertical-copy';
 import type { WebVertical } from '../../../../lib/vertical-landing';
@@ -30,11 +30,11 @@ export function SiteFactsCard({ vertical, facts }: { vertical: WebVertical; fact
 }
 
 function FactsBody({ facts, catalogTitle }: { facts: SiteFacts; catalogTitle: string }) {
-  const { location, catalog, staff, hours, gaps } = facts;
+  const { location, catalog, staff, gaps } = facts;
   const items = catalog.items.slice(0, CATALOG_SHOWN);
   const more = catalog.items.length - items.length;
   const people = staff.slice(0, STAFF_SHOWN);
-  const hourLines = hours === null ? [] : Array.isArray(hours) ? hours : [hours];
+  const hourLines = hoursLines(facts);
   return (
     <>
       <dl className="site-facts__list">
@@ -51,7 +51,7 @@ function FactsBody({ facts, catalogTitle }: { facts: SiteFacts; catalogTitle: st
             {items.map((item, i) => {
               const price = catalogPrice(item, formatMoney);
               return (
-                <li key={`${item.name}-${i}`}>
+                <li key={`${item.code}-${i}`}>
                   <span>
                     {item.name}
                     {item.durationMin ? <span className="muted">, {item.durationMin} мин</span> : null}
@@ -75,7 +75,7 @@ function FactsBody({ facts, catalogTitle }: { facts: SiteFacts; catalogTitle: st
           <h4 id="site-facts-staff">Мастера</h4>
           {people.length ? (
             <p>
-              {people.map((p) => (p.role ? `${p.name} (${p.role})` : p.name)).join(', ')}
+              {people.map((p) => (p.specialization ? `${p.name} (${p.specialization})` : p.name)).join(', ')}
               {staff.length > people.length ? ` и ещё ${staff.length - people.length}` : ''}
             </p>
           ) : (

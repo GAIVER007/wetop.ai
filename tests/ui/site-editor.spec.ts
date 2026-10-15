@@ -322,12 +322,12 @@ test('первый экран MKT9.2 + SITE-1: «Сайт для …», без �
   await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
   await expect(win.getByLabel('Название сайта')).toHaveCount(0);
   await expect(win.getByRole('list', { name: 'Примеры описаний' })).toHaveCount(0);
-  await expect(win.getByTestId('create-site-designs')).toHaveText('Подобрать ИИ под мой запрос');
+  await expect(win.getByTestId('create-site-ai')).toHaveText('Собрать с ИИ по описанию');
   await expect(win.getByTestId('create-site-start')).toHaveText('Создать сайт');
   await expect(win.getByTestId('create-site-facts')).toContainText('Стандарт');
   await expect(win.getByTestId('create-site-facts')).toContainText('ул. Вымышленная, 1');
   await win.getByLabel('Опишите, каким должен быть сайт').fill('Спокойный сайт у вокзала');
-  await win.getByTestId('create-site-start').click();
+  await win.getByTestId('create-site-ai').click();
   await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');
   await expect(m.getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
   await expect(frame(page).locator('#sec-hero')).toContainText('Первая версия от ИИ');

@@ -1,32 +1,15 @@
 'use client';
-<<<<<<< HEAD
 import type { BusinessVertical } from '@pms/domain';
-import { useEffect, useRef, useState, useTransition } from 'react';
-=======
 import { useEffect, useState, useTransition } from 'react';
->>>>>>> wt/site-ui
 import { Alert, Button, Field, Notice, Panel, Row, Stack, Textarea } from '../../../components/ui';
 import type { AgentInstructionPreview, AgentInstructionView } from '../../../lib/api';
 import { appendDictated, useDictation } from '../../../lib/use-dictation';
 import { generateAgentInstruction, saveAgentInstruction } from './actions';
 
-<<<<<<< HEAD
-type Recognition = {
-  lang: string; continuous: boolean; interimResults: boolean;
-  start(): void; stop(): void; abort(): void;
-  onresult: ((event: {resultIndex: number; results: ArrayLike<{isFinal: boolean; 0: {transcript: string}}>}) => void) | null;
-  onerror: ((event: {error: string}) => void) | null;
-  onend: (() => void) | null;
-};
-
 export function InstructionEditor({id, initial, readOnly = false, vertical = null}: {id: string; initial: AgentInstructionView; readOnly?: boolean; vertical?: BusinessVertical | null}) {
   const hospitality = vertical === 'HOSPITALITY';
   const placeholder = hospitality ? 'Назови бота Ася. Отвечай дружелюбно и коротко. Рассказывай о правилах отеля и помогай выбрать размещение…' : vertical === 'BEAUTY' ? 'Назови бота Ася. Рассказывай об услугах салона, ценах каталога и длительности. Для записи приглашай администратора.' : vertical === 'FOOD_SERVICE' ? 'Назови бота Ася. Рассказывай о периодах обслуживания ресторана. Для бронирования приглашай администратора.' : 'Опишите стиль общения и когда приглашать сотрудника.';
   const [step, setStep] = useState(initial.saved || !hospitality ? 2 : 1);
-=======
-export function InstructionEditor({id, initial, readOnly = false}: {id: string; initial: AgentInstructionView; readOnly?: boolean}) {
-  const [step, setStep] = useState(initial.saved ? 2 : 1);
->>>>>>> wt/site-ui
   const [story, setStory] = useState('');
   const [text, setText] = useState(initial.text);
   const [saved, setSaved] = useState(initial.text);

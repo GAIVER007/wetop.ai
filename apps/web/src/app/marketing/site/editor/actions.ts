@@ -120,6 +120,17 @@ export async function createSiteAction(input: { briefHash: string | null; instru
 }
 
 /**
+ * SITE-1, «Шаблоны готовых сайтов»: сайт и первая версия одним действием из данных филиала в оформлении шаблона его
+ * сегмента, без ИИ и без промптов. Документ собирает сервер; стойка передаёт только id шаблона
+ */
+export async function createFromTemplateAction(templateId: string) {
+  const reply = await safe(() => siteEditorApi.fromTemplate(templateId));
+  revalidatePath('/marketing/site');
+  revalidatePath('/marketing/site/editor');
+  return reply;
+}
+
+/**
  * SITE-1: выбор филиала на экране «Сайт и SEO». Тот же переключатель, что в шапке (`selectBranch`: кука указателя,
  * проверка по списку филиалов сессии), и возврат на этот же экран; филиал ищется по `locationId` в ответе сервера
  */

@@ -3,6 +3,7 @@ import { registrationBusiness } from '../../apps/api/src/auth/registration-contr
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { barFixture, resetBarFixture } from './bar-fixture';
 import {
+  FIXTURE_LOCATION_ID,
   fixtureSiteStatus,
   marketingSiteFixture,
   platformSiteBuilderFixture,
@@ -106,6 +107,7 @@ import {
   parseMarketingBudgetInput,
   parseMarketingExpenseInput,
   type PriceReading,
+  type SiteFacts,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -5440,59 +5442,65 @@ const fixtureBeautyServices: FixtureBeautyService[] = [];
 const fixtureBeautyEmployees: FixtureBeautyEmployee[] = [];
 
 /**
- * Факты филиала для первого экрана «Сайт и SEO» (SITE-1, контракт `apps/web/src/lib/site-facts.ts`): гостиница из
- * брифа стенда, салон из услуг и мастеров стенда, ресторан из вымышленного меню (ADR-010)
+ * Факты филиала для первого экрана «Сайт и SEO» (SITE-1, контракт SITE-2 `SiteFacts` домена, как `GET
+ * /marketing/site/facts`): гостиница из брифа стенда, салон из услуг и мастеров стенда, ресторан из вымышленного меню
+ * (ADR-010). Деньги в тиынах строкой с валютой, часы по дням недели
  */
-function siteFactsFixture(branch: Record<string, unknown>, vertical: string) {
+function siteFactsFixture(branch: Record<string, unknown>, vertical: string): SiteFacts {
   const location = {
     id: String(branch['locationId']),
     name: vertical === 'HOSPITALITY' ? 'Luxx Aparts' : String(branch['name']),
     address: vertical === 'HOSPITALITY' ? 'ул. Вымышленная, 1' : ((branch['address'] as string | null) ?? null),
-    phone: vertical === 'HOSPITALITY' ? '+77000000000' : null,
+    phone: vertical === 'HOSPITALITY' ? '+77010000000' : null,
     whatsapp: null,
     city: 'Алматы',
   };
+  const kzt = (minor: string | number) => ({ minor: String(minor), currency: 'KZT' });
+  const week = (days: number[], open: string, close: string) => days.map((weekday) => ({ weekday, open, close }));
   if (vertical === 'BEAUTY') {
     const items = fixtureBeautyServices
       .filter((s) => s.active && s.location?.enabled)
       .map((s) => ({
+        code: s.id,
         name: s.name,
-        price: s.location?.priceOverrideMinor ?? s.priceMinor,
+        price: kzt(s.location?.priceOverrideMinor ?? s.priceMinor),
         durationMin: s.location?.durationOverrideMinutes ?? s.durationMinutes,
         ...(s.category ? { category: s.category } : {}),
       }));
-    const staff = fixtureBeautyEmployees.filter((e) => e.active && e.locationIds.includes(location.id)).map((e) => ({ name: e.name }));
+    const staff = fixtureBeautyEmployees
+      .filter((e) => e.active && e.locationIds.includes(location.id))
+      .map((e) => ({ id: e.id, name: e.name, specialization: null }));
     return {
-      vertical,
+      vertical: 'BEAUTY',
       location,
       catalog: { kind: 'services', items },
       staff,
-      hours: ['Пн 10:00–20:00', 'Вт 10:00–20:00', 'Ср 10:00–20:00', 'Чт 10:00–20:00', 'Пт 10:00–20:00', 'Сб 11:00–18:00'],
+      hours: { days: [...week([1, 2, 3, 4, 5], '10:00', '20:00'), ...week([6], '11:00', '18:00')], checkInTime: null, checkOutTime: null },
       photosCount: 0,
       reviews: null,
       gaps: [
         { key: 'phone', label: 'Нет телефона: посетитель не сможет позвонить', href: '/branches' },
-        ...(items.length ? [] : [{ key: 'catalog', label: 'Нет услуг с ценой в этом филиале', href: '/services' }]),
-        ...(staff.length ? [] : [{ key: 'staff', label: 'Нет мастеров: блок «Мастера» не появится', href: '/employees' }]),
+        ...(items.length ? [] : [{ key: 'catalog' as const, label: 'Нет услуг с ценой в этом филиале', href: '/services' }]),
+        ...(staff.length ? [] : [{ key: 'staff' as const, label: 'Нет мастеров: блок «Мастера» не появится', href: '/employees' }]),
         { key: 'photos', label: 'Нет фото: сайт соберётся без галереи', href: '/marketing/site/assets' },
       ],
     };
   }
   if (vertical === 'FOOD_SERVICE')
     return {
-      vertical,
+      vertical: 'FOOD_SERVICE',
       location,
       catalog: {
         kind: 'menu',
         items: [
-          { name: 'Бешбармак', price: 450000, category: 'Горячее' },
-          { name: 'Лагман', price: 320000, category: 'Горячее' },
-          { name: 'Баурсаки', price: 90000, category: 'К чаю' },
-          { name: 'Бизнес-ланч', price: 280000, category: 'Обед' },
+          { code: 'dish-beshbarmak', name: 'Бешбармак', price: kzt(450000), category: 'Горячее' },
+          { code: 'dish-lagman', name: 'Лагман', price: kzt(320000), category: 'Горячее' },
+          { code: 'dish-baursak', name: 'Баурсаки', price: kzt(90000), category: 'К чаю' },
+          { code: 'dish-lunch', name: 'Бизнес-ланч', price: kzt(280000), category: 'Обед' },
         ],
       },
       staff: [],
-      hours: ['Пн–Пт 12:00–23:00', 'Сб–Вс 11:00–00:00'],
+      hours: { days: [...week([1, 2, 3, 4, 5], '12:00', '23:00'), ...week([6, 0], '11:00', '00:00')], checkInTime: null, checkOutTime: null },
       photosCount: 0,
       reviews: null,
       gaps: [
@@ -5506,17 +5514,17 @@ function siteFactsFixture(branch: Record<string, unknown>, vertical: string) {
     catalog: {
       kind: 'rooms',
       items: [
-        { name: 'Стандарт', priceFrom: 1850000 },
-        { name: 'Койка в общем номере', priceFrom: 650000 },
-        { name: 'Семейный', priceFrom: 2900000 },
-        { name: 'Люкс', priceFrom: 4200000 },
-        { name: 'Двухместный эконом', priceFrom: 1400000 },
-        { name: 'Апартаменты', priceFrom: 3600000 },
-        { name: 'Четырёхместный', priceFrom: 2400000 },
+        { code: 'std', name: 'Стандарт', priceFrom: kzt(1850000), capacityAdults: 2 },
+        { code: 'bed', name: 'Койка в общем номере', priceFrom: kzt(650000), capacityAdults: 1 },
+        { code: 'fam', name: 'Семейный', priceFrom: kzt(2900000), capacityAdults: 4 },
+        { code: 'lux', name: 'Люкс', priceFrom: kzt(4200000), capacityAdults: 2 },
+        { code: 'eco', name: 'Двухместный эконом', priceFrom: kzt(1400000), capacityAdults: 2 },
+        { code: 'apt', name: 'Апартаменты', priceFrom: kzt(3600000), capacityAdults: 4 },
+        { code: 'quad', name: 'Четырёхместный', priceFrom: kzt(2400000), capacityAdults: 4 },
       ],
     },
     staff: [],
-    hours: 'Заезд с 14:00, выезд до 12:00',
+    hours: { days: [], checkInTime: '14:00', checkOutTime: '12:00' },
     photosCount: 3,
     reviews: { avg: 4.7, count: 128 },
     gaps: [{ key: 'whatsapp', label: 'Нет WhatsApp: кнопки «Написать» на сайте не будет', href: '/hotel-settings' }],
@@ -5625,21 +5633,26 @@ createServer(async (req, res) => {
       [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches].find((b) => sitePointer.endsWith(`location=${String(b.locationId)}`)) ??
       DEFAULT_FIXTURE_BRANCH;
     const siteVertical = String((siteBranch as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY');
-    const siteRoute = marketingSiteFixture(path, req.method ?? 'GET', body, url.searchParams, siteVertical);
+    // гостиница стенда по умолчанию это сайт стенда (`FIXTURE_LOCATION_ID`), остальные филиалы ведут свои сайты
+    const siteLocationOf = (b: Record<string, unknown>) => (b === DEFAULT_FIXTURE_BRANCH ? FIXTURE_LOCATION_ID : String(b['locationId']));
+    const siteRoute = marketingSiteFixture(path, req.method ?? 'GET', body, url.searchParams, siteVertical, {
+      locationId: siteLocationOf(siteBranch as Record<string, unknown>),
+      name: String((siteBranch as Record<string, unknown>)['name'] ?? 'Филиал'),
+      facts: () => siteFactsFixture(siteBranch as Record<string, unknown>, siteVertical),
+    });
     if (siteRoute) return send(siteRoute.status, siteRoute.data);
     if (req.method === 'GET' && path === '/marketing/site/locations')
-      return send(
-        200,
-        [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches]
+      return send(200, {
+        items: [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches]
           .filter((b) => !fixtureArchivedLocations.has(String(b.locationId)))
           .map((b) => ({
             id: String(b.locationId),
             name: String(b.name),
             vertical: String(b.vertical ?? 'HOSPITALITY'),
             // сайт стенда один и гостиничный: у остальных филиалов сайта нет
-            siteStatus: b === DEFAULT_FIXTURE_BRANCH ? fixtureSiteStatus() : 'NONE',
+            siteStatus: fixtureSiteStatus(siteLocationOf(b as Record<string, unknown>)),
           })),
-      );
+      });
     if (req.method === 'GET' && path === '/marketing/site/facts') {
       const asked = url.searchParams.get('locationId');
       if (asked && asked !== String(siteBranch.locationId))

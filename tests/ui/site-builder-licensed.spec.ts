@@ -56,7 +56,7 @@ test('срок лицензии вышел: та же закрытая прав�
   const win = main(page).getByTestId('create-site');
   await expect(main(page).getByTestId('ed-license-off')).toBeVisible();
   await expect(win.getByTestId('create-site-start')).toBeDisabled();
-  await expect(win.getByTestId('create-site-designs')).toBeDisabled();
+  await expect(win.getByTestId('create-site-ai')).toBeDisabled();
 });
 
 test('режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление', async ({ page }) => {
@@ -103,27 +103,24 @@ test('режим «План»: вопросы с вариантами, план 
   await expect(ai(page).getByTestId('ed-plan-done')).toBeVisible();
 });
 
-test('«Подобрать ИИ под мой запрос» на первом экране: три карточки от ИИ вместо готовых, сайт создаётся с выбранным оформлением', async ({ page, request }) => {
+test('«Собрать с ИИ по описанию» на первом экране: первая сборка ИИ с выбранным шаблоном как оформлением', async ({ page, request }) => {
   await site(request, { noSite: true });
   await page.goto('/marketing/site/editor');
   const win = main(page).getByTestId('create-site');
+  // без текста ИИ не нужен: кнопка ИИ закрыта, «Создать сайт» соберёт шаблон сам
+  await expect(win.getByTestId('create-site-ai')).toBeDisabled();
   await win.getByLabel('Опишите, каким должен быть сайт').fill('Строго и по делу');
-  await win.getByTestId('create-site-designs').click();
   const cards = win.getByTestId('site-designs');
-  await expect(cards.getByRole('radio', { name: /Ночной город/ })).toBeVisible();
   await expect(cards.getByRole('radio')).toHaveCount(3);
-  await expect(cards.getByRole('radio', { name: /Тёплый дом/ })).toBeChecked();
-  await cards.getByText('Ночной город').click();
-  await expect(cards.getByRole('radio', { name: /Ночной город/ })).toBeChecked();
+  await cards.getByText('Бутик-отель').click();
+  await expect(cards.getByRole('radio', { name: /Бутик-отель/ })).toBeChecked();
   await clean(page);
   await shot(page, 'design-cards-light-1440');
-  await win.getByTestId('create-site-start').click();
+  await win.getByTestId('create-site-ai').click();
+  await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');
   await expect(main(page).getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
   await tab(page, 'Дизайн').click();
   await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');
-  // выбор виден и в разговоре: карточки можно применить к черновику ещё раз
-  await tab(page, 'Редактор').click();
-  await expect(ai(page).getByTestId('ed-design')).toBeVisible();
 });
 
 test('«Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ', async ({ page }) => {

@@ -2197,10 +2197,10 @@ export const marketingSiteApi = {
     sendJson<{ site: { id: string; state: 'ARCHIVED' } }>('POST', '/marketing/site/archive', {}),
   setBookingSource: (trackedSiteId: string | null) =>
     sendJson<BookingSourceView>('PUT', '/marketing/site/booking-source', { trackedSiteId }),
-  /** SITE-1: факты филиала и филиалы со статусом сайта (контракт `lib/site-facts.ts`); 404 до выкладки API */
+  /** SITE-1/2: факты филиала и филиалы со статусом сайта (контракт `SiteFacts` домена); 404 у старого сервера */
   facts: (locationId: string) =>
     getJson<import('./site-facts').SiteFacts>(`/marketing/site/facts?locationId=${encodeURIComponent(locationId)}`),
-  locations: () => getJson<import('./site-facts').SiteLocation[]>('/marketing/site/locations'),
+  locations: () => getJson<{ items: import('./site-facts').SiteLocation[] }>('/marketing/site/locations'),
 };
 
 /** MKT8: изображение библиотеки сайта; ключа объекта и адреса бакета нет, только подписанный адрес на срок */
@@ -2485,6 +2485,9 @@ export const siteEditorApi = {
       `/marketing/site/generations/${encodeURIComponent(id)}`,
     ),
   // ── MKT9.2: лицензированный конструктор ──
+  /** SITE-1: сайт из шаблона своего сегмента одним действием (сайт и первая версия из данных филиала, без ИИ) */
+  fromTemplate: (templateId: string) =>
+    editorCall<{ created: boolean; site: MarketingSiteSummary }>('POST', '/marketing/site/from-template', { templateId }),
   bootstrap: () =>
     editorCall<{ created: boolean; site: MarketingSiteSummary }>(
       'POST',

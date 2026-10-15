@@ -1,11 +1,12 @@
 import { BadRequestException } from '@nestjs/common';
-import { designPresetById, designPresetDirection, type DesignDirection } from '@pms/domain';
+import { designPresetById, designPresetDirection, siteTemplateById, type DesignDirection } from '@pms/domain';
 
 /**
  * Выбор оформления первой сборки (MKT9.2 + SITE-1). Два источника, браузер передаёт только id:
  *
  * - направление из ответа ИИ этого сайта: `designRunId` + `designId` (направление сервер берёт из задачи DESIGN);
- * - готовое направление набора `DESIGN_PRESETS` домена: `designPresetId` (доверенный источник, ИИ не нужен).
+ * - готовое направление: `designPresetId` с id из набора `DESIGN_PRESETS` или id шаблона готового сайта
+ *   (`SITE_TEMPLATES`, оформление шаблона сегмента); доверенный источник домена, ИИ не нужен.
  *
  * Вместе их передать нельзя; неизвестный пресет это 400, а не первое попавшееся оформление.
  */
@@ -20,9 +21,12 @@ export function parseDesignChoice(input: Record<string, unknown>): DesignChoice 
   if (byRun && byPreset) throw new BadRequestException('Оформление: либо designPresetId, либо designRunId и designId');
   if (byPreset) {
     const id = input['designPresetId'];
-    const preset = typeof id === 'string' && ID_RE.test(id) ? designPresetById(id) : null;
-    if (!preset) throw new BadRequestException('designPresetId: готовое оформление из набора');
-    return { preset: designPresetDirection(preset) };
+    const ok = typeof id === 'string' && ID_RE.test(id);
+    const preset = ok ? designPresetById(id) : null;
+    if (preset) return { preset: designPresetDirection(preset) };
+    const template = ok ? siteTemplateById(id) : null;
+    if (template) return { preset: structuredClone(template.direction) };
+    throw new BadRequestException('designPresetId: готовое оформление из набора');
   }
   if (!byRun) return null;
   const runId = input['designRunId'];

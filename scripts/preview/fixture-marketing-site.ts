@@ -10,8 +10,11 @@ import {
   siteBuilderAccess,
   siteSpecAssetRefs,
   siteSpecHash,
+  siteTemplateById,
+  templateSiteSpec,
   validateSiteSpec,
   type AssistantPayload,
+  type SiteFacts,
   type DesignDirection,
   type ExtensionChange,
 } from '@pms/domain';
@@ -185,7 +188,40 @@ let licenses = new Map<string, License>([[FIXTURE_LOCATION_ID, ACTIVE_LICENSE()]
 /** SITE-1: эндпоинтов фактов филиала нет (404), стойка собирает факты из существующих запросов */
 let factsApiOff = false;
 
+/**
+ * SITE-1: у каждого филиала стенда свой сайт. Состояние сайта лежит в переменных модуля (как было у одного сайта);
+ * при обращении другого филиала текущее состояние откладывается, а у нового филиала поднимается своё (по умолчанию
+ * «сайта ещё нет»). Гостиница стенда (`FIXTURE_LOCATION_ID`) ведёт себя как раньше
+ */
+type SiteState = {
+  exists: boolean; state: State; versions: Version[]; published: Version | null; publications: Publication[];
+  booking: typeof BOOKING_SEED; runs: Run[]; noVersions: boolean; archived: boolean; instructions: string | null;
+  aiRuns: AiRun[]; bookmarks: Map<string, string>;
+};
+let currentLocation = FIXTURE_LOCATION_ID;
+let currentName = 'Luxx Aparts';
+let parked = new Map<string, SiteState>();
+const snapshot = (): SiteState => ({ exists, state, versions, published, publications, booking, runs, noVersions, archived, instructions, aiRuns, bookmarks });
+function restore(v: SiteState) {
+  ({ exists, state, versions, published, publications, booking, runs, noVersions, archived, instructions, aiRuns, bookmarks } = v);
+}
+function useLocation(id: string, name: string) {
+  if (id === currentLocation) return;
+  parked.set(currentLocation, snapshot());
+  restore(
+    parked.get(id) ?? {
+      exists: false, state: 'DRAFT', versions: [], published: null, publications: [], booking: structuredClone(BOOKING_SEED),
+      runs: [], noVersions: true, archived: false, instructions: null, aiRuns: [], bookmarks: new Map(),
+    },
+  );
+  currentLocation = id;
+  currentName = name;
+}
+
 export function resetMarketingSiteFixture() {
+  parked = new Map();
+  currentLocation = FIXTURE_LOCATION_ID;
+  currentName = 'Luxx Aparts';
   factsApiOff = false;
   archived = false;
   instructions = null;
@@ -207,13 +243,13 @@ export function resetMarketingSiteFixture() {
 
 const latest = () => (noVersions ? null : (versions[versions.length - 1] ?? null));
 const builder = () => {
-  const row = licenses.get(FIXTURE_LOCATION_ID) ?? null;
+  const row = licenses.has(currentLocation) ? licenses.get(currentLocation)! : currentLocation === FIXTURE_LOCATION_ID ? null : ACTIVE_LICENSE();
   return { access: siteBuilderAccess(row, new Date()), status: row?.status ?? null, activeUntil: row?.activeUntil?.toISOString() ?? null };
 };
 const ref = (v: Version | null) => (v ? { id: v.id, revision: v.revision } : null);
 const view = () => ({
-  id: 'ms000001-0000-4000-8000-000000000001',
-  name: 'Luxx Aparts',
+  id: currentLocation === FIXTURE_LOCATION_ID ? 'ms000001-0000-4000-8000-000000000001' : `ms${currentLocation.slice(2)}`,
+  name: currentName,
   slug: SLUG,
   state,
   latest: ref(latest()),
@@ -237,10 +273,12 @@ function record(action: Action, v: Version | null, previous: Version | null) {
 }
 
 /** Статус сайта филиала стенда для списка филиалов (SITE-1) */
-export function fixtureSiteStatus(): 'NONE' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' {
-  if (archived) return 'ARCHIVED';
-  if (!exists) return 'NONE';
-  return published ? 'PUBLISHED' : 'DRAFT';
+export function fixtureSiteStatus(locationId: string = FIXTURE_LOCATION_ID): 'NONE' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' {
+  const v = locationId === currentLocation ? snapshot() : parked.get(locationId);
+  if (!v) return 'NONE';
+  if (v.archived) return 'ARCHIVED';
+  if (!v.exists || v.noVersions) return v.exists ? 'DRAFT' : 'NONE';
+  return v.published ? 'PUBLISHED' : 'DRAFT';
 }
 
 export function marketingSiteFixture(
@@ -249,7 +287,10 @@ export function marketingSiteFixture(
   body: Record<string, unknown>,
   query: URLSearchParams = new URLSearchParams(),
   vertical: string = 'HOSPITALITY',
+  ctx: { locationId: string; name: string; facts: () => SiteFacts } | null = null,
 ): { status: number; data: unknown } | null {
+  if (ctx && path.startsWith('/marketing/site') && path !== '/marketing/site/facts' && path !== '/marketing/site/locations')
+    useLocation(ctx.locationId, ctx.name);
   if (path === '/__test/marketing-site' && method === 'POST') {
     // новая ревизия черновика без сброса (как сохранение версии в MKT3): нужна для сценария отката
     if (body['addRevision'] === true) {
@@ -280,12 +321,11 @@ export function marketingSiteFixture(
   if (!path.startsWith('/marketing/site')) return null;
   // SITE-1: факты и филиалы отвечает стенд (`fixture-api.ts`), здесь только «эндпоинта ещё нет»
   if (path === '/marketing/site/facts' || path === '/marketing/site/locations') return factsApiOff ? { status: 404, data: { message: 'Cannot GET ' + path } } : null;
-  // как `marketing-site/scope.ts`: API конструктора пока принимает только гостиницу, отказ без кода
-  if (vertical !== 'HOSPITALITY') return { status: 403, data: { message: 'Сайт и SEO пока доступны только гостиницам', statusCode: 403 } };
+  // SITE-3 (ADR-185): конструктор сайта открыт всем трём направлениям, как `marketing-site/scope.ts`
   if (path === '/marketing/site' && method === 'GET')
     return {
       status: 200,
-      data: { site: exists ? view() : null, archived, locationName: 'Luxx Aparts', builder: builder(), instructions: exists ? instructions : null },
+      data: { site: exists ? view() : null, archived, locationName: currentName, builder: builder(), instructions: exists ? instructions : null },
     };
   // MKT9.2: запись и ИИ сайта только при действующей лицензии; пауза, архив, сайт брони и превью не закрыты
   const free = ['/marketing/site/pause', '/marketing/site/archive', '/marketing/site/booking-source', '/marketing/site/preview'];
@@ -305,6 +345,25 @@ export function marketingSiteFixture(
     exists = true;
     noVersions = true;
     return { status: 201, data: { created: true, site: view() } };
+  }
+  // SITE-1: сайт из шаблона своего сегмента одним действием, как `MarketingSiteService.fromTemplate`
+  if (path === '/marketing/site/from-template' && method === 'POST') {
+    const extra = Object.keys(body).filter((k) => k !== 'templateId');
+    if (extra.length) return { status: 400, data: { message: `Лишние поля: ${extra.join(', ')}`, statusCode: 400 } };
+    const tpl = siteTemplateById(body['templateId']);
+    if (!tpl) return { status: 400, data: { message: 'templateId: шаблон из набора', statusCode: 400 } };
+    if (tpl.vertical !== vertical) return { status: 400, data: { message: 'templateId: шаблон другого направления', statusCode: 400 } };
+    if (archived) return conflict('SITE_ARCHIVED', 'Сайт филиала в архиве: новый сайт для этого филиала не заводится');
+    if (exists && latest()) return conflict('SITE_HAS_VERSION', 'У сайта уже есть версия: шаблон её не заменяет, правьте сайт в редакторе');
+    const facts = ctx?.facts();
+    const spec = facts ? templateSiteSpec(facts, tpl.id) : null;
+    if (!spec || !validateSiteSpec(spec).ok) return { status: 500, data: { message: 'Шаблон не прошёл проверку' } };
+    const created = !exists;
+    exists = true;
+    versions = [];
+    noVersions = true;
+    append(spec, 'MANUAL');
+    return { status: created ? 201 : 200, data: { created, site: view() } };
   }
   if (path === '/marketing/site/brief' && method === 'GET')
     return {
@@ -502,8 +561,10 @@ function editorRoute(path: string, method: string, body: Record<string, unknown>
       if (body['designRunId'] !== undefined || body['designId'] !== undefined)
         return { status: 400, data: { message: 'Оформление: либо designPresetId, либо designRunId и designId', statusCode: 400 } };
       const preset = designPresetById(body['designPresetId']);
-      if (!preset) return { status: 400, data: { message: 'designPresetId: готовое оформление из набора', statusCode: 400 } };
-      design = designPresetDirection(preset);
+      // SITE-1: id шаблона готового сайта тоже годится: его оформление, как `parseDesignChoice` API
+      const template = preset ? null : siteTemplateById(body['designPresetId']);
+      if (!preset && !template) return { status: 400, data: { message: 'designPresetId: готовое оформление из набора', statusCode: 400 } };
+      design = preset ? designPresetDirection(preset) : structuredClone(template!.direction);
     } else if (body['designRunId']) {
       const from = aiRuns.find((r) => r.id === body['designRunId'] && r.mode === 'DESIGN' && r.status === 'SUCCEEDED');
       design = ((from?.payload?.['directions'] as DesignDirection[] | undefined) ?? []).find((d) => d.id === body['designId']) ?? null;

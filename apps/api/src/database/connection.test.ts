@@ -8,7 +8,9 @@ import { PrismaService } from './prisma.provider';
 
 describe('Database connection through the real API application', () => {
   let app: INestApplication;
+  // `findFirst`: выбор объекта установки по имени (служебный ходок без человека); `findUnique`: реквизиты и счётчики объекта
   const findFirst = vi.fn();
+  const findUnique = vi.fn();
   const count = vi.fn();
   const property = {
     id: 'test-property',
@@ -20,14 +22,15 @@ describe('Database connection through the real API application', () => {
   beforeAll(async () => {
     const module = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(PrismaService)
-      .useValue({ db: { property: { findFirst }, inventoryUnit: { count } } })
+      .useValue({ db: { property: { findFirst, findUnique }, inventoryUnit: { count } } })
       .compile();
     app = module.createNestApplication({ logger: false });
     await app.init();
   });
   beforeEach(() => {
     vi.clearAllMocks();
-    findFirst.mockResolvedValue(property);
+    findFirst.mockResolvedValue({ id: property.id });
+    findUnique.mockResolvedValue(property);
     count.mockResolvedValue(17);
     vi.stubEnv(
       'DATABASE_URL',
@@ -53,10 +56,13 @@ describe('Database connection through the real API application', () => {
     expect(findFirst).toHaveBeenCalledWith(
       expect.objectContaining({ where: { name: expect.any(String) } }),
     );
+    expect(findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: property.id } }),
+    );
   });
 
   it('distinguishes a connected empty object from a connection error', async () => {
-    findFirst.mockResolvedValue({
+    findUnique.mockResolvedValue({
       ...property,
       _count: {
         accommodationTypes: 0,

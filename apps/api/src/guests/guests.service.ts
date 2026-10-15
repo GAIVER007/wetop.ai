@@ -7,6 +7,7 @@ import {
   ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { ReservationSource } from '@pms/database';
 import { normalizeCitizenship, upcomingBirthday } from '@pms/domain';
 import {
   PiiKeyMissingError,
@@ -20,7 +21,9 @@ import {
   GUESTS_REPOSITORY,
   type GuestDirectoryFilter,
   type GuestDirectorySort,
+  type GuestDirectoryView,
   type GuestLastVisitWindow,
+  type GuestStayPeriod,
   type GuestPatch,
   type GuestVisitsFilter,
   type GuestProfile,
@@ -76,6 +79,40 @@ function lastVisitWindow(
   return { from, to };
 }
 
+const VIEWS: readonly GuestDirectoryView[] = [
+  'all',
+  'today',
+  'inhouse',
+  'expected',
+  'departures',
+  'attention',
+];
+
+/** Флаг отбора: параметр не задан или `1`; всё остальное даёт 400 словами, а не молча «выключено» */
+function flag(value: string | undefined, name: string): boolean {
+  if (value === undefined || value === '') return false;
+  if (value !== '1') throw new BadRequestException(`${name}: только 1`);
+  return true;
+}
+
+/** Окно дат основного проживания: сегодня, 7 или 30 дней вперёд, либо период (не длиннее 366 дней) */
+function stayPeriod(
+  period: string | undefined,
+  from: string | undefined,
+  to: string | undefined,
+): GuestStayPeriod | null {
+  if (!period) return null;
+  if (period === 'today') return { days: 1 };
+  if (period === '7d') return { days: 7 };
+  if (period === '30d') return { days: 30 };
+  if (period !== 'range') throw new BadRequestException('period: today, 7d, 30d или range');
+  if (!from || !to || !isDay(from) || !isDay(to) || from > to)
+    throw new BadRequestException('Период проживания: даты YYYY-MM-DD, «с» не позже «по»');
+  if (Date.parse(to) - Date.parse(from) > 365 * 86400000)
+    throw new BadRequestException('Период проживания не больше 366 дней');
+  return { from, to };
+}
+
 @Injectable()
 export class GuestsService {
   constructor(@Inject(GUESTS_REPOSITORY) private readonly repo: GuestsRepository) {}
@@ -121,6 +158,14 @@ export class GuestsService {
     to?: string;
     visits?: string;
     sort?: string;
+    view?: string;
+    source?: string;
+    debt?: string;
+    fresh?: string;
+    nocontact?: string;
+    period?: string;
+    periodFrom?: string;
+    periodTo?: string;
   }) {
     for (const key of [
       'state',
@@ -132,6 +177,14 @@ export class GuestsService {
       'to',
       'visits',
       'sort',
+      'view',
+      'source',
+      'debt',
+      'fresh',
+      'nocontact',
+      'period',
+      'periodFrom',
+      'periodTo',
     ] as const) {
       if (query[key] !== undefined && typeof query[key] !== 'string')
         throw new BadRequestException('Параметры списка должны быть строками');
@@ -154,6 +207,13 @@ export class GuestsService {
     const sort = query.sort || 'name';
     if (!['name', 'next', 'last', 'visits'].includes(sort))
       throw new BadRequestException('sort — name, next, last или visits');
+    const view = query.view || 'all';
+    if (!(VIEWS as readonly string[]).includes(view))
+      throw new BadRequestException('view: all, today, inhouse, expected, departures или attention');
+    // как в «Бронях» (R2): значение ReservationSource без регистра, иначе подстрока названия канала
+    const sourceText = (query.source || '').trim();
+    if (sourceText.length > 64) throw new BadRequestException('Слишком длинное значение источника');
+    const source = Object.values(ReservationSource).find((v) => v === sourceText.toUpperCase());
     return this.repo.directory({
       state: state as GuestDirectoryFilter,
       q,
@@ -162,6 +222,13 @@ export class GuestsService {
       lastVisit,
       visits: visits as GuestVisitsFilter | null,
       sort: sort as GuestDirectorySort,
+      view: view as GuestDirectoryView,
+      source: source ?? null,
+      channel: sourceText && !source ? sourceText : null,
+      debt: flag(query.debt, 'debt'),
+      fresh: flag(query.fresh, 'fresh'),
+      noContact: flag(query.nocontact, 'nocontact'),
+      stayPeriod: stayPeriod(query.period, query.periodFrom, query.periodTo),
     });
   }
 

@@ -1,0 +1,264 @@
+# Интеграционные (integration) · 05.10.2026 12:20 Алматы · MacBook-Air-Urij.local
+# коммит b8bbe14 (codex/bar-repair-2), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T07-20-53Z-integration-021f.json' 'tests/integration/bar-property-guard.test.ts' 'tests/integration/bar-ownership.test.ts' 'tests/integration/bar-populated-rls.test.ts' 'tests/integration/function-search-path.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/bar-ownership.test.ts (104 tests) 657ms
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ❯ |integration| tests/integration/bar-populated-rls.test.ts (24 tests | 9 failed) 120ms
+   ❯ BAR populated tenant visibility and SQL ownership boundary (24)
+     ✓ bar_categories: own=1, foreign=0; unset/empty=0; service=2 15ms
+     ✓ bar_products: own=1, foreign=0; unset/empty=0; service=2 6ms
+     ✓ bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2 6ms
+     ✓ bar_receipts: own=1, foreign=0; unset/empty=0; service=2 4ms
+     ✓ bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2 5ms
+     ✓ bar_sales: own=1, foreign=0; unset/empty=0; service=2 4ms
+     ✓ bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2 4ms
+     ✓ bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2 5ms
+     ✓ bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2 4ms
+     ✓ bar_suppliers: own=1, foreign=0; unset/empty=0; service=2 5ms
+     ✓ all ten tables FORCE RLS; service has BYPASSRLS; app has no bypass 3ms
+     ✓ bar_products: app A cannot create a row in property B 5ms
+     ✓ bar_suppliers: app A cannot create a row in property B 3ms
+     ✓ bar_receipts: app A cannot create a row in property B 3ms
+     ✓ bar_sales: app A cannot create a row in property B 3ms
+     × ownership denies receipt line foreign product 6ms
+     × ownership denies lot foreign product 4ms
+     × ownership denies movement foreign product 3ms
+     × ownership denies movement foreign lot 3ms
+     × ownership denies supplier payment foreign receipt 3ms
+     × ownership denies supplier payment foreign cash 5ms
+     × ownership denies sale line foreign product 4ms
+     × ownership denies lot property A referencing a new receipt line in B 4ms
+     × ownership denies direct INSERT of own receipt line with foreign product 3ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 274ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 117ms
+ ✓ |integration| tests/integration/bar-property-guard.test.ts (12 tests) 37ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies receipt line foreign product
+AssertionError: expected [Function] to throw error matching /row-level security|another property/ but got 'BAR receipt line ownership mismatch'
+
+- Expected:
+/row-level security|another property/
+
++ Received:
+"BAR receipt line ownership mismatch"
+
+ ❯ tests/integration/bar-populated-rls.test.ts:344:62
+    342|       }
+    343|       await asRole('wetop_app', a.org, async () => {
+    344|         await expect(client.query(sql, [id, a.rows[target]])).rejects.…
+       |                                                              ^
+    345|           /row-level security|another property/,
+    346|         );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:343:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:331:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies lot foreign product
+AssertionError: expected [Function] to throw error matching /row-level security|another property/ but got 'BAR stock lot ownership mismatch'
+
+- Expected:
+/row-level security|another property/
+
++ Received:
+"BAR stock lot ownership mismatch"
+
+ ❯ tests/integration/bar-populated-rls.test.ts:344:62
+    342|       }
+    343|       await asRole('wetop_app', a.org, async () => {
+    344|         await expect(client.query(sql, [id, a.rows[target]])).rejects.…
+       |                                                              ^
+    345|           /row-level security|another property/,
+    346|         );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:343:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:331:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies movement foreign product
+AssertionError: expected [Function] to throw error matching /row-level security|another property/ but got 'BAR stock movement product ownership …'
+
+- Expected:
+/row-level security|another property/
+
++ Received:
+"BAR stock movement product ownership mismatch"
+
+ ❯ tests/integration/bar-populated-rls.test.ts:344:62
+    342|       }
+    343|       await asRole('wetop_app', a.org, async () => {
+    344|         await expect(client.query(sql, [id, a.rows[target]])).rejects.…
+       |                                                              ^
+    345|           /row-level security|another property/,
+    346|         );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:343:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:331:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies movement foreign lot
+AssertionError: expected [Function] to throw error matching /row-level security|another property/ but got 'BAR stock movement lot ownership mism…'
+
+- Expected:
+/row-level security|another property/
+
++ Received:
+"BAR stock movement lot ownership mismatch"
+
+ ❯ tests/integration/bar-populated-rls.test.ts:344:62
+    342|       }
+    343|       await asRole('wetop_app', a.org, async () => {
+    344|         await expect(client.query(sql, [id, a.rows[target]])).rejects.…
+       |                                                              ^
+    345|           /row-level security|another property/,
+    346|         );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:343:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:331:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies supplier payment foreign receipt
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies supplier payment foreign cash
+AssertionError: expected [Function] to throw error matching /row-level security|another property/ but got 'BAR supplier payment ownership mismat…'
+
+- Expected:
+/row-level security|another property/
+
++ Received:
+"BAR supplier payment ownership mismatch"
+
+ ❯ tests/integration/bar-populated-rls.test.ts:344:62
+    342|       }
+    343|       await asRole('wetop_app', a.org, async () => {
+    344|         await expect(client.query(sql, [id, a.rows[target]])).rejects.…
+       |                                                              ^
+    345|           /row-level security|another property/,
+    346|         );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:343:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:331:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies sale line foreign product
+AssertionError: expected [Function] to throw error matching /row-level security|another property/ but got 'BAR sale line ownership mismatch'
+
+- Expected:
+/row-level security|another property/
+
++ Received:
+"BAR sale line ownership mismatch"
+
+ ❯ tests/integration/bar-populated-rls.test.ts:344:62
+    342|       }
+    343|       await asRole('wetop_app', a.org, async () => {
+    344|         await expect(client.query(sql, [id, a.rows[target]])).rejects.…
+       |                                                              ^
+    345|           /row-level security|another property/,
+    346|         );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:343:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:331:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies lot property A referencing a new receipt line in B
+AssertionError: expected [Function] to throw error matching /row-level security|another property/ but got 'BAR stock lot ownership mismatch'
+
+- Expected:
+/row-level security|another property/
+
++ Received:
+"BAR stock lot ownership mismatch"
+
+ ❯ tests/integration/bar-populated-rls.test.ts:374:10
+    372|             a.rows.bar_stock_lots,
+    373|           ]),
+    374|         ).rejects.toThrow(/row-level security|another property/);
+       |          ^
+    375|       });
+    376|     });
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:368:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:351:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies direct INSERT of own receipt line with foreign product
+AssertionError: expected [Function] to throw error matching /row-level security|another property/ but got 'BAR receipt line ownership mismatch'
+
+- Expected:
+/row-level security|another property/
+
++ Received:
+"BAR receipt line ownership mismatch"
+
+ ❯ tests/integration/bar-populated-rls.test.ts:392:10
+    390|             calculated_price: '100',
+    391|           }),
+    392|         ).rejects.toThrow(/row-level security|another property/);
+       |          ^
+    393|       });
+    394|     });
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:380:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:379:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  9 failed | 139 passed (148)
+   Start at  11:20:54
+   Duration  2.52s (tests 68%, import 17%, transform 15%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T07-20-53Z-integration-021f.json
+
+# код выхода 1 · 4 с

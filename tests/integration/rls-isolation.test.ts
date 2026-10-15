@@ -110,11 +110,16 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
     );
     const known = new Set([...RLS_TENANT_TABLES, ...RLS_NO_TENANT_TABLES]);
     expect(res.rows.map((r) => r.table_name).filter((t) => !known.has(t)).sort()).toEqual([]);
-    const rls = await client.query<{ relname: string }>(
-      `SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    const rls = await client.query<{ relname: string; relforcerowsecurity: boolean }>(
+      `SELECT c.relname, c.relforcerowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
         WHERE n.nspname = current_schema() AND c.relkind = 'r' AND c.relrowsecurity`,
     );
     expect(rls.rows.map((r) => r.relname).sort()).toEqual([...RLS_TENANT_TABLES].sort());
+    const barTables = RLS_TENANT_TABLES.filter((table) => table.startsWith('bar_'));
+    expect(
+      rls.rows.filter((row) => barTables.includes(row.relname) && !row.relforcerowsecurity).map((row) => row.relname).sort(),
+      'таблицы бара без FORCE ROW LEVEL SECURITY',
+    ).toEqual([]);
   });
 
   it('чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои', async () => {

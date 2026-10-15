@@ -1,0 +1,33 @@
+# Модульные (unit) · 05.10.2026 15:10 Алматы · MacBook-Air-Urij.local
+# коммит bdbc33d (codex/mv6-food-domain-20261005)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T10-10-24Z-unit-1d77.json' 'tests/unit/auto-deploy.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 47528ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 3334ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1902ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 3954ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2680ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 3451ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 2382ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1835ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2726ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2431ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 3016ms
+     ✓ локальные правки в клоне — не затирает их 1706ms
+     ✓ историю ветки переписали — не выкладывает поверх 3155ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 4640ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 2931ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 4698ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 2684ms
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  14:10:26
+   Duration  48.41s (tests 100%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T10-10-24Z-unit-1d77.json
+
+# код выхода 0 · 50 с

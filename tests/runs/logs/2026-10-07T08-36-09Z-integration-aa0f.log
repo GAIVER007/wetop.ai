@@ -1,0 +1,87 @@
+# Интеграционные (integration) · 07.10.2026 13:36 Алматы · vm
+# коммит 9644569 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-36-09Z-integration-aa0f.json' 'tests/integration/payment-void.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:1683) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/payment-void.test.ts (4 tests | 3 failed) 440ms
+   ❯ аннулирование платежа под блокировкой (integration) (4)
+     × аннулированный платёж уходит из распределений счёта; второй раз не аннулируется 92ms
+     × возврат и аннулирование наперегонки: проходит ровно одно 41ms
+     × платёж с возвратом не аннулируется и не заменяется: отказ из транзакции словами 24ms
+     ✓ запрос оплаты: аннулирование возвращает его в ожидание, замена переводит на новый платёж 52ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/payment-void.test.ts > аннулирование платежа под блокировкой (integration) > аннулированный платёж уходит из распределений счёта; второй раз не аннулируется
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/integration/payment-void.test.ts:74:39
+     72|     const row = await db.payment.findUniqueOrThrow({ where: { id }, se…
+     73|     expect(row.status).toBe('VOIDED');
+     74|     await expect(repo.voidPayment(id)).rejects.toThrow(/уже аннулирова…
+       |                                       ^
+     75|     // счёт не видит аннулированного платежа в оплаченном: как folioVi…
+     76|     const folio = (await repo.folioById(folioId))!;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/payment-void.test.ts > аннулирование платежа под блокировкой (integration) > возврат и аннулирование наперегонки: проходит ровно одно
+AssertionError: expected [ { status: 'fulfilled', …(1) }, …(1) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/integration/payment-void.test.ts:90:16
+     88|     ]);
+     89|     const ok = results.filter((r) => r.status === 'fulfilled');
+     90|     expect(ok).toHaveLength(1);
+       |                ^
+     91|     const row = await db.payment.findUniqueOrThrow({ where: { id }, se…
+     92|     const refunded = await db.refund.aggregate({ where: { paymentId: i…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/payment-void.test.ts > аннулирование платежа под блокировкой (integration) > платёж с возвратом не аннулируется и не заменяется: отказ из транзакции словами
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/integration/payment-void.test.ts:103:39
+    101|     const id = await payment(4_000n);
+    102|     await repo.createRefund({ paymentId: id, folioId, amountMinor: 1_0…
+    103|     await expect(repo.voidPayment(id)).rejects.toThrow(/возврат/);
+       |                                       ^
+    104|     await expect(
+    105|       repo.replacePayment(id, {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  08:36:10
+   Duration  3.55s (transform 55%, tests 23%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-36-09Z-integration-aa0f.json
+
+# код выхода 1 · 5 с

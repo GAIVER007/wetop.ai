@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 05.10.2026 15:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 35f8ab5 (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/mobile-adaptation.spec.ts:85' 'tests/ui/chessboard-mobile.spec.ts:171' 'tests/ui/chessboard-calendar.spec.ts:12' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] (node:19458) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19491) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19502) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19538) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+(node:19550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (13.7s)
+  ✓  2 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 360: шесть показателей перед календарём и вертикальная прокрутка (9.6s)
+  ✓  3 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 390: шесть показателей перед календарём и вертикальная прокрутка (2.9s)
+  ✓  4 tests/ui/chessboard-mobile.spec.ts:171:3 › статистика 430: шесть показателей перед календарём и вертикальная прокрутка (4.2s)
+  ✓  5 tests/ui/mobile-adaptation.spec.ts:85:1 › телефон: управление календаря не отнимает у сетки пол-экрана (4.4s)
+
+  5 passed (43.8s)
+
+# код выхода 0 · 46 с

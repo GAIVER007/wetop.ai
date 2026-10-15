@@ -1,0 +1,24 @@
+# Модульные (unit) · 13.10.2026 18:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит b25addf (codex/organizations-card-editor), незакоммиченных файлов набора: 24
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-20-24Z-unit-6e2d.json' 'apps/web/src/design-rules.test.ts' 'apps/web/src/app/branches/switch.test.ts' 'apps/web/src/app/branches/business-groups.test.ts' 'apps/web/src/lib/branch-summary.test.ts' 'apps/web/src/lib/branch-report-api.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/organizations-card-editor/WETOP
+
+ ✓ |unit| apps/web/src/app/branches/business-groups.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (11 tests) 172ms
+ ✓ |unit| apps/web/src/lib/branch-report-api.test.ts (2 tests) 277ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 2025ms
+   ✓ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ стрелок в конце текста ссылок нет — ссылка названа словом (§14) 659ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 445ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 425ms
+
+ Test Files  5 passed (5)
+      Tests  35 passed (35)
+   Start at  06:20:44
+   Duration  3.24s (tests 64%, transform 27%, import 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T13-20-24Z-unit-6e2d.json
+
+# код выхода 0 · 24 с

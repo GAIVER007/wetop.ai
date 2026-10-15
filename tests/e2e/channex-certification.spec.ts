@@ -4,7 +4,6 @@ import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
-import { chooseSource } from './booking-form';
 
 /**
  * Сертификационные сценарии Channex (docs/channex/site/api-v.1-documentation/pms-certification-tests.md),
@@ -232,7 +231,11 @@ test.describe.serial('Channex certification from the PMS UI', () => {
   }) => {
     await page.goto(`/reservations/new?arrival=2026-11-21&departure=2026-11-22`);
     const form = page.getByRole('main').getByTestId('new-reservation-form');
-    await chooseSource(form, 'PHONE');
+    // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+    await form.locator('details:has(select[name="source"])').evaluate((d) => {
+      (d as HTMLDetailsElement).open = true;
+    });
+    await form.locator('select[name="source"]').selectOption('PHONE');
     await form.locator('select[name="accommodationTypeCode"]').selectOption(SINGLE);
     await form.locator('select[name="ratePlanCode"]').selectOption(OTA);
     await form.locator('input[name="firstName"]').fill('Гость');
@@ -245,7 +248,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await page.goto(`/reservations/${number}`);
     await cardTab(page, 'Действия');
     await page.getByRole('main').getByTestId('cancel-reservation').click();
-    await confirmDialog(page, 'Отменить бронь');
+    await confirmDialog(page, 'Подтвердить отмену');
     await expect(page.getByText('отменена').first()).toBeVisible();
     await flush(page, '10. Availability Update (booking cancelled in PMS UI)');
   });

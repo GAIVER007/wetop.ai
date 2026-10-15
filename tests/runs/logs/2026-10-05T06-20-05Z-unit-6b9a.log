@@ -1,0 +1,17 @@
+# Модульные (unit) · 05.10.2026 11:20 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/mv6-food-domain-20261005), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-20-05Z-unit-6b9a.json' 'packages/domain/src/food/food.test.ts' 'apps/api/src/food-service/boundary.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |unit| packages/domain/src/food/food.test.ts (6 tests) 17ms
+ ✓ |unit| apps/api/src/food-service/boundary.test.ts (2 tests) 3ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  10:20:06
+   Duration  654ms (transform 60%, import 36%, tests 3%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-20-05Z-unit-6b9a.json
+
+# код выхода 0 · 1 с

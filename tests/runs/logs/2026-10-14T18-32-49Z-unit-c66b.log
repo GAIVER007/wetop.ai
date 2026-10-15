@@ -1,0 +1,16 @@
+# Модульные (unit) · 14.10.2026 23:32 Алматы · MacBook-Air-Urij.local
+# коммит ecd2127 (claude/food-fix-02-20261014), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T18-32-49Z-unit-c66b.json' 'apps/api/src/body-parsers.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02
+
+ ✓ |unit| apps/api/src/body-parsers.test.ts (5 tests) 230ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  22:32:53
+   Duration  901ms (import 57%, tests 32%, transform 10%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T18-32-49Z-unit-c66b.json
+
+# код выхода 0 · 5 с

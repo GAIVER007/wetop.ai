@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 09.10.2026 18:31 Алматы · vm
+# коммит d0eb1e6 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 38
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/bar.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/bar.spec.ts:23:1 › обзор: вкладки, показатели, продажа и остатки одним экраном 1440×900 (2.8s)
+  ✓  2 tests/ui/bar.spec.ts:51:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.0s)
+  ✓  3 tests/ui/bar.spec.ts:64:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (4.4s)
+  ✓  4 tests/ui/bar.spec.ts:96:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.7s)
+  ✓  5 tests/ui/bar.spec.ts:109:1 › приходы: оплата долга из журнала; товары: новый товар и цена в строке; поставщики: расчёты (5.0s)
+  ✓  6 tests/ui/bar.spec.ts:136:1 › операции: списание с причиной, журнал продаж и лента движений (2.2s)
+  ✓  7 tests/ui/bar.spec.ts:150:3 › доступность и телефон: light (3.7s)
+  ✓  8 tests/ui/bar.spec.ts:150:3 › доступность и телефон: dark (4.4s)
+
+  8 passed (38.7s)
+
+# код выхода 0 · 40 с

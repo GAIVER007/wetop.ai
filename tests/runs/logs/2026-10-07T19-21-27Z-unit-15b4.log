@@ -1,0 +1,30 @@
+# Модульные (unit) · 08.10.2026 00:21 Алматы · vm
+# коммит 5423299 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T19-21-27Z-unit-15b4.json' 'apps/sites/src/draft-preview.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/sites/src/draft-preview.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/sites/src/draft-preview.test.ts [ apps/sites/src/draft-preview.test.ts ]
+Error: Cannot find module './draft-preview' imported from /home/user/wetop.ai/apps/sites/src/draft-preview.test.ts
+ ❯ apps/sites/src/draft-preview.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { renderDraftPreview } from './draft-preview';
+       | ^
+      3| import { CSS_PATH, PRICES_PATH } from './assets';
+      4| import { SITE_CSS } from './render/theme';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  19:21:28
+   Duration  378ms (worker 95%, environment 5%)
+
+JSON report written to /tmp/pms-test-2026-10-07T19-21-27Z-unit-15b4.json
+
+# код выхода 1 · 2 с

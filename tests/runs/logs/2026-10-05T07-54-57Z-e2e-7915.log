@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 05.10.2026 12:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2278432 (codex/calendar-mobile), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' '--workers=1'
+[WebServer] (node:84761) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84794) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84811) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+(node:84883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (1.6s)
+  ✓   2 tests/ui/chessboard-calendar.spec.ts:41:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (741ms)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:54:3 › гейт «Календарь»: light (1.4s)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:54:3 › гейт «Календарь»: dark (1.4s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:67:1 › пустая клетка не дублирует дату из шапки календаря (825ms)
+  ✓   6 tests/ui/chessboard-calendar.spec.ts:75:1 › даты в шапке не повторяют свободные и занятые места (820ms)
+  ✓   7 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (2.0s)
+  ✓   8 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (1.8s)
+  ✘   9 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (1.1s)
+
+
+  1) tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей 
+
+    Test was interrupted.
+
+    Error: cdpSession.send: Target page, context or browser has been closed
+
+      41 |     const box = (await wrap.boundingBox())!;
+      42 |     const cdp = await context.newCDPSession(page);
+    > 43 |     await cdp.send('Input.synthesizeScrollGesture', {
+         |               ^
+      44 |       x: width - 30,
+      45 |       y: Math.round(box.y + 150),
+      46 |       xDistance: -230,
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:43:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--bf536--и-бронь-на-несколько-ночей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--bf536--и-бронь-на-несколько-ночей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 interrupted
+    tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей 
+  7 did not run
+  8 passed (16.9s)
+
+# код выхода 130 · 18 с

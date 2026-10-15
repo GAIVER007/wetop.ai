@@ -5,6 +5,7 @@ import { countActiveBlocks, readInventoryPlanFromDb } from '@pms/imports';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyToday, propertyIdRef } from '../database/property-ref';
+import type { OccupancyStay, TrendInput } from './inventory-insight';
 
 export interface InventoryPropertyInfo {
   name: string;
@@ -32,6 +33,10 @@ export interface InventoryRepository {
   read(): Promise<InventoryReadModel | null>;
   /** Уборка и блокировки живые — читаются на каждый запрос, в кэш дерева не попадают */
   states(): Promise<InventoryUnitState[]>;
+  /** Исходные записи для динамики (даты создания мест, блокировки, журнал уборки) и «сегодня» объекта */
+  trendSource(): Promise<Omit<TrendInput, 'days'>>;
+  /** Проживания по местам, пересекающие сегодня или начинающиеся сегодня */
+  staysToday(): Promise<{ today: string; byCode: Map<string, OccupancyStay[]> }>;
   invalidate?(propertyId: string): void;
 }
 
@@ -88,6 +93,91 @@ export class PrismaInventoryRepository implements InventoryRepository {
           }
         : null,
     }));
+  }
+
+  async trendSource(): Promise<Omit<TrendInput, 'days'>> {
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const day = (d: Date) => d.toISOString().slice(0, 10);
+    const rows = await this.prisma.db.inventoryUnit.findMany({
+      where: { propertyId, active: true },
+      select: {
+        code: true,
+        kind: true,
+        createdAt: true,
+        housekeepingStatus: true,
+        blocks: { select: { dateFrom: true, dateTo: true } },
+        housekeepingEvents: {
+          select: { createdAt: true, fromStatus: true, toStatus: true },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+    return {
+      today,
+      units: rows.map((u) => ({
+        code: u.code,
+        kind: u.kind,
+        createdAt: day(u.createdAt),
+        housekeepingStatus: u.housekeepingStatus,
+      })),
+      blocks: rows.flatMap((u) =>
+        u.blocks.map((b) => ({ code: u.code, dateFrom: day(b.dateFrom), dateTo: day(b.dateTo) })),
+      ),
+      hkEvents: rows.flatMap((u) =>
+        u.housekeepingEvents.map((e) => ({
+          code: u.code,
+          at: e.createdAt.toISOString(),
+          from: e.fromStatus,
+          to: e.toStatus,
+        })),
+      ),
+    };
+  }
+
+  async staysToday(): Promise<{ today: string; byCode: Map<string, OccupancyStay[]> }> {
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const onDate = new Date(`${today}T00:00:00Z`);
+    const day = (d: Date) => d.toISOString().slice(0, 10);
+    const rows = await this.prisma.db.allocation.findMany({
+      where: {
+        inventoryUnit: { propertyId },
+        startDate: { lte: onDate },
+        endDate: { gt: onDate },
+        reservationItem: { status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] } },
+      },
+      select: {
+        startDate: true,
+        endDate: true,
+        inventoryUnit: { select: { code: true } },
+        reservationItem: {
+          select: {
+            status: true,
+            reservation: {
+              select: {
+                confirmationNumber: true,
+                primaryGuest: { select: { firstName: true, lastName: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+    const byCode = new Map<string, OccupancyStay[]>();
+    for (const a of rows) {
+      const g = a.reservationItem.reservation.primaryGuest;
+      const initial = g?.firstName?.trim()[0];
+      const stay: OccupancyStay = {
+        confirmationNumber: a.reservationItem.reservation.confirmationNumber,
+        startDate: day(a.startDate),
+        endDate: day(a.endDate),
+        status: a.reservationItem.status,
+        guest: g ? `${g.lastName} ${initial ? `${initial}.` : ''}`.trim() : '',
+      };
+      byCode.set(a.inventoryUnit.code, [...(byCode.get(a.inventoryUnit.code) ?? []), stay]);
+    }
+    return { today, byCode };
   }
 
   async read(): Promise<InventoryReadModel | null> {

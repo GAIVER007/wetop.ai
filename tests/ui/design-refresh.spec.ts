@@ -6,41 +6,42 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
-test('главная: «Гостиница сегодня» на первом экране, кнопки брони нет', async ({ page }) => {
-  // Главная владельца (03.10.2026): сверху виджеты «Сегодня», бронь заводится в «Календаре» и «Бронях»;
-  // на телефоне первым экраном загрузка дня
+test('финансы: деньги на первом экране; главная без кнопок брони, внимание достижимо', async ({
+  page,
+}) => {
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
+    // «Финансы» (ADR-180): плитки денег первым экраном, кнопки брони нет
+    await page.goto('/finance');
+    await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
+    await expect(page.getByTestId('fin-income')).toBeInViewport();
+    // «Главная» (/today): риски и «Все задачи» живут здесь
     await page.goto('/today');
     await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-    await expect(
-      page.getByRole('article', { name: 'Загрузка на сегодня' }).getByTestId('c-occupancy'),
-    ).toBeInViewport();
-    const hotel = page.getByRole('region', { name: 'Гостиница сегодня' });
-    await expect(hotel).toBeAttached();
+    const risks = page.getByTestId('owner-risks');
+    await expect(risks).toBeAttached();
     const attention = page
       .getByTestId('owner-dashboard')
-      .getByRole('button', { name: 'Требуют внимания', exact: true });
+      .getByRole('button', { name: 'Все задачи', exact: true });
     await expect(attention).toBeAttached();
-    if (width === 1440) {
-      await expect(hotel).toBeInViewport({ ratio: 1 });
-      await expect(attention).toBeInViewport();
-    }
+    await attention.scrollIntoViewIfNeeded();
+    await expect(attention).toBeInViewport();
   }
 });
 
-test('период Главной и «Аналитики» на телефоне: подписанные поля и цели не меньше 44 px', async ({
+test('период «Финансов» и «Аналитики» на телефоне: подписанные поля и цели не меньше 44 px', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/today');
-  // период финансов Главной: готовые отрезки и свой отрезок (вместо полосы дня стойки A1)
+  await page.goto('/finance');
+  // период денег: даты «С / По» нижних отборов (ADR-180); в шапке свой контрол периода
+  const filters = page.locator('#finance-filters');
   for (const control of [
-    page.getByLabel('Начало периода'),
-    page.getByLabel('Конец периода'),
-    page.getByRole('main').locator('.owner-toolbar').getByRole('button', { name: 'Показать' }),
+    filters.getByLabel('Период: с', { exact: true }),
+    filters.getByLabel('Период: по', { exact: true }),
+    page.getByTestId('period-form').getByRole('button', { name: 'Показать', exact: true }),
     page
-      .getByRole('navigation', { name: 'Период финансов' })
+      .getByRole('navigation', { name: 'Готовые периоды' })
       .getByRole('link', { name: 'Сегодня', exact: true }),
   ]) {
     const box = await control.boundingBox();
@@ -73,20 +74,22 @@ test('период Главной и «Аналитики» на телефон�
   }
 });
 
-test('главная: финансы за выбранный период, гостиница за сегодня; месяц целиком в «Аналитике»', async ({
+test('финансы за выбранный период, риски за сегодня; месяц целиком в «Аналитике»', async ({
   page,
 }) => {
-  // Главная владельца (30.09.2026): ?period= задаёт финансы, «Гостиница сегодня» всегда о сегодняшнем дне
-  await page.goto('/today?period=month');
+  // from/to задают деньги; месяц по умолчанию виден в нижних отборах
+  await page.goto('/finance');
   await expect(
-    page.getByRole('navigation', { name: 'Период финансов' }).getByRole('link', { name: 'Месяц' }),
+    page
+      .getByRole('navigation', { name: 'Готовые периоды' })
+      .getByRole('link', { name: 'Месяц', exact: true }),
   ).toHaveAttribute('aria-current', 'page');
-  await expect(page.getByRole('region', { name: 'Гостиница сегодня' })).toContainText(
-    /\d{2}\.\d{2}\.\d{4}/,
-  );
   await expect(page.getByTestId('period-caption')).toHaveCount(0);
-  // месячные показатели в «Аналитике → Обзор» (ADR-114), оплаты в «Оплатах», ADR и RevPAR у типа фонда.
-  // Четыре плитки сразу, ночи, средний чек и цена у типа фонда в свёрнутых «Подробностях» (01.10.2026)
+  // полоса рисков и «Сегодня» всегда о сегодняшнем дне и живут на «Главной» (ADR-180)
+  await page.goto('/today');
+  await expect(page.getByRole('region', { name: 'Сегодня', exact: true })).toBeVisible();
+  await expect(page.getByTestId('owner-risks')).toBeVisible();
+  // месячные показатели в «Аналитике → Обзор» (ADR-114), оплаты в «Оплатах», ADR и RevPAR у типа фонда
   await page.goto('/management/analytics?period=month');
   await expect(page.getByTestId('pa-period')).toContainText(/(28|29|30|31) д/);
   for (const id of ['occupancy', 'revenue', 'bookings', 'cancelled'])
@@ -107,9 +110,9 @@ for (const theme of ['light', 'dark'] as const) {
       test.setTimeout(120_000);
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
-      const directory = 'reports/design-refresh-2026-09-19/after';
+      const directory = 'reports/finance-home-merge-2026-10-09/accessibility';
       mkdirSync(directory, { recursive: true });
-      for (const route of ['today', 'design-system']) {
+      for (const route of ['finance', 'design-system']) {
         await page.goto(`/${route}`);
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
         const result = await new AxeBuilder({ page })
@@ -126,8 +129,11 @@ for (const theme of ['light', 'dark'] as const) {
           return browser.document.documentElement.scrollWidth - browser.innerWidth;
         });
         expect(overflow).toBeLessThanOrEqual(1);
-        if (route === 'today') {
-          await page.screenshot({ path: `${directory}/today-${theme}-${width}.png` });
+        if (route === 'finance') {
+          await page.screenshot({
+            caret: 'initial',
+            path: `${directory}/finance-${theme}-${width}.png`,
+          });
         } else {
           for (const component of ['button', 'input']) {
             const section = page

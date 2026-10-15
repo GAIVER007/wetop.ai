@@ -1,0 +1,789 @@
+# Сквозные (e2e) · 14.10.2026 18:26 Алматы · MacBook-Air-Urij.local
+# коммит a7823fe (claude/site-blog-24-20261014)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'blog.spec'
+
+Running 30 tests using 1 worker
+
+  ✘   1 tests/site/blog.spec.ts:71:1 › каждая страница типа бизнеса закрыта статьёй блога (5ms)
+  ✘   2 tests/site/blog.spec.ts:84:1 › список статей: все опубликованы, черновика нет (10.6s)
+  ✓   3 tests/site/blog.spec.ts:92:3 › статья kak-vybrat-pms-dlya-khostela: один H1, ссылка на лендинг, внутренние ссылки живые (238ms)
+  ✓   4 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-salone-krasoty: один H1, ссылка на лендинг, внутренние ссылки живые (173ms)
+  ✓   5 tests/site/blog.spec.ts:92:3 › статья kak-prinimat-broni-stolov-v-restorane: один H1, ссылка на лендинг, внутренние ссылки живые (160ms)
+  ✘   6 tests/site/blog.spec.ts:92:3 › статья kak-upravlyat-mini-otelem: один H1, ссылка на лендинг, внутренние ссылки живые (10.2s)
+  ✘   7 tests/site/blog.spec.ts:92:3 › статья kak-vesti-apart-otel: один H1, ссылка на лендинг, внутренние ссылки живые (10.2s)
+  ✘   8 tests/site/blog.spec.ts:92:3 › статья kak-vesti-gostevoy-dom: один H1, ссылка на лендинг, внутренние ссылки живые (10.1s)
+  ✘   9 tests/site/blog.spec.ts:92:3 › статья kak-vesti-bazu-otdyha: один H1, ссылка на лендинг, внутренние ссылки живые (10.1s)
+  ✘  10 tests/site/blog.spec.ts:92:3 › статья kak-sdavat-kvartiry-posutochno: один H1, ссылка на лендинг, внутренние ссылки живые (10.3s)
+  ✘  11 tests/site/blog.spec.ts:92:3 › статья kak-vesti-glemping: один H1, ссылка на лендинг, внутренние ссылки живые (10.5s)
+  ✘  12 tests/site/blog.spec.ts:92:3 › статья kak-vesti-razmeshchenie-v-sanatorii: один H1, ссылка на лендинг, внутренние ссылки живые (10.4s)
+  ✘  13 tests/site/blog.spec.ts:92:3 › статья kak-vesti-kapsulnyy-otel: один H1, ссылка на лендинг, внутренние ссылки живые (10.4s)
+  ✘  14 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-barbershope: один H1, ссылка на лендинг, внутренние ссылки живые (10.4s)
+  ✘  15 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-spa: один H1, ссылка на лендинг, внутренние ссылки живые (10.5s)
+  ✘  16 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-nogtevoy-studii: один H1, ссылка на лендинг, внутренние ссылки живые (10.4s)
+  ✘  17 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-parikmaherskoy: один H1, ссылка на лендинг, внутренние ссылки живые (10.3s)
+  ✘  18 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-massazhnogo-salona: один H1, ссылка на лендинг, внутренние ссылки живые (10.4s)
+  ✘  19 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-kosmetologii: один H1, ссылка на лендинг, внутренние ссылки живые (10.6s)
+  ✘  20 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-brovey-i-resnic: один H1, ссылка на лендинг, внутренние ссылки живые (10.3s)
+  ✘  21 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-epilyacii: один H1, ссылка на лендинг, внутренние ссылки живые (10.1s)
+  ✘  22 tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-tatu-studii: один H1, ссылка на лендинг, внутренние ссылки живые (10.4s)
+  ✘  23 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-v-kafe: один H1, ссылка на лендинг, внутренние ссылки живые (10.5s)
+  ✘  24 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-bara: один H1, ссылка на лендинг, внутренние ссылки живые (10.8s)
+  ✘  25 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-kofeyni: один H1, ссылка на лендинг, внутренние ссылки живые (10.3s)
+  ✘  26 tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-v-kalyannoy: один H1, ссылка на лендинг, внутренние ссылки живые (10.1s)
+  ✘  27 tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-komnat-v-karaoke: один H1, ссылка на лендинг, внутренние ссылки живые (10.1s)
+  ✘  28 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-piccerii: один H1, ссылка на лендинг, внутренние ссылки живые (10.1s)
+  ✘  29 tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-stolovoy: один H1, ссылка на лендинг, внутренние ссылки живые (10.3s)
+  ✘  30 tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-banketnogo-zala: один H1, ссылка на лендинг, внутренние ссылки живые (10.6s)
+
+
+  1) tests/site/blog.spec.ts:71:1 › каждая страница типа бизнеса закрыта статьёй блога ─────────────
+
+    Error: нет статьи со ссылкой на /for/mini-hotels/
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 |       bodies.some((body) => body.includes(`](${landing})`)),
+      80 |       `нет статьи со ссылкой на ${landing}`,
+    > 81 |     ).toBe(true);
+         |       ^
+      82 | });
+      83 |
+      84 | test('список статей: все опубликованы, черновика нет', async ({ page }) => {
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:81:7
+
+    Error Context: test-results/blog-каждая-страница-типа-бизнеса-закрыта-статьёй-блога/error-context.md
+
+  2) tests/site/blog.spec.ts:84:1 › список статей: все опубликованы, черновика нет ─────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('a[href="/blog/kak-upravlyat-mini-otelem/"]').first()
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('a[href="/blog/kak-upravlyat-mini-otelem/"]').first() with timeout 10000ms
+      - waiting for locator('a[href="/blog/kak-upravlyat-mini-otelem/"]').first()
+
+
+      85 |   await page.goto('/blog/');
+      86 |   for (const post of POSTS)
+    > 87 |     await expect(page.locator(`a[href="/blog/${post.slug}/"]`).first()).toBeVisible();
+         |                                                                         ^
+      88 |   await expect(page.locator('a[href="/blog/kak-dobavit-statyu/"]')).toHaveCount(0);
+      89 | });
+      90 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:87:73
+
+    Error Context: test-results/blog-список-статей-все-опубликованы-черновика-нет/error-context.md
+
+  3) tests/site/blog.spec.ts:92:3 › статья kak-upravlyat-mini-otelem: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-upravlyat--ee1c2-инг-внутренние-ссылки-живые/error-context.md
+
+  4) tests/site/blog.spec.ts:92:3 › статья kak-vesti-apart-otel: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-apar-cea18-инг-внутренние-ссылки-живые/error-context.md
+
+  5) tests/site/blog.spec.ts:92:3 › статья kak-vesti-gostevoy-dom: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-gost-9df3d-инг-внутренние-ссылки-живые/error-context.md
+
+  6) tests/site/blog.spec.ts:92:3 › статья kak-vesti-bazu-otdyha: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-bazu-d6318-инг-внутренние-ссылки-живые/error-context.md
+
+  7) tests/site/blog.spec.ts:92:3 › статья kak-sdavat-kvartiry-posutochno: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-sdavat-kva-0c199-инг-внутренние-ссылки-живые/error-context.md
+
+  8) tests/site/blog.spec.ts:92:3 › статья kak-vesti-glemping: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-glem-62876-инг-внутренние-ссылки-живые/error-context.md
+
+  9) tests/site/blog.spec.ts:92:3 › статья kak-vesti-razmeshchenie-v-sanatorii: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-razm-d153c-инг-внутренние-ссылки-живые/error-context.md
+
+  10) tests/site/blog.spec.ts:92:3 › статья kak-vesti-kapsulnyy-otel: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-kaps-65045-инг-внутренние-ссылки-живые/error-context.md
+
+  11) tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-barbershope: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-zapi-b0a19-инг-внутренние-ссылки-живые/error-context.md
+
+  12) tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-spa: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-zapi-1a16c-инг-внутренние-ссылки-живые/error-context.md
+
+  13) tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-nogtevoy-studii: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-zapi-e631a-инг-внутренние-ссылки-живые/error-context.md
+
+  14) tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-parikmaherskoy: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-zapi-2ff6e-инг-внутренние-ссылки-живые/error-context.md
+
+  15) tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-massazhnogo-salona: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-zapi-be968-инг-внутренние-ссылки-живые/error-context.md
+
+  16) tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-kosmetologii: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-zapi-5e383-инг-внутренние-ссылки-живые/error-context.md
+
+  17) tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-brovey-i-resnic: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-zapi-46cbe-инг-внутренние-ссылки-живые/error-context.md
+
+  18) tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-epilyacii: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-zapi-b03d0-инг-внутренние-ссылки-живые/error-context.md
+
+  19) tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-tatu-studii: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-zapi-f22b6-инг-внутренние-ссылки-живые/error-context.md
+
+  20) tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-v-kafe: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-uche-c1bf1-инг-внутренние-ссылки-живые/error-context.md
+
+  21) tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-bara: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        23 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-uche-46a27-инг-внутренние-ссылки-живые/error-context.md
+
+  22) tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-kofeyni: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-uche-6114c-инг-внутренние-ссылки-живые/error-context.md
+
+  23) tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-v-kalyannoy: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-bron-c2c22-инг-внутренние-ссылки-живые/error-context.md
+
+  24) tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-komnat-v-karaoke: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-bron-5b288-инг-внутренние-ссылки-живые/error-context.md
+
+  25) tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-piccerii: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-uche-47179-инг-внутренние-ссылки-живые/error-context.md
+
+  26) tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-stolovoy: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-uche-aa8fd-инг-внутренние-ссылки-живые/error-context.md
+
+  27) tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-banketnogo-zala: один H1, ссылка на лендинг, внутренние ссылки живые 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('h1')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('h1') with timeout 10000ms
+      - waiting for locator('h1')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      94 |   }) => {
+      95 |     await page.goto(`/blog/${post.slug}/`);
+    > 96 |     await expect(page.locator('h1')).toHaveCount(1);
+         |                                      ^
+      97 |     const description = await page.locator('meta[name="description"]').getAttribute('content');
+      98 |     expect(description?.length ?? 0).toBeGreaterThan(50);
+      99 |     expect(description?.length ?? 0).toBeLessThanOrEqual(155);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/site-photos-20261014/tests/site/blog.spec.ts:96:38
+
+    Error Context: test-results/blog-статья-kak-vesti-bron-c064d-инг-внутренние-ссылки-живые/error-context.md
+
+  27 failed
+    tests/site/blog.spec.ts:71:1 › каждая страница типа бизнеса закрыта статьёй блога ──────────────
+    tests/site/blog.spec.ts:84:1 › список статей: все опубликованы, черновика нет ──────────────────
+    tests/site/blog.spec.ts:92:3 › статья kak-upravlyat-mini-otelem: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-apart-otel: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-gostevoy-dom: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-bazu-otdyha: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-sdavat-kvartiry-posutochno: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-glemping: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-razmeshchenie-v-sanatorii: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-kapsulnyy-otel: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-barbershope: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-spa: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-nogtevoy-studii: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-parikmaherskoy: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-massazhnogo-salona: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-v-kosmetologii: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-brovey-i-resnic: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-studii-epilyacii: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-zapisi-tatu-studii: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-v-kafe: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-bara: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-kofeyni: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-v-kalyannoy: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-komnat-v-karaoke: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-piccerii: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-uchet-stolovoy: один H1, ссылка на лендинг, внутренние ссылки живые 
+    tests/site/blog.spec.ts:92:3 › статья kak-vesti-broni-banketnogo-zala: один H1, ссылка на лендинг, внутренние ссылки живые 
+  3 passed (5.0m)
+
+# код выхода 1 · 5 мин 4 с

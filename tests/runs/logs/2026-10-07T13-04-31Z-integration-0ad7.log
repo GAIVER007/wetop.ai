@@ -1,0 +1,166 @@
+# Интеграционные (integration) · 07.10.2026 18:04 Алматы · vm
+# коммит 8b734d0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 19
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T13-04-31Z-integration-0ad7.json' 'tests/integration/site-publication.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:17918) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-publication.test.ts (11 tests | 4 failed) 2763ms
+   ❯ MKT7 публикация управляемого сайта (11)
+     × §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 893ms
+     × §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает 61ms
+     × §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается 84ms
+     ✓ §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим 145ms
+     × §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит 9ms
+     ✓ §84: тариф брони только явный, связанный или канонический; первый активный не берётся 349ms
+     ✓ §44–§47: публикуется только голова черновика, документ перепроверяется: медиа и неактивная категория 263ms
+     ✓ §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика 88ms
+     ✓ §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400 27ms
+     ✓ §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет 50ms
+     ✓ §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503 100ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется
+AssertionError: expected 'b445d976-d68c-40b1-a197-573b3d1ff864' to be '1b686f65-0485-4ab8-b968-6203684c03cf' // Object.is equality
+
+Expected: "1b686f65-0485-4ab8-b968-6203684c03cf"
+Received: "b445d976-d68c-40b1-a197-573b3d1ff864"
+
+ ❯ tests/integration/site-publication.test.ts:361:43
+    359|     const sel = await call('PUT', '/marketing/site/booking-source', { …
+    360|     expect(sel.status, JSON.stringify(sel.body)).toBe(200);
+    361|     expect((await agentSite('main'))?.id).toBe(managed);
+       |                                           ^
+    362|     expect((await agentSite('main'))?.bookingRatePlan?.id).toBe(rate['…
+    363|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает
+AssertionError: expected { …(13) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "bookingEnabled": true,
+  "bookingRatePlan": {
+    "code": "BASE",
+    "id": "4232749c-22df-4bca-85d3-549ef59bbdbc",
+    "name": "База",
+  },
+  "checkInTime": "14:00",
+  "checkOutTime": "12:00",
+  "createdAt": 2026-10-07T13:04:39.560Z,
+  "hosts": [
+    "externala.example.test",
+  ],
+  "id": "b445d976-d68c-40b1-a197-573b3d1ff864",
+  "name": "ExternalA",
+  "organizationId": "02e424c7-1782-43bd-ab51-a7d899887523",
+  "propertyId": "549be2f0-48c8-4c86-a3c1-63d97dea1d73",
+  "publicKey": "pms_9dbc0935056e",
+  "status": "ACTIVE",
+  "timezone": "Asia/Almaty",
+}
+
+ ❯ tests/integration/site-publication.test.ts:369:37
+    367|     const managed = (await siteRow('main')).trackedSiteId!;
+    368|     expect(await pointerOf('main')).toBe(managed);
+    369|     expect(await agentSite('main')).toBeNull();
+       |                                     ^
+    370|     expect((await call('POST', '/marketing/site/resume')).status).toBe…
+    371|     expect((await agentSite('main'))?.id).toBe(managed);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается
+AssertionError: expected { …(13) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "bookingEnabled": true,
+  "bookingRatePlan": {
+    "code": "BASE",
+    "id": "4232749c-22df-4bca-85d3-549ef59bbdbc",
+    "name": "База",
+  },
+  "checkInTime": "14:00",
+  "checkOutTime": "12:00",
+  "createdAt": 2026-10-07T13:04:39.560Z,
+  "hosts": [
+    "externala.example.test",
+  ],
+  "id": "b445d976-d68c-40b1-a197-573b3d1ff864",
+  "name": "ExternalA",
+  "organizationId": "02e424c7-1782-43bd-ab51-a7d899887523",
+  "propertyId": "549be2f0-48c8-4c86-a3c1-63d97dea1d73",
+  "publicKey": "pms_9dbc0935056e",
+  "status": "ACTIVE",
+  "timezone": "Asia/Almaty",
+}
+
+ ❯ tests/integration/site-publication.test.ts:383:37
+    381|     expect(after.trackedSite).toMatchObject({ status: 'PAUSED', hosts:…
+    382|     expect(await pointerOf('main')).toBeNull();
+    383|     expect(await agentSite('main')).toBeNull();
+       |                                     ^
+    384|     expect((await current(`${slugs.main}.${BASE_DOMAIN}`)).status).toB…
+    385|     expect((await publications(before.id)).at(-1)?.action).toBe('ARCHI…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит
+AssertionError: expected { …(13) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "bookingEnabled": true,
+  "bookingRatePlan": {
+    "code": "BASE",
+    "id": "8592af14-ce04-419d-b37e-4e60f9ecc7c5",
+    "name": "База",
+  },
+  "checkInTime": "14:00",
+  "checkOutTime": "12:00",
+  "createdAt": 2026-10-07T13:04:39.579Z,
+  "hosts": [
+    "amb1.example.test",
+  ],
+  "id": "93a96935-611c-4280-890d-0ab79786e8ce",
+  "name": "Amb1",
+  "organizationId": "02e424c7-1782-43bd-ab51-a7d899887523",
+  "propertyId": "d37107d8-af5e-432e-a662-6d38389114b6",
+  "publicKey": "pms_50fc6eb4c488",
+  "status": "ACTIVE",
+  "timezone": "Asia/Almaty",
+}
+
+ ❯ tests/integration/site-publication.test.ts:400:42
+    398|   it('§81: два подходящих сайта без указателя: продавец без сайта, пуб…
+    399|     expect(await pointerOf('ambiguous')).toBeNull();
+    400|     expect(await agentSite('ambiguous')).toBeNull();
+       |                                          ^
+    401|     await createSite('ambiguous');
+    402|     await save('ambiguous', 0, specFor('Неоднозначно', ['std']));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 7 passed (11)
+   Start at  13:04:33
+   Duration  8.88s (transform 43%, tests 41%, import 16%)
+
+JSON report written to /tmp/pms-test-2026-10-07T13-04-31Z-integration-0ad7.json
+
+# код выхода 1 · 10 с

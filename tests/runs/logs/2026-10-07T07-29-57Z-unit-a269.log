@@ -1,0 +1,22 @@
+# Модульные (unit) · 07.10.2026 12:29 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv8-audit-20261007), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-29-57Z-unit-a269.json' 'apps/web/src/app/today' 'apps/web/src/lib/desk-shell.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-audit-20261007
+
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (16 tests) 36ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 35ms
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (10 tests) 4ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 999ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 985ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 4ms
+
+ Test Files  5 passed (5)
+      Tests  43 passed (43)
+   Start at  11:30:02
+   Duration  2.14s (tests 83%, transform 10%, import 5%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-29-57Z-unit-a269.json
+
+# код выхода 0 · 7 с

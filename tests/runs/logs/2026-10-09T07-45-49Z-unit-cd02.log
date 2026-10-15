@@ -1,0 +1,22 @@
+# Модульные (unit) · 09.10.2026 12:45 Алматы · vm
+# коммит fe8459d (claude/mv8-5-ds1c-followup)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T07-45-49Z-unit-cd02.json' 'apps/web/src/components/primitives-ds1c.test.ts' 'apps/web/src/components/primitives.test.ts' 'scripts/design/build-tokens.test.ts' 'tests/unit/build-tokens.test.ts' 'tests/unit/design-primitive-owner.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-rules.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 52ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 208ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 14ms
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 22ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 8ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 12ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (35 tests) 86ms
+
+ Test Files  7 passed (7)
+      Tests  111 passed (111)
+   Start at  07:45:50
+   Duration  2.08s (transform 57%, import 29%, tests 12%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-09T07-45-49Z-unit-cd02.json
+
+# код выхода 0 · 4 с

@@ -1,0 +1,95 @@
+# Автоперемотка `release` после зелёного гейта (ADR-152, решение владельца 09.10.2026: «сделай чтобы
+# выкладка на сайт была автоматической»). Цепочка целиком: пуш кода в `main` гонит гейт release-checks
+# (ADR-139), его зелёный итог будит этот workflow, он перематывает `release` строго вперёд на проверенную
+# вершину, а сервер раз в две минуты забирает `release` и выкладывает сам, с проверкой здоровья и откатом
+# (ADR-080, scripts/ops/auto-deploy.sh). Новые миграции сервер не применяет: он откажет, напишет дежурным
+# в Telegram и будет ждать владельца (AGENTS.md §15), который применяет их и запускает на сервере
+# /usr/local/sbin/wetop-auto-deploy --migrations-applied <вершина> (docs/deploy.md §1д).
+#
+# Руками: Actions → auto-release → Run workflow перематывает без нового прогона гейта, если у вершины
+# уже есть зелёный release-checks (сверяется через API). Перемотка назад или на переписанную историю
+# отсюда невозможна: только fast-forward и без --force, откат делается руками по docs/deploy.md §4.
+name: auto-release
+
+on:
+  workflow_run:
+    workflows: [release-checks]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Вершина для перемотки (пусто = вершина main); у неё должен быть зелёный release-checks
+        required: false
+
+permissions:
+  contents: write
+  actions: read
+
+# Перемотки идут по одной и не отменяются: отмена посреди push оставила бы непонятное состояние
+concurrency:
+  group: auto-release
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: перемотка release на проверенную вершину
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # Полная история без содержимого файлов: merge-base и diff --name-only работают, блобы не качаются
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - name: Перемотать release вперёд
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          INPUT_SHA: ${{ github.event.inputs.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --quiet origin main release
+          if [ "$EVENT" = workflow_dispatch ]; then
+            target="${INPUT_SHA:-$(git rev-parse origin/main)}"
+            target="$(git rev-parse --verify "${target}^{commit}")"
+            # ADR-139: перемотка только на вершину с зелёным гейтом; по кнопке это сверяется через API
+            green="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/release-checks.yml/runs?head_sha=${target}&per_page=100" \
+              --jq '[.workflow_runs[] | select(.conclusion == "success")] | length')"
+            if [ "$green" = 0 ]; then
+              echo "у вершины ${target} нет зелёного release-checks (ADR-139): сначала гейт" >&2
+              exit 1
+            fi
+          else
+            target="$RUN_SHA"
+          fi
+          release="$(git rev-parse origin/release)"
+          if [ "$release" = "$target" ]; then
+            echo "release уже на ${target}: перематывать нечего"
+            exit 0
+          fi
+          # выкладывается только main: гейт по кнопке гоняют и на рабочих ветках, их отсюда не выкладываем
+          git merge-base --is-ancestor "$target" origin/main || {
+            echo "вершина ${target} не лежит в main: отсюда выкладывается только main" >&2
+            exit 1
+          }
+          # только вперёд: перемотку назад и переписанную историю сервер не выкладывает, это ручной путь (§4)
+          git merge-base --is-ancestor "$release" "$target" || {
+            echo "release ${release} не предок ${target}: история переписана, перемотка руками" >&2
+            exit 1
+          }
+          migrations="$(git diff --name-only "$release" "$target" -- packages/database/prisma/migrations | sed 's#/[^/]*$##' | sort -u)"
+          if [ -n "$migrations" ]; then
+            {
+              echo '### В обновлении новые миграции'
+              echo 'Сервер выкладывать откажется и напишет дежурным (ADR-080). Владелец применяет миграции'
+              echo "(docs/deploy.md §1д), затем на сервере: wetop-auto-deploy --migrations-applied $(git rev-parse --short=8 "$target")"
+              echo '```'
+              echo "$migrations"
+              echo '```'
+            } >>"$GITHUB_STEP_SUMMARY"
+            echo "::warning::в обновлении новые миграции: сервер будет ждать владельца (--migrations-applied)"
+          fi
+          git push origin "${target}:refs/heads/release"
+          echo "release перемотана: ${release} → ${target}" >>"$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,16 @@
+# Модульные (unit) · 11.10.2026 16:20 Алматы · MacBook-Air-Urij.local
+# коммит 5b0446a (codex/ai-seller-wizard-generate-20261011)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-20-27Z-unit-b688.json' 'tests/unit/claude-md-status.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ✓ |unit| tests/unit/claude-md-status.test.ts (2 tests) 7ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  15:20:31
+   Duration  236ms (transform 56%, import 22%, tests 13%, worker 9%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-20-27Z-unit-b688.json
+
+# код выхода 0 · 4 с

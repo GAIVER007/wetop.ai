@@ -3,6 +3,7 @@ import { AttemptWindows, visitorKey } from '../auth/attempt-limits';
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   HttpException,
   HttpStatus,
@@ -16,6 +17,8 @@ import {
   assertPromoAllows,
   assertRestrictionsAllow,
   fingerprintOf,
+  fromPriceMinor,
+  fromPriceWindow,
   hostMatches,
   localDate,
   parseBookingRequest,
@@ -23,6 +26,7 @@ import {
   priceStay,
   ReservationRuleError,
   RestrictionViolationError,
+  type BookingRequest,
 } from '@pms/domain';
 import { guestForStorage } from '@pms/shared';
 import { mail } from '@pms/integrations';
@@ -36,7 +40,8 @@ import { CollectService } from '../analytics/collect.service';
 import { INCIDENTS_REPOSITORY, type IncidentsRepository } from '../guard/incidents.repository';
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
-import { withOrganizationScope } from '../auth/request-context';
+import type { ReservationCard } from '../reservations/reservation-card';
+import { withIntegrationPropertyScope, withOrganizationScope } from '../auth/request-context';
 import { TurnstileService, turnstileFailureError } from './turnstile';
 
 export interface RequestContext {
@@ -78,6 +83,16 @@ export interface Quote {
   categories: QuoteCategory[];
 }
 
+/**
+ * Цена «от» сайта (`B-FROMPRICE`, Q-276): подсказка тарифа брони сайта, а не обещание мест. Категория без цены в ответ
+ * не попадает. Внутренних идентификаторов нет: только код категории, цена в тиынах строкой, валюта и окно ночей.
+ */
+export interface FromPrices {
+  currency: string;
+  window: { from: string; to: string };
+  categories: Array<{ code: string; fromMinor: string }>;
+}
+
 export interface BookingResult {
   confirmationNumber: string;
   status: string;
@@ -100,21 +115,40 @@ export const BOT_QUOTES_PER_HOUR = 120;
 const HOUR_MS = 3_600_000;
 /** Запросов цен с одного адреса в минуту: посетитель листает даты, а не бомбит */
 export const QUOTES_PER_IP_PER_MINUTE = 60;
+/** Цен «от» с одного адреса в минуту: одна страница сайта даёт один запрос */
+export const FROM_PRICES_PER_IP_PER_MINUTE = 30;
 
 const newLimits = () => ({
   bookPerIp: new AttemptWindows(BOOKING_RATE_LIMITS.perIpPerHour, HOUR_MS),
   bookPerSite: new AttemptWindows(BOOKING_RATE_LIMITS.perSitePerHour, HOUR_MS),
   quotePerIp: new AttemptWindows(QUOTES_PER_IP_PER_MINUTE, 60_000),
+  fromPricesPerIp: new AttemptWindows(FROM_PRICES_PER_IP_PER_MINUTE, 60_000),
   /** Котировки продавца по организации (ADR-085) */
   botQuotePerOrg: new AttemptWindows(BOT_QUOTES_PER_HOUR, HOUR_MS),
 });
 
 /**
- * Расчёт и бронь сайта — от имени организации его объекта (план tenant-isolation-2026-09-26 п. 4): без этого публичный
- * путь брал объект Luxx по имени, и сайт другой гостиницы продавал бы её номера. Ничей объект — служебный путь, как раньше.
+ * Расчёт и бронь сайта: от имени организации его объекта (план tenant-isolation-2026-09-26 п. 4) и строго в объекте
+ * САЙТА (MKT1B BOOK-4): прежде контекст был только организацией, и репозитории брали её самый ранний объект, поэтому
+ * сайт второй гостиницы той же организации получал отказ, а без проверки продавал бы фонд первой. Объект берётся из
+ * найденной сервером строки сайта (никогда не из запроса) и проверяется `assertServingProperty` до вызова. Сайт без
+ * подтверждённой организации не работает вовсе: служебного пути «по имени объекта» у публичной брони больше нет.
  */
-const asSite = <T>(site: { organizationId?: string | null }, fn: () => Promise<T>): Promise<T> =>
-  site.organizationId ? withOrganizationScope(site.organizationId, fn) : fn();
+const asSite = <T>(
+  site: { organizationId?: string | null; propertyId: string },
+  fn: () => Promise<T>,
+): Promise<T> => {
+  if (!site.organizationId) throw new NotFoundException(SITE_NOT_SERVED);
+  const organizationId = site.organizationId;
+  return withOrganizationScope(organizationId, () =>
+    withIntegrationPropertyScope(site.propertyId, fn),
+  );
+};
+
+/** Публичный отказ, когда объект сайта не годится для брони: текст не раскрывает, что именно не так в цепочке */
+const ORGANIZATION_QUOTE_AMBIGUOUS =
+  'у организации несколько объектов с бронированием с сайта: укажите агента (agent)';
+const SITE_NOT_SERVED = 'бронирование с сайта для этого объекта пока не подключено';
 
 const addDays = (date: string, n: number): string => {
   const x = new Date(`${date}T00:00:00Z`);
@@ -167,6 +201,44 @@ export class WebBookingService {
   }
 
   /**
+   * Цена «от» без дат для сайта (Q-276, решение владельца 07.10.2026). Сайт, домен, действующая цепочка объекта и тариф
+   * брони те же, что у `quote` и `book` (`bookingSite`): другого способа выбрать объект или тариф нет. Цена только по
+   * тарифу брони сайта; выключенный тариф даёт пустой список, а не другой тариф. Свободные места не проверяются.
+   */
+  async fromPrices(raw: unknown, ctx: RequestContext): Promise<FromPrices> {
+    const now = ctx.now ?? new Date();
+    if (ctx.ip && !this.limits.fromPricesPerIp.allow(visitorKey(ctx.ip), now.getTime())) {
+      throw new HttpException(
+        'слишком много запросов цен с одного адреса, попробуйте через минуту',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+    const siteKey = typeof (raw as { k?: unknown })?.k === 'string' ? (raw as { k: string }).k : '';
+    const site = await this.bookingSite(siteKey, ctx);
+    const today = localDate(now, site.timezone);
+    const window = fromPriceWindow(today);
+    return asSite(site, () =>
+      this.uow.read(async (repo) => {
+        const plan = await repo.ratePlanByCode(site.bookingRatePlan!.code);
+        if (!plan || !plan.active)
+          return { currency: plan?.currency ?? 'KZT', window: { from: window.from, to: window.to }, categories: [] };
+        const derived = plan.derivedRule ? { planName: plan.name, rule: plan.derivedRule } : null;
+        const categories: FromPrices['categories'] = [];
+        for (const cat of await repo.activeCategories()) {
+          if (!(await repo.ratePlanCoversType(plan.id, cat.id))) continue;
+          const [rates, restrictions] = await Promise.all([
+            repo.nightRates(cat.id, plan.id, window.from, window.toExclusive),
+            repo.restrictionsFor(cat.id, plan.id, window.from, window.toExclusive),
+          ]);
+          const min = fromPriceMinor({ today, capacityAdults: cat.capacityAdults, rates, restrictions, derived });
+          if (min !== null) categories.push({ code: cat.code, fromMinor: min.toString() });
+        }
+        return { currency: plan.currency, window: { from: window.from, to: window.to }, categories };
+      }),
+    );
+  }
+
+  /**
    * Котировка для ИИ-продавца (Q-166 в объёме чтения, ADR-085): тот же расчёт и тот же JSON, что у публичного
    * виджета, но сайт находится по организации, а не по ключу в запросе, и домены не проверяются — дверь
    * держит узкий ключ `SELLER_QUOTE_KEY` (контроллер `/bot/availability`). Брони здесь нет (Q-166б).
@@ -181,12 +253,17 @@ export class WebBookingService {
     if ((await this.sites.salesAgentCount(organizationId)) > 1) {
       throw new BadRequestException('у организации несколько AI-продавцов: нужен agent');
     }
-    const site = await this.sites.bookingSiteForOrganization(organizationId);
-    if (!site) {
+    // MKT1B BOOK-4: у прежнего пути нет выбора филиала. Ровно один подходящий сайт: работаем строго в его объекте;
+    // больше одного: отказ, а не «самый ранний»: угаданный объект продал бы чужой фонд
+    const candidates = await this.sites.bookingSitesForOrganization(organizationId);
+    if (candidates.length === 0) {
       throw new NotFoundException('у организации нет сайта с включённым бронированием');
     }
-    await this.assertServingProperty(
-      site,
+    if (candidates.length > 1) {
+      throw new ConflictException(ORGANIZATION_QUOTE_AMBIGUOUS);
+    }
+    const site = await this.assertServingProperty(
+      candidates[0]!,
       'котировка для объекта этой организации пока не подключена',
     );
     if (!this.limits.botQuotePerOrg.allow(organizationId, now.getTime())) {
@@ -207,11 +284,14 @@ export class WebBookingService {
    * Несуществующий, архивный и чужой агент отвечают одинаково.
    */
   async quoteForAgent(agentId: string, raw: unknown, now: Date = new Date()): Promise<Quote> {
-    const site = await this.sites.bookingSiteForAgent(agentId);
-    if (!site) {
+    const found = await this.sites.bookingSiteForAgent(agentId);
+    if (!found) {
       throw new NotFoundException('у агента нет сайта с включённым бронированием');
     }
-    await this.assertServingProperty(site, 'котировка для объекта этого агента пока не подключена');
+    const site = await this.assertServingProperty(
+      found,
+      'котировка для объекта этого агента пока не подключена',
+    );
     if (!this.limits.botQuotePerOrg.allow(`agent:${agentId}`, now.getTime())) {
       throw new HttpException(
         'слишком много котировок, попробуйте позже',
@@ -352,7 +432,19 @@ export class WebBookingService {
     const site = await this.bookingSite(siteKey, ctx);
     const parsed = parseBookingRequest(raw, localDate(now, site.timezone));
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
-    const req = parsed.value;
+    // Переходный путь MKT1B: старый виджет из кэша браузера ключа не шлёт. Такой запрос получает ключ на один раз и
+    // проходит тот же путь брони; повторы между запросами у старого клиента не узнаются, как и до MKT1B. Новый виджет
+    // ключ шлёт всегда. Снять отдельным срезом, когда в журнале не останется броней старого виджета.
+    const req = { ...parsed.value, creationKey: parsed.value.creationKey ?? randomUUID() };
+    // MKT1B BOOK-2: вход брони строится только из канонического запроса, поэтому повтор той же формы даёт тот же
+    // отпечаток в `ReservationsService` (второй системы повторов нет)
+    const input = this.reservationInput(site, req);
+
+    // Ранний точный повтор: бронь с этим ключом в объекте сайта уже есть и её отпечаток совпал с этим запросом. Без новой
+    // проверки Turnstile (токен одноразовый), без слота лимита, без письма, без привязки и журнала. Другой запрос с тем же
+    // ключом: 409 из `replayOf`, данных брони в ответе нет; одного ключа для чтения брони мало.
+    const earlier = await asSite(site, () => this.reservations.replayOf(input));
+    if (earlier) return this.bookingResult(earlier, req, site);
 
     if (ctx.ip && !this.limits.bookPerIp.allow(visitorKey(ctx.ip), now.getTime())) {
       await this.flood(site, { limit: 'ip-hour', perHour: BOOKING_RATE_LIMITS.perIpPerHour }, now);
@@ -401,39 +493,25 @@ export class WebBookingService {
       );
     }
 
-    // ADR-018: настоящие ФИО и контакты — только в production-БД в РК; иначе псевдоним, как у каналов
-    const guest = guestForStorage(req.guest, `web:${site.id}:${randomUUID()}`);
-    const notes =
-      `Бронь с сайта «${site.name}»` + (req.comment ? `. Комментарий гостя: ${req.comment}` : '');
+    // Одновременный близнец мог записать бронь между ранней проверкой и этой точкой: `create` под блокировкой ключа
+    // отдаёт её же (тот же отпечаток) и сообщает о повторе: тогда слот лимита возвращается, письма и журнала нет
+    let replayed = false;
     const card = await asSite(site, () =>
-      this.reservations.create(
-        {
-          source: 'WEBSITE',
-          arrivalDate: req.arrivalDate,
-          departureDate: req.departureDate,
-          notes,
-          promoCode: req.promoCode,
-          guest: {
-            firstName: guest.firstName,
-            lastName: guest.lastName,
-            phone: guest.phone,
-            email: guest.email,
-          },
-          items: [
-            {
-              accommodationTypeCode: req.categoryCode,
-              ratePlanCode: site.bookingRatePlan!.code,
-              adults: req.adults,
-              autoAssign: true,
-            },
-          ],
+      this.reservations.create(input, {
+        guestPrepared: true,
+        onReplay: () => {
+          replayed = true;
         },
-        { guestPrepared: true },
-      ),
+      }),
     ).catch((e: unknown) => {
       this.limits.bookPerSite.release(site.id, slot);
       throw e;
     });
+    if (replayed) {
+      this.limits.bookPerSite.release(site.id, slot);
+      if (ctx.ip) this.limits.bookPerIp.release(visitorKey(ctx.ip), now.getTime());
+      return this.bookingResult(card, req, site);
+    }
     // Бронь уже записана. Дальше — привязка к счётчику и журнал сайта «лучшим усилием»: их сбой раньше отдавал гостю
     // ошибку, кнопка снова была активна, и повтор создавал вторую настоящую бронь (аудит 26.09, С-33).
     const item = card.items[0];
@@ -467,6 +545,49 @@ export class WebBookingService {
         `[web-booking] бронь ${card.confirmationNumber} записана, привязка или журнал сайта — нет: ${(e as Error).message}`,
       );
     }
+    return this.bookingResult(card, req, site);
+  }
+
+  /**
+   * Канонический вход брони с сайта (MKT1B BOOK-2): только данные, от которых зависит бронь. Токен проверки, ключи
+   * счётчика, ловушка для ботов и время сюда не входят. Зерно псевдонима гостя выводится из сайта и ключа создания,
+   * а не случайно: повтор той же формы обязан дать тот же отпечаток.
+   */
+  private reservationInput(site: SiteRecord, req: BookingRequest & { creationKey: string }) {
+    // ADR-018: настоящие ФИО и контакты: только в production-БД в РК; иначе псевдоним, как у каналов
+    const guest = guestForStorage(req.guest, `web:${site.id}:${req.creationKey}`);
+    const notes =
+      `Бронь с сайта «${site.name}»` + (req.comment ? `. Комментарий гостя: ${req.comment}` : '');
+    return {
+      source: 'WEBSITE' as const,
+      creationKey: req.creationKey,
+      arrivalDate: req.arrivalDate,
+      departureDate: req.departureDate,
+      notes,
+      promoCode: req.promoCode,
+      guest: {
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        phone: guest.phone,
+        email: guest.email,
+      },
+      items: [
+        {
+          accommodationTypeCode: req.categoryCode,
+          ratePlanCode: site.bookingRatePlan!.code,
+          adults: req.adults,
+          autoAssign: true,
+        },
+      ],
+    };
+  }
+
+  private bookingResult(
+    card: ReservationCard,
+    req: BookingRequest,
+    site: SiteRecord,
+  ): BookingResult {
+    const item = card.items[0];
     return {
       confirmationNumber: card.confirmationNumber,
       status: card.status,
@@ -553,11 +674,7 @@ export class WebBookingService {
     if (!fromOwnPage && !hostMatches(site.hosts, ctx.originHost)) {
       throw new ForbiddenException('запрос не с домена сайта');
     }
-    await this.assertServingProperty(
-      site,
-      'бронирование с сайта для этого объекта пока не подключено',
-    );
-    return site;
+    return this.assertServingProperty(site, SITE_NOT_SERVED);
   }
 
   /**
@@ -565,11 +682,28 @@ export class WebBookingService {
    * (служебный контекст). Сайт другого объекта показывал бы цены и места Luxx и заводил брони своих гостей в фонде
    * Luxx (аудит 26.09, В-4; Q-194, ADR-095) — такому сайту честный отказ, пока расчёт не научится нескольким объектам.
    */
-  private async assertServingProperty(site: SiteRecord, message: string): Promise<void> {
-    // От имени организации сайта (план tenant-isolation-2026-09-26 п. 4): без этого чтение шло служебным путём и
-    // сравнивало с Luxx по имени, а не с объектом организации сайта, — второй объект отваливался этой же проверкой.
-    const serving = await asSite(site, () => this.uow.read((repo) => repo.property()));
-    if (site.propertyId !== serving.id) throw new NotFoundException(message);
+  private async assertServingProperty(site: SiteRecord, message: string): Promise<SiteRecord> {
+    // MKT1B BOOK-4: объект сайта и его цепочка, а не «самый ранний объект организации». Цепочка читается без арендатора:
+    // чужую политика RLS спрятала бы, а отказ должен быть явным. Годится только действующая цепочка Hospitality одной
+    // организации; её организация и становится контекстом расчёта и брони.
+    const chain = await this.sites.servingChain(site.propertyId);
+    const organizationId = chain?.propertyOrganizationId ?? null;
+    if (
+      !chain ||
+      !organizationId ||
+      chain.locationStatus !== 'ACTIVE' ||
+      chain.businessStatus !== 'ACTIVE' ||
+      chain.vertical !== 'HOSPITALITY' ||
+      chain.businessOrganizationId !== organizationId ||
+      (site.organizationId != null && site.organizationId !== organizationId)
+    ) {
+      throw new NotFoundException(message);
+    }
+    const verified: SiteRecord = { ...site, organizationId };
+    // Тот же объект видит и репозиторий брони в этом контексте: иначе цены и бронь ушли бы в другой
+    const serving = await asSite(verified, () => this.uow.read((repo) => repo.property()));
+    if (serving.id !== site.propertyId) throw new NotFoundException(message);
+    return verified;
   }
 
   /**

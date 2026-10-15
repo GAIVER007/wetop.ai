@@ -12,8 +12,11 @@ import {
   ADJUSTMENT_DOWN_MESSAGE,
   FinanceRuleError,
   assertAllocationsMatch,
+  assertPaymentReversible,
   assertCashOperation,
   assertCashReconciliation,
+  buildCashFlow,
+  type CashFlow,
   assertRefundWithin,
   cashBalances,
   commissionFromPercent,
@@ -194,6 +197,12 @@ export interface PeriodOperationsView {
   /** способы периода с числом операций — внутри отбора по типу, без отбора по способу */
   methods: Array<{ method: PaymentMethod; count: number }>;
   rows: OperationView[];
+  truncated: boolean;
+}
+/** Деньги за период по дням (RPT2.4a, ADR-155): поступления, возвраты, расходы и денежный поток раздельно */
+export interface PeriodCashFlowView extends CashFlow {
+  currency: string;
+  /** Строк ленты больше предела выгрузки: итоги неполные, экран говорит об этом словами */
   truncated: boolean;
 }
 /** Остатки кассы по способам (§21) — за всё время, не за период; статьи и сверки — тем же ответом */
@@ -586,6 +595,29 @@ export class FinanceService {
       rows: r.rows.map((x) => ({ ...x, amountMinor: s(x.amountMinor) })),
       truncated: total > r.rows.length,
     };
+  }
+
+  /**
+   * Деньги за период по дням (RPT2.4a, ADR-155, `docs/metrics.md` §2): та же лента, что у «Оплат», сведённая по дням.
+   * Читает все строки периода до предела выгрузки; если их больше, ответ помечен `truncated`.
+   */
+  async periodCashFlow(fromParam?: string, toParam?: string): Promise<PeriodCashFlowView> {
+    const { from, to } = checkedPeriod(fromParam, toParam);
+    const r = await this.repo.periodOperations(from, to, { limit: MAX_OPERATION_ROWS });
+    const total = r.summary.reduce((a, x) => a + x.count, 0);
+    const flow = buildCashFlow(
+      r.rows.map((x) => ({
+        kind: x.kind,
+        localAt: x.localAt,
+        method: x.method,
+        amountMinor: x.amountMinor,
+        status: x.status,
+        category: x.category,
+      })),
+      from,
+      to,
+    );
+    return { currency: 'KZT', ...flow, truncated: total > r.rows.length };
   }
 
   // ── Касса (DATA_MODEL §21, план plans/finance-cashbox-2026-10-02.md) ─────────────────────────────
@@ -1219,6 +1251,133 @@ export class FinanceService {
       }),
     );
     return { paymentId, number };
+  }
+
+  /**
+   * Аннулировать платёж (план `plans/finance-payments-direct-2026-10-07.md`, У1–У4): прошлое не правится,
+   * ошибка аннулируется, нужная запись делается заново. Правило У3 (нет возвратов и чека) проверяется здесь
+   * словами и ещё раз репозиторием под блокировкой; запрос оплаты, закрытый этим платежом, снова ждёт оплаты.
+   */
+  async voidPayment(
+    paymentId: string,
+    dto: { reason?: string | null },
+  ): Promise<ReservationFinanceView> {
+    const p = await this.reversiblePayment(paymentId);
+    const folio = await this.openFolio(p.allocations[0]!.folioId);
+    const reason = freeTextForStorage(dto.reason?.trim() || null);
+    await lockedWrite(
+      this.repo.voidPayment(paymentId, {
+        entityType: 'Payment',
+        entityId: paymentId,
+        action: 'finance.payment.void',
+        before: {
+          method: p.method,
+          amountMinor: s(p.amountMinor),
+          allocations: p.allocations.map((a) => ({
+            folioId: a.folioId,
+            amountMinor: s(a.amountMinor),
+          })),
+          ...(p.requestId ? { requestId: p.requestId } : {}),
+        },
+        after: { voided: true, reason: reason === null ? null : maskContacts(reason) },
+      }),
+    );
+    return this.reservation(folio.confirmationNumber);
+  }
+
+  /**
+   * Заменить платёж: старый аннулируется, новый проводится той же транзакцией с датой старого (поправили
+   * способ или сумму, а не момент оплаты). Без `allocations` сумма целиком ложится на единственный счёт старого
+   * платежа; групповой платёж без распределения — 409 словами (У5).
+   */
+  async replacePayment(
+    paymentId: string,
+    dto: {
+      method?: string;
+      amount?: string | number;
+      note?: string | null;
+      allocations?: Array<{ folioId?: string; amount?: string | number }>;
+    },
+  ): Promise<ReservationFinanceView> {
+    const p = await this.reversiblePayment(paymentId);
+    if (!dto.method || !PAYMENT_METHODS.includes(dto.method as PaymentMethod))
+      throw new BadRequestException(`method — один из ${PAYMENT_METHODS.join(', ')}`);
+    const amountMinor = money(dto.amount, 'amount');
+    let allocations: Array<{ folioId: string; amountMinor: bigint }>;
+    if (Array.isArray(dto.allocations)) {
+      allocations = dto.allocations.map((a) => {
+        if (!a || typeof a.folioId !== 'string' || !a.folioId)
+          throw new BadRequestException('allocations[].folioId — id счёта');
+        return { folioId: a.folioId, amountMinor: money(a.amount, 'allocations[].amount') };
+      });
+    } else if (p.allocations.length === 1) {
+      allocations = [{ folioId: p.allocations[0]!.folioId, amountMinor }];
+    } else {
+      throw new ConflictException(
+        'Платёж разложен на несколько счетов: укажите распределение или аннулируйте его и примите заново',
+      );
+    }
+    rule(() => assertAllocationsMatch(amountMinor, allocations));
+    const folios: FolioRecord[] = [];
+    for (const a of allocations) folios.push(await this.openFolio(a.folioId));
+    if (folios.some((f) => f.currency !== p.currency))
+      throw new BadRequestException(`Валюта платежа должна быть ${p.currency}`);
+    const note = freeTextForStorage(dto.note?.trim() || null);
+    await lockedWrite(
+      this.repo.replacePayment(
+        paymentId,
+        {
+          method: dto.method as PaymentMethod,
+          amountMinor,
+          currency: p.currency,
+          paidAt: p.paidAt,
+          note,
+          allocations,
+        },
+        {
+          entityType: 'Payment',
+          entityId: paymentId,
+          action: 'finance.payment.replaced',
+          idField: 'paymentId',
+          before: {
+            method: p.method,
+            amountMinor: s(p.amountMinor),
+            allocations: p.allocations.map((a) => ({
+              folioId: a.folioId,
+              amountMinor: s(a.amountMinor),
+            })),
+          },
+          after: {
+            method: dto.method,
+            amountMinor: s(amountMinor),
+            allocations: allocations.map((a) => ({
+              folioId: a.folioId,
+              amountMinor: s(a.amountMinor),
+            })),
+          },
+        },
+      ),
+    );
+    return this.reservation(folios[0]!.confirmationNumber);
+  }
+
+  /** Платёж своего объекта, который ещё можно аннулировать или заменить (У3); иначе 404 или 409 словами */
+  private async reversiblePayment(paymentId: string) {
+    const p = await this.repo.paymentById(paymentId);
+    if (!p) throw new NotFoundException(`Платёж ${paymentId} не найден`);
+    try {
+      assertPaymentReversible({
+        status: p.status,
+        refundedMinor: p.refunds.reduce((x, r) => x + r.amountMinor, 0n),
+        receiptNumber: p.receiptNumber,
+      });
+    } catch (e) {
+      if (e instanceof FinanceRuleError) throw new ConflictException(e.message);
+      throw e;
+    }
+    if (p.allocations.length === 0)
+      throw new ConflictException('Платёж не распределён ни на один счёт');
+    return p;
   }
 
   /** Возврат по счёту из конкретного платежа: не больше, чем он на этот счёт внёс, минус уже возвращённое. */

@@ -1,6 +1,12 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, beautyApi, type BeautyWorkingInterval } from '../../lib/api';
+import {
+  ApiError,
+  authApi,
+  beautyApi,
+  type BeautyEmployeeRow,
+  type BeautyWorkingInterval,
+} from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 
 /**
@@ -11,6 +17,10 @@ import { pluralRu } from '../../lib/plural';
 export interface SaveResult {
   error?: string;
   message?: string;
+  resourceId?: string;
+  revision?: string;
+  employee?: BeautyEmployeeRow;
+  currentEmployee?: BeautyEmployeeRow;
 }
 
 const failed = (e: unknown, fallback: string): SaveResult => ({
@@ -22,11 +32,37 @@ function text(form: FormData, key: string): string {
   return typeof value === 'string' ? value : '';
 }
 
+async function scopeError(form: FormData): Promise<SaveResult | null> {
+  const expected = text(form, 'scopeKey');
+  if (!expected) return null;
+  try {
+    const { context } = await authApi.me();
+    return context?.locationId === expected
+      ? null
+      : {
+          error:
+            'Филиал изменён. Вернитесь к настройке текущего филиала; прежний ввод не сохранён поверх его данных.',
+        };
+  } catch {
+    return { error: 'Не удалось проверить филиал. Попробуйте ещё раз; данные формы сохранены.' };
+  }
+}
+function changedBody(form: FormData, body: Record<string, unknown>) {
+  const raw = text(form, 'changedFields');
+  if (!raw) return body;
+  const keys: unknown = JSON.parse(raw);
+  if (!Array.isArray(keys) || keys.some((key) => typeof key !== 'string' || !(key in body)))
+    throw new Error('Некорректные поля изменения');
+  return Object.fromEntries(keys.map((key) => [key, body[key]]));
+}
+
 export async function saveBeautyService(
   _prev: SaveResult | null,
   form: FormData,
 ): Promise<SaveResult> {
   const id = text(form, 'id');
+  const mismatch = await scopeError(form);
+  if (mismatch) return mismatch;
   const body = {
     name: text(form, 'name'),
     category: text(form, 'category'),
@@ -36,10 +72,22 @@ export async function saveBeautyService(
     active: form.get('active') === 'on',
   };
   try {
-    if (id) await beautyApi.updateService(id, body);
-    else await beautyApi.createService(body);
+    const saved = id
+      ? await beautyApi.updateService(id, changedBody(form, body))
+      : await beautyApi.createService({
+          ...body,
+          creationId: text(form, 'creationId') || undefined,
+        });
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/services');
-    return { message: id ? 'Услуга сохранена' : 'Услуга добавлена' };
+    return {
+      message: id ? 'Услуга сохранена' : 'Услуга создана. Включите её в выбранном филиале ниже.',
+      resourceId: saved.id,
+    };
   } catch (e) {
     return failed(e, 'Не удалось сохранить услугу. Обновите страницу перед повтором.');
   }
@@ -50,12 +98,19 @@ export async function saveLocationService(
   form: FormData,
 ): Promise<SaveResult> {
   const id = text(form, 'id');
+  const mismatch = await scopeError(form);
+  if (mismatch) return mismatch;
   try {
     await beautyApi.setLocationService(id, {
       enabled: form.get('enabled') === 'on',
       priceOverrideMinor: text(form, 'priceOverrideMinor'),
       durationOverrideMinutes: text(form, 'durationOverrideMinutes'),
     });
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/services');
     return { message: 'Настройки филиала сохранены' };
   } catch (e) {
@@ -68,23 +123,85 @@ export async function saveBeautyEmployee(
   form: FormData,
 ): Promise<SaveResult> {
   const id = text(form, 'id');
-  const body = {
-    name: text(form, 'name'),
-    phone: text(form, 'phone'),
-    email: text(form, 'email'),
-    active: form.get('active') === 'on',
-  };
+  const mismatch = await scopeError(form);
+  if (mismatch) return mismatch;
+  const section = text(form, 'section') || 'all';
+  let resourceId = id || _prev?.resourceId;
+  let revision = text(form, 'expectedRevision') || _prev?.revision;
+  let employee: BeautyEmployeeRow | undefined;
   try {
-    const saved = id
-      ? await beautyApi.updateEmployee(id, body)
-      : await beautyApi.createEmployee(body);
-    // умения приходят одним списком: снятые галочки должны сниматься, а не копиться
-    const serviceIds = form.getAll('serviceIds').filter((v): v is string => typeof v === 'string');
-    await beautyApi.setEmployeeServices(saved.id, serviceIds);
-    revalidatePath('/beauty/masters');
-    return { message: id ? 'Мастер сохранён' : 'Мастер добавлен' };
+    if (section !== 'skills' && !(_prev?.resourceId && !id)) {
+      const body = {
+        name: text(form, 'name'),
+        phone: text(form, 'phone'),
+        email: text(form, 'email'),
+        active:
+          form.has('activePresent') || id
+            ? form.get('active') === 'on'
+            : !form.has('active') || form.get('active') === 'on',
+      };
+      const saved = id
+        ? await beautyApi.updateEmployee(id, {
+            ...changedBody(form, body),
+            ...(text(form, 'expectedProfileRevision')
+              ? { expectedProfileRevision: text(form, 'expectedProfileRevision') }
+              : {}),
+          })
+        : await beautyApi.createEmployee({
+            ...body,
+            creationId: text(form, 'creationId') || undefined,
+          });
+      employee = saved;
+      resourceId = saved.id;
+      if (!id) revision = saved.servicesRevision;
+    }
+    if (!resourceId) return { error: 'Сотрудник не создан. Проверьте данные.' };
+    const assignServices =
+      section === 'skills' || (section === 'all' && (Boolean(id) || form.has('serviceIds')));
+    if (assignServices) {
+      const serviceIds = form
+        .getAll('serviceIds')
+        .filter((v): v is string => typeof v === 'string');
+      const saved = await beautyApi.setEmployeeServices(resourceId, serviceIds, revision);
+      revision = saved.servicesRevision;
+      employee = saved;
+    }
+    for (const path of [
+      '/calendar',
+      '/appointments',
+      '/employees',
+      '/services',
+      '/customers',
+      '/beauty/masters',
+      '/register/setup',
+    ])
+      revalidatePath(path);
+    return {
+      message:
+        section === 'skills'
+          ? 'Услуги назначены'
+          : section === 'basic' && id
+            ? 'Сотрудник сохранён'
+            : assignServices
+              ? 'Сотрудник создан, услуги назначены'
+              : 'Сотрудник создан',
+      resourceId,
+      ...(employee ? { employee } : {}),
+      ...(revision ? { revision } : {}),
+    };
   } catch (e) {
-    return failed(e, 'Не удалось сохранить мастера. Обновите страницу перед повтором.');
+    const current =
+      e instanceof ApiError && e.status === 409 && id && section === 'basic'
+        ? await loadBeautyEmployee(id)
+        : null;
+    const sameScope =
+      current && (!text(form, 'scopeKey') || current.locationId === text(form, 'scopeKey'));
+    return {
+      ...(sameScope && current.employee ? { currentEmployee: current.employee } : {}),
+      ...failed(e, 'Не удалось сохранить. Введённые данные оставлены в форме.'),
+      ...(resourceId ? { resourceId } : {}),
+      ...(revision ? { revision } : {}),
+    };
   }
 }
 
@@ -93,6 +210,8 @@ export async function saveBeautyWorkingHours(
   form: FormData,
 ): Promise<SaveResult> {
   const id = text(form, 'id');
+  const mismatch = await scopeError(form);
+  if (mismatch) return mismatch;
   let intervals: BeautyWorkingInterval[];
   try {
     intervals = JSON.parse(text(form, 'intervals') || '[]') as BeautyWorkingInterval[];
@@ -100,9 +219,21 @@ export async function saveBeautyWorkingHours(
     return { error: 'Не удалось прочитать график. Обновите страницу перед повтором.' };
   }
   try {
-    await beautyApi.setWorkingHours(id, intervals);
+    const saved = await beautyApi.setWorkingHours(
+      id,
+      intervals,
+      text(form, 'expectedRevision') || undefined,
+    );
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/schedule');
-    return { message: 'График сохранён' };
+    return {
+      message: 'График сохранён',
+      ...(saved.weekRevision ? { revision: saved.weekRevision } : {}),
+    };
   } catch (e) {
     return failed(e, 'Не удалось сохранить график. Обновите страницу перед повтором.');
   }
@@ -119,6 +250,11 @@ export async function addBeautyTimeOff(
       dateTo: text(form, 'dateTo'),
       reason: text(form, 'reason'),
     });
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/schedule');
     // записи отсутствие не отменяет: это деньги, решение владельца по Q-252 ещё не принято
     return {
@@ -137,6 +273,11 @@ export async function removeBeautyTimeOff(
 ): Promise<SaveResult> {
   try {
     await beautyApi.removeTimeOff(employeeId, timeOffId);
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/schedule');
     return { message: 'Отсутствие снято' };
   } catch (e) {
@@ -153,9 +294,38 @@ export async function saveBeautyEmployeeLocations(
   const locationIds = form.getAll('locationIds').filter((v): v is string => typeof v === 'string');
   try {
     await beautyApi.setEmployeeLocations(id, locationIds);
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty/schedule');
     return { message: 'Филиалы мастера сохранены' };
   } catch (e) {
     return failed(e, 'Не удалось сохранить филиалы мастера.');
+  }
+}
+
+export async function loadBeautySchedule(employeeId: string) {
+  try {
+    return { data: await beautyApi.schedule(employeeId) };
+  } catch (error) {
+    return { error: failed(error, 'Не удалось загрузить график').error };
+  }
+}
+
+export async function loadBeautyEmployee(id: string) {
+  try {
+    const data = await beautyApi.employees();
+    const employee = data.items.find((row) => row.id === id);
+    return employee
+      ? { employee, locationId: data.locationId, error: null }
+      : { employee: null, locationId: data.locationId, error: 'Мастер недоступен' };
+  } catch (error) {
+    return {
+      employee: null,
+      locationId: null,
+      error: error instanceof ApiError ? error.message : 'Не удалось прочитать актуальные услуги',
+    };
   }
 }

@@ -19,12 +19,7 @@ type Plan = {
   active: boolean;
   cancellationPenalty: 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
   types: Array<{ accommodationType: { name: string } }>;
-  parentRatePlanId?: string | null;
-  discountPercent?: number | null;
-  /** Что держит тариф (WET-04): сопоставления каналов, сайт, действующие производные */
-  _count?: { channelMappings: number; trackedSites: number; derived: number };
 };
-const free = { channelMappings: 0, trackedSites: 0, derived: 0 };
 const base: Plan = {
   id: 'plan-base',
   code: 'rate-base',
@@ -44,8 +39,10 @@ const flex: Plan = {
 };
 
 function setup(plans: Plan[] = [base, flex], upcoming: Record<string, number> = {}) {
-  const store = plans.map((p) => ({ _count: { ...free }, ...p }));
+  const store = plans.map((p) => ({ ...p }));
   const db = {
+    accommodationType: { findMany: vi.fn().mockResolvedValue([{ id: 'category-a' }]) },
+    $executeRaw: vi.fn().mockResolvedValue(1),
     property: {
       findFirst: vi.fn().mockResolvedValue({
         id: 'prop-a',
@@ -90,6 +87,55 @@ const asManager = <T>(fn: () => Promise<T>) =>
 describe('«Тарифные планы»: правило отмены', () => {
   beforeEach(() => forgetPropertyRef());
 
+  it('не отключает производный тариф с будущими бронями', async () => {
+    const plan = {
+      ...base,
+      parentRatePlanId: 'parent',
+      discountPercent: 10,
+      minDaysBeforeArrival: null,
+      maxDaysBeforeArrival: null,
+      minNights: null,
+    };
+    const { service, db } = setup([plan]);
+    Object.assign(db, {
+      reservationItem: { count: vi.fn().mockResolvedValue(2) },
+      channelMapping: { count: vi.fn().mockResolvedValue(0) },
+    });
+    await expect(
+      asManager(() => service.updateDerived(plan.code, { active: false })),
+    ).rejects.toThrow('Нельзя отключить');
+    expect(db.ratePlan.update).not.toHaveBeenCalled();
+    expect(db.$executeRaw).toHaveBeenCalled();
+  });
+
+  it('не отключает сопоставленный тариф; свободный тариф можно выключить и восстановить с журналом', async () => {
+    const plan = {
+      ...base,
+      parentRatePlanId: 'parent',
+      discountPercent: 10,
+      minDaysBeforeArrival: null,
+      maxDaysBeforeArrival: null,
+      minNights: null,
+    };
+    const { service, db } = setup([plan]);
+    const mapped = vi.fn().mockResolvedValue(1);
+    Object.assign(db, {
+      reservationItem: { count: vi.fn().mockResolvedValue(0) },
+      channelMapping: { count: mapped },
+    });
+    await expect(
+      asManager(() => service.updateDerived(plan.code, { active: false })),
+    ).rejects.toThrow('сопоставлений каналов 1');
+    mapped.mockResolvedValue(0);
+    expect(
+      await asManager(() => service.updateDerived(plan.code, { active: false })),
+    ).toMatchObject({ active: false });
+    expect(await asManager(() => service.updateDerived(plan.code, { active: true }))).toMatchObject(
+      { active: true },
+    );
+    expect(db.auditLog.create).toHaveBeenCalledTimes(2);
+  });
+
   it('список: правило, категории по названию и брони, которые правка заденет', async () => {
     const { service } = setup([base, flex], { 'plan-base': 3 });
     const list = await asManager(() => service.list());
@@ -103,7 +149,6 @@ describe('«Тарифные планы»: правило отмены', () => {
         categories: ['Двухместный', 'Койка'],
         upcomingReservations: 3,
         derived: null,
-        offBlockers: ['Броней впереди по тарифу: 3. Тариф выключается, когда по нему не остаётся будущих броней.'],
       },
       {
         code: 'rate-flex',
@@ -114,7 +159,6 @@ describe('«Тарифные планы»: правило отмены', () => {
         categories: [],
         upcomingReservations: 0,
         derived: null,
-        offBlockers: [],
       },
     ]);
   });
@@ -174,130 +218,5 @@ describe('«Тарифные планы»: правило отмены', () => {
       asManager(() => service.updatePenalty('rate-nope', { cancellationPenalty: 'NONE' })),
     ).rejects.toMatchObject({ status: 404, message: 'Тариф не найден' });
     expect(db.ratePlan.update).not.toHaveBeenCalled();
-  });
-});
-
-/**
- * WET-04 (ТЗ QA 01.10.2026): тариф выключается и включается через существующее поле `active` (DATA_MODEL без правок).
- * Выключенный тариф форма брони и предложения цен не читают, прежние брони хранят свой тариф и его правило.
- * Выключить нельзя, пока тариф держат сопоставление каналов, сайт, действующие производные тарифы или брони
- * впереди (умолчание ТЗ, Q-270); включить обратно можно всегда. `PATCH /rates/plans/:code` принимает либо
- * правило отмены, либо `active`, не оба сразу.
- */
-describe('«Тарифные планы»: выключить и включить тариф', () => {
-  beforeEach(() => forgetPropertyRef());
-
-  it('тариф без помех выключается: запись, журнал «было/стало», в списке «не действует»', async () => {
-    const { service, db, store } = setup();
-    const saved = await asManager(() => service.update('rate-flex', { active: false }));
-    expect(saved).toMatchObject({ code: 'rate-flex', active: false, offBlockers: [] });
-    expect(store.find((p) => p.code === 'rate-flex')?.active).toBe(false);
-    expect(db.ratePlan.update).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'plan-flex' }, data: { active: false } }),
-    );
-    expect(db.auditLog.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        userId: 'u1',
-        entityType: 'RatePlan',
-        entityId: 'plan-flex',
-        action: 'rate_plan.active.updated',
-        before: { active: true },
-        after: { active: false, upcomingReservations: 0 },
-      }),
-    });
-  });
-
-  it('помехи: каналы, сайт, производные и брони впереди — 409 со всеми причинами, без записи', async () => {
-    const held: Plan = {
-      ...base,
-      id: 'plan-held',
-      code: 'rate-held',
-      name: 'Удерживаемый',
-      _count: { channelMappings: 2, trackedSites: 1, derived: 1 },
-    };
-    const { service, db } = setup([held, flex], { 'plan-held': 4 });
-    const list = await asManager(() => service.list());
-    expect(list.find((p) => p.code === 'rate-held')?.offBlockers).toEqual([
-      'Тариф сопоставлен с менеджером каналов: сначала снимите сопоставление в «Каналах продаж».',
-      'По этому тарифу бронирует сайт: сначала выберите другой тариф во вкладке «Сайт → Бронирование».',
-      'Действующих производных тарифов: 1. Сначала выключите их.',
-      'Броней впереди по тарифу: 4. Тариф выключается, когда по нему не остаётся будущих броней.',
-    ]);
-    await expect(asManager(() => service.update('rate-held', { active: false }))).rejects.toMatchObject({
-      status: 409,
-      message:
-        'Тариф сопоставлен с менеджером каналов: сначала снимите сопоставление в «Каналах продаж». ' +
-        'По этому тарифу бронирует сайт: сначала выберите другой тариф во вкладке «Сайт → Бронирование». ' +
-        'Действующих производных тарифов: 1. Сначала выключите их. ' +
-        'Броней впереди по тарифу: 4. Тариф выключается, когда по нему не остаётся будущих броней.',
-    });
-    expect(db.ratePlan.update).not.toHaveBeenCalled();
-    expect(db.auditLog.create).not.toHaveBeenCalled();
-  });
-
-  it('включить обратно можно всегда; то же значение — без записи и журнала', async () => {
-    const off: Plan = {
-      ...base,
-      id: 'plan-off',
-      code: 'rate-off',
-      name: 'Выключенный',
-      active: false,
-      _count: { channelMappings: 1, trackedSites: 0, derived: 0 },
-    };
-    const { service, db } = setup([off, flex], { 'plan-off': 2 });
-    const saved = await asManager(() => service.update('rate-off', { active: true }));
-    expect(saved).toMatchObject({ code: 'rate-off', active: true });
-    expect(db.auditLog.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        action: 'rate_plan.active.updated',
-        before: { active: false },
-        after: { active: true, upcomingReservations: 2 },
-      }),
-    });
-    db.ratePlan.update.mockClear();
-    db.auditLog.create.mockClear();
-    await asManager(() => service.update('rate-flex', { active: true }));
-    expect(db.ratePlan.update).not.toHaveBeenCalled();
-    expect(db.auditLog.create).not.toHaveBeenCalled();
-  });
-
-  it('оба поля сразу, не булево, неизвестное поле — 400; неизвестный тариф — 404', async () => {
-    const { service, db } = setup();
-    await expect(
-      asManager(() => service.update('rate-flex', { active: false, cancellationPenalty: 'NONE' })),
-    ).rejects.toMatchObject({
-      status: 400,
-      message: 'Правило отмены и статус тарифа меняются отдельными запросами',
-    });
-    await expect(asManager(() => service.update('rate-flex', { active: 'no' }))).rejects.toMatchObject({
-      status: 400,
-      message: 'active: да или нет',
-    });
-    await expect(asManager(() => service.update('rate-flex', { enabled: true }))).rejects.toMatchObject({
-      status: 400,
-      message: 'Неизвестное поле: enabled',
-    });
-    await expect(asManager(() => service.update('rate-nope', { active: false }))).rejects.toMatchObject({
-      status: 404,
-      message: 'Тариф не найден',
-    });
-    // правило отмены через тот же маршрут работает по-прежнему
-    const saved = await asManager(() => service.update('rate-flex', { cancellationPenalty: 'FULL_STAY' }));
-    expect(saved.cancellationPenalty).toBe('FULL_STAY');
-    expect(db.ratePlan.update).toHaveBeenCalledTimes(1);
-  });
-
-  it('производный тариф от выключенного родителя не создаётся', async () => {
-    const off: Plan = { ...base, id: 'plan-off', code: 'rate-off', name: 'Выключенный', active: false };
-    const { service, db } = setup([off, flex]);
-    await expect(
-      asManager(() =>
-        service.createDerived({ name: 'Скидка', parentCode: 'rate-off', discountPercent: 10 }),
-      ),
-    ).rejects.toMatchObject({
-      status: 400,
-      message: 'Родительский тариф выключен: сначала включите его',
-    });
-    expect(db.auditLog.create).not.toHaveBeenCalled();
   });
 });

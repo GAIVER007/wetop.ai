@@ -1,0 +1,34 @@
+# Модульные (unit) · 05.10.2026 17:04 Алматы · MacBook-Air-Urij.local
+# коммит 6293670 (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 62
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T12-04-41Z-unit-c17e.json' 'apps/web/src/lib/food-data.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv7-20261005
+
+ ❯ |unit| apps/web/src/lib/food-data.test.ts (3 tests | 1 failed) 7ms
+   ✓ loads every page and rejects repeated/broken cursors 3ms
+   ✓ keeps overnight occupancy, excludes terminals and uses half-open time 1ms
+   × rejects malformed reservation data rather than displaying a free table 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/food-data.test.ts > rejects malformed reservation data rather than displaying a free table
+TypeError: validFoodReservation is not a function
+ ❯ apps/web/src/lib/food-data.test.ts:27:10
+     25| it('rejects malformed reservation data rather than displaying a free t…
+     26|   const { validFoodReservation } = await import('./food-data');
+     27|   expect(validFoodReservation({id:'r',status:'BOOKED',startsAt:'bad',e…
+       |          ^
+     28|   expect(validFoodReservation({id:'r',status:'BOOKED',startsAt:'2026-1…
+     29| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  16:04:42
+   Duration  165ms (transform 56%, import 20%, tests 16%, worker 8%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T12-04-41Z-unit-c17e.json
+
+# код выхода 1 · 1 с

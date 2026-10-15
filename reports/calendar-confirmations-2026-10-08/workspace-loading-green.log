@@ -1,0 +1,65 @@
+[WebServer] (node:65060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65107) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65114) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65423) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:66246) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/calendar-workspace.spec.ts:7:1 › calendar fills notebook screen with a side summary and frozen headings (10.0s)
+  ✓  2 tests/ui/calendar-workspace.spec.ts:29:1 › expanded calendar restores the workspace with Escape and remembers density (15.6s)
+  ✓  3 tests/ui/calendar-workspace.spec.ts:53:1 › booking menu and keyboard remain usable in the expanded calendar (11.0s)
+  ✘  4 tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card (17.5s)
+
+
+  1) tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status', { name: 'Загружаем загрузку…', exact: true })
+    Expected: visible
+    Timeout: 2000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status', { name: 'Загружаем загрузку…', exact: true }) with timeout 2000ms
+      - waiting for getByRole('status', { name: 'Загружаем загрузку…', exact: true })
+
+
+      74 |   await page.goto('/finance', { waitUntil: 'commit' });
+      75 |   const loading = page.getByRole('status', { name: 'Загружаем загрузку…', exact: true });
+    > 76 |   await expect(loading).toBeVisible({ timeout: 2000 });
+         |                         ^
+      77 |   // слот карточки измеряем сам по себе: заглушку может успеть сменить настоящая карточка
+      78 |   const slot = page.locator('.owner-load:visible').first();
+      79 |   let loadingHeight: number | null = null;
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/owner-dashboard-interactions.spec.ts:76:25
+
+    Error Context: test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-fc10b-shows-a-stable-loading-card/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/owner-dashboard-interactions.spec.ts:62:1 › slow inventory keeps daily events usable and shows a stable loading card
+  3 passed (1.2m)

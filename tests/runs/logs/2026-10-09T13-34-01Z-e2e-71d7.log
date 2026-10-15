@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 09.10.2026 18:34 Алматы · vm
+# коммит d2feeba (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.reuse.config.ts' '--workers=1' 'tests/ui/profile-menu-readiness.spec.ts' 'tests/ui/login-access.spec.ts'
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (3.5s)
+  ✓   2 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (6.8s)
+  ✓   3 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (3.2s)
+  ✓   4 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (4.3s)
+  ✓   5 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (4.6s)
+  ✓   6 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (12.6s)
+  ✓   7 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (11.7s)
+  ✓   8 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (2.3s)
+  ✓   9 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (7.4s)
+  ✘  10 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (45.4s)
+  ✓  11 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (2.8s)
+  ✓  12 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (5.8s)
+  ✓  13 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (1.1s)
+  ✓  14 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (3.7s)
+  ✓  15 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (3.8s)
+  ✓  16 tests/ui/profile-menu-readiness.spec.ts:51:1 › до готовности кнопка недоступна и выглядит недоступной, нажатие по ней меню не открывает (6.8s)
+  ✓  17 tests/ui/profile-menu-readiness.spec.ts:68:1 › после готовности меню открывается обычным кликом (6.1s)
+  ✓  18 tests/ui/profile-menu-readiness.spec.ts:81:1 › после готовности меню открывается с клавиатуры: Enter, Escape закрывает, Пробел открывает снова (5.5s)
+
+
+  1) tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('tab', { name: 'Получить доступ' })
+        - waiting for navigation to finish...
+        - navigated to "http://127.0.0.1:3002/?next=%2Ftoday#login"
+
+
+      145 | test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
+      146 |   await page.goto('/login');
+    > 147 |   await dialog(page).getByRole('tab', { name: 'Получить доступ' }).click();
+          |                                                                    ^
+      148 |   await expect(dialog(page).getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      149 |   await expect(
+      150 |     dialog(page).getByRole('link', { name: 'политикой конфиденциальности' }),
+        at /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/gh-main/tests/ui/login-access.spec.ts:147:68
+
+    Error Context: test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-вкладки-входа-02226-я-без-перехода-в-приложение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение 
+  17 passed (2.4m)
+
+# код выхода 1 · 2 мин 23 с

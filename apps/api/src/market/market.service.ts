@@ -12,15 +12,61 @@ import {
   MarketInputError,
   buildMarketBoard,
   buildNightHistory,
+  buildPriceBoard,
   isIsoDate,
   marketDates,
   parseCompetitorInput,
   parseOccupancyPercent,
+  parsePriceInput,
   type MarketBoard,
   type NightHistory,
   type OwnDay,
+  type PriceBoard,
 } from '@pms/domain';
 import { MARKET_REPOSITORY, type CompetitorRecord, type MarketRepository } from './market.repository';
+
+/** Ценовая доска для JSON: деньги целыми строкой (BigInt в JSON не уходит), доля изменения десятыми процента */
+export interface RatesView {
+  today: string;
+  from: string;
+  days: number;
+  currency: string | null;
+  board: {
+    competitors: Array<{
+      id: string;
+      cells: Array<{ date: string; priceMinor: string | null; source: string | null }>;
+      avgMinor: string | null;
+      changePermille: number | null;
+      lastObservedOn: string | null;
+    }>;
+    market: Array<{ date: string; avgMinor: string | null; minMinor: string | null; maxMinor: string | null; count: number }>;
+    summary: { marketAvgMinor: string | null; minMinor: string | null; maxMinor: string | null; competitorsWithData: number };
+  };
+}
+
+const str = (v: bigint | null) => (v === null ? null : v.toString());
+const serializeBoard = (b: PriceBoard): RatesView['board'] => ({
+  competitors: b.competitors.map((c) => ({
+    id: c.id,
+    cells: c.cells.map((x) => ({ date: x.date, priceMinor: str(x.priceMinor), source: x.source })),
+    avgMinor: str(c.avgMinor),
+    changePermille: c.changePermille,
+    lastObservedOn: c.lastObservedOn,
+  })),
+  market: b.market.map((m) => ({
+    date: m.date,
+    avgMinor: str(m.avgMinor),
+    minMinor: str(m.minMinor),
+    maxMinor: str(m.maxMinor),
+    count: m.count,
+  })),
+  summary: {
+    marketAvgMinor: str(b.summary.marketAvgMinor),
+    minMinor: str(b.summary.minMinor),
+    maxMinor: str(b.summary.maxMinor),
+    competitorsWithData: b.summary.competitorsWithData,
+  },
+});
 
 /** Своя загрузка по ночам: клетки календаря (занято, свободно, блок), как «Аналитика → Загрузка» */
 export interface OwnOccupancySource {
@@ -65,12 +111,13 @@ export class MarketService {
     @Inject(OWN_OCCUPANCY) private readonly own: OwnOccupancySource,
   ) {}
 
-  async occupancy(q: {
+  /** Окно запроса: с даты, число дней, «на дату» снимка и сравнение. Общее у загрузки и цен */
+  private async window(q: {
     from?: string | undefined;
     days?: string | undefined;
     asOf?: string | undefined;
     compare?: string | undefined;
-  }): Promise<MarketView> {
+  }) {
     const today = await this.repo.today();
     const from = q.from ?? today;
     if (!isIsoDate(from)) throw new BadRequestException('from: дата YYYY-MM-DD');
@@ -83,6 +130,16 @@ export class MarketService {
     const compareDays = q.compare === undefined ? 1 : Number(q.compare);
     if (![0, 1, 7].includes(compareDays))
       throw new BadRequestException('compare: 0 (без сравнения), 1 (вчера) или 7 (неделю назад)');
+    return { today, from, days, asOf, compareDays };
+  }
+
+  async occupancy(q: {
+    from?: string | undefined;
+    days?: string | undefined;
+    asOf?: string | undefined;
+    compare?: string | undefined;
+  }): Promise<MarketView> {
+    const { today, from, days, asOf, compareDays } = await this.window(q);
 
     const dates = marketDates(from, days);
     const to = dates.at(-1)!;
@@ -105,6 +162,21 @@ export class MarketService {
       readings,
     });
     return { today, from, days, board, competitors };
+  }
+
+  /** Цены конкурентов по ночам (DATA_MODEL §23.1): те же окно и правило «на дату», что у загрузки */
+  async rates(q: {
+    from?: string | undefined;
+    days?: string | undefined;
+    asOf?: string | undefined;
+    compare?: string | undefined;
+  }): Promise<RatesView> {
+    const { today, from, days, asOf, compareDays } = await this.window(q);
+    const dates = marketDates(from, days);
+    const competitors = (await this.repo.competitors()).filter((c) => c.active);
+    const readings = await this.repo.rateReadings(from, dates.at(-1)!, asOf);
+    const board = buildPriceBoard({ dates, asOf, compareDays, competitors, readings });
+    return { today, from, days, currency: board.currency ?? (await this.repo.currency()), board: serializeBoard(board) };
   }
 
   /** История одной ночи по дням снимков (M1.2): как заполнялись соседи */
@@ -204,6 +276,44 @@ export class MarketService {
     return {
       saved: entries.filter((e) => e.bp !== null).length,
       cleared: entries.filter((e) => e.bp === null).length,
+    };
+  }
+
+  /** Цены сегодняшнего дня объекта в его валюте: значение заменяет прежнее за сегодня, пустое снимает его */
+  async writeRates(id: string, dto: { entries?: unknown }): Promise<{ saved: number; cleared: number }> {
+    if (!Array.isArray(dto?.entries) || dto.entries.length === 0)
+      throw new BadRequestException('entries: список { date, price }');
+    if (dto.entries.length > MAX_ENTRIES) throw new BadRequestException(`Не больше ${MAX_ENTRIES} ночей за раз`);
+    const today = await this.repo.today();
+    const earliest = plusDays(today, -PAST_DAYS);
+    const latest = plusDays(today, FUTURE_DAYS);
+    const seen = new Set<string>();
+    const entries = dto.entries.map((raw) => {
+      const e = (raw ?? {}) as { date?: unknown; price?: unknown };
+      if (!isIsoDate(e.date)) throw new BadRequestException('date: дата ночи YYYY-MM-DD');
+      if (e.date < earliest || e.date > latest)
+        throw new BadRequestException(
+          `Ночь ${e.date}: можно от ${earliest} до ${latest} (30 дней назад, год вперёд)`,
+        );
+      if (seen.has(e.date)) throw new BadRequestException(`Ночь ${e.date} указана дважды`);
+      seen.add(e.date);
+      return { date: e.date, priceMinor: rule(() => parsePriceInput(e.price)) };
+    });
+    const currency = await this.repo.currency();
+    const ok = await this.repo.writeRates(id, today, currency, entries, 'MANUAL', {
+      entityType: 'Competitor',
+      entityId: id,
+      action: 'market.rates.recorded',
+      after: {
+        observedOn: today,
+        currency,
+        entries: entries.map((e) => ({ date: e.date, priceMinor: str(e.priceMinor) })),
+      },
+    });
+    if (!ok) throw new NotFoundException('Конкурент не найден или убран из списка');
+    return {
+      saved: entries.filter((e) => e.priceMinor !== null).length,
+      cleared: entries.filter((e) => e.priceMinor === null).length,
     };
   }
 }

@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.10.2026 18:35 Алматы · MacBook-Air-Urij.local
+# коммит c7c5983 (claude/ui42-chessboard-20261013), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T13-35-14Z-unit-dd6e.json' 'apps/web/src/components/date-range-popover.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-design-contract
+
+ ✓ |unit| apps/web/src/components/date-range-popover.test.ts (3 tests) 37ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  17:35:16
+   Duration  641ms (import 48%, transform 41%, tests 8%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T13-35-14Z-unit-dd6e.json
+
+# код выхода 0 · 3 с

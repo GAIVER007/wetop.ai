@@ -1,0 +1,30 @@
+# Модульные (unit) · 04.10.2026 17:00 Алматы · MacBook-Air-Urij.local
+# коммит 1909267 (codex/mv1-vertical-foundation-20261004), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-00-43Z-unit-b210.json' 'apps/api/src/auth/business-vertical.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ❯ |unit| apps/api/src/auth/business-vertical.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/business-vertical.test.ts [ apps/api/src/auth/business-vertical.test.ts ]
+Error: Cannot find module './business-vertical' imported from /Users/urijzapojnov/wetop-mv1-20261004/apps/api/src/auth/business-vertical.test.ts
+ ❯ apps/api/src/auth/business-vertical.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { resolveBusinessVertical, assertBusinessCapability } from './b…
+       | ^
+      3|
+      4| const db = (vertical: string, organizationId = 'own') => ({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  16:00:45
+   Duration  157ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-00-43Z-unit-b210.json
+
+# код выхода 1 · 2 с

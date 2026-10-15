@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 06.10.2026 17:34 Алматы · vm
+# коммит 117bce9 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-34-36Z-integration-4f1a.json' 'tests/integration/web-booking-exact-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/web-booking-exact-property.test.ts (4 tests | 1 failed) 784ms
+   ❯ публичная бронь: сайты всех организаций и точный объект сайта (integration) (4)
+     ✓ BOOK-1: CORS виджета пускает домены сайтов разных организаций, без вошедшего человека 14ms
+     × BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A 71ms
+     ✓ BOOK-4: котировка агента B — объект B; по организации с двумя сайтами — отказ, а не самый ранний 80ms
+     ✓ BOOK-4: архивный филиал, архивный Business и чужая цепочка закрывают сайт 61ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A
+AnonymizeSaltMissingError: Нет соли для псевдонимов: задайте ANONYMIZE_SALT в .env (openssl rand -hex 32). Захардкоженной соли больше нет — с известной солью псевдоним перебирается по словарю. Настоящие ПД разрешает только PII_STORAGE=real (production-БД в РК, Q-070).
+ ❯ pseudonymSalt packages/shared/src/pii-residency.ts:44:17
+     42| export function pseudonymSalt(env: NodeJS.ProcessEnv = process.env): s…
+     43|   const s = env['ANONYMIZE_SALT'] || env['PII_ENCRYPTION_KEY'] || '';
+     44|   if (!s) throw new AnonymizeSaltMissingError();
+       |                 ^
+     45|   return s;
+     46| }
+ ❯ guestForStorage packages/shared/src/pii-residency.ts:83:43
+ ❯ WebBookingService.book apps/api/src/web-booking/web-booking.service.ts:430:19
+ ❯ tests/integration/web-booking-exact-property.test.ts:221:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  12:34:37
+   Duration  5.56s (transform 56%, import 23%, tests 21%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-34-36Z-integration-4f1a.json
+
+# код выхода 1 · 7 с

@@ -2,6 +2,13 @@ import { cookies, headers } from 'next/headers';
 import type { AuthClientInfo } from './api';
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
 import { lockRequired } from './auth-lock';
+import {
+  LAST_BRANCH_COOKIE,
+  SCOPE_COOKIE,
+  lastBranchCookieOptions,
+  pointerLocation,
+  scopeCookieOptions,
+} from './scope-pointer';
 import { publicAuthUrl } from './auth-entry';
 
 // имена сохранены: их зовут действия входа, спеки и посредник
@@ -60,9 +67,27 @@ export async function setSessionCookie(token: string, expiresAt: string): Promis
 // storeSessionToken снят 20.09.2026 вместе со входом по коду (ADR-053): куку ставит setSessionCookie
 // по сроку, который приходит от API вместе с ключом.
 
+/**
+ * Выход снимает и сессию, и указатель филиала (SCOPE-HARDENING): иначе следующий вход на этом устройстве, другим
+ * человеком или в другую организацию, пересылал бы чужой указатель, а API отвечал бы на него 403.
+ */
 export async function clearSessionCookie(): Promise<void> {
   const jar = await cookies();
   jar.delete(SESSION_COOKIE);
+  jar.delete(SCOPE_COOKIE);
+}
+
+/** Указатель филиала: значение только из ответа сервера (`GET /branches`, `registration-context`). */
+export async function setScopeCookie(pointer: string): Promise<void> {
+  const jar = await cookies();
+  jar.set(SCOPE_COOKIE, pointer, scopeCookieOptions(process.env));
+  // Запомнить выбор на устройстве: следующий вход откроет этот филиал сам (`/scope/resolve`)
+  const location = pointerLocation(pointer);
+  if (location) jar.set(LAST_BRANCH_COOKIE, location, lastBranchCookieOptions(process.env));
+}
+
+export async function clearScopeCookie(): Promise<void> {
+  (await cookies()).delete(SCOPE_COOKIE);
 }
 
 /**

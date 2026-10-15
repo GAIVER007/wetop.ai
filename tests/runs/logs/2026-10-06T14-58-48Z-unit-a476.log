@@ -1,0 +1,181 @@
+# Модульные (unit) · 06.10.2026 19:58 Алматы · vm
+# коммит e3fadd0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T14-58-48Z-unit-a476.json' 'apps/web/src/lib/website-navigation.test.ts' 'apps/web/src/lib/workspace-organization.test.ts' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (6 tests) 9ms
+ ❯ |unit| apps/web/src/lib/website-navigation.test.ts (7 tests | 5 failed) 30ms
+   ❯ сайт в меню — одно место (ADR-117) (6)
+     × «Маркетинг» — своя группа, первый пункт «Сайт и SEO» ведёт в хаб /marketing 10ms
+     × в «Продажах» сайта больше нет 4ms
+     × хаб и сайт открыты тем же правом, что и раньше сайт (settings), своего права нет 3ms
+     × отдельных «Аналитики сайта» и «Настроек сайта» больше нет 4ms
+     ✓ «Интеграции» не обещают счётчик и модуль бронирования 1ms
+     × вкладки модуля подсвечивают один пункт меню: «Сайт и SEO» группы «Маркетинг» 4ms
+   ✓ старые адреса ведут в модуль (1)
+     ✓ временная переадресация: /analytics → аналитика, /analytics/setup → настройки 1ms
+ ❯ |unit| apps/web/src/lib/navigation-roles.test.ts (18 tests | 1 failed) 38ms
+   ❯ меню по ролям (6)
+     ✓ у каждого пункта меню записано право — пункта «для всех по умолчанию» нет 4ms
+     ✓ администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности 2ms
+     ✓ управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора 3ms
+     ✓ никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется 1ms
+     × «Маркетинг» — право settings: владелец и управляющий видят группу, администратор нет (MKT2) 15ms
+     ✓ пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего 1ms
+   ✓ страница по адресу: какое право её открывает (4)
+     ✓ разделы меню и их вложенные адреса 2ms
+     ✓ адреса вне меню: настройки продавца и его агенты 0ms
+     ✓ первичная настройка не закрыта: туда гейт ведёт и администратора, страница говорит, кто настраивает 1ms
+     ✓ карточка ячейки и брони — работа смены, отдельного права нет 1ms
+   ✓ право вошедшего (4)
+     ✓ по роли; никто не вошёл — открыто, как в API без человека за запросом 1ms
+     ✓ роль не узнали (сбой `/auth/me`): меню и кнопки — как у администратора 0ms
+     ✓ страница по адресу: нет права — закрыта; роль не узнали — открыта, решает API, а не «нет доступа» 0ms
+     ✓ роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет 0ms
+   ✓ «ИИ-агенты» (S0) (3)
+     ✓ пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела 0ms
+     ✓ страницы продавца подсвечивают пункт «ИИ-агенты», право у них прежнее 0ms
+     ✓ каталог не открывает продавца тем, у кого его не было: вкладки требуют расширение, карточка WETOP Support — только платформу 0ms
+   ✓ сотрудники доступны в настройках только владельцу и управляющему 1ms
+ ❯ |unit| apps/web/src/lib/workspace-organization.test.ts (2 tests | 1 failed) 12ms
+   × organizes the menu by tasks: desk screens first, groups only for multi-screen areas 10ms
+   ✓ phone bottom bar: the four desk screens, every one a direct tab 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > меню по ролям > «Маркетинг» — право settings: владелец и управляющий видят группу, администратор нет (MKT2)
+AssertionError: expected [ 'home', 'chessboard', …(8) ] to include 'marketing'
+ ❯ apps/web/src/lib/navigation-roles.test.ts:79:62
+     77|   it('«Маркетинг» — право settings: владелец и управляющий видят групп…
+     78|     for (const role of ['OWNER', 'MANAGER'] as const) {
+     79|       expect(menuSectionsFor(access(role)).map((s) => s.id)).toContain…
+       |                                                              ^
+     80|       expect(hrefs(access(role))).toContain('/marketing');
+     81|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| apps/web/src/lib/website-navigation.test.ts > сайт в меню — одно место (ADR-117) > «Маркетинг» — своя группа, первый пункт «Сайт и SEO» ведёт в хаб /marketing
+AssertionError: expected undefined to be 'Маркетинг' // Object.is equality
+
+- Expected:
+"Маркетинг"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/lib/website-navigation.test.ts:19:30
+     17|   it('«Маркетинг» — своя группа, первый пункт «Сайт и SEO» ведёт в хаб…
+     18|     const marketing = sections.find((section) => section.id === 'marke…
+     19|     expect(marketing?.label).toBe('Маркетинг');
+       |                              ^
+     20|     expect(marketing?.direct).toBeUndefined();
+     21|     expect(marketing?.items.map((item) => [item.href, item.label])).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| apps/web/src/lib/website-navigation.test.ts > сайт в меню — одно место (ADR-117) > в «Продажах» сайта больше нет
+AssertionError: expected [ '/market', '/channels', …(2) ] to not include '/website'
+ ❯ apps/web/src/lib/website-navigation.test.ts:28:55
+     26|   it('в «Продажах» сайта больше нет', () => {
+     27|     const sales = sections.find((section) => section.id === 'sales');
+     28|     expect(sales?.items.map((item) => item.href)).not.toContain('/webs…
+       |                                                       ^
+     29|     expect(sales?.items.map((item) => item.label)).not.toContain('Сайт…
+     30|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| apps/web/src/lib/website-navigation.test.ts > сайт в меню — одно место (ADR-117) > хаб и сайт открыты тем же правом, что и раньше сайт (settings), своего права нет
+AssertionError: expected undefined to be 'settings' // Object.is equality
+
+- Expected:
+"settings"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/lib/website-navigation.test.ts:33:47
+     31|
+     32|   it('хаб и сайт открыты тем же правом, что и раньше сайт (settings), …
+     33|     expect(routeRule('/marketing')?.requires).toBe('settings');
+       |                                               ^
+     34|     for (const path of ['/website', '/website/booking', '/website/anal…
+     35|       expect(routeRule(path)?.requires).toBe('settings');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| apps/web/src/lib/website-navigation.test.ts > сайт в меню — одно место (ADR-117) > отдельных «Аналитики сайта» и «Настроек сайта» больше нет
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ apps/web/src/lib/website-navigation.test.ts:41:59
+     39|     expect(hrefs.filter((href) => href.startsWith('/analytics'))).toEq…
+     40|     expect(navigationItems.filter((item) => item.href.startsWith('/ana…
+     41|     expect(hrefs.filter((href) => href === '/marketing')).toHaveLength…
+       |                                                           ^
+     42|     // страница сайта осталась в реестре (права, заголовок), но пункта…
+     43|     expect(hrefs).not.toContain('/website');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| apps/web/src/lib/website-navigation.test.ts > сайт в меню — одно место (ADR-117) > вкладки модуля подсвечивают один пункт меню: «Сайт и SEO» группы «Маркетинг»
+AssertionError: expected '/website' to be '/marketing' // Object.is equality
+
+Expected: "/marketing"
+Received: "/website"
+
+ ❯ apps/web/src/lib/website-navigation.test.ts:55:37
+     53|     for (const path of ['/website', '/website/booking', '/website/anal…
+     54|       expect(activeNavigation(path)?.href).toBe('/website');
+     55|       expect(activeMenuRoute(path)).toBe('/marketing');
+       |                                     ^
+     56|     }
+     57|     expect(activeMenuRoute('/marketing')).toBe('/marketing');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| apps/web/src/lib/workspace-organization.test.ts > organizes the menu by tasks: desk screens first, groups only for multi-screen areas
+AssertionError: expected [ 'home', 'chessboard', …(9) ] to deeply equal [ 'home', 'chessboard', …(10) ]
+
+- Expected
++ Received
+
+@@ -4,11 +4,10 @@
+    "reservations",
+    "guests",
+    "finance",
+    "bar",
+    "sales",
+-   "marketing",
+    "reports",
+    "inventory",
+    "settings",
+    "platform",
+  ]
+
+ ❯ apps/web/src/lib/workspace-organization.test.ts:5:41
+      3| // Строка вкладок (ADR-134): работа смены одним щелчком, группы только…
+      4| it('organizes the menu by tasks: desk screens first, groups only for m…
+      5|   expect(menuSections.map((s) => s.id)).toEqual([
+       |                                         ^
+      6|     'home',
+      7|     'chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  3 failed | 1 passed (4)
+      Tests  7 failed | 26 passed (33)
+   Start at  14:58:50
+   Duration  2.00s (transform 84%, import 13%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T14-58-48Z-unit-a476.json
+
+# код выхода 1 · 4 с

@@ -1,0 +1,16 @@
+# Модульные (unit) · 07.10.2026 18:17 Алматы · MacBook-Air-Urij.local
+# коммит 15ff587 (codex/mv9-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-17-48Z-unit-a190.json' 'tests/unit/deploy-server.test.ts' '--pool=threads' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv9-acceptance-20261007
+
+ ✓ |unit| tests/unit/deploy-server.test.ts (40 tests) 93ms
+
+ Test Files  1 passed (1)
+      Tests  40 passed (40)
+   Start at  17:17:49
+   Duration  280ms (tests 56%, transform 29%, import 13%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-17-48Z-unit-a190.json
+
+# код выхода 0 · 2 с

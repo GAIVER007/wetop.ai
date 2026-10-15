@@ -1,0 +1,13 @@
+# Сквозные (e2e) · 06.10.2026 21:38 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/marketing.spec.ts' '-g' 'MKT3' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+Error: Timed out waiting 120000ms from config.webServer.
+
+
+# код выхода 1 · 2 мин 4 с

@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 14.10.2026 13:49 Алматы · MacBook-Air-Urij.local
+# коммит 3668c6f (claude/ui4-master-20261013), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/branches.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (4.6s)
+  ✓  2 tests/ui/branches.spec.ts:70:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (4.4s)
+  ✓  3 tests/ui/branches.spec.ts:121:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (5.6s)
+
+  3 passed (23.1s)
+
+# код выхода 0 · 26 с

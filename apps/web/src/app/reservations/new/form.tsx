@@ -1,4 +1,6 @@
 'use client';
+import { useRouter } from 'next/navigation';
+import design from './new-reservation.module.css';
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Button, Field, Grid, Input, Select, Textarea } from '../../../components/ui';
 import { AUTO_UNIT, type PlacementPrefill } from '../../../lib/booking-link';
@@ -37,6 +39,7 @@ export function NewReservationForm(props: {
   /** G6 (ТЗ «Гости v2» §33): гость из карточки (`?guest=`) — бронь на него, без нового гостя */
   guest: BookingGuest | null;
 }) {
+  const router = useRouter();
   const [arrival, setArrival] = useState(props.arrival);
   const [departure, setDeparture] = useState(props.departure);
   const [availability, setAvailability] = useState(props.initialAvailability);
@@ -189,7 +192,7 @@ export function NewReservationForm(props: {
         window.setTimeout(refresh, 0);
       }}
       data-testid="new-reservation-form"
-      className="panel panel--lg booking-form"
+      className={`panel panel--lg booking-form ${design.form}`}
     >
       <section className="booking-create__dates" aria-label="Даты проживания">
         <div className="booking-create__date-fields">
@@ -285,7 +288,7 @@ export function NewReservationForm(props: {
         <Alert tone="warning">Сначала добавьте категории и номера в разделе «Номерной фонд».</Alert>
       )}
       {props.ratePlans.length === 0 && (
-        <Alert tone="warning">Сначала добавьте тариф в разделе «Тарифы и цены».</Alert>
+        <Alert tone="warning">Сначала задайте цену категории в «Категориях номеров».</Alert>
       )}
       {unavailable.length > 0 && (
         <Alert tone="warning">
@@ -472,21 +475,26 @@ export function NewReservationForm(props: {
           ) : (
             <BookingPrice state={quote} />
           )}
-          <Button
-            type="submit"
-            disabled={
-              pending ||
-              !quote.ready ||
-              unavailableSelection ||
-              checking ||
-              !fresh ||
-              Boolean(availabilityError) ||
-              props.categories.length === 0 ||
-              props.ratePlans.length === 0
-            }
-          >
-            {pending ? 'Сохраняю…' : 'Создать бронь'}
-          </Button>
+          <div className={design.buttons}>
+            <Button type="button" tone="secondary" disabled={pending} onClick={() => router.back()}>
+              Отмена
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                pending ||
+                !quote.ready ||
+                unavailableSelection ||
+                checking ||
+                !fresh ||
+                Boolean(availabilityError) ||
+                props.categories.length === 0 ||
+                props.ratePlans.length === 0
+              }
+            >
+              {pending ? 'Сохраняю…' : 'Создать бронь'}
+            </Button>
+          </div>
         </div>
       </div>
     </form>
@@ -704,7 +712,7 @@ function PlacementFields({
           ))}
         </Select>
       </Field>
-      <Field label={group ? 'Гостей на место' : 'Гостей'}>
+      <Field label="Гостей на место">
         <Input
           type="number"
           name={field('adults')}

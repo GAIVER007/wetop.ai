@@ -1,3 +1,5 @@
+import { requireVertical } from '../../../lib/vertical-guard';
+import design from './new-reservation.module.css';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { api, guestsApi, reservationsApi } from '../../../lib/api';
 import { bookingPrefill } from '../../../lib/booking-link';
@@ -23,9 +25,14 @@ const isDate = (value: string) => {
 /** Slice 3, шаг 3.5: форма ручной брони. Доступность и ячейки — по датам из адресной строки. */
 export default async function NewReservationPage({
   searchParams,
+  embedded = false,
 }: {
   searchParams: Promise<SearchParams>;
+  /** Форма внутри панели «Новая бронь»: без повторного `id="main-content"` (`Page.embedded`) */
+  embedded?: boolean;
 }) {
+  // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
+  await requireVertical(['HOSPITALITY']);
   const raw = await searchParams;
   const q = normalizeSearchParams(raw);
   const today = await hotelToday();
@@ -64,7 +71,12 @@ export default async function NewReservationPage({
     return (Array.isArray(value) ? value : value ? [value] : []).map((v) => [name, v] as const);
   });
   return (
-    <Page width="medium" className="booking-create" title="Новая бронь">
+    <Page
+      width="medium"
+      className={`booking-create ${design.screen}`}
+      title="Новая бронь"
+      embedded={embedded}
+    >
       {ratePlans === null && (
         <Alert boxed tone="warning">
           Справочник тарифов не загрузился: без тарифа бронь не создать. Обновите страницу.

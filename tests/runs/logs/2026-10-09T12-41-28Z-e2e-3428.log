@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 09.10.2026 17:41 Алматы · vm
+# коммит 9987a65 (claude/serene-newton-q453ps)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-filters.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (8.2s)
+  ✓  2 tests/ui/chessboard-filters.spec.ts:144:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (5.4s)
+  ✓  3 tests/ui/chessboard-filters.spec.ts:175:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (11.0s)
+  ✓  4 tests/ui/chessboard-filters.spec.ts:240:1 › §37: ничего не найдено — «Сбросить фильтры» (2.8s)
+  ✓  5 tests/ui/chessboard-filters.spec.ts:253:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (7.3s)
+  ✓  6 tests/ui/chessboard-filters.spec.ts:283:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (3.2s)
+  ✓  7 tests/ui/chessboard-filters.spec.ts:301:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (3.6s)
+  ✓  8 tests/ui/chessboard-filters.spec.ts:328:1 › доступность: окошко «Фильтры» открыто (4.1s)
+
+  8 passed (58.9s)
+
+# код выхода 0 · 1 мин 1 с

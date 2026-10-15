@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
+  Delete,
   Get,
   Inject,
   Injectable,
@@ -20,6 +22,8 @@ import { auditUserId } from '../accounts/actor';
 import { INVENTORY_REPOSITORY, type InventoryRepository } from './inventory.repository';
 import {
   categoryInput,
+  categoryPrice,
+  categoryRemoval,
   inventoryText,
   ratePlanChoice,
   roomInput,
@@ -27,9 +31,19 @@ import {
 } from './inventory-input';
 import { Access } from '../auth/access.decorator';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
+import { RatesService } from '../rates/rates.service';
 
 /** Глубина остатков, которую держит канал: как у полной выгрузки (сертификация Channex) */
 const ARI_HORIZON_DAYS = 500;
+/** Цена категории ставится на год вперёд: предел одной строки массовой правки цен (rates.service.ts) */
+const PRICE_HORIZON_DAYS = 366;
+const BASE_PLAN_NAME = 'Базовый тариф';
+
+function addDays(iso: string, days: number) {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 @Injectable()
 export class InventoryEditor {
@@ -37,6 +51,7 @@ export class InventoryEditor {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(INVENTORY_REPOSITORY) private readonly reader: InventoryRepository,
     @Inject(ARI_PUBLISHER) private readonly ari: AriPublisher,
+    @Inject(RatesService) private readonly rates: RatesService,
   ) {}
   private property() {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
@@ -49,7 +64,7 @@ export class InventoryEditor {
   async categories() {
     const propertyId = await this.property();
     const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
-    const [rows, bookings] = await Promise.all([
+    const [rows, bookings, prices] = await Promise.all([
       this.prisma.db.accommodationType.findMany({
         where: { propertyId },
         select: {
@@ -79,10 +94,32 @@ export class InventoryEditor {
         JOIN "reservations" r ON r."id" = i."reservation_id"
         WHERE r."property_id" = ${propertyId}::uuid
         GROUP BY i."accommodation_type_id"`),
+      // Цена категории — цена сегодняшней ночи основного тарифа (без родителя), на самую большую вместимость
+      this.prisma.db.dailyRate.findMany({
+        where: {
+          date: new Date(`${today}T00:00:00Z`),
+          ratePlan: { propertyId, active: true, parentRatePlanId: null },
+        },
+        select: {
+          accommodationTypeId: true,
+          price: true,
+          ratePlan: { select: { currency: true } },
+        },
+        orderBy: [{ ratePlan: { createdAt: 'asc' } }, { occupancy: 'desc' }],
+      }),
     ]);
     const byType = new Map(bookings.map((b) => [b.id, b]));
+    const priceByType = new Map<string, { priceMinor: string; currency: string }>();
+    for (const p of prices)
+      if (!priceByType.has(p.accommodationTypeId))
+        priceByType.set(p.accommodationTypeId, {
+          priceMinor: p.price.toString(),
+          currency: p.ratePlan.currency,
+        });
     return rows.map(({ id, ratePlanLinks, _count, ...row }) => ({
       ...row,
+      priceMinor: priceByType.get(id)?.priceMinor ?? null,
+      currency: priceByType.get(id)?.currency ?? null,
       ratePlans: ratePlanLinks.length,
       ratePlanNames: ratePlanLinks.map((link) => link.ratePlan.name),
       reservations: byType.get(id)?.total ?? 0,
@@ -113,16 +150,58 @@ export class InventoryEditor {
       },
     });
   }
+  /**
+   * Основные тарифы категории (без родителя, действующие). Нет ни одного — привязывается основной тариф объекта,
+   * а если и его нет — создаётся «Базовый тариф» (план categories-price-2026-10-06: тарифы стойка больше не показывает)
+   */
+  private async ensureBasePlans(tx: DbTx, propertyId: string, categoryId: string) {
+    const linked = await tx.ratePlan.findMany({
+      where: {
+        propertyId,
+        active: true,
+        parentRatePlanId: null,
+        types: { some: { accommodationTypeId: categoryId } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+    if (linked.length) return linked;
+    const base =
+      (await tx.ratePlan.findFirst({
+        where: { propertyId, active: true, parentRatePlanId: null },
+        orderBy: { createdAt: 'asc' },
+      })) ??
+      (await this.resolvePlan(tx, propertyId, { kind: 'new', name: BASE_PLAN_NAME }))!;
+    await tx.ratePlanAccommodationType.create({
+      data: { ratePlanId: base.id, accommodationTypeId: categoryId },
+    });
+    return [base];
+  }
+  /** Одна цена на все дни года вперёд и на все вместимости — через массовую правку цен (журнал и каналы там же) */
+  private async setPrice(categoryCode: string, planCodes: string[], price: string) {
+    const from = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    return this.rates.bulk({
+      changes: planCodes.map((ratePlanCode) => ({
+        accommodationTypeCode: categoryCode,
+        ratePlanCode,
+        dateFrom: from,
+        dateTo: addDays(from, PRICE_HORIZON_DAYS - 1),
+        price,
+      })),
+    });
+  }
   async createCategory(body: Record<string, unknown>) {
     const data = categoryInput(body),
-      choice = ratePlanChoice(body, true),
+      price = categoryPrice(body),
+      // с ценой выбор тарифа не нужен: цена ложится на основной тариф объекта
+      choice = price ? null : ratePlanChoice(body, true),
       propertyId = await this.property();
     const result = await this.prisma.db.$transaction(async (tx) => {
-      const rate = await this.resolvePlan(tx, propertyId, choice);
       const category = await tx.accommodationType.create({
         data: { ...data, propertyId, code: `category-${randomUUID()}` },
       });
-      if (rate)
+      const plans = choice ? null : await this.ensureBasePlans(tx, propertyId, category.id);
+      const rate = choice ? await this.resolvePlan(tx, propertyId, choice) : plans![0]!;
+      if (rate && choice)
         await tx.ratePlanAccommodationType.create({
           data: { ratePlanId: rate.id, accommodationTypeId: category.id },
         });
@@ -136,14 +215,15 @@ export class InventoryEditor {
             ...data,
             propertyId,
             ratePlanCode: rate?.code ?? null,
-            createdRate: choice.kind === 'new',
+            createdRate: choice?.kind === 'new',
           },
         },
       });
-      return { code: category.code };
+      return { code: category.code, planCodes: plans?.map((p) => p.code) ?? [] };
     });
     this.reader.invalidate?.(propertyId);
-    return result;
+    if (price) await this.setPrice(result.code, result.planCodes, price);
+    return { code: result.code };
   }
   /** «Настроить тариф» (ADR-119): привязать тариф к категории; повтор той же пары — без дубля и без записи */
   async linkRatePlan(code: string, body: Record<string, unknown>) {
@@ -176,27 +256,111 @@ export class InventoryEditor {
     this.reader.invalidate?.(propertyId);
     return result;
   }
+  /** Правка категории: название и/или цена (одна на все дни и вместимости; журнал цен пишет массовая правка) */
   async renameCategory(code: string, body: Record<string, unknown>) {
-    const name = inventoryText(body.name, 'Название'),
+    const name = body.name === undefined ? undefined : inventoryText(body.name, 'Название'),
+      price = categoryPrice(body),
       propertyId = await this.property();
-    const result = await this.prisma.db.$transaction(async (tx) => {
+    if (name === undefined && price === undefined)
+      throw new BadRequestException('Укажите название или цену');
+    const planCodes = await this.prisma.db.$transaction(async (tx) => {
       const found = await tx.accommodationType.findFirst({ where: { propertyId, code } });
       if (!found) throw new NotFoundException('Категория не найдена');
-      await tx.accommodationType.update({ where: { id: found.id }, data: { name } });
+      if (price !== undefined && !found.active)
+        throw new ConflictException('Категория в архиве: цену у неё не меняют');
+      if (name !== undefined && name !== found.name) {
+        await tx.accommodationType.update({ where: { id: found.id }, data: { name } });
+        await tx.auditLog.create({
+          data: {
+            userId: auditUserId(),
+            action: 'inventory.category.updated',
+            entityType: 'accommodation_type',
+            entityId: found.id,
+            before: { name: found.name },
+            after: { name, propertyId },
+          },
+        });
+      }
+      return price === undefined
+        ? []
+        : (await this.ensureBasePlans(tx, propertyId, found.id)).map((p) => p.code);
+    });
+    this.reader.invalidate?.(propertyId);
+    if (price !== undefined) await this.setPrice(code, planCodes, price);
+    return { code };
+  }
+  /**
+   * «Удалить» (решение владельца 06.10.2026): категория без мест, броней и сопоставления с каналом удаляется
+   * насовсем вместе со своими ценами и ограничениями; с историей — в архив вместе с местами (не продаётся,
+   * брони и отчёты целы); с бронями впереди — отказ словами.
+   */
+  async removeCategory(code: string) {
+    const propertyId = await this.property();
+    const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const outcome = await this.prisma.db.$transaction(async (tx) => {
+      const found = await tx.accommodationType.findFirst({ where: { propertyId, code } });
+      if (!found) throw new NotFoundException('Категория не найдена');
+      const [units, reservations, upcomingReservations, mapped, intents] = await Promise.all([
+        tx.inventoryUnit.count({ where: { accommodationTypeId: found.id } }),
+        tx.reservationItem.count({ where: { accommodationTypeId: found.id } }),
+        tx.reservationItem.count({
+          where: {
+            accommodationTypeId: found.id,
+            status: { in: ['TENTATIVE', 'CONFIRMED', 'CHECKED_IN'] },
+            departureDate: { gte: new Date(`${today}T00:00:00Z`) },
+          },
+        }),
+        tx.channelMapping.count({
+          where: { localAccommodationTypeId: found.id, providerRoomTypeId: { not: null } },
+        }),
+        tx.sellerBookingIntent.count({ where: { accommodationTypeId: found.id } }),
+      ]);
+      const decision = categoryRemoval({
+        units,
+        // заявки ИИ-продавца держат ссылку на категорию так же, как брони
+        reservations: reservations + intents,
+        upcomingReservations,
+        channexMapped: mapped > 0,
+      });
+      if (decision === 'blocked')
+        throw new ConflictException(
+          `У категории ${upcomingReservations} ${upcomingReservations === 1 ? 'бронь' : 'броней'} впереди. ` +
+            'Дождитесь выезда или переселите гостей, затем удалите категорию.',
+        );
+      if (decision === 'delete') {
+        await tx.dailyRate.deleteMany({ where: { accommodationTypeId: found.id } });
+        await tx.restriction.deleteMany({ where: { accommodationTypeId: found.id } });
+        await tx.ratePlanAccommodationType.deleteMany({ where: { accommodationTypeId: found.id } });
+        await tx.channelMapping.deleteMany({ where: { localAccommodationTypeId: found.id } });
+        await tx.accommodationType.delete({ where: { id: found.id } });
+      } else {
+        await tx.accommodationType.update({ where: { id: found.id }, data: { active: false } });
+        await tx.inventoryUnit.updateMany({
+          where: { accommodationTypeId: found.id },
+          data: { active: false },
+        });
+      }
       await tx.auditLog.create({
         data: {
           userId: auditUserId(),
-          action: 'inventory.category.updated',
+          action: decision === 'delete' ? 'inventory.category.deleted' : 'inventory.category.archived',
           entityType: 'accommodation_type',
           entityId: found.id,
-          before: { name: found.name },
-          after: { name, propertyId },
+          before: { name: found.name, kind: found.kind, capacityAdults: found.capacityAdults, units },
+          after: { propertyId, active: false },
         },
       });
-      return { code };
+      return { decision, units };
     });
     this.reader.invalidate?.(propertyId);
-    return result;
+    // Места архива ушли из продажи: каналы узнают об этом дельтой остатка, а не ночной выгрузкой
+    if (outcome.decision === 'archive' && outcome.units)
+      await publishAfterCommit(this.ari, {
+        categoryCodes: [code],
+        from: today,
+        toExclusive: addDays(today, ARI_HORIZON_DAYS),
+      });
+    return { code, result: outcome.decision === 'delete' ? 'deleted' : 'archived' };
   }
   async createRoom(body: Record<string, unknown>) {
     const input = roomInput(body),
@@ -314,6 +478,9 @@ export class InventoryEditorController {
     @Body() body: Record<string, unknown>,
   ) {
     return this.editor.renameCategory(code, body ?? {});
+  }
+  @Delete('categories/:code') removeCategory(@Param('code') code: string) {
+    return this.editor.removeCategory(code);
   }
   @Post('categories/:code/rate-plan') linkRatePlan(
     @Param('code') code: string,

@@ -1,0 +1,229 @@
+# Модульные (unit) · 09.10.2026 18:24 Алматы · vm
+# коммит 0fed809 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-09T13-24-49Z-unit-13aa.json' 'apps/api/src/platform/platform.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/platform/platform.controller.test.ts (25 tests | 10 failed) 323ms
+   ✓ раздел «Платформа» — только главный администратор (4)
+     ✓ владелец организации получает 403 и на список, и на изменение 52ms
+     ✓ служебный ключ раздел не открывает: он не человек и не главный администратор 5ms
+     ✓ без входа — 401 от замка 4ms
+     ✓ главному администратору — организации без броней и гостей: название, сроки, люди, владельцы, расширение 6ms
+   ✓ включение «ИИ-продавца» главным администратором (Q-183) (3)
+     ✓ оплачен бессрочно с номером счёта: записано с автором, в ответе — «действует» 6ms
+     ✓ пробный без срока — 400 словами домена, ничего не записано 5ms
+     ✓ неизвестная организация — 404; не идентификатор — 400 9ms
+   ✓ статус организации: подтверждение оплаты (5)
+     ✓ главный администратор подтверждает оплату — ACTIVE, с автором и заметкой 5ms
+     ✓ и переводит обратно в «только чтение» 4ms
+     ✓ другие статусы отсюда не ставятся: приостановка и пробный — не оплата 12ms
+     ✓ владелец организации сам себе оплату не подтверждает — 403 4ms
+     ✓ нет такой организации — 404 3ms
+   ✓ лицензия конструктора сайта филиала (MKT9.2) (3)
+     ✓ владелец организации не видит и не выдаёт себе лицензию: 403, ничего не записано 6ms
+     ✓ главный администратор активирует: записано с автором, ответ «действует» 6ms
+     ✓ пробный без срока: 400; чужой филиал: 404; ничего не записано 6ms
+   ❯ организация: название, архив и возврат (10)
+     × переименование: пробелы сжаты, записано с автором, в ответе новое название 4ms
+     × то же название: ответ 200, лишней записи в журнале нет 3ms
+     × пустое, слишком длинное и не строка: 400, ничего не записано 3ms
+     × переименовывает только главный администратор; нет такой — 404; не идентификатор — 400 3ms
+     × архив: статус SUSPENDED, автор записан, организация остаётся в списке 2ms
+     × свою организацию в архив убрать нельзя: 409, статус не тронут 2ms
+     × уже в архиве — 409; нет такой — 404; владелец — 403 3ms
+     × возврат ставит прежний статус, а не «оплачено» 2ms
+     × прежний статус не найден: возврат в «только чтение», платный доступ сам не появляется 3ms
+     × вернуть из архива можно только организацию из архива: иначе 409; владелец — 403 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > переименование: пробелы сжаты, записано с автором, в ответе новое название
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:360:8
+    358|       .set(as('session-admin'))
+    359|       .send({ name: '  Гостиница   «Север 2»  ' })
+    360|       .expect(200);
+       |        ^
+    361|     expect(res.body.name).toBe('Гостиница «Север 2»');
+    362|     expect(repo.renamed).toEqual([{ organizationId: OTHER, name: 'Гост…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > то же название: ответ 200, лишней записи в журнале нет
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:366:122
+    364|
+    365|   it('то же название: ответ 200, лишней записи в журнале нет', async (…
+    366|     await api().patch(`/platform/organizations/${OTHER}`).set(as('sess…
+       |                                                                                                                          ^
+    367|     expect(repo.renamed).toHaveLength(0);
+    368|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > пустое, слишком длинное и не строка: 400, ничего не записано
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:372:101
+    370|   it('пустое, слишком длинное и не строка: 400, ничего не записано', a…
+    371|     for (const name of ['', '   ', 'я'.repeat(201), 42, null]) {
+    372|       await api().patch(`/platform/organizations/${OTHER}`).set(as('se…
+       |                                                                                                     ^
+    373|     }
+    374|     await api().patch(`/platform/organizations/${OTHER}`).set(as('sess…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > переименовывает только главный администратор; нет такой — 404; не идентификатор — 400
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:379:104
+    377|
+    378|   it('переименовывает только главный администратор; нет такой — 404; н…
+    379|     await api().patch(`/platform/organizations/${OTHER}`).set(as('sess…
+       |                                                                                                        ^
+    380|     await api().patch('/platform/organizations/9e9e9e9e-8c7b-4e3a-a1f0…
+    381|     await api().patch('/platform/organizations/abc').set(as('session-a…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > архив: статус SUSPENDED, автор записан, организация остаётся в списке
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:386:103
+    384|
+    385|   it('архив: статус SUSPENDED, автор записан, организация остаётся в с…
+    386|     const res = await api().post(`/platform/organizations/${OTHER}/arc…
+       |                                                                                                       ^
+    387|     expect(res.body.status).toBe('SUSPENDED');
+    388|     expect(repo.archived).toEqual([{ organizationId: OTHER, by: ADMIN …
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > свою организацию в архив убрать нельзя: 409, статус не тронут
+Error: expected 409 "Conflict", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:394:101
+    392|
+    393|   it('свою организацию в архив убрать нельзя: 409, статус не тронут', …
+    394|     const res = await api().post(`/platform/organizations/${ORG}/archi…
+       |                                                                                                     ^
+    395|     expect(res.body.message).toBe(PLATFORM_OWN_ORGANIZATION);
+    396|     expect(repo.archived).toHaveLength(0);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > уже в архиве — 409; нет такой — 404; владелец — 403
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:401:91
+    399|
+    400|   it('уже в архиве — 409; нет такой — 404; владелец — 403', async () =…
+    401|     await api().post(`/platform/organizations/${OTHER}/archive`).set(a…
+       |                                                                                           ^
+    402|     const again = await api().post(`/platform/organizations/${OTHER}/a…
+    403|     expect(again.body.message).toBe(PLATFORM_ALREADY_ARCHIVED);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > возврат ставит прежний статус, а не «оплачено»
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:411:91
+    409|   it('возврат ставит прежний статус, а не «оплачено»', async () => {
+    410|     repo.orgs.find((o) => o.id === OTHER)!.status = 'TRIAL';
+    411|     await api().post(`/platform/organizations/${OTHER}/archive`).set(a…
+       |                                                                                           ^
+    412|     const res = await api().post(`/platform/organizations/${OTHER}/res…
+    413|     expect(res.body.status).toBe('TRIAL');
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > прежний статус не найден: возврат в «только чтение», платный доступ сам не появляется
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:419:103
+    417|   it('прежний статус не найден: возврат в «только чтение», платный дос…
+    418|     repo.orgs.find((o) => o.id === OTHER)!.status = 'SUSPENDED';
+    419|     const res = await api().post(`/platform/organizations/${OTHER}/res…
+       |                                                                                                       ^
+    420|     expect(res.body.status).toBe('READ_ONLY');
+    421|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  |unit| apps/api/src/platform/platform.controller.test.ts > организация: название, архив и возврат > вернуть из архива можно только организацию из архива: иначе 409; владелец — 403
+Error: expected 409 "Conflict", got 404 "Not Found"
+ ❯ apps/api/src/platform/platform.controller.test.ts:424:103
+    422|
+    423|   it('вернуть из архива можно только организацию из архива: иначе 409;…
+    424|     const res = await api().post(`/platform/organizations/${OTHER}/res…
+       |                                                                                                       ^
+    425|     expect(res.body.message).toBe(PLATFORM_NOT_ARCHIVED);
+    426|     repo.orgs.find((o) => o.id === OTHER)!.status = 'SUSPENDED';
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  10 failed | 15 passed (25)
+   Start at  13:24:50
+   Duration  3.30s (transform 65%, import 25%, tests 10%)
+
+JSON report written to /tmp/pms-test-2026-10-09T13-24-49Z-unit-13aa.json
+
+# код выхода 1 · 4 с

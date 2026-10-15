@@ -1,0 +1,65 @@
+# Модульные (unit) · 06.10.2026 21:37 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T16-37-42Z-unit-2216.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 66ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 64ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(323) } to deeply equal { 'GET /onboarding': 'self', …(319) }
+
+- Expected
++ Received
+
+@@ -112,10 +112,12 @@
+    "GET /inventory/summary": "desk",
+    "GET /inventory/units": "desk",
+    "GET /market/collector/competitors": "service",
+    "GET /market/night": "reports",
+    "GET /market/occupancy": "reports",
++   "GET /marketing/site": "settings",
++   "GET /marketing/site/draft": "settings",
+    "GET /onboarding": "self",
+    "GET /platform/organizations": "platform",
+    "GET /platform/support/conversations": "platform",
+    "GET /platform/support/conversations/:id": "platform",
+    "GET /platform/support/conversations/:id/actions": "platform",
+@@ -270,10 +272,12 @@
+    "POST /hotel/services": "settings",
+    "POST /inventory/categories": "property",
+    "POST /inventory/categories/:code/rate-plan": "property",
+    "POST /inventory/rooms": "property",
+    "POST /market/competitors": "rates",
++   "POST /marketing/site": "settings",
++   "POST /marketing/site/versions": "settings",
+    "POST /onboarding": "settings",
+    "POST /platform/support/conversations/:id/close": "platform",
+    "POST /platform/support/conversations/:id/knowledge-draft": "platform",
+    "POST /platform/support/conversations/:id/release": "platform",
+    "POST /platform/support/conversations/:id/reply": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:424:20
+    422|       .map(([key]) => key);
+    423|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    424|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    425|   });
+    426|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  16:37:43
+   Duration  4.67s (transform 76%, import 22%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T16-37-42Z-unit-2216.json
+
+# код выхода 1 · 6 с

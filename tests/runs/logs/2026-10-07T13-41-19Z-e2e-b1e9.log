@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 07.10.2026 18:41 Алматы · vm
+# коммит fd63feb (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/analytics-units.spec.ts' 'tests/ui/branches.spec.ts' '--repeat-each=2'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/analytics-units.spec.ts:52:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (4.1s)
+  ✓   2 tests/ui/analytics-units.spec.ts:95:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (4.7s)
+  ✓   3 tests/ui/analytics-units.spec.ts:116:1 › отказ API — словами на своём экране, не падение страницы (3.5s)
+  ✓   4 tests/ui/analytics-units.spec.ts:128:1 › телефон: таблица без горизонтальной прокрутки страницы (2.7s)
+  ✓   5 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, light (9.7s)
+  ✓   6 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, dark (10.4s)
+  ✓   7 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (8.4s)
+  ✓   8 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (9.3s)
+  ✓   9 tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (19.5s)
+  ✓  10 tests/ui/analytics-units.spec.ts:52:1 › вкладка по умолчанию за месяц: строки до единицы, итог равен сумме строк и ответу API (3.7s)
+  ✓  11 tests/ui/analytics-units.spec.ts:95:1 › тип фонда режет строки; период из адреса работает, как у соседних вкладок (4.5s)
+  ✓  12 tests/ui/analytics-units.spec.ts:116:1 › отказ API — словами на своём экране, не падение страницы (3.8s)
+  ✓  13 tests/ui/analytics-units.spec.ts:128:1 › телефон: таблица без горизонтальной прокрутки страницы (2.4s)
+  ✓  14 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, light (9.3s)
+  ✓  15 tests/ui/analytics-units.spec.ts:138:3 › доступность и снимки, dark (9.9s)
+  ✓  16 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (6.2s)
+  ✓  17 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (8.5s)
+  ✓  18 tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (16.5s)
+
+  18 passed (2.5m)
+
+# код выхода 0 · 2 мин 33 с

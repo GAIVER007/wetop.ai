@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 13.10.2026 13:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5f9671f (claude/floor-layout), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'схема зала'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/food-ui/restaurant.spec.ts:620:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API (2.6s)
+
+  1 passed (8.1s)
+
+# код выхода 0 · 9 с

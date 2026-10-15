@@ -26,32 +26,41 @@ test('статусы шахматки понятны без открытия и�
     });
     await page.setViewportSize({ width: 1440, height: 1000 });
   }
-  await page.getByText('Обозначения', { exact: true }).click();
+  await page.getByTestId('board-legend-button').click();
   await expect(page.getByTestId('board-legend')).toBeVisible();
   await expect(page.getByTestId('board-legend')).toContainText('подтверждена');
-  await expect(page.getByTestId('board-legend')).toContainText('заселён');
-  await expect(page.locator('.board-help-content')).toBeHidden();
-  await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveCount(1);
+  await expect(page.getByTestId('board-legend')).toContainText('проживает');
+  // Основная строка компактна, переход к сегодняшней дате внутри меню месяца.
+  await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toBeHidden();
+  await page.getByTestId('board-period-button').click();
+  await expect(page.getByRole('button', { name: 'Сегодня', exact: true })).toBeVisible();
 });
 
 test('ручные даты раскрываются с клавиатуры и сбрасываются при смене периода', async ({ page }) => {
   await page.goto('/chessboard');
-  const dates = page.getByRole('button', { name: 'Даты', exact: true });
-  await expect(dates).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.getByLabel('Календарь: с', { exact: true })).toBeHidden();
-  await dates.focus();
+  // Один контрол периода содержит календарь, пресеты и поля дат.
+  const menu = page.locator('.board-nav .date-range');
+  const opener = page.getByTestId('board-period-button');
+  await expect(menu).toHaveJSProperty('open', false);
+  await expect(page.getByLabel('Период: с', { exact: true })).toBeHidden();
+  await opener.focus();
   await page.keyboard.press('Space');
-  await expect(dates).toHaveAttribute('aria-expanded', 'true');
-  await page.getByLabel('Календарь: с', { exact: true }).fill('2026-10-05');
-  await page.getByLabel('Календарь: по', { exact: true }).fill('2026-10-11');
+  await expect(menu).toHaveJSProperty('open', true);
+  await page.getByLabel('Период: с', { exact: true }).fill('2026-10-05');
+  await page.getByLabel('Период: по', { exact: true }).fill('2026-10-11');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(page).toHaveURL('/chessboard?from=2026-10-05&to=2026-10-11');
   await expect(page.getByTestId('date-col')).toHaveCount(7);
-  await expect(dates).toHaveAttribute('aria-expanded', 'false');
+  // после перехода раскрывашка закрыта, поля несут новые даты
+  await expect(menu).toHaveJSProperty('open', false);
   await page.getByRole('link', { name: 'Следующая неделя', exact: true }).click();
-  await expect(page.getByLabel('Календарь: с', { exact: true })).toHaveValue('2026-10-12');
-  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
-  await expect(page).toHaveURL('/chessboard');
+  await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue('2026-10-12');
+  await opener.click();
+  await page.getByRole('button', { name: 'Сегодня', exact: true }).click();
+  const today = await page.getByLabel('Период: с', {exact: true}).inputValue();
+  await expect(page.getByLabel('Период: по', {exact: true})).toHaveValue(today);
+  await page.getByRole('button', {name: 'Применить', exact: true}).click();
+  await expect(page).toHaveURL(`/chessboard?from=${today}&to=${today}`);
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -78,15 +87,26 @@ for (const theme of ['light', 'dark'] as const) {
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       ).toBe(true);
-      expect(await board.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+      const overflow = await board.evaluate((el) => el.scrollWidth - el.clientWidth);
+      if (width > 600) expect(overflow).toBeLessThanOrEqual(1);
+      else expect(overflow).toBeGreaterThan(300);
       const box = await board.boundingBox();
       if (width >= 1440) expect(box!.y).toBeLessThanOrEqual(384);
-      if (width <= 390) expect(box!.y).toBeLessThanOrEqual(500);
+      if (width <= 390) {
+        await expect(page.getByRole('group', { name: 'Сегодня на объекте' })).toBeVisible();
+        expect(box!.y).toBeLessThanOrEqual(760);
+      }
       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
-      await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
-      // Длинная категория не должна заходить на число мест в узкой первой колонке.
+      if (width > 600)
+        await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      // Обрезанный текст категории не должен заходить на соседние показатели.
       for (const name of await page.locator('.board-group-name-text').all()) {
-        expect(await name.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+        const overlap = await name.evaluate((el) => {
+          const next = el.nextElementSibling;
+          if (!next || getComputedStyle(next).display === 'none') return 0;
+          return el.getBoundingClientRect().right - next.getBoundingClientRect().left;
+        });
+        expect(overlap).toBeLessThanOrEqual(1);
       }
       const audit = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])

@@ -1,0 +1,112 @@
+2026-10-08T09:25:47.5355070Z   1) tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева 
+2026-10-08T09:25:47.5355888Z 
+2026-10-08T09:25:47.5356139Z     Test timeout of 45000ms exceeded.
+2026-10-08T09:25:47.5356448Z 
+2026-10-08T09:25:47.5356813Z     Error: locator.boundingBox: Test timeout of 45000ms exceeded.
+2026-10-08T09:25:47.5357426Z     Call log:
+2026-10-08T09:25:47.5357940Z       - waiting for locator('.board-top > .board-controls')
+2026-10-08T09:25:47.5358362Z 
+2026-10-08T09:25:47.5358373Z 
+2026-10-08T09:25:47.5358683Z       32 |   await expect(panel).toBeVisible();
+2026-10-08T09:25:47.5359288Z       33 |   const p = (await panel.boundingBox())!;
+2026-10-08T09:25:47.5360389Z     > 34 |   const c = (await page.locator('.board-top > .board-controls').boundingBox())!;
+2026-10-08T09:25:47.5361616Z          |                                                                 ^
+2026-10-08T09:25:47.5362730Z       35 |   // сводка по образцу Lite PMS (06.10): карточка справа, управление слева от неё, не под ней
+2026-10-08T09:25:47.5363483Z       36 |   expect(p.height).toBeLessThanOrEqual(190);
+2026-10-08T09:25:47.5364203Z       37 |   expect(c.x + c.width).toBeLessThanOrEqual(p.x + 1);
+2026-10-08T09:25:47.5365131Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/booking-price-nights.spec.ts:34:65
+2026-10-08T09:25:47.5365716Z 
+2026-10-08T09:25:47.5366902Z     Error Context: test-results/booking-price-nights-кален-26d05-кой-справа-управление-слева/error-context.md
+2026-10-08T09:25:47.5367545Z 
+2026-10-08T09:25:47.5368637Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-08T09:25:47.5369919Z     test-results/booking-price-nights-кален-26d05-кой-справа-управление-слева/trace.zip
+2026-10-08T09:25:47.5370936Z     Usage:
+2026-10-08T09:25:47.5371083Z 
+2026-10-08T09:25:47.5371951Z         npx playwright show-trace test-results/booking-price-nights-кален-26d05-кой-справа-управление-слева/trace.zip
+2026-10-08T09:25:47.5372716Z 
+2026-10-08T09:25:47.5373360Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-08T09:25:47.5373884Z 
+2026-10-08T09:25:47.5374582Z   2) tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции ────
+2026-10-08T09:25:47.5375124Z 
+2026-10-08T09:25:47.5375351Z     Test timeout of 45000ms exceeded.
+2026-10-08T09:25:47.5375644Z 
+2026-10-08T09:25:47.5375972Z     Error: locator.click: Test timeout of 45000ms exceeded.
+2026-10-08T09:25:47.5376490Z     Call log:
+2026-10-08T09:25:47.5377160Z       - waiting for getByText('Обозначения', { exact: true })
+2026-10-08T09:25:47.5377573Z 
+2026-10-08T09:25:47.5377585Z 
+2026-10-08T09:25:47.5377957Z       27 |     await page.setViewportSize({ width: 1440, height: 1000 });
+2026-10-08T09:25:47.5378537Z       28 |   }
+2026-10-08T09:25:47.5379193Z     > 29 |   await page.getByText('Обозначения', { exact: true }).click();
+2026-10-08T09:25:47.5379901Z          |                                                        ^
+2026-10-08T09:25:47.5380821Z       30 |   await expect(page.getByTestId('board-legend')).toBeVisible();
+2026-10-08T09:25:47.5381862Z       31 |   await expect(page.getByTestId('board-legend')).toContainText('подтверждена');
+2026-10-08T09:25:47.5382998Z       32 |   await expect(page.getByTestId('board-legend')).toContainText('заселён');
+2026-10-08T09:25:47.5383946Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/chessboard-design.spec.ts:29:56
+2026-10-08T09:25:47.5384540Z 
+2026-10-08T09:25:47.5385286Z     Error Context: test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/error-context.md
+2026-10-08T09:25:47.5385981Z 
+2026-10-08T09:25:47.5386682Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-08T09:25:47.5388056Z     test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/trace.zip
+2026-10-08T09:25:47.5388737Z     Usage:
+2026-10-08T09:25:47.5388886Z 
+2026-10-08T09:25:47.5389631Z         npx playwright show-trace test-results/chessboard-design-статусы--2d3c1-тны-без-открытия-инструкции/trace.zip
+2026-10-08T09:25:47.5390101Z 
+2026-10-08T09:25:47.5390755Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-08T09:25:47.5391025Z 
+2026-10-08T09:25:47.5391534Z   3) tests/ui/chessboard-filters.spec.ts:251:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится 
+2026-10-08T09:25:47.5391924Z 
+2026-10-08T09:25:47.5392088Z     Error: expect(received).toBeLessThan(expected)
+2026-10-08T09:25:47.5392332Z 
+2026-10-08T09:25:47.5392435Z     Expected: < 45
+2026-10-08T09:25:47.5392652Z     Received:   45
+2026-10-08T09:25:47.5392775Z 
+2026-10-08T09:25:47.5392923Z       264 |   await view.selectOption('detailed');
+2026-10-08T09:25:47.5393275Z       265 |   const detailed = await height();
+2026-10-08T09:25:47.5393618Z     > 266 |   expect(compact).toBeLessThan(normal);
+2026-10-08T09:25:47.5393935Z           |                   ^
+2026-10-08T09:25:47.5394238Z       267 |   expect(detailed).toBeGreaterThan(normal);
+2026-10-08T09:25:47.5394583Z       268 |   await view.selectOption('normal');
+2026-10-08T09:25:47.5394903Z       269 |   await page.reload();
+2026-10-08T09:25:47.5395338Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/chessboard-filters.spec.ts:266:19
+2026-10-08T09:25:47.5395664Z 
+2026-10-08T09:25:47.5396111Z     Error Context: test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/error-context.md
+2026-10-08T09:25:47.5396646Z 
+2026-10-08T09:25:47.5397039Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-08T09:25:47.5397712Z     test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/trace.zip
+2026-10-08T09:25:47.5398130Z     Usage:
+2026-10-08T09:25:47.5398250Z 
+2026-10-08T09:25:47.5398735Z         npx playwright show-trace test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/trace.zip
+2026-10-08T09:25:47.5399154Z 
+2026-10-08T09:25:47.5399487Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-08T09:25:47.5399758Z 
+2026-10-08T09:25:47.5400137Z   4) tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна ────────────────
+2026-10-08T09:25:47.5400601Z 
+2026-10-08T09:25:47.5400702Z     Error: 768px
+2026-10-08T09:25:47.5400834Z 
+2026-10-08T09:25:47.5400986Z     expect(received).toBeLessThanOrEqual(expected)
+2026-10-08T09:25:47.5401209Z 
+2026-10-08T09:25:47.5401329Z     Expected: <= 1
+2026-10-08T09:25:47.5401543Z     Received:    25
+2026-10-08T09:25:47.5401683Z 
+2026-10-08T09:25:47.5401848Z       35 |       return box.scrollWidth - box.clientWidth;
+2026-10-08T09:25:47.5402158Z       36 |     });
+2026-10-08T09:25:47.5402553Z     > 37 |     expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+2026-10-08T09:25:47.5402922Z          |                                    ^
+2026-10-08T09:25:47.5403391Z       38 |     await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
+2026-10-08T09:25:47.5403984Z       39 |     await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+2026-10-08T09:25:47.5404380Z       40 |   }
+2026-10-08T09:25:47.5404763Z         at /home/runner/work/wetop.ai/wetop.ai/tests/ui/chessboard-month.spec.ts:37:36
+2026-10-08T09:25:47.5405075Z 
+2026-10-08T09:25:47.5405518Z     Error Context: test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/error-context.md
+2026-10-08T09:25:47.5405897Z 
+2026-10-08T09:25:47.5406275Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-08T09:25:47.5406906Z     test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+2026-10-08T09:25:47.5407331Z     Usage:
+2026-10-08T09:25:47.5407445Z 
+2026-10-08T09:25:47.5407902Z         npx playwright show-trace test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+2026-10-08T09:25:47.5408290Z 
+2026-10-08T09:25:47.5408627Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-08T09:25:47.5408903Z 
+2026-10-08T09:25:47.5408990Z   4 failed
+2026-10-08T09:25:47.5409491Z     tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня карточкой справа, управление слева 

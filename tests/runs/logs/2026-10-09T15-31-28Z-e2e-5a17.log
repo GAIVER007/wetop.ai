@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 09.10.2026 20:31 Алматы · vm
+# коммит 9379668 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing-site.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (2.2s)
+  ✓  2 tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (1.5s)
+  ✓  3 tests/ui/marketing-site.spec.ts:51:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (4.1s)
+  ✓  4 tests/ui/marketing-site.spec.ts:98:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (1.7s)
+  ✓  5 tests/ui/marketing-site.spec.ts:114:1 › источник брони выбирается явно; архив с вопросом (2.3s)
+  ✓  6 tests/ui/marketing-site.spec.ts:127:3 › страница на компьютере и телефоне, доступность: light (7.9s)
+  ✓  7 tests/ui/marketing-site.spec.ts:127:3 › страница на компьютере и телефоне, доступность: dark (6.4s)
+
+  7 passed (37.8s)
+
+# код выхода 0 · 39 с

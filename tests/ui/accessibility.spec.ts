@@ -7,7 +7,6 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 // tests/ui/settings-simplification.spec.ts. Аудит на них ломался: докрутка к якорю после перехода
 // сносила контекст страницы посреди axe (разбор 21.09.2026).
 const routes = [
-  '/today',
   '/chessboard',
   '/reservations',
   '/reservations/new?unit=M03',
@@ -20,7 +19,6 @@ const routes = [
   '/rooms/availability',
   '/inventory',
   '/units/R01',
-  '/rates',
   '/finance',
   '/hotel-settings',
   '/hotel-settings/stay',
@@ -36,6 +34,8 @@ const routes = [
   // страница настроек Channex (INT2, ADR-121)
   '/connections/channex',
   // «Сайт и онлайн-бронирование» (ADR-117): четыре вкладки вместо «Аналитики сайта» и «Настроек сайта»
+  // хаб «Маркетинг» (MKT2), вход в «Сайт и SEO»
+  '/marketing',
   '/website',
   '/website/booking',
   '/website/analytics',
@@ -100,7 +100,7 @@ for (const width of [1440, 390]) {
         expect
           .soft(layout.content, `${route}: page overflow`)
           .toBeLessThanOrEqual(layout.viewport + 1);
-        if (['/today', '/chessboard', '/guests', '/inventory'].includes(route))
+        if (['/finance', '/chessboard', '/guests', '/inventory'].includes(route))
           await page.screenshot({
             path: `reports/ui-quality/${route.slice(1)}-${theme}-${width}.png`,
           });

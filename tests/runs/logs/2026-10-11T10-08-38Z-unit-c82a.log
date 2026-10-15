@@ -1,0 +1,22 @@
+# Модульные (unit) · 11.10.2026 15:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0491010 (claude/restaurant-menu-groups), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-08-38Z-unit-c82a.json' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/design-primitive-owner.test.ts' 'scripts/design/build-tokens.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/site-design.test.ts' 'apps/web/src/lib/navigation-food.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 17ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 4ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 6ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 84ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 64ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 3ms
+
+ Test Files  7 passed (7)
+      Tests  67 passed (67)
+   Start at  03:08:39
+   Duration  466ms (transform 49%, import 33%, tests 17%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T10-08-38Z-unit-c82a.json
+
+# код выхода 0 · 2 с

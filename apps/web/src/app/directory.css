@@ -6,507 +6,413 @@
  * колонкой «15 сент. → 17 сент. · 2 ночи»; только те деньги, с которыми работает стойка — стоимость
  * и к оплате; у гостей — телефон с WhatsApp, место, проживание, статус, бронь.
  */
-.dir-table td {
-  padding: 9px 12px;
-  vertical-align: middle;
-  font-size: var(--text-xs);
-}
-.dir-table th {
-  font-size: var(--text-xs);
-}
-/*
+@layer sections {
+  .dir-table td {
+    padding: 9px 12px;
+    vertical-align: middle;
+    font-size: var(--text-xs);
+  }
+  .dir-table th {
+    font-size: var(--text-xs);
+  } /*
  * Цель нажатия — не меньше 24 px и не впритык к соседней (axe target-size, WCAG 2.2 AA).
  * Поэтому имя и номер брони — одна ссылка на всю ячейку, а WhatsApp — отдельная кнопка рядом.
  */
-.dir-guest-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.dir-guest {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  /*
+  .dir-guest {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /*
    * 21.09: на «Гостях» имя стояло по центру ячейки и на телефоне, и на 1440 px. Причина — старый класс
    * `.directory-guest` из `premium.css` с `align-items: center`: у колонки это центрирует по горизонтали.
    * Имя в списке читается слева, поэтому выравнивание задаётся здесь явно.
    */
-  align-items: flex-start;
-  gap: 1px;
-  min-height: 32px;
-  padding: 3px 0;
-  color: var(--text);
-  font-weight: 600;
-  font-size: var(--text-sm);
-  white-space: nowrap;
-}
-.dir-guest strong {
-  font-weight: 600;
-}
-/*
+    align-items: flex-start;
+    gap: 1px;
+    min-height: 32px;
+    padding: 3px 0;
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+  .dir-guest strong {
+    font-weight: 600;
+  } /*
  * Имя гостя — ссылка на его карточку, но цветом обычного текста: девять синих имён в списке пестрят.
  * Что это ссылка, показывают наведение и фокус (21.09: до этого не показывало ничего).
  */
-a.dir-guest:hover,
-a.dir-guest:focus-visible {
-  color: var(--primary);
-  text-decoration: underline;
-}
-.dir-number {
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: var(--text-xs);
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-a.dir-number {
-  display: inline-flex;
-  align-items: center;
-  min-height: 26px;
-  padding: 2px 0;
-}
-a.dir-number:hover {
-  color: var(--primary);
-}
-.dir-wa {
-  display: inline-grid;
-  place-items: center;
-  flex: none;
-  min-width: 30px;
-  min-height: 28px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--text-2);
-}
-.dir-wa:hover {
-  border-color: var(--success);
-  color: var(--success);
-  text-decoration: none;
-}
-.dir-stay {
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-.dir-stay small {
-  color: var(--muted);
-  margin-left: 6px;
-}
-.dir-unit {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.dir-unit svg {
-  width: 14px;
-  height: 14px;
-  color: var(--muted);
-}
-.dir-phone {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-.dir-paid {
-  color: var(--success);
-  white-space: nowrap;
-}
-.dir-debt {
-  color: var(--danger);
-  font-weight: 600;
-  white-space: nowrap;
-}
-.dir-table .num {
-  text-align: right;
-}
-.directory-toolbar {
-  margin-bottom: 14px;
-}
-/* B1 (20.09.2026): у дат видимые подписи «С» и «По», а не только aria-label */
-.directory-toolbar .field--inline .inp {
-  width: 145px;
-}
-.directory-filters {
-  margin-bottom: 14px;
-}
-/* Выборка названа одним предложением: «9 бронирований на 20 сент., статус «Проживают»» */
-.directory-meta {
-  margin: 0 0 8px;
-}
-
-/* слово у суммы видно только на телефоне: на desktop его несёт шапка колонки */
-.dir-cell-word {
-  display: none;
-}
-
-/*
+  a.dir-guest:hover,
+  a.dir-guest:focus-visible {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+  .dir-number {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  a.dir-number {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 2px 0;
+  }
+  a.dir-number:hover {
+    color: var(--primary);
+  }
+  .dir-wa {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    min-width: 30px;
+    min-height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-2);
+  }
+  .dir-wa:hover {
+    border-color: var(--success);
+    color: var(--success);
+    text-decoration: none;
+  }
+  .dir-stay {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .dir-stay small {
+    color: var(--muted);
+    margin-left: 6px;
+  }
+  .dir-unit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .dir-unit svg {
+    width: 14px;
+    height: 14px;
+    color: var(--muted);
+  }
+  .dir-phone {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .dir-paid {
+    color: var(--success);
+    white-space: nowrap;
+  }
+  .dir-table .num {
+    text-align: right;
+  }
+  .directory-toolbar {
+    margin-bottom: 14px;
+  } /* B1 (20.09.2026): у дат видимые подписи «С» и «По», а не только aria-label */
+  .directory-toolbar .field--inline .inp {
+    width: 145px;
+  }
+  .directory-filters {
+    margin-bottom: 14px;
+  } /* Выборка названа одним предложением: «9 бронирований на 20 сент., статус «Проживают»» */
+  .directory-meta {
+    margin: 0 0 8px;
+  } /* слово у суммы видно только на телефоне: на desktop его несёт шапка колонки */
+  .dir-cell-word {
+    display: none;
+  } /*
  * Телефон (B1): семь колонок в 390 px не помещаются, и таблица уезжала в прокрутку вбок — видны были
  * только гость, источник и место. Строка складывается в карточку: гость и статус, проживание, место и
  * источник, стоимость и «к оплате». Разметка та же (`tbody tr`, ссылка «Открыть бронь N»), шапка
  * остаётся для чтения с экрана, но не рисуется; цели фильтров статуса — 44 px (DESIGN.md §11).
  */
-@media (max-width: 600px) {
-  .directory-toolbar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 8px;
-  }
-  .directory-toolbar .search-field {
-    grid-column: 1 / -1;
-    min-width: 0;
-  }
-  .directory-toolbar .field--inline {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
-    min-width: 0;
-  }
-  .directory-toolbar .field--inline .inp {
-    width: 100%;
-    min-height: var(--touch-target);
-  }
-  .directory-toolbar > .btn {
-    grid-column: 1 / -1;
-    min-height: var(--touch-target);
-  }
-  .directory-filters a {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--touch-target);
-    padding: 0;
-  }
-  /* карточки списка броней (v2) живут в reservations.css — здесь только общие правила справочников */
-  .dir-cell-word {
-    display: inline;
-  }
-  .dir-guest {
-    white-space: normal;
-  }
-}
-
-/*
+  @media (max-width: 600px) {
+    .directory-toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+    }
+    .directory-toolbar .search-field {
+      grid-column: 1 / -1;
+      min-width: 0;
+    }
+    .directory-toolbar .field--inline {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      min-width: 0;
+    }
+    .directory-toolbar .field--inline .inp {
+      width: 100%;
+      min-height: var(--touch-target);
+    }
+    .directory-toolbar > .btn {
+      grid-column: 1 / -1;
+      min-height: var(--touch-target);
+    }
+    .directory-filters a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch-target);
+      padding: 0;
+    }
+    /* карточки списка броней (v2) живут в reservations.css — здесь только общие правила справочников */
+    .dir-cell-word {
+      display: inline;
+    }
+    .dir-guest {
+      white-space: normal;
+    }
+  } /*
  * Форма новой брони (B2, 20.09.2026). Три шага в одном ряду — даты (отдельная GET-форма), размещение,
  * гость; резюме выбора и «Создать бронь» держатся у нижнего края окна, пока форма прокручена:
  * на 1440×1000 кнопка стояла на y≈1260, на телефоне — на 2069 (замер владельца 19.09).
  */
-.booking-dates {
-  margin-bottom: 16px;
-}
-.booking-dates__availability {
-  margin: 0;
-  color: var(--text-2);
-  font-size: var(--text-sm);
-}
-.booking-form.panel--lg {
-  /* подвал ниже бьёт отступ панели отрицательными полями: каскад даёт .panel 20 px (premium.css),
-     поэтому значение закрепляем здесь и одно на обоих */
-  padding: 24px;
-}
-.booking-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: var(--layer-sticky);
-  /* панель формы — grid: без min-width: 0 неразрывная строка сути растянула бы единственную колонку
-     (и все поля формы) шире экрана телефона */
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 0 -24px -24px;
-  padding: 16px 24px;
-  background: var(--glass-panel);
-  border-top: 1px solid var(--border);
-  border-radius: 0 0 var(--radius) var(--radius);
-}
-.booking-summary {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 4px 16px;
-  margin: 0;
-  min-width: 0;
-  font-size: var(--text-sm);
-}
-.booking-footer__digest {
-  flex: 1 1 auto;
-  min-width: 0;
-  margin: 0;
-  color: var(--text-2);
-  font-size: var(--text-sm);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.booking-summary dt {
-  color: var(--muted);
-}
-.booking-summary dd {
-  margin: 0;
-  color: var(--text);
-  overflow-wrap: anywhere;
-}
-.booking-summary__line {
-  display: block;
-}
-/* G6 («Гости v2» §33–34): выбранный гость брони и найденные по телефону — строка «кто + действие» */
-.booking-guest,
-.booking-matches {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px 16px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-.booking-guest__who,
-.booking-matches__who {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.booking-guest__hint,
-.booking-matches .hint,
-.booking-matches__title {
-  grid-column: 1 / -1;
-  margin: 0;
-}
-.booking-matches__title {
-  font-size: var(--text-sm);
-}
-.booking-matches ul {
-  grid-column: 1 / -1;
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.booking-matches li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-.booking-footer__actions {
-  display: flex;
-  flex: none;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  text-align: right;
-}
-@media (max-width: 600px) {
+  .booking-dates {
+    margin-bottom: 16px;
+  }
+  .booking-dates__availability {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
   .booking-form.panel--lg {
-    padding: 16px;
+    /* подвал ниже бьёт отступ панели отрицательными полями: каскад даёт .panel 20 px (premium.css),
+     поэтому значение закрепляем здесь и одно на обоих */
+    padding: 24px;
   }
   .booking-footer {
-    flex-direction: column;
-    align-items: stretch;
-    margin: 0 -16px -16px;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    position: sticky;
+    bottom: 0;
+    z-index: var(--layer-sticky);
+    /* панель формы — grid: без min-width: 0 неразрывная строка сути растянула бы единственную колонку
+     (и все поля формы) шире экрана телефона */
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 -24px -24px;
+    padding: 16px 24px;
+    background: var(--glass-panel);
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .booking-summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 16px;
+    margin: 0;
+    min-width: 0;
+    font-size: var(--text-sm);
+  }
+  .booking-footer__digest {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .booking-summary dt {
+    color: var(--muted);
+  }
+  .booking-summary dd {
+    margin: 0;
+    color: var(--text);
+    overflow-wrap: anywhere;
+  }
+  .booking-summary__line {
+    display: block;
+  } /* G6 («Гости v2» §33–34): выбранный гость брони и найденные по телефону — строка «кто + действие» */
+  .booking-guest,
+  .booking-matches {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 16px;
     padding: 16px;
-    /* над нижней навигацией (fixed, ≈67 px + безопасная зона), а не под ней */
-    bottom: calc(68px + env(safe-area-inset-bottom));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .booking-guest__who,
+  .booking-matches__who {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .booking-guest__hint,
+  .booking-matches .hint,
+  .booking-matches__title {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .booking-matches__title {
+    font-size: var(--text-sm);
+  }
+  .booking-matches ul {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .booking-matches li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
   }
   .booking-footer__actions {
-    align-items: stretch;
-    text-align: left;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    text-align: right;
   }
-  .booking-footer .btn {
-    min-height: var(--touch-target);
+  @media (max-width: 600px) {
+    .booking-form.panel--lg {
+      padding: 16px;
+    }
+    .booking-footer {
+      flex-direction: column;
+      align-items: stretch;
+      margin: 0 -16px -16px;
+      padding: 16px;
+      /* над нижней навигацией (fixed, ≈67 px + безопасная зона), а не под ней */
+      bottom: calc(68px + env(safe-area-inset-bottom));
+    }
+    .booking-footer__actions {
+      align-items: stretch;
+      text-align: left;
+    }
+    .booking-footer .btn {
+      min-height: var(--touch-target);
+    }
+  } /* ---------- B3: карточка брони — полоса фактов над вкладками, следующее действие, печать ---------- */
+  .booking-head {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px 24px;
+    margin: 0 0 24px;
+    padding: 16px;
+    background: var(--glass-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
   }
-}
-
-/* ---------- B3: карточка брони — полоса фактов над вкладками, следующее действие, печать ---------- */
-.booking-head {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px 24px;
-  margin: 0 0 24px;
-  padding: 16px;
-  background: var(--glass-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-.booking-head > div {
-  min-width: 0;
-}
-.booking-head dt {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  margin: 0 0 4px;
-}
-.booking-head dd {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-.booking-head dd small,
-.booking-head__sub {
-  display: block;
-  font-size: var(--text-xs);
-  font-weight: 400;
-  color: var(--muted);
-  margin-top: 4px;
-}
-.booking-head dd small.warn-text,
-.booking-head__sub.warn-text {
-  color: var(--warning);
-}
-/* R3 «Броней v2»: «Финансы» быстрого просмотра — итог по счетам строками «подпись — сумма» (§19) */
-.booking-money {
-  display: grid;
-  gap: 8px;
-  margin: 0 0 24px;
-}
-.booking-money > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-}
-.booking-money dt {
-  font-size: var(--text-sm);
-  color: var(--muted);
-}
-.booking-money dd {
-  margin: 0;
-  font-weight: 600;
-}
-/* гость — во всю ширину: имя, гражданство и связь читаются одной строкой */
-.booking-head__guest {
-  grid-column: 1 / -1;
-}
-.booking-head__guest dd a {
-  color: var(--primary);
-}
-.booking-head__contacts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  margin-top: 4px;
-  font-weight: 400;
-}
-.booking-head__contacts a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-}
-.booking-next {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 24px;
-}
-.booking-print {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-soft);
-}
-.booking-print__label {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  margin-right: 8px;
-}
-/* опасное действие — своя панель с рамкой тона, кнопка названа глаголом (§14) */
-.panel--danger {
-  border-color: var(--danger-border);
-}
-/* проживания в панели 480 px: семь колонок не помещаются, строка складывается в карточку;
+  .booking-head > div {
+    min-width: 0;
+  }
+  .booking-head dt {
+    font-size: var(--text-xs);
+    color: var(--muted);
+    margin: 0 0 4px;
+  }
+  .booking-head dd {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .booking-head dd small,
+  .booking-head__sub {
+    display: block;
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .booking-head dd small.warn-text,
+  .booking-head__sub.warn-text {
+    color: var(--warning);
+  } /* R3 «Броней v2»: «Финансы» быстрого просмотра — итог по счетам строками «подпись — сумма» (§19) */
+  .booking-money {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 24px;
+  }
+  .booking-money > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .booking-money dt {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .booking-money dd {
+    margin: 0;
+    font-weight: 600;
+  } /* гость — во всю ширину: имя, гражданство и связь читаются одной строкой */
+  .booking-head__guest {
+    grid-column: 1 / -1;
+  }
+  .booking-head__guest dd a {
+    color: var(--primary);
+  }
+  .booking-head__contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin-top: 4px;
+    font-weight: 400;
+  }
+  .booking-head__contacts a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+  }
+  .booking-next {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 24px;
+  }
+  .booking-print {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .booking-print__label {
+    font-size: var(--text-xs);
+    color: var(--muted);
+    margin-right: 8px;
+  } /* проживания в панели 480 px: семь колонок не помещаются, строка складывается в карточку;
    на телефоне — то же для страницы целиком */
-
-.booking-drawer .tbl.dir-table--stays,
-.booking-drawer .dir-table--stays tbody {
-  display: block;
-  width: 100%;
-  min-width: 0;
-}
-.booking-drawer .dir-table--stays thead {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-.booking-drawer .dir-table--stays tbody tr {
-  display: grid;
-  grid-template-columns: max-content max-content minmax(0, 1fr) auto;
-  gap: 4px 16px;
-  align-items: baseline;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--border-soft);
-}
-.booking-drawer .dir-table--stays tbody tr:last-child {
-  border-bottom: 0;
-}
-.booking-drawer .dir-table--stays tbody td {
-  display: block;
-  padding: 0;
-  border: 0;
-  min-width: 0;
-  white-space: normal;
-}
-.booking-drawer .dir-table--stays tbody td:nth-child(1) {
-  grid-column: 1;
-  grid-row: 1;
-}
-.booking-drawer .dir-table--stays tbody td:nth-child(2) {
-  grid-column: 2 / 4;
-  grid-row: 1;
-  color: var(--muted);
-}
-.booking-drawer .dir-table--stays tbody td:nth-child(5) {
-  grid-column: 4;
-  grid-row: 1;
-  justify-self: end;
-}
-.booking-drawer .dir-table--stays tbody td:nth-child(3) {
-  grid-column: 1;
-  grid-row: 2;
-}
-.booking-drawer .dir-table--stays tbody td:nth-child(3)::after {
-  content: ' →';
-  color: var(--muted);
-}
-.booking-drawer .dir-table--stays tbody td:nth-child(4) {
-  grid-column: 2 / 4;
-  grid-row: 2;
-}
-.booking-drawer .dir-table--stays tbody td:nth-child(6) {
-  grid-column: 4;
-  grid-row: 2;
-  justify-self: end;
-}
-.booking-drawer .dir-table--stays tbody td:nth-child(7) {
-  grid-column: 1 / -1;
-  grid-row: 3;
-}
-
-@media (max-width: 600px) {
-  .tbl.dir-table--stays,
-  .dir-table--stays tbody {
+  .booking-drawer .tbl.dir-table--stays,
+  .booking-drawer .dir-table--stays tbody {
     display: block;
     width: 100%;
     min-width: 0;
   }
-  .dir-table--stays thead {
+  .booking-drawer .dir-table--stays thead {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
   }
-  .dir-table--stays tbody tr {
+  .booking-drawer .dir-table--stays tbody tr {
     display: grid;
     grid-template-columns: max-content max-content minmax(0, 1fr) auto;
     gap: 4px 16px;
@@ -514,724 +420,689 @@ a.dir-number:hover {
     padding: 8px 16px;
     border-bottom: 1px solid var(--border-soft);
   }
-  .dir-table--stays tbody tr:last-child {
+  .booking-drawer .dir-table--stays tbody tr:last-child {
     border-bottom: 0;
   }
-  .dir-table--stays tbody td {
+  .booking-drawer .dir-table--stays tbody td {
     display: block;
     padding: 0;
     border: 0;
     min-width: 0;
     white-space: normal;
   }
-  .dir-table--stays tbody td:nth-child(1) {
+  .booking-drawer .dir-table--stays tbody td:nth-child(1) {
     grid-column: 1;
     grid-row: 1;
   }
-  .dir-table--stays tbody td:nth-child(2) {
+  .booking-drawer .dir-table--stays tbody td:nth-child(2) {
     grid-column: 2 / 4;
     grid-row: 1;
     color: var(--muted);
   }
-  .dir-table--stays tbody td:nth-child(5) {
+  .booking-drawer .dir-table--stays tbody td:nth-child(5) {
     grid-column: 4;
     grid-row: 1;
     justify-self: end;
   }
-  .dir-table--stays tbody td:nth-child(3) {
+  .booking-drawer .dir-table--stays tbody td:nth-child(3) {
     grid-column: 1;
     grid-row: 2;
   }
-  .dir-table--stays tbody td:nth-child(3)::after {
+  .booking-drawer .dir-table--stays tbody td:nth-child(3)::after {
     content: ' →';
     color: var(--muted);
   }
-  .dir-table--stays tbody td:nth-child(4) {
+  .booking-drawer .dir-table--stays tbody td:nth-child(4) {
     grid-column: 2 / 4;
     grid-row: 2;
   }
-  .dir-table--stays tbody td:nth-child(6) {
+  .booking-drawer .dir-table--stays tbody td:nth-child(6) {
     grid-column: 4;
     grid-row: 2;
     justify-self: end;
   }
-  .dir-table--stays tbody td:nth-child(7) {
+  .booking-drawer .dir-table--stays tbody td:nth-child(7) {
     grid-column: 1 / -1;
     grid-row: 3;
   }
-}
-
-/* ---------- Гости v2 (27.09): одна строка — один гость; карточка с полосой фактов ---------- */
-/* длинные имена переносятся, а не режутся и не растягивают таблицу */
-.dir-table--guests td:first-child {
-  white-space: normal;
-  max-width: 320px;
-}
-.dir-table--guests td:first-child .dir-guest strong {
-  overflow-wrap: anywhere;
-}
-.guest-head {
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-}
-@media (max-width: 600px) {
-  /* Гости v2, карточка строки (ТЗ §46): имя и статус → сейчас/ближайший → последний визит и
+  @media (max-width: 600px) {
+    .tbl.dir-table--stays,
+    .dir-table--stays tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .dir-table--stays thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .dir-table--stays tbody tr {
+      display: grid;
+      grid-template-columns: max-content max-content minmax(0, 1fr) auto;
+      gap: 4px 16px;
+      align-items: baseline;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .dir-table--stays tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .dir-table--stays tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+    }
+    .dir-table--stays tbody td:nth-child(1) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .dir-table--stays tbody td:nth-child(2) {
+      grid-column: 2 / 4;
+      grid-row: 1;
+      color: var(--muted);
+    }
+    .dir-table--stays tbody td:nth-child(5) {
+      grid-column: 4;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .dir-table--stays tbody td:nth-child(3) {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .dir-table--stays tbody td:nth-child(3)::after {
+      content: ' →';
+      color: var(--muted);
+    }
+    .dir-table--stays tbody td:nth-child(4) {
+      grid-column: 2 / 4;
+      grid-row: 2;
+    }
+    .dir-table--stays tbody td:nth-child(6) {
+      grid-column: 4;
+      grid-row: 2;
+      justify-self: end;
+    }
+    .dir-table--stays tbody td:nth-child(7) {
+      grid-column: 1 / -1;
+      grid-row: 3;
+    }
+  } /* ---------- Гости v2 (27.09): одна строка — один гость; карточка с полосой фактов ---------- */ /* длинные имена переносятся, а не режутся и не растягивают таблицу */
+  .dir-table--guests td:first-child {
+    white-space: normal;
+    max-width: 320px;
+  }
+  .dir-table--guests td:first-child .dir-guest strong {
+    overflow-wrap: anywhere;
+  }
+  .guest-head {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+  @media (max-width: 600px) {
+    /* Гости v2, карточка строки (ТЗ §46): имя и статус → сейчас/ближайший → последний визит и
      визиты → контакты. Колонки: 1 гость, 2 контакты, 3 сейчас, 4 последний, 5 визитов, 6 статус */
-  .tbl.dir-table--guests,
-  .dir-table--guests tbody {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-  .dir-table--guests thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .dir-table--guests tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 16px;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .dir-table--guests tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .dir-table--guests tbody td,
-  .tbl--nowrap.dir-table--guests tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
-  }
-  .dir-table--guests tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .dir-table--guests tbody td:nth-child(6) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
-  .dir-table--guests tbody td:nth-child(3) {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-  .dir-table--guests tbody td:nth-child(4) {
-    grid-column: 1;
-    grid-row: 3;
-    color: var(--muted);
-  }
-  .dir-table--guests tbody td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 3;
-    justify-self: end;
-    text-align: right;
-  }
-  .dir-table--guests tbody td:nth-child(2) {
-    grid-column: 1 / -1;
-    grid-row: 4;
-  }
-  /* История проживаний гостя (G4): период и статус → место → источник и сумма.
+    .tbl.dir-table--guests,
+    .dir-table--guests tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .dir-table--guests thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .dir-table--guests tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4px 16px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .dir-table--guests tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .dir-table--guests tbody td,
+    .tbl--nowrap.dir-table--guests tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+    }
+    .dir-table--guests tbody td:nth-child(1) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .dir-table--guests tbody td:nth-child(6) {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .dir-table--guests tbody td:nth-child(3) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .dir-table--guests tbody td:nth-child(4) {
+      grid-column: 1;
+      grid-row: 3;
+      color: var(--muted);
+    }
+    .dir-table--guests tbody td:nth-child(5) {
+      grid-column: 2;
+      grid-row: 3;
+      justify-self: end;
+      text-align: right;
+    }
+    .dir-table--guests tbody td:nth-child(2) {
+      grid-column: 1 / -1;
+      grid-row: 4;
+    }
+    /* История проживаний гостя (G4): период и статус → место → источник и сумма.
      Колонки: 1 проживание, 2 место, 3 источник, 4 сумма, 5 статус */
-  .tbl.dir-table--history,
-  .dir-table--history tbody {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-  .dir-table--history thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .dir-table--history tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: 4px 16px;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .dir-table--history tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .dir-table--history tbody td,
-  .tbl--nowrap.dir-table--history tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
-  }
-  .dir-table--history tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .dir-table--history tbody td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
-  .dir-table--history tbody td:nth-child(2) {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-  .dir-table--history tbody td:nth-child(3) {
-    grid-column: 1;
-    grid-row: 3;
-    color: var(--muted);
-  }
-  .dir-table--history tbody td:nth-child(4) {
-    grid-column: 2;
-    grid-row: 3;
-    justify-self: end;
-    text-align: right;
-  }
-  /* Финансы гостя (G5): период и статус → начислено и оплачено → слово о деньгах.
+    .tbl.dir-table--history,
+    .dir-table--history tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .dir-table--history thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .dir-table--history tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: baseline;
+      gap: 4px 16px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .dir-table--history tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .dir-table--history tbody td,
+    .tbl--nowrap.dir-table--history tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+    }
+    .dir-table--history tbody td:nth-child(1) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .dir-table--history tbody td:nth-child(5) {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .dir-table--history tbody td:nth-child(2) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .dir-table--history tbody td:nth-child(3) {
+      grid-column: 1;
+      grid-row: 3;
+      color: var(--muted);
+    }
+    .dir-table--history tbody td:nth-child(4) {
+      grid-column: 2;
+      grid-row: 3;
+      justify-self: end;
+      text-align: right;
+    }
+    /* Финансы гостя (G5): период и статус → начислено и оплачено → слово о деньгах.
      Колонки: 1 проживание, 2 статус, 3 начислено, 4 оплачено, 5 финансы */
-  .tbl.dir-table--guest-finance,
-  .dir-table--guest-finance tbody {
-    display: block;
-    width: 100%;
+    .tbl.dir-table--guest-finance,
+    .dir-table--guest-finance tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .dir-table--guest-finance thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .dir-table--guest-finance tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: baseline;
+      gap: 4px 16px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .dir-table--guest-finance tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .dir-table--guest-finance tbody td,
+    .tbl--nowrap.dir-table--guest-finance tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+    }
+    .dir-table--guest-finance tbody td:nth-child(1) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .dir-table--guest-finance tbody td:nth-child(2) {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .dir-table--guest-finance tbody td:nth-child(3)::before {
+      content: 'начислено ';
+      color: var(--muted);
+    }
+    .dir-table--guest-finance tbody td:nth-child(3) {
+      grid-column: 1;
+      grid-row: 2;
+      text-align: left;
+    }
+    .dir-table--guest-finance tbody td:nth-child(4)::before {
+      content: 'оплачено ';
+      color: var(--muted);
+    }
+    .dir-table--guest-finance tbody td:nth-child(4) {
+      grid-column: 2;
+      grid-row: 2;
+      justify-self: end;
+    }
+    .dir-table--guest-finance tbody td:nth-child(5) {
+      grid-column: 1 / -1;
+      grid-row: 3;
+    }
+  } /* ---------- Финансы за период: панель блока и её таблицы (раскладка экрана — finance/finance.css, ADR-113) ---------- */
+  .finance-block {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding: 16px;
+    background: var(--glass-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     min-width: 0;
   }
-  .dir-table--guest-finance thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .dir-table--guest-finance tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: 4px 16px;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .dir-table--guest-finance tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .dir-table--guest-finance tbody td,
-  .tbl--nowrap.dir-table--guest-finance tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
-  }
-  .dir-table--guest-finance tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .dir-table--guest-finance tbody td:nth-child(2) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
-  .dir-table--guest-finance tbody td:nth-child(3)::before {
-    content: 'начислено ';
-    color: var(--muted);
-  }
-  .dir-table--guest-finance tbody td:nth-child(3) {
-    grid-column: 1;
-    grid-row: 2;
-    text-align: left;
-  }
-  .dir-table--guest-finance tbody td:nth-child(4)::before {
-    content: 'оплачено ';
-    color: var(--muted);
-  }
-  .dir-table--guest-finance tbody td:nth-child(4) {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: end;
-  }
-  .dir-table--guest-finance tbody td:nth-child(5) {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
-}
-
-/* ---------- Финансы за период: панель блока и её таблицы (раскладка экрана — finance/finance.css, ADR-113) ---------- */
-.finance-block {
-  padding: 16px;
-  background: var(--glass-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  min-width: 0;
-}
-.finance-block .stats {
-  margin-bottom: 8px;
-}
-/* Таблицы блока — три колонки в панели 335 px: общий `.table-scroll > .tbl { min-width: 520px }`
+  .finance-block .stats {
+    margin-bottom: 8px;
+  } /* Таблицы блока — три колонки в панели 335 px: общий `.table-scroll > .tbl { min-width: 520px }`
    уводил колонку «Сумма» в прокрутку без признака (21.09) */
-.finance-block .table-scroll > .tbl {
-  min-width: 0;
-}
-/* деньги — одной строкой: в узкой панели «24 000 ₸» переносилось на две */
-.finance-block .tbl td.num,
-.finance-block .tbl th.num {
-  white-space: nowrap;
-}
-
-/* Воронка сайта (WEB4): две колонки — общий `min-width: 520px` уводил «Сессий» на телефоне в прокрутку */
-.an-funnel .table-scroll > .tbl {
-  min-width: 0;
-}
-
-/* ---------- D3: счёт брони — начисление и оплата двумя подписанными группами ---------- */
-.folio-forms {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
-  gap: 8px;
-  align-items: start;
-}
-.folio-form {
-  display: grid;
-  /* колонка не шире формы: без этого строка полей задавала ширину по содержимому, и на телефоне 390 px
+  .finance-block .table-scroll > .tbl {
+    min-width: 0;
+  } /* деньги — одной строкой: в узкой панели «24 000 ₸» переносилось на две */
+  .finance-block .tbl td.num,
+  .finance-block .tbl th.num {
+    white-space: nowrap;
+  } /* Воронка сайта (WEB4): две колонки — общий `min-width: 520px` уводил «Сессий» на телефоне в прокрутку */
+  .an-funnel .table-scroll > .tbl {
+    min-width: 0;
+  } /* ---------- D3: счёт брони — начисление и оплата двумя подписанными группами ---------- */ /* Скрытая подпись «Действия» (`sr-only`, absolute) иначе ищет опору вне прокрутки и растягивает страницу
+   на телефоне до 442 px: те же грабли, что у долгов в «Финансах» и у салона (замер 07.10.2026) */
+  .folio-panel .table-scroll {
+    position: relative;
+  }
+  .folio-forms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+    gap: 8px;
+    align-items: start;
+  }
+  .folio-form {
+    display: grid;
+    /* колонка не шире формы: без этого строка полей задавала ширину по содержимому, и на телефоне 390 px
      раздел «Счета» уезжал вбок на 44 px (найдено тестом запросов оплаты 03.10.2026) */
-  grid-template-columns: minmax(0, 1fr);
-  gap: 8px;
-  padding: 16px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  min-width: 0;
-}
-.folio-form--pay {
-  border-color: var(--success-soft);
-}
-.folio-form__title {
-  font-size: var(--text-md);
-  font-weight: 600;
-}
-.folio-form .row {
-  align-items: flex-end;
-}
-.folio-form__submit {
-  justify-content: space-between;
-}
-
-/*
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    min-width: 0;
+  }
+  .folio-form--pay {
+    border-color: var(--success-soft);
+  }
+  .folio-form__title {
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+  .folio-form .row {
+    align-items: flex-end;
+  }
+  .folio-form__submit {
+    justify-content: space-between;
+  } /*
  * D4 «Каналы»: очередь в Channex и входящие события на телефоне складываются в карточки-строки —
  * семь колонок в 390 px уезжали в прокрутку вбок, без прокрутки были видны только вид и категория.
  * Разметка и хуки прежние; шапка остаётся для чтения с экрана.
  */
-@media (max-width: 600px) {
-  .tbl.dir-table--outbox,
-  .dir-table--outbox tbody,
-  .tbl.dir-table--events,
-  .dir-table--events tbody,
-  .tbl.dir-table--mapping,
-  .dir-table--mapping tbody {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-  .dir-table--outbox thead,
-  .dir-table--events thead,
-  .dir-table--mapping thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .dir-table--outbox tbody tr,
-  .dir-table--events tbody tr,
-  .dir-table--mapping tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 16px;
-    align-items: baseline;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .dir-table--outbox tbody tr:last-child,
-  .dir-table--events tbody tr:last-child,
-  .dir-table--mapping tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .dir-table--outbox tbody td,
-  .dir-table--events tbody td,
-  .dir-table--mapping tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-  .dir-table--outbox tbody td.empty-state,
-  .dir-table--events tbody td.empty-state,
-  .dir-table--mapping tbody td.empty-state {
-    grid-column: 1 / -1;
-    padding: var(--space-4) 0;
-  }
-  /* очередь: что и статус → категории → даты и когда поставлено → task id и попытки */
-  .dir-table--outbox tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .dir-table--outbox tbody td:nth-child(4) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-    text-align: right;
-  }
-  .dir-table--outbox tbody td:nth-child(2) {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    color: var(--muted);
-  }
-  .dir-table--outbox tbody td:nth-child(3) {
-    grid-column: 1;
-    grid-row: 3;
-  }
-  .dir-table--outbox tbody td:nth-child(7) {
-    grid-column: 2;
-    grid-row: 3;
-    justify-self: end;
-    color: var(--muted);
-  }
-  .dir-table--outbox tbody td:nth-child(6) {
-    grid-column: 1;
-    grid-row: 4;
-    color: var(--muted);
-  }
-  .dir-table--outbox tbody td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 4;
-    justify-self: end;
-    color: var(--muted);
-  }
-  .dir-table--outbox tbody td:nth-child(5)::before {
-    content: 'попыток ';
-  }
-  /* события: событие и статус → тип и как дошло → бронь и когда получено → действие */
-  .dir-table--events tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .dir-table--events tbody td:nth-child(4) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-    text-align: right;
-  }
-  .dir-table--events tbody td:nth-child(2) {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  .dir-table--events tbody td:nth-child(3) {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: end;
-    color: var(--muted);
-  }
-  .dir-table--events tbody td:nth-child(6) {
-    grid-column: 1;
-    grid-row: 3;
-  }
-  .dir-table--events tbody td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 3;
-    justify-self: end;
-    color: var(--muted);
-  }
-  .dir-table--events tbody td:nth-child(7) {
-    grid-column: 1 / -1;
-    grid-row: 4;
-  }
-  .dir-table--events tbody td:nth-child(7):empty {
-    display: none;
-  }
-  /* сопоставления: категория → категория и тариф в Channex */
-  .dir-table--mapping tbody td:nth-child(1) {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
-  .dir-table--mapping tbody td:nth-child(2) {
-    grid-column: 1;
-    grid-row: 2;
-    color: var(--muted);
-  }
-  .dir-table--mapping tbody td:nth-child(3) {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: end;
-    color: var(--muted);
-  }
-}
-
-/* D4 «Менеджер каналов»: шесть колонок отчёта на телефоне — карточкой: источник и брони, деньги, отмены и незаезды, доля */
-@media (max-width: 600px) {
-  .tbl.dir-table--channel-report,
-  .dir-table--channel-report tbody {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-  .dir-table--channel-report thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .dir-table--channel-report tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 16px;
-    align-items: baseline;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .dir-table--channel-report tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .dir-table--channel-report tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
-    text-align: left;
-  }
-  .dir-table--channel-report tbody td.empty-state {
-    grid-column: 1 / -1;
-    padding: var(--space-4) 0;
-  }
-  .dir-table--channel-report tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1 / 3;
-  }
-  .dir-table--channel-report tbody td:nth-child(2) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
-  .dir-table--channel-report tbody td:nth-child(2)::after {
-    content: ' брон.';
-    font-weight: 400;
-    color: var(--muted);
-  }
-  .dir-table--channel-report tbody td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: end;
-  }
-  .dir-table--channel-report tbody td:nth-child(3),
-  .dir-table--channel-report tbody td:nth-child(4) {
-    grid-row: 3;
-    color: var(--muted);
-  }
-  .dir-table--channel-report tbody td:nth-child(3) {
-    grid-column: 1;
-  }
-  .dir-table--channel-report tbody td:nth-child(3)::before {
-    content: 'отмен ';
-  }
-  .dir-table--channel-report tbody td:nth-child(4) {
-    grid-column: 2;
-    justify-self: end;
-  }
-  .dir-table--channel-report tbody td:nth-child(4)::before {
-    content: 'незаездов ';
-  }
-  .dir-table--channel-report tbody td:nth-child(6) {
-    grid-column: 1 / -1;
-    grid-row: 4;
-  }
-}
-
-/* D4 «Журнал»: строки складываются в карточки на телефоне; разметка и хуки прежние.
-   «Неисправности» ушли из таблиц в карточки 21.09 — их правила живут в incidents/incidents.css */
-@media (max-width: 600px) {
-  .tbl.dir-table--journal,
-  .dir-table--journal tbody {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-  .dir-table--journal thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .dir-table--journal tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 16px;
-    align-items: baseline;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .dir-table--journal tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .dir-table--journal tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-  .dir-table--journal tbody td.empty-state {
-    grid-column: 1 / -1;
-    padding: var(--space-4) 0;
-  }
-  /* журнал (21.09, четыре колонки): что сделали и время → кто → объект */
-  .dir-table--journal tbody td:nth-child(3) {
-    grid-column: 1;
-    grid-row: 1;
-    font-weight: 500;
-  }
-  .dir-table--journal tbody td:nth-child(1) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-    color: var(--muted);
-  }
-  .dir-table--journal tbody td:nth-child(2) {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    color: var(--muted);
-  }
-  .dir-table--journal tbody td:nth-child(4) {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
-  /* подзаголовок дня остаётся строкой во всю ширину и на телефоне */
-  .dir-table--journal tbody tr.journal-day {
-    display: block;
-    padding: 0;
-    border-bottom: 0;
-  }
-  .dir-table--journal tbody tr.journal-day th {
-    display: block;
-    padding: var(--space-4) var(--space-4) var(--space-1);
-  }
-}
-
-/* D4 «Статистика»: шесть колонок загрузки по категориям на телефоне — карточкой */
-@media (max-width: 600px) {
-  .tbl.dir-table--statistics,
-  .dir-table--statistics tbody {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-  .dir-table--statistics thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .dir-table--statistics tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 16px;
-    align-items: baseline;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .dir-table--statistics tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .dir-table--statistics tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
-    text-align: left;
-  }
-  .dir-table--statistics tbody td.empty-state {
-    grid-column: 1 / -1;
-    padding: var(--space-4) 0;
-  }
-  .dir-table--statistics tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-    font-weight: 500;
-  }
-  .dir-table--statistics tbody td:nth-child(6) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
-  .dir-table--statistics tbody td:nth-child(2),
-  .dir-table--statistics tbody td:nth-child(3),
-  .dir-table--statistics tbody td:nth-child(4),
-  .dir-table--statistics tbody td:nth-child(5) {
-    grid-row: 2;
-    color: var(--muted);
-  }
-  .dir-table--statistics tbody td:nth-child(2) {
-    grid-column: 1;
-  }
-  .dir-table--statistics tbody td:nth-child(2)::before {
-    content: 'всего ';
-  }
-  .dir-table--statistics tbody td:nth-child(3) {
-    grid-column: 2;
-    justify-self: end;
-  }
-  .dir-table--statistics tbody td:nth-child(3)::before {
-    content: 'занято ';
-  }
-  .dir-table--statistics tbody td:nth-child(4) {
-    grid-column: 1;
-    grid-row: 3;
-  }
-  .dir-table--statistics tbody td:nth-child(4)::before {
-    content: 'свободно ';
-  }
-  .dir-table--statistics tbody td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 3;
-    justify-self: end;
-  }
-  .dir-table--statistics tbody td:nth-child(5)::before {
-    content: 'закрыто ';
-  }
-}
-
-/*
+  @media (max-width: 600px) {
+    .tbl.dir-table--outbox,
+    .dir-table--outbox tbody,
+    .tbl.dir-table--events,
+    .dir-table--events tbody,
+    .tbl.dir-table--mapping,
+    .dir-table--mapping tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .dir-table--outbox thead,
+    .dir-table--events thead,
+    .dir-table--mapping thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .dir-table--outbox tbody tr,
+    .dir-table--events tbody tr,
+    .dir-table--mapping tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4px 16px;
+      align-items: baseline;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .dir-table--outbox tbody tr:last-child,
+    .dir-table--events tbody tr:last-child,
+    .dir-table--mapping tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .dir-table--outbox tbody td,
+    .dir-table--events tbody td,
+    .dir-table--mapping tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    .dir-table--outbox tbody td.empty-state,
+    .dir-table--events tbody td.empty-state,
+    .dir-table--mapping tbody td.empty-state {
+      grid-column: 1 / -1;
+      padding: var(--space-4) 0;
+    }
+    /* очередь: что и статус → категории → даты и когда поставлено → task id и попытки */
+    .dir-table--outbox tbody td:nth-child(1) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .dir-table--outbox tbody td:nth-child(4) {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+      text-align: right;
+    }
+    .dir-table--outbox tbody td:nth-child(2) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      color: var(--muted);
+    }
+    .dir-table--outbox tbody td:nth-child(3) {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .dir-table--outbox tbody td:nth-child(7) {
+      grid-column: 2;
+      grid-row: 3;
+      justify-self: end;
+      color: var(--muted);
+    }
+    .dir-table--outbox tbody td:nth-child(6) {
+      grid-column: 1;
+      grid-row: 4;
+      color: var(--muted);
+    }
+    .dir-table--outbox tbody td:nth-child(5) {
+      grid-column: 2;
+      grid-row: 4;
+      justify-self: end;
+      color: var(--muted);
+    }
+    .dir-table--outbox tbody td:nth-child(5)::before {
+      content: 'попыток ';
+    }
+    /* события: событие и статус → тип и как дошло → бронь и когда получено → действие */
+    .dir-table--events tbody td:nth-child(1) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .dir-table--events tbody td:nth-child(4) {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+      text-align: right;
+    }
+    .dir-table--events tbody td:nth-child(2) {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .dir-table--events tbody td:nth-child(3) {
+      grid-column: 2;
+      grid-row: 2;
+      justify-self: end;
+      color: var(--muted);
+    }
+    .dir-table--events tbody td:nth-child(6) {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .dir-table--events tbody td:nth-child(5) {
+      grid-column: 2;
+      grid-row: 3;
+      justify-self: end;
+      color: var(--muted);
+    }
+    .dir-table--events tbody td:nth-child(7) {
+      grid-column: 1 / -1;
+      grid-row: 4;
+    }
+    .dir-table--events tbody td:nth-child(7):empty {
+      display: none;
+    }
+    /* сопоставления: категория → категория и тариф в Channex */
+    .dir-table--mapping tbody td:nth-child(1) {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+    .dir-table--mapping tbody td:nth-child(2) {
+      grid-column: 1;
+      grid-row: 2;
+      color: var(--muted);
+    }
+    .dir-table--mapping tbody td:nth-child(3) {
+      grid-column: 2;
+      grid-row: 2;
+      justify-self: end;
+      color: var(--muted);
+    }
+    .tbl.dir-table--channel-report,
+    .dir-table--channel-report tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .dir-table--channel-report thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .dir-table--channel-report tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4px 16px;
+      align-items: baseline;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .dir-table--channel-report tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .dir-table--channel-report tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+      text-align: left;
+    }
+    .dir-table--channel-report tbody td.empty-state {
+      grid-column: 1 / -1;
+      padding: var(--space-4) 0;
+    }
+    .dir-table--channel-report tbody td:nth-child(1) {
+      grid-column: 1;
+      grid-row: 1 / 3;
+    }
+    .dir-table--channel-report tbody td:nth-child(2) {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .dir-table--channel-report tbody td:nth-child(2)::after {
+      content: ' брон.';
+      font-weight: 400;
+      color: var(--muted);
+    }
+    .dir-table--channel-report tbody td:nth-child(5) {
+      grid-column: 2;
+      grid-row: 2;
+      justify-self: end;
+    }
+    .dir-table--channel-report tbody td:nth-child(3),
+    .dir-table--channel-report tbody td:nth-child(4) {
+      grid-row: 3;
+      color: var(--muted);
+    }
+    .dir-table--channel-report tbody td:nth-child(3) {
+      grid-column: 1;
+    }
+    .dir-table--channel-report tbody td:nth-child(3)::before {
+      content: 'отмен ';
+    }
+    .dir-table--channel-report tbody td:nth-child(4) {
+      grid-column: 2;
+      justify-self: end;
+    }
+    .dir-table--channel-report tbody td:nth-child(4)::before {
+      content: 'незаездов ';
+    }
+    .dir-table--channel-report tbody td:nth-child(6) {
+      grid-column: 1 / -1;
+      grid-row: 4;
+    }
+    .tbl.dir-table--journal,
+    .dir-table--journal tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+    .dir-table--journal thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .dir-table--journal tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4px 16px;
+      align-items: baseline;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .dir-table--journal tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .dir-table--journal tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    .dir-table--journal tbody td.empty-state {
+      grid-column: 1 / -1;
+      padding: var(--space-4) 0;
+    }
+    /* журнал (21.09, четыре колонки): что сделали и время → кто → объект */
+    .dir-table--journal tbody td:nth-child(3) {
+      grid-column: 1;
+      grid-row: 1;
+      font-weight: 500;
+    }
+    .dir-table--journal tbody td:nth-child(1) {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+      color: var(--muted);
+    }
+    .dir-table--journal tbody td:nth-child(2) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      color: var(--muted);
+    }
+    .dir-table--journal tbody td:nth-child(4) {
+      grid-column: 1 / -1;
+      grid-row: 3;
+    }
+    /* подзаголовок дня остаётся строкой во всю ширину и на телефоне */
+    .dir-table--journal tbody tr.journal-day {
+      display: block;
+      padding: 0;
+      border-bottom: 0;
+    }
+    .dir-table--journal tbody tr.journal-day th {
+      display: block;
+      padding: var(--space-4) var(--space-4) var(--space-1);
+    }
+  } /* D4 «Менеджер каналов»: шесть колонок отчёта на телефоне — карточкой: источник и брони, деньги, отмены и незаезды, доля */ /* D4 «Журнал»: строки складываются в карточки на телефоне; разметка и хуки прежние.
+   «Неисправности» ушли из таблиц в карточки 21.09 — их правила живут в incidents/incidents.css */ /* D4 «Статистика»: шесть колонок загрузки по категориям на телефоне — карточкой */ /*
  * Действия по каналам (21.09.2026): две группы с подписями вместо шести кнопок одним рядом.
  * Подпись группы — 13 px, не заголовок раздела: это не новый раздел экрана, а его часть.
  */
-.channel-actions {
-  margin-bottom: var(--space-4);
-}
-.channel-actions__title {
-  margin: 0 0 var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  color: var(--text-2);
-}
-.channel-actions .note {
-  margin-top: var(--space-2);
-}
-
-/* Поиск гостей: подсказка «фамилия, имя, телефон или email» не помещалась в 220 px и обрезалась */
-.directory-toolbar .inp--grow {
-  min-width: 300px;
-}
-@media (max-width: 600px) {
+  .channel-actions {
+    margin-bottom: var(--space-4);
+  }
+  .channel-actions__title {
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--text-2);
+  }
+  .channel-actions .note {
+    margin-top: var(--space-2);
+  } /* Поиск гостей: подсказка «фамилия, имя, телефон или email» не помещалась в 220 px и обрезалась */
   .directory-toolbar .inp--grow {
-    min-width: 0;
+    min-width: 300px;
+  }
+  @media (max-width: 600px) {
+    .directory-toolbar .inp--grow {
+      min-width: 0;
+    }
   }
 }

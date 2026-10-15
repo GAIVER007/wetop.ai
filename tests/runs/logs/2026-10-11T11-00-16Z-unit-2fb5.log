@@ -1,0 +1,16 @@
+# Модульные (unit) · 11.10.2026 16:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит c444857 (claude/status-entries-as-files), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-00-16Z-unit-2fb5.json' 'tests/unit/claude-md-status.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/86f9f406-1f60-4faf-bdef-3e7a1890d5b3/scratchpad/wt-status
+
+ ✓ |unit| tests/unit/claude-md-status.test.ts (2 tests) 7ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  04:00:25
+   Duration  675ms (transform 57%, import 21%, tests 14%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T11-00-16Z-unit-2fb5.json
+
+# код выхода 0 · 9 с

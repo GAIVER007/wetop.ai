@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, openProfileMenu, test, type Page } from './fixtures';
 
 /**
  * Чат ИИ-помощника в стойке (ТЗ ред. 1, П2; docs/assistant/README.md §1), браузер → `next dev` → синтетический
@@ -71,7 +71,7 @@ test('после «Выйти» виджет прежнего человека �
   await signIn(page);
   await expect.poll(() => widgetIdentity(page)).not.toBe('');
 
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  await openProfileMenu(page);
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).toHaveURL('http://127.0.0.1:3002/?next=%2Ftoday#login');
   await expect(page.locator('.pmsw')).toHaveCount(0);
@@ -81,7 +81,7 @@ test('после «Выйти» виджет прежнего человека �
 
 test('на телефоне пузырь чата стоит над нижней навигацией, а не на ней', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/today');
+  await page.goto('/finance');
   const bubble = page.locator('.pmsw-b');
   const nav = page.locator('.bottom-navigation');
   await expect(bubble).toBeVisible();

@@ -1,0 +1,48 @@
+# Интеграционные (integration) · 11.10.2026 16:29 Алматы · MacBook-Air-Urij.local
+# коммит 540d721 (codex/ai-seller-wizard-chat-20261011), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-29-45Z-integration-27a1.json' '--config' 'tests/wizard-scan.config.ts' 'tests/integration/wizard-chat.test.ts' '-t' 'orders concurrent'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-ai-seller-20261011
+
+ ❯ |integration| tests/integration/wizard-chat.test.ts (4 tests | 1 failed | 3 skipped) 836ms
+   ❯ guest chat quota and delivery (4)
+     ↓ last slot has one winner; replay costs nothing and changed text conflicts
+     ↓ workers deduplicate, persist history and release a technical failure exactly once
+     × orders concurrent queued turns as question-answer pairs in history and model context 784ms
+     ↓ rejects stale generation and discards a late response after editing
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/wizard-chat.test.ts > guest chat quota and delivery > orders concurrent queued turns as question-answer pairs in history and model context
+AssertionError: expected [ 'user', 'user', 'assistant', …(1) ] to deeply equal [ 'user', 'assistant', 'user', …(1) ]
+
+- Expected
++ Received
+
+  [
+    "user",
+-   "assistant",
+    "user",
++   "assistant",
+    "assistant",
+  ]
+
+ ❯ tests/integration/wizard-chat.test.ts:103:81
+    101|       return { status: 'ok', answer: 'Второй ответ', sources: [] };
+    102|     });
+    103|     expect((await service.status(d.guestToken)).chat.messages.map(m =>…
+       |                                                                                 ^
+    104|   });
+    105|   it('rejects stale generation and discards a late response after edit…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 skipped (4)
+   Start at  15:29:47
+   Duration  2.47s (transform 40%, tests 36%, import 23%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T11-29-45Z-integration-27a1.json
+
+# код выхода 1 · 4 с

@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 09.10.2026 18:22 Алматы · vm
+# коммит 2194e1a (claude/serene-newton-q453ps), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/booking-price-nights.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (3.4s)
+  ✘  2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня одной строкой справа, управление слева (4.2s)
+
+
+  1) tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня одной строкой справа, управление слева 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 56
+    Received:    90.796875
+
+      35 |   // сводка по образцу HotelPMS (09.10): одна строка в полосе управления, а не высокая карточка;
+      36 |   // управление слева от неё, не под ней, и обе стоят на одной линии
+    > 37 |   expect(p.height).toBeLessThanOrEqual(56);
+         |                    ^
+      38 |   expect(c.x + c.width).toBeLessThanOrEqual(p.x + 1);
+      39 |   expect(Math.abs(p.y + p.height / 2 - (c.y + c.height / 2))).toBeLessThanOrEqual(12);
+      40 |   // все показатели и заголовок на одной линии
+        at /home/user/wetop.ai/tests/ui/booking-price-nights.spec.ts:37:20
+
+    Error Context: test-results/booking-price-nights-кален-db24d-кой-справа-управление-слева/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-price-nights-кален-db24d-кой-справа-управление-слева/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-price-nights-кален-db24d-кой-справа-управление-слева/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/booking-price-nights.spec.ts:28:1 › календарь: сводка дня одной строкой справа, управление слева 
+  1 passed (21.2s)
+
+# код выхода 1 · 23 с

@@ -37,7 +37,7 @@ export const PERMISSIONS: Readonly<Record<Permission, { label: string }>> = {
   channels: { label: 'Каналы продаж' },
   // настройки гостиницы, правила отмены, услуги, интеграции, сайт и его аналитика, первичная настройка
   settings: { label: 'Настройки гостиницы' },
-  journal: { label: 'Журнал действий' },
+  journal: { label: 'Журнал операций' },
   seller: { label: 'Настройки ИИ-продавца' },
   staff: { label: 'Сотрудники и приглашения' },
   owner: { label: 'Управляющие, роли и платные расширения' },
@@ -51,7 +51,7 @@ const ALL = Object.keys(PERMISSIONS) as Permission[];
  */
 const ROLE_PERMISSIONS: Readonly<Record<MembershipRole, readonly Permission[]>> = {
   OWNER: ALL,
-  MANAGER: ALL.filter((p) => p !== 'owner'),
+  MANAGER: ALL.filter((p) => p !== 'owner' && p !== 'journal'),
   STAFF: ['self', 'desk', 'dialogs', 'reports'],
 };
 

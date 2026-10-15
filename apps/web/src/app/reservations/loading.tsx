@@ -7,7 +7,7 @@ import { LoadingState, Skeleton } from '../../components/ui';
  */
 export default function Loading() {
   return (
-    <Page title="Брони" subtitle="Бронирования и проживания в выбранном периоде">
+    <Page title="Брони" width="full">
       <LoadingState label="Загружаем список броней…" data-testid="reservations-loading">
         <Skeleton variant="row" />
         <Skeleton variant="text" />

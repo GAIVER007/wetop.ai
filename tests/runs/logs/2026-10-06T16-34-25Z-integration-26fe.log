@@ -1,0 +1,329 @@
+# Интеграционные (integration) · 06.10.2026 21:34 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T16-34-25Z-integration-26fe.json' 'tests/integration/marketing-site.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/marketing-site.test.ts (27 tests | 15 failed) 1606ms
+   ❯ MKT3 marketing site core (27)
+     ✓ scope: 409 без выбора филиала, 403 на отклонённом выборе и не гостинице (9)
+       ✓ указателя нет: 409 «Выберите филиал» 70ms
+       ✓ выбран только бизнес: 409 «Выберите филиал» 45ms
+       ✓ чужой филиал: 403, без отката в организацию 16ms
+       ✓ архивный филиал: 403, без отката в организацию 11ms
+       ✓ архивный бизнес: 403, без отката в организацию 6ms
+       ✓ филиал из другого бизнеса: 403, без отката в организацию 7ms
+       ✓ несуществующий филиал: 403, без отката в организацию 9ms
+       ✓ салон и ресторан: 403 4ms
+       ✓ без права settings (администратор): 403 3ms
+     ❯ создание сайта (6)
+       × сайта нет: пустой ответ, черновика нет 119ms
+       ✓ тело принимает только имя и адрес: филиал, бизнес и организация из тела дают 400 36ms
+       ✓ неверный и зарезервированный адрес: 400 23ms
+       × создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409 17ms
+       × адрес занят сайтом другого филиала: 409, без молчаливой замены 16ms
+       × чужой филиал той же организации видит только свой сайт 24ms
+     ❯ версии (6)
+       × первая версия: baseRevision 0 → ревизия 1, хэш канонической записи, источник MANUAL 19ms
+       × устаревшая ревизия: 409, новой версии нет 22ms
+       × неверный документ: 400 со списком ошибок, версия не пишется 27ms
+       × следующая версия: ревизия 2 с родителем 1, черновик отдаёт документ 25ms
+       × два одновременных сохранения с одной ревизией: одно проходит, второе 409, новая версия ровно одна 57ms
+       × у сайта без версий годится только baseRevision 0: иначе 409 14ms
+     ❯ база: изоляция, неизменяемость, принадлежность (6)
+       × чужая организация не видит ни сайтов, ни версий; своя видит свои 39ms
+       ✓ API чужой организации не видит сайт и не может писать в него 20ms
+       × роль приложения не меняет и не удаляет версии 4ms
+       × даже владелец таблицы не меняет и не удаляет версию: сторож без исключений 2ms
+       × указатели сайта и родитель версии не ведут на другой сайт 7ms
+       × филиал сайта не меняется после создания 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > сайта нет: пустой ответ, черновика нет
+AssertionError: expected 403 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:220:27
+    218|       expect((await call('GET', '/marketing/site/draft')).status).toBe…
+    219|       const save = await call('POST', '/marketing/site/versions', { bo…
+    220|       expect(save.status).toBe(404);
+       |                           ^
+    221|     });
+    222|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > создаёт сайт филиала из scope в состоянии DRAFT; второй сайт филиала 409
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:239:24
+    237|     it('создаёт сайт филиала из scope в состоянии DRAFT; второй сайт ф…
+    238|       const r = await call('POST', '/marketing/site', { body: { name: …
+    239|       expect(r.status).toBe(201);
+       |                        ^
+    240|       expect(r.body.site).toMatchObject({ name: 'Степной ветер', slug:…
+    241|       const row = await db.marketingSite.findUniqueOrThrow({ where: { …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > адрес занят сайтом другого филиала: 409, без молчаливой замены
+AssertionError: expected 403 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:252:24
+    250|     it('адрес занят сайтом другого филиала: 409, без молчаливой замены…
+    251|       const r = await call('POST', '/marketing/site', { scope: A2, bod…
+    252|       expect(r.status).toBe(409);
+       |                        ^
+    253|       expect(r.body.message).toMatch(/адрес/i);
+    254|       const ok = await call('POST', '/marketing/site', { scope: A2, bo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > создание сайта > чужой филиал той же организации видит только свой сайт
+TypeError: Cannot read properties of null (reading 'slug')
+ ❯ tests/integration/marketing-site.test.ts:261:28
+    259|       const own = await call('GET', '/marketing/site');
+    260|       const other = await call('GET', '/marketing/site', { scope: A2 }…
+    261|       expect(own.body.site.slug).toBe('stepnoy-veter');
+       |                            ^
+    262|       expect(other.body.site.slug).toBe('second-site');
+    263|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > первая версия: baseRevision 0 → ревизия 1, хэш канонической записи, источник MANUAL
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:269:24
+    267|     it('первая версия: baseRevision 0 → ревизия 1, хэш канонической за…
+    268|       const r = await call('POST', '/marketing/site/versions', { body:…
+    269|       expect(r.status).toBe(201);
+       |                        ^
+    270|       expect(r.body.version).toMatchObject({
+    271|         revision: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > устаревшая ревизия: 409, новой версии нет
+AssertionError: expected 403 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:287:24
+    285|     it('устаревшая ревизия: 409, новой версии нет', async () => {
+    286|       const r = await call('POST', '/marketing/site/versions', { body:…
+    287|       expect(r.status).toBe(409);
+       |                        ^
+    288|       expect(await db.marketingSiteVersion.count({ where: { site: { lo…
+    289|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > неверный документ: 400 со списком ошибок, версия не пишется
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/integration/marketing-site.test.ts:301:92
+    299|       const negative = await call('POST', '/marketing/site/versions', …
+    300|       expect(negative.status).toBe(400);
+    301|       expect(await db.marketingSiteVersion.count({ where: { site: { lo…
+       |                                                                                            ^
+    302|     });
+    303|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > следующая версия: ревизия 2 с родителем 1, черновик отдаёт документ
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:308:24
+    306|       next.site.displayName.ru = 'Степной ветер, обновлено';
+    307|       const r = await call('POST', '/marketing/site/versions', { body:…
+    308|       expect(r.status).toBe(201);
+       |                        ^
+    309|       expect(r.body.version.revision).toBe(2);
+    310|       const rows = await db.marketingSiteVersion.findMany({ where: { s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > два одновременных сохранения с одной ревизией: одно проходит, второе 409, новая версия ровно одна
+AssertionError: expected [ 403, 403, 403 ] to deeply equal [ 201, 409, 409 ]
+
+- Expected
++ Received
+
+  [
+-   201,
+-   409,
+-   409,
++   403,
++   403,
++   403,
+  ]
+
+ ❯ tests/integration/marketing-site.test.ts:325:51
+    323|       };
+    324|       const results = await Promise.all([1, 2, 3].map((n) => call('POS…
+    325|       expect(results.map((r) => r.status).sort()).toEqual([201, 409, 4…
+       |                                                   ^
+    326|       const rows = await db.marketingSiteVersion.findMany({ where: { s…
+    327|       expect(rows.map((r) => r.revision).sort()).toEqual([1, 2, 3]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > версии > у сайта без версий годится только baseRevision 0: иначе 409
+AssertionError: expected 403 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 403
+
+ ❯ tests/integration/marketing-site.test.ts:334:24
+    332|     it('у сайта без версий годится только baseRevision 0: иначе 409', …
+    333|       const r = await call('POST', '/marketing/site/versions', { scope…
+    334|       expect(r.status).toBe(409);
+       |                        ^
+    335|     });
+    336|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > чужая организация не видит ни сайтов, ни версий; своя видит свои
+AssertionError: expected [ +0, +0 ] to deeply equal [ 2, 3 ]
+
+- Expected
++ Received
+
+  [
+-   2,
+-   3,
++   0,
++   0,
+  ]
+
+ ❯ tests/integration/marketing-site.test.ts:355:32
+    353|         });
+    354|       expect(await seen(orgB)).toEqual([0, 0]);
+    355|       expect(await seen(orgA)).toEqual([2, 3]);
+       |                                ^
+    356|       expect(await seen('')).toEqual([0, 0]);
+    357|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > роль приложения не меняет и не удаляет версии
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/marketing-site.test.ts:375:121
+    373|       await asApp(orgA, async () => {
+    374|         await sql.query('SAVEPOINT probe');
+    375|         await expect(sql.query(`UPDATE marketing_site_versions SET spe…
+       |                                                                                                                         ^
+    376|         await sql.query('ROLLBACK TO SAVEPOINT probe');
+    377|         await expect(sql.query(`DELETE FROM marketing_site_versions WH…
+ ❯ asApp tests/integration/marketing-site.test.ts:77:14
+ ❯ tests/integration/marketing-site.test.ts:373:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > даже владелец таблицы не меняет и не удаляет версию: сторож без исключений
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/marketing-site.test.ts:391:112
+    389|       try {
+    390|         await sql.query('SAVEPOINT probe');
+    391|         await expect(sql.query(`UPDATE marketing_site_versions SET spe…
+       |                                                                                                                ^
+    392|         await sql.query('ROLLBACK TO SAVEPOINT probe');
+    393|         await expect(sql.query(`DELETE FROM marketing_site_versions WH…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > указатели сайта и родитель версии не ведут на другой сайт
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/marketing-site.test.ts:400:22
+    398|
+    399|     it('указатели сайта и родитель версии не ведут на другой сайт', as…
+    400|       const siteA1 = await db.marketingSite.findFirstOrThrow({ where: …
+       |                      ^
+    401|       const siteA2 = await db.marketingSite.findFirstOrThrow({ where: …
+    402|       const foreign = await db.marketingSiteVersion.findFirstOrThrow({…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/15]⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts > MKT3 marketing site core > база: изоляция, неизменяемость, принадлежность > филиал сайта не меняется после создания
+PrismaClientKnownRequestError: 
+Invalid `prisma.marketingSite.findFirstOrThrow()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/marketing-site.test.ts:433:22
+    431|
+    432|     it('филиал сайта не меняется после создания', async () => {
+    433|       const siteA2 = await db.marketingSite.findFirstOrThrow({ where: …
+       |                      ^
+    434|       await expect(
+    435|         sql.query(`UPDATE marketing_sites SET location_id = $1 WHERE i…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/15]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  15 failed | 12 passed (27)
+   Start at  16:34:26
+   Duration  6.31s (tests 41%, transform 37%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-10-06T16-34-25Z-integration-26fe.json
+
+# код выхода 1 · 7 с

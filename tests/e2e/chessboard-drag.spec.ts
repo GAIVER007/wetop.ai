@@ -3,7 +3,6 @@ import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
-import { chooseSource } from './booking-form';
 
 /**
  * Переселение перетаскиванием в календаре: администратор тянет клетку брони на другую строку-ячейку
@@ -37,7 +36,11 @@ test('перетаскивание клетки брони на свободну
   // ── бронь на койке A ──────────────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await chooseSource(form, 'WALK_IN');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
+  await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitA = await unitOption(unitSelect);
@@ -108,7 +111,7 @@ test('перетаскивание клетки брони на свободну
   // прибрать за собой: бронь отменяется, койка освобождается
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Отменена');
 });

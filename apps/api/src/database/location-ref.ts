@@ -1,4 +1,5 @@
 import type { Db } from '@pms/database';
+import type { BusinessVertical } from '@pms/domain';
 
 /**
  * Location — филиал бизнеса партнёра (Platform P1, ADR-104, DATA_MODEL §18.2; Q-199 — вариант Б).
@@ -15,7 +16,7 @@ export interface LocationRef {
   id: string;
   businessId: string;
   /** Canonical vertical — с Business (§18.1), на филиале не хранится */
-  vertical: 'HOSPITALITY' | 'BEAUTY';
+  vertical: BusinessVertical;
   name: string;
   timezone: string;
   currency: string;
@@ -28,7 +29,10 @@ const schema = (): string => process.env.DATABASE_SCHEMA?.trim() || 'public';
  * Филиал организации через её Business. `null` — у организации нет ни одного филиала (заведена без объекта). Самый ранний — тем же порядком, что выбор объекта (аудит 26.09, С-2):
  * выбор не зависит от порядка строк и не перехватывается созданным позже.
  */
-export async function organizationLocationRef(db: Db, organizationId: string): Promise<LocationRef | null> {
+export async function organizationLocationRef(
+  db: Db,
+  organizationId: string,
+): Promise<LocationRef | null> {
   const key = `${schema()}|org|${organizationId}`;
   const known = cache.get(key);
   if (known) return known;

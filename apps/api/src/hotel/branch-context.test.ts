@@ -13,6 +13,7 @@ const inBranch = <T>(locationId: string, fn: () => Promise<T>) =>
       role: 'OWNER',
       scope: 'LOCATION',
       businessId: 'synthetic-business',
+      vertical: 'HOSPITALITY',
       locationId,
     },
     fn,
@@ -34,6 +35,7 @@ function fixture() {
     property: { findFirst },
     ratePlan: { findMany: vi.fn(async () => []) },
     accommodationType: { count: vi.fn(async () => 0) },
+    inventoryUnit: { count: vi.fn(async () => 0) },
     organization: { findUnique: vi.fn(async () => ({ name: 'Synthetic' })) },
   };
   const prisma = { db } as unknown as PrismaService;

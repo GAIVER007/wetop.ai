@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 12.10.2026 21:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит ff0653c (claude/ui-master-pass3), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/desk-tasks.spec.ts' '-g' 'на телефоне задача'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/desk-tasks.spec.ts:136:1 › на телефоне задача — карточка с подписями колонок, без прокрутки вбок (19.1s)
+
+
+  1) tests/ui/desk-tasks.spec.ts:136:1 › на телефоне задача — карточка с подписями колонок, без прокрутки вбок 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByTestId('tasks-today').locator('thead')
+    Expected: hidden
+    Received: visible
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeHidden" getByTestId('tasks-today').locator('thead') with timeout 15000ms
+      - waiting for getByTestId('tasks-today').locator('thead')
+        33 × locator resolved to <thead>…</thead>
+           - unexpected value "visible"
+
+
+      143 |   await expect(row).toContainText('Проверить кондиционер');
+      144 |   await page.setViewportSize({ width: 390, height: 844 });
+    > 145 |   await expect(page.getByTestId('tasks-today').locator('thead')).toBeHidden();
+          |                                                                  ^
+      146 |   await expect(row.locator('td[data-label="Срок"]')).toBeVisible();
+      147 |   const label = await row
+      148 |     .locator('td[data-label="Срок"]')
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/desk-tasks.spec.ts:145:66
+
+    Error Context: test-results/desk-tasks-на-телефоне-зад-45c91--колонок-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-на-телефоне-зад-45c91--колонок-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-на-телефоне-зад-45c91--колонок-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/desk-tasks.spec.ts:136:1 › на телефоне задача — карточка с подписями колонок, без прокрутки вбок 
+
+# код выхода 1 · 35 с

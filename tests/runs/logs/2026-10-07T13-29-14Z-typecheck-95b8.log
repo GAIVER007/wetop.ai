@@ -1,0 +1,21 @@
+# Типы (typecheck) · 07.10.2026 18:29 Алматы · vm
+# коммит 60827ae (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/site-publication.test.ts(108,35): error TS2352: Conversion of type 'RuntimeCurrent' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Index signature for type 'string' is missing in type 'RuntimeCurrent'.
+tests/integration/site-publication.test.ts(115,35): error TS2352: Conversion of type 'RuntimePreview' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Index signature for type 'string' is missing in type 'RuntimePreview'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 51 с

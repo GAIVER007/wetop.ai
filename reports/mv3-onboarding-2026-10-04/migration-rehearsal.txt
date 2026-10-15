@@ -1,0 +1,4 @@
+Migration apply: PASS
+Nonempty rollback refuses data loss: PASS
+Empty rollback: PASS
+Isolated local rehearsal only, production untouched

@@ -1,0 +1,126 @@
+.module:global(.growth__module.growth__module--marketing) {
+  padding: 32px;
+  gap: 32px;
+  border-color: var(--public-border);
+  background: var(--public-surface);
+  box-shadow: none;
+}
+
+.module :global(.growth__title) {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  max-width: 16ch;
+}
+
+.module :global(.growth__points) {
+  gap: 12px;
+}
+
+.panel:global(.growth__panel) {
+  min-width: 0;
+  padding: 24px;
+  gap: 16px;
+  border-color: var(--public-border);
+  border-radius: var(--public-radius);
+  background: var(--public-bg);
+}
+
+.heading {
+  align-items: flex-start;
+  gap: 16px;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.heading :global(.dash__delta) {
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--public-selected);
+  color: var(--public-text);
+  white-space: nowrap;
+}
+
+.prices:global(.growth__prices) {
+  gap: 4px;
+  font-size: 0.9375rem;
+}
+
+.prices li {
+  align-items: center;
+  min-width: 0;
+  gap: 16px;
+  padding: 12px;
+  color: var(--public-muted);
+}
+
+.prices strong {
+  color: var(--public-text);
+  white-space: nowrap;
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.prices li:global(.growth__price--own) {
+  padding: 16px 12px;
+  margin-bottom: 4px;
+  background: var(--public-selected);
+  color: var(--public-text);
+  box-shadow: inset 3px 0 var(--public-accent);
+}
+
+.prices :global(.growth__price--own) strong {
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+  color: var(--public-text);
+}
+
+.chart {
+  padding: 16px 12px 12px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-sm);
+  background: var(--public-surface);
+  color: var(--public-accent);
+}
+
+.chart :global(.growth__days) {
+  gap: 4px;
+  font-size: 0.8125rem;
+  color: var(--public-muted);
+}
+
+.chart :global(.growth__marker) {
+  top: 12px;
+  background: var(--public-accent);
+  color: var(--public-on-accent);
+}
+
+.example {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--public-muted);
+}
+
+@media (max-width: 600px) {
+  .module:global(.growth__module.growth__module--marketing) {
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .panel:global(.growth__panel) {
+    padding: 16px;
+  }
+
+  .prices li {
+    gap: 8px;
+    padding-inline: 8px;
+  }
+
+  .prices strong {
+    font-size: 1rem;
+  }
+
+  .prices :global(.growth__price--own) strong {
+    font-size: 1.25rem;
+  }
+}

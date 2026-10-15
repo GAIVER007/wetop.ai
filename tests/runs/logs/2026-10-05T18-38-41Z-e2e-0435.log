@@ -1,0 +1,115 @@
+# Сквозные (e2e) · 05.10.2026 23:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит b5fe87f (codex/calendar-mobile-statistics), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-statistics.spec.ts' 'tests/ui/chessboard-mobile.spec.ts' 'tests/ui/chessboard-focus.spec.ts' 'tests/ui/booking-price-nights.spec.ts' '--workers=1'
+[WebServer] (node:5550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5634) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 35 tests using 1 worker
+
+(node:5651) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (2.8s)
+  ✓   2 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты (2.6s)
+  ✓   3 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling (2.2s)
+  ✓   4 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling (4.5s)
+  ✓   5 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling (3.4s)
+  ✓   6 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling (8.8s)
+  ✓   7 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling (4.4s)
+  ✓   8 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling (6.3s)
+  ✓   9 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling (4.5s)
+  ✓  10 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling (2.4s)
+  ✓  11 tests/ui/chessboard-focus.spec.ts:64:1 › free panel outside click leaves focus on the selected control (1.4s)
+  ✓  12 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 360: читаемые даты, прокрутка и бронь на несколько ночей (3.2s)
+  ✓  13 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 390: читаемые даты, прокрутка и бронь на несколько ночей (4.8s)
+  ✓  14 tests/ui/chessboard-mobile.spec.ts:15:3 › телефон 430: читаемые даты, прокрутка и бронь на несколько ночей (5.0s)
+  ✓  15 tests/ui/chessboard-mobile.spec.ts:94:1 › мобильный период останавливается перед занятой ночью (1.7s)
+  ✓  16 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон light: карточка брони, фильтры и длинный календарь (2.1s)
+  ✓  17 tests/ui/chessboard-mobile.spec.ts:115:3 › телефон dark: карточка брони, фильтры и длинный календарь (2.2s)
+  ✓  18 tests/ui/chessboard-mobile.spec.ts:159:1 › форма брони на телефоне: крупные поля, сохранённые даты и доступная кнопка (1.1s)
+  ✓  19 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 360: виджеты дня перед календарём и вертикальная прокрутка (1.4s)
+  ✓  20 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 390: виджеты дня перед календарём и вертикальная прокрутка (1.7s)
+  ✓  21 tests/ui/chessboard-mobile.spec.ts:187:3 › статистика 430: виджеты дня перед календарём и вертикальная прокрутка (1.5s)
+  ✓  22 tests/ui/chessboard-mobile.spec.ts:232:1 › мобильная панель меняет заезд без закрытия и показывает выезд (1.6s)
+[WebServer] (node:6251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] (node:6259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 tests/ui/chessboard-mobile.spec.ts:252:1 › календарь возвращает обе позиции после полной карточки и сбрасывает их по Сегодня (3.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1185347176'
+[WebServer] }
+  ✓  24 tests/ui/chessboard-mobile.spec.ts:272:1 › мобильная форма: ввод гостя на низком экране не перекрыт действиями (1.2s)
+  ✓  25 tests/ui/chessboard-mobile.spec.ts:295:3 › телефон light: длинное имя и бронь на 28 ночей (2.8s)
+  ✓  26 tests/ui/chessboard-mobile.spec.ts:295:3 › телефон dark: длинное имя и бронь на 28 ночей (4.1s)
+[WebServer] (node:6337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] (node:6344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] (node:6349) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 tests/ui/chessboard-mobile.spec.ts:328:1 › телефон возвращает поиск номера и выбранный вид мест после карточки (5.0s)
+  ✓  28 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 360: compact widgets and complete category words (3.6s)
+  ✓  29 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 390: compact widgets and complete category words (4.0s)
+  ✓  30 tests/ui/chessboard-statistics.spec.ts:9:3 › statistics 430: compact widgets and complete category words (28.2s)
+  ✓  31 tests/ui/chessboard-statistics.spec.ts:76:1 › today statistics stay available when the calendar shows another month (5.7s)
+  ✓  32 tests/ui/chessboard-statistics.spec.ts:90:1 › empty booking base shows zero occupancy and no urgent bookings (2.2s)
+  ✓  33 tests/ui/chessboard-statistics.spec.ts:105:3 › daily widgets light: accessible labels and contrasts (3.3s)
+  ✓  34 tests/ui/chessboard-statistics.spec.ts:105:3 › daily widgets dark: accessible labels and contrasts (4.7s)
+  ✓  35 tests/ui/chessboard-statistics.spec.ts:121:1 › marked no-show increments no-show count and leaves hot bookings (2.2s)
+
+  35 passed (2.5m)
+
+# код выхода 0 · 2 мин 31 с

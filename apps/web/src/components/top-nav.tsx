@@ -1,33 +1,22 @@
 'use client';
+import { landingForVertical } from '../lib/vertical-landing';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Suspense, use, useEffect, useRef, useState, type ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Suspense, use, useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react';
 import { Icon } from './icon';
 import { Sidebar } from './shell/sidebar';
 import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
-import { TopMenu } from './shell/top-menu';
+import { SideNav } from './shell/side-nav';
 import { GlobalSearch } from './shell/search';
+import styles from './top-nav.module.css';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
-import { cx } from './ui';
-import {
-  CLOSED_ACCESS,
-  PENDING_ACCESS,
-  activeNavigation,
-  allowedItem,
-  phoneNavigationFor,
-  type NavigationAccess,
-} from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
 
-/**
- * Оболочка стойки (ADR-134): шапка из двух липких строк. Первая: знак WETOP, объект с переключателем
- * филиала, поиск ⌘K, «Демо», тема, меню профиля. Вторая: строка разделов (`TopMenu`). До 960 px вместо
- * строки разделов кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
- */
+/** UI3.1: одна строка шапки, скрытое меню и отдельная мобильная поверхность. */
 export function TopNav({
   children,
   demo = false,
@@ -44,9 +33,51 @@ export function TopNav({
   desk?: Promise<DeskShell>;
 }) {
   const path = usePathname() ?? '';
+  const menuDestination = useRef<string | null>(null);
+  const cancelMenuFocus = useRef<(() => void) | null>(null);
+  const router = useRouter();
+  const shell = desk ? use(desk) : null;
+  const scopeKey = shell?.scopeKey ?? 'unresolved';
+  const [blockedScope, setBlockedScope] = useState<string | null>(null);
+  const scopeSwitching = blockedScope === scopeKey;
+  useEffect(() => {
+    const begin = () => {
+      setBlockedScope(scopeKey);
+      setSearch(false);
+      setMenu(false);
+      setProfile(false);
+    };
+    const failed = () => setBlockedScope(null);
+    window.addEventListener('wetop-scope-switch', begin);
+    window.addEventListener('wetop-scope-switch-failed', failed);
+    return () => {
+      window.removeEventListener('wetop-scope-switch', begin);
+      window.removeEventListener('wetop-scope-switch-failed', failed);
+    };
+  }, [scopeKey]);
+  const beauty = shell?.vertical === 'BEAUTY';
+  const food = shell?.vertical === 'FOOD_SERVICE';
+  const hospitality = !scopeSwitching && !beauty && !food && !shell?.access.unknown;
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
+  const profileTrigger = useRef<HTMLButtonElement>(null);
+  const profileMenu = useRef<HTMLDivElement>(null);
+  const moveInProfile = (key: string) => {
+    const items = [...(profileMenu.current?.querySelectorAll<HTMLElement>('a, button') ?? [])];
+    const at = items.indexOf(document.activeElement as HTMLElement);
+    const next =
+      key === 'Home' ? 0 : key === 'End' ? items.length - 1 : key === 'ArrowUp' ? at - 1 : at + 1;
+    items[(next + items.length) % items.length]?.focus();
+  };
+  // Шапку рисует сервер, а обработчик меню профиля навешивает React после загрузки скриптов стойки: на
+  // медленной сети между ними секунды, кнопка в это время выглядит рабочей, а клик по ней пропадает
+  // (release-checks #7, спек profile-menu-readiness). До первого рендера на клиенте кнопка недоступна и
+  // помечена занятой; разметка сервера и первого клиентского рендера одна, расхождения гидрации нет
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(true);
+  }, []);
   // Сочетание поиска словами той ОС, на которой человек сидит: ⌘ бывает только у Apple
   const [searchKey, setSearchKey] = useState('⌘ K');
   const { setTheme } = useTheme();
@@ -75,38 +106,104 @@ export function TopNav({
           local.select();
           return;
         }
-        setSearch((s) => !s);
+        if (food) router.push('/table-reservations');
+        else if (beauty) router.push('/appointments');
+        else setSearch((s) => !s);
       }
-      if (e.key === 'Escape') setProfile(false);
+      if (e.key === 'Escape' && profileMenu.current) {
+        setProfile(false);
+        profileTrigger.current?.focus();
+      }
     };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
-  }, [path]);
+  }, [path, beauty, food, router]);
   useEffect(() => {
     setProfile(false);
+    setMenu(false);
+    const focusRequested = menuDestination.current === path;
+    menuDestination.current = null;
+    if (focusRequested) cancelMenuFocus.current = focusMainWhenReady();
+    return () => cancelMenuFocus.current?.();
   }, [path]);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 960px)');
+    const cancelFocus = () => {
+      menuDestination.current = null;
+      cancelMenuFocus.current?.();
+    };
+    const close = () => {
+      setMenu(false);
+      cancelFocus();
+    };
+    media.addEventListener('change', close);
+    window.addEventListener('popstate', close);
+    window.addEventListener('pointerdown', cancelFocus);
+    window.addEventListener('keydown', cancelFocus);
+    return () => {
+      media.removeEventListener('change', close);
+      window.removeEventListener('popstate', close);
+      window.removeEventListener('pointerdown', cancelFocus);
+      window.removeEventListener('keydown', cancelFocus);
+      cancelFocus();
+    };
+  }, []);
+  const onMenuNavigation = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    const link =
+      event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
+    if (!link?.closest('.sidenav__panel, .mobile-navigation') || link.target === '_blank') return;
+    const url = new URL(link.href);
+    if (url.origin !== window.location.origin) return;
+    cancelMenuFocus.current?.();
+    if (url.pathname === path) cancelMenuFocus.current = focusMainWhenReady();
+    else menuDestination.current = url.pathname;
+  };
   if (path.includes('/print') || path === '/login' || path === '/register') return <>{children}</>;
   return (
-    <DataFreshnessProvider>
-      <div className="workspace">
-        <a className="skip-link" href="#main-content">
+    <DataFreshnessProvider enabled={hospitality}>
+      <div
+        className="workspace"
+        data-scope-switching={scopeSwitching || undefined}
+        onClickCapture={onMenuNavigation}
+      >
+        <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
           К содержимому
         </a>
-        <header className="workspace-header">
+        <header
+          className={`workspace-header ${path === '/chessboard' ? styles.calendarHeader : ''}`}
+        >
           <div className="workspace-header__row">
             <button
               className="icon-button mobile-menu"
-              onClick={() => setMenu(true)}
+              onClick={() => {
+                setProfile(false);
+                setSearch(false);
+                setMenu(true);
+              }}
+              disabled={!ready}
+              aria-expanded={menu}
               aria-label="Открыть меню"
             >
               <Icon name="menu" />
             </button>
-            <Link className="workspace-brand" href="/today" aria-label="WETOP, Главная">
+            <SideNav
+              path={path}
+              desk={desk}
+              dismissKey={`${scopeKey}:${scopeSwitching}:${search}:${profile}:${menu}`}
+            />
+            <Link
+              className="workspace-brand"
+              href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
+              aria-label="WETOP, стартовый экран"
+            >
               <span className="workspace-mark">W</span>
               <span className="brand-name">
                 WETOP<span>.AI</span>
               </span>
             </Link>
+
             {/* объект и филиал: переехали сюда из бокового меню (ADR-134); до 960 px они вверху меню телефона */}
             <div className="workspace-header__property">
               <Suspense
@@ -115,19 +212,35 @@ export function TopNav({
                 <GrantedProperty desk={desk} property={property} close={undefined} path={path} />
               </Suspense>
             </div>
-            <button
-              className="workspace-search"
-              data-tour="search"
-              aria-label="Найти гостя или бронь"
-              onClick={() => setSearch(true)}
-            >
-              <Icon name="search" />
-              <span className="workspace-search-full">Поиск гостя, брони, номера...</span>
-              <span className="workspace-search-short" aria-hidden="true">
-                Поиск
-              </span>
-              <kbd>{searchKey}</kbd>
-            </button>
+            {path !== '/chessboard' && (
+              <button
+                className="workspace-search"
+                data-tour="search"
+                aria-label={
+                  food ? 'Найти бронирование' : beauty ? 'Найти запись' : 'Найти гостя или бронь'
+                }
+                onClick={() =>
+                  food
+                    ? router.push('/table-reservations')
+                    : beauty
+                      ? router.push('/appointments')
+                      : setSearch(true)
+                }
+              >
+                <Icon name="search" />
+                <span className="workspace-search-full">
+                  {food
+                    ? 'Поиск бронирования или гостя'
+                    : beauty
+                      ? 'Поиск записи или клиента'
+                      : 'Поиск гостя, брони, номера...'}
+                </span>
+                <span className="workspace-search-short" aria-hidden="true">
+                  Поиск
+                </span>
+                <kbd>{searchKey}</kbd>
+              </button>
+            )}
             <div className="header-tools">
               {demo && (
                 <span
@@ -150,12 +263,21 @@ export function TopNav({
               </button>
               <div className="profile-menu">
                 <button
+                  ref={profileTrigger}
                   className="profile-trigger"
                   data-tour="profile"
                   aria-label="Меню администратора"
                   aria-expanded={profile}
                   aria-controls="profile-dropdown"
+                  aria-busy={!ready}
+                  disabled={!ready}
                   onClick={() => setProfile(!profile)}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'ArrowDown') return;
+                    event.preventDefault();
+                    setProfile(true);
+                    requestAnimationFrame(() => moveInProfile('Home'));
+                  }}
                 >
                   <Suspense fallback={<HeaderPerson person={null} />}>
                     <GrantedHeaderPerson desk={desk} />
@@ -175,17 +297,28 @@ export function TopNav({
                       aria-label="Закрыть меню профиля"
                       onClick={() => setProfile(false)}
                     />
-                    <div className="profile-dropdown" id="profile-dropdown">
-                      <button
-                        data-testid="tour-restart"
-                        onClick={() => {
-                          setProfile(false);
-                          window.dispatchEvent(new Event(TOUR_RESTART_EVENT));
-                        }}
-                      >
-                        <Icon name="help" />
-                        Обучение работе в WETOP
-                      </button>
+                    <div
+                      className="profile-dropdown"
+                      id="profile-dropdown"
+                      ref={profileMenu}
+                      onKeyDown={(event) => {
+                        if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+                        event.preventDefault();
+                        moveInProfile(event.key);
+                      }}
+                    >
+                      {hospitality && (
+                        <button
+                          data-testid="tour-restart"
+                          onClick={() => {
+                            setProfile(false);
+                            window.dispatchEvent(new Event(TOUR_RESTART_EVENT));
+                          }}
+                        >
+                          <Icon name="help" />
+                          Обучение работе в WETOP
+                        </button>
+                      )}
                       {account ?? (
                         <Link href="/login">
                           <Icon name="departure" />
@@ -198,7 +331,6 @@ export function TopNav({
               </div>
             </div>
           </div>
-          <TopMenu path={path} desk={desk} />
         </header>
         <div className="workspace-body">
           <Suspense fallback={null}>
@@ -210,71 +342,73 @@ export function TopNav({
               <span>Вымышленные гости и брони · внешние сервисы не вызываются</span>
             </div>
           )}
-          {children}
+          <div className="workspace-content" hidden={scopeSwitching}>
+            {children}
+          </div>
+          {scopeSwitching && (
+            <main id="scope-switch-status" tabIndex={-1}>
+              <h1>Сегодня</h1>
+              <p role="status">Переключаем филиал…</p>
+            </main>
+          )}
         </div>
-        {/* Нижняя панель телефона: первые четыре вкладки шапки (работа смены) и «Ещё» (ADR-050, ADR-134) */}
-        <nav className="bottom-navigation" aria-label="Основная навигация">
-          <Suspense fallback={<BottomNavLinks access={PENDING_ACCESS} path={path} />}>
-            <GrantedBottomNav desk={desk} path={path} />
-          </Suspense>
-          <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
-            <Icon name="more" />
-            <span>Ещё</span>
-          </button>
-        </nav>
         <Overlay
           open={menu}
+          trapFocus
           onClose={() => setMenu(false)}
           title="Навигация"
           className="mobile-navigation"
         >
           <Sidebar property={property} path={path} close={() => setMenu(false)} desk={desk} />
         </Overlay>
-        <Suspense fallback={<GlobalSearch open={search} close={() => setSearch(false)} />}>
-          <GrantedSearch desk={desk} open={search} close={() => setSearch(false)} />
+        <Suspense fallback={null}>
+          {hospitality && (
+            <GrantedSearch desk={desk} open={search} close={() => setSearch(false)} />
+          )}
         </Suspense>
         {/* Обучение (ADR-100): само — один раз на Главной, повтор — из меню профиля */}
         <Suspense fallback={null}>
-          <ProductTour desk={desk} path={path} />
+          {hospitality && <ProductTour desk={desk} path={path} />}
         </Suspense>
       </div>
     </DataFreshnessProvider>
   );
 }
 
-/**
- * Нижняя панель телефона — первый раздел бокового меню, в том же порядке и с теми же подписями;
- * закрытые вошедшему пункты скрыты, как в самом меню (ADR-107). Пока ответа /auth/me нет —
- * PENDING_ACCESS, как у Sidebar: панель не мигает пустотой на каждом переходе.
- */
-function BottomNavLinks({
-  access,
-  path,
-  vertical,
-}: {
-  access: NavigationAccess;
-  path: string;
-  vertical?: 'HOSPITALITY' | 'BEAUTY' | undefined;
-}) {
-  return phoneNavigationFor(vertical)
-    .filter((item) => allowedItem(item, access))
-    .map((n) => (
-      <Link
-        key={n.href}
-        href={n.href}
-        className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
-      >
-        <Icon name={n.icon} />
-        <span>{n.label}</span>
-      </Link>
-    ));
-}
-
-function GrantedBottomNav({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
-  const shell = desk ? use(desk) : null;
-  return (
-    <BottomNavLinks access={shell?.access ?? CLOSED_ACCESS} path={path} vertical={shell?.vertical} />
-  );
+/** Focus only the completed route, then detach; user interaction cancels this from TopNav. */
+function focusMainWhenReady(): () => void {
+  const content = document.querySelector('.workspace-content');
+  if (!content) return () => undefined;
+  let frame = 0;
+  let stopped = false;
+  const stop = () => {
+    stopped = true;
+    observer.disconnect();
+    cancelAnimationFrame(frame);
+  };
+  const focus = () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => {
+      if (stopped) return;
+      const main = document.getElementById('main-content');
+      if (!main?.getClientRects().length || main.getAttribute('aria-busy') === 'true') return;
+      const loading = [
+        ...main.querySelectorAll<HTMLElement>('.loading-state[aria-busy="true"]'),
+      ].some((element) => element.getClientRects().length > 0);
+      if (loading) return;
+      main.focus({ preventScroll: true });
+      stop();
+    });
+  };
+  const observer = new MutationObserver(focus);
+  observer.observe(content, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['aria-busy', 'hidden', 'class'],
+  });
+  focus();
+  return stop;
 }
 
 function GrantedHeaderPerson({ desk }: { desk: Promise<DeskShell> | undefined }) {
@@ -323,10 +457,15 @@ function GrantedReadOnly({ desk }: { desk: Promise<DeskShell> | undefined }) {
   if (!shell?.readOnly) return null;
   return (
     <div className="read-only-banner" role="status" data-testid="read-only-banner">
-      <strong>Пробный период закончился — оплатите подписку.</strong>{' '}
+      <strong>
+        {shell.vertical === 'FOOD_SERVICE'
+          ? 'Режим только для чтения'
+          : 'Пробный период закончился, оплатите подписку.'}
+      </strong>{' '}
       <span>
-        Данные доступны для просмотра, изменения — после оплаты. Счёт и реквизиты выставит WETOP — напишите в чат
-        помощника справа внизу.
+        {shell?.vertical !== 'HOSPITALITY'
+          ? 'Данные доступны для просмотра. Для продления подписки обратитесь в поддержку WETOP.'
+          : 'Данные доступны для просмотра, изменения после оплаты. Счёт и реквизиты выставит WETOP, напишите в чат помощника справа внизу.'}
       </span>
     </div>
   );

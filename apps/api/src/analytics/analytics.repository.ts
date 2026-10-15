@@ -15,6 +15,15 @@ import { propertyIdRef } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 
 /** Сайт со счётчиком (DATA_MODEL §11 TrackedSite) плюс пояс объекта — для границ периода. */
+/** Цепочка объекта публичного сайта (MKT1B BOOK-4): по ней сайт проверяется до любой работы с ценами и бронью */
+export interface ServingChain {
+  propertyOrganizationId: string | null;
+  locationStatus: 'ACTIVE' | 'ARCHIVED';
+  businessStatus: 'ACTIVE' | 'ARCHIVED';
+  vertical: string;
+  businessOrganizationId: string;
+}
+
 export interface SiteRecord {
   id: string;
   propertyId: string;
@@ -31,6 +40,11 @@ export interface SiteRecord {
   bookingRatePlan: { id: string; code: string; name: string } | null;
   /** Организация объекта сайта: публичный путь сайта действует от её имени (план tenant-isolation п. 4); null — ничья */
   organizationId?: string | null;
+  /**
+   * MKT7: сайт счётчика управляемого сайта WETOP (есть строка `marketing_sites` с этим `tracked_site_id`). Им управляет
+   * только публикация; старый путь `/analytics/sites` его читает, но не правит и не удаляет
+   */
+  managed?: boolean;
 }
 
 /**
@@ -44,6 +58,8 @@ export interface AgentScopeRow {
   locationId: string | null;
   /** Объект филиала (Property–Location 1:1); `null` — у агента нет филиала или у филиала нет объекта */
   propertyId: string | null;
+  /** Канонический сайт брони филиала агента (Q-275, `locations.booking_tracked_site_id`); `null` — не выбран */
+  bookingTrackedSiteId: string | null;
   lifecycle: 'draft' | 'active' | 'paused' | 'archived';
   scenario: string;
 }
@@ -90,12 +106,25 @@ export interface AnalyticsRepository {
   siteByKey(publicKey: string): Promise<SiteRecord | null>;
   /** Все сайты всех объектов — только для приёмника счётчика: ключ → сайт одним запросом, без поиска на каждый ключ */
   allSites(): Promise<SiteRecord[]>;
-  /** Сайт бронирования организации для котировки продавца (Q-166, ADR-085): первый ACTIVE с включённым
-   * бронированием и тарифом сайта — тот же выбор, что у фактов продавца. `null` — такого нет */
-  bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null>;
+  /**
+   * Сайты бронирования организации для прежней котировки продавца без агента (Q-166, ADR-085): ACTIVE, бронь включена,
+   * тариф задан, цепочка объекта действует (филиал и Business ACTIVE, Business HOSPITALITY той же организации). Отдаёт
+   * не больше двух: вызывающему нужно знать только «ни одного, ровно один или неоднозначно» (MKT1B BOOK-4)
+   */
+  bookingSitesForOrganization(organizationId: string): Promise<SiteRecord[]>;
+  /**
+   * Цепочка объекта сайта: организация объекта, состояние филиала и Business, вертикаль, организация Business
+   * (MKT1B BOOK-4). Читается без арендатора: чужую цепочку политика RLS спрятала бы, а отказ должен быть явным.
+   * `null`: объекта нет
+   */
+  servingChain(propertyId: string): Promise<ServingChain | null>;
   /** Строка агента для области запроса (SA2.5); `null` — агента нет или он в архиве */
   agentScope(agentId: string): Promise<AgentScopeRow | null>;
-  /** Сайт бронирования ФИЛИАЛА агента (не организации): первый ACTIVE с включённым бронированием и тарифом на его объекте */
+  /**
+   * Сайт бронирования ФИЛИАЛА агента (Q-275 RESOLVED OWNER 07.10.2026, вариант B): ровно канонический сайт брони
+   * филиала, если он того же объекта, ACTIVE, с включённой бронью и тарифом; иначе `null`. «Первого», «самого раннего»
+   * и другого запасного сайта нет: неверный канонический не подменяется соседним
+   */
   bookingSiteForAgent(agentId: string): Promise<SiteRecord | null>;
   /** Домены действующих сайтов филиала агента — из них вычисляется allowlist виджета; `null` — агента нет */
   hostsForAgent(agentId: string): Promise<string[] | null>;
@@ -170,6 +199,7 @@ const SITE_SELECT = {
   property: {
     select: { timezone: true, checkInTime: true, checkOutTime: true, organizationId: true },
   },
+  marketingSite: { select: { id: true } },
 } as const;
 
 type SiteRow = {
@@ -188,6 +218,7 @@ type SiteRow = {
     checkOutTime: string;
     organizationId: string | null;
   };
+  marketingSite: { id: string } | null;
 };
 
 const toRecord = (r: SiteRow): SiteRecord => ({
@@ -204,6 +235,7 @@ const toRecord = (r: SiteRow): SiteRecord => ({
   bookingEnabled: r.bookingEnabled,
   bookingRatePlan: r.bookingRatePlan,
   organizationId: r.property.organizationId,
+  managed: r.marketingSite !== null,
 });
 
 @Injectable()
@@ -246,18 +278,47 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     const rows = await this.prisma.db.trackedSite.findMany({ select: SITE_SELECT });
     return rows.map(toRecord);
   }
-  async bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null> {
-    const r = await this.prisma.db.trackedSite.findFirst({
+  async bookingSitesForOrganization(organizationId: string): Promise<SiteRecord[]> {
+    const rows = await this.prisma.db.trackedSite.findMany({
       where: {
-        property: { organizationId },
         status: 'ACTIVE',
         bookingEnabled: true,
         bookingRatePlanId: { not: null },
+        property: {
+          organizationId,
+          location: {
+            status: 'ACTIVE',
+            business: { status: 'ACTIVE', vertical: 'HOSPITALITY', organizationId },
+          },
+        },
       },
       orderBy: { createdAt: 'asc' },
+      take: 2,
       select: SITE_SELECT,
     });
-    return r ? toRecord(r) : null;
+    return rows.map(toRecord);
+  }
+  async servingChain(propertyId: string): Promise<ServingChain | null> {
+    const p = await this.prisma.db.property.findUnique({
+      where: { id: propertyId },
+      select: {
+        organizationId: true,
+        location: {
+          select: {
+            status: true,
+            business: { select: { status: true, vertical: true, organizationId: true } },
+          },
+        },
+      },
+    });
+    if (!p) return null;
+    return {
+      propertyOrganizationId: p.organizationId,
+      locationStatus: p.location.status,
+      businessStatus: p.location.business.status,
+      vertical: p.location.business.vertical,
+      businessOrganizationId: p.location.business.organizationId,
+    };
   }
   async agentScope(agentId: string): Promise<AgentScopeRow | null> {
     const a = await this.prisma.db.sellerAgent.findFirst({
@@ -268,7 +329,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         locationId: true,
         lifecycle: true,
         scenario: true,
-        location: { select: { property: { select: { id: true } } } },
+        location: { select: { bookingTrackedSiteId: true, property: { select: { id: true } } } },
       },
     });
     return a
@@ -277,6 +338,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
           organizationId: a.organizationId,
           locationId: a.locationId,
           propertyId: a.location?.property?.id ?? null,
+          bookingTrackedSiteId: a.location?.bookingTrackedSiteId ?? null,
           lifecycle: a.lifecycle as AgentScopeRow['lifecycle'],
           scenario: a.scenario,
         }
@@ -284,15 +346,15 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   }
   async bookingSiteForAgent(agentId: string): Promise<SiteRecord | null> {
     const scope = await this.agentScope(agentId);
-    if (!scope?.propertyId) return null;
+    if (!scope?.propertyId || !scope.bookingTrackedSiteId) return null;
     const r = await this.prisma.db.trackedSite.findFirst({
       where: {
+        id: scope.bookingTrackedSiteId,
         propertyId: scope.propertyId,
         status: 'ACTIVE',
         bookingEnabled: true,
         bookingRatePlanId: { not: null },
       },
-      orderBy: { createdAt: 'asc' },
       select: SITE_SELECT,
     });
     return r ? toRecord(r) : null;
@@ -334,8 +396,9 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       bookingRatePlanId?: string | null;
     },
   ): Promise<SiteRecord | null> {
+    // MKT7: строку управляемого сайта меняет только публикация (`SitePublicationService`), не этот путь
     const exists = await this.prisma.db.trackedSite.findFirst({
-      where: { id, propertyId: await this.propertyId() },
+      where: { id, propertyId: await this.propertyId(), marketingSite: { is: null } },
       select: { id: true },
     });
     if (!exists) return null;
@@ -348,7 +411,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   }
   async deleteSite(id: string): Promise<boolean> {
     const { count } = await this.prisma.db.trackedSite.deleteMany({
-      where: { id, propertyId: await this.propertyId() },
+      where: { id, propertyId: await this.propertyId(), marketingSite: { is: null } },
     });
     return count > 0;
   }

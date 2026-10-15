@@ -1,0 +1,59 @@
+# Интеграционные (integration) · 07.10.2026 16:06 Алматы · vm
+# коммит 0745160 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T11-06-39Z-integration-3b41.json' 'tests/integration/site-generation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/site-generation.test.ts (16 tests | 1 failed) 5493ms
+   ❯ MKT6 site generation (16)
+     ✓ счастливый путь: бриф → задача → воркер → версия AI revision 1, публикация не тронута, журнал без документа 1160ms
+     ✓ постановка: только свой сайт, без версии, с текущим брифом, строгое тело, повтор ключа даёт ту же задачу 523ms
+     ✓ сайт с версией: 409, INITIAL не правка 258ms
+     ✓ лимит постановок: 10 за час на человека 119ms
+     ✓ BRIEF_CHANGED: данные филиала изменились после постановки, модель не вызывается 166ms
+     ✓ BASE_VERSION_CHANGED: человек сохранил версию, пока шла генерация; ручная версия остаётся последней 253ms
+     ✓ неверный ответ модели: версия не создаётся, повтор только с путём и кодом, расход всех попыток суммируется 285ms
+     ✓ неверный вывод «проза вместо JSON у бота»: задача ждёт повтора, версии нет 165ms
+     ✓ неверный вывод «не тот язык»: задача ждёт повтора, версии нет 154ms
+     ✓ неверный вывод «больше 256 КБ»: задача ждёт повтора, версии нет 175ms
+     × бюджет: расход дня считается по организации, исчерпан — модель не вызывается; соседняя организация не затронута 436ms
+     ✓ неизвестный расход: потерянный ответ даёт USAGE_UNAVAILABLE и запрещает платные вызовы организации до следующих суток UTC 381ms
+     ✓ неполный расход в ответе бота: известная часть записана, задача USAGE_UNAVAILABLE, версии нет 141ms
+     ✓ повтор не переносит вчерашний run на сегодняшний бюджет: BUDGET_DAY_CHANGED без вызова 124ms
+     ✓ падение воркера: до отправки задача возвращается в очередь, после отправки расход неизвестен 280ms
+     ✓ очередь: два воркера не берут одну задачу; одна организация идёт по одной, разные параллельно 280ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-generation.test.ts > MKT6 site generation > бюджет: расход дня считается по организации, исчерпан — модель не вызывается; соседняя организация не затронута
+AssertionError: expected { …(22) } to match object { status: 'FAILED', …(1) }
+(20 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "errorCode": "BUDGET_EXCEEDED",
++   "errorCode": "USAGE_UNAVAILABLE",
+    "status": "FAILED",
+  }
+
+ ❯ tests/integration/site-generation.test.ts:444:33
+    442|     const calls = fake.state.requests.length;
+    443|     await worker.tick();
+    444|     expect(await run(third.id)).toMatchObject({ status: 'FAILED', erro…
+       |                                 ^
+    445|     expect(fake.state.requests.length).toBe(calls);
+    446|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  11:06:40
+   Duration  11.29s (tests 62%, transform 26%, import 12%)
+
+JSON report written to /tmp/pms-test-2026-10-07T11-06-39Z-integration-3b41.json
+
+# код выхода 1 · 13 с

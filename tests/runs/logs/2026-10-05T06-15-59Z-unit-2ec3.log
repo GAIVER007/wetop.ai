@@ -1,0 +1,17 @@
+# Модульные (unit) · 05.10.2026 11:15 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/bar-repair-2), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-15-59Z-unit-2ec3.json' 'apps/api/src/bar' 'packages/domain/src/bar'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+ ✓ |unit| packages/domain/src/bar/bar.test.ts (6 tests) 3ms
+ ✓ |unit| apps/api/src/bar/bar.controller.test.ts (9 tests) 123ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  10:16:01
+   Duration  901ms (import 43%, transform 41%, tests 15%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-15-59Z-unit-2ec3.json
+
+# код выхода 0 · 2 с

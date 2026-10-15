@@ -1,23 +1,15 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { unitsApi } from '../../../lib/api';
 import { hotelToday, validDate } from '../../../lib/hotel-api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { displayDate } from '../../../lib/display-date';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { UnitActions } from './unit-actions';
 import { UnitFacts } from './unit-facts';
 import '../../inventory/inventory.css';
-
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
 
 /**
  * Карточка ячейки: уборка, блокировки, ближайшие проживания. `?blockFrom=&blockTo=` — период из окошка
@@ -30,6 +22,8 @@ export default async function UnitPage({
   params: Promise<{ code: string }>;
   searchParams: Promise<SearchParams>;
 }) {
+  // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
+  await requireVertical(['HOSPITALITY']);
   const { code } = await params;
   const q = normalizeSearchParams(await searchParams);
   const blockPeriod =
@@ -45,7 +39,7 @@ export default async function UnitPage({
   return (
     <Page
       width="medium"
-      crumbs={<Link href="/chessboard">← календарь</Link>}
+      crumbs={<BackCrumb href="/inventory">Номерной фонд</BackCrumb>}
       title={`Ячейка ${unit.code}`}
       subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
     >
@@ -82,7 +76,7 @@ export default async function UnitPage({
                 <time dateTime={s.endDate}>{displayDate(s.endDate, 'numeric')}</time>
               </td>
               <td>
-                <StatusBadge status={s.status} label={STATUS_RU[s.status] ?? s.status} />
+                <StatusBadge kind="hospitality" value={s.status} />
               </td>
               <td>{s.guestLabel || '—'}</td>
             </tr>

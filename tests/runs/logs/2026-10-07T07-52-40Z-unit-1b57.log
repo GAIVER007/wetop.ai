@@ -1,0 +1,146 @@
+# Модульные (unit) · 07.10.2026 12:52 Алматы · vm
+# коммит 33f3014 (claude/youthful-wozniak-vin0pp), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T07-52-40Z-unit-1b57.json' 'apps/api/src/finance/finance.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (34 tests | 5 failed) 773ms
+   ❯ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (20)
+     ✓ id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026) 98ms
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 15ms
+     ✓ REP2: отчёт по услугам — свод по услуге, «вручную» одной строкой, крупные первыми, итог равен строке SERVICE сводки; неверный период → 400 15ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 15ms
+     ✓ ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, просроченные отдельно (Q-207); неверный период → 400 27ms
+     ✓ ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400 25ms
+     ✓ DATA_MODEL §26: чек по запросу — номер у платежа в счёте, пустой номер 400, чужой платёж 404, повтор 409 16ms
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 65ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 15ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 9ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 13ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 28ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 15ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Legacy; занятая койка — отказ без начисления 12ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 15ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 6ms
+     ❯ аннулирование и замена платежа (4)
+       × аннулирование: платёж уходит из оплаченного, строка остаётся со статусом VOIDED, запись в журнале 11ms
+       × платёж с возвратом или с чеком не аннулируется и не меняется: 409 называет причину 10ms
+       × замена: старый аннулирован, новый проведён с новым способом и суммой, дата платежа прежняя 7ms
+       × групповой платёж: без распределения 409 словами, с распределением заменяется 6ms
+   ❯ роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-107) (4)
+     × аннулировать и заменить платёж может управляющий, администратор получает 403 с подписью права 13ms
+     ✓ администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт 18ms
+     ✓ управляющий и владелец возвращают, сторнируют и уменьшают счёт 32ms
+     ✓ отчёт за период администратор смотрит 7ms
+   ✓ касса: остатки, операции, переводы, статьи (DATA_MODEL §21) (7)
+     ✓ остатки по способам: оплаты гостей − возвраты + касса; плитки по умолчанию видны при нуле 13ms
+     ✓ проверки операции: вид, сумма, способ не из кассы, статья другого вида, перевод не этим маршрутом 13ms
+     ✓ перевод: из способа в способ, комиссия процентом — связанный расход со статьёй «Комиссия банка» 9ms
+     ✓ статья «Комиссия банка» выключена и статья комиссии не указана — 400 словами 2ms
+     ✓ аннулирование: комиссия снимается с основной; повтор — 409; комиссию отдельно — 409 11ms
+     ✓ статьи: стартовый набор в ответе кассы, добавление, дубль — 400, выключение, неизвестная — 404 12ms
+     ✓ лента операций: source — только RESERVATIONS или CASH, новые типы в type 5ms
+   ✓ сверка наличных (§21.4, K4) (3)
+     ✓ недостача с поправкой: запись сверки, расход «Недостача кассы», остаток равен пересчитанному 6ms
+     ✓ излишек без галочки — остаток не меняется; совпало — поправки нет; GET /finance/cash отдаёт сверку 8ms
+     ✓ проверки: отрицательная сумма, не-кассовый способ, не число — 400; способ по умолчанию — наличные 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > аннулирование и замена платежа > аннулирование: платёж уходит из оплаченного, строка остаётся со статусом VOIDED, запись в журнале
+AssertionError: expected '50000000' to be '500000' // Object.is equality
+
+Expected: "500000"
+Received: "50000000"
+
+ ❯ apps/api/src/finance/finance.controller.test.ts:1290:37
+    1288|       const id = await pay([{ folioId: F1, amount: '500000' }]);
+    1289|       const before = await get();
+    1290|       expect(before.body.paidMinor).toBe('500000');
+       |                                     ^
+    1291|       const res = await http()
+    1292|         .post(`/finance/payments/${id}/void`)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > аннулирование и замена платежа > платёж с возвратом или с чеком не аннулируется и не меняется: 409 называет причину
+Error: expected 409 "Conflict", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:1315:85
+    1313|         .send({ folioId: F1, amount: '100000', reason: 'часть' })
+    1314|         .expect(201);
+    1315|       const r1 = await http().post(`/finance/payments/${withRefund}/vo…
+       |                                                                                     ^
+    1316|       expect(r1.body.message).toMatch(/возврат/);
+    1317|       const r2 = await http()
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > аннулирование и замена платежа > замена: старый аннулирован, новый проведён с новым способом и суммой, дата платежа прежняя
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:1337:10
+    1335|         .post(`/finance/payments/${id}/replace`)
+    1336|         .send({ method: 'KASPI', amount: '300000', note: 'на самом дел…
+    1337|         .expect(200);
+       |          ^
+    1338|       const lines = res.body.folios[0].payments as Array<Record<string…
+    1339|       expect(lines).toHaveLength(2);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > аннулирование и замена платежа > групповой платёж: без распределения 409 словами, с распределением заменяется
+Error: expected 409 "Conflict", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:1367:10
+    1365|         .post(`/finance/payments/${id}/replace`)
+    1366|         .send({ method: 'HALYK', amount: '1000000' })
+    1367|         .expect(409);
+       |          ^
+    1368|       expect(r.body.message).toMatch(/несколько счетов/);
+    1369|       const ok = await http()
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-107) > аннулировать и заменить платёж может управляющий, администратор получает 403 с подписью права
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:1473:8
+    1471|       .set(as('session-admin'))
+    1472|       .send({})
+    1473|       .expect(403);
+       |        ^
+    1474|     expect(denied.body.message).toBe(accessDeniedMessage('refunds'));
+    1475|     await request(app.getHttpServer())
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 29 passed (34)
+   Start at  07:52:41
+   Duration  3.63s (transform 55%, import 23%, tests 22%)
+
+JSON report written to /tmp/pms-test-2026-10-07T07-52-40Z-unit-1b57.json
+
+# код выхода 1 · 5 с

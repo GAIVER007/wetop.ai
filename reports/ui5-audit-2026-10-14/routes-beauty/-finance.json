@@ -1,0 +1,28 @@
+{
+ "/finance": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Сегодня",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": null,
+   "h1": null,
+   "mainEmpty": true,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 15,
+   "h1": null,
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

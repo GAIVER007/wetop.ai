@@ -1,0 +1,164 @@
+
+> pms-lux@0.0.0 test:record
+> tsx tests/tools/cli-record.ts e2e --config tests/ui/playwright.config.ts --workers=1 tests/ui/search-filter-recovery.spec.ts --note GREEN with history restore, search/filter QA
+
+▶ Сквозные (e2e) — нужно: dev-БД, API :3001 и стойка :3000 (Playwright поднимает сам или берёт уже запущенные)
+  npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/search-filter-recovery.spec.ts'
+
+[WebServer] (node:86912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86937) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86965) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:86993) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:86994) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 1 worker
+
+(node:86998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87024) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (2.3s)
+[WebServer] (node:87031) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 1440 › availability: Выходные updates edited fields and repeated search (1.1s)
+[WebServer] (node:87039) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87040) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history (16.6s)
+(node:87076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/search-filter-recovery.spec.ts:67:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (1.6s)
+[WebServer] (node:87105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/search-filter-recovery.spec.ts:82:5 › search/filter recovery 1440 › finance: empty refunds keep method and resetting it preserves other filters (2.3s)
+  ✓   6 tests/ui/search-filter-recovery.spec.ts:108:5 › search/filter recovery 1440 › rates: empty row is rejected, zero nights and false restrictions remain changes (1.3s)
+  ✓   7 tests/ui/search-filter-recovery.spec.ts:128:5 › search/filter recovery 1440 › print: KZ and RU survive form changes, reload and history (2.2s)
+[WebServer] (node:87135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 390 › availability: Завтра updates edited fields and repeated search (1.1s)
+[WebServer] (node:87140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/search-filter-recovery.spec.ts:19:7 › search/filter recovery 390 › availability: Выходные updates edited fields and repeated search (1.1s)
+[WebServer] (node:87149) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history (16.6s)
+(node:87177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/search-filter-recovery.spec.ts:67:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (1.6s)
+  ✓  12 tests/ui/search-filter-recovery.spec.ts:82:5 › search/filter recovery 390 › finance: empty refunds keep method and resetting it preserves other filters (2.2s)
+  ✓  13 tests/ui/search-filter-recovery.spec.ts:108:5 › search/filter recovery 390 › rates: empty row is rejected, zero nights and false restrictions remain changes (1.1s)
+  ✓  14 tests/ui/search-filter-recovery.spec.ts:128:5 › search/filter recovery 390 › print: KZ and RU survive form changes, reload and history (2.0s)
+
+
+  1) tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-10"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        2 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-10" class="inp date-field__input"/>
+          - unexpected value "2026-10-13"
+        32 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-10" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      59 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-13');
+      60 |       await page.goBack();
+    > 61 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(arrival);
+         |                                                               ^
+      62 |       await page.goForward();
+      63 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-16');
+      64 |       await expect(category).toHaveValue('MALE');
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:61:63
+
+    Error Context: test-results/search-filter-recovery-sea-0d179-survives-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-0d179-survives-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-0d179-survives-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Заезд', { exact: true })
+    Expected: "2026-10-10"
+    Received: "2026-10-13"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Заезд', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Заезд', { exact: true })
+        2 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-10" class="inp date-field__input"/>
+          - unexpected value "2026-10-13"
+        31 × locator resolved to <input type="date" required="" name="arrival" value="2026-10-10" aria-label="Заезд" class="inp date-field__input"/>
+           - unexpected value "2026-10-13"
+
+
+      59 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-13');
+      60 |       await page.goBack();
+    > 61 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue(arrival);
+         |                                                               ^
+      62 |       await page.goForward();
+      63 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-16');
+      64 |       await expect(category).toHaveValue('MALE');
+        at /Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/search-filter-recovery.spec.ts:61:63
+
+    Error Context: test-results/search-filter-recovery-sea-def90-survives-reload-and-history/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-def90-survives-reload-and-history/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-def90-survives-reload-and-history/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 1440 › availability: manual input is a draft until Find; category survives reload and history 
+    tests/ui/search-filter-recovery.spec.ts:40:5 › search/filter recovery 390 › availability: manual input is a draft until Find; category survives reload and history 
+  12 passed (1.0m)
+
+■ e2e: ❌ упало 2 из 14 · 1 мин 4 с
+  лог: tests/runs/logs/2026-10-05T15-36-56Z-e2e-109a.log
+  журнал: tests/runs/JOURNAL.md · что доказано: npm run test:status

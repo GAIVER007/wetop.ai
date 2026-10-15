@@ -24,6 +24,8 @@ const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const CLIENT_KEY_RE = /^[A-Za-z0-9_-]{8,64}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const CATEGORY_RE = /^[A-Za-z0-9_-]{1,64}$/;
+/** Ключ создания брони (MKT1B BOOK-2): тот же формат, что принимает `ReservationsService.create` */
+const CREATION_KEY_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export interface QuoteRequest {
   siteKey: string;
@@ -53,6 +55,13 @@ export interface BookingRequest extends QuoteRequest {
   comment: string | null;
   visitorKey: string | null;
   sessionKey: string | null;
+  /**
+   * Одна логическая попытка брони (MKT1B BOOK-2): виджет создаёт ключ при первой отправке и повторяет его при повторе
+   * той же формы. Тот же ключ и тот же запрос: та же бронь; тот же ключ и другой запрос: 409. Нижний регистр.
+   * `null`: поля нет совсем. Это старый виджет из кэша браузера, загруженный до выкладки MKT1B; сервер даёт такому
+   * запросу ключ на один раз (переходный путь, снять отдельным срезом, когда старого трафика не останется).
+   */
+  creationKey: string | null;
 }
 
 export type Parsed<T> = { ok: true; value: T } | { ok: false; reason: string };
@@ -132,6 +141,14 @@ export function parseBookingRequest(raw: unknown, today: string): Parsed<Booking
   if (emailRaw && (!EMAIL_RE.test(emailRaw) || emailRaw.length > BOOKING_LIMITS.email)) {
     return fail('почта не похожа на адрес');
   }
+  // Нет поля: старый виджет (переходный путь). Поле есть, но не UUID v4 (пустое, число, мусор): отказ
+  let creationKey: string | null = null;
+  if (b.creationKey !== undefined && b.creationKey !== null) {
+    if (typeof b.creationKey !== 'string' || !CREATION_KEY_RE.test(b.creationKey)) {
+      return fail('creationKey: UUID v4');
+    }
+    creationKey = b.creationKey.toLowerCase();
+  }
   const comment = text(b.comment, BOOKING_LIMITS.comment);
   const key = (v: unknown) => (typeof v === 'string' && CLIENT_KEY_RE.test(v) ? v : null);
   return {
@@ -144,6 +161,7 @@ export function parseBookingRequest(raw: unknown, today: string): Parsed<Booking
       lang: parseGuestLang(b.lang),
       visitorKey: key(b.v),
       sessionKey: key(b.s),
+      creationKey,
     },
   };
 }

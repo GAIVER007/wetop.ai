@@ -1,0 +1,11 @@
+# Сквозные (e2e) · 10.10.2026 17:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 07544da (claude/beauty-salons-landing), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'auth-dialog.spec.ts:240'
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/site/auth-dialog.spec.ts:240:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (47.0s)
+
+  1 passed (1.3m)
+
+# код выхода 0 · 1 мин 31 с

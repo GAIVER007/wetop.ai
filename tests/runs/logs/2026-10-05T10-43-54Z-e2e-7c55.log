@@ -1,0 +1,204 @@
+# Сквозные (e2e) · 05.10.2026 15:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит 383a90b (HEAD), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'finance-cash-first.spec.ts' 'finance-f1.spec.ts' '--workers=1'
+[WebServer] (node:15841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15874) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15947) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+(node:15964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/finance-cash-first.spec.ts:11:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (4.7s)
+  ✓   2 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 1440 (2.6s)
+  ✘   3 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 (2.7s)
+(node:16096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 (2.9s)
+(node:16159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/ui/finance-cash-first.spec.ts:90:1 › касса: первый экран без лишних кнопок, действия внутри управления (17.7s)
+(node:16361) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/ui/finance-cash-first.spec.ts:100:1 › касса: визуальная иерархия итогов и спокойный сброс (1.3s)
+(node:16384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/finance-cash-first.spec.ts:118:1 › касса: тёмное оформление читается на телефоне (1.8s)
+  ✓   8 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (1.1s)
+  ✓   9 tests/ui/finance-f1.spec.ts:96:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (1.3s)
+  ✓  10 tests/ui/finance-f1.spec.ts:146:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (959ms)
+[WebServer] (node:16430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/finance-f1.spec.ts:177:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (1.8s)
+[WebServer] (node:16434) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/finance-f1.spec.ts:219:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (1.5s)
+  ✓  13 tests/ui/finance-f1.spec.ts:235:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (1.3s)
+  ✘  14 tests/ui/finance-f1.spec.ts:256:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (914ms)
+(node:16459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/ui/finance-f1.spec.ts:276:3 › F1, стоп-гейт: снимки для владельца, light (1.9s)
+  ✓  16 tests/ui/finance-f1.spec.ts:276:3 › F1, стоп-гейт: снимки для владельца, dark (2.0s)
+
+
+  1) tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 ───────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      63 |     await page.goto('/finance');
+      64 |     await expect(page.getByTestId('cash-summary')).toBeVisible();
+    > 65 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+         |                                                                                           ^
+      66 |       true,
+      67 |     );
+      68 |     await expect(page.getByTestId('finance-operations')).not.toBeVisible();
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash-first.spec.ts:65:91
+
+    Error Context: test-results/finance-cash-first-касса-доступность-и-верстка-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-доступность-и-верстка-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-доступность-и-верстка-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 ───────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      63 |     await page.goto('/finance');
+      64 |     await expect(page.getByTestId('cash-summary')).toBeVisible();
+    > 65 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+         |                                                                                           ^
+      66 |       true,
+      67 |     );
+      68 |     await expect(page.getByTestId('finance-operations')).not.toBeVisible();
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash-first.spec.ts:65:91
+
+    Error Context: test-results/finance-cash-first-касса-доступность-и-верстка-360/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-доступность-и-верстка-360/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-доступность-и-верстка-360/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-cash-first.spec.ts:90:1 › касса: первый экран без лишних кнопок, действия внутри управления
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: 'Вчера', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: 'Вчера', exact: true }) with timeout 15000ms
+      - waiting for getByRole('link', { name: 'Вчера', exact: true })
+
+
+      91 |   await page.goto('/finance');
+      92 |   await expect(page.getByRole('button', { name: 'Новая операция', exact: true })).toHaveCount(0);
+    > 93 |   await expect(page.getByRole('link', { name: 'Вчера', exact: true })).toBeVisible();
+         |                                                                        ^
+      94 |   await page.getByText('Отчёты и управление', { exact: true }).click();
+      95 |   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
+      96 |   await page.getByTestId('cash-expense-btn').click();
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash-first.spec.ts:93:72
+
+    Error Context: test-results/finance-cash-first-касса-п-f245e--действия-внутри-управления/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-п-f245e--действия-внутри-управления/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-п-f245e--действия-внутри-управления/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/finance-cash-first.spec.ts:100:1 › касса: визуальная иерархия итогов и спокойный сброс
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    51.90625
+
+      104 |   const expense = await page.getByTestId('cash-period-expense').boundingBox();
+      105 |   expect(expense!.y).toBeGreaterThan(income!.y);
+    > 106 |   expect(Math.abs(expense!.x - income!.x)).toBeLessThanOrEqual(1);
+          |                                            ^
+      107 |   await expect(page.getByTestId('finance-period')).toContainText('За период с');
+      108 |   expect(
+      109 |     await page.getByTestId('cash-summary').evaluate((el) => getComputedStyle(el).backgroundColor),
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-cash-first.spec.ts:106:44
+
+    Error Context: test-results/finance-cash-first-касса-в-194f0-ия-итогов-и-спокойный-сброс/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-в-194f0-ия-итогов-и-спокойный-сброс/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-в-194f0-ия-итогов-и-спокойный-сброс/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/finance-f1.spec.ts:256:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      262 |   await page.getByRole('tab', { name: 'Долги', exact: true }).click();
+      263 |   await expect(main.getByTestId('debts-table')).toBeVisible();
+    > 264 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+          |                                                                                             ^
+      265 |     true,
+      266 |   );
+      267 |   // 201d35e1 (мобильная адаптация): на узком телефоне (≤520) итоги в одну колонку — суммы не переносятся
+        at /Users/vyacheslav/.codex/worktrees/finance-cash-first/WETOP/tests/ui/finance-f1.spec.ts:264:93
+
+    Error Context: test-results/finance-f1-F1-телефон-—-бе-a57a1-ица-долгов-листается-внутри/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-телефон-—-бе-a57a1-ица-долгов-листается-внутри/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-телефон-—-бе-a57a1-ица-долгов-листается-внутри/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 390 ────────────────────
+    tests/ui/finance-cash-first.spec.ts:61:3 › касса: доступность и верстка 360 ────────────────────
+    tests/ui/finance-cash-first.spec.ts:90:1 › касса: первый экран без лишних кнопок, действия внутри управления
+    tests/ui/finance-cash-first.spec.ts:100:1 › касса: визуальная иерархия итогов и спокойный сброс
+    tests/ui/finance-f1.spec.ts:256:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри
+  11 passed (1.1m)
+
+# код выхода 1 · 1 мин 8 с

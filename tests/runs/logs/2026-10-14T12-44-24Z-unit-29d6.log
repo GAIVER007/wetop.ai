@@ -1,0 +1,33 @@
+# Модульные (unit) · 14.10.2026 17:44 Алматы · MacBook-Air-Urij.local
+# коммит 519326e (claude/food-fix-01-20261014), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-44-24Z-unit-29d6.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 38771ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 2606ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1917ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 2620ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 2691ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 4324ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 3736ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1997ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2398ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2284ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 2471ms
+     ✓ локальные правки в клоне — не затирает их 1352ms
+     ✓ историю ветки переписали — не выкладывает поверх 2359ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2282ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 2250ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1908ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1572ms
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  16:44:26
+   Duration  38.93s (tests 100%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-44-24Z-unit-29d6.json
+
+# код выхода 0 · 41 с

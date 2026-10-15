@@ -1,0 +1,2 @@
+Synthetic UI fixture registration: HTTP 200, pendingVerification=true
+Existing API registrationBusiness contract; no database or provider calls.

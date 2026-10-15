@@ -1,0 +1,160 @@
+# Сквозные (e2e) · 13.10.2026 00:12 Алматы · vm
+# коммит d76f59b (claude/sharp-dirac-6s46fw)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/beauty-ui/beauty.spec.ts:102:1 › empty setup through real UI, persisted appointment, move, confirm, complete (31.0s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:183:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (11.8s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:220:1 › existing customer can be selected for another appointment without duplication (4.9s)
+  ✓   4 tests/beauty-ui/beauty.spec.ts:248:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (20.4s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:248:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (19.4s)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:248:5 › calendar and drawer 390 light, keyboard, axe, no overflow (18.4s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:248:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (18.3s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:329:1 › archived service and employee preserve historical calendar appointments (5.9s)
+  ✘   9 tests/beauty-ui/beauty.spec.ts:363:1 › TimeOff from employee drawer, server denial and timezone persisted (8.9s)
+  ✘  10 tests/beauty-ui/beauty.spec.ts:415:1 › DS1c: day navigation keeps the previous addresses (240ms)
+  ✘  11 tests/beauty-ui/beauty.spec.ts:430:1 › Beauty onboarding completion opens Today and resumes there (273ms)
+  -  12 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -  13 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -  14 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -  15 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+
+
+  1) tests/beauty-ui/beauty.spec.ts:363:1 › TimeOff from employee drawer, server denial and timezone persisted 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('table')
+    Expected substring: "Тестовое обучение"
+    Received string:    "КогдаПричинаЗаписи в эти дниДействия"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('table') with timeout 5000ms
+      - waiting for getByRole('dialog').getByRole('table')
+        14 × locator resolved to <table class="tbl">…</table>
+           - unexpected value "КогдаПричинаЗаписи в эти дниДействия"
+
+
+      379 |   await panel.getByRole('button', { name: 'Добавить отсутствие' }).click();
+      380 |   await expect(panel.getByRole('status')).toContainText('Отсутствие добавлено');
+    > 381 |   await expect(panel.getByRole('table')).toContainText('Тестовое обучение');
+          |                                          ^
+      382 |   await page.goto(`/calendar?date=${day}`);
+      383 |   await expect(page.getByTestId('beauty-grid')).toContainText('Тестовое обучение');
+      384 |   const rejected = await book(page);
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:381:42
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/beauty.spec.ts:415:1 › DS1c: day navigation keeps the previous addresses ──────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      18 | async function reset(page: Page, request: APIRequestContext) {
+      19 |   const response = await request.post(`${api}/__test/reset`);
+    > 20 |   expect(response.ok()).toBe(true);
+         |                         ^
+      21 |   const f: Fixture = await response.json();
+      22 |   await scope(page, f.business, f.locations[0]!);
+      23 |   return f;
+        at reset (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:20:25)
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:416:3
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       97 | }
+       98 | test.afterAll(async ({ request }) => {
+    >  99 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      100 | });
+      101 |
+      102 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:99:62
+
+    Error Context: test-results/beauty-DS1c-day-navigation-keeps-the-previous-addresses/error-context.md
+
+    Error Context: test-results/beauty-DS1c-day-navigation-keeps-the-previous-addresses/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-DS1c-day-navigation-keeps-the-previous-addresses/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-DS1c-day-navigation-keeps-the-previous-addresses/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/beauty-ui/beauty.spec.ts:430:1 › Beauty onboarding completion opens Today and resumes there 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      18 | async function reset(page: Page, request: APIRequestContext) {
+      19 |   const response = await request.post(`${api}/__test/reset`);
+    > 20 |   expect(response.ok()).toBe(true);
+         |                         ^
+      21 |   const f: Fixture = await response.json();
+      22 |   await scope(page, f.business, f.locations[0]!);
+      23 |   return f;
+        at reset (/home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:20:25)
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:431:3
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       97 | }
+       98 | test.afterAll(async ({ request }) => {
+    >  99 |   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
+          |                                                              ^
+      100 | });
+      101 |
+      102 | test('empty setup through real UI, persisted appointment, move, confirm, complete', async ({
+        at /home/user/wetop.ai/tests/beauty-ui/beauty.spec.ts:99:62
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    Error Context: test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-Beauty-onboarding-c-e01aa-ens-Today-and-resumes-there/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/beauty-ui/beauty.spec.ts:363:1 › TimeOff from employee drawer, server denial and timezone persisted 
+    tests/beauty-ui/beauty.spec.ts:415:1 › DS1c: day navigation keeps the previous addresses ───────
+    tests/beauty-ui/beauty.spec.ts:430:1 › Beauty onboarding completion opens Today and resumes there 
+  4 skipped
+  8 passed (2.9m)
+
+# код выхода 1 · 2 мин 58 с

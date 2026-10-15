@@ -1,0 +1,99 @@
+# Сквозные (e2e) · 15.10.2026 00:13 Алматы · vm
+# коммит 6a9aa68 (claude/ds2-f1-hospitality-route-guards-20261014)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'hotel-only-routes' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 242ms. If /home/user/wetop.ai/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/branches-ui/hotel-only-routes.spec.ts:48:1 › F1: гостиница открывает свои экраны по прямому адресу (14.8s)
+  ✘  2 tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: beauty не открывает гостиничные экраны по прямому адресу (16.0s)
+  ✘  3 tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: food не открывает гостиничные экраны по прямому адресу (16.1s)
+
+
+  1) tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: beauty не открывает гостиничные экраны по прямому адресу 
+
+    Error: /units/101
+
+    expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  "http://127.0.0.1:55863/units/101"
+    Timeout: 15000ms
+
+    Call log:
+      - /units/101 with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:55863/units/101"
+
+
+      70 |     for (const route of HOTEL_ROUTES) {
+      71 |       await page.goto(route);
+    > 72 |       await expect(page, route).toHaveURL(/\/today$/, { timeout: 15000 });
+         |                                 ^
+      73 |     }
+      74 |     const calls = ((await (await request.get(`${api}/__test/calls`)).json()) as string[]).slice(before);
+      75 |     expect(calls.filter((c) => HOTEL_API.test(c))).toEqual([]);
+        at /home/user/wetop.ai/tests/branches-ui/hotel-only-routes.spec.ts:72:33
+
+    Error Context: test-results/hotel-only-routes-F1-beaut-a20d3-ые-экраны-по-прямому-адресу/error-context.md
+
+    Error Context: test-results/hotel-only-routes-F1-beaut-a20d3-ые-экраны-по-прямому-адресу/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/hotel-only-routes-F1-beaut-a20d3-ые-экраны-по-прямому-адресу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/hotel-only-routes-F1-beaut-a20d3-ые-экраны-по-прямому-адресу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: food не открывает гостиничные экраны по прямому адресу 
+
+    Error: /units/101
+
+    expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/today$/
+    Received string:  "http://127.0.0.1:55863/units/101"
+    Timeout: 15000ms
+
+    Call log:
+      - /units/101 with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:55863/units/101"
+
+
+      70 |     for (const route of HOTEL_ROUTES) {
+      71 |       await page.goto(route);
+    > 72 |       await expect(page, route).toHaveURL(/\/today$/, { timeout: 15000 });
+         |                                 ^
+      73 |     }
+      74 |     const calls = ((await (await request.get(`${api}/__test/calls`)).json()) as string[]).slice(before);
+      75 |     expect(calls.filter((c) => HOTEL_API.test(c))).toEqual([]);
+        at /home/user/wetop.ai/tests/branches-ui/hotel-only-routes.spec.ts:72:33
+
+    Error Context: test-results/hotel-only-routes-F1-food--7b746-ые-экраны-по-прямому-адресу/error-context.md
+
+    Error Context: test-results/hotel-only-routes-F1-food--7b746-ые-экраны-по-прямому-адресу/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/hotel-only-routes-F1-food--7b746-ые-экраны-по-прямому-адресу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/hotel-only-routes-F1-food--7b746-ые-экраны-по-прямому-адресу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: beauty не открывает гостиничные экраны по прямому адресу 
+    tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: food не открывает гостиничные экраны по прямому адресу 
+  1 passed (1.2m)
+
+# код выхода 1 · 1 мин 16 с

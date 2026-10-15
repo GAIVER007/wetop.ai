@@ -18,6 +18,7 @@ const good = {
   website: '',
   v: 'visitor-0001',
   s: 'session-0001',
+  creationKey: 'B6F2C1E4-0A3D-4F1B-9C2E-7D8A9B0C1D2E',
 };
 
 describe('запрос цен с сайта (quote)', () => {
@@ -84,6 +85,7 @@ describe('запрос брони с сайта (book)', () => {
       lang: 'ru',
       visitorKey: 'visitor-0001',
       sessionKey: 'session-0001',
+      creationKey: 'b6f2c1e4-0a3d-4f1b-9c2e-7d8a9b0c1d2e',
     });
   });
   it('телефон 8 701… становится +7 701…; почта необязательна; комментарий обрезается до 500', () => {
@@ -166,5 +168,31 @@ describe('язык гостя в запросе брони (ADR-144, срез «
   it('незнакомый язык — русский, а не отказ: бронь важнее языка письма', () => {
     const r = parseBookingRequest({ ...good, lang: 'fr' }, today);
     expect(r.ok && r.value.lang).toBe('ru');
+  });
+});
+
+describe('ключ создания брони с сайта (MKT1B BOOK-2)', () => {
+  it('UUID v4 обязателен и приводится к нижнему регистру', () => {
+    const r = parseBookingRequest(good, today);
+    expect(r).toMatchObject({ ok: true, value: { creationKey: 'b6f2c1e4-0a3d-4f1b-9c2e-7d8a9b0c1d2e' } });
+  });
+  it.each([
+    ['нет поля', undefined],
+    ['null', null],
+  ])('%s: переходный путь старого виджета из кэша, ключ не задан (null), отказа нет', (_name, creationKey) => {
+    const body: Record<string, unknown> = { ...good, creationKey };
+    if (creationKey === undefined) delete body['creationKey'];
+    expect(parseBookingRequest(body, today)).toMatchObject({ ok: true, value: { creationKey: null } });
+  });
+  it.each([
+    ['пустой', ''],
+    ['не UUID', 'not-a-key'],
+    ['UUID не версии 4', 'b6f2c1e4-0a3d-1f1b-9c2e-7d8a9b0c1d2e'],
+    ['число', 42],
+  ])('%s: отказ', (_name, creationKey) => {
+    expect(parseBookingRequest({ ...good, creationKey }, today)).toMatchObject({
+      ok: false,
+      reason: 'creationKey: UUID v4',
+    });
   });
 });

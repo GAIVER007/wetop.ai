@@ -1,0 +1,473 @@
+# Сквозные (e2e) · 06.10.2026 00:26 Алматы · Noutbuk-Vyacheslav.local
+# коммит 77a9e9c (codex/calendar-mobile-statistics), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-statistics.spec.ts' '--grep' 'desktop daily' '--workers=1'
+[WebServer] (node:15039) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15073) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:15127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-statistics.spec.ts:142:3 › desktop daily widgets light: accessible pointer targets (2.8s)
+(node:15159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/chessboard-statistics.spec.ts:142:3 › desktop daily widgets dark: accessible pointer targets (2.3s)
+
+
+  1) tests/ui/chessboard-statistics.spec.ts:142:3 › desktop daily widgets light: accessible pointer targets 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 190
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure touch targets have sufficient size and space",
+    +     "help": "All touch targets must be 24px large, or leave sufficient space",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=playwright",
+    +     "id": "target-size",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 18,
+    +               "minSize": 24,
+    +               "width": 49.6,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (49.6px by 18px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 14.4,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.4px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=arrival\">Заезды / Горящая бронь</a>",
+    +                 "target": Array [
+    +                   ".board-day-panel__row--arrivals > a",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=arrival&amp;status=NO_SHOW\">Незаезды</a>",
+    +                 "target": Array [
+    +                   ".board-day-panel__row--noshow > a",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (49.6px by 18px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.4px instead of at least 24px.",
+    +         "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=departure\">Выезды</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".board-day-panel__row--departures > a",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 18,
+    +               "minSize": 24,
+    +               "width": 79.5,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (79.5px by 18px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 18,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a href=\"/rooms/availability\">Свободные номера</a>",
+    +                 "target": Array [
+    +                   ".board-day-panel__row--free > a[href$=\"availability\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (79.5px by 18px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18px instead of at least 24px.",
+    +         "html": "<a href=\"/reservations?view=inhouse\">Проживания</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href=\"/reservations?view=inhouse\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 18,
+    +               "minSize": 24,
+    +               "width": 62.7,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (62.7px by 18px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 14.4,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.4px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=departure\">Выезды</a>",
+    +                 "target": Array [
+    +                   ".board-day-panel__row--departures > a",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (62.7px by 18px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.4px instead of at least 24px.",
+    +         "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=arrival&amp;status=NO_SHOW\">Незаезды</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".board-day-panel__row--noshow > a",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 18,
+    +               "minSize": 24,
+    +               "width": 123.4,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (123.4px by 18px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 18,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a href=\"/reservations?view=inhouse\">Проживания</a>",
+    +                 "target": Array [
+    +                   "a[href=\"/reservations?view=inhouse\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (123.4px by 18px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18px instead of at least 24px.",
+    +         "html": "<a href=\"/rooms/availability\">Свободные номера</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".board-day-panel__row--free > a[href$=\"availability\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.sensory-and-visual-cues",
+    +       "wcag22aa",
+    +       "wcag258",
+    +     ],
+    +   },
+    + ]
+
+      149 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      150 |       .analyze();
+    > 151 |     expect(results.violations).toEqual([]);
+          |                                ^
+      152 |   });
+      153 | }
+      154 |
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:151:32
+
+    Error Context: test-results/chessboard-statistics-desk-c0b73--accessible-pointer-targets/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-desk-c0b73--accessible-pointer-targets/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-desk-c0b73--accessible-pointer-targets/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-statistics.spec.ts:142:3 › desktop daily widgets dark: accessible pointer targets 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 190
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure touch targets have sufficient size and space",
+    +     "help": "All touch targets must be 24px large, or leave sufficient space",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=playwright",
+    +     "id": "target-size",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 18,
+    +               "minSize": 24,
+    +               "width": 49.6,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (49.6px by 18px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 14.4,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.4px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=arrival\">Заезды / Горящая бронь</a>",
+    +                 "target": Array [
+    +                   ".board-day-panel__row--arrivals > a",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=arrival&amp;status=NO_SHOW\">Незаезды</a>",
+    +                 "target": Array [
+    +                   ".board-day-panel__row--noshow > a",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (49.6px by 18px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.4px instead of at least 24px.",
+    +         "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=departure\">Выезды</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".board-day-panel__row--departures > a",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 18,
+    +               "minSize": 24,
+    +               "width": 79.5,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (79.5px by 18px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 18,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a href=\"/rooms/availability\">Свободные номера</a>",
+    +                 "target": Array [
+    +                   ".board-day-panel__row--free > a[href$=\"availability\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (79.5px by 18px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18px instead of at least 24px.",
+    +         "html": "<a href=\"/reservations?view=inhouse\">Проживания</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[href=\"/reservations?view=inhouse\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 18,
+    +               "minSize": 24,
+    +               "width": 62.7,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (62.7px by 18px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 14.4,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.4px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=departure\">Выезды</a>",
+    +                 "target": Array [
+    +                   ".board-day-panel__row--departures > a",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (62.7px by 18px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.4px instead of at least 24px.",
+    +         "html": "<a href=\"/reservations?from=2026-10-06&amp;to=2026-10-06&amp;date=arrival&amp;status=NO_SHOW\">Незаезды</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".board-day-panel__row--noshow > a",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 18,
+    +               "minSize": 24,
+    +               "width": 123.4,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (123.4px by 18px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 18,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a href=\"/reservations?view=inhouse\">Проживания</a>",
+    +                 "target": Array [
+    +                   "a[href=\"/reservations?view=inhouse\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (123.4px by 18px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18px instead of at least 24px.",
+    +         "html": "<a href=\"/rooms/availability\">Свободные номера</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".board-day-panel__row--free > a[href$=\"availability\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.sensory-and-visual-cues",
+    +       "wcag22aa",
+    +       "wcag258",
+    +     ],
+    +   },
+    + ]
+
+      149 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      150 |       .analyze();
+    > 151 |     expect(results.violations).toEqual([]);
+          |                                ^
+      152 |   });
+      153 | }
+      154 |
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-statistics.spec.ts:151:32
+
+    Error Context: test-results/chessboard-statistics-desk-aa4c4--accessible-pointer-targets/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-statistics-desk-aa4c4--accessible-pointer-targets/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-statistics-desk-aa4c4--accessible-pointer-targets/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-statistics.spec.ts:142:3 › desktop daily widgets light: accessible pointer targets 
+    tests/ui/chessboard-statistics.spec.ts:142:3 › desktop daily widgets dark: accessible pointer targets 
+
+# код выхода 1 · 13 с

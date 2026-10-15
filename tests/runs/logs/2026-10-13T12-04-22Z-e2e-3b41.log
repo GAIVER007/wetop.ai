@@ -1,0 +1,26 @@
+# Сквозные (e2e) · 13.10.2026 17:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит 333b4d9 (claude/inventory-surplus), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/stock.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (2.5s)
+  ✓  2 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (1.3s)
+  ✓  3 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается FIFO, излишек приходуется по средней (Q-KITCHEN-9) (1.7s)
+  ✓  4 tests/food-ui/stock.spec.ts:133:1 › инвентаризация пустого склада: излишек только с ценой, введённой вручную (940ms)
+  ✓  5 tests/food-ui/stock.spec.ts:148:1 › сторно: нетронутая партия сторнируется, начатая нет (1.1s)
+  ✓  6 tests/food-ui/stock.spec.ts:162:1 › роли: администратор работает со складом, но не правит справочник; только чтение (773ms)
+  ✓  7 tests/food-ui/stock.spec.ts:182:1 › снимки и axe в двух темах на 1440 и 390 (6.5s)
+[WebServer] (node:74361) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  8 tests/food-ui/stock.spec.ts:211:1 › списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает (1.5s)
+
+  8 passed (22.1s)
+
+# код выхода 0 · 23 с

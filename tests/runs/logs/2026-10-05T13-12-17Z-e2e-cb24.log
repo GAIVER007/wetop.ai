@@ -1,0 +1,29 @@
+# Сквозные (e2e) · 05.10.2026 18:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит b154a43 (codex/release-finance-disclosure-20261005), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/registration-closed.spec.ts' '--workers=1'
+[WebServer] (node:65713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65714) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [Nest] 65714  - 10/05/2026, 6:12:20 AM   ERROR [ExceptionHandler] Error: DATABASE_URL is not set
+[WebServer]     at createPrismaClient (/Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/packages/database/src/index.ts:44:11)
+[WebServer]     at new PrismaService (/Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/apps/api/src/database/prisma.provider.ts:42:11)
+[WebServer]     at Injector.instantiateClass (file:///Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/node_modules/@nestjs/core/injector/injector.js:439:19)
+[WebServer]     at callback (file:///Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/node_modules/@nestjs/core/injector/injector.js:69:45)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async Injector.resolveConstructorParams (file:///Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/node_modules/@nestjs/core/injector/injector.js:182:24)
+[WebServer]     at async Injector.loadInstance (file:///Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/node_modules/@nestjs/core/injector/injector.js:75:13)
+[WebServer]     at async Injector.loadProvider (file:///Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/node_modules/@nestjs/core/injector/injector.js:109:9)
+[WebServer]     at async file:///Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/node_modules/@nestjs/core/injector/instance-loader.js:57:13
+[WebServer]     at async Promise.all (index 5)
+[WebServer] npm error Lifecycle script `start` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/apps/api
+[WebServer] npm error workspace @pms/api@0.0.0
+[WebServer] npm error location /Users/vyacheslav/.codex/worktrees/fix-migration-052/WETOP/apps/api
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c tsx src/main.ts
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 3 с

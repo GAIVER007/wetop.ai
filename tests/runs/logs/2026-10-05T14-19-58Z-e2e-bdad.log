@@ -1,0 +1,345 @@
+# Сквозные (e2e) · 05.10.2026 19:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7e27389 (codex/calendar-mobile-focus), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-focus.spec.ts' '--workers=1'
+[WebServer] (node:79059) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79091) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79144) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79151) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:79159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling (18.1s)
+(node:79211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling (16.9s)
+(node:79260) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling (16.6s)
+(node:79284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling (16.9s)
+(node:79329) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling (17.9s)
+(node:79507) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  6 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling (16.8s)
+(node:79558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  7 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling (16.6s)
+(node:79599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  8 tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling (16.5s)
+(node:79645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  9 tests/ui/chessboard-focus.spec.ts:43:1 › free panel outside click leaves focus on the selected control (1.7s)
+
+
+  1) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-unit-code="R07"] td[data-date="2026-10-08"]') with timeout 15000ms
+      - waiting for locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+        34 × locator resolved to <td data-state="FREE" class="board__cell" data-date="2026-10-08" title="Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период">…</td>
+           - unexpected value "inactive"
+
+
+      29 |       else await panel.getByRole('button', { name: 'Закрыть', exact: true }).click();
+      30 |       await expect(panel).toBeHidden();
+    > 31 |       await expect(cell).toBeFocused();
+         |                          ^
+      32 |       const after = await page.locator('.board-wrap').evaluate(el => ({ left: el.scrollLeft, top: el.scrollTop, page: window.scrollY }));
+      33 |       expect(after).toEqual(before);
+      34 |       await expect(cell).toHaveAttribute('tabindex', '-1');
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:31:26
+
+    Error Context: test-results/chessboard-focus-free-pane-45161-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-45161-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-45161-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-unit-code="R07"] td[data-date="2026-10-08"]') with timeout 15000ms
+      - waiting for locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+        33 × locator resolved to <td data-state="FREE" class="board__cell" data-date="2026-10-08" title="Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период">…</td>
+           - unexpected value "inactive"
+
+
+      29 |       else await panel.getByRole('button', { name: 'Закрыть', exact: true }).click();
+      30 |       await expect(panel).toBeHidden();
+    > 31 |       await expect(cell).toBeFocused();
+         |                          ^
+      32 |       const after = await page.locator('.board-wrap').evaluate(el => ({ left: el.scrollLeft, top: el.scrollTop, page: window.scrollY }));
+      33 |       expect(after).toEqual(before);
+      34 |       await expect(cell).toHaveAttribute('tabindex', '-1');
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:31:26
+
+    Error Context: test-results/chessboard-focus-free-pane-f3540-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-f3540-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-f3540-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-unit-code="R07"] td[data-date="2026-10-08"]') with timeout 15000ms
+      - waiting for locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+        34 × locator resolved to <td data-state="FREE" class="board__cell" data-date="2026-10-08" title="Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период">…</td>
+           - unexpected value "inactive"
+
+
+      29 |       else await panel.getByRole('button', { name: 'Закрыть', exact: true }).click();
+      30 |       await expect(panel).toBeHidden();
+    > 31 |       await expect(cell).toBeFocused();
+         |                          ^
+      32 |       const after = await page.locator('.board-wrap').evaluate(el => ({ left: el.scrollLeft, top: el.scrollTop, page: window.scrollY }));
+      33 |       expect(after).toEqual(before);
+      34 |       await expect(cell).toHaveAttribute('tabindex', '-1');
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:31:26
+
+    Error Context: test-results/chessboard-focus-free-pane-be572-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-be572-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-be572-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-unit-code="R07"] td[data-date="2026-10-08"]') with timeout 15000ms
+      - waiting for locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+        34 × locator resolved to <td data-state="FREE" class="board__cell" data-date="2026-10-08" title="Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период">…</td>
+           - unexpected value "inactive"
+
+
+      29 |       else await panel.getByRole('button', { name: 'Закрыть', exact: true }).click();
+      30 |       await expect(panel).toBeHidden();
+    > 31 |       await expect(cell).toBeFocused();
+         |                          ^
+      32 |       const after = await page.locator('.board-wrap').evaluate(el => ({ left: el.scrollLeft, top: el.scrollTop, page: window.scrollY }));
+      33 |       expect(after).toEqual(before);
+      34 |       await expect(cell).toHaveAttribute('tabindex', '-1');
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:31:26
+
+    Error Context: test-results/chessboard-focus-free-pane-c6090-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-c6090-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-c6090-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-unit-code="R07"] td[data-date="2026-10-08"]') with timeout 15000ms
+      - waiting for locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+        33 × locator resolved to <td data-state="FREE" class="board__cell" data-date="2026-10-08" title="Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период">…</td>
+           - unexpected value "inactive"
+
+
+      29 |       else await panel.getByRole('button', { name: 'Закрыть', exact: true }).click();
+      30 |       await expect(panel).toBeHidden();
+    > 31 |       await expect(cell).toBeFocused();
+         |                          ^
+      32 |       const after = await page.locator('.board-wrap').evaluate(el => ({ left: el.scrollLeft, top: el.scrollTop, page: window.scrollY }));
+      33 |       expect(after).toEqual(before);
+      34 |       await expect(cell).toHaveAttribute('tabindex', '-1');
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:31:26
+
+    Error Context: test-results/chessboard-focus-free-pane-474fb-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-474fb-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-474fb-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-unit-code="R07"] td[data-date="2026-10-08"]') with timeout 15000ms
+      - waiting for locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+        34 × locator resolved to <td data-state="FREE" class="board__cell" data-date="2026-10-08" title="Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период">…</td>
+           - unexpected value "inactive"
+
+
+      29 |       else await panel.getByRole('button', { name: 'Закрыть', exact: true }).click();
+      30 |       await expect(panel).toBeHidden();
+    > 31 |       await expect(cell).toBeFocused();
+         |                          ^
+      32 |       const after = await page.locator('.board-wrap').evaluate(el => ({ left: el.scrollLeft, top: el.scrollTop, page: window.scrollY }));
+      33 |       expect(after).toEqual(before);
+      34 |       await expect(cell).toHaveAttribute('tabindex', '-1');
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:31:26
+
+    Error Context: test-results/chessboard-focus-free-pane-2224e-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-2224e-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-2224e-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-unit-code="R07"] td[data-date="2026-10-08"]') with timeout 15000ms
+      - waiting for locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+        33 × locator resolved to <td data-state="FREE" class="board__cell" data-date="2026-10-08" title="Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период">…</td>
+           - unexpected value "inactive"
+
+
+      29 |       else await panel.getByRole('button', { name: 'Закрыть', exact: true }).click();
+      30 |       await expect(panel).toBeHidden();
+    > 31 |       await expect(cell).toBeFocused();
+         |                          ^
+      32 |       const after = await page.locator('.board-wrap').evaluate(el => ({ left: el.scrollLeft, top: el.scrollTop, page: window.scrollY }));
+      33 |       expect(after).toEqual(before);
+      34 |       await expect(cell).toHaveAttribute('tabindex', '-1');
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:31:26
+
+    Error Context: test-results/chessboard-focus-free-pane-b65e2-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-b65e2-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-b65e2-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-unit-code="R07"] td[data-date="2026-10-08"]') with timeout 15000ms
+      - waiting for locator('[data-unit-code="R07"] td[data-date="2026-10-08"]')
+        34 × locator resolved to <td data-state="FREE" class="board__cell" data-date="2026-10-08" title="Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период">…</td>
+           - unexpected value "inactive"
+
+
+      29 |       else await panel.getByRole('button', { name: 'Закрыть', exact: true }).click();
+      30 |       await expect(panel).toBeHidden();
+    > 31 |       await expect(cell).toBeFocused();
+         |                          ^
+      32 |       const after = await page.locator('.board-wrap').evaluate(el => ({ left: el.scrollLeft, top: el.scrollTop, page: window.scrollY }));
+      33 |       expect(after).toEqual(before);
+      34 |       await expect(cell).toHaveAttribute('tabindex', '-1');
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-focus.spec.ts:31:26
+
+    Error Context: test-results/chessboard-focus-free-pane-320e9-ell-focus-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-focus-free-pane-320e9-ell-focus-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-focus-free-pane-320e9-ell-focus-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 escape: restores cell focus without scrolling 
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 360 button: restores cell focus without scrolling 
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 escape: restores cell focus without scrolling 
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 390 button: restores cell focus without scrolling 
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 escape: restores cell focus without scrolling 
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 430 button: restores cell focus without scrolling 
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 escape: restores cell focus without scrolling 
+    tests/ui/chessboard-focus.spec.ts:15:5 › free panel 1440 button: restores cell focus without scrolling 
+  1 passed (2.6m)
+
+# код выхода 1 · 2 мин 34 с

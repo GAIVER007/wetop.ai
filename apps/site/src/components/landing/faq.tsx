@@ -1,26 +1,26 @@
 import { getDictionary } from '../../i18n';
-import { SectionHeading } from '../section-heading';
-import { typo } from '../typo';
+import { contactLinks, registerLink, siteUrl } from '../../lib/site';
+import { LandingFinal } from './landing-final';
 
-/** «Вопросы и ответы»: нативные details, работают без JavaScript; вопросы видны сразу, ответ раскрывается. */
+/* Финал главной: единый блок вопросов и призыва (10.10.2026); контакты строкой из site.config.ts. */
 export function FAQ() {
-  const { faq } = getDictionary();
+  const t = getDictionary();
+  const email = contactLinks().find((contact) => contact.kind === 'email');
+  const host = new URL(siteUrl()).host;
   return (
-    <section id="faq" className="section section--band faq" aria-labelledby="faq-title">
-      <div className="container faq__layout">
-        <SectionHeading id="faq-title" eyebrow={faq.eyebrow} title={faq.title} />
-        <div className="faq__list">
-          {faq.items.map((item) => (
-            <details key={item.q}>
-              <summary>
-                <span>{typo(item.q)}</span>
-                <span aria-hidden="true">+</span>
-              </summary>
-              <p>{typo(item.a)}</p>
-            </details>
-          ))}
-        </div>
-      </div>
-    </section>
+    <LandingFinal
+      sectionId="faq"
+      id="get-started"
+      faq={{ title: t.faq.title, items: t.faq.items }}
+      cta={{
+        title: t.final.title,
+        text: t.final.text,
+        note: t.final.note,
+        register: { href: registerLink().href, label: t.hero.primary },
+        secondary: email ? { href: email.href, label: t.final.contact } : undefined,
+        photo: { src: '/photos/building.jpg', alt: '' },
+        contacts: email ? `${t.final.contactsLabel} ${email.label}, ${host}` : undefined,
+      }}
+    />
   );
 }

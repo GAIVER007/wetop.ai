@@ -1,9 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import {
+  BUSINESS_VERTICALS,
+  parseBusinessVertical,
+  verticalDefinition,
+  type BusinessVertical,
+} from '../../../../packages/domain/src/verticals/registry';
 import type { Dictionary } from '../i18n/types';
+import { Icon, type IconName } from './icon';
 import type { AuthMode } from '../lib/site';
 import { PHONE_COUNTRIES, PRIVACY_POLICY_PATH, defaultPhoneCountry } from '../lib/phone-countries';
+
+import styles from './auth-dialog.module.css';
 
 type Texts = Dictionary['auth'];
 
@@ -54,6 +63,20 @@ function nextUrl(app: string, next: unknown): string {
 
 const RESEND_PAUSE_S = 60;
 
+/** Плитки выбора направления: короткая подпись, чтобы три плитки помещались в строку и на телефоне. */
+const VERTICAL_TILES: Record<BusinessVertical, { icon: IconName; label: string }> = {
+  HOSPITALITY: { icon: 'bed', label: 'Гостиница' },
+  BEAUTY: { icon: 'scissors', label: 'Салон' },
+  FOOD_SERVICE: { icon: 'food', label: 'Ресторан' },
+};
+
+/** Выбор сохраняется в существующем поле locale профиля. */
+const LANGUAGES = [
+  { code: 'ru', label: 'Русский' },
+  { code: 'en', label: 'English' },
+] as const;
+const REGISTRATION_COUNTRIES = PHONE_COUNTRIES.filter((c) => ['KZ', 'AE', 'QA'].includes(c.code));
+
 /*
  * Окно входа и создания аккаунта поверх главной (ADR-100, plans/site-auth-dialog-tour-2026-09-27.md).
  *
@@ -63,6 +86,9 @@ const RESEND_PAUSE_S = 60;
  */
 export function AuthDialog({ texts, urls }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [vertical, setVertical] = useState<BusinessVertical>('HOSPITALITY');
+  // Выбор направления только на главной: со страницы направления регистрация идёт под него (10.10.2026)
+  const [choosable, setChoosable] = useState(true);
   const [mode, setMode] = useState<AuthMode>('login');
   const [isOpen, setIsOpen] = useState(false);
   const [registration, setRegistration] = useState<Registration>('unknown');
@@ -81,6 +107,7 @@ export function AuthDialog({ texts, urls }: Props) {
     hotelName: '',
     phoneCountry: 'KZ',
     phone: '',
+    language: 'ru',
   });
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   // Страна кода телефона — по браузеру (29.09.2026), после появления на экране: статичная сборка браузера не знает
@@ -90,8 +117,10 @@ export function AuthDialog({ texts, urls }: Props) {
       Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
     const query = new URLSearchParams(window.location.search);
-    setForm((f) => ({ ...f, phoneCountry: country, email: query.get('email') ?? '' }));
+    setForm((f) => ({ ...f, phoneCountry: REGISTRATION_COUNTRIES.some((c) => c.code === country) ? country : 'KZ', email: query.get('email') ?? '' }));
+    setVertical(parseBusinessVertical(query.get('vertical')) ?? 'HOSPITALITY');
     setPasswordJustSet(query.get('password') === 'set');
+    setChoosable(window.location.pathname === '/');
   }, []);
   const optionsAsked = useRef(false);
   const passwordId = useId();
@@ -134,6 +163,12 @@ export function AuthDialog({ texts, urls }: Props) {
       const target = link.getAttribute('data-auth');
       if (target !== 'login' && target !== 'register') return;
       event.preventDefault();
+      if (target === 'register') {
+        const choice = parseBusinessVertical(
+          new URL((link as HTMLAnchorElement).href).searchParams.get('vertical'),
+        );
+        if (choice) setVertical(choice);
+      }
       open(target);
     };
     fromHash();
@@ -215,18 +250,29 @@ export function AuthDialog({ texts, urls }: Props) {
     setError({ text: message(res.data, texts.errors.network), fallback: false });
   };
 
+  const chooseVertical = (id: BusinessVertical) => {
+    setVertical(id);
+    const url = new URL(window.location.href);
+    url.searchParams.set('vertical', id);
+    window.history.replaceState(null, '', url);
+  };
+  const registrationFallback = new URL(urls.register);
+  registrationFallback.searchParams.set('vertical', vertical);
+
   const submitRegister = async (event: FormEvent) => {
     event.preventDefault();
     const body = {
       email: form.email.trim(),
       name: form.name.trim(),
-      hotelName: form.hotelName.trim(),
+      vertical,
+      businessName: form.hotelName.trim(),
       password: form.password,
       phoneCountry: form.phoneCountry,
       phone: form.phone.trim(),
       privacyAccepted,
+      locale: form.language,
     };
-    if (!body.email || !body.name || !body.hotelName || !body.password || !body.phone) {
+    if (!body.email || !body.name || !body.businessName || !body.password || !body.phone) {
       return setError({ text: texts.errors.required, fallback: false });
     }
     if (!privacyAccepted) return setError({ text: texts.errors.privacy, fallback: false });
@@ -262,7 +308,9 @@ export function AuthDialog({ texts, urls }: Props) {
     <div className="auth-dialog__alert" role="alert">
       <span>{error.text}</span>
       {error.fallback ? (
-        <a href={mode === 'login' ? urls.login : urls.register}>{texts.errors.fallback}</a>
+        <a href={mode === 'login' ? urls.login : registrationFallback.toString()}>
+          {texts.errors.fallback}
+        </a>
       ) : null}
       {mode === 'login' && error.text.includes('Почта не подтверждена') && (
         <button
@@ -340,7 +388,7 @@ export function AuthDialog({ texts, urls }: Props) {
   return (
     <dialog
       ref={dialogRef}
-      className="auth-dialog"
+      className={`auth-dialog ${mode === 'register' ? styles.registration : ''}`}
       aria-label={texts.dialogLabel}
       onClose={onClose}
       onClick={(event) => {
@@ -499,7 +547,41 @@ export function AuthDialog({ texts, urls }: Props) {
               ) : (
                 <form className="auth-form" onSubmit={submitRegister} noValidate>
                   <h2 className="auth-dialog__title">{texts.register.title}</h2>
-                  <p className="auth-dialog__lead">{texts.register.lead}</p>
+                  <p className="auth-dialog__lead">
+                    {texts.register.lead}
+                  </p>
+                  {choosable ? (
+                    <fieldset className="auth-verticals">
+                      <legend>{texts.fields.vertical}</legend>
+                      <div className="auth-verticals__grid">
+                        {BUSINESS_VERTICALS.map((id) => (
+                          <label className="auth-vertical" key={id}>
+                            <input
+                              type="radio"
+                              name="vertical"
+                              value={id}
+                              aria-label={verticalDefinition(id).label}
+                              checked={vertical === id}
+                              onChange={() => chooseVertical(id)}
+                              disabled={pending}
+                            />
+                            <Icon name={VERTICAL_TILES[id].icon} size={22} />
+                            <span>{VERTICAL_TILES[id].label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+                  ) : (
+                    <p className="auth-vertical-fixed" data-testid="auth-vertical-fixed">
+                      <span className="icon-tile">
+                        <Icon name={VERTICAL_TILES[vertical].icon} size={20} />
+                      </span>
+                      <span>
+                        {verticalDefinition(vertical).label}
+                        <small>Доступно</small>
+                      </span>
+                    </p>
+                  )}
                   <label className="auth-field">
                     <span className="auth-field__label">{texts.fields.name}</span>
                     <input
@@ -521,7 +603,7 @@ export function AuthDialog({ texts, urls }: Props) {
                     <input
                       className="auth-field__input"
                       type="text"
-                      name="hotelName"
+                      name="businessName"
                       autoComplete="organization"
                       required
                       maxLength={200}
@@ -531,41 +613,72 @@ export function AuthDialog({ texts, urls }: Props) {
                       disabled={pending}
                     />
                   </label>
-                  <div className="auth-field">
-                    <span className="auth-field__label" id="auth-phone-label">
-                      {texts.fields.phone}
-                    </span>
-                    <span className="auth-phone">
+                  <div className="auth-row">
+                    <div className="auth-field">
+                      <label className="auth-field__label" htmlFor="auth-country">
+                        {texts.fields.country}
+                      </label>
                       <select
+                        id="auth-country"
                         className="auth-field__input"
                         name="phoneCountry"
-                        aria-label={texts.fields.phoneCountry}
+                        autoComplete="country"
                         value={form.phoneCountry}
-                        onChange={(e) => setForm((f) => ({ ...f, phoneCountry: e.target.value }))}
+                        onChange={set('phoneCountry')}
                         disabled={pending}
                       >
-                        {PHONE_COUNTRIES.map((c) => (
+                        {REGISTRATION_COUNTRIES.map((c) => (
                           <option key={c.code} value={c.code}>
-                            {c.name} {c.dial}
+                            {c.code === 'AE' ? 'ОАЭ (Дубай)' : c.name}
                           </option>
                         ))}
                       </select>
+                    </div>
+                    <div className="auth-field">
+                      <label className="auth-field__label" htmlFor="auth-language">
+                        {texts.fields.language}
+                      </label>
+                      <select
+                        id="auth-language"
+                        className="auth-field__input"
+                        name="language"
+                        value={form.language}
+                        onChange={set('language')}
+                        aria-describedby="auth-language-note"
+                        disabled={pending}
+                      >
+                        {LANGUAGES.map((l) => (
+                          <option key={l.code} value={l.code}>
+                            {l.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <p className="auth-form__hint" id="auth-language-note">
+                    {texts.fields.languageNote}
+                  </p>
+                  <label className="auth-field">
+                    <span className="auth-field__label">{texts.fields.phone}</span>
+                    <span className="auth-field__password auth-phone">
+                      <span className="auth-phone__code" aria-hidden="true">
+                        {PHONE_COUNTRIES.find((c) => c.code === form.phoneCountry)?.dial ?? '+7'}
+                      </span>
                       <input
                         className="auth-field__input"
                         type="tel"
                         inputMode="tel"
                         name="phone"
                         autoComplete="tel-national"
-                        aria-labelledby="auth-phone-label"
                         required
                         maxLength={40}
-                        placeholder={texts.fields.phonePlaceholder}
+                        placeholder={form.phoneCountry === 'QA' ? '5550 1234' : form.phoneCountry === 'AE' ? '50 123 4567' : texts.fields.phonePlaceholder}
                         value={form.phone}
                         onChange={set('phone')}
                         disabled={pending}
                       />
                     </span>
-                  </div>
+                  </label>
                   {emailField}
                   {passwordField('new-password')}
                   <label className="auth-consent">

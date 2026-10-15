@@ -1,0 +1,30 @@
+# Модульные (unit) · 07.10.2026 12:30 Алматы · MacBook-Air-Urij.local
+# коммит c7e63d7 (codex/mv9-analytics-finance-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-30-25Z-unit-d9b5.json' 'apps/web/src/app/management/analytics/vertical/metrics.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261007
+
+ ❯ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts [ apps/web/src/app/management/analytics/vertical/metrics.test.ts ]
+Error: Cannot find module './metrics' imported from /Users/urijzapojnov/wetop-mv8-20261007/apps/web/src/app/management/analytics/vertical/metrics.test.ts
+ ❯ apps/web/src/app/management/analytics/vertical/metrics.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { periodDates, beautyPeriod, foodPeriod, moneyText } from './me…
+       | ^
+      3| const beauty = (id: string, status: string, priceMinor = '100', curren…
+      4| describe('MV9 period reconciliation', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:30:31
+   Duration  195ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T07-30-25Z-unit-d9b5.json
+
+# код выхода 1 · 6 с

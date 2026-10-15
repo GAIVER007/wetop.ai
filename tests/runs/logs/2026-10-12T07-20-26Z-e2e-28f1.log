@@ -1,0 +1,293 @@
+# Сквозные (e2e) · 12.10.2026 12:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9ed9f07 (claude/restaurant-period-report), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json 'tests/branches-ui/analytics.spec.ts' '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/branches-ui/analytics.spec.ts:28:1 › MV9 Beauty numbers reconcile with API and independent database aggregates after reload (10.2s)
+  ✓   2 tests/branches-ui/analytics.spec.ts:70:1 › MV9 Food pagination, overlap boundaries, mixed Organization groups and unavailable finance (8.9s)
+  ✓   3 tests/branches-ui/analytics.spec.ts:135:1 › MV9 scope switching, read-only and invalid Hospitality tab never show foreign metrics (25.8s)
+  ✓   4 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 1440 light: accessibility, keyboard and screenshot (34.0s)
+  ✘   5 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 light: accessibility, keyboard and screenshot (22.7s)
+  ✓   6 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 1440 dark: accessibility, keyboard and screenshot (30.0s)
+  ✘   7 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot (16.6s)
+  ✓   8 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 390 light: accessibility, keyboard and screenshot (17.0s)
+  ✘   9 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 light: accessibility, keyboard and screenshot (15.9s)
+  ✓  10 tests/branches-ui/analytics.spec.ts:177:7 › MV9 beauty 390 dark: accessibility, keyboard and screenshot (21.5s)
+  ✘  11 tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 dark: accessibility, keyboard and screenshot (20.1s)
+
+
+  1) tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 light: accessibility, keyboard and screenshot 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 35
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the order of headings is semantically correct",
+    +     "help": "Heading levels should only increase by one",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/heading-order?application=playwright",
+    +     "id": "heading-order",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "heading-order",
+    +             "impact": "moderate",
+    +             "message": "Heading order invalid",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Heading order invalid",
+    +         "html": "<h3 class=\"empty-state__title\">Оплат за период нет</h3>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".panel:nth-child(2) > .empty-state > h3",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      190 |         await expect(page.getByRole('main').getByTestId('vertical-analytics')).toBeVisible();
+      191 |         const violations = (await new AxeBuilder({ page }).analyze()).violations;
+    > 192 |         expect(violations).toEqual([]);
+          |                            ^
+      193 |         expect(
+      194 |           await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      195 |         ).toBe(true);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/branches-ui/analytics.spec.ts:192:28
+
+    Error Context: test-results/analytics-MV9-food-1440-li-55ad3-ity-keyboard-and-screenshot/error-context.md
+
+    Error Context: test-results/analytics-MV9-food-1440-li-55ad3-ity-keyboard-and-screenshot/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-food-1440-li-55ad3-ity-keyboard-and-screenshot/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-food-1440-li-55ad3-ity-keyboard-and-screenshot/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 35
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the order of headings is semantically correct",
+    +     "help": "Heading levels should only increase by one",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/heading-order?application=playwright",
+    +     "id": "heading-order",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "heading-order",
+    +             "impact": "moderate",
+    +             "message": "Heading order invalid",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Heading order invalid",
+    +         "html": "<h3 class=\"empty-state__title\">Оплат за период нет</h3>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".panel:nth-child(2) > .empty-state > h3",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      190 |         await expect(page.getByRole('main').getByTestId('vertical-analytics')).toBeVisible();
+      191 |         const violations = (await new AxeBuilder({ page }).analyze()).violations;
+    > 192 |         expect(violations).toEqual([]);
+          |                            ^
+      193 |         expect(
+      194 |           await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      195 |         ).toBe(true);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/branches-ui/analytics.spec.ts:192:28
+
+    Error Context: test-results/analytics-MV9-food-1440-da-ef173-ity-keyboard-and-screenshot/error-context.md
+
+    Error Context: test-results/analytics-MV9-food-1440-da-ef173-ity-keyboard-and-screenshot/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-food-1440-da-ef173-ity-keyboard-and-screenshot/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-food-1440-da-ef173-ity-keyboard-and-screenshot/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 light: accessibility, keyboard and screenshot 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 35
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the order of headings is semantically correct",
+    +     "help": "Heading levels should only increase by one",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/heading-order?application=playwright",
+    +     "id": "heading-order",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "heading-order",
+    +             "impact": "moderate",
+    +             "message": "Heading order invalid",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Heading order invalid",
+    +         "html": "<h3 class=\"empty-state__title\">Оплат за период нет</h3>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".panel:nth-child(2) > .empty-state > h3",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      190 |         await expect(page.getByRole('main').getByTestId('vertical-analytics')).toBeVisible();
+      191 |         const violations = (await new AxeBuilder({ page }).analyze()).violations;
+    > 192 |         expect(violations).toEqual([]);
+          |                            ^
+      193 |         expect(
+      194 |           await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      195 |         ).toBe(true);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/branches-ui/analytics.spec.ts:192:28
+
+    Error Context: test-results/analytics-MV9-food-390-lig-b425d-ity-keyboard-and-screenshot/error-context.md
+
+    Error Context: test-results/analytics-MV9-food-390-lig-b425d-ity-keyboard-and-screenshot/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-food-390-lig-b425d-ity-keyboard-and-screenshot/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-food-390-lig-b425d-ity-keyboard-and-screenshot/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 dark: accessibility, keyboard and screenshot 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 35
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the order of headings is semantically correct",
+    +     "help": "Heading levels should only increase by one",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/heading-order?application=playwright",
+    +     "id": "heading-order",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "heading-order",
+    +             "impact": "moderate",
+    +             "message": "Heading order invalid",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Heading order invalid",
+    +         "html": "<h3 class=\"empty-state__title\">Оплат за период нет</h3>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".panel:nth-child(2) > .empty-state > h3",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      190 |         await expect(page.getByRole('main').getByTestId('vertical-analytics')).toBeVisible();
+      191 |         const violations = (await new AxeBuilder({ page }).analyze()).violations;
+    > 192 |         expect(violations).toEqual([]);
+          |                            ^
+      193 |         expect(
+      194 |           await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      195 |         ).toBe(true);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/branches-ui/analytics.spec.ts:192:28
+
+    Error Context: test-results/analytics-MV9-food-390-dar-22cb1-ity-keyboard-and-screenshot/error-context.md
+
+    Error Context: test-results/analytics-MV9-food-390-dar-22cb1-ity-keyboard-and-screenshot/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-MV9-food-390-dar-22cb1-ity-keyboard-and-screenshot/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-MV9-food-390-dar-22cb1-ity-keyboard-and-screenshot/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 light: accessibility, keyboard and screenshot 
+    tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 1440 dark: accessibility, keyboard and screenshot 
+    tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 light: accessibility, keyboard and screenshot 
+    tests/branches-ui/analytics.spec.ts:177:7 › MV9 food 390 dark: accessibility, keyboard and screenshot 
+  7 passed (4.5m)
+
+# код выхода 1 · 4 мин 37 с

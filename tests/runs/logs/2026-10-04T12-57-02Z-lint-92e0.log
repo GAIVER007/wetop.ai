@@ -1,0 +1,11 @@
+# Линтер (lint) · 04.10.2026 17:57 Алматы · MacBook-Air-Urij.local
+# коммит d91c207 (codex/mv2-registration-20261004), незакоммиченных файлов набора: 23
+# npx eslint .
+
+/Users/urijzapojnov/wetop-mv1-20261004/apps/web/src/app/login/actions.ts
+  140:7  error  The value assigned to 'pilot' is not used in subsequent statements  no-useless-assignment
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 17 с

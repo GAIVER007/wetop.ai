@@ -1,0 +1,694 @@
+# Интеграционные (integration) · 05.10.2026 12:16 Алматы · MacBook-Air-Urij.local
+# коммит b8bbe14 (codex/bar-repair-2), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T07-16-59Z-integration-3777.json' 'tests/integration/bar-ownership.test.ts' 'tests/integration/bar-populated-rls.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ❯ |integration| tests/integration/bar-populated-rls.test.ts (24 tests | 8 failed) 177ms
+   ❯ BAR populated tenant visibility and SQL ownership boundary (24)
+     ✓ bar_categories: own=1, foreign=0; unset/empty=0; service=2 57ms
+     ✓ bar_products: own=1, foreign=0; unset/empty=0; service=2 7ms
+     ✓ bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2 10ms
+     ✓ bar_receipts: own=1, foreign=0; unset/empty=0; service=2 6ms
+     ✓ bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2 6ms
+     ✓ bar_sales: own=1, foreign=0; unset/empty=0; service=2 5ms
+     ✓ bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2 4ms
+     ✓ bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2 6ms
+     ✓ bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2 4ms
+     ✓ bar_suppliers: own=1, foreign=0; unset/empty=0; service=2 5ms
+     ✓ all ten tables FORCE RLS; service has BYPASSRLS; app has no bypass 5ms
+     ✓ bar_products: app A cannot create a row in property B 5ms
+     ✓ bar_suppliers: app A cannot create a row in property B 3ms
+     ✓ bar_receipts: app A cannot create a row in property B 3ms
+     ✓ bar_sales: app A cannot create a row in property B 3ms
+     × ownership denies receipt line foreign product 13ms
+     × ownership denies lot foreign product 4ms
+     × ownership denies movement foreign product 4ms
+     × ownership denies movement foreign lot 4ms
+     ✓ ownership denies supplier payment foreign receipt 3ms
+     × ownership denies supplier payment foreign cash 3ms
+     × ownership denies sale line foreign product 4ms
+     × ownership denies lot property A referencing a new receipt line in B 4ms
+     × ownership denies direct INSERT of own receipt line with foreign product 3ms
+ ❯ |integration| tests/integration/bar-ownership.test.ts (104 tests | 104 failed) 176ms
+   ❯ BAR ownership: invoker guards apply to app and BYPASSRLS service (104)
+     × wetop_app INSERT denies receipt line foreign product 14ms
+     × wetop_app INSERT denies receipt line foreign receipt 3ms
+     × wetop_app INSERT denies lot foreign product 3ms
+     × wetop_app INSERT denies lot foreign receipt line 3ms
+     × wetop_app INSERT denies lot same-property wrong product 3ms
+     × wetop_app INSERT denies lot same-property wrong receipt-line pr… 3ms
+     × wetop_app INSERT denies movement foreign product 2ms
+     × wetop_app INSERT denies movement foreign lot 2ms
+     × wetop_app INSERT denies movement same-property wrong lot product 2ms
+     × wetop_app INSERT denies movement same-property wrong product 2ms
+     × wetop_app INSERT denies sale line foreign product 2ms
+     × wetop_app INSERT denies sale line foreign sale 2ms
+     × wetop_app INSERT denies payment foreign receipt 2ms
+     × wetop_app INSERT denies payment foreign unused cash 2ms
+     × wetop_app INSERT denies sale foreign folio 2ms
+     × wetop_app INSERT denies sale foreign unused cash 2ms
+     × wetop_app INSERT denies sale foreign charge without folio 2ms
+     × wetop_app INSERT denies sale charge mismatches own folio 2ms
+     × wetop_app UPDATE denies receipt line foreign product 2ms
+     × wetop_app UPDATE denies receipt line foreign receipt 2ms
+     × wetop_app UPDATE denies lot foreign product 2ms
+     × wetop_app UPDATE denies lot foreign receipt line 1ms
+     × wetop_app UPDATE denies lot same-property wrong product 1ms
+     × wetop_app UPDATE denies lot same-property wrong receipt-line pr… 1ms
+     × wetop_app UPDATE denies movement foreign product 1ms
+     × wetop_app UPDATE denies movement foreign lot 1ms
+     × wetop_app UPDATE denies movement same-property wrong lot product 1ms
+     × wetop_app UPDATE denies movement same-property wrong product 2ms
+     × wetop_app UPDATE denies sale line foreign product 1ms
+     × wetop_app UPDATE denies sale line foreign sale 1ms
+     × wetop_app UPDATE denies payment foreign receipt 1ms
+     × wetop_app UPDATE denies payment foreign unused cash 1ms
+     × wetop_app UPDATE denies sale foreign folio 2ms
+     × wetop_app UPDATE denies sale foreign unused cash 2ms
+     × wetop_app UPDATE denies sale foreign charge without folio 1ms
+     × wetop_app UPDATE denies sale charge mismatches own folio 1ms
+     × wetop_app denies reassignment of bar_categories to another visible Property 1ms
+     × wetop_app denies reassignment of bar_products to another visible Property 1ms
+     × wetop_app denies reassignment of bar_suppliers to another visible Property 1ms
+     × wetop_app denies reassignment of bar_receipts to another visible Property 1ms
+     × wetop_app denies reassignment of bar_stock_lots to another visible Property 1ms
+     × wetop_app denies reassignment of bar_stock_movements to another visible Property 1ms
+     × wetop_app denies reassignment of bar_sales to another visible Property 1ms
+     × wetop_app: bar_receipt_lines own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_app: bar_stock_lots own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_app: bar_stock_movements own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_app: bar_sale_lines own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_app: bar_supplier_payments own INSERT and actual relation UPDATE succeeds 2ms
+     × wetop_app: bar_sales own INSERT and actual relation UPDATE succeeds 2ms
+     × wetop_app: own category/supplier changes and property no-op updates succeed 1ms
+     × wetop_app: receipt line product edit cannot invalidate an existing lot 1ms
+     × wetop_app: lot product edit cannot invalidate an existing movement 1ms
+     × wetop_service INSERT denies receipt line foreign product 1ms
+     × wetop_service INSERT denies receipt line foreign receipt 1ms
+     × wetop_service INSERT denies lot foreign product 1ms
+     × wetop_service INSERT denies lot foreign receipt line 1ms
+     × wetop_service INSERT denies lot same-property wrong product 1ms
+     × wetop_service INSERT denies lot same-property wrong receipt-line pr… 1ms
+     × wetop_service INSERT denies movement foreign product 1ms
+     × wetop_service INSERT denies movement foreign lot 1ms
+     × wetop_service INSERT denies movement same-property wrong lot product 1ms
+     × wetop_service INSERT denies movement same-property wrong product 1ms
+     × wetop_service INSERT denies sale line foreign product 2ms
+     × wetop_service INSERT denies sale line foreign sale 1ms
+     × wetop_service INSERT denies payment foreign receipt 1ms
+     × wetop_service INSERT denies payment foreign unused cash 1ms
+     × wetop_service INSERT denies sale foreign folio 1ms
+     × wetop_service INSERT denies sale foreign unused cash 1ms
+     × wetop_service INSERT denies sale foreign charge without folio 1ms
+     × wetop_service INSERT denies sale charge mismatches own folio 1ms
+     × wetop_service UPDATE denies receipt line foreign product 1ms
+     × wetop_service UPDATE denies receipt line foreign receipt 1ms
+     × wetop_service UPDATE denies lot foreign product 1ms
+     × wetop_service UPDATE denies lot foreign receipt line 1ms
+     × wetop_service UPDATE denies lot same-property wrong product 1ms
+     × wetop_service UPDATE denies lot same-property wrong receipt-line pr… 1ms
+     × wetop_service UPDATE denies movement foreign product 1ms
+     × wetop_service UPDATE denies movement foreign lot 1ms
+     × wetop_service UPDATE denies movement same-property wrong lot product 1ms
+     × wetop_service UPDATE denies movement same-property wrong product 1ms
+     × wetop_service UPDATE denies sale line foreign product 1ms
+     × wetop_service UPDATE denies sale line foreign sale 1ms
+     × wetop_service UPDATE denies payment foreign receipt 1ms
+     × wetop_service UPDATE denies payment foreign unused cash 1ms
+     × wetop_service UPDATE denies sale foreign folio 1ms
+     × wetop_service UPDATE denies sale foreign unused cash 1ms
+     × wetop_service UPDATE denies sale foreign charge without folio 1ms
+     × wetop_service UPDATE denies sale charge mismatches own folio 1ms
+     × wetop_service denies reassignment of bar_categories to another visible Property 1ms
+     × wetop_service denies reassignment of bar_products to another visible Property 3ms
+     × wetop_service denies reassignment of bar_suppliers to another visible Property 1ms
+     × wetop_service denies reassignment of bar_receipts to another visible Property 1ms
+     × wetop_service denies reassignment of bar_stock_lots to another visible Property 1ms
+     × wetop_service denies reassignment of bar_stock_movements to another visible Property 1ms
+     × wetop_service denies reassignment of bar_sales to another visible Property 1ms
+     × wetop_service: bar_receipt_lines own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_service: bar_stock_lots own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_service: bar_stock_movements own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_service: bar_sale_lines own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_service: bar_supplier_payments own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_service: bar_sales own INSERT and actual relation UPDATE succeeds 1ms
+     × wetop_service: own category/supplier changes and property no-op updates succeed 1ms
+     × wetop_service: receipt line product edit cannot invalidate an existing lot 1ms
+     × wetop_service: lot product edit cannot invalidate an existing movement 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 112 ⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies receipt line foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies receipt line foreign receipt
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies lot foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies lot foreign receipt line
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies lot same-property wrong product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies lot same-property wrong receipt-line pr…
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies movement foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies movement foreign lot
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies movement same-property wrong lot product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies movement same-property wrong product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies sale line foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies sale line foreign sale
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies payment foreign receipt
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies payment foreign unused cash
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies sale foreign folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies sale foreign unused cash
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies sale foreign charge without folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app INSERT denies sale charge mismatches own folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies receipt line foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies receipt line foreign receipt
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies lot foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies lot foreign receipt line
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies lot same-property wrong product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies lot same-property wrong receipt-line pr…
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies movement foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies movement foreign lot
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies movement same-property wrong lot product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies movement same-property wrong product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies sale line foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies sale line foreign sale
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies payment foreign receipt
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies payment foreign unused cash
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies sale foreign folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies sale foreign unused cash
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies sale foreign charge without folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app UPDATE denies sale charge mismatches own folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies receipt line foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies receipt line foreign receipt
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies lot foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies lot foreign receipt line
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies lot same-property wrong product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies lot same-property wrong receipt-line pr…
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies movement foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies movement foreign lot
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies movement same-property wrong lot product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies movement same-property wrong product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies sale line foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies sale line foreign sale
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies payment foreign receipt
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies payment foreign unused cash
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies sale foreign folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies sale foreign unused cash
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies sale foreign charge without folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service INSERT denies sale charge mismatches own folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies receipt line foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies receipt line foreign receipt
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies lot foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies lot foreign receipt line
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies lot same-property wrong product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies lot same-property wrong receipt-line pr…
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies movement foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies movement foreign lot
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies movement same-property wrong lot product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies movement same-property wrong product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies sale line foreign product
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies sale line foreign sale
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies payment foreign receipt
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies payment foreign unused cash
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies sale foreign folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies sale foreign unused cash
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies sale foreign charge without folio
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service UPDATE denies sale charge mismatches own folio
+error: invalid input value for enum "AccommodationKind": "ROOM"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ side tests/tools/bar-proof-fixture.ts:177:5
+    175|     });
+    176|     const accommodation = randomUUID();
+    177|     await insert('accommodation_types', {
+       |     ^
+    178|       id: accommodation,
+    179|       property_id: property,
+ ❯ Object.fixture tests/tools/bar-proof-fixture.ts:327:17
+ ❯ tests/integration/bar-ownership.test.ts:156:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/112]⎯
+
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_categories to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_products to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_suppliers to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_receipts to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_stock_lots to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_stock_movements to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app denies reassignment of bar_sales to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_categories to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_products to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_suppliers to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_receipts to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_stock_lots to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_stock_movements to another visible Property
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service denies reassignment of bar_sales to another visible Property
+error: invalid input value for enum "AccommodationKind": "ROOM"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ side tests/tools/bar-proof-fixture.ts:177:5
+    175|     });
+    176|     const accommodation = randomUUID();
+    177|     await insert('accommodation_types', {
+       |     ^
+    178|       id: accommodation,
+    179|       property_id: property,
+ ❯ Object.fixture tests/tools/bar-proof-fixture.ts:327:17
+ ❯ tests/integration/bar-ownership.test.ts:178:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/112]⎯
+
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app: bar_receipt_lines own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app: bar_stock_lots own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app: bar_stock_movements own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app: bar_sale_lines own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app: bar_supplier_payments own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app: bar_sales own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service: bar_receipt_lines own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service: bar_stock_lots own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service: bar_stock_movements own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service: bar_sale_lines own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service: bar_supplier_payments own INSERT and actual relation UPDATE succeeds
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service: bar_sales own INSERT and actual relation UPDATE succeeds
+error: invalid input value for enum "AccommodationKind": "ROOM"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ side tests/tools/bar-proof-fixture.ts:177:5
+    175|     });
+    176|     const accommodation = randomUUID();
+    177|     await insert('accommodation_types', {
+       |     ^
+    178|       id: accommodation,
+    179|       property_id: property,
+ ❯ Object.fixture tests/tools/bar-proof-fixture.ts:327:17
+ ❯ tests/integration/bar-ownership.test.ts:210:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/112]⎯
+
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app: own category/supplier changes and property no-op updates succeed
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service: own category/supplier changes and property no-op updates succeed
+error: invalid input value for enum "AccommodationKind": "ROOM"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ side tests/tools/bar-proof-fixture.ts:177:5
+    175|     });
+    176|     const accommodation = randomUUID();
+    177|     await insert('accommodation_types', {
+       |     ^
+    178|       id: accommodation,
+    179|       property_id: property,
+ ❯ Object.fixture tests/tools/bar-proof-fixture.ts:327:17
+ ❯ tests/integration/bar-ownership.test.ts:247:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/112]⎯
+
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app: receipt line product edit cannot invalidate an existing lot
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service: receipt line product edit cannot invalidate an existing lot
+error: invalid input value for enum "AccommodationKind": "ROOM"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ side tests/tools/bar-proof-fixture.ts:177:5
+    175|     });
+    176|     const accommodation = randomUUID();
+    177|     await insert('accommodation_types', {
+       |     ^
+    178|       id: accommodation,
+    179|       property_id: property,
+ ❯ Object.fixture tests/tools/bar-proof-fixture.ts:327:17
+ ❯ tests/integration/bar-ownership.test.ts:277:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/112]⎯
+
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_app: lot product edit cannot invalidate an existing movement
+ FAIL  |integration| tests/integration/bar-ownership.test.ts > BAR ownership: invoker guards apply to app and BYPASSRLS service > wetop_service: lot product edit cannot invalidate an existing movement
+error: invalid input value for enum "AccommodationKind": "ROOM"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ side tests/tools/bar-proof-fixture.ts:177:5
+    175|     });
+    176|     const accommodation = randomUUID();
+    177|     await insert('accommodation_types', {
+       |     ^
+    178|       id: accommodation,
+    179|       property_id: property,
+ ❯ Object.fixture tests/tools/bar-proof-fixture.ts:327:17
+ ❯ tests/integration/bar-ownership.test.ts:286:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/112]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies receipt line foreign product
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies lot foreign product
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies movement foreign product
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies movement foreign lot
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies supplier payment foreign cash
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies sale line foreign product
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/bar-populated-rls.test.ts:344:62
+    342|       }
+    343|       await asRole('wetop_app', a.org, async () => {
+    344|         await expect(client.query(sql, [id, a.rows[target]])).rejects.…
+       |                                                              ^
+    345|           /row-level security|another property/,
+    346|         );
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:343:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:331:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/112]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies lot property A referencing a new receipt line in B
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/bar-populated-rls.test.ts:374:10
+    372|             a.rows.bar_stock_lots,
+    373|           ]),
+    374|         ).rejects.toThrow(/row-level security|another property/);
+       |          ^
+    375|       });
+    376|     });
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:368:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:351:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/112]⎯
+
+ FAIL  |integration| tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > ownership denies direct INSERT of own receipt line with foreign product
+AssertionError: promise resolved "Result{ command: 'INSERT', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "INSERT",
++   "fields": [],
++   "oid": 0,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/bar-populated-rls.test.ts:392:10
+    390|             calculated_price: '100',
+    391|           }),
+    392|         ).rejects.toThrow(/row-level security|another property/);
+       |          ^
+    393|       });
+    394|     });
+ ❯ asRole tests/integration/bar-populated-rls.test.ts:200:20
+ ❯ tests/integration/bar-populated-rls.test.ts:380:7
+ ❯ fixture tests/integration/bar-populated-rls.test.ts:186:7
+ ❯ tests/integration/bar-populated-rls.test.ts:379:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/112]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  112 failed | 16 passed (128)
+   Start at  11:17:00
+   Duration  1.33s (tests 46%, transform 35%, import 18%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T07-16-59Z-integration-3777.json
+
+# код выхода 1 · 2 с

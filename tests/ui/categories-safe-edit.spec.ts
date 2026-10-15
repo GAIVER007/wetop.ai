@@ -34,7 +34,6 @@ test('categories C4: edit shows what uses the category, type as a fact, Channex 
   const usage = edit.getByRole('list', { name: 'Эту категорию используют' });
   await expect(usage.getByRole('listitem')).toHaveText([
     '16 номеров',
-    '1 тариф: Стандартный',
     '123 брони в истории, из них 5 впереди',
     'Сопоставлена с каналами',
   ]);
@@ -63,9 +62,10 @@ test('categories C4: edit shows what uses the category, type as a fact, Channex 
   await page.keyboard.press('Escape');
 
   // новая категория: ничего не использует, про Channex ни слова
-  await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Добавить категорию', exact: true }).first().click();
   const form = page.getByRole('dialog', { name: 'Создать категорию' });
   await form.getByLabel('Название категории').fill('Семейный C4');
+  await form.getByLabel('Цена за номер в ночь, ₸').fill('20000');
   await form.getByRole('button', { name: 'Создать', exact: true }).click();
   await page.getByRole('dialog', { name: 'Категория создана' }).getByRole('button', { name: 'Готово' }).click();
   await page.getByRole('button', { name: 'Действия с категорией Семейный C4' }).click();

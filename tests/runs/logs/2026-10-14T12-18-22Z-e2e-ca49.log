@@ -1,0 +1,127 @@
+# Сквозные (e2e) · 14.10.2026 17:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 519326e (codex/beauty-calendar-popularity), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.alt.config.ts' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-customers.spec.ts' 'tests/ui/beauty-journal.spec.ts' '--workers=1' '--timeout=120000'
+[WebServer] (node:625) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:673) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:941) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 23 tests using 1 worker
+
+(node:973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1030) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (14.6s)
+[WebServer] (node:1152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (23.7s)
+[WebServer] (node:2284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/beauty-catalog.spec.ts:83:1 › ошибки услуги словами, введённое не стирается (18.3s)
+[WebServer] (node:2462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/beauty-catalog.spec.ts:98:1 › мастер добавляется, умения ставятся и снимаются (1.1m)
+[WebServer] (node:3443) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/beauty-catalog.spec.ts:136:1 › каталог салона на телефоне: без прокрутки вбок (31.0s)
+[WebServer] (node:3757) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/beauty-catalog.spec.ts:155:3 › каталог салона доступен в светлой теме (18.2s)
+[WebServer] (node:3789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/beauty-catalog.spec.ts:155:3 › каталог салона доступен в тёмной теме (16.5s)
+[WebServer] (node:3854) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/ui/beauty-customers.spec.ts:114:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE (2.1m)
+(node:4630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4695) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/ui/beauty-customers.spec.ts:132:1 › поиск и сегмент отбирают строки, итог говорит сколько показано (1.4m)
+
+
+  1) tests/ui/beauty-customers.spec.ts:114:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').locator('summary').filter({ hasText: 'Добавить филиал' })
+
+
+      19 |   await page.goto('/branches');
+      20 |   const main = page.getByRole('main');
+    > 21 |   await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
+         |                                                                        ^
+      22 |   await main.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+      23 |   await main.getByLabel('Название филиала').fill('Студия Айна');
+      24 |   await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
+        at openSalon (/Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-customers.spec.ts:21:72)
+        at readySalon (/Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-customers.spec.ts:37:3)
+        at seededCustomers (/Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-customers.spec.ts:103:3)
+        at /Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-customers.spec.ts:118:3
+
+    Error Context: test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-клиенты-п-57c36-ий-визит-и-сегменты-по-DONE/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-customers.spec.ts:132:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+
+    Test was interrupted.
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for getByRole('main').locator('summary').filter({ hasText: 'Добавить филиал' })
+
+
+      19 |   await page.goto('/branches');
+      20 |   const main = page.getByRole('main');
+    > 21 |   await main.locator('summary').filter({ hasText: 'Добавить филиал' }).click();
+         |                                                                        ^
+      22 |   await main.getByRole('radio', { name: 'Салон красоты или студия' }).check();
+      23 |   await main.getByLabel('Название филиала').fill('Студия Айна');
+      24 |   await main.getByRole('button', { name: 'Добавить филиал', exact: true }).click();
+        at openSalon (/Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-customers.spec.ts:21:72)
+        at readySalon (/Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-customers.spec.ts:37:3)
+        at seededCustomers (/Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-customers.spec.ts:103:3)
+        at /Users/vyacheslav/.codex/worktrees/beauty-publish/WETOP/tests/ui/beauty-customers.spec.ts:136:3
+
+    Error Context: test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-customers-поиск-и-с-89784-ог-говорит-сколько-показано/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-customers.spec.ts:114:1 › клиенты по макету: визиты, средний чек, последний визит и сегменты по DONE 
+  1 interrupted
+    tests/ui/beauty-customers.spec.ts:132:1 › поиск и сегмент отбирают строки, итог говорит сколько показано 
+  14 did not run
+  7 passed (7.2m)
+
+# код выхода 130 · 7 мин 15 с

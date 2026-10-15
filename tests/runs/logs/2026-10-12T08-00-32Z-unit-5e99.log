@@ -1,0 +1,87 @@
+# Модульные (unit) · 12.10.2026 13:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 973ed02 (claude/kitchen-stock-takeover), незакоммиченных файлов набора: 139
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-00-32Z-unit-5e99.json' 'packages/domain/src/food' 'apps/web/src/lib' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/design-guards.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 48ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 144ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 147ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 171ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 30ms
+ ✓ |unit| apps/web/src/lib/registration-context-client.test.ts (1 test) 97ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 28ms
+ ✓ |unit| apps/web/src/lib/branch-report-api.test.ts (2 tests) 17ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 776ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 752ms
+ ✓ |unit| apps/web/src/lib/report-query.test.ts (12 tests) 6ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 3ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 1159ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 1155ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests) 26ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 4ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 7ms
+ ✓ |unit| packages/domain/src/food/food.test.ts (6 tests) 373ms
+   ✓ Food v1 (6)
+     ✓ uses local weekday and preceding overnight window 365ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 1420ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 1389ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 8ms
+ ✓ |unit| apps/web/src/lib/line-geometry.test.ts (5 tests) 7ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 36ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 9ms
+ ✓ |unit| apps/web/src/lib/sales.test.ts (5 tests) 9ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 7ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 73ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 37ms
+ ✓ |unit| packages/domain/src/food/customer-marks.test.ts (5 tests) 11ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (30 tests) 15ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 3ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 9ms
+ ✓ |unit| apps/web/src/lib/food-data.test.ts (4 tests) 12ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (9 tests) 8ms
+ ✓ |unit| packages/domain/src/food/restaurant.test.ts (17 tests) 8ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/status/status.test.ts (13 tests) 10ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (20 tests) 13ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 6ms
+ ✓ |unit| packages/domain/src/food/stock.test.ts (10 tests) 13ms
+ ✓ |unit| apps/web/src/lib/donut.test.ts (4 tests) 6ms
+ ✓ |unit| packages/domain/src/food/cash.test.ts (10 tests) 8ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (8 tests) 9ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/occupancy-kinds.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/lib/food-api.test.ts (1 test) 3ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 4ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (8 tests) 3ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 8ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 5ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 4ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 14ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 3ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 107ms
+
+ Test Files  65 passed (65)
+      Tests  509 passed (509)
+   Start at  01:00:38
+   Duration  8.69s (import 38%, transform 37%, tests 23%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T08-00-32Z-unit-5e99.json
+
+# код выхода 0 · 16 с

@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.10.2026 15:10 Алматы · MacBook-Air-Urij.local
+# коммит 3bd01f4 (claude/site-design-registry-20261013), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T10-10-13Z-unit-1065.json' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-urijzapojnov-Documents-ChatGPT-WETOP/a8708228-98f1-45e4-a395-95f6ac3385d1/scratchpad/guard-wt
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 16ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  14:10:16
+   Duration  127ms (transform 39%, tests 34%, import 22%, worker 5%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-13T10-10-13Z-unit-1065.json
+
+# код выхода 0 · 3 с

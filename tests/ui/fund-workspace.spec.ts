@@ -1,14 +1,12 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { chooseSource } from './booking-form';
 import { FIXTURE_API } from './fixtures';
 test('category creation, rename, room creation and reload', async ({ page }) => {
   await page.goto('/rooms/categories');
-  await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Добавить категорию', exact: true }).first().click();
   await page.getByLabel('Название категории').fill('Тестовая новая категория');
-  // тариф — явным «Настроить сейчас» (ADR-119: по умолчанию «позже»)
-  await page.getByRole('radio', { name: 'Настроить сейчас' }).check();
-  await expect(page.getByRole('combobox', { name: /^Тариф/ })).toBeEnabled();
+  // цена — одна на все дни (план categories-price-2026-10-06), тариф больше не выбирают
+  await page.getByLabel('Цена за номер в ночь, ₸').fill('9000');
   await page.getByRole('button', { name: 'Создать', exact: true }).click();
   await page
     .getByRole('dialog', { name: 'Категория создана' })
@@ -18,9 +16,9 @@ test('category creation, rename, room creation and reload', async ({ page }) => 
     .getByTestId('fund-category-row')
     .filter({ hasText: 'Тестовая новая категория' });
   await expect(category).toBeVisible();
-  // новая категория без единиц и с тарифом из формы (ТЗ «Категории v2» §20, §35)
+  // новая категория без единиц и с ценой из формы (ТЗ «Категории v2» §20, §35)
   await expect(category.getByText('не добавлен', { exact: true })).toBeVisible();
-  await expect(category.getByRole('link', { name: '1 тариф', exact: true })).toBeVisible();
+  await expect(category.getByText('9 000 ₸', { exact: true })).toBeVisible();
   await category
     .getByRole('button', { name: 'Действия с категорией Тестовая новая категория' })
     .click();
@@ -65,7 +63,7 @@ test('availability preserves exact unit and dates; responsive category design', 
   const form = page
     .getByRole('dialog', { name: 'Новая бронь' })
     .getByTestId('new-reservation-form');
-  await expect(form).toBeVisible({ timeout: 45_000 });
+  await expect(form).toBeVisible();
   await expect(form.getByLabel('Заезд', { exact: true })).toHaveValue('2026-09-24');
   await expect(form.getByLabel('Выезд', { exact: true })).toHaveValue('2026-09-27');
   await expect(form.locator('[name="unitCode"]')).toHaveValue(unit!);
@@ -108,19 +106,13 @@ test('guests filter categories by capacity; toggle shows all; tab renamed', asyn
   await page.getByRole('button', { name: 'Только доступные', exact: true }).click();
   await expect(rows.filter({ hasText: 'Двухместный номер' })).toHaveCount(0);
   // раздел переименован: заголовок «Свободные места», маршрут прежний. Отдельной вкладки фонда
-  // у поиска с 01.10.2026 нет (навигация по задачам, `plans/workspace-order-2026-10-01.md`),
-  // остались «Номера и койки» и «Категории»
-  await expect(page.getByRole('heading', { name: 'Свободные места', level: 1 })).toBeVisible();
+  // у поиска с 01.10.2026 нет (навигация по задачам, `plans/workspace-order-2026-10-01.md`)
   await expect(
     page
       .getByRole('navigation', { name: 'Номерной фонд', exact: true })
       .getByRole('link', { name: 'Свободные места' }),
   ).toHaveCount(0);
-  await expect(
-    page
-      .getByRole('navigation', { name: 'Номерной фонд', exact: true })
-      .getByRole('link', { name: 'Номера и койки' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Свободные места', level: 1 })).toBeVisible();
   // пресет дат сохраняет число гостей
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
     'href',
@@ -177,7 +169,9 @@ test('AV3: places as a compact list; automatic choice and picked beds prefill th
   await expect(form.locator('[name="adults"]')).toHaveValue('2');
   await expect(form.locator('[name="unitCode"]')).toHaveValue('@auto');
   await expect(form.getByTestId('booking-summary')).toContainText('ячейку назначит система');
-  await chooseSource(form, 'PHONE');
+  // источник с 01.10.2026 за свёрнутым «Дополнительно» (booking-compact)
+  await form.getByText('Дополнительно', { exact: true }).click();
+  await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByLabel('Имя *', { exact: true }).fill('Автовыбор');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
@@ -300,7 +294,7 @@ test('dark categories and availability; invalid dates and empty onboarding', asy
   await request.post(`${FIXTURE_API}/__test/control`, { data: { empty: true } });
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { name: 'Начните с категории размещения' })).toBeVisible();
-  await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Добавить категорию', exact: true }).first().click();
   await expect(page.getByRole('dialog', { name: 'Создать категорию' })).toBeVisible();
   await page.getByRole('button', { name: 'Отмена', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();

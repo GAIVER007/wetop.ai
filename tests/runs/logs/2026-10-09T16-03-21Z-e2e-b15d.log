@@ -1,0 +1,402 @@
+# Сквозные (e2e) · 09.10.2026 21:03 Алматы · vm
+# коммит 3acf698 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/housekeeping.spec.ts:118' 'tests/ui/mobile-adaptation.spec.ts:92' 'tests/ui/mobile-adaptation.spec.ts:120' 'tests/ui/requests.spec.ts' 'tests/ui/reservations-v2-r2.spec.ts:194' 'tests/ui/search-filter-recovery.spec.ts:133' 'tests/ui/workspace.spec.ts:294' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 39 tests using 1 worker
+
+  ✘   1 tests/ui/housekeeping.spec.ts:118:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (18.6s)
+  ✘   2 tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране (18.2s)
+  ✘   3 tests/ui/mobile-adaptation.spec.ts:120:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (13.6s)
+  ✓   4 tests/ui/requests.spec.ts:81:3 › экран /today: данные берутся одним запросом на путь (1.8s)
+  ✓   5 tests/ui/requests.spec.ts:81:3 › экран /chessboard: данные берутся одним запросом на путь (2.6s)
+  ✓   6 tests/ui/requests.spec.ts:81:3 › экран /reservations: данные берутся одним запросом на путь (2.0s)
+  ✓   7 tests/ui/requests.spec.ts:81:3 › экран /guests: данные берутся одним запросом на путь (1.9s)
+  ✘   8 tests/ui/requests.spec.ts:81:3 › экран /inventory: данные берутся одним запросом на путь (2.1s)
+  ✓   9 tests/ui/requests.spec.ts:81:3 › экран /rooms/categories: данные берутся одним запросом на путь (2.6s)
+  ✓  10 tests/ui/requests.spec.ts:81:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.6s)
+  ✓  11 tests/ui/requests.spec.ts:81:3 › экран /management/analytics: данные берутся одним запросом на путь (1.5s)
+  ✓  12 tests/ui/requests.spec.ts:81:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.0s)
+  ✓  13 tests/ui/requests.spec.ts:81:3 › экран /management/analytics/units: данные берутся одним запросом на путь (2.5s)
+  ✓  14 tests/ui/requests.spec.ts:81:3 › экран /finance: данные берутся одним запросом на путь (1.8s)
+  ✓  15 tests/ui/requests.spec.ts:81:3 › экран /reports: данные берутся одним запросом на путь (1.5s)
+  ✓  16 tests/ui/requests.spec.ts:81:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (1.6s)
+  ✓  17 tests/ui/requests.spec.ts:81:3 › экран /channels: данные берутся одним запросом на путь (2.0s)
+  ✓  18 tests/ui/requests.spec.ts:81:3 › экран /connections/channex: данные берутся одним запросом на путь (1.8s)
+  ✓  19 tests/ui/requests.spec.ts:81:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.7s)
+  ✓  20 tests/ui/requests.spec.ts:81:3 › экран /channels/sync: данные берутся одним запросом на путь (1.7s)
+  ✓  21 tests/ui/requests.spec.ts:81:3 › экран /channels/events: данные берутся одним запросом на путь (1.8s)
+  ✓  22 tests/ui/requests.spec.ts:81:3 › экран /marketing: данные берутся одним запросом на путь (1.9s)
+  ✓  23 tests/ui/requests.spec.ts:81:3 › экран /website: данные берутся одним запросом на путь (2.0s)
+  ✓  24 tests/ui/requests.spec.ts:81:3 › экран /website/booking: данные берутся одним запросом на путь (2.0s)
+  ✓  25 tests/ui/requests.spec.ts:81:3 › экран /website/analytics: данные берутся одним запросом на путь (2.5s)
+  ✓  26 tests/ui/requests.spec.ts:81:3 › экран /hotel-settings: данные берутся одним запросом на путь (2.9s)
+  ✓  27 tests/ui/requests.spec.ts:81:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.7s)
+  ✓  28 tests/ui/requests.spec.ts:81:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.7s)
+  ✓  29 tests/ui/requests.spec.ts:81:3 › экран /team: данные берутся одним запросом на путь (2.1s)
+  ✓  30 tests/ui/requests.spec.ts:81:3 › экран /connections: данные берутся одним запросом на путь (2.4s)
+  ✓  31 tests/ui/requests.spec.ts:81:3 › экран /ai-agents: данные берутся одним запросом на путь (2.0s)
+  ✓  32 tests/ui/requests.spec.ts:81:3 › экран /website/settings: данные берутся одним запросом на путь (2.0s)
+  ✓  33 tests/ui/requests.spec.ts:81:3 › экран /incidents: данные берутся одним запросом на путь (1.9s)
+  ✓  34 tests/ui/requests.spec.ts:81:3 › экран /journal: данные берутся одним запросом на путь (2.1s)
+  ✓  35 tests/ui/requests.spec.ts:81:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.3s)
+  ✘  36 tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране (1.8s)
+  ✘  37 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category (45.2s)
+  ✘  38 tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category (45.2s)
+  ✘  39 tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (19.9s)
+
+
+  1) tests/ui/housekeeping.spec.ts:118:1 › шахматка: легенда называет значки уборки и что значит их отсутствие 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('board-legend')
+    Expected substring: "проверена, доступна"
+    Received string:    "подтвержденапроживаетвыехалне подтвержденаремонт, неисправнаблокировкатребует уборкиубрано, ждёт проверкизелёная точка у места: проверено, доступно"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('board-legend') with timeout 15000ms
+      - waiting for getByTestId('board-legend')
+        27 × locator resolved to <div class="legend" data-testid="board-legend">…</div>
+           - unexpected value "подтвержденапроживаетвыехалне подтвержденаремонт, неисправнаблокировкатребует уборкиубрано, ждёт проверкизелёная точка у места: проверено, доступно"
+
+
+      121 |   await expect(legend).toContainText('требует уборки');
+      122 |   await expect(legend).toContainText('убрано, ждёт проверки');
+    > 123 |   await expect(legend).toContainText('проверена, доступна');
+          |                        ^
+      124 | });
+      125 |
+      126 | test('карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку', async ({
+        at /home/user/wetop.ai/tests/ui/housekeeping.spec.ts:123:24
+
+    Error Context: test-results/housekeeping-шахматка-леге-eb5d3--и-что-значит-их-отсутствие/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/housekeeping-шахматка-леге-eb5d3--и-что-значит-их-отсутствие/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/housekeeping-шахматка-леге-eb5d3--и-что-значит-их-отсутствие/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('navigation', { name: 'Готовые периоды' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('navigation', { name: 'Готовые периоды' }) with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Готовые периоды' })
+
+
+      104 |   // готовые периоды с 09.10 живут в раскрывашке периода: строка управления короче, сетка выше
+      105 |   await page.getByTestId('board-period-button').click();
+    > 106 |   await expect(page.getByRole('navigation', { name: 'Готовые периоды' })).toBeVisible();
+          |                                                                           ^
+      107 | });
+      108 |
+      109 | test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/mobile-adaptation.spec.ts:106:75
+
+    Error Context: test-results/mobile-adaptation-телефон--38d0c-ляют-сетку-на-первом-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--38d0c-ляют-сетку-на-первом-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--38d0c-ляют-сетку-на-первом-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/mobile-adaptation.spec.ts:120:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px 
+
+    Error: /inventory: цели ниже 44 px — Список, Карточки, Выбрать все показанные м, Двухместный номер, Выбрать R01, Выбрать R02, Выбрать R03, Выбрать R04, Выбрать R05, Выбрать R06, Выбрать R07, Выбрать R08, Выбрать R09, Выбрать R10, Выбрать R11, Выбрать R12, Выбрать R13, Выбрать R14, Выбрать R15, Выбрать R16, Мужской общий номер, Выбрать M01, Выбрать M02, Выбрать M03, Выбрать M04, Выбрать M05, Выбрать M06, Выбрать M07, Выбрать M08, Выбрать M09, Выбрать M10, Выбрать M11, Выбрать M12, Выбрать M13, Выбрать M14, Выбрать M15, Выбрать M16, Выбрать M17, Выбрать M18, Выбрать M19, Выбрать M20, Выбрать M21, Выбрать M22, Выбрать M23, Выбрать M24, Выбрать M25, Выбрать M26, Выбрать M27, Выбрать M28, Выбрать M29, Выбрать M30, Выбрать M31, Выбрать M32, Выбрать M33, Выбрать M34, Выбрать M35, Выбрать M36, Женский общий номер, Выбрать F01, Выбрать F02, Выбрать F03, Выбрать F04, Выбрать F05, Выбрать F06, Выбрать F07, Выбрать F08, Выбрать F09, Выбрать F10, Выбрать F11, Выбрать F12, Выбрать F13, Выбрать F14, Выбрать F15, Выбрать F16, Выбрать F17, Выбрать F18, Выбрать F19, Выбрать F20, Выбрать F21, Выбрать F22, Выбрать F23, Выбрать F24, Выбрать F25, Выбрать F26, Выбрать F27, Выбрать F28, Выбрать F29, Выбрать F30, Выбрать F31, Выбрать F32, Выбрать F33, Выбрать F34, Выбрать F35, Выбрать F36
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 96
+
+    - Array []
+    + Array [
+    +   "Список",
+    +   "Карточки",
+    +   "Выбрать все показанные м",
+    +   "Двухместный номер",
+    +   "Выбрать R01",
+    +   "Выбрать R02",
+    +   "Выбрать R03",
+    +   "Выбрать R04",
+    +   "Выбрать R05",
+    +   "Выбрать R06",
+    +   "Выбрать R07",
+    +   "Выбрать R08",
+    +   "Выбрать R09",
+    +   "Выбрать R10",
+    +   "Выбрать R11",
+    +   "Выбрать R12",
+    +   "Выбрать R13",
+    +   "Выбрать R14",
+    +   "Выбрать R15",
+    +   "Выбрать R16",
+    +   "Мужской общий номер",
+    +   "Выбрать M01",
+    +   "Выбрать M02",
+    +   "Выбрать M03",
+    +   "Выбрать M04",
+    +   "Выбрать M05",
+    +   "Выбрать M06",
+    +   "Выбрать M07",
+    +   "Выбрать M08",
+    +   "Выбрать M09",
+    +   "Выбрать M10",
+    +   "Выбрать M11",
+    +   "Выбрать M12",
+    +   "Выбрать M13",
+    +   "Выбрать M14",
+    +   "Выбрать M15",
+    +   "Выбрать M16",
+    +   "Выбрать M17",
+    +   "Выбрать M18",
+    +   "Выбрать M19",
+    +   "Выбрать M20",
+    +   "Выбрать M21",
+    +   "Выбрать M22",
+    +   "Выбрать M23",
+    +   "Выбрать M24",
+    +   "Выбрать M25",
+    +   "Выбрать M26",
+    +   "Выбрать M27",
+    +   "Выбрать M28",
+    +   "Выбрать M29",
+    +   "Выбрать M30",
+    +   "Выбрать M31",
+    +   "Выбрать M32",
+    +   "Выбрать M33",
+    +   "Выбрать M34",
+    +   "Выбрать M35",
+    +   "Выбрать M36",
+    +   "Женский общий номер",
+    +   "Выбрать F01",
+    +   "Выбрать F02",
+    +   "Выбрать F03",
+    +   "Выбрать F04",
+    +   "Выбрать F05",
+    +   "Выбрать F06",
+    +   "Выбрать F07",
+    +   "Выбрать F08",
+    +   "Выбрать F09",
+    +   "Выбрать F10",
+    +   "Выбрать F11",
+    +   "Выбрать F12",
+    +   "Выбрать F13",
+    +   "Выбрать F14",
+    +   "Выбрать F15",
+    +   "Выбрать F16",
+    +   "Выбрать F17",
+    +   "Выбрать F18",
+    +   "Выбрать F19",
+    +   "Выбрать F20",
+    +   "Выбрать F21",
+    +   "Выбрать F22",
+    +   "Выбрать F23",
+    +   "Выбрать F24",
+    +   "Выбрать F25",
+    +   "Выбрать F26",
+    +   "Выбрать F27",
+    +   "Выбрать F28",
+    +   "Выбрать F29",
+    +   "Выбрать F30",
+    +   "Выбрать F31",
+    +   "Выбрать F32",
+    +   "Выбрать F33",
+    +   "Выбрать F34",
+    +   "Выбрать F35",
+    +   "Выбрать F36",
+    + ]
+
+      148 |         .map((el) => (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 24)),
+      149 |     );
+    > 150 |     expect(small, `${route}: цели ниже 44 px — ${small.join(', ')}`).toEqual([]);
+          |                                                                      ^
+      151 |   }
+      152 | });
+      153 |
+        at /home/user/wetop.ai/tests/ui/mobile-adaptation.spec.ts:150:70
+
+    Error Context: test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile-adaptation-телефон--602ec-зделов-—-цели-не-ниже-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/requests.spec.ts:81:3 › экран /inventory: данные берутся одним запросом на путь ──────
+
+    Error: запросов на экран /inventory: {"GET /auth/me":1,"GET /hotel/settings":1,"GET /inventory/summary":1,"GET /inventory/units":1,"GET /inventory/categories":1,"GET /inventory/trend?days=30":1,"GET /inventory/occupancy":1,"GET /channels/channex/channels":1,"GET /channels/channex/mapping":1,"GET /system/freshness":2}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    11
+
+      89 |     );
+      90 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+    > 91 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+         |                                                           ^
+      92 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      93 |     );
+      94 |   });
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:91:59
+
+    Error Context: test-results/requests-экран-inventory-д-0f43d-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-inventory-д-0f43d-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-inventory-д-0f43d-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 450
+    Received:    509
+
+      201 |   const main = page.getByRole('main');
+      202 |   await expect(main.getByLabel('Оплата', { exact: true })).toBeHidden();
+    > 203 |   expect((await rows(page).first().boundingBox())!.y).toBeLessThanOrEqual(450);
+          |                                                       ^
+      204 |   expect(
+      205 |     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+      206 |   ).toBeLessThanOrEqual(1);
+        at /home/user/wetop.ai/tests/ui/reservations-v2-r2.spec.ts:203:55
+
+    Error Context: test-results/reservations-v2-r2-R2-теле-10025-ми»-таблица-в-первом-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r2-R2-теле-10025-ми»-таблица-в-первом-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r2-R2-теле-10025-ми»-таблица-в-первом-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('a').filter({ hasText: 'Поиск свободных номеров' })
+
+
+      138 |         // then the actual mobile search, without forcing clicks on hidden controls.
+      139 |         await page.goto((await link.getAttribute('href'))!);
+    > 140 |       } else await link.click();
+          |                         ^
+      141 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+      142 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+      143 |       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:140:25
+
+    Error Context: test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-64629-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('a').filter({ hasText: 'Поиск свободных номеров' })
+
+
+      137 |         // The existing mobile calendar hides this desktop header action. Verify its destination,
+      138 |         // then the actual mobile search, without forcing clicks on hidden controls.
+    > 139 |         await page.goto((await link.getAttribute('href'))!);
+          |                                     ^
+      140 |       } else await link.click();
+      141 |       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
+      142 |       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
+        at /home/user/wetop.ai/tests/ui/search-filter-recovery.spec.ts:139:37
+
+    Error Context: test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-92fd1-nclusive-range-and-category/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.board-stay-caption').filter({ hasText: '←' }).first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.board-stay-caption').filter({ hasText: '←' }).first() with timeout 15000ms
+      - waiting for locator('.board-stay-caption').filter({ hasText: '←' }).first()
+
+
+      303 |   await expect(page.getByTestId('date-col')).toHaveCount(7);
+      304 |   await expect(page.getByTestId('unit-row')).toHaveCount(88);
+    > 305 |   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
+          |                                                                                      ^
+      306 |   // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
+      307 |   const board = page.getByRole('main');
+      308 |   await boardFilter(page, { category: 'MALE' });
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:305:86
+
+    Error Context: test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/housekeeping.spec.ts:118:1 › шахматка: легенда называет значки уборки и что значит их отсутствие 
+    tests/ui/mobile-adaptation.spec.ts:92:1 › телефон: сводка и управление оставляют сетку на первом экране 
+    tests/ui/mobile-adaptation.spec.ts:120:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px 
+    tests/ui/requests.spec.ts:81:3 › экран /inventory: данные берутся одним запросом на путь ───────
+    tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране 
+    tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 1440 › availability: calendar transfers its inclusive range and category 
+    tests/ui/search-filter-recovery.spec.ts:133:5 › search/filter recovery 390 › availability: calendar transfers its inclusive range and category 
+    tests/ui/workspace.spec.ts:294:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+  31 passed (4.2m)
+
+# код выхода 1 · 4 мин 14 с

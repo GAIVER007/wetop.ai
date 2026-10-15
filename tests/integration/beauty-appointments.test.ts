@@ -27,11 +27,20 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
   const own = { org: randomUUID(), business: randomUUID(), location: randomUUID(), user: randomUUID() };
   const other = { org: randomUUID(), business: randomUUID(), location: randomUUID(), customer: randomUUID() };
 
-  // понедельник 12 октября 2026; 10:00 по Алматы это 05:00 UTC
-  const DATE = '2026-10-12';
+  // Ближайший понедельник после сегодняшнего дня по Алматы; 10:00 по Алматы это 05:00 UTC. Дата была
+  // зашита как 2026-10-12, и с 13.10 отсутствие на этот день стало прошедшим: список отсутствий отдаёт только
+  // идущие и будущие (`schedule.ts`, `dateTo >= сегодня`), и снять его по списку тест уже не мог
+  const DATE = (() => {
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+    const d = new Date(`${today}T00:00:00Z`);
+    do d.setUTCDate(d.getUTCDate() + 1);
+    while (d.getUTCDay() !== 1);
+    return d.toISOString().slice(0, 10);
+  })();
   const at = (hhmm: string) => {
     const [h, m] = hhmm.split(':').map(Number);
-    return new Date(Date.UTC(2026, 9, 12, (h as number) - 5, m)).toISOString();
+    const [y, mo, d] = DATE.split('-').map(Number);
+    return new Date(Date.UTC(y as number, (mo as number) - 1, d, (h as number) - 5, m)).toISOString();
   };
 
   const as = <T>(role: 'OWNER' | 'STAFF', fn: () => Promise<T>) =>
@@ -41,6 +50,7 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
         organizationId: own.org,
         role,
         scope: 'LOCATION',
+        vertical: 'BEAUTY',
         businessId: own.business,
         locationId: own.location,
       },
@@ -49,7 +59,7 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
 
   async function seedOrg(o: { org: string; business: string; location: string }) {
     await db.$executeRawUnsafe(
-      `INSERT INTO "organizations" ("id", "name") VALUES ('${o.org}', 'Сеть ${o.org.slice(0, 8)}')`,
+      `INSERT INTO "organizations" ("id", "name", "status") VALUES ('${o.org}', 'Сеть ${o.org.slice(0, 8)}', 'ACTIVE')`,
     );
     await db.$executeRawUnsafe(
       `INSERT INTO "businesses" ("id", "organization_id", "name", "vertical", "updated_at")
@@ -111,6 +121,7 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
       catalog.createService({ name: 'Маникюр', durationMinutes: 60, priceMinor: '800000', currency: 'KZT' }),
     );
     serviceId = svc.id;
+    await as('OWNER', () => catalog.setEmployeeServices(employeeId, { serviceIds: [serviceId] }));
     await as('OWNER', () => catalog.setLocationService(serviceId, { enabled: true }));
     // понедельник с 09:00 до 18:00
     await as('OWNER', () =>

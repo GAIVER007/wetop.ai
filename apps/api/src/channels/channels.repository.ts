@@ -4,7 +4,7 @@ import { Inject, Injectable, UnprocessableEntityException } from '@nestjs/common
 import { channex } from '@pms/integrations';
 import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
-import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { LUXX_APARTS_PROPERTY, soldDeparture } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { integrationTables, onIntegrationTables } from '../database/integration-tables';
 import { propertyToday, propertyIdRef, propertyRef } from '../database/property-ref';
@@ -251,7 +251,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     });
     const rp = await this.prisma.db.ratePlan.findUnique({
       where: { propertyId_code: { propertyId: p.id, code: ratePlanCode } },
-      select: { id: true, code: true, name: true, currency: true },
+      select: { id: true, code: true, name: true, currency: true, active: true },
     });
     return {
       property: {
@@ -274,7 +274,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         capacityAdults: t.capacityAdults,
         units: t._count.units,
       })),
-      ratePlan: rp,
+      ratePlan: rp?.active ? rp : null,
     };
   }
   /**
@@ -366,7 +366,18 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   async saveRatePlanMapping(
     row: Parameters<ChannelsRepository['saveRatePlanMapping']>[0],
   ): Promise<void> {
-    await this.prisma.db.channelMapping.create({ data: row });
+    await this.prisma.db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.category:${row.localAccommodationTypeId}`}, 0))`;
+      const plan = await tx.ratePlan.findFirst({
+        where: { id: row.localRatePlanId, propertyId: row.propertyId, active: true },
+        select: { id: true },
+      });
+      if (!plan)
+        throw new UnprocessableEntityException(
+          'Тариф отключён или недоступен для этого объекта. Выберите действующий тариф',
+        );
+      await tx.channelMapping.create({ data: row });
+    });
   }
   async dailyRates(ratePlanIds: string[], from: string, to: string): Promise<LocalDailyRate[]> {
     const rows = await this.prisma.db.dailyRate.findMany({
@@ -451,16 +462,28 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         departureDate: { gt: asDate(from) },
       },
       select: {
+        status: true,
+        allocations: { select: { endDate: true } },
         arrivalDate: true,
         departureDate: true,
         accommodationType: { select: { code: true } },
       },
     });
-    return rows.map((r) => ({
-      accommodationTypeCode: r.accommodationType.code,
-      arrivalDate: iso(r.arrivalDate),
-      departureDate: iso(r.departureDate),
-    }));
+    return rows.flatMap((r) => {
+      const departureDate = soldDeparture({
+        status: r.status,
+        departureDate: iso(r.departureDate),
+        allocationEndDates: r.allocations.map((a) => iso(a.endDate)),
+      });
+      if (departureDate === null || departureDate <= from) return [];
+      return [
+        {
+          accommodationTypeCode: r.accommodationType.code,
+          arrivalDate: iso(r.arrivalDate),
+          departureDate,
+        },
+      ];
+    });
   }
   async enqueueOutbox(provider: string, kind: OutboxKind, payload: unknown[]): Promise<string> {
     // Phase 1 изоляции (ADR-100 §17.2): сообщение очереди с рождения знает объект

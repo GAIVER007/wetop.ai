@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, menuLinks, openSection } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -30,17 +30,12 @@ const control = (
 const shot = (page: Page, name: string) =>
   page.screenshot({ path: `reports/platform-access-2026-09-25/${name}.png`, fullPage: true });
 
-const menuLinks = (page: Page) =>
-  page
-    .locator('.workspace-header .topmenu a')
-    .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
-
 test('меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора', async ({
   page,
   request,
 }) => {
   // без входа стойка не знает организацию: продавец виден для знакомства (ADR-090), «Платформы» нет
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect.poll(() => menuLinks(page)).toContain('/ai-agents');
   expect(await menuLinks(page)).not.toContain('/platform');
 
@@ -53,27 +48,26 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   await expect(footer).toContainText('Владелец');
 
   await control(request, { sellerExtension: 'off', platformAdmin: true });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect.poll(() => menuLinks(page)).toContain('/platform');
   // расширение выключено, а пункт остаётся (ADR-090): закрытый доступ объясняет сам раздел
   expect(await menuLinks(page)).toContain('/ai-agents');
-  await expect(page.locator('.workspace-header .topmenu__tab')).toHaveText([
+  await expect(page.locator('.sidenav__section')).toHaveText([
     'Главная',
     'Календарь',
-    'Брони',
-    'Гости',
+    'Гости и бронирования',
+    'Номерной фонд',
     'Финансы',
     'Продажи',
+    'Маркетинг',
     'Отчёты',
-    'Номерной фонд',
     'Настройки',
-    'Платформа',
   ]);
   await expect(footer).toContainText('Владелец · главный администратор');
-  await page
-    .locator('.workspace-header')
-    .getByRole('button', { name: 'Платформа', exact: true })
-    .click();
+  // «Организации» лежат в «Настройках» (поручение владельца 09.10.2026), вкладки «Платформа» больше нет
+  await expect(page.locator('.sidenav__section', { hasText: /^Платформа$/ })).toHaveCount(0);
+  const settings = await openSection(page, 'Настройки');
+  await expect(settings.getByRole('link', { name: 'Организации' })).toBeVisible();
   await shot(page, 'menu-platform-admin');
 });
 
@@ -108,11 +102,12 @@ test('срок вышел: всё видно, но менять, отвечат�
   await page.goto('/ai-seller');
   const main = page.getByRole('main');
   await expect(main.getByTestId('seller-state')).toContainText('срок вышел');
+  await main.getByText('Настройка продавца', { exact: true }).click();
   const setup = main.getByTestId('seller-setup');
   await expect(setup.getByTestId('seller-read-only')).toContainText('Срок расширения вышел');
-  // окно инструкции — на шаге «Инструкция» степпера; клик до гидрации теряется — повторяем
+  // Инструкция находится в раскрываемой настройке продавца.
   await expect(async () => {
-    await main.getByRole('button', { name: 'Инструкция' }).click();
+    await main.getByRole('navigation', {name: 'Шаги настройки продавца'}).getByRole('button', {name: '1 Инструкция', exact: true}).click();
     await expect(setup.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeVisible({
       timeout: 1_000,
     });
@@ -121,6 +116,7 @@ test('срок вышел: всё видно, но менять, отвечат�
   await expect(main.getByTestId('seller-prompt-save')).toHaveCount(0);
   // список «До запуска» — тому, кто может его выполнить: после срока его нет
   await expect(main.getByTestId('seller-checklist')).toHaveCount(0);
+  await main.getByRole('navigation', {name: 'Шаги настройки продавца'}).getByRole('button', {name: '3 Проверка', exact: true}).click();
   await expect(main.getByTestId('seller-check').getByTestId('seller-action-closed')).toContainText(
     'Проверка — при действующем расширении',
   );
@@ -174,9 +170,10 @@ test('управляющий настраивает продавца нарав�
   await control(request, { role: 'MANAGER' });
   await page.goto('/ai-seller');
   const main = page.getByRole('main');
-  // окно инструкции — на шаге «Инструкция» степпера; клик до гидрации теряется — повторяем
+  // Инструкция находится в раскрываемой настройке продавца.
+  await main.getByText('Настройка продавца', {exact: true}).click();
   await expect(async () => {
-    await main.getByRole('button', { name: 'Инструкция' }).click();
+    await main.getByRole('navigation', {name: 'Шаги настройки продавца'}).getByRole('button', {name: '1 Инструкция', exact: true}).click();
     await expect(main.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeVisible({
       timeout: 1_000,
     });
@@ -220,7 +217,6 @@ test('«Платформа → Организации»: главный адми
 
   await control(request, { platformAdmin: true });
   await page.goto('/platform');
-  await page.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
   const table = page.getByTestId('platform-organizations');
   await expect(table).toContainText('Luxx Aparts');
   await expect(table).toContainText('Хостел «Пример»');

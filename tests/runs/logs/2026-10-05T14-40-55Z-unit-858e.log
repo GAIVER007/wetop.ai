@@ -1,0 +1,180 @@
+# Модульные (unit) · 05.10.2026 19:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (codex/staff-owner-journal), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-40-55Z-unit-858e.json' 'apps/api/src/audit/owner-access.test.ts' 'apps/api/src/audit/audit.service.test.ts' 'apps/api/src/accounts/invites.controller.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/staff-owner-journal/WETOP
+
+ ❯ |unit| apps/api/src/audit/audit.service.test.ts (12 tests | 3 failed) 22ms
+   ❯ AuditService.list (7)
+     × отбирает автора и период до LIMIT, сортирует одинаковое время по id 6ms
+     × не принимает неверные лимиты и даты 2ms
+     × выдаёт безопасные изменения и стабильный id автора 8ms
+     ✓ ищет номер брони или код ячейки в базе по всей истории, а не в последних 200 строках 0ms
+     ✓ служебные строки служебная проверка системы по умолчанию скрыты, по запросу — показаны 1ms
+     ✓ снимки брони наружу не едут: в выборке только короткие поля и сводка 1ms
+     ✓ одним запросом отмечает, можно ли открыть бронь из истории 0ms
+   ✓ AuditService.list — кто сделал (5)
+     ✓ отдаёт имя вошедшего рядом с действием 0ms
+     ✓ действие без автора — это система: фоновая задача или системный процесс 1ms
+     ✓ берёт из учётной записи только имя: почта сотрудника в журнал не выводится 0ms
+     ✓ с объединением таблиц колонки названы по таблице: иначе Postgres спотыкается на created_at 0ms
+     ✓ действия с учётными записями видны как обычные строки журнала 0ms
+ ❯ |unit| apps/api/src/audit/owner-access.test.ts (3 tests | 1 failed) 4ms
+   ❯ журнал владельца: прямой запрос к API (3)
+     ✓ OWNER 1ms
+     × MANAGER 2ms
+     ✓ STAFF 0ms
+[Nest] 86402  - 10/05/2026, 7:41:08 AM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ❯ |unit| apps/api/src/accounts/invites.controller.test.ts (13 tests | 1 failed) 852ms
+   ✓ приглашение: владелец и управляющий, не администратор (DATA_MODEL §16.5, ADR-107) (2)
+     ✓ администратор получает 403 и на создание, и на список; письма и приглашения нет 94ms
+     ✓ владелец приглашает как прежде 15ms
+   ✓ приглашение: только для вошедшего (1)
+     ✓ без сессии — 401 и на создание, и на список 4ms
+   ✓ приглашение: создание и список (2)
+     ✓ вошедший зовёт по почте: 201, письмо со ссылкой на 7 суток, в базе только отпечаток 13ms
+     ✓ не почта — 400 с текстом; уже в организации — 400 с текстом; письма нет 3ms
+   ❯ приглашение: проверка и принятие по ссылке (4)
+     × одновременное принятие выдаёт доступ и ссылку на пароль только одному запросу 5ms
+     ✓ по ключу видно, кто зовёт и кого; чужой ключ — 404 одним текстом 4ms
+     ✓ принятие: членство заведено, выдан ключ «задайте пароль», письма нет; второй раз — 404 4ms
+     ✓ просроченная ссылка — 404 и на просмотр, и на принятие; членства нет 4ms
+   ✓ приглашение: отзыв и предел в сутки (3)
+     ✓ владелец отзывает приглашение: его нет в списке, а ссылка больше не открывается 4ms
+     ✓ сотрудник не отзывает, чужое приглашение — 404 2ms
+     ✓ больше 20 приглашений за сутки — 429 словами, письма нет 19ms
+   ✓ сбой почты не выдаётся за отправленное приглашение и ссылка отозвана 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/audit/audit.service.test.ts > AuditService.list > отбирает автора и период до LIMIT, сортирует одинаковое время по id
+AssertionError: expected '\n      SELECT a."id", a."created_at"…' to contain 'a."user_id" ='
+
+- Expected
++ Received
+
+- a."user_id" =
++
++       SELECT a."id", a."created_at", a."entity_type", a."entity_id", a."action", COALESCE(
++   CASE WHEN a."after" IS NOT NULL AND jsonb_typeof(a."after") = 'object'
++        THEN COALESCE(a."after"->>'confirmationNumber', a."after"->>'code', a."after"->>'uniqueId') END,
++   CASE WHEN a."after" IS NULL OR jsonb_typeof(a."after") = 'null'
++        THEN COALESCE(a."before"->>'confirmationNumber', a."before"->>'code', a."before"->>'uniqueId') END
++ ) AS "subject",
++              CASE WHEN a."entity_type" = 'Reservation' THEN reservation_target."id" IS NOT NULL ELSE NULL END
++                AS "target_available",
++              u."name" AS "author"
++       FROM "audit_logs" a
++       LEFT JOIN "users" u ON u."id" = a."user_id"
++       LEFT JOIN "reservations" reservation_target
++         ON a."entity_type" = 'Reservation' AND reservation_target."id"::text = a."entity_id"
++       WHERE TRUE AND a."action" <> ALL(?::text[])
++       ORDER BY a."created_at" DESC
++       LIMIT ?
+
+ ❯ apps/api/src/audit/audit.service.test.ts:68:29
+     66|     const { service, queries } = fakePrisma();
+     67|     await service.list({ actor: '11111111-1111-4111-8111-111111111111'…
+     68|     expect(queries[0]!.sql).toContain('a."user_id" =');
+       |                             ^
+     69|     expect(queries[0]!.sql).toContain('a."created_at" >=');
+     70|     expect(queries[0]!.sql).toContain('a."created_at" <');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/api/src/audit/audit.service.test.ts > AuditService.list > не принимает неверные лимиты и даты
+AssertionError: promise resolved "[]" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+[]
+
+ ❯ apps/api/src/audit/audit.service.test.ts:78:49
+     76|     for (const query of [{ limit: NaN }, { limit: 1.5 }, { from: '2026…
+     77|       const { service, queries } = fakePrisma();
+     78|       await expect(service.list(query as never)).rejects.toThrow();
+       |                                                 ^
+     79|       expect(queries).toHaveLength(0);
+     80|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/api/src/audit/audit.service.test.ts > AuditService.list > выдаёт безопасные изменения и стабильный id автора
+AssertionError: expected { id: 'a-1', …(7) } to match object { authorId: 'u-1', …(2) }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "after": {
+-     "voided": true,
+-   },
+-   "authorId": "u-1",
+-   "before": {
+-     "amountMinor": "150000",
+-   },
++   "action": "reservation.checkIn",
++   "at": "2026-09-15T10:00:00.000Z",
++   "author": null,
++   "entityId": "r-1",
++   "entityType": "Reservation",
++   "id": "a-1",
++   "subject": "WT-1",
++   "targetAvailable": true,
+  }
+
+ ❯ apps/api/src/audit/audit.service.test.ts:86:19
+     84|     const { service } = fakePrisma([row({ user_id: 'u-1', before_safe:…
+     85|     const [entry] = await service.list({});
+     86|     expect(entry).toMatchObject({ authorId: 'u-1', before: { amountMin…
+       |                   ^
+     87|   });
+     88|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/api/src/audit/owner-access.test.ts > журнал владельца: прямой запрос к API > MANAGER
+AssertionError: expected function to throw an error, but it didn't
+ ❯ apps/api/src/audit/owner-access.test.ts:17:25
+     15|       } as never);
+     16|       if (role === 'OWNER') expect(call()).toBe(true);
+     17|       else expect(call).toThrow(ForbiddenException);
+       |                         ^
+     18|     });
+     19|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/api/src/accounts/invites.controller.test.ts > приглашение: проверка и принятие по ссылке > одновременное принятие выдаёт доступ и ссылку на пароль только одному запросу
+AssertionError: expected [ { …(4) }, { …(4) } ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ apps/api/src/accounts/invites.controller.test.ts:183:37
+    181|     const service = app.get(AccountsService);
+    182|     const results = await Promise.all([service.acceptInvite(rawToken),…
+    183|     expect(results.filter(Boolean)).toHaveLength(1);
+       |                                     ^
+    184|   });
+    185|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  5 failed | 23 passed (28)
+   Start at  07:41:01
+   Duration  7.82s (import 64%, transform 20%, tests 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-05T14-40-55Z-unit-858e.json
+
+# код выхода 1 · 16 с

@@ -20,39 +20,6 @@ import { auditUserId } from '../accounts/actor';
 
 const PENALTY_MESSAGE = 'Правило отмены: без штрафа, первая ночь или всё проживание';
 
-/** Что держит тариф и не даёт его выключить (WET-04): считается в `list` и проверяется в `setActive` */
-type Holds = { channelMappings: number; trackedSites: number; derived: number };
-const HOLDS_SELECT = {
-  select: {
-    channelMappings: true,
-    trackedSites: true,
-    derived: { where: { active: true } },
-  },
-} as const;
-
-/**
- * Почему тариф нельзя выключить: словами, все причины сразу (ТЗ QA 01.10.2026, WET-04). Брони впереди держат тариф
- * по умолчанию ТЗ «блокировать до явного разрешения» (Q-270); включить обратно можно всегда.
- */
-function offBlockers(holds: Holds, upcoming: number): string[] {
-  const reasons: string[] = [];
-  if (holds.channelMappings > 0)
-    reasons.push(
-      'Тариф сопоставлен с менеджером каналов: сначала снимите сопоставление в «Каналах продаж».',
-    );
-  if (holds.trackedSites > 0)
-    reasons.push(
-      'По этому тарифу бронирует сайт: сначала выберите другой тариф во вкладке «Сайт → Бронирование».',
-    );
-  if (holds.derived > 0)
-    reasons.push(`Действующих производных тарифов: ${holds.derived}. Сначала выключите их.`);
-  if (upcoming > 0)
-    reasons.push(
-      `Броней впереди по тарифу: ${upcoming}. Тариф выключается, когда по нему не остаётся будущих броней.`,
-    );
-  return reasons;
-}
-
 /**
  * «Тарифные планы» (SET4, `plans/property-settings-set4-2026-09-29.md`; дополнение 29.09 к ADR-115). Правило отмены —
  * свойство тарифа; штраф берётся из тарифа в момент отмены или незаезда (Q-103), поэтому правка правила действует и
@@ -105,7 +72,6 @@ export class RatePlansService {
             select: { accommodationType: { select: { name: true } } },
             orderBy: { accommodationType: { name: 'asc' } },
           },
-          _count: HOLDS_SELECT,
         },
         orderBy: [{ active: 'desc' }, { name: 'asc' }],
       }),
@@ -121,14 +87,11 @@ export class RatePlansService {
         maxDaysBeforeArrival,
         minNights,
         parent,
-        _count,
         ...plan
       }) => ({
         ...plan,
         categories: types.map((t) => t.accommodationType.name),
         upcomingReservations: upcoming.get(id) ?? 0,
-        // почему тариф нельзя выключить (WET-04); пусто — можно
-        offBlockers: offBlockers(_count, upcoming.get(id) ?? 0),
         // производный тариф (DATA_MODEL §20): родитель и правило; у обычного — null
         derived:
           parentRatePlanId != null && discountPercent != null
@@ -142,60 +105,6 @@ export class RatePlansService {
             : null,
       }),
     );
-  }
-
-  /**
-   * `PATCH /rates/plans/:code`: либо правило отмены (SET4), либо `active` (WET-04), не оба сразу: у каждого свой
-   * журнал и свои проверки.
-   */
-  async update(code: string, raw: unknown) {
-    const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-    const extra = Object.keys(body).find((k) => k !== 'cancellationPenalty' && k !== 'active');
-    if (extra) throw new BadRequestException(`Неизвестное поле: ${extra}`);
-    if ('active' in body && 'cancellationPenalty' in body)
-      throw new BadRequestException('Правило отмены и статус тарифа меняются отдельными запросами');
-    if ('active' in body) return this.setActive(code, body.active);
-    return this.updatePenalty(code, body);
-  }
-
-  /**
-   * Выключить или включить тариф (ТЗ QA 01.10.2026, WET-04) через существующее поле `active`: выключенный тариф не
-   * предлагается в новой брони и в предложениях цен, прежние брони хранят его и его правило отмены. Выключить
-   * нельзя, пока тариф держат сопоставление каналов, сайт, действующие производные или брони впереди; включить
-   * обратно можно всегда. Журнал: `rate_plan.active.updated`.
-   */
-  async setActive(code: string, value: unknown) {
-    if (typeof value !== 'boolean') throw new BadRequestException('active: да или нет');
-    const propertyId = await this.property();
-    const plan = await this.prisma.db.ratePlan.findFirst({
-      where: { propertyId, code },
-      select: { id: true, active: true, _count: HOLDS_SELECT },
-    });
-    if (!plan) throw new NotFoundException('Тариф не найден');
-    const was = plan.active;
-    if (was !== value) {
-      const upcomingNow = (await this.upcoming(this.prisma.db, propertyId)).get(plan.id) ?? 0;
-      if (!value) {
-        const reasons = offBlockers(plan._count, upcomingNow);
-        if (reasons.length) throw new ConflictException(reasons.join(' '));
-      }
-      await this.prisma.db.$transaction(async (tx) => {
-        await tx.ratePlan.update({ where: { id: plan.id }, data: { active: value } });
-        await tx.auditLog.create({
-          data: {
-            userId: auditUserId(),
-            entityType: 'RatePlan',
-            entityId: plan.id,
-            action: 'rate_plan.active.updated',
-            before: { active: was },
-            after: { active: value, upcomingReservations: upcomingNow },
-          },
-        });
-      });
-    }
-    const saved = (await this.list()).find((p) => p.code === code);
-    if (!saved) throw new NotFoundException('Тариф не найден');
-    return saved;
   }
 
   async updatePenalty(code: string, raw: unknown) {
@@ -244,7 +153,8 @@ export class RatePlansService {
       return typeof v === 'number' ? v : Number.NaN;
     };
     const rule: DerivedRule = {
-      discountPercent: (int('discountPercent', current?.discountPercent ?? null) ?? Number.NaN) as number,
+      discountPercent: (int('discountPercent', current?.discountPercent ?? null) ??
+        Number.NaN) as number,
       minDaysBeforeArrival: int('minDaysBeforeArrival', current?.minDaysBeforeArrival ?? null),
       maxDaysBeforeArrival: int('maxDaysBeforeArrival', current?.maxDaysBeforeArrival ?? null),
       minNights: int('minNights', current?.minNights ?? null),
@@ -257,22 +167,35 @@ export class RatePlansService {
   /** Новый производный тариф: код даёт система, валюта и штраф при отмене — от родителя (DATA_MODEL §20) */
   async createDerived(raw: unknown) {
     const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-    const allowed = ['name', 'parentCode', 'discountPercent', 'minDaysBeforeArrival', 'maxDaysBeforeArrival', 'minNights'];
+    const allowed = [
+      'name',
+      'parentCode',
+      'discountPercent',
+      'minDaysBeforeArrival',
+      'maxDaysBeforeArrival',
+      'minNights',
+    ];
     const extra = Object.keys(body).find((k) => !allowed.includes(k));
     if (extra) throw new BadRequestException(`Неизвестное поле: ${extra}`);
     const name = typeof body.name === 'string' ? body.name.trim().replace(/\s+/g, ' ') : '';
-    if (!name || name.length > 120) throw new BadRequestException('Название тарифа: от 1 до 120 знаков');
+    if (!name || name.length > 120)
+      throw new BadRequestException('Название тарифа: от 1 до 120 знаков');
     const rule = this.parseRule(body);
     const propertyId = await this.property();
     const parentCode = typeof body.parentCode === 'string' ? body.parentCode : '';
     const parent = await this.prisma.db.ratePlan.findFirst({
       where: { propertyId, code: parentCode },
-      select: { id: true, currency: true, cancellationPenalty: true, parentRatePlanId: true, active: true },
+      select: {
+        id: true,
+        currency: true,
+        cancellationPenalty: true,
+        parentRatePlanId: true,
+        active: true,
+      },
     });
     if (!parent) throw new NotFoundException('Родительский тариф не найден');
-    if (parent.parentRatePlanId) throw new BadRequestException('Родитель не может сам быть производным тарифом');
-    // WET-04: выключенный тариф не продаётся, производный от него не имел бы цены
-    if (!parent.active) throw new BadRequestException('Родительский тариф выключен: сначала включите его');
+    if (parent.parentRatePlanId)
+      throw new BadRequestException('Родитель не может сам быть производным тарифом');
     const code = `rate-${randomUUID().slice(0, 8)}`;
     await this.prisma.db.$transaction(async (tx) => {
       const plan = await tx.ratePlan.create({
@@ -308,7 +231,14 @@ export class RatePlansService {
   /** Правка производного: название, процент, окно продаж, минимум ночей, действует ли. Родитель не меняется */
   async updateDerived(code: string, raw: unknown) {
     const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-    const allowed = ['name', 'discountPercent', 'minDaysBeforeArrival', 'maxDaysBeforeArrival', 'minNights', 'active'];
+    const allowed = [
+      'name',
+      'discountPercent',
+      'minDaysBeforeArrival',
+      'maxDaysBeforeArrival',
+      'minNights',
+      'active',
+    ];
     const extra = Object.keys(body).find((k) => !allowed.includes(k));
     if (extra) throw new BadRequestException(`Неизвестное поле: ${extra}`);
     const propertyId = await this.property();
@@ -338,7 +268,8 @@ export class RatePlansService {
     let name = plan.name;
     if ('name' in body) {
       name = typeof body.name === 'string' ? body.name.trim().replace(/\s+/g, ' ') : '';
-      if (!name || name.length > 120) throw new BadRequestException('Название тарифа: от 1 до 120 знаков');
+      if (!name || name.length > 120)
+        throw new BadRequestException('Название тарифа: от 1 до 120 знаков');
     }
     let active = plan.active;
     if ('active' in body) {
@@ -346,6 +277,33 @@ export class RatePlansService {
       active = body.active;
     }
     await this.prisma.db.$transaction(async (tx) => {
+      if (plan.active && !active) {
+        // Тот же порядок и ключи, что у ручной продажи группы: проверка связей не обгоняет создание брони.
+        const types = await tx.accommodationType.findMany({
+          where: { propertyId },
+          select: { id: true },
+          orderBy: { id: 'asc' },
+        });
+        for (const type of types) {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.category:${type.id}`}, 0))`;
+        }
+        const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+        const [bookings, mappings] = await Promise.all([
+          tx.reservationItem.count({
+            where: {
+              ratePlanId: plan.id,
+              reservation: { propertyId },
+              status: { in: ['TENTATIVE', 'CONFIRMED', 'CHECKED_IN'] },
+              departureDate: { gte: new Date(today + 'T00:00:00Z') },
+            },
+          }),
+          tx.channelMapping.count({ where: { propertyId, localRatePlanId: plan.id } }),
+        ]);
+        if (bookings || mappings)
+          throw new ConflictException(
+            `Нельзя отключить тариф: действующих броней ${bookings}, сопоставлений каналов ${mappings}. Сначала разберите эти связи.`,
+          );
+      }
       await tx.ratePlan.update({
         where: { id: plan.id },
         data: { name, active, ...rule },

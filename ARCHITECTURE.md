@@ -596,3 +596,8 @@ Property Luxx                        Business «Luxx Aparts»   vertical = HOSPI
 
 Остальные развилки закрыты самой задачей владельца от 27.09.2026 (иерархия, термины, место vertical,
 раздельные домены) — записаны в ADR-104; четыре freeze-решения владельца (RLS-ворота, Customer, курсы, идемпотентность выручки) — в `ARCHITECTURE.md` ветки `claude/hopeful-thompson-2v8v8a` (ADR-100 той линии), редакции сводятся при её слиянии.
+
+
+## MV1 extension, 04.10.2026, утверждено владельцем
+
+Canonical Business.vertical: HOSPITALITY, BEAUTY, FOOD_SERVICE. Иерархия ADR-104 сохраняется. Registry contract в packages/domain/src/verticals/registry.ts не зависит от Prisma/UI, определяет label/capability/availability. HOSPITALITY AVAILABLE, BEAUTY и FOOD_SERVICE PILOT; добавление enum не открывает self-service signup. Shared auth/trial/role engine не дублируется. Capability проверяется сервером после trusted actor scope, public provider bindings отдельно. Новые Food tables, selector и UI не входят в MV1.

@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 07.10.2026 00:09 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 37
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/sites/playwright.config.ts'
+Error: Timed out waiting 60000ms from config.webServer.
+
+
+# код выхода 1 · 1 мин 2 с

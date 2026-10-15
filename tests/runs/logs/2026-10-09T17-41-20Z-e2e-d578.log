@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 09.10.2026 22:41 Алматы · vm
+# коммит f39b660 (claude/serene-newton-q453ps), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/reports-finance.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/reports-finance.spec.ts:39:1 › плитки равны ответу API, итог таблицы равен плиткам, вкладка «Финансы» в разделе (5.1s)
+  ✓  2 tests/ui/reports-finance.spec.ts:64:1 › период в адресе: пресет меняет числа, раздел не теряется (2.4s)
+  ✓  3 tests/ui/reports-finance.spec.ts:76:1 › пустой период: словами, без нулевых таблиц (1.4s)
+  ✓  4 tests/ui/reports-finance.spec.ts:83:3 › доступность, light, и телефон без прокрутки вбок (5.0s)
+  ✓  5 tests/ui/reports-finance.spec.ts:83:3 › доступность, dark, и телефон без прокрутки вбок (4.7s)
+
+  5 passed (57.0s)
+
+# код выхода 0 · 59 с

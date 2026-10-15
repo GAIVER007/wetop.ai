@@ -1,0 +1,793 @@
+# Сквозные (e2e) · 06.10.2026 17:00 Алматы · vm
+# коммит 519c8b8 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/availability-gate.spec.ts' 'tests/ui/booking-compact.spec.ts' 'tests/ui/booking-dates.spec.ts' 'tests/ui/booking-price-nights.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/invites.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/password-reset.spec.ts' 'tests/ui/registration-closed.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/reservations-compact.spec.ts' 'tests/ui/reservations-states.spec.ts' 'tests/ui/reservations-v2.spec.ts' 'tests/ui/reservations-v2-r2.spec.ts' 'tests/ui/reservations-v2-r3.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/sessions.spec.ts' 'tests/ui/trial-read-only.spec.ts' 'tests/ui/onboarding.spec.ts' 'tests/ui/inventory-onboarding.spec.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/beauty-catalog.spec.ts' 'tests/ui/beauty-journal.spec.ts' 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/top-menu.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 177 tests using 1 worker
+
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-10-06" arrival="2026-10-01" departure="2026-10-04" guests={40} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true} id={undefined} ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={40} required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={40}
+[WebServer]                                   required={true}
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-10-06" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true} id={undefined} ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓    1 tests/ui/availability-gate.spec.ts:18:3 › витрина AV4: light (4.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-10-06" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true} id={undefined} ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-10-06" arrival="2026-10-01" departure="2026-10-04" guests={40} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true} id={undefined} ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={40} required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={40}
+[WebServer]                                   required={true}
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓    2 tests/ui/availability-gate.spec.ts:18:3 › витрина AV4: dark (3.5s)
+  ✓    3 tests/ui/beauty-branch.spec.ts:43:1 › салон заводится той же формой и открывается своим рабочим местом (4.7s)
+  ✓    4 tests/ui/beauty-branch.spec.ts:56:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (4.5s)
+  ✓    5 tests/ui/beauty-branch.spec.ts:76:1 › карточка объекта показывает имя салона, а не «объект не загружен» (4.3s)
+  ✓    6 tests/ui/beauty-branch.spec.ts:88:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (4.8s)
+  ✓    7 tests/ui/beauty-branch.spec.ts:102:3 › салон доступен и в светлой теме (5.5s)
+  ✓    8 tests/ui/beauty-branch.spec.ts:102:3 › салон доступен и в тёмной теме (5.8s)
+  ✓    9 tests/ui/beauty-catalog.spec.ts:47:1 › услуга каталога добавляется и видна в списке (7.4s)
+  ✓   10 tests/ui/beauty-catalog.spec.ts:60:1 › филиал включает услугу и ставит свою цену (11.1s)
+  ✓   11 tests/ui/beauty-catalog.spec.ts:83:1 › ошибки услуги словами, введённое не стирается (5.8s)
+  ✓   12 tests/ui/beauty-catalog.spec.ts:98:1 › мастер добавляется, умения ставятся и снимаются (10.6s)
+  ✓   13 tests/ui/beauty-catalog.spec.ts:129:1 › каталог салона на телефоне: без прокрутки вбок (6.8s)
+  ✓   14 tests/ui/beauty-catalog.spec.ts:148:3 › каталог салона доступен в светлой теме (8.0s)
+  ✓   15 tests/ui/beauty-catalog.spec.ts:148:3 › каталог салона доступен в тёмной теме (8.9s)
+  ✓   16 tests/ui/beauty-journal.spec.ts:97:1 › запись из пустой клетки появляется в сетке и в списке дня (12.7s)
+  ✓   17 tests/ui/beauty-journal.spec.ts:113:1 › занятое время мастера не предлагается и отказ приходит словами (12.0s)
+  ✓   18 tests/ui/beauty-journal.spec.ts:126:1 › вне графика мастера клетки нерабочие (10.2s)
+  ✓   19 tests/ui/beauty-journal.spec.ts:133:1 › состояния записи идут по жизни, из выполненной дороги нет (14.5s)
+  ✓   20 tests/ui/beauty-journal.spec.ts:157:1 › отмена спрашивает и освобождает время мастера (12.5s)
+  ✓   21 tests/ui/beauty-journal.spec.ts:179:1 › перенос меняет время записи (14.6s)
+  ✓   22 tests/ui/beauty-journal.spec.ts:195:1 › журнал на телефоне: день списком, без прокрутки вбок (11.8s)
+  ✓   23 tests/ui/beauty-journal.spec.ts:210:3 › журнал доступен в светлой теме (13.7s)
+  ✓   24 tests/ui/beauty-journal.spec.ts:210:3 › журнал доступен в тёмной теме (12.9s)
+  ✓   25 tests/ui/beauty-schedule.spec.ts:76:1 › неделя мастера ставится и читается словами (7.4s)
+  ✓   26 tests/ui/beauty-schedule.spec.ts:97:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (7.9s)
+  ✓   27 tests/ui/beauty-schedule.spec.ts:124:1 › два интервала через перерыв сохраняются (7.7s)
+  ✓   28 tests/ui/beauty-schedule.spec.ts:144:1 › отсутствие предупреждает о записях, снимается с вопросом (7.3s)
+  ✓   29 tests/ui/beauty-schedule.spec.ts:179:1 › отсутствие с концом раньше начала не уходит на сервер (6.3s)
+  ✓   30 tests/ui/beauty-schedule.spec.ts:194:1 › мастер переставляется между филиалами, снятый филиал забирает свой график (12.6s)
+  ✓   31 tests/ui/beauty-schedule.spec.ts:232:1 › график на телефоне: без прокрутки вбок (8.2s)
+  ✓   32 tests/ui/beauty-schedule.spec.ts:248:3 › график доступен в светлой теме (9.1s)
+  ✓   33 tests/ui/beauty-schedule.spec.ts:248:3 › график доступен в тёмной теме (8.1s)
+  ✓   34 tests/ui/booking-compact.spec.ts:3:1 › быстрые даты сохраняют гостя, заметки и позволяют создать бронь (4.1s)
+  ✓   35 tests/ui/booking-compact.spec.ts:30:1 › боковое окно компактно, псевдонимная бронь и мобильный экран (5.0s)
+  ✓   36 tests/ui/booking-compact.spec.ts:64:1 › пустой филиал не позволяет создать бронь без категории (1.1s)
+  ✓   37 tests/ui/booking-dates.spec.ts:9:1 › invalid departure preserves input, marks field and clears price (2.2s)
+  ✓   38 tests/ui/booking-dates.spec.ts:35:1 › equal, empty, later arrival and recovery work on mobile (2.3s)
+  ✓   39 tests/ui/booking-dates.spec.ts:59:1 › pending quote blocks submit and old responses cannot restore old period (6.3s)
+  ✓   40 tests/ui/booking-dates.spec.ts:83:1 › failed quote and availability can be retried without reopening (3.3s)
+  ✓   41 tests/ui/booking-dates.spec.ts:112:1 › calendar and keyboard produce the same period (2.3s)
+  ✓   42 tests/ui/booking-dates.spec.ts:129:1 › occupied selection stays visible and cannot silently become unassigned (4.9s)
+  ✓   43 tests/ui/booking-price-nights.spec.ts:13:1 › форма брони: детализация цены по дням, сумма ночей равна итогу (2.0s)
+  ✓   44 tests/ui/booking-price-nights.spec.ts:28:1 › календарь: панель «Сегодня» не выше строки управления, под ней нет пустоты (2.3s)
+  ✓   45 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (3.7s)
+  ✓   46 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (5.5s)
+  ✓   47 tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (8.9s)
+  ✓   48 tests/ui/fund-workspace.spec.ts:4:1 › category creation, rename, room creation and reload (5.7s)
+  ✓   49 tests/ui/fund-workspace.spec.ts:50:1 › availability preserves exact unit and dates; responsive category design (8.9s)
+  ✓   50 tests/ui/fund-workspace.spec.ts:91:1 › guests filter categories by capacity; toggle shows all; tab renamed (1.7s)
+  ✓   51 tests/ui/fund-workspace.spec.ts:124:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (1.4s)
+  ✓   52 tests/ui/fund-workspace.spec.ts:145:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (5.1s)
+  ✓   53 tests/ui/fund-workspace.spec.ts:226:1 › AV4: a category without places stays on screen with the nearest availability (2.4s)
+  ✓   54 tests/ui/fund-workspace.spec.ts:271:1 › dark categories and availability; invalid dates and empty onboarding (6.1s)
+  ✓   55 tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu (4.1s)
+  ✓   56 tests/ui/inventory-onboarding.spec.ts:36:1 › location and operational filters intersect and survive reload (4.5s)
+  ✓   57 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (3.7s)
+  ✓   58 tests/ui/invites.spec.ts:49:1 › без сессии формы приглашения нет (244ms)
+  ✓   59 tests/ui/invites.spec.ts:56:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (2.9s)
+  ✓   60 tests/ui/invites.spec.ts:75:1 › мёртвая ссылка — один текст и путь на форму входа (950ms)
+  ✓   61 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (2.3s)
+  ✓   62 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (4.1s)
+  ✓   63 tests/ui/login-access.spec.ts:55:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (2.0s)
+  ✓   64 tests/ui/login-access.spec.ts:62:1 › сбой API сохраняет поля, повтор после восстановления работает (3.2s)
+  ✓   65 tests/ui/login-access.spec.ts:73:1 › клавиатура, показ пароля и блокировка повторной отправки (2.8s)
+  ✓   66 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — light (7.7s)
+  ✓   67 tests/ui/login-access.spec.ts:107:3 › доступность формы и адаптивность — dark (7.4s)
+  ✓   68 tests/ui/login-access.spec.ts:124:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.6s)
+  ✓   69 tests/ui/login-access.spec.ts:135:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (4.2s)
+  ✓   70 tests/ui/login-access.spec.ts:150:1 › вкладки входа и регистрации переключаются без перехода в приложение (2.1s)
+  ✓   71 tests/ui/login-access.spec.ts:160:1 › старая ссылка mode=register открывает регистрацию на главной (1.5s)
+  ✓   72 tests/ui/login-access.spec.ts:165:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (3.2s)
+  ✓   73 tests/ui/login-access.spec.ts:178:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (682ms)
+  ✓   74 tests/ui/login-access.spec.ts:183:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.7s)
+  ✓   75 tests/ui/login-access.spec.ts:194:1 › занятая почта и короткий пароль не создают сессию (2.6s)
+  ✓   76 tests/ui/navigation.spec.ts:52:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (3.7s)
+  ✓   77 tests/ui/navigation.spec.ts:93:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (2.8s)
+  ✓   78 tests/ui/navigation.spec.ts:120:1 › все пункты меню открывают существующие страницы (15.7s)
+  ✓   79 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: light (4.4s)
+  ✓   80 tests/ui/navigation.spec.ts:168:3 › меню телефона и планшета ровное и доступное: dark (4.9s)
+  ✓   81 tests/ui/onboarding.spec.ts:20:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (2.9s)
+  ✓   82 tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) (3.1s)
+  ✓   83 tests/ui/onboarding.spec.ts:67:1 › пустая категория без цены — форма просит добавить, отель не создаётся (1.3s)
+  ✓   84 tests/ui/onboarding.spec.ts:79:1 › после запуска отеля Главная без «Первых шагов» и без кнопки брони (1.8s)
+  ✓   85 tests/ui/onboarding.spec.ts:100:1 › у работающего отеля с бронями «Первых шагов» нет (1.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="onboarding/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/onboarding" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="onboarding...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OnboardingPage>
+[WebServer]                   <OnboardingForm hotelName="Luxx Aparts" currency="KZT">
+[WebServer]                     <main className="onboarding" id="main-content">
+[WebServer]                       <header>
+[WebServer]                       <section className="onboarding..." aria-label="Отель">
+[WebServer]                         <h2>
+[WebServer]                         <div className="onboarding...">
+[WebServer]                           <Field label="Название">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input value="Luxx Aparts" readOnly={true} aria-readonly="true" id={undefined} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="Luxx Aparts"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           <Field label="Валюта">
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <Input value="KZT" readOnly={true} aria-readonly="true" id={undefined} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="KZT"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]                         <div className="onboarding..." role="list">
+[WebServer]                           <div className="onboarding..." role="listitem">
+[WebServer]                             <Field label="Название к...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input value="" placeholder="Двухместны..." maxLength={100} onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="Двухместный номер"
+[WebServer]                                     maxLength={100}
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Гостей на ...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={1} max={20} value="2" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={20}
+[WebServer]                                     value="2"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Сколько мест">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={1} max={500} value="1" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={500}
+[WebServer]                                     value="1"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Цена за но...">
+[WebServer]                               <label htmlFor={undefined} className="field">
+[WebServer]                                 <Input type="number" min={0} value="" placeholder="21000" onChange={function onChange} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={0}
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="21000"
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     id={undefined}
+[WebServer]                                     aria-describedby={undefined}
+[WebServer]                                     aria-invalid={undefined}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓   86 tests/ui/onboarding.spec.ts:111:1 › «Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу (4.3s)
+  ✓   87 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (1.2s)
+  ✓   88 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (3.3s)
+  ✓   89 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (1.8s)
+  ✓   90 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (937ms)
+  ✓   91 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (863ms)
+  ✓   92 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (929ms)
+  ✓   93 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (812ms)
+  ✓   94 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (1.3s)
+  ✓   95 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (1.3s)
+  ✓   96 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback оставляет вход сотрудников (420ms)
+  ✓   97 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register оставляет вход сотрудников (749ms)
+  ✓   98 tests/ui/registration-closed.spec.ts:15:3 › регистрация закрыта: /auth/fallback?mode=register&next=%2Ftoday оставляет вход сотрудников (734ms)
+  ✓   99 tests/ui/registration-closed.spec.ts:31:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (313ms)
+  ✓  100 tests/ui/registration-closed.spec.ts:43:1 › ранее открытая форма получает отказ через сервер без новой сессии (755ms)
+  ✘  101 tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь (2.3s)
+  ✓  102 tests/ui/requests.spec.ts:80:3 › экран /chessboard: данные берутся одним запросом на путь (2.2s)
+  ✓  103 tests/ui/requests.spec.ts:80:3 › экран /reservations: данные берутся одним запросом на путь (1.7s)
+  ✓  104 tests/ui/requests.spec.ts:80:3 › экран /guests: данные берутся одним запросом на путь (1.7s)
+  ✓  105 tests/ui/requests.spec.ts:80:3 › экран /inventory: данные берутся одним запросом на путь (1.9s)
+  ✓  106 tests/ui/requests.spec.ts:80:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.7s)
+  ✓  107 tests/ui/requests.spec.ts:80:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.7s)
+  ✓  108 tests/ui/requests.spec.ts:80:3 › экран /rates: данные берутся одним запросом на путь (1.7s)
+  ✓  109 tests/ui/requests.spec.ts:80:3 › экран /management/analytics: данные берутся одним запросом на путь (1.8s)
+  ✓  110 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.8s)
+  ✓  111 tests/ui/requests.spec.ts:80:3 › экран /management/analytics/units: данные берутся одним запросом на путь (2.2s)
+  ✓  112 tests/ui/requests.spec.ts:80:3 › экран /finance: данные берутся одним запросом на путь (1.9s)
+  ✓  113 tests/ui/requests.spec.ts:80:3 › экран /reports: данные берутся одним запросом на путь (1.6s)
+  ✓  114 tests/ui/requests.spec.ts:80:3 › экран /reports/print?form=day: данные берутся одним запросом на путь (1.5s)
+  ✓  115 tests/ui/requests.spec.ts:80:3 › экран /channels: данные берутся одним запросом на путь (2.0s)
+  ✓  116 tests/ui/requests.spec.ts:80:3 › экран /connections/channex: данные берутся одним запросом на путь (1.8s)
+  ✓  117 tests/ui/requests.spec.ts:80:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.8s)
+  ✓  118 tests/ui/requests.spec.ts:80:3 › экран /channels/sync: данные берутся одним запросом на путь (1.8s)
+  ✓  119 tests/ui/requests.spec.ts:80:3 › экран /channels/events: данные берутся одним запросом на путь (1.8s)
+  ✓  120 tests/ui/requests.spec.ts:80:3 › экран /website: данные берутся одним запросом на путь (1.7s)
+  ✓  121 tests/ui/requests.spec.ts:80:3 › экран /website/booking: данные берутся одним запросом на путь (1.8s)
+  ✓  122 tests/ui/requests.spec.ts:80:3 › экран /website/analytics: данные берутся одним запросом на путь (1.8s)
+  ✓  123 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.6s)
+  ✓  124 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.6s)
+  ✓  125 tests/ui/requests.spec.ts:80:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.6s)
+  ✓  126 tests/ui/requests.spec.ts:80:3 › экран /team: данные берутся одним запросом на путь (1.5s)
+  ✓  127 tests/ui/requests.spec.ts:80:3 › экран /connections: данные берутся одним запросом на путь (1.5s)
+  ✓  128 tests/ui/requests.spec.ts:80:3 › экран /ai-agents: данные берутся одним запросом на путь (2.3s)
+  ✓  129 tests/ui/requests.spec.ts:80:3 › экран /website/settings: данные берутся одним запросом на путь (1.6s)
+  ✓  130 tests/ui/requests.spec.ts:80:3 › экран /incidents: данные берутся одним запросом на путь (1.6s)
+  ✓  131 tests/ui/requests.spec.ts:80:3 › экран /journal: данные берутся одним запросом на путь (1.6s)
+  ✓  132 tests/ui/requests.spec.ts:80:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.7s)
+  ✓  133 tests/ui/reservations-compact.spec.ts:3:1 › compact reservations: filters disclose, submit and persist (3.9s)
+  ✓  134 tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями (1.9s)
+  ✓  135 tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения (1.2s)
+  ✓  136 tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица (3.2s)
+  ✓  137 tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе (3.5s)
+  ✓  138 tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса (5.4s)
+  ✓  139 tests/ui/reservations-v2-r2.spec.ts:139:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день (4.9s)
+  ✓  140 tests/ui/reservations-v2-r2.spec.ts:172:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка (2.7s)
+  ✓  141 tests/ui/reservations-v2-r2.spec.ts:194:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране (3.5s)
+  ✓  142 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, light (12.4s)
+  ✓  143 tests/ui/reservations-v2-r2.spec.ts:221:3 › R2, стоп-гейт: снимки для владельца, dark (11.6s)
+  ✓  144 tests/ui/reservations-v2-r3.spec.ts:58:1 › R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список (4.7s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  145 tests/ui/reservations-v2-r3.spec.ts:101:1 › R3: двойной щелчок — полная страница; ссылка первой ячейки и Esc работают как раньше (4.6s)
+  ✓  146 tests/ui/reservations-v2-r3.spec.ts:123:1 › R3: отменённая — «к возврату» и «возвращено», а не «оплачено»; группа — «⚠ 1 без размещения» (5.9s)
+  ✓  147 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, light (15.5s)
+  ✓  148 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, dark (15.0s)
+  ✓  149 tests/ui/reservations-v2.spec.ts:71:1 › R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони (2.2s)
+  ✓  150 tests/ui/reservations-v2.spec.ts:130:1 › R1: плотность строк переключается и переживает перезагрузку (3.1s)
+  ✓  151 tests/ui/reservations-v2.spec.ts:155:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте (6.3s)
+  ✓  152 tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, light (4.9s)
+  ✓  153 tests/ui/reservations-v2.spec.ts:184:3 › R1, стоп-гейт: снимки для владельца, dark (5.4s)
+  ✓  154 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.7s)
+  ✓  155 tests/ui/roles.spec.ts:64:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (7.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  156 tests/ui/roles.spec.ts:102:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.3s)
+  ✓  157 tests/ui/roles.spec.ts:119:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  158 tests/ui/roles.spec.ts:147:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (7.4s)
+  ✓  159 tests/ui/roles.spec.ts:209:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (5.0s)
+  ✓  160 tests/ui/roles.spec.ts:265:1 › владелец: зовёт управляющего и администратора, меняет роль (3.3s)
+  ✓  161 tests/ui/roles.spec.ts:296:1 › администратор: сотрудниками ведают владелец и управляющий (2.0s)
+  ✓  162 tests/ui/roles.spec.ts:308:5 › доступность: сотрудники и отказ по роли, light, 1440px (6.1s)
+  ✓  163 tests/ui/roles.spec.ts:308:5 › доступность: сотрудники и отказ по роли, dark, 1440px (6.4s)
+  ✓  164 tests/ui/roles.spec.ts:308:5 › доступность: сотрудники и отказ по роли, light, 390px (6.1s)
+  ✓  165 tests/ui/roles.spec.ts:308:5 › доступность: сотрудники и отказ по роли, dark, 390px (8.3s)
+  ✓  166 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (2.3s)
+  ✓  167 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (3.5s)
+  ✓  168 tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» (5.1s)
+  ✓  169 tests/ui/sessions.spec.ts:76:1 › удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль (351ms)
+  ✓  170 tests/ui/sessions.spec.ts:105:1 › без сессии списка сеансов нет (409ms)
+  ✓  171 tests/ui/sessions.spec.ts:113:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (5.4s)
+  ✓  172 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (6.6s)
+  ✓  173 tests/ui/top-menu.spec.ts:126:1 › вложенные адреса подсвечивают свою вкладку (5.2s)
+  ✓  174 tests/ui/top-menu.spec.ts:159:3 › шапка ровная, без прокрутки вбок и доступная: light (4.2s)
+  ✓  175 tests/ui/top-menu.spec.ts:159:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.2s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]       <RedirectBoundary>
+[WebServer]         <RedirectErrorBoundary router={{...}}>
+[WebServer]           <InnerLayoutRouter url="/today" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]             <SegmentViewNode type="page" pagePath="today/page...">
+[WebServer]               <SegmentTrieNode>
+[WebServer]               <TodayPage>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                     <header>
+[WebServer]                     <div className="owner-dash..." data-testid="owner-dash...">
+[WebServer]                       <Suspense>
+[WebServer]                       <section className="owner-fina..." aria-label="Финансы за...">
+[WebServer]                         <header>
+[WebServer]                         <Suspense fallback={<div>}>
+[WebServer]                           <div className="owner-mone...">
+[WebServer]                             <div>
+[WebServer]                             <details className="owner-dates">
+[WebServer]                               <summary>
+[WebServer]                               <form action="/today">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <label>
+[WebServer]                                   <input
+[WebServer]                                     type="date"
+[WebServer]                                     aria-label="Начало периода"
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 <label>
+[WebServer]                                   <input
+[WebServer]                                     type="date"
+[WebServer]                                     aria-label="Конец периода"
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-31"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 ...
+[WebServer]                           ...
+[WebServer]                       ...
+[WebServer]             ...
+[WebServer]           ...
+[WebServer]  
+  ✓  176 tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет (13.5s)
+  ✓  177 tests/ui/trial-read-only.spec.ts:75:1 › главный администратор: «Оплата получена» — организация работает; «Только чтение» — обратно (4.1s)
+
+
+  1) tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь ──────────
+
+    Error: путь с данными запрошен повторно за один показ /today: {"GET /auth/me":2,"GET /hotel/settings":2,"GET /chessboard?from=2026-10-06&to=2026-10-06":1,"GET /desk/dashboard?from=2026-10-01&to=2026-10-31":1,"GET /desk/today?date=2026-10-06":1,"GET /desk/dashboard?from=2026-10-06&to=2026-10-12":1,"GET /guard/status":1,"GET /system/freshness":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    + ]
+
+      87 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      88 |     );
+    > 89 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      90 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      91 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      92 |     );
+        at /home/user/wetop.ai/tests/ui/requests.spec.ts:89:88
+
+    Error Context: test-results/requests-экран-today-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-today-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-today-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/requests.spec.ts:80:3 › экран /today: данные берутся одним запросом на путь ───────────
+  176 passed (13.5m)
+
+# код выхода 1 · 13 мин 33 с

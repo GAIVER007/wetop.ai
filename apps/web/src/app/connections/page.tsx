@@ -1,3 +1,4 @@
+import { requireVertical } from '../../lib/vertical-guard';
 import Link from 'next/link';
 import { Page } from '../../components/page';
 import { RefreshButton } from '../../components/refresh-button';
@@ -19,6 +20,7 @@ import {
   TechDetails,
 } from './connection-parts';
 import './integrations.css';
+import { Tabs } from '../../components/tabs';
 
 /**
  * «Интеграции» v2, срез INT1 (ADR-116, план `plans/integrations-int1-2026-09-27.md`): внешние подключения объекта,
@@ -32,6 +34,8 @@ export default async function ConnectionsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
   const tab = sp.tab === 'available' ? 'available' : 'connected';
   const state = await loadChannexState();
@@ -55,14 +59,13 @@ export default async function ConnectionsPage({
           : 'Подключения внешних сервисов объекта.'
       }
     >
-      <nav className="settings-tabs" aria-label="Интеграции">
-        <Link href={tabHref('connected')} aria-current={tab === 'connected' ? 'page' : undefined}>
-          Подключения <span className="integration-tab__count">{connected.length}</span>
-        </Link>
-        <Link href={tabHref('available')} aria-current={tab === 'available' ? 'page' : undefined}>
-          Доступные <span className="integration-tab__count">{available.length}</span>
-        </Link>
-      </nav>
+      <Tabs
+        label="Интеграции"
+        items={[
+          { href: tabHref('connected'), label: 'Подключённые', current: tab === 'connected', count: connected.length },
+          { href: tabHref('available'), label: 'Доступные', current: tab === 'available', count: available.length },
+        ]}
+      />
       {tab === 'connected' ? (
         connected.length ? (
           <div className="integration-list" data-testid="integrations-connected">
@@ -158,7 +161,12 @@ function ChannexConnected({
             <dt>Сопоставлено</dt>
             <dd>
               {pluralRu(c.mappedCategories, ['категория', 'категории', 'категорий'])},{' '}
-              {pluralRu(c.mappedRatePlans, ['тариф', 'тарифа', 'тарифов'])}
+              {pluralRu(c.mappedLocalRatePlans, [
+                'тарифный план',
+                'тарифных плана',
+                'тарифных планов',
+              ])}
+              , {pluralRu(c.mappedRatePlans, ['сопоставление', 'сопоставления', 'сопоставлений'])}
             </dd>
           </div>
         )}

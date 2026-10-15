@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import { ChannelConnectionSetup } from '../connection-setup';
 import Link from 'next/link';
 import { notFound, redirect, unstable_rethrow } from 'next/navigation';
@@ -11,7 +12,7 @@ import {
   ratesApi,
 } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
-import { Page } from '../../../components/page';
+import { Page, BackCrumb } from '../../../components/page';
 import { RefreshButton } from '../../../components/refresh-button';
 import {
   Alert,
@@ -38,6 +39,7 @@ import { categoryMappings, planMappings } from '../mapping';
 import { Icon } from '../../../components/icon';
 import '../../directory.css';
 import '../channels.css';
+import { CHANNEL_TABS, ChannelTabs } from '../tabs';
 
 /**
  * Модуль «Каналы продаж» (ADR-112, поручение владельца 27.09.2026): один вход вместо пунктов
@@ -45,19 +47,9 @@ import '../channels.css';
  * сколько броней принесли каналы?»), технический слой — очередь, payload, попытки, внутренние ID —
  * раскрывается «Техническими деталями» и живёт на вкладках «Синхронизация» и «События»; опасные
  * ручные команды — в «Настройке подключения» на вкладке «Подключения», только владельцу.
- * Вкладки — как у «Настроек гостиницы» (`.settings-tabs`); команды, их `data-testid` и порядок
+ * Вкладки: общий `Tabs` (`channels/tabs.tsx`); команды, их `data-testid` и порядок
  * не менялись — на них стоит запись показа для сертификации Channex.
  */
-const tabs = [
-  { view: '', href: '/channels', label: 'Обзор' },
-  // Раздел «Каналы» (ADR-140): подключённые и все доступные каналы Channex — как в прежней системе
-  { view: 'list', href: '/channels/list', label: 'Каналы' },
-  { view: 'connections', href: '/connections/channex', label: 'Настройка подключения' },
-  { view: 'mapping', href: '/channels/mapping', label: 'Сопоставление' },
-  { view: 'sync', href: '/channels/sync', label: 'Синхронизация' },
-  { view: 'events', href: '/channels/events', label: 'События' },
-] as const;
-
 const subtitles: Record<string, string> = {
   '': 'Состояние обмена с каналами и брони по источникам.',
   list: 'Подключённые каналы, брони за 30 дней и все каналы, которые можно подключить.',
@@ -82,7 +74,7 @@ const settle = <T,>(p: Promise<T>) =>
  * может стоять не в поясе объекта); без пробы подпись не нужна
  */
 const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
-  iso ? `, проверено ${clock.clock(iso)} по Алматы` : '';
+  iso ? `, проверено ${clock.clock(iso)} по времени объекта` : '';
 
 export default async function ChannelSalesPage({
   params,
@@ -91,6 +83,7 @@ export default async function ChannelSalesPage({
   params: Promise<{ section?: string[] }>;
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';
@@ -103,27 +96,16 @@ export default async function ChannelSalesPage({
     for (const key of ['status', 'type', 'q', 'page'] as const) if (sp[key]) u.set(key, sp[key]);
     redirect(`/channels/events?${u.toString()}`);
   }
-  const tab = tabs.find((item) => item.view === view);
+  const tab = CHANNEL_TABS.find((item) => item.view === view);
   if (!tab) notFound();
   return (
     <Page
       title={view ? tab.label : 'Каналы продаж'}
       subtitle={view ? subtitles[view] : undefined}
-      crumbs={view ? <Link href="/channels">Каналы продаж</Link> : undefined}
+      crumbs={view ? <BackCrumb href="/channels">Каналы продаж</BackCrumb> : undefined}
       actions={view === 'connections' ? <RefreshButton label="Проверить соединение" /> : undefined}
     >
-      <nav className="settings-tabs channels-tabs" aria-label="Каналы продаж">
-        {tabs.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={false}
-            aria-current={item.view === view ? 'page' : undefined}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <ChannelTabs current={view} />
       {view === '' && <Overview sp={sp} />}
       {view === 'list' && <ChannelList sp={sp} />}
       {view === 'connections' && <ChannelConnectionSetup />}
@@ -381,9 +363,10 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
               </p>
             ) : (
               <p className="note" data-testid="mapping-note">
-                Сопоставление — общее для всех каналов: категорий {mappedCategories}
-                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифов{' '}
-                {connection?.mappedRatePlans ?? '—'}.
+                Сопоставление общее для всех каналов: категорий {mappedCategories}
+                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифных планов{' '}
+                {connection?.mappedLocalRatePlans ?? 'неизвестно'}, сопоставлений тарифов{' '}
+                {connection?.mappedRatePlans ?? 'неизвестно'}.
               </p>
             ))}
         </section>
@@ -593,8 +576,17 @@ async function Mapping() {
           )
         )}
         <p className="note">
-          В каналы уходит один тариф: он сопоставлен с каждой категорией объекта. Остальные тарифы
-          работают только в WETOP — это не ошибка.
+          Сопоставлено тарифов:{' '}
+          {
+            new Set(
+              mapping
+                .filter((m) => m.providerRatePlanId && m.localRatePlanId)
+                .map((m) => m.localRatePlanId),
+            ).size
+          }
+          . Покрытие категорий показано отдельно для каждого тарифа. Тарифы без сопоставлений
+          доступны только в WETOP. Сопоставление само по себе не подтверждает подключение OTA или
+          успешную передачу цен.
         </p>
       </section>
       <details className="context-help" data-testid="mapping-tech">

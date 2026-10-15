@@ -1,0 +1,240 @@
+# Модульные (unit) · 06.10.2026 20:50 Алматы · vm
+# коммит c6044ba (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T15-50-02Z-unit-c326.json' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/web/src/app/branches/switch.test.ts' 'apps/web/src/lib/scope-resolve.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/scope-resolve.test.ts (8 tests | 1 failed) 19ms
+   ✓ нет доступных филиалов: прежний путь настройки, указатель не ставится 2ms
+   ✓ один филиал: выбирается сам, указатель только из ответа сервера 1ms
+   ✓ несколько филиалов: никогда не выбирается первый, человек выбирает на /branches 1ms
+   ✓ next чужого направления заменяется стартовой страницей направления 2ms
+   × /today общий для всех направлений: сохраняется у салона и ресторана (MV8) 9ms
+   ✓ next своего направления и общие разделы сохраняются 1ms
+   ✓ next только безопасный локальный путь 1ms
+   ✓ устаревший указатель: кука есть, а /auth/me не подтвердил ни Business, ни филиал 1ms
+ ❯ |unit| apps/web/src/lib/navigation-beauty.test.ts (7 tests | 3 failed) 31ms
+   ❯ меню салона (7)
+     ✓ у филиала салона нет гостиничных разделов 5ms
+     × у филиала салона есть только то, что в нём работает 12ms
+     ✓ вертикаль не передана: меню гостиницы, как было до среза 1ms
+     × нижняя панель телефона тоже идёт по вертикали 3ms
+     × первый пункт салона «Сегодня» на общем адресе /today (MV8) 5ms
+     ✓ у каждого пункта салона есть право: закрытую страницу меню не обещает 1ms
+     ✓ администратору смены платформа не видна, а своё рабочее место видно 1ms
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 3 failed) 31ms
+   ❯ Food workspace isolation (4)
+     × exposes exactly accepted Food menu 16ms
+     ✓ does not expose Food to existing verticals 4ms
+     × uses canonical landings and verified scope 5ms
+     × identifies isolated routes before API access 5ms
+ ❯ |unit| apps/web/src/app/branches/switch.test.ts (9 tests | 2 failed) 48ms
+   ✓ переключение сохраняет безопасный раздел /chessboard 37ms
+   ✓ переключение сохраняет безопасный раздел /reservations/other-branch-booking 0ms
+   ✓ переключение сохраняет безопасный раздел /guests/other-guest 1ms
+   ✓ переключение сохраняет безопасный раздел /finance?folioId=old 0ms
+   ✓ переключение сохраняет безопасный раздел https://outside.test 1ms
+   ✓ переключение сохраняет безопасный раздел //outside.test 0ms
+   ✓ чужой филиал не меняет cookie 0ms
+   × canonical landing for verified FOOD_SERVICE branch ignores old vertical route 5ms
+   × canonical landing for verified BEAUTY branch ignores old vertical route 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > у филиала салона есть только то, что в нём работает
+AssertionError: expected [ '/calendar', '/appointments', …(7) ] to deeply equal [ '/today', '/calendar', …(8) ]
+
+- Expected
++ Received
+
+@@ -1,7 +1,6 @@
+  [
+-   "/today",
+    "/calendar",
+    "/appointments",
+    "/customers",
+    "/employees",
+    "/services",
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:37:29
+     35|   it('у филиала салона есть только то, что в нём работает', () => {
+     36|     // MV5 exposes only accepted operational screens.
+     37|     expect(hrefs('BEAUTY')).toEqual([
+       |                             ^
+     38|       '/today',
+     39|       '/calendar',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > нижняя панель телефона тоже идёт по вертикали
+AssertionError: expected [ '/calendar', '/appointments', …(2) ] to deeply equal [ '/today', '/calendar', …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "/today",
+    "/calendar",
+    "/appointments",
+    "/customers",
++   "/employees",
+  ]
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:59:61
+     57|   it('нижняя панель телефона тоже идёт по вертикали', () => {
+     58|     // четыре вкладки это работа смены: сотрудники и журнал уходят под…
+     59|     expect(phoneNavigationFor('BEAUTY').map((i) => i.href)).toEqual([
+       |                                                             ^
+     60|       '/today',
+     61|       '/calendar',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > первый пункт салона «Сегодня» на общем адресе /today (MV8)
+AssertionError: expected { href: '/calendar', …(4) } to match object { href: '/today', …(2) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "href": "/today",
+-   "label": "Сегодня",
++   "href": "/calendar",
++   "label": "Календарь",
+    "requires": "desk",
+  }
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:70:19
+     68|   it('первый пункт салона «Сегодня» на общем адресе /today (MV8)', () …
+     69|     const first = menuSectionsFor(owner, 'BEAUTY')[0]!.items[0]!;
+     70|     expect(first).toMatchObject({ href: '/today', label: 'Сегодня', re…
+       |                   ^
+     71|   });
+     72|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > exposes exactly accepted Food menu
+AssertionError: expected [ '/floor-plan', …(7) ] to deeply equal [ '/today', '/floor-plan', …(7) ]
+
+- Expected
++ Received
+
+@@ -1,7 +1,6 @@
+  [
+-   "/today",
+    "/floor-plan",
+    "/table-reservations",
+    "/customers",
+    "/dining-areas",
+    "/staff",
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:10:7
+      8|     expect(
+      9|       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.ma…
+     10|     ).toEqual([
+       |       ^
+     11|       '/today',
+     12|       '/floor-plan',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > uses canonical landings and verified scope
+AssertionError: expected '/floor-plan' to be '/today' // Object.is equality
+
+Expected: "/today"
+Received: "/floor-plan"
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:42:48
+     40|   it('uses canonical landings and verified scope', () => {
+     41|     // MV8: один рабочий экран дня на все направления
+     42|     expect(landingForVertical('FOOD_SERVICE')).toBe('/today');
+       |                                                ^
+     43|     expect(landingForVertical('BEAUTY')).toBe('/today');
+     44|     expect(landingForVertical('HOSPITALITY')).toBe('/today');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > identifies isolated routes before API access
+AssertionError: expected 'HOSPITALITY' to be null
+
+- Expected:
+null
+
++ Received:
+"HOSPITALITY"
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:58:37
+     56|     expect(routeVertical('/chessboard')).toBe('HOSPITALITY');
+     57|     expect(routeVertical('/customers')).toBeNull();
+     58|     expect(routeVertical('/today')).toBeNull();
+       |                                     ^
+     59|   });
+     60| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |unit| apps/web/src/lib/scope-resolve.test.ts > /today общий для всех направлений: сохраняется у салона и ресторана (MV8)
+AssertionError: expected { kind: 'select', …(2) } to match object { target: '/today' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "target": "/today",
++   "target": "/register/setup",
+  }
+
+ ❯ apps/web/src/lib/scope-resolve.test.ts:45:48
+     43| it('/today общий для всех направлений: сохраняется у салона и ресторан…
+     44|   for (const v of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)
+     45|     expect(decideScope([branch(v)], '/today')).toMatchObject({ target:…
+       |                                                ^
+     46| });
+     47|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > canonical landing for verified FOOD_SERVICE branch ignores old vertical route
+AssertionError: expected [Function] to throw error including 'redirect:/today' but got 'redirect:/floor-plan'
+
+Expected: "redirect:/today"
+Received: "redirect:/floor-plan"
+
+ ❯ apps/web/src/app/branches/switch.test.ts:71:37
+     69|     form.set('id', 'own');
+     70|     form.set('returnTo', '/chessboard');
+     71|     await expect(selectBranch(form)).rejects.toThrow(`redirect:${expec…
+       |                                     ^
+     72|     expect(state.set).toHaveBeenCalledOnce();
+     73|   },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > canonical landing for verified BEAUTY branch ignores old vertical route
+AssertionError: expected [Function] to throw error including 'redirect:/today' but got 'redirect:/calendar'
+
+Expected: "redirect:/today"
+Received: "redirect:/calendar"
+
+ ❯ apps/web/src/app/branches/switch.test.ts:71:37
+     69|     form.set('id', 'own');
+     70|     form.set('returnTo', '/chessboard');
+     71|     await expect(selectBranch(form)).rejects.toThrow(`redirect:${expec…
+       |                                     ^
+     72|     expect(state.set).toHaveBeenCalledOnce();
+     73|   },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  9 failed | 19 passed (28)
+   Start at  15:50:03
+   Duration  1.54s (transform 83%, import 13%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-06T15-50-02Z-unit-c326.json
+
+# код выхода 1 · 3 с

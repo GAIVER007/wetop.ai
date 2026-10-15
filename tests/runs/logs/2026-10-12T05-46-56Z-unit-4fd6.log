@@ -1,0 +1,63 @@
+# Модульные (unit) · 12.10.2026 10:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e559f8 (claude/ui-master-final-20261011), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T05-46-56Z-unit-4fd6.json' 'apps/web/src/lib/navigation-place.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-food.test.ts' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/lib/website-navigation.test.ts' 'apps/web/src/lib/workspace-organization.test.ts' 'apps/web/src/components/shell/tour-steps.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/lib/navigation-place.test.ts (23 tests) 6ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (20 tests) 9ms
+ ❯ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests | 1 failed) 12ms
+   ❯ меню салона (8)
+     ✓ у филиала салона нет гостиничных разделов 2ms
+     × у филиала салона есть только то, что в нём работает 7ms
+     ✓ вертикаль не передана: меню гостиницы, как было до среза 0ms
+     ✓ нижняя панель телефона тоже идёт по вертикали 0ms
+     ✓ первый пункт салона «Сегодня» на общем адресе /today (MV8) 1ms
+     ✓ «Мастера» и «Сотрудники и доступ» в меню салона не путаются 1ms
+     ✓ у каждого пункта салона есть право: закрытую страницу меню не обещает 0ms
+     ✓ администратору смены платформа не видна, а своё рабочее место видно 0ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (9 tests) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > у филиала салона есть только то, что в нём работает
+AssertionError: expected [ '/today', '/calendar', …(10) ] to deeply equal [ '/today', '/calendar', …(9) ]
+
+- Expected
++ Received
+
+@@ -2,10 +2,11 @@
+    "/today",
+    "/calendar",
+    "/appointments",
+    "/customers",
+    "/employees",
++   "/beauty/schedule",
+    "/services",
+    "/staff",
+    "/management/analytics",
+    "/journal",
+    "/help",
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:38:29
+     36|   it('у филиала салона есть только то, что в нём работает', () => {
+     37|     // MV5 exposes only accepted operational screens.
+     38|     expect(hrefs('BEAUTY')).toEqual([
+       |                             ^
+     39|       '/today',
+     40|       '/calendar',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  1 failed | 74 passed (75)
+   Start at  22:47:04
+   Duration  1.28s (transform 86%, import 13%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T05-46-56Z-unit-4fd6.json
+
+# код выхода 1 · 10 с

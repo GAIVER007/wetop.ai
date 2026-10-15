@@ -1,0 +1,63 @@
+[WebServer] (node:24917) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24949) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24971) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:25009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:25010) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:25028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/preview-money-confirmation.spec.ts:54:1 › телефон: возврат в календаре проверяет платёж и подтверждает сумму (18.5s)
+
+
+  1) tests/ui/preview-money-confirmation.spec.ts:54:1 › телефон: возврат в календаре проверяет платёж и подтверждает сумму 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('stay-preview').getByTestId('refund-form').getByRole('region', { name: 'Проверка возврата' })
+    Expected substring: "50 KZT"
+    Received string:    "Проверьте возвратСумма: 50. Причина: Синтетический возврат.Возврат будет проведён после подтверждения."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('stay-preview').getByTestId('refund-form').getByRole('region', { name: 'Проверка возврата' }) with timeout 15000ms
+      - waiting for getByTestId('stay-preview').getByTestId('refund-form').getByRole('region', { name: 'Проверка возврата' })
+        33 × locator resolved to <section class="panel" aria-label="Проверка возврата">…</section>
+           - unexpected value "Проверьте возвратСумма: 50. Причина: Синтетический возврат.Возврат будет проведён после подтверждения."
+
+
+      73 |   await form.getByLabel('Причина возврата').fill('Синтетический возврат');
+      74 |   await form.getByRole('button', { name: 'Проверить возврат', exact: true }).click();
+    > 75 |   await expect(form.getByRole('region', { name: 'Проверка возврата' })).toContainText('50 KZT');
+         |                                                                         ^
+      76 |   const confirm = form.getByRole('button', { name: 'Подтвердить возврат', exact: true });
+      77 |   await confirm.scrollIntoViewIfNeeded();
+      78 |   await expect(confirm).toBeInViewport({ ratio: 0.95 });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/preview-money-confirmation.spec.ts:75:73
+
+    Error Context: test-results/preview-money-confirmation-0eeda-платёж-и-подтверждает-сумму/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/preview-money-confirmation-0eeda-платёж-и-подтверждает-сумму/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/preview-money-confirmation-0eeda-платёж-и-подтверждает-сумму/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/preview-money-confirmation.spec.ts:54:1 › телефон: возврат в календаре проверяет платёж и подтверждает сумму 

@@ -1,0 +1,37 @@
+# Модульные (unit) · 05.10.2026 17:30 Алматы · MacBook-Air-Urij.local
+# коммит 87fea09 (codex/mv7-food-ui-20261005), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T12-30-38Z-unit-c65c.json' 'apps/web/src/lib/food-data.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv7-20261005
+
+ ❯ |unit| apps/web/src/lib/food-data.test.ts (4 tests | 1 failed) 10ms
+   ✓ loads every page and rejects repeated/broken cursors 3ms
+   ✓ keeps overnight occupancy, excludes terminals and uses half-open time 1ms
+   ✓ rejects malformed reservation data rather than displaying a free table 0ms
+   × requires complete details and valid next statuses before showing occupancy 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/food-data.test.ts > requires complete details and valid next statuses before showing occupancy
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ apps/web/src/lib/food-data.test.ts:50:63
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  16:30:39
+   Duration  174ms (transform 60%, import 17%, tests 16%, worker 6%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T12-30-38Z-unit-c65c.json
+
+# код выхода 1 · 2 с

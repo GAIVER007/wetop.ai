@@ -1,0 +1,49 @@
+# Сквозные (e2e) · 15.10.2026 00:55 Алматы · vm
+# коммит 6a9aa68 (claude/ds2-f1-hospitality-route-guards-20261014), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+  ✓   1 tests/beauty-ui/beauty.spec.ts:111:1 › empty setup through real UI, persisted appointment, move, confirm, complete (19.0s)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:192:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (7.2s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:229:1 › existing customer can be selected for another appointment without duplication (3.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   4 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (13.6s)
+  ✓   5 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (13.1s)
+  ✓   6 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 light, keyboard, axe, no overflow (12.3s)
+  ✓   7 tests/beauty-ui/beauty.spec.ts:257:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (12.0s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:338:1 › archived service and employee preserve historical calendar appointments (4.2s)
+  ✓   9 tests/beauty-ui/beauty.spec.ts:372:1 › TimeOff from employee drawer, server denial and timezone persisted (6.6s)
+  ✓  10 tests/beauty-ui/beauty.spec.ts:424:1 › DS1c: day navigation keeps the previous addresses (2.3s)
+  ✓  11 tests/beauty-ui/beauty.spec.ts:439:1 › Beauty onboarding completion opens Today and resumes there (4.3s)
+  -  12 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -  13 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -  14 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -  15 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+  -  16 tests/beauty-ui/ref-capture.spec.ts:14:1 › салон: календарь на ширинах и темах
+  -  17 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /today
+  -  18 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule
+  -  19 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /appointments
+  -  20 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /services
+  -  21 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees
+  -  22 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts
+  -  23 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /customers
+  -  24 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /finance
+  -  25 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /team
+  -  26 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /help
+  -  27 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /branches
+  -  28 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports
+
+  17 skipped
+  11 passed (1.8m)
+
+# код выхода 0 · 1 мин 50 с

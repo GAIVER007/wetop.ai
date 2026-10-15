@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 06.10.2026 15:46 Алматы · vm
+# коммит 03496b2 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T10-46-46Z-integration-d5fe.json' 'tests/integration/scope-hardening.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:1913) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/scope-hardening.test.ts (2 tests | 1 failed) 1311ms
+   ❯ SCOPE-HARDENING: Hospitality property follows the selected branch (1)
+     × two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only 579ms
+   ✓ SCOPE-HARDENING: /branches/overview is a Hospitality-only summary (1)
+     ✓ mixed Organization: 200, rows and totals only for Hospitality branches 664ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/scope-hardening.test.ts > SCOPE-HARDENING: Hospitality property follows the selected branch > two Hospitality properties in one Organization: Location B books, quotes, finds and offers in B only
+AssertionError: expected '{"arrivalDate":"2026-10-26","departur…' not to contain '2000000"'
+
+Expected: "2000000""
+Received: "{"arrivalDate":"2026-10-26","departureDate":"2026-10-28","nights":2,"guests":1,"currency":"KZT","byCategory":{"SH-DBL":{"plans":1,"totalMinor":"4000000","perNightMinor":"2000000","ratePlanCode":"SH-BASE"}}}"
+
+ ❯ tests/integration/scope-hardening.test.ts:169:31
+    167|     expect(seen['lookup']).toBe(seen['number']);
+    168|     expect(seen['offer']).toContain('4000000');
+    169|     expect(seen['offer']).not.toContain('2000000"');
+       |                               ^
+    170|     expect(seen['lookupFromA'], 'B reservation is not visible from Loc…
+    171|     expect(seen['organization']).toBe(seen['a']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  10:46:47
+   Duration  4.91s (transform 46%, tests 40%, import 14%)
+
+JSON report written to /tmp/pms-test-2026-10-06T10-46-46Z-integration-d5fe.json
+
+# код выхода 1 · 6 с

@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 12.10.2026 10:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 758a0e4 (claude/analytics-spec-any-direction)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/analytics-v2.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '-g' 'обзор за месяц'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 208ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/analytics-v2.spec.ts:83:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (25.2s)
+
+
+  1) tests/ui/analytics-v2.spec.ts:83:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('pa-kpis').locator('.kpi--occupancy .kpi-delta--down')
+    Expected substring: "п.п."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('pa-kpis').locator('.kpi--occupancy .kpi-delta--down') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-kpis').locator('.kpi--occupancy .kpi-delta--down')
+
+
+      100 |   await expect(kpis.locator('.kpi')).toHaveCount(5);
+      101 |   // стенд: весь фонд в этом месяце загружен слабее прошлого — падение в п.п.
+    > 102 |   await expect(kpis.locator('.kpi--occupancy .kpi-delta--down')).toContainText('п.п.');
+          |                                                                  ^
+      103 |   await expect(main.getByTestId('pa-kpis-detail')).not.toBeVisible();
+      104 |   await main.locator('.pa-details > summary').click();
+      105 |   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi')).toHaveCount(2);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk/tests/ui/analytics-v2.spec.ts:102:66
+
+    Error Context: test-results/analytics-v2-обзор-за-меся-13876-агрузки-и-выручки-категории/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-v2-обзор-за-меся-13876-агрузки-и-выручки-категории/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-v2-обзор-за-меся-13876-агрузки-и-выручки-категории/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/analytics-v2.spec.ts:83:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории 
+
+# код выхода 1 · 55 с

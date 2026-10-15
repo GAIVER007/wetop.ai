@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, test, goViaMenu } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -28,9 +28,7 @@ async function signIn(page: Page) {
 
 test('партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец', async ({ page }) => {
   await signIn(page);
-  const sidebar = page.locator('.workspace-header .topmenu');
-  await sidebar.getByRole('button', { name: 'Продажи', exact: true }).click();
-  await sidebar.getByRole('link', { name: 'ИИ-продавцы', exact: true }).click();
+  await goViaMenu(page, 'Продажи', 'ИИ-продавцы');
   await expect(page).toHaveURL(/\/ai-agents$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
   const seller = page.getByTestId('agent-seller');
@@ -43,9 +41,8 @@ test('партнёр: пункт меню «ИИ-агенты», на входе
   await seller.getByRole('link', { name: 'Открыть' }).click();
   await expect(page).toHaveURL(/\/ai-seller/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
-  // страницы продавца подсвечивают тот же пункт меню; список группы закрыт, пункт скрыт
-  // от дерева доступности — ищем по CSS, как top-menu.spec
-  await expect(sidebar.locator('a[aria-current="page"]')).toHaveText('ИИ-продавцы');
+  // страницы продавца подсвечивают тот же пункт левого меню (ADR-161)
+  await expect(page.locator('.sidenav__items a[aria-current="page"]')).toHaveText('ИИ-продавцы');
 });
 
 test('главный администратор: к техподдержке — переключателем агентов на «ИИ-продавце»', async ({
@@ -156,7 +153,9 @@ test('бот не ответил: страница жива, WhatsApp — «Не
   await page.goto('/ai-agents');
   const channels = page.getByTestId('agent-seller').getByTestId('agent-channels');
   await expect(channels).toContainText('Нет данных');
-  await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Проверьте подключение');
+  await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText(
+    'Проверьте подключение',
+  );
 });
 
 test('черновики гостевого мастера: «Черновик», без Business и Location', async ({
@@ -201,7 +200,9 @@ test('сотрудник смены видит список; кнопка соз
   });
   await signIn(page);
   await page.goto('/ai-agents');
-  await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Профиль сохранён');
+  await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText(
+    'Профиль сохранён',
+  );
   const add = page.getByTestId('agent-add');
   await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
   await expect(add).toContainText('Создавать агентов могут владелец и управляющий.');

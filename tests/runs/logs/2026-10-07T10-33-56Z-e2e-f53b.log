@@ -1,0 +1,96 @@
+# Сквозные (e2e) · 07.10.2026 15:33 Алматы · vm
+# коммит 8f215d8 (claude/quirky-franklin-mo3gcn)
+# npx playwright test --workers=2 --reporter=list,json 'tests/e2e/desk-day.spec.ts' 'tests/e2e/finance.spec.ts'
+[pms_test] миграций применено 0 из 67; данные от 2026-10-07T10:32:24.237Z (сид)
+
+Running 3 tests using 2 workers
+
+  ✓  1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (50ms)
+[WebServer] (node:2166) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  3 [isolated] › tests/e2e/desk-day.spec.ts:16:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (31.3s)
+  ✘  2 [isolated] › tests/e2e/finance.spec.ts:30:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (32.5s)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 1)
+  свежих, моложе 15 мин, оставлено: 1 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/desk-day.spec.ts:16:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Главная' })
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Главная' }) with timeout 30000ms
+      - waiting for getByRole('heading', { name: 'Главная' })
+        - waiting for "http://127.0.0.1:3100/scope/resolve?next=%2Ftoday" navigation to finish...
+        - navigated to "https://wetop.ai/?next=%2Ftoday#login"
+
+
+      20 |   await page.goto('/');
+      21 |   await expect(page).toHaveURL(/\/today$/);
+    > 22 |   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
+         |                                                                ^
+      23 |   // деньги по умолчанию за месяц, риски внизу всегда о сегодняшнем дне
+      24 |   await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
+      25 |     'aria-current',
+        at /home/user/wetop.ai/tests/e2e/desk-day.spec.ts:22:64
+
+    Error Context: test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [isolated] › tests/e2e/finance.spec.ts:30:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('folio-panel').getByTestId('charge-row').first().locator('button')
+    Expected: 0
+    Received: 1
+    Timeout:  30000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('folio-panel').getByTestId('charge-row').first().locator('button') with timeout 30000ms
+      - waiting for getByRole('main').getByTestId('folio-panel').getByTestId('charge-row').first().locator('button')
+        63 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      66 |     'ACCOMMODATION',
+      67 |   );
+    > 68 |   await expect(panel.getByTestId('charge-row').first().locator('button')).toHaveCount(0); // сторно проживания нет
+         |                                                                           ^
+      69 |
+      70 |   // штраф 1 000 ₸
+      71 |   let cf = panel.getByTestId('charge-form');
+        at /home/user/wetop.ai/tests/e2e/finance.spec.ts:68:75
+
+    Error Context: test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [isolated] › tests/e2e/desk-day.spec.ts:16:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» 
+    [isolated] › tests/e2e/finance.spec.ts:30:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+  1 passed (40.0s)
+
+# код выхода 1 · 41 с

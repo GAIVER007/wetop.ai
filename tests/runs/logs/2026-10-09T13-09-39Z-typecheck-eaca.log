@@ -1,0 +1,371 @@
+# Типы (typecheck) · 09.10.2026 18:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 58
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(407,19): error TS2353: Object literal may only specify known properties, and 'phone' does not exist in type 'MembershipSelect<DefaultArgs>'.
+apps/api/src/accounts/accounts.prisma-repository.ts(420,60): error TS2339: Property 'position' does not exist on type '{ organizationId: string; createdAt: Date; userId: string; role: MembershipRole; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(424,34): error TS2339: Property 'phone' does not exist on type '{ organizationId: string; createdAt: Date; userId: string; role: MembershipRole; }'.
+apps/api/src/beauty/appointments.ts(67,44): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(86,39): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(104,43): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(118,36): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(121,38): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(124,35): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(127,38): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(127,66): error TS7006: Parameter 'i' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(128,30): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(148,35): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(155,31): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(192,30): error TS2339: Property 'customer' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(202,22): error TS2339: Property 'customer' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(209,20): error TS2339: Property 'customer' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(220,16): error TS2339: Property 'customerBusiness' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(225,16): error TS2339: Property 'appointment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(279,16): error TS2339: Property 'appointment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(325,16): error TS2339: Property 'appointment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(348,38): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(377,43): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(389,62): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(392,42): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(422,48): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(427,40): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(441,39): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(57,39): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(79,24): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/beauty.module.ts(90,28): error TS2339: Property 'beautyService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(123,42): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(147,28): error TS2339: Property 'beautyService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(173,42): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(180,16): error TS2339: Property 'locationService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(218,39): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(241,28): error TS2339: Property 'employee' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(253,18): error TS2339: Property 'employeeLocation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(281,42): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(301,16): error TS2339: Property 'employee' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(327,43): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(332,38): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(339,16): error TS2339: Property 'employeeService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(341,18): error TS2339: Property 'employeeService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(359,38): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(55,44): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(67,59): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(70,26): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(72,12): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(74,61): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(76,25): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(80,33): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(84,65): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(100,38): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(101,48): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(107,51): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(122,43): error TS2339: Property 'employeeLocation' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(131,16): error TS2339: Property 'workingHours' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(133,18): error TS2339: Property 'workingHours' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(166,43): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(176,16): error TS2339: Property 'timeOff' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(209,38): error TS2339: Property 'timeOff' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(216,16): error TS2339: Property 'timeOff' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(256,42): error TS2339: Property 'employeeLocation' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(260,37): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(262,43): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(276,64): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(279,42): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(280,18): error TS2339: Property 'workingHours' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(281,18): error TS2339: Property 'employeeLocation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(284,18): error TS2339: Property 'employeeLocation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(294,47): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(308,43): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(317,39): error TS2339: Property 'workingHours' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(322,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(333,39): error TS2339: Property 'timeOff' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(341,31): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(349,47): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(354,32): error TS7006: Parameter 'min' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(354,37): error TS7006: Parameter 'w' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(356,14): error TS7006: Parameter 'max' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(356,19): error TS7006: Parameter 'w' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(364,27): error TS7031: Binding element 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(364,32): error TS7031: Binding element 'window' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(369,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(46,27): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(442,38): error TS2353: Object literal may only specify known properties, and 'receipt' does not exist in type 'PaymentInclude<DefaultArgs>'.
+apps/api/src/finance/finance.repository.ts(446,40): error TS2344: Type '{ include: { reservationItem: { select: { status: true; arrivalDate: true; departureDate: true; accommodationType: { select: { name: true; }; }; reservation: { select: { confirmationNumber: true; }; }; }; }; charges: { ...; }; allocations: { ...; }; refunds: { ...; }; }; }' does not satisfy the constraint 'boolean | FolioDefaultArgs<DefaultArgs> | null | undefined'.
+  Type '{ include: { reservationItem: { select: { status: true; arrivalDate: true; departureDate: true; accommodationType: { select: { name: true; }; }; reservation: { select: { confirmationNumber: true; }; }; }; }; charges: { ...; }; allocations: { ...; }; refunds: { ...; }; }; }' is not assignable to type 'FolioDefaultArgs<DefaultArgs>'.
+    The types of 'include.allocations' are incompatible between these types.
+      Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'boolean | Folio$allocationsArgs<DefaultArgs>'.
+        Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'Folio$allocationsArgs<DefaultArgs>'.
+          The types of 'include.payment' are incompatible between these types.
+            Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'boolean | PaymentDefaultArgs<DefaultArgs>'.
+              Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'PaymentDefaultArgs<DefaultArgs>'.
+                Types of property 'include' are incompatible.
+                  Type '{ receipt: { select: { number: boolean; issuedAt: boolean; }; }; }' has no properties in common with type 'PaymentInclude<DefaultArgs>'.
+apps/api/src/finance/finance.repository.ts(486,39): error TS2339: Property 'number' does not exist on type 'never'.
+apps/api/src/finance/finance.repository.ts(486,75): error TS2339: Property 'issuedAt' does not exist on type 'never'.
+apps/api/src/finance/finance.repository.ts(517,68): error TS2322: Type '{ reservationItem: { select: { status: true; arrivalDate: true; departureDate: true; accommodationType: { select: { name: true; }; }; reservation: { select: { confirmationNumber: true; }; }; }; }; charges: { ...; }; allocations: { ...; }; refunds: { ...; }; }' is not assignable to type 'FolioInclude<DefaultArgs>'.
+  Types of property 'allocations' are incompatible.
+    Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'boolean | Folio$allocationsArgs<DefaultArgs>'.
+      Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'Folio$allocationsArgs<DefaultArgs>'.
+        The types of 'include.payment' are incompatible between these types.
+          Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'boolean | PaymentDefaultArgs<DefaultArgs>'.
+            Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'PaymentDefaultArgs<DefaultArgs>'.
+              Types of property 'include' are incompatible.
+                Type '{ receipt: { select: { number: boolean; issuedAt: boolean; }; }; }' has no properties in common with type 'PaymentInclude<DefaultArgs>'.
+apps/api/src/finance/finance.repository.ts(521,14): error TS2339: Property 'items' does not exist on type '{ id: string; currency: string; createdAt: Date; updatedAt: Date; status: ReservationStatus; propertyId: string; source: ReservationSource; ... 13 more ...; promoCodeId: string | null; }'.
+apps/api/src/finance/finance.repository.ts(521,29): error TS7006: Parameter 'i' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(552,7): error TS2322: Type '{ reservationItem: { select: { status: true; arrivalDate: true; departureDate: true; accommodationType: { select: { name: true; }; }; reservation: { select: { confirmationNumber: true; }; }; }; }; charges: { ...; }; allocations: { ...; }; refunds: { ...; }; }' is not assignable to type 'FolioInclude<DefaultArgs>'.
+  Types of property 'allocations' are incompatible.
+    Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'boolean | Folio$allocationsArgs<DefaultArgs>'.
+      Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'Folio$allocationsArgs<DefaultArgs>'.
+        The types of 'include.payment' are incompatible between these types.
+          Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'boolean | PaymentDefaultArgs<DefaultArgs>'.
+            Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'PaymentDefaultArgs<DefaultArgs>'.
+              Types of property 'include' are incompatible.
+                Type '{ receipt: { select: { number: boolean; issuedAt: boolean; }; }; }' has no properties in common with type 'PaymentInclude<DefaultArgs>'.
+apps/api/src/finance/finance.repository.ts(554,24): error TS2345: Argument of type '{ id: string; currency: string; createdAt: Date; status: FolioStatus; reservationItemId: string; closedAt: Date | null; }' is not assignable to parameter of type '{ allocations: ({ payment: { receipt: never; } & { id: string; currency: string; createdAt: Date; status: PaymentStatus; amount: bigint; propertyId: string; externalReference: string | null; method: PaymentMethod; note: string | null; paidAt: Date; }; } & { ...; })[]; charges: ({ ...; } & { ...; })[]; refunds: { ......'.
+  Type '{ id: string; currency: string; createdAt: Date; status: FolioStatus; reservationItemId: string; closedAt: Date | null; }' is missing the following properties from type '{ allocations: ({ payment: { receipt: never; } & { id: string; currency: string; createdAt: Date; status: PaymentStatus; amount: bigint; propertyId: string; externalReference: string | null; method: PaymentMethod; note: string | null; paidAt: Date; }; } & { ...; })[]; charges: ({ ...; } & { ...; })[]; refunds: { ......': allocations, charges, refunds, reservationItem
+apps/api/src/finance/finance.repository.ts(990,35): error TS2339: Property 'fiscalReceipt' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(996,30): error TS2339: Property 'fiscalReceipt' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(102,39): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(111,38): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(134,28): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(185,16): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(212,16): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(141,39): error TS2339: Property 'competitor' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(152,30): error TS2339: Property 'competitor' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(180,40): error TS2339: Property 'competitor' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(184,18): error TS2339: Property 'competitor' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(197,39): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(212,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/market/market.repository.ts(223,39): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(228,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/market/market.repository.ts(245,40): error TS2339: Property 'competitor' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(256,20): error TS2339: Property 'competitorOccupancy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(259,18): error TS2339: Property 'competitorOccupancy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(271,39): error TS2339: Property 'competitor' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(283,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/market/market.repository.ts(311,31): error TS2339: Property 'competitorOccupancy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(320,41): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/market/market.repository.ts(325,18): error TS2339: Property 'competitorOccupancy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/tasks/tasks.repository.ts(88,39): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/tasks/tasks.repository.ts(95,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/tasks/tasks.repository.ts(98,27): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/tasks/tasks.repository.ts(133,38): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/tasks/tasks.repository.ts(150,41): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/tasks/tasks.repository.ts(158,38): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(119,38): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(172,38): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(190,44): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(255,28): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(274,26): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+tests/integration/beauty-appointments.test.ts(243,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/beauty-appointments.test.ts(245,35): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/beauty-appointments.test.ts(254,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/beauty-appointments.test.ts(263,36): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/beauty-appointments.test.ts(264,36): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/beauty-appointments.test.ts(272,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/beauty-appointments.test.ts(277,37): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/integration/beauty-catalog.test.ts(102,23): error TS7006: Parameter 'i' implicitly has an 'any' type.
+tests/integration/beauty-catalog.test.ts(155,30): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+tests/integration/beauty-catalog.test.ts(175,21): error TS2339: Property 'employee' does not exist on type 'Db'.
+tests/integration/beauty-catalog.test.ts(179,30): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+tests/integration/desk-tasks.test.ts(20,28): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+tests/integration/desk-tasks.test.ts(48,22): error TS7006: Parameter 't' implicitly has an 'any' type.
+tests/integration/desk-tasks.test.ts(55,21): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+tests/integration/desk-tasks.test.ts(56,21): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+tests/integration/desk-tasks.test.ts(57,21): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+tests/integration/fiscal-receipts.test.ts(44,14): error TS2339: Property 'fiscalReceipt' does not exist on type 'Db'.
+tests/integration/fiscal-receipts.test.ts(82,21): error TS2339: Property 'fiscalReceipt' does not exist on type 'Db'.
+tests/integration/fiscal-receipts.test.ts(103,10): error TS2339: Property 'fiscalReceipt' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(24,14): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(25,14): error TS2339: Property 'competitor' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(96,21): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(106,30): error TS2339: Property 'competitor' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(108,10): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(119,10): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(137,29): error TS2339: Property 'competitor' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(138,14): error TS2339: Property 'competitor' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(161,27): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(177,21): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+tests/integration/market-occupancy.test.ts(192,16): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+tests/integration/payment-requests.test.ts(26,27): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+tests/integration/payment-requests.test.ts(27,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/payment-requests.test.ts(28,14): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+tests/integration/payment-requests.test.ts(72,26): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+tests/integration/payment-requests.test.ts(101,26): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+tests/integration/payment-requests.test.ts(107,21): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+tests/integration/payment-requests.test.ts(109,10): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+tests/integration/payment-requests.test.ts(112,10): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+tests/integration/payment-requests.test.ts(114,21): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+tests/integration/seller-booking-intents.test.ts(55,14): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+tests/integration/seller-booking-intents.test.ts(85,26): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+tests/integration/seller-booking-intents.test.ts(96,21): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+tests/integration/seller-booking-intents.test.ts(100,14): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+tests/integration/seller-booking-intents.test.ts(102,10): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(407,19): error TS2353: Object literal may only specify known properties, and 'phone' does not exist in type 'MembershipSelect<DefaultArgs>'.
+apps/api/src/accounts/accounts.prisma-repository.ts(420,60): error TS2339: Property 'position' does not exist on type '{ organizationId: string; createdAt: Date; userId: string; role: MembershipRole; }'.
+apps/api/src/accounts/accounts.prisma-repository.ts(424,34): error TS2339: Property 'phone' does not exist on type '{ organizationId: string; createdAt: Date; userId: string; role: MembershipRole; }'.
+apps/api/src/beauty/appointments.ts(67,44): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(86,39): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(104,43): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(118,36): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(121,38): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(124,35): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(127,38): error TS7006: Parameter 'c' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(127,66): error TS7006: Parameter 'i' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(128,30): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(148,35): error TS7006: Parameter 'p' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(155,31): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(192,30): error TS2339: Property 'customer' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(202,22): error TS2339: Property 'customer' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(209,20): error TS2339: Property 'customer' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(220,16): error TS2339: Property 'customerBusiness' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(225,16): error TS2339: Property 'appointment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(279,16): error TS2339: Property 'appointment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(325,16): error TS2339: Property 'appointment' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/appointments.ts(348,38): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(377,43): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(389,62): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(392,42): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/appointments.ts(422,48): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(427,40): error TS7006: Parameter 't' implicitly has an 'any' type.
+apps/api/src/beauty/appointments.ts(441,39): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(57,39): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(79,24): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/beauty.module.ts(90,28): error TS2339: Property 'beautyService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(123,42): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(147,28): error TS2339: Property 'beautyService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(173,42): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(180,16): error TS2339: Property 'locationService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(218,39): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(241,28): error TS2339: Property 'employee' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(253,18): error TS2339: Property 'employeeLocation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(281,42): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(301,16): error TS2339: Property 'employee' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(327,43): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(332,38): error TS2339: Property 'beautyService' does not exist on type 'Db'.
+apps/api/src/beauty/beauty.module.ts(339,16): error TS2339: Property 'employeeService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(341,18): error TS2339: Property 'employeeService' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/beauty.module.ts(359,38): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(55,44): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(67,59): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(70,26): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(72,12): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(74,61): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(76,25): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(80,33): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(84,65): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(100,38): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(101,48): error TS7006: Parameter 'l' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(107,51): error TS7006: Parameter 'x' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(122,43): error TS2339: Property 'employeeLocation' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(131,16): error TS2339: Property 'workingHours' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(133,18): error TS2339: Property 'workingHours' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(166,43): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(176,16): error TS2339: Property 'timeOff' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(209,38): error TS2339: Property 'timeOff' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(216,16): error TS2339: Property 'timeOff' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(256,42): error TS2339: Property 'employeeLocation' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(260,37): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(262,43): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(276,64): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(279,42): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(280,18): error TS2339: Property 'workingHours' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(281,18): error TS2339: Property 'employeeLocation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(284,18): error TS2339: Property 'employeeLocation' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/beauty/schedule.ts(294,47): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(308,43): error TS2339: Property 'employee' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(317,39): error TS2339: Property 'workingHours' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(322,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(333,39): error TS2339: Property 'timeOff' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(341,31): error TS7006: Parameter 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(349,47): error TS2339: Property 'appointment' does not exist on type 'Db'.
+apps/api/src/beauty/schedule.ts(354,32): error TS7006: Parameter 'min' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(354,37): error TS7006: Parameter 'w' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(356,14): error TS7006: Parameter 'max' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(356,19): error TS7006: Parameter 'w' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(364,27): error TS7031: Binding element 'row' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(364,32): error TS7031: Binding element 'window' implicitly has an 'any' type.
+apps/api/src/beauty/schedule.ts(369,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+apps/api/src/desk/desk.repository.ts(46,27): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(442,38): error TS2353: Object literal may only specify known properties, and 'receipt' does not exist in type 'PaymentInclude<DefaultArgs>'.
+apps/api/src/finance/finance.repository.ts(446,40): error TS2344: Type '{ include: { reservationItem: { select: { status: true; arrivalDate: true; departureDate: true; accommodationType: { select: { name: true; }; }; reservation: { select: { confirmationNumber: true; }; }; }; }; charges: { ...; }; allocations: { ...; }; refunds: { ...; }; }; }' does not satisfy the constraint 'boolean | FolioDefaultArgs<DefaultArgs> | null | undefined'.
+  Type '{ include: { reservationItem: { select: { status: true; arrivalDate: true; departureDate: true; accommodationType: { select: { name: true; }; }; reservation: { select: { confirmationNumber: true; }; }; }; }; charges: { ...; }; allocations: { ...; }; refunds: { ...; }; }; }' is not assignable to type 'FolioDefaultArgs<DefaultArgs>'.
+    The types of 'include.allocations' are incompatible between these types.
+      Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'boolean | Folio$allocationsArgs<DefaultArgs>'.
+        Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'Folio$allocationsArgs<DefaultArgs>'.
+          The types of 'include.payment' are incompatible between these types.
+            Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'boolean | PaymentDefaultArgs<DefaultArgs>'.
+              Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'PaymentDefaultArgs<DefaultArgs>'.
+                Types of property 'include' are incompatible.
+                  Type '{ receipt: { select: { number: boolean; issuedAt: boolean; }; }; }' has no properties in common with type 'PaymentInclude<DefaultArgs>'.
+apps/api/src/finance/finance.repository.ts(486,39): error TS2339: Property 'number' does not exist on type 'never'.
+apps/api/src/finance/finance.repository.ts(486,75): error TS2339: Property 'issuedAt' does not exist on type 'never'.
+apps/api/src/finance/finance.repository.ts(517,68): error TS2322: Type '{ reservationItem: { select: { status: true; arrivalDate: true; departureDate: true; accommodationType: { select: { name: true; }; }; reservation: { select: { confirmationNumber: true; }; }; }; }; charges: { ...; }; allocations: { ...; }; refunds: { ...; }; }' is not assignable to type 'FolioInclude<DefaultArgs>'.
+  Types of property 'allocations' are incompatible.
+    Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'boolean | Folio$allocationsArgs<DefaultArgs>'.
+      Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'Folio$allocationsArgs<DefaultArgs>'.
+        The types of 'include.payment' are incompatible between these types.
+          Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'boolean | PaymentDefaultArgs<DefaultArgs>'.
+            Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'PaymentDefaultArgs<DefaultArgs>'.
+              Types of property 'include' are incompatible.
+                Type '{ receipt: { select: { number: boolean; issuedAt: boolean; }; }; }' has no properties in common with type 'PaymentInclude<DefaultArgs>'.
+apps/api/src/finance/finance.repository.ts(521,14): error TS2339: Property 'items' does not exist on type '{ id: string; currency: string; createdAt: Date; updatedAt: Date; status: ReservationStatus; propertyId: string; source: ReservationSource; ... 13 more ...; promoCodeId: string | null; }'.
+apps/api/src/finance/finance.repository.ts(521,29): error TS7006: Parameter 'i' implicitly has an 'any' type.
+apps/api/src/finance/finance.repository.ts(552,7): error TS2322: Type '{ reservationItem: { select: { status: true; arrivalDate: true; departureDate: true; accommodationType: { select: { name: true; }; }; reservation: { select: { confirmationNumber: true; }; }; }; }; charges: { ...; }; allocations: { ...; }; refunds: { ...; }; }' is not assignable to type 'FolioInclude<DefaultArgs>'.
+  Types of property 'allocations' are incompatible.
+    Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'boolean | Folio$allocationsArgs<DefaultArgs>'.
+      Type '{ orderBy: { payment: { paidAt: "asc"; }; }; include: { payment: { include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }; }; }' is not assignable to type 'Folio$allocationsArgs<DefaultArgs>'.
+        The types of 'include.payment' are incompatible between these types.
+          Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'boolean | PaymentDefaultArgs<DefaultArgs>'.
+            Type '{ include: { receipt: { select: { number: boolean; issuedAt: boolean; }; }; }; }' is not assignable to type 'PaymentDefaultArgs<DefaultArgs>'.
+              Types of property 'include' are incompatible.
+                Type '{ receipt: { select: { number: boolean; issuedAt: boolean; }; }; }' has no properties in common with type 'PaymentInclude<DefaultArgs>'.
+apps/api/src/finance/finance.repository.ts(554,24): error TS2345: Argument of type '{ id: string; currency: string; createdAt: Date; status: FolioStatus; reservationItemId: string; closedAt: Date | null; }' is not assignable to parameter of type '{ allocations: ({ payment: { receipt: never; } & { id: string; currency: string; createdAt: Date; status: PaymentStatus; amount: bigint; propertyId: string; externalReference: string | null; method: PaymentMethod; note: string | null; paidAt: Date; }; } & { ...; })[]; charges: ({ ...; } & { ...; })[]; refunds: { ......'.
+  Type '{ id: string; currency: string; createdAt: Date; status: FolioStatus; reservationItemId: string; closedAt: Date | null; }' is missing the following properties from type '{ allocations: ({ payment: { receipt: never; } & { id: string; currency: string; createdAt: Date; status: PaymentStatus; amount: bigint; propertyId: string; externalReference: string | null; method: PaymentMethod; note: string | null; paidAt: Date; }; } & { ...; })[]; charges: ({ ...; } & { ...; })[]; refunds: { ......': allocations, charges, refunds, reservationItem
+apps/api/src/finance/finance.repository.ts(990,35): error TS2339: Property 'fiscalReceipt' does not exist on type 'Db'.
+apps/api/src/finance/finance.repository.ts(996,30): error TS2339: Property 'fiscalReceipt' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(102,39): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(111,38): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(134,28): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(185,16): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/finance/payment-requests.repository.ts(212,16): error TS2339: Property 'paymentRequest' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(141,39): error TS2339: Property 'competitor' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(152,30): error TS2339: Property 'competitor' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(180,40): error TS2339: Property 'competitor' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(184,18): error TS2339: Property 'competitor' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(197,39): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(212,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/market/market.repository.ts(223,39): error TS2339: Property 'competitorOccupancy' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(228,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/market/market.repository.ts(245,40): error TS2339: Property 'competitor' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(256,20): error TS2339: Property 'competitorOccupancy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(259,18): error TS2339: Property 'competitorOccupancy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(271,39): error TS2339: Property 'competitor' does not exist on type 'Db'.
+apps/api/src/market/market.repository.ts(283,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/market/market.repository.ts(311,31): error TS2339: Property 'competitorOccupancy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/market/market.repository.ts(320,41): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/api/src/market/market.repository.ts(325,18): error TS2339: Property 'competitorOccupancy' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/tasks/tasks.repository.ts(88,39): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/tasks/tasks.repository.ts(95,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/tasks/tasks.repository.ts(98,27): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/tasks/tasks.repository.ts(133,38): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/tasks/tasks.repository.ts(150,41): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/tasks/tasks.repository.ts(158,38): error TS2339: Property 'deskTask' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(119,38): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(172,38): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(190,44): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(255,28): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+apps/api/src/web-booking/booking-intents.service.ts(274,26): error TS2339: Property 'sellerBookingIntent' does not exist on type 'Db'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 10 с

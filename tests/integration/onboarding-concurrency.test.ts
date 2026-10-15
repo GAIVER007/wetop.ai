@@ -25,7 +25,7 @@ describe.skipIf(!process.env.DATABASE_URL)('онбординг без объек
     const org = await db.organization.create({ data: { name: `TEST onboarding race ${marker}` } });
     const user = await db.user.create({ data: { email: `onboarding-race-${marker}@example.invalid` } });
     const service = new OnboardingService({ db } as PrismaService, { forget: () => {} } as never);
-    const as = <T>(fn: () => Promise<T>) => withSignedInUser({ userId: user.id, organizationId: org.id }, fn);
+    const as = <T>(fn: () => Promise<T>) => withSignedInUser({ userId: user.id, organizationId: org.id, role: 'OWNER' }, fn) // новое направление создаёт владелец (ADR-183);
     const body = {
       currency: 'KZT',
       categories: [{ name: 'Койко-место', kind: 'DORM_BED', capacityAdults: 1, units: 2, priceMinor: 900_000 }],

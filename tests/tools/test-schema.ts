@@ -14,7 +14,7 @@ import { seedTestData, type SeedReport } from './test-seed';
 import {
   TEST_SCHEMA,
   chooseTestDataSource,
-  copyOrder,
+  copyPlan,
   pendingMigrations,
   refreshPlan,
   seedIsStale,
@@ -166,8 +166,10 @@ async function copyLiveData(
   if (missing.length) throw new Error(`в ${TEST_SCHEMA} нет таблиц рабочей базы: ${missing.join(', ')} — сначала миграции`);
   const tables = [...test].filter((t) => live.has(t));
   const fks = (
-    await client.query<{ table: string; references: string }>(
-      `SELECT tc.relname AS table, rc.relname AS references
+    await client.query<{ table: string; references: string; nullable: boolean }>(
+      `SELECT tc.relname AS table, rc.relname AS references,
+              NOT EXISTS (SELECT 1 FROM pg_attribute a
+                           WHERE a.attrelid = k.conrelid AND a.attnum = ANY(k.conkey) AND a.attnotnull) AS nullable
          FROM pg_constraint k
          JOIN pg_class tc ON tc.oid = k.conrelid
          JOIN pg_class rc ON rc.oid = k.confrelid
@@ -176,10 +178,15 @@ async function copyLiveData(
       [TEST_SCHEMA],
     )
   ).rows;
-  const order = copyOrder(tables, fks);
+  const { order, relaxed } = copyPlan(tables, fks);
   const out: NonNullable<TestSchemaReport['copied']> = [];
   await client.query('BEGIN');
   try {
+    if (relaxed.length) {
+      // цикл через ссылку с NULL (сайт ↔ версии, MKT3): порядком его не обойти, ссылки на время копии не проверяются
+      log(`копия без построчной проверки ссылок: ${relaxed.map((r) => `${r.table} → ${r.references}`).join(', ')}`);
+      await client.query('SET LOCAL session_replication_role = replica');
+    }
     await client.query(`TRUNCATE ${order.map((t) => `${S}.${q(t)}`).join(', ')} CASCADE`);
     for (const table of order) {
       const cols = (

@@ -1,0 +1,30 @@
+# Модульные (unit) · 10.10.2026 16:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2341cfb (claude/platform-superadmin), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-59-04Z-unit-63f7.json' 'apps/api/src/platform/overview.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin
+
+ ❯ |unit| apps/api/src/platform/overview.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/overview.test.ts [ apps/api/src/platform/overview.test.ts ]
+Error: Cannot find module './overview' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/platform-superadmin/apps/api/src/platform/overview.test.ts
+ ❯ apps/api/src/platform/overview.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { buildPlatformOverview, type OverviewSource } from './overview…
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  04:59:05
+   Duration  87ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-10T11-59-04Z-unit-63f7.json
+
+# код выхода 1 · 1 с

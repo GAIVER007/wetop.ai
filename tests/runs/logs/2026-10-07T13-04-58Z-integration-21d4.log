@@ -1,0 +1,50 @@
+# Интеграционные (integration) · 07.10.2026 18:04 Алматы · vm
+# коммит 8b734d0 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 19
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T13-04-58Z-integration-21d4.json' 'tests/integration/site-publication.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:18059) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-publication.test.ts (12 tests | 1 failed) 3303ms
+   ❯ MKT7 публикация управляемого сайта (12)
+     ✓ §79 и §80: превью, публикация, новая версия, откат, пауза; внешний канонический сайт не подменяется 856ms
+     ✓ §82: пауза канонического управляемого сайта: указатель остаётся, продавец без сайта; возобновление возвращает 93ms
+     ✓ §83: архив снимает указатель с управляемого сайта, внешний A сам не выбирается 72ms
+     ✓ §31: канонического нет и других подходящих нет: первая публикация с бронью делает управляемый сайт каноническим 110ms
+     × §31–§32: выбранный канонический сайт (даже на паузе) публикация не подменяет, продавец на другой не переходит 155ms
+     ✓ §81: два подходящих сайта без указателя: продавец без сайта, публикация указатель не ставит 141ms
+     ✓ §84: тариф брони только явный, связанный или канонический; первый активный не берётся 412ms
+     ✓ §44–§47: публикуется только голова черновика, документ перепроверяется: медиа и неактивная категория 297ms
+     ✓ §88: две одновременные публикации одной версии: одна строка журнала, один домен, один сайт счётчика 95ms
+     ✓ §90: превью чужой версии и чужим филиалом: отказ без подробностей; лишнее поле 400 43ms
+     ✓ §77, §20: источник брони только сайт точного объекта и только подходящий; администратор не меняет 76ms
+     ✓ §98: SITES_BASE_DOMAIN не задан или под wetop.ai: публикация и превью 503; без секрета превью 503 116ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-publication.test.ts > MKT7 публикация управляемого сайта > §31–§32: выбранный канонический сайт (даже на паузе) публикация не подменяет, продавец на другой не переходит
+AssertionError: expected '411b8168-4ef4-4f65-9df5-c57dd786591b' to be '05e78ba8-a1a0-4f54-8b8f-792ba940dd7f' // Object.is equality
+
+Expected: "05e78ba8-a1a0-4f54-8b8f-792ba940dd7f"
+Received: "411b8168-4ef4-4f65-9df5-c57dd786591b"
+
+ ❯ tests/integration/site-publication.test.ts:408:37
+    406|     const v1 = (await siteRow('kept')).latestVersionId!;
+    407|     expect((await call('POST', '/marketing/site/publish', { location: …
+    408|     expect(await pointerOf('kept')).toBe(external['kept']);
+       |                                     ^
+    409|     expect(await agentSite('kept')).toBeNull();
+    410|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  13:04:59
+   Duration  9.41s (tests 47%, transform 37%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-07T13-04-58Z-integration-21d4.json
+
+# код выхода 1 · 11 с

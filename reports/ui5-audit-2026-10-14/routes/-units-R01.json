@@ -1,0 +1,30 @@
+{
+ "/units/R01": {
+  "390": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Ячейка R01",
+   "mainEmpty": false,
+   "smallTargets": [
+    "A:20260913-TESTAA 74x38"
+   ]
+  },
+  "768": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Ячейка R01",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "1440": {
+   "overflowX": 0,
+   "minFont": 13,
+   "h1": "Ячейка R01",
+   "mainEmpty": false,
+   "smallTargets": []
+  },
+  "axe-light": [],
+  "axe-dark": [],
+  "console": []
+ }
+}

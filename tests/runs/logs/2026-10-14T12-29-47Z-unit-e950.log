@@ -1,0 +1,104 @@
+# Модульные (unit) · 14.10.2026 17:29 Алматы · MacBook-Air-Urij.local
+# коммит 519326e (claude/food-fix-01-20261014), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-29-47Z-unit-e950.json' 'apps/api/src/bar/bar.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-01
+
+ ❯ |unit| apps/api/src/bar/bar.controller.test.ts (12 tests | 2 failed) 203ms
+   ✓ бар: приходы (BAR2) (10)
+     ✓ создает черновик и проводит его один раз 30ms
+     ✓ отклоняет пустой приход и сумму float 3ms
+     ✓ создает товар и поставщика, архивирует без удаления 6ms
+     ✓ правит карточку товара: название, категорию, штрихкод, наценку и минимум, но не цену 3ms
+     ✓ продает без брони и запрещает минусовой остаток 2ms
+     ✓ возвращает продажу и восстанавливает остаток только по флагу 1ms
+     ✓ списывает товар с причиной и не уходит в минус 2ms
+     ✓ принимает частичную оплату поставщику и запрещает переплату 3ms
+     ✓ добавляет товар в открытый счет гостя 1ms
+     ✓ фиксирует недостачу и блокирует излишек без цены 2ms
+   ❯ бар: права на сторно (FOOD-FIX-01) (2)
+     × смене (STAFF) сторно закрыто, продажа открыта 6ms
+     × владельцу с правом refunds сторно открыто 1ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 60ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 45ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 14ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/bar/bar.controller.test.ts > бар: права на сторно (FOOD-FIX-01) > смене (STAFF) сторно закрыто, продажа открыта
+Error: expected 403 "Forbidden", got 400 "Bad Request"
+ ❯ apps/api/src/bar/bar.controller.test.ts:212:8
+    210|     await request(app.getHttpServer())
+    211|       .post(`/bar/sales/${saleId}/reverse`).set('x-test-role', 'STAFF'…
+    212|       .expect(403);
+       |        ^
+    213|     await request(app.getHttpServer())
+    214|       .post('/bar/sales/retail').set('x-test-role', 'STAFF')
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/bar/bar.controller.test.ts > бар: права на сторно (FOOD-FIX-01) > владельцу с правом refunds сторно открыто
+Error: expected 201 "Created", got 400 "Bad Request"
+ ❯ apps/api/src/bar/bar.controller.test.ts:222:8
+    220|     const reversed = await request(app.getHttpServer())
+    221|       .post(`/bar/sales/${saleId}/reverse`).send({ restock: true })
+    222|       .expect(201);
+       |        ^
+    223|     expect(reversed.body.status).toBe('REVERSED');
+    224|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(456) } to deeply equal { 'GET /onboarding': 'self', …(456) }
+
+- Expected
++ Received
+
+@@ -285,11 +285,11 @@
+    "POST /bar/products": "settings",
+    "POST /bar/receipts": "desk",
+    "POST /bar/receipts/:id/payments": "desk",
+    "POST /bar/receipts/:id/post": "desk",
+    "POST /bar/receipts/scan": "desk",
+-   "POST /bar/sales/:id/reverse": "refunds",
++   "POST /bar/sales/:id/reverse": "desk",
+    "POST /bar/sales/folio": "desk",
+    "POST /bar/sales/retail": "desk",
+    "POST /bar/suppliers": "settings",
+    "POST /bar/write-offs": "desk",
+    "POST /beauty/appointments": "desk",
+
+ ❯ apps/api/src/auth/route-access.test.ts:576:20
+    574|       .map(([key]) => key);
+    575|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    576|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    577|   });
+    578|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 12 passed (15)
+   Start at  16:29:49
+   Duration  2.97s (transform 54%, import 40%, tests 6%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T12-29-47Z-unit-e950.json
+
+# код выхода 1 · 5 с

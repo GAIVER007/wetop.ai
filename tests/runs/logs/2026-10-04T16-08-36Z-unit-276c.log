@@ -1,0 +1,22 @@
+# Модульные (unit) · 04.10.2026 21:08 Алматы · MacBook-Air-Urij.local
+# коммит 252dbe4 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 31
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T16-08-36Z-unit-276c.json' 'apps/api/src/web-booking/web-booking.controller.test.ts' '--maxWorkers=1' '--testTimeout=30000'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (40 tests) 284ms
+
+ Test Files  1 passed (1)
+      Tests  40 passed (40)
+   Start at  20:08:37
+   Duration  1.73s (transform 45%, import 38%, tests 17%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T16-08-36Z-unit-276c.json
+
+# код выхода 0 · 3 с

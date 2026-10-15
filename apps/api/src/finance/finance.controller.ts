@@ -64,6 +64,13 @@ export class FinanceController {
     });
   }
 
+  /** Деньги за период по дням: поступления, возвраты, расходы и поток раздельно (RPT2.4a, ADR-155) */
+  @Access('reports')
+  @Get('cashflow')
+  cashflow(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.service.periodCashFlow(from, to);
+  }
+
   // ── Касса (DATA_MODEL §21): остатки, операции мимо броней, переводы, статьи ────────────────────
   /** Остатки по способам за всё время и статьи одним ответом; кассу ведёт смена — право стойки (Q-238) */
   @Get('cash')
@@ -98,9 +105,7 @@ export class FinanceController {
 
   /** Сверка кассы (§21.4): сверяет смена, как в старой системе */
   @Post('cash/reconciliations')
-  createCashReconciliation(
-    @Body() dto: Parameters<FinanceService['createCashReconciliation']>[0],
-  ) {
+  createCashReconciliation(@Body() dto: Parameters<FinanceService['createCashReconciliation']>[0]) {
     return this.service.createCashReconciliation(dto ?? {});
   }
 
@@ -155,6 +160,28 @@ export class FinanceController {
   @HttpCode(200)
   issueReceipt(@Param('id', ParseUUIDPipe) id: string, @Body() dto: { number?: unknown }) {
     return this.service.issueReceipt(id, dto ?? {});
+  }
+
+  /** Аннулировать платёж (план finance-payments-direct 07.10.2026): владелец и управляющий, как возврат (ADR-107) */
+  @Access('refunds')
+  @Post('payments/:id/void')
+  @HttpCode(200)
+  voidPayment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: Parameters<FinanceService['voidPayment']>[1],
+  ) {
+    return this.service.voidPayment(id, dto ?? {});
+  }
+
+  /** Заменить платёж: старый аннулируется, новый проводится той же транзакцией */
+  @Access('refunds')
+  @Post('payments/:id/replace')
+  @HttpCode(200)
+  replacePayment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: Parameters<FinanceService['replacePayment']>[1],
+  ) {
+    return this.service.replacePayment(id, dto ?? {});
   }
 
   @Access('refunds')

@@ -10,9 +10,15 @@ import type { Prisma } from './generated/prisma/client';
  * Вызывать внутри транзакции: объект без филиала база не примет, а филиал без объекта — мусор.
  * `organization_id` у объекта остаётся (замок ADR-061) и всегда совпадает с организацией Business.
  */
-type ChainTx = Pick<Prisma.TransactionClient, 'organization' | 'business' | 'location' | 'property'>;
+type ChainTx = Pick<
+  Prisma.TransactionClient,
+  'organization' | 'business' | 'location' | 'property'
+>;
 
-export type PropertyInChainData = Omit<Prisma.PropertyUncheckedCreateInput, 'organizationId' | 'locationId'>;
+export type PropertyInChainData = Omit<
+  Prisma.PropertyUncheckedCreateInput,
+  'organizationId' | 'locationId'
+>;
 
 /**
  * Умолчания нового объекта — у регистрации и у онбординга организации без объекта (после сброса ADR-118) одни и те
@@ -29,22 +35,35 @@ export async function createPropertyInChain(
   tx: ChainTx,
   organizationId: string,
   data: PropertyInChainData,
+  businessId?: string,
 ) {
   const business =
     (await tx.business.findFirst({
-      where: { organizationId, vertical: 'HOSPITALITY' },
+      where: {
+        organizationId,
+        vertical: 'HOSPITALITY',
+        ...(businessId ? { id: businessId, status: 'ACTIVE' as const } : {}),
+      },
       orderBy: { createdAt: 'asc' },
       select: { id: true },
     })) ??
-    (await tx.business.create({
-      data: {
-        organizationId,
-        name: (await tx.organization.findUniqueOrThrow({ where: { id: organizationId }, select: { name: true } }))
-          .name,
-        vertical: 'HOSPITALITY',
-      },
-      select: { id: true },
-    }));
+    (businessId
+      ? (() => {
+          throw new Error('Выбранный бизнес недоступен');
+        })()
+      : await tx.business.create({
+          data: {
+            organizationId,
+            name: (
+              await tx.organization.findUniqueOrThrow({
+                where: { id: organizationId },
+                select: { name: true },
+              })
+            ).name,
+            vertical: 'HOSPITALITY',
+          },
+          select: { id: true },
+        }));
   const location = await tx.location.create({
     data: {
       businessId: business.id,
@@ -67,9 +86,9 @@ export type BeautyLocationData = Pick<
 >;
 
 /**
- * Новый филиал салона: та же цепочка, что у гостиницы, но без `Property` (DATA_MODEL §19: Beauty не
+ * Новый филиал салона или ресторана: та же цепочка, что у гостиницы, но без `Property` (DATA_MODEL §19: Beauty не
  * использует Property, Reservation, InventoryUnit и RatePlan). Бизнес организации, самый ранний её Business
- * направления BEAUTY, а если его нет, заводится один с именем организации, как у HOSPITALITY выше.
+ * выбранного направления BEAUTY или FOOD_SERVICE, а если его нет, заводится один с именем организации, как у HOSPITALITY выше.
  *
  * Вызывать внутри транзакции: бизнес и филиал появляются вместе.
  */
@@ -77,25 +96,36 @@ export async function createBeautyLocationInChain(
   tx: Pick<Prisma.TransactionClient, 'organization' | 'business' | 'location'>,
   organizationId: string,
   data: BeautyLocationData,
+  vertical: 'BEAUTY' | 'FOOD_SERVICE' = 'BEAUTY',
+  businessId?: string,
 ) {
   const business =
     (await tx.business.findFirst({
-      where: { organizationId, vertical: 'BEAUTY', status: 'ACTIVE' },
+      where: {
+        organizationId,
+        ...(businessId ? { id: businessId } : {}),
+        vertical,
+        status: 'ACTIVE',
+      },
       orderBy: { createdAt: 'asc' },
       select: { id: true },
     })) ??
-    (await tx.business.create({
-      data: {
-        organizationId,
-        name: (
-          await tx.organization.findUniqueOrThrow({
-            where: { id: organizationId },
-            select: { name: true },
-          })
-        ).name,
-        vertical: 'BEAUTY',
-      },
-      select: { id: true },
-    }));
+    (businessId
+      ? (() => {
+          throw new Error('Выбранный бизнес недоступен');
+        })()
+      : await tx.business.create({
+          data: {
+            organizationId,
+            name: (
+              await tx.organization.findUniqueOrThrow({
+                where: { id: organizationId },
+                select: { name: true },
+              })
+            ).name,
+            vertical,
+          },
+          select: { id: true },
+        }));
   return tx.location.create({ data: { ...data, businessId: business.id } });
 }

@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 06.10.2026 23:58 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T18-58-18Z-integration-536e.json' 'tests/integration/sites-runtime.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/sites-runtime.test.ts (13 tests) 1119ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  18:58:19
+   Duration  4.61s (transform 44%, tests 37%, import 19%)
+
+JSON report written to /tmp/pms-test-2026-10-06T18-58-18Z-integration-536e.json
+
+# код выхода 0 · 6 с

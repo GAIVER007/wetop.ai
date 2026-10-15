@@ -335,6 +335,24 @@ button {
  * Пилюля прямым ребёнком карточки: карточка выкладывает детей колонкой и растягивает их по ширине,
  * из-за чего ссылка превращалась в плашку во всю карточку и ломалась на две строки (02.10.2026).
  */
+.card__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+}
+/* Карточка-ссылка: щелчок по всей карточке ведёт по ссылке заголовка (у `.glass` уже position: relative) */
+.card__title a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.card__title a {
+  color: inherit;
+}
 .card > .link-arrow {
   align-self: flex-start;
 }
@@ -654,418 +672,13 @@ button {
   }
 }
 
-/*
- * Полоса фактов под первым экраном (02.10.2026): четыре коротких ответа «что это даёт». Карточек тут нет
- * намеренно: страница и так идёт карточками, а полоса разделяет первый экран и «Направления» и читается
- * одним взглядом. Хайрлайн сверху и снизу отделяет её от соседей в обеих темах.
- */
-.facts {
-  border-block: 1px solid var(--border-soft);
-}
-.facts__grid {
-  display: grid;
-  gap: 24px 32px;
-  padding: 0;
-  list-style: none;
-}
-@media (min-width: 40rem) {
-  .facts__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (min-width: 64rem) {
-  .facts__grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-.facts__item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  min-width: 0;
-}
-.facts__icon {
-  display: inline-grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--glass-border-dim);
-  border-radius: var(--radius-control);
-  background: var(--accent-grad-soft);
-  color: var(--primary);
-}
-.facts__title {
-  font-size: 1.0625rem;
-  font-weight: 700;
-  line-height: 1.25;
-}
-.facts__text {
-  color: var(--text-2);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-}
-
-/*
- * Карта разделов на первом экране (01.10.2026): окно продукта с шестью плитками-ссылками на блоки страницы.
- * Это схема, а не снимок системы: без имён, сумм и процентов. Строки состояния направлений сняты 03.10.2026.
- */
-.product-map {
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface-solid);
-  box-shadow: var(--shadow-floating);
-}
-.product-map__head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border-soft);
-}
-.product-map__dots {
-  display: inline-flex;
-  gap: 6px;
-}
-.product-map__dots i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border);
-}
-.product-map__title {
-  color: var(--text);
-  font-family: var(--font-head);
-  font-size: 0.9375rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-.product-map__title span {
-  color: var(--text-2);
-  font-weight: 600;
-  letter-spacing: 0;
-}
-.product-map__hint {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.product-map__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0;
-  padding: 16px;
-  list-style: none;
-}
-.product-map__tile {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  gap: 4px 12px;
-  align-items: center;
-  height: 100%;
-  padding: 14px 16px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
-  background: var(--bg);
-  color: inherit;
-  text-decoration: none;
-  transition:
-    border-color var(--ease),
-    background-color var(--ease);
-}
-.product-map__tile .icon {
-  grid-row: span 2;
-  align-self: start;
-  margin-top: 2px;
-  color: var(--primary);
-}
-.product-map__tile strong {
-  color: var(--text);
-  font-family: var(--font-head);
-  font-size: 0.9375rem;
-  font-weight: 700;
-}
-.product-map__tile span {
-  color: var(--text-2);
-  font-size: 0.8125rem;
-  line-height: 1.45;
-}
-.product-map__tile:hover {
-  border-color: var(--primary);
-  background: var(--primary-soft);
-}
-/*
- * На телефоне карта разделов идёт одной колонкой: в двух подпись плитки ломалась по одному слову в строку
- * («Каналы / продаж, / сайт / объекта»), а подсказка «Что внутри» выдавливала название окна на две строки.
- */
-@media (max-width: 36rem) {
-  .product-map__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .product-map__hint {
-    display: none;
-  }
-}
-
-/* ---------- макет шахматки ---------- */
-.mockup {
-  position: relative;
-  width: 100%;
-  max-width: 620px;
-  margin-inline: auto;
-}
-.mockup__window {
-  overflow: hidden;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  background: var(--surface-solid);
-  box-shadow: var(--shadow-floating), var(--glass-inset);
-}
-.mockup__toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--accent-1) 5%, var(--surface-solid));
-}
-.mockup__dots {
-  display: inline-flex;
-  gap: 6px;
-}
-.mockup__dots i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--border-input);
-}
-.mockup__title {
-  font-family: var(--font-head);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--text);
-}
-.mockup__views {
-  display: inline-flex;
-  gap: 2px;
-  margin-left: auto;
-  padding: 3px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--accent-1) 7%, var(--surface-solid));
-}
-.mockup__views span {
-  padding: 4px 10px;
-  border-radius: 7px;
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.mockup__views .is-on {
-  background: var(--surface-solid);
-  color: var(--primary);
-  box-shadow: var(--shadow-card);
-}
-.mockup__board {
-  --unit-w: 96px;
-  font-size: 0.8125rem;
-}
-.mockup__row {
-  display: grid;
-  grid-template-columns: var(--unit-w) repeat(7, minmax(0, 1fr));
-  min-height: 46px;
-}
-.mockup__row > * {
-  grid-row: 1;
-}
-.mockup__unit {
-  grid-column: 1;
-  display: flex;
-  align-items: center;
-  padding: 0 10px 0 16px;
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border-soft);
-  color: var(--text-2);
-  font-weight: 500;
-  white-space: nowrap;
-}
-.mockup__row--head {
-  min-height: 52px;
-}
-.mockup__row--head > * {
-  border-bottom: 1px solid var(--border);
-}
-.mockup__day {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--text);
-  font-family: var(--font-head);
-  font-size: 0.875rem;
-  font-weight: 700;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-}
-.mockup__day small {
-  color: var(--muted);
-  font-family: var(--font);
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-.mockup__day.is-today {
-  color: var(--primary);
-}
-.mockup__cell {
-  border-right: 1px solid var(--border-soft);
-  border-bottom: 1px solid var(--border-soft);
-}
-.mockup__day.is-today,
-.mockup__cell.is-today {
-  background: color-mix(in srgb, var(--primary-soft) 75%, transparent);
-}
-.mockup__group-title {
-  padding: 7px 16px;
-  border-bottom: 1px solid var(--border-soft);
-  background: color-mix(in srgb, var(--accent-1) 5%, var(--surface-solid));
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-.mockup__stay {
-  z-index: 1;
-  align-self: center;
-  height: 30px;
-  margin: 0 3px;
-  padding: 0 10px;
-  overflow: hidden;
-  border-left: 3px solid;
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 30px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.mockup__stay--confirmed,
-.mockup__stay--new {
-  background: var(--st-confirmed);
-  border-color: var(--primary);
-}
-.mockup__stay--checked-in {
-  background: var(--st-checked-in);
-  border-color: var(--success);
-}
-.mockup__stay--new {
-  box-shadow:
-    0 0 0 2px var(--surface-solid),
-    0 0 0 4px color-mix(in srgb, var(--primary) 60%, transparent);
-}
-.mockup__unassigned {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 10px;
-  padding: 12px 16px;
-  background: color-mix(in srgb, var(--warning) 6%, var(--surface-solid));
-  font-size: 0.8125rem;
-}
-.mockup__unassigned-title {
-  color: var(--warning);
-  font-weight: 600;
-}
-.mockup__chip {
-  padding: 2px 10px;
-  border: 1px dashed color-mix(in srgb, var(--warning) 60%, transparent);
-  border-radius: 999px;
-  background: var(--warning-soft);
-  color: var(--text);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-/* Уведомление внутри карточки, в правом нижнем углу над строкой «Без ячейки»: за карточку не выходит (С3, 20.09.2026) */
-.mockup__toast {
-  position: absolute;
-  right: 12px;
-  bottom: 10px;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 18px 12px 16px;
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  background: var(--surface-solid);
-  box-shadow: var(--shadow-floating), var(--glass-inset);
-}
-.mockup__toast strong,
-.mockup__toast small {
-  display: block;
-}
-.mockup__toast strong {
-  font-family: var(--font-head);
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--text);
-}
-.mockup__toast small {
-  color: var(--text-2);
-  font-size: 0.8125rem;
-}
-.mockup__toast-dot {
-  flex: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--success);
-  box-shadow: 0 0 0 5px var(--success-soft);
-}
 @media (max-width: 40rem) {
   .hero__visual {
     padding-bottom: 0;
   }
-  .mockup__toast {
-    position: relative;
-    right: auto;
-    bottom: auto;
-    width: fit-content;
-    max-width: calc(100% - 24px);
-    margin: -14px 12px 0 auto;
-  }
+  
 }
-@media (max-width: 29.99rem) {
-  .mockup__board {
-    --unit-w: 68px;
-    font-size: 0.75rem;
-  }
-  .mockup__unit {
-    padding: 0 6px 0 10px;
-  }
-  .mockup__views span:not(.is-on) {
-    display: none;
-  }
-  .mockup__stay {
-    margin: 0 2px;
-    padding: 0 5px;
-    border-left-width: 2px;
-    font-size: 0.75rem;
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .mockup__stay--new {
-    transform-origin: left center;
-    animation: stay-in 600ms 300ms both cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .mockup__toast {
-    animation: toast-in 700ms 700ms both cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-}
+
 @keyframes stay-in {
   from {
     opacity: 0;
@@ -1611,6 +1224,12 @@ button {
   line-height: 1.75;
   overflow-wrap: break-word;
 }
+/* Текст «о формате» на лендингах: колонка для чтения по центру, как статья */
+.prose--center {
+  max-width: 760px;
+  margin-inline: auto;
+  color: var(--text-2);
+}
 :where(.prose) :where(ul, ol) {
   margin: 0;
 }
@@ -1868,7 +1487,7 @@ button {
  * `.glass` ставит `position: relative` и сбивает окну место в верхнем слое. На телефоне — ширина экрана минус 2×16 px.
  */
 .auth-dialog {
-  width: min(440px, calc(100vw - 32px));
+  width: min(480px, calc(100vw - 32px));
   max-height: calc(100dvh - 32px);
   margin: auto;
   padding: 0;
@@ -2096,11 +1715,21 @@ button {
 .auth-field__toggle:hover {
   color: var(--text);
 }
-/* Регистрация 29.09.2026: код страны и номер в одной строке, согласие с политикой под полями */
-.auth-phone {
+/* Регистрация 10.10.2026: страна и язык одной строкой, код телефона внутри рамки поля по выбранной стране */
+.auth-row {
   display: grid;
-  grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.auth-phone__code {
+  flex: none;
+  padding-left: 14px;
+  color: var(--text-2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.auth-phone .auth-field__input {
+  padding-left: 8px;
 }
 .auth-consent {
   display: flex;
@@ -2182,21 +1811,8 @@ button {
   font-size: 0.9375rem;
 }
 
-/* Панель с макетом шахматки в «Для кого» и приглашение салонам под ней (03.10.2026) */
-.showcase {
-  display: grid;
-  justify-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
 .invite {
   margin-top: 16px;
-}
-/* Шахматка в «Для кого» стоит ниже первого экрана: анимация появления там проигрывается невидимой,
-   а полупрозрачная на её середине плашка валит проверку контраста, макет здесь статичный */
-.showcase .mockup__stay--new,
-.showcase .mockup__toast {
-  animation: none;
 }
 
 /* Переключатель темы в шапке (01.10.2026): кнопка сохраняет выбор в браузере; по умолчанию тема системная */
@@ -2256,12 +1872,6 @@ button {
   border-top: 1px solid var(--border);
 }
 
-#audience .showcase {
-  display: grid;
-  grid-template-columns: 1fr;
-  max-width: 850px;
-  margin: 32px auto;
-}
 #audience .invite {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -2290,162 +1900,6 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .faq summary > span[aria-hidden] {
     transition: none;
-  }
-}
-
-.showcase__caption {
-  color: var(--muted);
-  text-align: center;
-  font-size: 0.875rem;
-  margin: 20px 0 0;
-}
-.showcase__layout {
-  display: grid;
-  grid-template-columns: 0.85fr 1.15fr;
-  gap: 48px;
-  align-items: center;
-}
-.showcase__layout .section-heading {
-  margin-bottom: 24px;
-}
-.showcase__cases {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 24px;
-}
-.showcase__cases li {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-}
-.showcase__cases h3 {
-  font-size: 1rem;
-  margin: 0 0 8px;
-}
-.showcase__cases p {
-  font-size: 1rem;
-  color: var(--text-2);
-  line-height: 1.6;
-  margin: 0;
-}
-.showcase__cases .icon-tile {
-  flex-shrink: 0;
-}
-@media (max-width: 60rem) {
-  .showcase__layout {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-}
-
-/* «ИИ-продавцы»: четыре шага слева, панель «Что должен знать агент» справа */
-.seller-details__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 48px;
-  align-items: start;
-}
-.seller-details__steps {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 32px;
-}
-.seller-details__steps li {
-  display: flex;
-  gap: 20px;
-}
-.seller-details__steps li > div {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.seller-details__number {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
-  border-radius: var(--radius);
-  color: var(--primary);
-  background: var(--primary-soft);
-  font: 0.875rem var(--mono);
-}
-.seller-details__steps h3 {
-  font: 600 1.25rem/1.4 var(--font-head);
-  margin: 0 0 12px;
-}
-.seller-details__steps p {
-  margin: 0;
-  color: var(--text-2);
-  line-height: 1.7;
-}
-.seller-details__preview {
-  padding: 32px;
-  background: linear-gradient(145deg, var(--surface), var(--primary-soft));
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-.seller-details__preview-head {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 32px;
-}
-.seller-details__preview-head strong {
-  font: 800 1.5rem var(--font-head);
-  letter-spacing: -0.04em;
-}
-.seller-details__preview-head strong span {
-  color: var(--primary);
-}
-.seller-details__preview-head > span {
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-.seller-details__preview h3 {
-  font-size: 1.25rem;
-  margin: 0 0 24px;
-}
-.seller-details__preview dl {
-  margin: 0;
-}
-.seller-details__preview dl div {
-  padding: 16px 0;
-  border-top: 1px solid var(--border);
-}
-.seller-details__preview dt {
-  font-size: 0.9375rem;
-  font-weight: 600;
-}
-.seller-details__preview dd {
-  margin: 8px 0 0;
-  color: var(--text-2);
-  font-size: 1rem;
-  line-height: 1.5;
-}
-.seller-details__note {
-  color: var(--text-2);
-  line-height: 1.6;
-  font-size: 0.9375rem;
-  margin: 24px 0;
-}
-.seller-details__sign-in {
-  color: var(--muted);
-  font-size: 0.875rem;
-  margin: 16px 0 0;
-}
-@media (max-width: 48rem) {
-  .seller-details__layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-  }
-  .seller-details__preview {
-    padding: 24px;
   }
 }
 
@@ -2507,8 +1961,24 @@ button {
   font-weight: 600;
 }
 .calc__output {
-  padding-top: 24px;
-  border-top: 1px solid var(--glass-border-dim);
+  padding: 24px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--primary-soft);
+}
+/* 10.10.2026: на широком экране поля слева, результат панелью справа и не уезжает при прокрутке */
+@media (min-width: 64rem) {
+  .calc {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .calc__output {
+    position: sticky;
+    top: 96px;
+  }
+  .calc .calc__numbers {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .calc__title {
   margin: 0 0 16px;
@@ -2536,4 +2006,2320 @@ button {
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-variant-numeric: tabular-nums;
   font-weight: 800;
+}
+
+/* Направление при регистрации (10.10.2026): на главной три плитки в строку, на странице направления плашка.
+   Доступ к пилотным направлениям всё равно проверяет API. */
+.auth-verticals {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.auth-verticals legend {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.auth-verticals__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.auth-vertical {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 14px 6px 12px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text-2);
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.auth-vertical input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.auth-vertical:hover {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--border-input));
+}
+.auth-vertical:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.auth-vertical:has(input:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.auth-vertical span {
+  color: var(--text);
+}
+.auth-vertical small,
+.auth-vertical-fixed small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.auth-vertical-fixed {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-weight: 600;
+}
+.auth-vertical-fixed small {
+  font-size: 0.875rem;
+}
+
+/* PUBLIC-2 first visual gate, ADR-PUBLIC2-INTRO. */
+.public-header {
+  background: var(--public-bg);
+  color: var(--public-text);
+  border-bottom: 1px solid var(--public-border);
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.public-header .site-header__inner {
+  min-height: 72px;
+  max-width: 1248px;
+  padding-inline: 24px;
+}
+.public-header .brand {
+  gap: 10px;
+}
+.public-header .brand__name {
+  font-size: 1.125rem;
+  letter-spacing: -0.04em;
+  color: var(--public-text);
+}
+.public-header .brand__mark {
+  width: 28px;
+  height: 28px;
+}
+.public-header .site-nav a {
+  color: var(--public-muted);
+  font-size: 0.9375rem;
+  padding: 12px 8px;
+}
+.public-header .site-nav a:hover {
+  color: var(--public-text);
+  background: var(--public-elevated);
+}
+.public-header .site-header__actions {
+  gap: 8px;
+}
+.public-header .site-header__login {
+  color: var(--public-text);
+}
+.public-header .theme-toggle,
+.public-header .mobile-menu__button {
+  color: var(--public-text);
+  background: none;
+  border-color: var(--public-border);
+  width: 44px;
+  height: 44px;
+  box-shadow: none;
+}
+.public-header .mobile-menu__panel {
+  background: var(--public-surface);
+  color: var(--public-text);
+  border-color: var(--public-border);
+  backdrop-filter: none;
+}
+.public-header .mobile-menu__links a {
+  color: var(--public-text);
+}
+.public-header .mobile-menu__actions .btn--primary {
+  background: var(--public-accent);
+  color: var(--public-on-accent);
+  box-shadow: none;
+}
+.public-intro,
+.verticals {
+  color: var(--public-text);
+  background: var(--public-bg);
+}
+.public-intro {
+  padding: 56px 0 32px;
+}
+.public-intro__container {
+  width: 100%;
+  max-width: 1248px;
+  padding-inline: 24px;
+  margin-inline: auto;
+}
+.public-intro__copy {
+  text-align: center;
+  max-width: 880px;
+  margin-inline: auto;
+}
+.public-intro__eyebrow {
+  margin: 0 0 16px;
+  color: var(--public-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.public-intro h1 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: clamp(3rem, 4.7vw, 4.5rem);
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  color: var(--public-text);
+}
+.public-intro__lead {
+  max-width: 750px;
+  margin: 24px auto 0;
+  font-size: 1.1875rem;
+  line-height: 1.5;
+  color: var(--public-muted);
+}
+.public-intro__actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.public-intro__primary,
+.public-intro__secondary {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: var(--radius-control);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+  border: 1px solid transparent;
+}
+.public-intro__primary {
+  background: var(--public-accent);
+  color: var(--public-on-accent);
+}
+.public-intro__primary:hover {
+  background: var(--public-accent-hover);
+  color: var(--public-on-accent);
+}
+.public-intro__secondary {
+  background: transparent;
+  color: var(--public-text);
+  border-color: var(--public-border);
+}
+.public-intro__secondary:hover {
+  background: var(--public-elevated);
+  color: var(--public-text);
+}
+.public-header .site-header__register {
+  display: inline-flex;
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 0.9375rem;
+}
+.public-header a:focus-visible,
+.public-header button:focus-visible,
+.public-intro a:focus-visible,
+.verticals a:focus-visible {
+  outline: 2px solid var(--public-text);
+  outline-offset: 4px;
+}
+.public-intro__availability {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 24px;
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  font-size: 0.875rem;
+}
+.public-intro__availability li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.public-intro__note {
+  color: var(--public-muted);
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.public-intro__figure {
+  margin: 40px auto 0;
+  max-width: 1120px;
+}
+.public-intro__figure figcaption {
+  text-align: center;
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+  margin-top: 16px;
+}
+.verticals {
+  padding-block: var(--public-section-space);
+}
+.verticals__heading {
+  max-width: 680px;
+  margin-bottom: 32px;
+}
+.verticals__heading h2 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: clamp(1.875rem, 3vw, 2.625rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+.verticals__heading > p:last-child {
+  color: var(--public-muted);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  margin: 16px 0 0;
+}
+.verticals__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.verticals__card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--public-border);
+  border-radius: var(--public-radius);
+  background: var(--public-surface);
+  --verticals-pad: 28px;
+  padding: var(--verticals-pad);
+  overflow: hidden;
+}
+.verticals__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.verticals__status {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  padding: 4px 8px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-sm);
+  color: var(--public-muted);
+  background: var(--public-elevated);
+}
+.verticals__status--available {
+  color: var(--public-available);
+}
+.verticals__name {
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+  color: var(--public-muted);
+}
+.verticals h3 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
+}
+.verticals__text {
+  margin: 16px 0 0;
+  font-size: 1rem;
+  color: var(--public-muted);
+  line-height: 1.6;
+  min-height: 104px;
+}
+.verticals__capabilities {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  display: grid;
+  gap: 12px;
+  font-size: 0.9375rem;
+}
+.verticals__capabilities li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+}
+.verticals__capabilities svg {
+  color: var(--public-muted);
+  flex-shrink: 0;
+}
+.verticals__note {
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  margin: auto 0 20px;
+  min-height: 64px;
+}
+.verticals__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.verticals__invitation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  color: var(--public-text);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (max-width: 74rem) {
+  .public-header .site-nav ul {
+    gap: 0;
+  }
+  .public-header .site-nav a {
+    font-size: 0.875rem;
+  }
+  .verticals__card {
+    padding: 24px;
+  }
+}
+@media (max-width: 59.99rem) {
+  .public-header .site-header__inner {
+    min-height: 64px;
+  }
+  .public-header .site-header__login {
+    display: none;
+  }
+  .public-intro {
+    padding-top: 48px;
+  }
+  .public-intro h1 {
+    font-size: 3.25rem;
+  }
+  .verticals {
+    --public-section-space: 72px;
+  }
+  .verticals__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .verticals__text,
+  .verticals__note {
+    min-height: 0;
+  }
+  .verticals__card {
+    padding: 28px;
+  }
+}
+@media (max-width: 39.99rem) {
+  .public-header .site-header__inner {
+    padding-inline: 16px;
+    gap: 8px;
+  }
+  .public-header .brand__mark {
+    width: 24px;
+    height: 24px;
+  }
+  .public-header .brand__name {
+    font-size: 1rem;
+  }
+  .public-header .theme-toggle {
+    display: none;
+  }
+  .public-header .site-header__register {
+    padding: 10px 12px;
+    font-size: 0.875rem;
+  }
+  .public-intro__container {
+    padding-inline: 24px;
+  }
+  .public-intro {
+    padding-top: 40px;
+  }
+  .public-intro__eyebrow {
+    font-size: 0.8125rem;
+    margin-bottom: 16px;
+  }
+  .public-intro h1 {
+    font-size: clamp(2.25rem, 9.8vw, 2.625rem);
+    letter-spacing: -0.05em;
+  }
+  .public-intro__lead {
+    font-size: 1rem;
+    line-height: 1.55;
+    margin-top: 20px;
+  }
+  .public-intro__actions {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 24px;
+  }
+  .public-intro__availability {
+    gap: 8px 16px;
+    font-size: 0.8125rem;
+    margin-top: 20px;
+  }
+  .public-intro__note {
+    font-size: 0.75rem;
+  }
+  .public-intro__figure {
+    margin-top: 28px;
+  }
+  .public-intro__figure figcaption {
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+  .verticals {
+    --public-section-space: 56px;
+  }
+  .verticals__card {
+    padding: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-intro__primary,
+  .public-intro__secondary {
+    transition: none;
+  }
+}
+@media (min-width: 60rem) {
+  .public-intro {
+    padding-top: 32px;
+  }
+  .public-intro__figure {
+    margin-top: 24px;
+  }
+  .public-intro__lead {
+    margin-top: 20px;
+  }
+}
+
+.public-header {
+  padding-block: 0;
+}
+.public-header .site-nav a {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.public-header .brand__mark {
+  box-shadow: none;
+}
+
+/* Owner-approved business positioning, without public maturity badges. */
+.public-intro__availability li {
+  padding: 8px 12px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-sm);
+  color: var(--public-text);
+}
+.verticals__top {
+  justify-content: flex-start;
+}
+@media (max-width: 39.99rem) {
+  .verticals__top {
+    justify-content: center;
+  }
+  .verticals__capabilities {
+    align-self: center;
+  }
+  .verticals__capabilities li {
+    justify-content: center;
+  }
+  .public-intro__availability {
+    gap: 8px;
+  }
+}
+
+/* ===== LAND2 v2 (09.10.2026, по снимку владельца): hero с дашбордом, направления, продажи и ИИ, команда + запуск, FAQ + призыв, подвал ===== */
+
+/*
+ * Первый экран: текст слева, дашборд-мокап справа с 1200 px; уже текст сверху по центру, мокап под ним
+ * (на ноутбуке 1024–1200 px обе колонки были слишком узкими: заголовок в 4 строки, плитки 2×2).
+ */
+@media (max-width: 74.99rem) {
+  .public-intro__figure {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+}
+@media (min-width: 75rem) {
+  .public-intro__container {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    gap: 56px;
+    align-items: center;
+  }
+  .public-intro__copy {
+    text-align: left;
+    margin-inline: 0;
+  }
+  .public-intro__lead {
+    margin-inline: 0;
+  }
+  .public-intro__actions,
+  .public-intro__availability {
+    justify-content: flex-start;
+  }
+  .public-intro__figure {
+    margin-top: 0;
+  }
+}
+/*
+ * Первый экран «вау» (пометка владельца 13.10.2026): фон из стеклянных лент (сгенерирован ИИ под сайт,
+ * своя картинка для светлой и тёмной темы), крупный заголовок, у мокапа два всплывающих уведомления.
+ */
+.public-intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-block: clamp(40px, 6vw, 88px) clamp(32px, 5vw, 72px);
+}
+.public-intro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Ленты остаются справа, под текстом фон плавно уходит в цвет страницы: абзац читается на любой ширине. */
+  --hero-art: url('/hero/light.jpg');
+  background:
+    linear-gradient(90deg, var(--public-bg) 0%, var(--public-bg) 30%, transparent 62%),
+    var(--hero-art) right center / cover no-repeat;
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .public-intro::before {
+    --hero-art: url('/hero/dark.jpg');
+  }
+}
+:root[data-theme='dark'] .public-intro::before {
+  --hero-art: url('/hero/dark.jpg');
+}
+/* Текст над мокапом (уже 1200 px): ленты уходят под текст, поэтому фон приглушён и сдвинут вниз. */
+@media (max-width: 74.99rem) {
+  .public-intro::before {
+    opacity: 0.35;
+    background:
+      linear-gradient(180deg, var(--public-bg) 0%, transparent 45%),
+      var(--hero-art) 70% bottom / cover no-repeat;
+  }
+}
+.public-intro h1 {
+  font-size: clamp(2.5rem, 3.15vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.04;
+}
+.public-intro__figure {
+  position: relative;
+}
+/* Переключатель направлений над мокапом: гостиница, салон, ресторан. */
+.dash-switch {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  width: fit-content;
+  margin: 0 auto 12px;
+  padding: 4px;
+  border: 1px solid var(--public-border);
+  border-radius: 999px;
+  background: var(--public-surface);
+  box-shadow: var(--public-shadow);
+}
+.dash-switch__button {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--public-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dash-switch__button:hover {
+  color: var(--public-text);
+}
+.dash-switch__button[aria-pressed='true'] {
+  background: var(--public-accent);
+  color: var(--public-on-accent);
+}
+/* Подпись примера на подложке: на фоне лент голый мелкий текст не читается. */
+.public-intro__figure figcaption {
+  justify-self: center;
+  width: fit-content;
+  margin-inline: auto;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--public-surface);
+}
+.dash-toast {
+  display: none;
+}
+@media (min-width: 64rem) {
+  .dash-toast {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--public-border);
+    border-radius: var(--radius-lg);
+    background: var(--public-surface);
+    box-shadow: var(--shadow-floating);
+    font-size: 0.8125rem;
+    line-height: 1.35;
+  }
+  .dash-toast > span:last-child {
+    display: grid;
+  }
+  .dash-toast > span:last-child span {
+    color: var(--public-muted);
+  }
+  .dash-toast--1 {
+    bottom: 96px;
+    left: -40px;
+  }
+  .dash-toast--2 {
+    bottom: 36px;
+    right: -24px;
+  }
+}
+/* Две колонки: переключатель слева, первое уведомление справа в той же строке, над мокапом пусто. */
+@media (min-width: 75rem) {
+  .dash-switch {
+    margin-left: 0;
+  }
+  .dash-toast--1 {
+    top: 2px;
+    right: -12px;
+    bottom: auto;
+    left: auto;
+  }
+  /* Второе уведомление на нижней кромке карточки справа, подпись примера слева: ни график, ни подпись не закрыты. */
+  .dash-toast--2 {
+    bottom: 18px;
+    right: -16px;
+  }
+  .public-intro__figure figcaption {
+    margin-left: 0;
+  }
+}
+@media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+  .dash-toast {
+    animation: dash-toast-float 6s ease-in-out infinite;
+  }
+  .dash-toast--2 {
+    animation-delay: -3s;
+  }
+}
+@keyframes dash-toast-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.public-intro__accent {
+  color: var(--public-accent);
+}
+.public-intro__availability li {
+  border: 1px solid var(--public-border);
+  border-radius: 999px;
+  background: var(--public-surface);
+  padding: 8px 14px;
+}
+.public-intro__availability svg {
+  color: var(--public-accent);
+}
+.public-intro__figure {
+  position: relative;
+}
+
+/* Дашборд-мокап: сайдбар, метрики, заезды и график недели. Только вымышленные данные (§19.9). */
+.dash {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  border: 1px solid var(--public-border);
+  border-radius: var(--public-radius);
+  background: var(--public-surface);
+  box-shadow: var(--public-shadow);
+  overflow: hidden;
+  text-align: left;
+}
+.dash__sidebar {
+  padding: 16px 10px;
+  background: var(--public-elevated);
+  border-right: 1px solid var(--public-border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.dash__brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-head);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding-inline: 6px;
+}
+.dash__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background: var(--public-accent);
+  color: var(--public-on-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.dash__nav {
+  display: grid;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--public-muted);
+}
+.dash__nav span {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+}
+.dash__nav .dash__selected {
+  background: var(--public-selected);
+  color: var(--public-text);
+  font-weight: 600;
+}
+.dash__main {
+  min-width: 0;
+  padding: 16px 20px 20px;
+}
+.dash__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.dash__heading .dash__title {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.dash__heading p:not(.dash__title) {
+  margin: 2px 0 0;
+  color: var(--public-muted);
+  font-size: 0.75rem;
+}
+.dash__scope {
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  color: var(--public-muted);
+}
+.dash__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.dash__metric {
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  display: grid;
+  gap: 2px;
+}
+.dash__metric-name {
+  color: var(--public-muted);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  min-height: 2.6em;
+}
+.dash__metric strong {
+  font-family: var(--font-head);
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.dash__delta {
+  color: var(--public-available);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.dash__columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+.dash__subtitle {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--public-muted);
+}
+.dash__arrival {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-top: 1px solid var(--public-border);
+  font-size: 0.75rem;
+}
+.dash__arrival strong {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dash__time {
+  color: var(--public-muted);
+}
+.dash__detail,
+.dash__guests {
+  color: var(--public-muted);
+  white-space: nowrap;
+}
+.dash__more {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--public-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.dash__bars {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  align-items: end;
+  height: 128px;
+}
+.dash__bar-col {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: end;
+  justify-items: center;
+  gap: 4px;
+  height: 100%;
+}
+.dash__bar {
+  width: 100%;
+  max-width: 22px;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  background: var(--public-selected);
+  align-self: end;
+}
+.dash__bar--peak {
+  background: var(--public-accent);
+}
+.dash__bar-tip {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--public-accent);
+  color: var(--public-on-accent);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.dash__day {
+  color: var(--public-muted);
+  font-size: 0.75rem;
+}
+/* Ресторанный вариант дашборда (/restaurants/): мини-план зала и легенда статусов столов */
+.dash__tables {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+.dash__table {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--public-border);
+  color: var(--text-2);
+  background: var(--public-surface);
+}
+.dash__table[data-kind='busy'],
+.dash__legend i[data-kind='busy'] {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.dash__table[data-kind='free'],
+.dash__legend i[data-kind='free'] {
+  background: var(--success-soft);
+  color: var(--success);
+  border-color: var(--success);
+}
+.dash__table[data-kind='reserved'],
+.dash__legend i[data-kind='reserved'] {
+  background: var(--st-confirmed);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.dash__table[data-kind='cleaning'],
+.dash__legend i[data-kind='cleaning'] {
+  background: var(--warning-soft);
+  color: var(--warning);
+  border-color: var(--warning);
+}
+.dash__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 10px;
+  color: var(--public-muted);
+  font-size: 0.75rem;
+}
+.dash__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.dash__legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border-width: 1px;
+  border-style: solid;
+}
+/* Мини-экран внутри карточки «Возможности в действии»: те же строки, что в мокапе дашборда */
+.dash__arrivals--card {
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+.dash__arrivals--card .dash__arrival {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/*
+ * Узкий мокап (окно 60–80rem, телефон): четыре плитки не помещались и резали подписи,
+ * а в заездах имя гостя сжималось до одной буквы. Плитки 2×2, тип номера прячется.
+ */
+/* Контейнер-запрос обнуляет собственную ширину блока, поэтому мокап тянется на всю колонку явно. */
+.public-intro__figure,
+.dash {
+  width: 100%;
+}
+.dash__main {
+  container-type: inline-size;
+}
+@container (max-width: 520px) {
+  .dash__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dash__metric strong {
+    white-space: nowrap;
+  }
+  .dash__arrival {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+  }
+  .dash__detail {
+    display: none;
+  }
+}
+@container (max-width: 380px) {
+  .dash__columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.public-intro__figure {
+  container-type: inline-size;
+}
+/* Узкий мокап (телефон и колонка рядом с текстом): боковое меню забирало место у плиток, остаётся экран «Сегодня». */
+@container (max-width: 700px) {
+  .dash {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dash__sidebar {
+    display: none;
+  }
+}
+
+/* Рукописная пометка у мокапа, как на снимке. Деталь: на узком экране не показывается. */
+.public-intro__annotation {
+  display: none;
+  position: absolute;
+  top: -8px;
+  right: -16px;
+  max-width: 120px;
+  color: var(--public-accent);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  transform: rotate(-4deg);
+}
+@media (min-width: 80rem) {
+  .public-intro__annotation {
+    display: block;
+  }
+}
+.public-intro__annotation-arrow {
+  display: block;
+  width: 40px;
+  margin-bottom: 4px;
+}
+
+.section-heading--center {
+  text-align: center;
+  margin-inline: auto;
+}
+.section-heading--center .section-heading__lead {
+  margin-inline: auto;
+}
+
+/* Направления: иконка и название в шапке карточки, список слева, рисунок справа, кнопка внизу. */
+.verticals__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.verticals__head h3 {
+  margin: 0;
+}
+.verticals__name {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  color: var(--public-muted);
+}
+.verticals__text {
+  min-height: 0;
+  margin: 14px 0 0;
+}
+.verticals__photo {
+  display: block;
+  width: calc(100% + 2 * var(--verticals-pad));
+  max-width: none;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  margin: calc(-1 * var(--verticals-pad)) calc(-1 * var(--verticals-pad)) 20px;
+  background: var(--public-selected);
+}
+.verticals__capabilities {
+  margin: 16px 0 20px;
+  gap: 10px;
+  font-size: 0.875rem;
+}
+.verticals__action {
+  margin-top: auto;
+  justify-content: center;
+}
+
+/* «Возможности» вкладками: ряд вкладок-пилюль с числом карточек, пометка «Скоро» у того, чего ещё нет. */
+.feature-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.feature-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--public-border);
+  border-radius: 999px;
+  background: var(--public-surface);
+  color: var(--public-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.feature-tabs__tab:hover {
+  border-color: var(--public-accent);
+}
+.feature-tabs__tab[aria-selected='true'] {
+  background: var(--public-accent);
+  border-color: var(--public-accent);
+  color: var(--public-on-accent);
+}
+.feature-tabs__count {
+  min-width: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--public-selected);
+  color: var(--public-accent);
+  font-size: 0.75rem;
+  line-height: 20px;
+  text-align: center;
+}
+.feature-tabs__tab[aria-selected='true'] .feature-tabs__count {
+  background: var(--public-on-accent);
+}
+.features__soon {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--public-selected);
+  color: var(--public-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  vertical-align: 2px;
+}
+
+/* «Возможности»: на телефоне две колонки компактных карточек, на 320 px одна. */
+@media (min-width: 23rem) and (max-width: 40rem) {
+  .features__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .features__grid .card--compact {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+  }
+}
+
+/*
+ * «Продажи, маркетинг и ИИ»: три витрины во всю ширину, текст и пример экрана чередуются по сторонам.
+ * У каждой свой тон метки: продажи синий, маркетинг зелёный, ИИ фиолетовый.
+ */
+.growth__big {
+  display: grid;
+  gap: 24px;
+}
+.growth__module {
+  --growth-tone: var(--primary);
+  --growth-tone-soft: var(--primary-soft);
+  display: grid;
+  gap: 24px;
+  padding: clamp(24px, 3.2vw, 40px);
+}
+.growth__module--marketing {
+  --growth-tone: var(--success);
+  --growth-tone-soft: var(--success-soft);
+}
+.growth__module--ai {
+  --growth-tone: var(--purple);
+  --growth-tone-soft: var(--purple-soft);
+}
+@media (min-width: 56rem) {
+  .growth__module {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(32px, 4vw, 56px);
+    align-items: center;
+  }
+  .growth__module:nth-child(even) .growth__module-copy {
+    order: 2;
+  }
+}
+.growth__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--growth-tone-soft);
+  color: var(--public-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.growth__title {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.growth__kicker svg,
+.growth__module .growth__points svg {
+  color: var(--growth-tone);
+}
+/* Лента броней из всех каналов. */
+.growth__count {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+.growth__feed {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.growth__feed li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface-solid);
+}
+.growth__feed-main {
+  display: grid;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+.growth__feed-main span {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.growth__feed-value {
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+.growth__module-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+.growth__points {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: grid;
+  gap: 8px;
+  font-size: 0.9375rem;
+}
+.growth__points li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+}
+.growth__points svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.growth__action {
+  margin-top: 4px;
+}
+.growth__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+.growth__panel {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.growth__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.875rem;
+}
+.growth__prices {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  font-size: 0.8125rem;
+}
+.growth__prices li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+}
+.growth__prices li.growth__price--own {
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 600;
+}
+.growth__chart {
+  position: relative;
+  color: var(--primary);
+}
+.growth__chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.growth__marker {
+  position: absolute;
+  top: 0;
+  right: 10%;
+  background: var(--primary);
+  color: var(--surface-solid);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.growth__days {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+.growth__day--on {
+  color: var(--primary);
+  font-weight: 700;
+}
+.growth__example {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* Пример диалога ИИ-продавца. */
+.growth__chat-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+.growth__online {
+  margin-left: auto;
+  color: var(--ok, var(--primary));
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.growth__bubble {
+  margin: 0;
+  max-width: 90%;
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+.growth__bubble--in {
+  background: var(--surface-muted);
+  border: 1px solid var(--border-soft);
+  justify-self: start;
+  border-bottom-left-radius: var(--radius-sm);
+}
+.growth__bubble--out {
+  background: var(--primary-soft);
+  color: var(--text);
+  justify-self: end;
+  border-bottom-right-radius: var(--radius-sm);
+}
+.growth__chat-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+/*
+ * «Команда и контроль доступа», под ней «Запуск за четыре шага» (пометка владельца 13.10.2026:
+ * в две колонки карточки сжимались до 120 px и слова рвались). Каждый блок на всю ширину,
+ * его карточки одной строкой: три и четыре.
+ */
+.team-start__layout {
+  display: grid;
+  gap: clamp(40px, 5vw, 64px);
+  align-items: start;
+}
+.team-start__cards {
+  margin-top: 24px;
+}
+.steps--row {
+  margin-top: 24px;
+}
+@media (min-width: 40rem) {
+  .steps--row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* Шаги на всю ширину блока: четыре колонки по ~280 px читаются (раньше 2×2 из-за колонки рядом с командой) */
+@media (min-width: 60rem) {
+  .steps--row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* FAQ слева, карточка призыва справа. */
+.faq__layout {
+  display: grid;
+  gap: clamp(32px, 4vw, 48px);
+  align-items: start;
+}
+@media (min-width: 64rem) {
+  .faq__layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
+}
+
+/* Подвал одной строкой; ниже мелкая строка с правовыми страницами. */
+.site-footer__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 24px 0 12px;
+  border-top: 1px solid var(--border-soft);
+}
+.site-footer__row .site-footer__brand {
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+.site-footer__row .site-footer__brand p {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+/* Хлебные крошки лендингов (11.10.2026): над героем, мелко и приглушённо, текущая страница без ссылки */
+.breadcrumbs {
+  font-size: 0.875rem;
+}
+/* С крошками верх страницы плотнее: иначе отступ страницы и героя складываются в пустую полосу */
+.page:has(> .container > .breadcrumbs:first-child) {
+  padding-top: clamp(16px, 2.4vw, 28px);
+}
+/* Лендинги одним ритмом (11.10.2026, «отступы везде одинаково»): блоки колонкой с одним шагом, свои внешние
+   отступы блоков обнулены; внутренние отступы карточек и плит остаются. Крошки стоят над обёрткой. */
+.breadcrumbs {
+  margin-bottom: clamp(20px, 3vw, 32px);
+}
+.landing {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 7vw, 96px);
+}
+/* двойной класс: правила блоков (.hotel-growth, .salon-hero) стоят ниже в файле и при равной силе победили бы */
+.landing.landing > * {
+  margin-block: 0;
+}
+.landing > .section,
+.landing > .hotel-shot,
+.landing > .hotel-hero,
+.landing > .salon-hero {
+  padding-block: 0;
+}
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+}
+.breadcrumbs li + li::before {
+  content: '/';
+  margin: 0 8px;
+  color: var(--muted);
+}
+.breadcrumbs a {
+  color: var(--text-2);
+  text-decoration: none;
+}
+.breadcrumbs a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.breadcrumbs [aria-current='page'] {
+  color: var(--text);
+  font-weight: 600;
+}
+.site-footer__directions {
+  display: grid;
+  gap: 20px;
+  padding: 8px 0 24px;
+  font-size: 0.875rem;
+}
+@media (min-width: 40rem) {
+  .site-footer__directions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.site-footer__directions ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.site-footer__directions a {
+  color: var(--text-2);
+}
+.site-footer__directions a:hover {
+  color: var(--primary);
+}
+.site-footer__directions .site-footer__direction {
+  color: var(--text);
+  font-weight: 600;
+}
+.site-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding-bottom: 24px;
+  font-size: 0.75rem;
+}
+.site-footer__legal a {
+  color: var(--muted);
+}
+.site-footer__legal a:hover {
+  color: var(--primary);
+}
+
+/* Для кого на телефоне: компактные карточки, возможности в одну колонку рядом с рисунком. */
+@media (max-width: 40rem) {
+  .verticals__card {
+    --verticals-pad: 20px;
+  }
+  .verticals__capabilities {
+    font-size: 0.8125rem;
+  }
+}
+
+/* телефон макета в hero вынесен за край блока (right: -28px): на 1280 px с линуксовыми шрифтами он давал
+   прокрутку вбок (release-checks #262, #263); clip, а не hidden: не создаёт контейнер прокрутки */
+.public-intro__copy {
+  position: relative;
+}
+
+/* Телефон: дашборд-мокап без сайдбара, метрики 2×2, заезды и график друг под другом (реестр §19.5);
+   иначе на 390 px основной части остаётся ~180 px и суммы обрезаются */
+@media (max-width: 40rem) {
+  .dash {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dash__sidebar {
+    display: none;
+  }
+  .dash__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dash__columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Чип направления с поповером (поручение владельца 09.10.2026): описание по щелчку, ссылка на страницу направления. */
+.chip {
+  position: relative;
+}
+.chip__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--public-border);
+  border-radius: 999px;
+  background: var(--public-surface);
+  color: var(--public-text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.chip__button svg {
+  color: var(--public-accent);
+}
+/* Рамку и фон рисует кнопка; общий стиль пунктов списка давал вторую рамку вокруг неё. */
+.public-intro__availability li.chip {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.chip__button:hover,
+.chip__button[aria-expanded='true'] {
+  border-color: var(--public-accent);
+}
+.chip__pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  width: 264px;
+  padding: 14px 16px;
+  border: 1px solid var(--public-border);
+  border-radius: var(--radius-lg);
+  background: var(--public-surface);
+  box-shadow: var(--public-shadow);
+  text-align: left;
+}
+.chip__name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.chip__text {
+  margin: 6px 0 10px;
+  color: var(--public-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+@media (max-width: 40rem) {
+  .chip__pop {
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 32px);
+  }
+}
+/* ============================================================================
+   Лендинг «Для салонов красоты» (/for/salons/, план plans/salon-landing-2026-10-10.md).
+   Вид 1:1 по макету владельца 10.10.2026 (решение владельца поверх стеклянного направления,
+   как ADR-132 у главной): палитра --salon-* из tokens.css живёт только внутри .salon-page,
+   стекла на странице нет, карточки сплошные. Блоки реестра §19.5: .salon-page, .salon-hero,
+   .salon-facts, .salon-growth. Мокап записей и рисунок на SVG стоят вместо фото (§19.9).
+   ========================================================================= */
+.salon-page {
+  /* Семантические токены перекрашены локальной палитрой: общие блоки (.card, .faq, .cta,
+     .section-heading) берут цвета макета сами, по одной подмене на токен */
+  --text: var(--salon-text);
+  --text-2: var(--salon-muted);
+  --muted: var(--salon-muted);
+  --border: var(--salon-border);
+  --primary: var(--salon-text);
+  --shadow-card: var(--salon-shadow);
+  --chip-bg: var(--salon-chip);
+  --chip-fg: var(--salon-text);
+  background: var(--salon-bg);
+  color: var(--salon-text);
+}
+.salon-page .card,
+.salon-page .cta {
+  background: var(--salon-surface);
+  border: 1px solid var(--salon-border);
+  box-shadow: var(--salon-shadow);
+  backdrop-filter: none;
+}
+.salon-page .cta::after {
+  display: none;
+}
+.salon-page .icon-tile {
+  background: var(--salon-chip);
+  color: var(--salon-text);
+}
+.salon-page .btn--primary {
+  background: var(--salon-accent);
+  color: var(--salon-on-accent);
+  box-shadow: var(--salon-shadow);
+}
+.salon-page .btn--primary:hover {
+  background: var(--salon-accent-hover);
+}
+.salon-page .btn--secondary {
+  background: var(--salon-surface);
+  color: var(--salon-text);
+  border: 1px solid var(--salon-border);
+  backdrop-filter: none;
+}
+.salon-page .btn--secondary:hover {
+  background: var(--salon-chip);
+}
+.salon-hero {
+  display: grid;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: clamp(32px, 5vw, 48px);
+}
+@media (min-width: 64rem) {
+  .salon-hero {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+}
+.salon-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--salon-chip);
+  color: var(--salon-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.salon-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.salon-hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  color: var(--salon-muted);
+  font-size: 0.875rem;
+}
+.salon-hero__chips li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.salon-hero__chips .icon {
+  color: var(--salon-text);
+}
+.salon-hero__figure {
+  margin: 0;
+  min-width: 0;
+}
+.salon-hero__figure figcaption {
+  margin-top: 10px;
+  text-align: center;
+  color: var(--salon-muted);
+  font-size: 0.8125rem;
+}
+.salon-hero__mock {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  background: var(--salon-surface);
+  border: 1px solid var(--salon-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--salon-shadow);
+}
+.salon-hero__mock-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--salon-border);
+}
+.salon-hero__mock-date {
+  display: block;
+  color: var(--salon-muted);
+  font-size: 0.8125rem;
+}
+.salon-hero__mock-summary {
+  display: flex;
+  gap: 16px;
+  color: var(--salon-muted);
+  font-size: 0.8125rem;
+}
+.salon-hero__mock-summary strong {
+  color: var(--salon-text);
+}
+.salon-hero__cal {
+  display: grid;
+  grid-template-columns: 44px repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+/* На телефоне третья колонка мастера прячется, календарь остаётся читаемым */
+@media (max-width: 40rem) {
+  .salon-hero__cal {
+    grid-template-columns: 44px repeat(2, minmax(0, 1fr));
+  }
+  .salon-hero__col:last-child {
+    display: none;
+  }
+}
+.salon-hero__rail,
+.salon-hero__col {
+  display: grid;
+  gap: 6px;
+}
+.salon-hero__rail > span,
+.salon-hero__col > span {
+  min-height: 48px;
+}
+.salon-hero__rail > span {
+  display: flex;
+  align-items: flex-start;
+  color: var(--salon-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  padding-top: 6px;
+}
+.salon-hero__master {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.salon-hero__rail .salon-hero__master {
+  min-height: 28px;
+}
+.salon-hero__apt {
+  display: grid;
+  gap: 2px;
+  align-content: center;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+.salon-hero__apt strong {
+  font-size: 0.75rem;
+}
+.salon-hero__apt--1 {
+  background: var(--salon-apt1-bg);
+  color: var(--salon-apt1-ink);
+}
+.salon-hero__apt--2 {
+  background: var(--salon-apt2-bg);
+  color: var(--salon-apt2-ink);
+}
+.salon-hero__apt--3 {
+  background: var(--salon-apt3-bg);
+  color: var(--salon-apt3-ink);
+}
+.salon-hero__apt--4 {
+  background: var(--salon-apt4-bg);
+  color: var(--salon-apt4-ink);
+}
+.salon-hero__free {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--salon-border);
+  border-radius: var(--radius-sm);
+  color: var(--salon-muted);
+  font-size: 0.75rem;
+}
+.salon-hero__slot {
+  border-radius: var(--radius-sm);
+  background: var(--salon-bg);
+}
+
+/* Полоса фактов: большие числа на светлой полосе, как в макете; только числа продукта (§19.9) */
+.salon-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 20px 0;
+  margin: 0;
+  border-top: 1px solid var(--salon-border);
+  border-bottom: 1px solid var(--salon-border);
+}
+@media (max-width: 64rem) {
+  .salon-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.salon-facts__item {
+  display: grid;
+  gap: 4px;
+  padding: 8px 16px;
+  text-align: center;
+}
+.salon-facts__item strong {
+  font-size: 1.875rem;
+  letter-spacing: -0.02em;
+}
+.salon-facts__item span {
+  color: var(--salon-muted);
+  font-size: 0.875rem;
+}
+
+/* «Больше довольных клиентов. Больше прибыли.»: рисунок на тёплой плитке вместо фото, пункты без процентов */
+.salon-growth {
+  display: grid;
+  gap: 32px;
+  align-items: center;
+  padding: clamp(24px, 3.5vw, 44px);
+  margin-bottom: clamp(32px, 5vw, 48px);
+  background: var(--salon-surface);
+  border: 1px solid var(--salon-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--salon-shadow);
+}
+@media (min-width: 64rem) {
+  .salon-growth {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+.salon-growth__art {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 32px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--salon-chip);
+  color: var(--salon-text);
+}
+.salon-growth__art svg {
+  width: min(100%, 320px);
+  height: auto;
+}
+.salon-growth__float {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: var(--radius-control);
+  background: var(--salon-surface);
+  border: 1px solid var(--salon-border);
+  box-shadow: var(--salon-shadow);
+  font-size: 0.75rem;
+  color: var(--salon-muted);
+}
+.salon-growth__float strong {
+  font-size: 1.125rem;
+  color: var(--salon-text);
+}
+.salon-growth__title {
+  margin: 0 0 12px;
+  font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+.salon-growth__text {
+  margin: 0 0 16px;
+  color: var(--salon-muted);
+}
+.salon-growth__points {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+.salon-growth__points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--salon-muted);
+}
+.salon-growth__points .icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--salon-text);
+}
+.salon-page .eyebrow::before {
+  border-color: var(--salon-border);
+  background: var(--salon-chip);
+}
+
+/* Лендинг «Для гостиниц» (10.10.2026): каркас салонного в базовой палитре сайта. */
+.hotel-hero {
+  display: grid;
+  gap: clamp(24px, 3vw, 40px);
+  align-items: center;
+  padding: clamp(24px, 4vw, 48px) 0;
+}
+@media (min-width: 64rem) {
+  .hotel-hero {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  }
+}
+.hotel-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.hotel-hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  color: var(--text-2);
+  font-size: 0.875rem;
+}
+.hotel-hero__chips li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hotel-hero__chips svg {
+  color: var(--primary);
+}
+.hotel-hero__figure {
+  margin: 0;
+}
+.hotel-hero__figure figcaption {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  margin-top: 12px;
+}
+.hotel-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 20px 0;
+  margin: 0;
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+@media (max-width: 64rem) {
+  .hotel-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.hotel-facts__item {
+  display: grid;
+  gap: 4px;
+}
+.hotel-facts__item strong {
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+.hotel-facts__item span {
+  color: var(--text-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.hotel-growth {
+  display: grid;
+  gap: 32px;
+  align-items: center;
+  padding: clamp(24px, 3.5vw, 44px);
+  margin: clamp(32px, 5vw, 48px) 0;
+  border-radius: var(--radius-xl);
+}
+@media (min-width: 64rem) {
+  .hotel-growth {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+.hotel-growth__art {
+  position: relative;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: var(--radius-lg);
+  padding: clamp(16px, 2vw, 24px);
+}
+.hotel-growth__art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.hotel-growth__float {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  color: var(--text-2);
+  font-size: 0.75rem;
+}
+.hotel-growth__float strong {
+  color: var(--text);
+  font-family: var(--font-head);
+  font-size: 1rem;
+}
+.hotel-growth__title {
+  margin: 12px 0 0;
+  font-family: var(--font-head);
+  font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+.hotel-growth__text {
+  margin: 12px 0 0;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.hotel-growth__points {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 20px;
+  display: grid;
+  gap: 10px;
+}
+.hotel-growth__points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.5;
+}
+.hotel-growth__points svg {
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+/* Снимок календаря на лендинге гостиниц: настоящий экран стойки с демо-данными, рамкой и тенью. */
+.hotel-shot {
+  padding: clamp(24px, 3.5vw, 44px) 0;
+}
+.hotel-shot__frame {
+  margin: clamp(20px, 2.4vw, 28px) auto 0;
+  max-width: 1120px;
+}
+.hotel-shot__frame picture img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating);
+}
+.hotel-shot__frame figcaption {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  margin-top: 12px;
+}
+
+/* Цветные фото направлений (10.10.2026, решение владельца; сгенерированы через KIE, свои файлы). */
+.verticals__art--photo {
+  padding: 0;
+  overflow: hidden;
+  background: none;
+}
+.verticals__art--photo img {
+  display: block;
+  width: 148px;
+  height: 108px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+.hotel-growth__art--photo {
+  padding: 0;
+  overflow: hidden;
+  background: none;
+}
+.hotel-growth__art--photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+}
+@media (max-width: 40rem) {
+  .verticals__art--photo img {
+    width: 112px;
+    height: 84px;
+  }
+}
+
+.salon-growth__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+}
+
+/* Единый финал страниц (10.10.2026): вопросы колонкой по центру, ниже плита призыва с условиями. */
+.landing-final__faq {
+  max-width: 760px;
+  margin: 0 auto clamp(32px, 4vw, 48px);
+}
+.landing-final__cta {
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 0;
+  align-items: center;
+}
+@media (min-width: 64rem) {
+  .landing-final__cta:has(.landing-final__photo) {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  }
+}
+.landing-final__note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.landing-final__note svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.landing-final__contacts {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.landing-final__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+}
+@media (max-width: 64rem) {
+  .landing-final__photo {
+    display: none;
+  }
+}
+
+/* Фото героя лендинга ресторанов (блоки те же `.hotel-*`, реестр: строка `.restaurant-hero`). */
+.restaurant-hero__photo img,
+.hotel-hero__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-floating);
 }

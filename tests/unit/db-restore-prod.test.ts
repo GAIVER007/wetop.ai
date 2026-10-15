@@ -19,15 +19,19 @@ afterEach(() => {
   for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
 });
 
-/** Миграции прав, как их понимает скрипт: GRANT или REVOKE словом вне строк-комментариев */
+/** Чистые миграции прав, как их понимает скрипт: без верхнеуровневого schema/data DDL */
 const privilegeMigrations = readdirSync(MIGRATIONS)
   .sort()
-  .filter((name) =>
-    readFileSync(join(MIGRATIONS, name, 'migration.sql'), 'utf8')
+  .filter((name) => {
+    const lines = readFileSync(join(MIGRATIONS, name, 'migration.sql'), 'utf8')
       .split('\n')
-      .filter((line) => !/^\s*--/.test(line))
-      .some((line) => /\b(GRANT|REVOKE)\b/.test(line)),
-  );
+      .filter((line) => !/^\s*--/.test(line));
+    const hasGrant = lines.some((line) => /\b(GRANT|REVOKE)\b/.test(line));
+    const hasTopLevelSchemaOrData = lines.some((line) =>
+      /^(CREATE|ALTER|DROP|TRUNCATE|INSERT|UPDATE|DELETE)\s/.test(line),
+    );
+    return hasGrant && !hasTopLevelSchemaOrData;
+  });
 
 function sandbox(opts: { check?: string; psqlFails?: boolean } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'wetop-restore-'));
@@ -108,6 +112,15 @@ describe('восстановление рабочей базы из копии (
       previous = position;
     }
     expect(r.out).toContain(`права повторены миграциями: ${privilegeMigrations.map((n) => n.split('_')[0]!.slice(-3)).join(' ')}`);
+  });
+
+  it('смешанная schema-миграция с GRANT не выполняется второй раз после восстановления', () => {
+    const s = sandbox();
+    const r = s.run([s.dump, '--yes-replace-production']);
+    expect(r.code, r.out).toBe(0);
+    const sql = s.read('restore.sql');
+    expect(sql).not.toContain('-- права: 20261005000058_food_service_domain');
+    expect(sql).not.toContain('CREATE TYPE "RestaurantReservationStatus"');
   });
 
   it('схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления', () => {

@@ -1,0 +1,69 @@
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008
+
+ ❯ |unit| tests/unit/repo-sync.test.ts (25 tests | 1 failed) 56444ms
+   ❯ repo-sync.sh: папка бота, перенесённая внутрь рабочей (7)
+     × находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает 2064ms
+ ❯ |unit| tests/unit/shift-check-wrapper.test.ts (4 tests | 1 failed) 1349ms
+   ❯ scripts/ops/shift-check.sh (4)
+     × пустая таблица и незнакомый ключ: код 2, контейнер не зовётся 50ms
+[Nest] 77208  - 10/08/2026, 10:47:18 AM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает
+AssertionError: expected 'Папка: /private/var/folders/sl/5hhh0s…' to contain '--archive-nested'
+
+- Expected
++ Received
+
+- --archive-nested
++ Папка: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-rtUonG/WETOP
++   ✓ origin → /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-rtUonG/GAIVER007/wetop.ai.git
++ Git: ветка main, коммит 024052a; origin/main 024052a
++   ✓ совпадает с origin/main
++   · неотслеживаемых файлов: 1 (git status)
++   ✗ ещё одна копия репозитория рядом: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-rtUonG/seed (024052a от 2026-10-08)
++   → оставить одну папку: службы launchd, .env и тесты живут в одной (AGENTS.md §17)
++   ✗ внутри папки вторая копия репозитория: Чат агент/WETOP (ветка ai-seller)
++   · это старая папка бота: с 24.09 он живёт в apps/ai-seller ветки main, со всей историей
++   · всё из неё уже на GitHub; .env и данные переедут вместе с папкой
++ /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/scripts/ops/repo-sync.sh: line 283: top_rel�: unbound variable
++
+
+ ❯ tests/unit/repo-sync.test.ts:545:17
+    543|     expect(out).toMatch(/apps\/ai-seller/);
+    544|     expect(out).toMatch(/всё из неё уже на GitHub/);
+    545|     expect(out).toContain('--archive-nested');
+       |                 ^
+    546|     expect(out).not.toContain('SECRET=1');
+    547|     expect(existsSync(join(top, 'WETOP', '.env'))).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > пустая таблица и незнакомый ключ: код 2, контейнер не зовётся
+AssertionError: expected '/Users/urijzapojnov/Documents/ChatGPT…' to contain 'нужно ГГГГ-ММ-ДД'
+
+- Expected
++ Received
+
+- нужно ГГГГ-ММ-ДД
++ /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/scripts/ops/shift-check.sh: line 61: day�: unbound variable
++
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:100:69
+     98|     expect(s.run(['--date', '2026-10-06'], '  \n\n').code).toBe(2);
+     99|     expect(s.run(['--force'], 'событие\tбронь\n').code).toBe(2);
+    100|     expect(s.run(['--date', '06.10.2026'], 'событие\tбронь\n').err).to…
+       |                                                                     ^
+    101|     expect(s.read('calls')).toBe('');
+    102|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 5 passed (7)
+      Tests  2 failed | 82 passed | 1 skipped (85)
+   Start at  10:45:23
+   Duration  114.26s (tests 99%, transform 1%)
+

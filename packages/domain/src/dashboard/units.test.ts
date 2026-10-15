@@ -35,11 +35,11 @@ const units: UnitBoardTally[] = [
 const input = { from: '2026-10-01', to: '2026-10-10', nights: 10, units, unassignedStays: 2 };
 
 describe('buildUnitStats', () => {
-  it('строки по каждой единице: загрузка от дней периода, порядок — категория, затем код', () => {
+  it('строки по каждой единице: загрузка от дней периода без закрытых ночей (ADR-155), порядок — категория, затем код', () => {
     const s = buildUnitStats(input, 'all');
     expect(s.rows.map((r) => r.code)).toEqual(['B01', 'B02', 'R01']);
     const r01 = s.rows.find((r) => r.code === 'R01')!;
-    expect(r01).toMatchObject({ occupiedNights: 5, blockedNights: 2, arrivals: 2, percent: 50 });
+    expect(r01).toMatchObject({ occupiedNights: 5, blockedNights: 2, arrivals: 2, percent: 62.5 });
     expect(s.rows.find((r) => r.code === 'B01')!.percent).toBe(100);
     expect(s.rows.find((r) => r.code === 'B02')!.percent).toBe(0);
   });
@@ -51,7 +51,7 @@ describe('buildUnitStats', () => {
       unitNights: 30,
       occupiedNights: 15,
       blockedNights: 2,
-      percent: 50,
+      percent: 53.6,
       arrivals: 3,
     });
     expect(s.unassignedStays).toBe(2);
@@ -61,14 +61,22 @@ describe('buildUnitStats', () => {
   it('тип фонда режет строки и итог, как в сводке', () => {
     const rooms = buildUnitStats(input, 'rooms');
     expect(rooms.rows.map((r) => r.code)).toEqual(['R01']);
-    expect(rooms.totals).toMatchObject({ units: 1, unitNights: 10, occupiedNights: 5, percent: 50 });
+    expect(rooms.totals).toMatchObject({
+      units: 1,
+      unitNights: 10,
+      occupiedNights: 5,
+      percent: 62.5,
+    });
     const beds = buildUnitStats(input, 'beds');
     expect(beds.rows).toHaveLength(2);
     expect(beds.totals.percent).toBe(50);
   });
 
   it('пустой фонд и нулевой период не делят на ноль', () => {
-    const s = buildUnitStats({ from: '2026-10-01', to: '2026-10-01', nights: 0, units: [], unassignedStays: 0 }, 'all');
+    const s = buildUnitStats(
+      { from: '2026-10-01', to: '2026-10-01', nights: 0, units: [], unassignedStays: 0 },
+      'all',
+    );
     expect(s.rows).toEqual([]);
     expect(s.totals.percent).toBe(0);
   });

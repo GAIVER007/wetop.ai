@@ -2,27 +2,35 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import Link from 'next/link';
-import { Alert, Badge, Button, Field, Input, Notice, Select } from '../../components/ui';
+import { Alert, Button, Field, Input, Notice, Select } from '../../components/ui';
 import type { InventoryCategory } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
 import { saveInventory } from './actions';
 import { KIND_WORD, capacityLong, usageLines } from './category-words';
-import {
-  CategoryRatePlanForm,
-  NEW_PLAN,
-  RatePlanChoice,
-  planBody,
-  planName,
-  usePlans,
-  type PlanPick,
-} from './rate-plan-choice';
 
 type Mode = 'category' | 'room';
 type Created = {
   code: string;
   name: string;
   kind: InventoryCategory['kind'];
-  rateName: string | null;
+  price: string;
+};
+
+/** Цена категории из поля: «7 000», «7000», «456,50» → строка для API; иначе null (та же проверка, что на сервере) */
+export function priceField(raw: string): string | null {
+  const text = raw.replace(/\s/g, '').replace(',', '.');
+  const m = /^(\d{1,8})(?:\.(\d{1,2}))?$/.exec(text);
+  if (!m || Number(text) <= 0 || Number(m[1]) >= 100_000_000) return null;
+  return m[2] ? `${Number(m[1])}.${m[2]}` : String(Number(m[1]));
+}
+/** Подпись поля цены: койка продаётся поштучно, номер — целиком, одна цена при любом числе гостей */
+const priceLabel = (kind: InventoryCategory['kind']) =>
+  kind === 'DORM_BED' ? 'Цена за койку в ночь, ₸' : 'Цена за номер в ночь, ₸';
+/** Текущая цена в поле правки: тиыны → «11000» или «456.5» */
+const priceInputValue = (minor: string | null) => {
+  if (!minor) return '';
+  const v = BigInt(minor);
+  return v % 100n ? `${v / 100n}.${String(v % 100n).padStart(2, '0')}` : String(v / 100n);
 };
 
 /**
@@ -58,8 +66,8 @@ export function FundEditorDialog({
     '';
   const [selected, setSelected] = useState(category?.code ?? preferred);
   const [kind, setKind] = useState<InventoryCategory['kind']>(category?.kind ?? 'PRIVATE_ROOM');
-  /** Создание категории (C3, ADR-119): форма → «Категория создана» → номер или тариф */
-  const [view, setView] = useState<'form' | 'created' | 'rate' | 'room'>('form');
+  /** Создание категории: форма с ценой → «Категория создана» → номер (тарифы стойка больше не показывает) */
+  const [view, setView] = useState<'form' | 'created' | 'room'>('form');
   const [roomPreview, setRoomPreview] = useState({
     building: '',
     floor: '',
@@ -67,11 +75,7 @@ export function FundEditorDialog({
     codes: [] as string[],
   });
   const [created, setCreated] = useState<Created | null>(null);
-  const [planMode, setPlanMode] = useState<'later' | 'now'>('later');
-  const [pick, setPick] = useState<PlanPick>({ plan: '', newName: '' });
-  const [errors, setErrors] = useState<{ name?: string; capacity?: string; plan?: string }>({});
-  const creating = mode === 'category' && !category;
-  const { plans, loading: loadingRates, error: ratesError } = usePlans(open && creating);
+  const [errors, setErrors] = useState<{ name?: string; capacity?: string; price?: string }>({});
   const router = useRouter();
   const formMode: Mode = view === 'room' ? 'room' : mode;
   const edit = view !== 'room' && Boolean((mode === 'category' && category) || room);
@@ -97,21 +101,14 @@ export function FundEditorDialog({
     setErrors({});
     setView('form');
     setCreated(null);
-    setPlanMode('later');
-    setPick({ plan: '', newName: '' });
     setKind(category?.kind ?? preferKind ?? 'PRIVATE_ROOM');
     setSelected(category?.code ?? preferred);
     // предвыбор категории освежается при каждом открытии, не на каждую перерисовку
   }, [open]);
-  useEffect(() => {
-    if (!loadingRates) setPick((p) => (p.plan ? p : { ...p, plan: plans[0]?.code ?? NEW_PLAN }));
-  }, [loadingRates, plans]);
   const title =
     view === 'created'
       ? 'Категория создана'
-      : view === 'rate'
-        ? 'Настроить тариф'
-        : edit
+      : edit
           ? mode === 'category'
             ? 'Редактировать категорию'
             : 'Редактировать комнату'
@@ -120,38 +117,40 @@ export function FundEditorDialog({
             : preferKind === 'DORM_BED'
               ? 'Добавить комнату с койками'
               : 'Добавить размещение';
-  function createCategory(form: HTMLFormElement) {
+  /** Название, вместимость и цена проверяются до отправки; ошибка у поля, введённое не стирается */
+  function categoryFields(form: HTMLFormElement) {
     const fields = Object.fromEntries(new FormData(form));
     const name = String(fields.name ?? '').trim();
     const capacity = kind === 'DORM_BED' ? 1 : Number(fields.capacityAdults);
-    const plan = planMode === 'now' ? planBody(pick) : { ratePlanLater: true };
+    const rawPrice = String(fields.price ?? '');
+    const price = priceField(rawPrice);
     const found = {
       ...(name ? {} : { name: 'Укажите название категории' }),
-      ...(Number.isInteger(capacity) && capacity >= 1 && capacity <= 100
+      ...(edit || (Number.isInteger(capacity) && capacity >= 1 && capacity <= 100)
         ? {}
         : { capacity: 'Вместимость — от 1 до 100 гостей' }),
-      ...(plan ? {} : { plan: 'Назовите новый тариф или выберите существующий' }),
+      // при правке пустая цена — «не менять», при создании цена обязательна
+      ...(price || (edit && !rawPrice.trim()) ? {} : { price: 'Цена — число больше нуля, например 7000' }),
     };
     setErrors(found);
-    if (Object.keys(found).length || !plan) return;
+    return Object.keys(found).length ? null : { name, capacity, price };
+  }
+  function createCategory(form: HTMLFormElement) {
+    const valid = categoryFields(form);
+    if (!valid) return;
     setError(null);
     start(async () => {
       const result = await saveInventory('categories', {
-        name,
+        name: valid.name,
         kind,
-        capacityAdults: capacity,
-        ...plan,
+        capacityAdults: valid.capacity,
+        price: valid.price,
       });
       if (result.error || !result.code) {
         setError(result.error ?? 'Категория не создана. Обновите страницу и проверьте список.');
         return;
       }
-      setCreated({
-        code: result.code,
-        name,
-        kind,
-        rateName: planMode === 'now' ? planName(pick, plans) : null,
-      });
+      setCreated({ code: result.code, name: valid.name, kind, price: valid.price! });
       setSelected(result.code);
       setView('created');
       router.refresh();
@@ -159,11 +158,15 @@ export function FundEditorDialog({
   }
   function submit(form: HTMLFormElement) {
     if (formMode === 'category' && !edit) return createCategory(form);
-    const fields = Object.fromEntries(new FormData(form));
-    const body: Record<string, unknown> =
-      formMode === 'category'
-        ? { name: fields.name }
-        : room && view !== 'room'
+    let body: Record<string, unknown>;
+    if (formMode === 'category') {
+      const valid = categoryFields(form);
+      if (!valid) return;
+      body = { name: valid.name, ...(valid.price ? { price: valid.price } : {}) };
+    } else {
+      const fields = Object.fromEntries(new FormData(form));
+      body =
+        room && view !== 'room'
           ? { roomNumber: fields.roomNumber }
           : {
               categoryCode: selected,
@@ -175,6 +178,7 @@ export function FundEditorDialog({
                 .map((s) => s.trim())
                 .filter(Boolean),
             };
+    }
     setError(null);
     start(async () => {
       const result = await saveInventory(
@@ -207,44 +211,23 @@ export function FundEditorDialog({
           </p>
           <dl className="fund-preview-facts">
             <div>
-              <dt>Тариф</dt>
-              <dd>{created.rateName ?? <Badge tone="warn">Тариф не настроен</Badge>}</dd>
+              <dt>{created.kind === 'DORM_BED' ? 'Цена за койку в ночь' : 'Цена за номер в ночь'}</dt>
+              <dd>{formatMoney(String(Math.round(Number(created.price) * 100)))}</dd>
             </div>
           </dl>
           <p className="muted">
-            {created.rateName
-              ? `Дальше — добавить ${created.kind === 'DORM_BED' ? 'комнату с койками' : 'номера'} и ввести цены в календаре тарифов.`
-              : `Дальше — добавить ${created.kind === 'DORM_BED' ? 'комнату с койками' : 'номера'} и настроить тариф. Без тарифа и цен категория не продаётся.`}
+            Дальше: добавить {created.kind === 'DORM_BED' ? 'комнату с койками' : 'номера'}. Без мест
+            категория не продаётся.
           </p>
           <div className="fund-created-actions">
             <Button onClick={() => setView('room')}>
               {created.kind === 'DORM_BED' ? 'Добавить комнату с койками' : 'Добавить номер'}
             </Button>
-            {created.rateName ? (
-              <Link
-                className="btn btn--secondary"
-                href={`/rates?category=${encodeURIComponent(created.code)}`}
-                prefetch={false}
-              >
-                Цены в календаре
-              </Link>
-            ) : (
-              <Button tone="secondary" onClick={() => setView('rate')}>
-                Настроить тариф
-              </Button>
-            )}
             <Button tone="ghost" onClick={onClose}>
               Готово
             </Button>
           </div>
         </div>
-      )}
-      {open && view === 'rate' && created && (
-        <CategoryRatePlanForm
-          category={created}
-          onDone={onClose}
-          onCancel={() => setView('created')}
-        />
       )}
       {open && (view === 'form' || view === 'room') && (
         <form
@@ -325,58 +308,19 @@ export function FundEditorDialog({
                       {errors.capacity && <Alert id="fund-err-capacity">{errors.capacity}</Alert>}
                     </>
                   )}
-                  <fieldset className="fund-choice">
-                    <legend>Тариф</legend>
-                    <label className="fund-choice__option">
-                      <input
-                        type="radio"
-                        name="planMode"
-                        value="later"
-                        checked={planMode === 'later'}
-                        onChange={() => setPlanMode('later')}
-                      />
-                      <span>
-                        Настроить позже
-                        <small>
-                          Категория появится в фонде, продавать её можно после тарифа и цен
-                        </small>
-                      </span>
-                    </label>
-                    <label className="fund-choice__option">
-                      <input
-                        type="radio"
-                        name="planMode"
-                        value="now"
-                        checked={planMode === 'now'}
-                        onChange={() => setPlanMode('now')}
-                      />
-                      <span>
-                        Настроить сейчас
-                        <small>
-                          Выбрать тариф объекта или назвать новый; цены — в календаре тарифов
-                        </small>
-                      </span>
-                    </label>
-                  </fieldset>
-                  {planMode === 'now' && (
-                    <RatePlanChoice
-                      plans={plans}
-                      loading={loadingRates}
-                      value={pick}
-                      onChange={(next) => {
-                        setPick(next);
-                        setErrors((e) => {
-                          const next = { ...e };
-                          delete next.plan;
-                          return next;
-                        });
-                      }}
-                      error={errors.plan ?? ratesError ?? undefined}
-                    />
-                  )}
+                  <PriceField kind={kind} error={errors.price} />
                 </>
               ) : (
-                category && <CategoryUsage category={category} units={unitCount} />
+                category && (
+                  <>
+                    <PriceField
+                      kind={category.kind}
+                      error={errors.price}
+                      defaultValue={priceInputValue(category.priceMinor)}
+                    />
+                    <CategoryUsage category={category} units={unitCount} />
+                  </>
+                )
               )}
             </>
           ) : room && view !== 'room' ? (
@@ -466,6 +410,41 @@ export function FundEditorDialog({
   );
 }
 
+/** Цена категории: одна на все дни и любое число гостей, ставится на год вперёд и уходит в каналы */
+function PriceField({
+  kind,
+  error,
+  defaultValue = '',
+}: {
+  kind: InventoryCategory['kind'];
+  error?: string | undefined;
+  defaultValue?: string;
+}) {
+  return (
+    <>
+      <Field label={priceLabel(kind)}>
+        <Input
+          name="price"
+          inputMode="decimal"
+          autoComplete="off"
+          defaultValue={defaultValue}
+          placeholder="Например, 7000"
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={error ? 'fund-err-price' : 'fund-price-hint'}
+        />
+      </Field>
+      {error ? (
+        <Alert id="fund-err-price">{error}</Alert>
+      ) : (
+        <p className="muted" id="fund-price-hint">
+          Цена на все дни на год вперёд. Новая цена уходит и в каналы продаж; уже принятые брони
+          не меняются.
+        </p>
+      )}
+    </>
+  );
+}
+
 /**
  * Правка категории (C4, ТЗ §17–§18): тип продажи и вместимость — фактами, не полями: на них держатся места, цены
  * и брони, а правила их смены ждут решения владельца (Q-173). Что использует категорию — списком; у сопоставленной
@@ -530,7 +509,7 @@ export function FundEditor({
         onClick={() => setOpen(true)}
         disabled={mode === 'room' && !room && !categories.length}
       >
-        {edit ? 'Редактировать' : mode === 'category' ? '+ Категория' : '+ Номер / койки'}
+        {edit ? 'Редактировать' : mode === 'category' ? 'Добавить категорию' : '+ Номер / койки'}
       </Button>
       <FundEditorDialog
         categories={categories}

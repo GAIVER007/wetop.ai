@@ -1,0 +1,32 @@
+# Интеграционные (integration) · 06.10.2026 21:33 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T16-33-22Z-integration-2c76.json' 'tests/integration/marketing-site.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[pms_test] миграций применено 1; данные на месте
+ ❯ |integration| tests/integration/marketing-site.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-site.test.ts [ tests/integration/marketing-site.test.ts ]
+Error: Cannot find module '../../apps/api/src/marketing-site/marketing-site.module' imported from /home/user/wetop.ai/tests/integration/marketing-site.test.ts
+ ❯ tests/integration/marketing-site.test.ts:15:1
+     13| import { RoleGuard } from '../../apps/api/src/auth/role.guard';
+     14| import { PrismaService } from '../../apps/api/src/database/prisma.prov…
+     15| import { MarketingSiteModule } from '../../apps/api/src/marketing-site…
+       | ^
+     16| import { purgeAuditRows } from '../tools/audit-purge';
+     17| import { isLocalDatabase } from '../tools/seed-local';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  16:33:23
+   Duration  4.73s (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-06T16-33-22Z-integration-2c76.json
+
+# код выхода 1 · 6 с

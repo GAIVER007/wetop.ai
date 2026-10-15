@@ -1,0 +1,89 @@
+# Сквозные (e2e) · 05.10.2026 15:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит b408e25 (codex/calendar-mobile), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-mobile.spec.ts' '--grep' 'длинное имя' '--workers=1'
+[WebServer] (node:4977) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5010) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5011) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5014) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5051) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5059) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:5077) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-mobile.spec.ts:277:3 › телефон light: длинное имя и бронь на 28 ночей (1.1s)
+(node:5107) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/chessboard-mobile.spec.ts:277:3 › телефон dark: длинное имя и бронь на 28 ночей (742ms)
+
+
+  1) tests/ui/chessboard-mobile.spec.ts:277:3 › телефон light: длинное имя и бронь на 28 ночей ─────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      291 |       },
+      292 |     });
+    > 293 |     expect(result.ok()).toBe(true);
+          |                         ^
+      294 |     await page.goto('/chessboard?from=2026-11-01&to=2026-11-30');
+      295 |     await page.getByLabel('Поиск в календаре').fill('R07');
+      296 |     await page.locator('[data-unit-code="R07"] .board__stay').first().click();
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:293:25
+
+    Error Context: test-results/chessboard-mobile-телефон--b3399-ное-имя-и-бронь-на-28-ночей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--b3399-ное-имя-и-бронь-на-28-ночей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--b3399-ное-имя-и-бронь-на-28-ночей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-mobile.spec.ts:277:3 › телефон dark: длинное имя и бронь на 28 ночей ──────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      291 |       },
+      292 |     });
+    > 293 |     expect(result.ok()).toBe(true);
+          |                         ^
+      294 |     await page.goto('/chessboard?from=2026-11-01&to=2026-11-30');
+      295 |     await page.getByLabel('Поиск в календаре').fill('R07');
+      296 |     await page.locator('[data-unit-code="R07"] .board__stay').first().click();
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:293:25
+
+    Error Context: test-results/chessboard-mobile-телефон--fa785-ное-имя-и-бронь-на-28-ночей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--fa785-ное-имя-и-бронь-на-28-ночей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--fa785-ное-имя-и-бронь-на-28-ночей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-mobile.spec.ts:277:3 › телефон light: длинное имя и бронь на 28 ночей ──────
+    tests/ui/chessboard-mobile.spec.ts:277:3 › телефон dark: длинное имя и бронь на 28 ночей ───────
+
+# код выхода 1 · 9 с

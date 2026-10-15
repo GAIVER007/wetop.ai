@@ -2,7 +2,6 @@ import { expect, test } from './fixtures';
 import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
-import { chooseSource } from './booking-form';
 
 /**
  * Gate 3 живьём: бронь со стойки появляется в календаре и уменьшает доступность, отмена возвращает всё назад.
@@ -21,7 +20,11 @@ test('создать бронь с ячейкой → видна в календ
   expect(freeBefore).toBeGreaterThan(0);
 
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await chooseSource(form, 'PHONE');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
+  await form.locator('select[name="source"]').selectOption('PHONE');
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = await unitOption(unitSelect);
   expect(unitCode).toBeTruthy();
@@ -54,7 +57,7 @@ test('создать бронь с ячейкой → видна в календ
   await page.goto(`/reservations/${number}`);
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await expect(page.getByText('отменена').first()).toBeVisible();
   await page.goto(`/reservations/new?arrival=${ARRIVAL}&departure=${DEPARTURE}`);
   const availabilityEnd = await page.getByRole('main').getByTestId('availability').textContent();

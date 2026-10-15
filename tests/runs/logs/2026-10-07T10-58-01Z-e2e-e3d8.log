@@ -1,0 +1,183 @@
+# Сквозные (e2e) · 07.10.2026 15:58 Алматы · vm
+# коммит 1331740 (claude/calendar-compact-viewport), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-compact-screen.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url={"/chessbo..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <ChessboardPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                         <header>
+[WebServer]                         ...
+[WebServer]                           <form id="_R_d3pbn5r..." method="get" className="board-rang...">
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="from" defaultValue="2026-09-14" aria-label="Календарь: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-09-14"
+[WebServer]                                     aria-label="Календарь: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <span>
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-09-20" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-09-20"
+[WebServer]                                     aria-label="Календарь: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                         <UnassignedStays>
+[WebServer]                         <ChessboardGrid board={{from:"2026...", ...}} today="2026-10-07" fitMonth={false} ...>
+[WebServer]                           <div className="board-toolbar">
+[WebServer]                             <label className="board-sear...">
+[WebServer]                               <span>
+[WebServer]                               <Input type="search" aria-label="Поиск в ка..." placeholder="Гость, тел..." ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="search"
+[WebServer]                                   aria-label="Поиск в календаре"
+[WebServer]                                   placeholder="Гость, телефон, бронь, номер, койка"
+[WebServer]                                   data-page-search=""
+[WebServer]                                   value=""
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   onKeyDown={function onKeyDown}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✘  1 tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается (4.5s)
+  ✓  2 tests/ui/chessboard-compact-screen.spec.ts:60:1 › свёрнутые категории переживают перезагрузку и разворачиваются (7.4s)
+  ✘  3 tests/ui/chessboard-compact-screen.spec.ts:72:1 › без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются (17.1s)
+
+
+  1) tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается 
+
+    Error: сетка должна доходить почти до низа окна
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 32
+    Received:    62.5
+
+      53 |   expect
+      54 |     .soft(m.bottomGap, 'сетка должна доходить почти до низа окна')
+    > 55 |     .toBeLessThanOrEqual(MAX_BOTTOM_GAP);
+         |      ^
+      56 |   expect.soft(m.visible, `видно строк мест: ${m.visible}`).toBeGreaterThanOrEqual(MIN_ROWS);
+      57 |   await page.screenshot({ path: 'reports/chessboard-compact-screen.png' });
+      58 | });
+        at /home/user/wetop.ai/tests/ui/chessboard-compact-screen.spec.ts:55:6
+
+    Error: видно строк мест: 5
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 8
+    Received:    5
+
+      54 |     .soft(m.bottomGap, 'сетка должна доходить почти до низа окна')
+      55 |     .toBeLessThanOrEqual(MAX_BOTTOM_GAP);
+    > 56 |   expect.soft(m.visible, `видно строк мест: ${m.visible}`).toBeGreaterThanOrEqual(MIN_ROWS);
+         |                                                            ^
+      57 |   await page.screenshot({ path: 'reports/chessboard-compact-screen.png' });
+      58 | });
+      59 |
+        at /home/user/wetop.ai/tests/ui/chessboard-compact-screen.spec.ts:56:60
+
+    Error Context: test-results/chessboard-compact-screen--4838f--страница-не-прокручивается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-compact-screen--4838f--страница-не-прокручивается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-compact-screen--4838f--страница-не-прокручивается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-compact-screen.spec.ts:72:1 › без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('.board-wrap')
+    Expected: "compact"
+    Received: "normal"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.board-wrap') with timeout 15000ms
+      - waiting for locator('.board-wrap')
+        29 × locator resolved to <div tabindex="0" role="region" data-density="normal" class="tbl-wrap board-wrap" aria-label="Календарь по дням">…</div>
+           - unexpected value "normal"
+
+
+      76 |   await page.goto('/chessboard?from=2026-09-14&to=2026-09-20');
+      77 |   const wrap = page.locator('.board-wrap');
+    > 78 |   await expect(wrap).toHaveAttribute('data-density', 'compact');
+         |                      ^
+      79 |   for (const view of ['normal', 'detailed'] as const) {
+      80 |     await page.evaluate(([key, value]) => localStorage.setItem(key!, value!), [VIEW_KEY, view]);
+      81 |     await page.reload();
+        at /home/user/wetop.ai/tests/ui/chessboard-compact-screen.spec.ts:78:22
+
+    Error Context: test-results/chessboard-compact-screen--dad13-одробный»-восстанавливаются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-compact-screen--dad13-одробный»-восстанавливаются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-compact-screen--dad13-одробный»-восстанавливаются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-compact-screen.spec.ts:42:1 › ноутбук 1366×768: восемь строк мест видны целиком, страница не прокручивается 
+    tests/ui/chessboard-compact-screen.spec.ts:72:1 › без сохранённого выбора вид «Компактный», сохранённый «Обычный» и «Подробный» восстанавливаются 
+  1 passed (41.0s)
+
+# код выхода 1 · 43 с

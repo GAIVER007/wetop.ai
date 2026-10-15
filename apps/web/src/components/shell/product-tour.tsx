@@ -1,6 +1,14 @@
 'use client';
 import { can } from '@pms/domain';
-import { use, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  use,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
 import type { DeskShell } from '../../lib/desk-person';
 import {
   TOUR_RESTART_EVENT,
@@ -10,12 +18,24 @@ import {
 } from './tour-steps';
 import './product-tour.css';
 
-/** Элемент шага на экране: есть в разметке и у него есть размер (свёрнутое меню телефона не в счёт). */
+/**
+ * Элемент шага на экране: есть в разметке, у него есть размер и он видим (свёрнутое меню телефона и закрытая
+ * панель разделов не в счёт). Раздел меню прячется в панели за кнопкой раздела: тогда шаг показывает кнопку.
+ */
 function findTarget(target: string): HTMLElement | null {
-  const nodes = document.querySelectorAll<HTMLElement>(`[data-tour="${target}"]`);
-  for (const node of nodes) {
+  const visible = (node: HTMLElement) => {
     const rect = node.getBoundingClientRect();
-    if (rect.width > 0 && rect.height > 0) return node;
+    return (
+      rect.width > 0 &&
+      rect.height > 0 &&
+      (node.checkVisibility?.({ visibilityProperty: true, opacityProperty: true }) ?? true)
+    );
+  };
+  const nodes = document.querySelectorAll<HTMLElement>(`[data-tour="${target}"]`);
+  for (const node of nodes) if (visible(node)) return node;
+  if (target.startsWith('section-')) {
+    const trigger = document.querySelector<HTMLElement>('[data-tour="sections"]');
+    if (trigger && visible(trigger)) return trigger;
   }
   return null;
 }
@@ -177,7 +197,15 @@ export function ProductTour({
       <div
         ref={cardRef}
         className={position ? 'tour__card' : 'tour__card tour__card--center'}
-        style={position ? { top: position.top, left: position.left } : undefined}
+        style={
+          position
+            ? // положение переменными: телефонный медиазапрос ставит своё без !important (MV8.5 DS0b)
+              ({
+                '--tour-top': `${position.top}px`,
+                '--tour-left': `${position.left}px`,
+              } as CSSProperties)
+            : undefined
+        }
       >
         <p className="tour__count">
           {index + 1} из {steps.length}

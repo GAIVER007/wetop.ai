@@ -35,6 +35,11 @@ export async function createAppointment(
       phone: text(form, 'phone'),
       notes: text(form, 'notes'),
     });
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty');
     return { message: 'Запись создана' };
   } catch (e) {
@@ -51,6 +56,11 @@ export async function moveAppointment(
       employeeId: text(form, 'employeeId'),
       startsAt: text(form, 'startsAt'),
     });
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty');
     return { message: 'Запись перенесена' };
   } catch (e) {
@@ -61,6 +71,11 @@ export async function moveAppointment(
 export async function setAppointmentStatus(id: string, status: string): Promise<JournalResult> {
   try {
     await beautyApi.setAppointmentStatus(id, status);
+    revalidatePath('/calendar');
+    revalidatePath('/appointments');
+    revalidatePath('/employees');
+    revalidatePath('/services');
+    revalidatePath('/customers');
     revalidatePath('/beauty');
     return { message: 'Состояние записи изменено' };
   } catch (e) {

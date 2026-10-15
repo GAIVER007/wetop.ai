@@ -1,0 +1,63 @@
+# Интеграционные (integration) · 13.10.2026 17:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4335d2f (claude/bar-location-model), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-51-50Z-integration-dc7a.json' 'tests/integration/bar-location.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/abortwk
+
+ ❯ |integration| tests/integration/bar-location.test.ts (5 tests | 2 failed) 52ms
+   ❯ BAR on locations (§44) (5)
+     × бар ресторана живёт без объекта гостиницы; у гостиничной строки филиал берётся из объекта 17ms
+     × объект гостиницы чужого филиала не принимается; филиал и объект неизменны 7ms
+     ✓ владение по филиалу: товар с категорией другого филиала отклоняется 11ms
+     ✓ продажа без объекта не связывается с кассой гостиницы 4ms
+     ✓ RLS: чужая организация не видит бар ресторана и не пишет в его филиал 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-location.test.ts > BAR on locations (§44) > бар ресторана живёт без объекта гостиницы; у гостиничной строки филиал берётся из объекта
+error: null value in column "location_id" of relation "bar_categories" violates not-null constraint
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/bar-location.test.ts:76:7
+     74|       const hotel = await branch('HOSPITALITY');
+     75|       const hid = randomUUID();
+     76|       await client.query(
+       |       ^
+     77|         `INSERT INTO bar_categories (id,property_id,name,default_marku…
+     78|         [hid, hotel.property],
+ ❯ rollback tests/integration/bar-location.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/bar-location.test.ts > BAR on locations (§44) > объект гостиницы чужого филиала не принимается; филиал и объект неизменны
+AssertionError: promise resolved "'1afeafdf-1e18-468c-ba3b-4ca721119721'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"1afeafdf-1e18-468c-ba3b-4ca721119721"
+
+ ❯ tests/integration/bar-location.test.ts:89:62
+     87|       const hotel = await branch('HOSPITALITY');
+     88|       await savepoint(async () => {
+     89|         await expect(category(food.location, hotel.property)).rejects.…
+       |                                                              ^
+     90|       });
+     91|       const id = await category(food.location);
+ ❯ savepoint tests/integration/bar-location.test.ts:35:13
+ ❯ tests/integration/bar-location.test.ts:88:7
+ ❯ rollback tests/integration/bar-location.test.ts:27:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  05:51:51
+   Duration  990ms (transform 70%, import 19%, tests 10%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T12-51-50Z-integration-dc7a.json
+
+# код выхода 1 · 1 с

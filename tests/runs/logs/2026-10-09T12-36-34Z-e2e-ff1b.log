@@ -1,0 +1,104 @@
+# Сквозные (e2e) · 09.10.2026 17:36 Алматы · vm
+# коммит 90d323d (claude/stoic-darwin-hjb5x3), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/reservations-design.spec.ts' 'tests/ui/reservations-compact.spec.ts' 'tests/ui/quality.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+  ✓   1 tests/ui/guests-design.spec.ts:23:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (5.8s)
+  ✓   2 tests/ui/guests-design.spec.ts:68:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (2.1s)
+  ✓   3 tests/ui/guests-design.spec.ts:97:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (10.2s)
+  ✓   4 tests/ui/guests-design.spec.ts:167:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (7.1s)
+  ✓   5 tests/ui/guests-design.spec.ts:239:1 › гости: документы и финансовый свод гостя (G5) (6.7s)
+  ✓   6 tests/ui/guests-design.spec.ts:291:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (4.6s)
+  ✓   7 tests/ui/guests-design.spec.ts:337:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (12.4s)
+  ✓   8 tests/ui/guests-design.spec.ts:420:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (11.7s)
+  ✓   9 tests/ui/guests-design.spec.ts:494:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (3.4s)
+  ✓  10 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (3.8s)
+  ✓  11 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (1.3s)
+  ✓  12 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (2.6s)
+  ✓  13 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (3.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  14 tests/ui/quality.spec.ts:57:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (3.6s)
+  ✓  15 tests/ui/quality.spec.ts:78:1 › ошибочные даты шахматки оставляют форму исправления (2.0s)
+  ✓  16 tests/ui/quality.spec.ts:86:1 › список гостей и вторая бронь открывают собственные карточки (4.0s)
+  ✓  17 tests/ui/quality.spec.ts:102:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (2.3s)
+  ✓  18 tests/ui/quality.spec.ts:125:1 › изменение уборки относится только к выбранному номеру (4.1s)
+  ✓  19 tests/ui/quality.spec.ts:139:1 › неподключённые внешние демо не ведут на несуществующие страницы (3.8s)
+  ✓  20 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: профиль гостя (2.9s)
+  ✓  21 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: документ гостя (2.3s)
+  ✓  22 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: блокировка номера (2.4s)
+  ✓  23 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: сайт аналитики (2.0s)
+  ✓  24 tests/ui/reservations-compact.spec.ts:3:1 › compact reservations: filters disclose, submit and persist (4.6s)
+  ✓  25 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (3.0s)
+  ✓  26 tests/ui/reservations-design.spec.ts:31:1 › мобильный статус и поиск сохраняются в URL, карточка открывается из списка (5.7s)
+  ✘  27 tests/ui/reservations-design.spec.ts:53:3 › Брони: light, читаемый список на пяти ширинах (7.5s)
+  ✘  28 tests/ui/reservations-design.spec.ts:53:3 › Брони: dark, читаемый список на пяти ширинах (8.4s)
+
+
+  1) tests/ui/reservations-design.spec.ts:53:3 › Брони: light, читаемый список на пяти ширинах ─────
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 450
+    Received:    509
+
+      80 |       ).toBeLessThanOrEqual(1);
+      81 |       if (width <= 390) {
+    > 82 |         expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(450);
+         |                                                                            ^
+      83 |         const dates = page.getByRole('button', { name: 'Даты', exact: true });
+      84 |         for (const control of [
+      85 |           page.getByLabel('Статус брони', { exact: true }),
+        at /home/user/wetop.ai/tests/ui/reservations-design.spec.ts:82:76
+
+    Error Context: test-results/reservations-design-Брони--cf19d-емый-список-на-пяти-ширинах/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-design-Брони--cf19d-емый-список-на-пяти-ширинах/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-design-Брони--cf19d-емый-список-на-пяти-ширинах/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/reservations-design.spec.ts:53:3 › Брони: dark, читаемый список на пяти ширинах ──────
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 450
+    Received:    509
+
+      80 |       ).toBeLessThanOrEqual(1);
+      81 |       if (width <= 390) {
+    > 82 |         expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(450);
+         |                                                                            ^
+      83 |         const dates = page.getByRole('button', { name: 'Даты', exact: true });
+      84 |         for (const control of [
+      85 |           page.getByLabel('Статус брони', { exact: true }),
+        at /home/user/wetop.ai/tests/ui/reservations-design.spec.ts:82:76
+
+    Error Context: test-results/reservations-design-Брони--e66ce-емый-список-на-пяти-ширинах/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-design-Брони--e66ce-емый-список-на-пяти-ширинах/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-design-Брони--e66ce-емый-список-на-пяти-ширинах/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/reservations-design.spec.ts:53:3 › Брони: light, читаемый список на пяти ширинах ──────
+    tests/ui/reservations-design.spec.ts:53:3 › Брони: dark, читаемый список на пяти ширинах ───────
+  26 passed (2.5m)
+
+# код выхода 1 · 2 мин 32 с

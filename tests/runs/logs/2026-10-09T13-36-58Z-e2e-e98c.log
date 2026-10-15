@@ -1,0 +1,128 @@
+# Сквозные (e2e) · 09.10.2026 18:36 Алматы · vm
+# коммит 0fed809 (claude/brave-clarke-6gyjif), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/organizations-manage.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/trial-read-only.spec.ts' 'tests/ui/site-builder-licensed.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/top-menu.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 45 tests using 1 worker
+
+  ✓   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (6.3s)
+  ✓   2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (6.2s)
+  ✓   3 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (11.2s)
+  ✓   4 tests/ui/organizations-manage.spec.ts:21:1 › переименование: название сохраняется и видно в таблице; пустое отклоняется словами API (3.9s)
+  ✓   5 tests/ui/organizations-manage.spec.ts:42:1 › архив вместо удаления: подтверждение, скрытие из списка, показ архивных и возврат с прежним статусом (6.2s)
+  ✓   6 tests/ui/organizations-manage.spec.ts:84:1 › своя организация: помечена «Ваша», в архив не убирается (2.5s)
+  ✓   7 tests/ui/organizations-manage.spec.ts:95:1 › «Добавить организацию»: новая организация регистрируется сама, ссылка на регистрацию под рукой (2.7s)
+  ✓   8 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.9s)
+  ✓   9 tests/ui/platform-access.spec.ts:87:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.5s)
+  ✓  10 tests/ui/platform-access.spec.ts:109:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (5.5s)
+  ✓  11 tests/ui/platform-access.spec.ts:148:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (5.5s)
+  ✓  12 tests/ui/platform-access.spec.ts:176:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (2.7s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  13 tests/ui/platform-access.spec.ts:196:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (5.2s)
+  ✓  14 tests/ui/platform-access.spec.ts:219:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (7.1s)
+  ✓  15 tests/ui/platform-access.spec.ts:276:5 › доступность: «Организации» и состояния расширения, light, 1440px (13.6s)
+  ✓  16 tests/ui/platform-access.spec.ts:276:5 › доступность: «Организации» и состояния расширения, dark, 1440px (14.2s)
+  ✓  17 tests/ui/platform-access.spec.ts:276:5 › доступность: «Организации» и состояния расширения, light, 390px (13.5s)
+  ✓  18 tests/ui/platform-access.spec.ts:276:5 › доступность: «Организации» и состояния расширения, dark, 390px (13.2s)
+  ✓  19 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (4.9s)
+  ✓  20 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (6.7s)
+  ✓  21 tests/ui/platform-support.spec.ts:100:1 › знания помощника: список и загрузка документа (4.2s)
+  ✓  22 tests/ui/platform-support.spec.ts:120:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (7.7s)
+  ✓  23 tests/ui/platform-support.spec.ts:172:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.7s)
+  ✓  24 tests/ui/platform-support.spec.ts:189:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.3s)
+  ✓  25 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 1440px (16.7s)
+  ✓  26 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 1440px (17.2s)
+  ✓  27 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: light, 390px (15.8s)
+  ✓  28 tests/ui/platform-support.spec.ts:199:5 › доступность «Техподдержки»: dark, 390px (15.6s)
+  ✓  29 tests/ui/site-builder-licensed.spec.ts:29:1 › лицензии нет: всё видно, правка, ИИ, «Текст» и сохранение закрыты; полоса проекта говорит почему (4.7s)
+  ✓  30 tests/ui/site-builder-licensed.spec.ts:49:1 › срок лицензии вышел: та же закрытая правка, слова «Срок лицензии вышел»; первый экран без лицензии (2.1s)
+  ✓  31 tests/ui/site-builder-licensed.spec.ts:62:1 › режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление (6.6s)
+  ✓  32 tests/ui/site-builder-licensed.spec.ts:78:1 › режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз (14.5s)
+  ✓  33 tests/ui/site-builder-licensed.spec.ts:106:1 › варианты оформления на первом экране: три карточки с выбором, сайт создаётся с выбранным оформлением (10.1s)
+  ✓  34 tests/ui/site-builder-licensed.spec.ts:128:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ (3.9s)
+  ✓  35 tests/ui/site-builder-licensed.spec.ts:160:1 › закладки: звёздочка с подписью, закреплённый список сверху, снять закладку (4.1s)
+  ✓  36 tests/ui/site-builder-licensed.spec.ts:176:1 › знания проекта: сохраняются отдельно от черновика и переживают обновление (3.0s)
+  ✓  37 tests/ui/site-builder-licensed.spec.ts:197:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала (6.4s)
+  ✓  38 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: light (19.7s)
+  ✓  39 tests/ui/site-builder-licensed.spec.ts:225:3 › снимки и доступность ключевых состояний: dark (20.6s)
+  ✓  40 tests/ui/top-menu.spec.ts:55:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (6.3s)
+  ✓  41 tests/ui/top-menu.spec.ts:128:1 › вложенные адреса подсвечивают свою вкладку (8.1s)
+  ✓  42 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: light (4.4s)
+  ✓  43 tests/ui/top-menu.spec.ts:164:3 › шапка ровная, без прокрутки вбок и доступная: dark (4.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <RedirectErrorBoundary router={{...}}>
+[WebServer]       <InnerLayoutRouter url="/today" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]         <SegmentViewNode type="page" pagePath="today/page...">
+[WebServer]           <SegmentTrieNode>
+[WebServer]           <TodayPage>
+[WebServer]             <TodayScopeContent>
+[WebServer]               <HospitalityToday>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                     <header>
+[WebServer]                     <div className="owner-dash..." data-testid="owner-dash...">
+[WebServer]                       <Suspense>
+[WebServer]                       <section className="owner-fina..." aria-label="Финансы за...">
+[WebServer]                         <header>
+[WebServer]                         <Suspense fallback={<div>}>
+[WebServer]                           <div className="owner-mone...">
+[WebServer]                             <div>
+[WebServer]                             <details className="owner-dates">
+[WebServer]                               <summary>
+[WebServer]                               <form action="/today">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <label>
+[WebServer]                                   <input
+[WebServer]                                     type="date"
+[WebServer]                                     aria-label="Начало периода"
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 <label>
+[WebServer]                                   <input
+[WebServer]                                     type="date"
+[WebServer]                                     aria-label="Конец периода"
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-31"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 ...
+[WebServer]                           ...
+[WebServer]                       ...
+[WebServer]         ...
+[WebServer]       ...
+[WebServer]  
+  ✓  44 tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет (16.3s)
+  ✓  45 tests/ui/trial-read-only.spec.ts:75:1 › главный администратор: «Оплата получена» — организация работает; «Только чтение» — обратно (4.0s)
+
+  45 passed (6.3m)
+
+# код выхода 0 · 6 мин 18 с

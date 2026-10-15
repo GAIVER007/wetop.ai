@@ -1,0 +1,20 @@
+# Модульные (unit) · 07.10.2026 13:14 Алматы · vm
+# коммит 012c06d (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-14-12Z-unit-950a.json' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/ci-runner.test.ts' 'scripts/design/dead-css.test.ts' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| scripts/design/dead-css.test.ts (2 tests) 29ms
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 16ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (21 tests) 469ms
+ ✓ |unit| tests/unit/design-slop.test.ts (17 tests) 19ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 11ms
+
+ Test Files  5 passed (5)
+      Tests  60 passed (60)
+   Start at  08:14:13
+   Duration  1.25s (transform 37%, tests 32%, import 29%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-14-12Z-unit-950a.json
+
+# код выхода 0 · 3 с

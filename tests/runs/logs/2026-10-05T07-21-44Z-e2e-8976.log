@@ -1,0 +1,140 @@
+# Сквозные (e2e) · 05.10.2026 12:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 45455bc (main), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'finance-cash-first.spec.ts' '--workers=1'
+[WebServer] (node:71566) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71615) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71722) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71725) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:72015) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/finance-cash-first.spec.ts:10:1 › касса: простой вход, фильтры применяются вместе и сбрасываются (27.6s)
+(node:72407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/finance-cash-first.spec.ts:40:3 › касса: доступность и верстка 1440 (18.9s)
+(node:72510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/finance-cash-first.spec.ts:40:3 › касса: доступность и верстка 390 (17.5s)
+
+
+  1) tests/ui/finance-cash-first.spec.ts:10:1 › касса: простой вход, фильтры применяются вместе и сбрасываются
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Касса', exact: true, level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Касса', exact: true, level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Касса', exact: true, level: 1 })
+
+
+      10 | test('касса: простой вход, фильтры применяются вместе и сбрасываются', async ({ page, request }) => {
+      11 |   await page.goto('/finance');
+    > 12 |   await expect(page.getByRole('heading', { name: 'Касса', exact: true, level: 1 })).toBeVisible();
+         |                                                                                     ^
+      13 |   await expect(page.getByTestId('cash-summary')).toBeVisible();
+      14 |   await expect(page.getByTestId('finance-operations')).toBeVisible();
+      15 |   await expect(page.getByTestId('finance-kpis')).not.toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/finance-cash-first.spec.ts:12:85
+
+    Error Context: test-results/finance-cash-first-касса-п-3b72e-яются-вместе-и-сбрасываются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-п-3b72e-яются-вместе-и-сбрасываются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-п-3b72e-яются-вместе-и-сбрасываются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-cash-first.spec.ts:40:3 › касса: доступность и верстка 1440 ──────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('cash-summary')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('cash-summary') with timeout 15000ms
+      - waiting for getByTestId('cash-summary')
+
+
+      41 |     await page.setViewportSize({ width, height: 900 });
+      42 |     await page.goto('/finance');
+    > 43 |     await expect(page.getByTestId('cash-summary')).toBeVisible();
+         |                                                    ^
+      44 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      45 |     const axe = await new AxeBuilder({ page }).include('main').analyze();
+      46 |     expect(axe.violations).toEqual([]);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/finance-cash-first.spec.ts:43:52
+
+    Error Context: test-results/finance-cash-first-касса-доступность-и-верстка-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-доступность-и-верстка-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-доступность-и-верстка-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-cash-first.spec.ts:40:3 › касса: доступность и верстка 390 ───────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('cash-summary')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('cash-summary') with timeout 15000ms
+      - waiting for getByTestId('cash-summary')
+
+
+      41 |     await page.setViewportSize({ width, height: 900 });
+      42 |     await page.goto('/finance');
+    > 43 |     await expect(page.getByTestId('cash-summary')).toBeVisible();
+         |                                                    ^
+      44 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      45 |     const axe = await new AxeBuilder({ page }).include('main').analyze();
+      46 |     expect(axe.violations).toEqual([]);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/finance-cash-first.spec.ts:43:52
+
+    Error Context: test-results/finance-cash-first-касса-доступность-и-верстка-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-cash-first-касса-доступность-и-верстка-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-cash-first-касса-доступность-и-верстка-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/finance-cash-first.spec.ts:10:1 › касса: простой вход, фильтры применяются вместе и сбрасываются
+    tests/ui/finance-cash-first.spec.ts:40:3 › касса: доступность и верстка 1440 ───────────────────
+    tests/ui/finance-cash-first.spec.ts:40:3 › касса: доступность и верстка 390 ────────────────────
+
+# код выхода 1 · 2 мин 43 с

@@ -2,6 +2,8 @@ import { normalizeSearchParams, type SearchParams } from '../../../../lib/search
 import { api, chessboardApi, formatMinor, guestsApi } from '../../../../lib/api';
 import { hotelClock } from '../../../../lib/hotel-api';
 import { PrintButton } from './print-button';
+import { sourceStatus } from '../../../../lib/status/source';
+import { statusLabel } from '../../../../lib/status/types';
 
 /**
  * Регистрационная карта гостя — печатная форма RU / KZ (SPEC §9, CLAUDE §7).
@@ -56,15 +58,6 @@ const T = {
     printedAt: 'Қалыптастырылды',
   },
 } as const;
-const SOURCE_RU: Record<string, string> = {
-  DESK: 'стойка',
-  PHONE: 'телефон',
-  WHATSAPP: 'WhatsApp',
-  WALK_IN: 'без брони',
-  INSTAGRAM: 'Instagram',
-  OTA: 'OTA',
-  WEBSITE: 'сайт',
-};
 const nights = (a: string, d: string) => Math.round((Date.parse(d) - Date.parse(a)) / 86_400_000);
 
 export default async function PrintRegistrationCard({
@@ -139,7 +132,7 @@ export default async function PrintRegistrationCard({
             }
           />
           <Row k={t.phone} v={guest?.phone ?? '—'} />
-          <Row k={t.source} v={SOURCE_RU[r.source] ?? r.source} />
+          <Row k={t.source} v={statusLabel(sourceStatus, r.source)} />
         </tbody>
       </table>
       <h2 style={{ fontSize: 15, margin: '18px 0 6px' }}>{t.stay}</h2>

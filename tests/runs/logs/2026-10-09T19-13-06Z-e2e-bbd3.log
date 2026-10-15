@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 10.10.2026 00:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит d120f57 (worktree-marketing-module-b1), незакоммиченных файлов набора: 35
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] [Nest] 82749  - 10/09/2026, 12:13:09 PM   ERROR [ExceptionHandler] Error: DATABASE_URL is not set
+[WebServer]     at createPrismaClient (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/packages/database/src/index.ts:44:11)
+[WebServer]     at new PrismaService (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/api/src/database/prisma.provider.ts:42:11)
+[WebServer]     at Injector.instantiateClass (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/@nestjs/core/injector/injector.js:439:19)
+[WebServer]     at callback (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/@nestjs/core/injector/injector.js:69:45)
+[WebServer]     at async Injector.resolveConstructorParams (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/@nestjs/core/injector/injector.js:182:24)
+[WebServer]     at async Injector.loadInstance (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/@nestjs/core/injector/injector.js:75:13)
+[WebServer]     at async Injector.loadProvider (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/@nestjs/core/injector/injector.js:109:9)
+[WebServer]     at async file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/@nestjs/core/injector/instance-loader.js:57:13
+[WebServer]     at async Promise.all (index 5)
+[WebServer]     at async InstanceLoader.createInstancesOfProviders (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/marketing-module-b1/node_modules/@nestjs/core/injector/instance-loader.js:56:9)
+[WebServer] npm error Lifecycle script `start` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/api
+[WebServer] npm error workspace @pms/api@0.0.0
+[WebServer] npm error location /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/api
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c tsx src/main.ts
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 3 с

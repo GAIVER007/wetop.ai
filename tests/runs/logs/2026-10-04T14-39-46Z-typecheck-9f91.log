@@ -1,0 +1,49 @@
+# Типы (typecheck) · 04.10.2026 19:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит bc9b179 (codex/calendar-clean-summary), незакоммиченных файлов набора: 6
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/auth/auth.service.ts(386,69): error TS2322: Type '"BEAUTY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+apps/api/src/channels/channels.repository.ts(243,12): error TS2339: Property 'countryCode' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(243,30): error TS2339: Property 'city' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(243,41): error TS2339: Property 'channexPropertyType' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(265,20): error TS2339: Property 'countryCode' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(266,17): error TS2339: Property 'city' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(267,25): error TS2339: Property 'channexPropertyType' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/hotel/onboarding.ts(288,32): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/onboarding/onboarding.module.ts(98,40): error TS2339: Property 'onboardingProgress' does not exist on type 'Db'.
+apps/api/src/onboarding/onboarding.module.ts(164,30): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/onboarding/onboarding.module.ts(260,16): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv1-vertical-boundary.test.ts(63,56): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/integration/mv3-onboarding.test.ts(47,73): error TS2322: Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+tests/integration/mv3-onboarding.test.ts(73,16): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv3-onboarding.test.ts(176,23): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/mv3-onboarding.test.ts(178,23): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/onboarding/cleanup.ts(39,14): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/onboarding/fixture-api.ts(77,13): error TS2322: Type '"BEAUTY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/auth/auth.service.ts(386,69): error TS2322: Type '"BEAUTY" | "FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+  Type '"FOOD_SERVICE"' is not assignable to type 'BusinessVertical'.
+apps/api/src/channels/channels.repository.ts(243,12): error TS2339: Property 'countryCode' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(243,30): error TS2339: Property 'city' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(243,41): error TS2339: Property 'channexPropertyType' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(265,20): error TS2339: Property 'countryCode' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(266,17): error TS2339: Property 'city' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/channels/channels.repository.ts(267,25): error TS2339: Property 'channexPropertyType' does not exist on type '{ organizationId: string; locationId: string; id: string; name: string; legalName: string | null; bin: string | null; address: string | null; phone: string | null; email: string | null; ... 5 more ...; updatedAt: Date; }'.
+apps/api/src/hotel/onboarding.ts(288,32): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/onboarding/onboarding.module.ts(98,40): error TS2339: Property 'onboardingProgress' does not exist on type 'Db'.
+apps/api/src/onboarding/onboarding.module.ts(164,30): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/onboarding/onboarding.module.ts(260,16): error TS2339: Property 'onboardingProgress' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 20 с

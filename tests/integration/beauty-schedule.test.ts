@@ -43,6 +43,7 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
         organizationId: own.org,
         role,
         scope: 'LOCATION',
+        vertical: 'BEAUTY',
         businessId: own.business,
         locationId,
       },
@@ -52,7 +53,7 @@ describe.skipIf(!url)('график мастера (integration, DATA_MODEL §19
 
   async function seedOrg(o: { org: string; business: string; location: string }) {
     await db.$executeRawUnsafe(
-      `INSERT INTO "organizations" ("id", "name") VALUES ('${o.org}', 'Сеть ${o.org.slice(0, 8)}')`,
+      `INSERT INTO "organizations" ("id", "name", "status") VALUES ('${o.org}', 'Сеть ${o.org.slice(0, 8)}', 'ACTIVE')`,
     );
     await db.$executeRawUnsafe(
       `INSERT INTO "businesses" ("id", "organization_id", "name", "vertical", "updated_at")

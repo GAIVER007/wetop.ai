@@ -1,0 +1,19 @@
+# Модульные (unit) · 07.10.2026 01:11 Алматы · vm
+# коммит 65a1342 (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T20-11-51Z-unit-661f.json' 'apps/web/src/app/today'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 34ms
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (16 tests) 34ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 3ms
+
+ Test Files  4 passed (4)
+      Tests  32 passed (32)
+   Start at  20:11:52
+   Duration  512ms (transform 68%, import 15%, tests 12%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-06T20-11-51Z-unit-661f.json
+
+# код выхода 0 · 2 с

@@ -1,0 +1,119 @@
+# Сквозные (e2e) · 12.10.2026 20:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 75b9695 (claude/ui-master-pass3), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/system-screens.spec.ts'
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (33.4s)
+  ✓  2 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (30.0s)
+  ✘  3 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (47.4s)
+  ✘  4 tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (9.9m)
+  ✘  5 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (29.2m)
+
+
+  1) tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('main').getByTestId('statistics-table').locator('tbody tr').first()
+    Expected: visible
+    Received: undefined
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('statistics-table').locator('tbody tr').first() with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('statistics-table').locator('tbody tr').first()
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      199 |   await expect(page).toHaveURL(/\/management\/analytics\/occupancy\?date=2026-09-25$/);
+      200 |   await expect(main.getByTestId('statistics-meta')).toContainText('Загрузка на 25.09.2026');
+    > 201 |   await expect(main.getByTestId('statistics-table').locator('tbody tr').first()).toBeVisible();
+          |                                                                                  ^
+      202 |   await request.post(`${fixture}/__test/control`, { data: { failPath: '/desk/dashboard' } });
+      203 |   await page.goto('/management/analytics/occupancy?date=2026-09-25');
+      204 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/system-screens.spec.ts:201:82
+
+    Error Context: test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/hotel-settings$/
+    Received string:  "http://127.0.0.1:3151/hotel-settings/penalties"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3151/hotel-settings/penalties"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      262 |   // правила отмены ушли к тарифам (SET4), а «Тарифы и цены» сняты 06.10.2026: старый адрес ведёт в настройки
+      263 |   await page.goto('/hotel-settings/penalties');
+    > 264 |   await expect(page).toHaveURL(/\/hotel-settings$/);
+          |                      ^
+      265 |   // Ошибка чтения настроек оставляет заголовок и вкладки на месте.
+      266 |   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/settings' } });
+      267 |   await page.goto('/hotel-settings');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/system-screens.spec.ts:264:22
+
+    Error Context: test-results/system-screens-настройки-о-5df91--с-причиной-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-настройки-о-5df91--с-причиной-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-настройки-о-5df91--с-причиной-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/finance/
+    Received string:  ""
+
+
+      314 |   // вход ведёт на /today, а гостиницу /today сразу уводит на «Финансы» (ADR-152): ждём конечную страницу,
+      315 |   // иначе следующий переход обрывается на середине второго (ERR_ABORTED, гейт 12.10.2026)
+    > 316 |   await expect(page).toHaveURL(/\/finance/);
+          |                      ^
+      317 |   await page.goto('/profile/access');
+      318 |   await expect(main).toContainText('как Дана Тестова, <email>');
+      319 |   await expect(main).not.toContainText(' · ');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master/tests/ui/system-screens.spec.ts:316:22
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+    tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом 
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+  2 passed (41.2m)
+
+# код выхода 1 · 41 мин 19 с

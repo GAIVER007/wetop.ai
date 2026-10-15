@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 09.10.2026 18:57 Алматы · vm
+# коммит 97364f8 (claude/fervent-mayer-8xg2nf), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/bar.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/bar.spec.ts:23:1 › обзор по макету: показатели, быстрая продажа, доска товаров, приходы и популярные (3.1s)
+  ✓  2 tests/ui/bar.spec.ts:72:1 › карточка товара боковой панелью: правка полей и цены, закрытие Escape (2.2s)
+  ✓  3 tests/ui/bar.spec.ts:95:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.1s)
+  ✓  4 tests/ui/bar.spec.ts:108:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (4.3s)
+  ✓  5 tests/ui/bar.spec.ts:140:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.8s)
+  ✓  6 tests/ui/bar.spec.ts:153:1 › приходы: оплата долга из журнала; товары: новый товар и цена в строке; поставщики: расчёты (4.9s)
+  ✓  7 tests/ui/bar.spec.ts:180:1 › операции: списание с причиной, журнал продаж и лента движений (2.2s)
+  ✓  8 tests/ui/bar.spec.ts:194:3 › доступность и телефон: light (4.3s)
+  ✓  9 tests/ui/bar.spec.ts:194:3 › доступность и телефон: dark (4.8s)
+
+  9 passed (41.0s)
+
+# код выхода 0 · 42 с

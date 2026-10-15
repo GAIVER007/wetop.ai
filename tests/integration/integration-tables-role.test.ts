@@ -43,8 +43,11 @@ describe.skipIf(!url)(
       // Роль без входа (миграция) на свежей локальной базе: как у `rls-isolation`, вход включается здесь; чужую базу не трогаем
       await enableLocalAppLogin(url!);
       admin = createPrismaClient(url);
-      organizationId = (await admin.property.findFirstOrThrow({ select: { organizationId: true } }))
-        .organizationId;
+      // объект засева: самый ранний. Без порядка Postgres отдаёт строки как лягут, и после чужих тестов
+      // (например, `market-occupancy` оставляет свои объекты) первым мог оказаться объект без менеджера каналов
+      organizationId = (
+        await admin.property.findFirstOrThrow({ orderBy: { createdAt: 'asc' }, select: { organizationId: true } })
+      ).organizationId;
       app = createPrismaClient(url, undefined, { of: databaseTenant, appConnectionString: appUrl });
       const original = pg.Client.prototype.query as (...a: unknown[]) => unknown;
       const spy = vi.spyOn(pg.Client.prototype, 'query').mockImplementation(function (

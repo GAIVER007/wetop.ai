@@ -1,0 +1,105 @@
+# Интеграционные (integration) · 06.10.2026 17:31 Алматы · vm
+# коммит 117bce9 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-31-03Z-integration-690a.json' 'tests/integration/web-booking-exact-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/web-booking-exact-property.test.ts (4 tests | 3 failed) 716ms
+   ❯ публичная бронь: сайты всех организаций и точный объект сайта (integration) (4)
+     ✓ BOOK-1: CORS виджета пускает домены сайтов разных организаций, без вошедшего человека 13ms
+     × BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A 22ms
+     × BOOK-4: котировка агента B — объект B; по организации с двумя сайтами — отказ, а не самый ранний 12ms
+     × BOOK-4: архивный филиал, архивный Business и чужая цепочка закрывают сайт 64ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-4: расчёт и бронь по ключу сайта B идут в объект B, не в более ранний A
+NotFoundException: бронирование с сайта для этого объекта пока не подключено
+ ❯ WebBookingService.assertServingProperty apps/api/src/web-booking/web-booking.service.ts:572:47
+    570|     // сравнивало с Luxx по имени, а не с объектом организации сайта, …
+    571|     const serving = await asSite(site, () => this.uow.read((repo) => r…
+    572|     if (site.propertyId !== serving.id) throw new NotFoundException(me…
+       |                                               ^
+    573|   }
+    574|
+ ❯ WebBookingService.bookingSite apps/api/src/web-booking/web-booking.service.ts:556:5
+ ❯ WebBookingService.quote apps/api/src/web-booking/web-booking.service.ts:165:18
+ ❯ tests/integration/web-booking-exact-property.test.ts:219:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-4: котировка агента B — объект B; по организации с двумя сайтами — отказ, а не самый ранний
+NotFoundException: котировка для объекта этого агента пока не подключена
+ ❯ WebBookingService.assertServingProperty apps/api/src/web-booking/web-booking.service.ts:572:47
+    570|     // сравнивало с Luxx по имени, а не с объектом организации сайта, …
+    571|     const serving = await asSite(site, () => this.uow.read((repo) => r…
+    572|     if (site.propertyId !== serving.id) throw new NotFoundException(me…
+       |                                               ^
+    573|   }
+    574|
+ ❯ WebBookingService.quoteForAgent apps/api/src/web-booking/web-booking.service.ts:214:5
+ ❯ tests/integration/web-booking-exact-property.test.ts:232:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/web-booking-exact-property.test.ts > публичная бронь: сайты всех организаций и точный объект сайта (integration) > BOOK-4: архивный филиал, архивный Business и чужая цепочка закрывают сайт
+AssertionError: promise resolved "{ site: 'Сайт N', …(10) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "adults": 1,
++   "arrivalDate": "2026-11-16",
++   "categories": [
++     {
++       "available": 1,
++       "capacity": 2,
++       "closed": false,
++       "code": "STD",
++       "fits": true,
++       "name": "Номер N",
++       "perNight": [
++         {
++           "date": "2026-11-16",
++           "priceMinor": "2000000",
++         },
++         {
++           "date": "2026-11-17",
++           "priceMinor": "2000000",
++         },
++       ],
++       "totalMinor": "4000000",
++     },
++   ],
++   "checkInTime": "14:00",
++   "checkOutTime": "12:00",
++   "currency": "KZT",
++   "departureDate": "2026-11-18",
++   "nights": 2,
++   "promo": null,
++   "ratePlan": "Базовый",
++   "site": "Сайт N",
+  }
+
+ ❯ tests/integration/web-booking-exact-property.test.ts:253:52
+    251|     await db.location.update({ where: { id: N.locationId }, data: { bu…
+    252|     try {
+    253|       await expect(svc.quote(quoteBody(N), ctx(N))).rejects.toMatchObj…
+       |                                                    ^
+    254|     } finally {
+    255|       await db.location.update({ where: { id: N.locationId }, data: { …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  12:31:04
+   Duration  5.14s (transform 57%, import 22%, tests 21%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-31-03Z-integration-690a.json
+
+# код выхода 1 · 6 с

@@ -1,0 +1,19 @@
+# Модульные (unit) · 04.10.2026 17:37 Алматы · MacBook-Air-Urij.local
+# коммит d91c207 (codex/mv2-registration-20261004), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-37-31Z-unit-7a8e.json' 'apps/api/src/auth/auth.service.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (56 tests) 6368ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 395ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 392ms
+
+ Test Files  1 passed (1)
+      Tests  56 passed (56)
+   Start at  16:37:33
+   Duration  7.41s (tests 87%, transform 7%, import 5%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T12-37-31Z-unit-7a8e.json
+
+# код выхода 0 · 9 с

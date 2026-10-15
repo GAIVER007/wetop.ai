@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 05.10.2026 10:26 Алматы · MacBook-Air-Urij.local
+# коммит 75c4529 (codex/bar-security-invariants-20261005), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T05-26-59Z-integration-bcd9.json' 'tests/integration/function-search-path.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 376ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 165ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  09:27:00
+   Duration  2.08s (tests 43%, transform 33%, import 24%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T05-26-59Z-integration-bcd9.json
+
+# код выхода 0 · 3 с

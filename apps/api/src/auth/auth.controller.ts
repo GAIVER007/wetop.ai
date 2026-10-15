@@ -11,8 +11,9 @@ import {
   Inject,
   Ip,
   Post,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { deviceFromUserAgent } from '@pms/domain';
+import { deviceFromUserAgent, isRestricted, roleAt } from '@pms/domain';
 import { ExtensionsService } from '../platform/extensions.service';
 import { RateWindows } from '../rate-window';
 import { visitorIp } from '../web-booking/client-ip';
@@ -121,13 +122,23 @@ export class AuthController {
     return this.auth.register({
       email: text(body?.email, 'email'),
       name: text(body?.name, 'name'),
-      hotelName: text(body?.hotelName, 'hotelName', 200),
+      ...(body?.hotelName !== undefined
+        ? { hotelName: text(body.hotelName, 'hotelName', 200) }
+        : {}),
+      ...(body?.businessName !== undefined
+        ? { businessName: text(body.businessName, 'businessName', 200) }
+        : {}),
+      ...(body && Object.prototype.hasOwnProperty.call(body, 'vertical')
+        ? { vertical: body.vertical }
+        : {}),
       password: text(body?.password, 'password', 200),
       // пустой или чужой телефон отклонит сервис словами для человека («Проверьте телефон…»)
       phoneCountry: typeof body?.phoneCountry === 'string' ? body.phoneCountry.slice(0, 2) : '',
       phone: typeof body?.phone === 'string' ? body.phone.slice(0, 40) : '',
       // только настоящее `true`: строка «true» или пропуск — не согласие
       privacyAccepted: body?.privacyAccepted === true,
+      // язык проверяет сервис по списку домена; пропуск означает русский (Q-REG-1)
+      ...(body && Object.prototype.hasOwnProperty.call(body, 'locale') ? { locale: body.locale } : {}),
     });
   }
 
@@ -173,12 +184,44 @@ export class AuthController {
     const signedIn = token ? await this.auth.whoami(token) : null;
     if (!signedIn) return { user: null };
     // что открыто организации: пункт меню «ИИ-продавец» и напоминание о сроке расширения (ADR-083, Q-183)
+    // человек с областью доступа (DATA_MODEL §31.1): роль по выбранному месту, а организационные разделы закрыты
+    const assignments = signedIn.user.scopes ?? [];
+    const restricted = isRestricted(signedIn.user.role, assignments);
+    const ctx = scopeView();
+    const place =
+      restricted && ctx.businessId
+        ? roleAt(signedIn.user.role, assignments, {
+            businessId: ctx.businessId,
+            locationId: ctx.locationId ?? undefined,
+          })
+        : null;
+    // указатель на место без назначения не подтверждаем: любой маршрут ответил бы ему 403, а стойка по пустому
+    // context.businessId видит устаревший выбор и ведёт на выбор филиала (CORE-SECURITY-FIX-01, восстановление указателя)
+    const unassigned = restricted && ctx.businessId !== null && place === null;
     return {
       ...signedIn,
+      user: restricted
+        ? { ...signedIn.user, role: place ?? signedIn.user.role, restricted: true }
+        : signedIn.user,
       access: { aiSeller: await this.extensions.aiSeller(signedIn.user.organizationId) },
       // фактический scope запроса (Platform P2, К1; план P2 §4б): по нему переключатель P3 покажет, что выбрано
-      context: scopeView(),
+      context: unassigned
+        ? { scope: 'ORGANIZATION' as const, businessId: null, locationId: null, vertical: null }
+        : ctx,
     };
+  }
+
+  @Access('self')
+  @Get('registration-context')
+  async registrationContext(@Headers() headers: Record<string, string>) {
+    const token = tokenFromHeaders(headers);
+    const signedIn = token ? await this.auth.whoami(token) : null;
+    if (!signedIn) throw new UnauthorizedException();
+    // человеку с областью доступа называем только назначенные бизнес и филиал, а не самые ранние в организации (A3/F6)
+    return this.auth.registrationContext(signedIn.user.organizationId, {
+      role: signedIn.user.role,
+      ...(signedIn.user.scopes ? { scopes: signedIn.user.scopes } : {}),
+    });
   }
 
   @Public()

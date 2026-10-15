@@ -2,7 +2,7 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
-import { chooseSource } from './booking-form';
+import { hospitalityStatus } from '../../apps/web/src/lib/status/hospitality';
 
 /**
  * Брони без ячейки в календаре — паритет со строкой «Без номера» в Legacy: проживание без назначения
@@ -39,7 +39,11 @@ test('бронь без ячейки видна в блоке «Без ячей�
   // ── бронь без ячейки из формы ─────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await chooseSource(form, 'WALK_IN');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
+  await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const optionText = await form
     .locator(`select[name="accommodationTypeCode"] option[value="${DORM}"]`)
@@ -106,9 +110,9 @@ test('бронь без ячейки видна в блоке «Без ячей�
   // ── прибрать за собой: отмена, и бронь уходит из блока ────────────────────────────────────
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText(hospitalityStatus.CANCELLED.label);
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
   // отменённой брони в ящике нет (строки может не быть вовсе, если других броней без места нет)
   const rest = page.getByRole('main').getByTestId('unassigned-stays');

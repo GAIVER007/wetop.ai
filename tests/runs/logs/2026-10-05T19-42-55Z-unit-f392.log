@@ -1,0 +1,18 @@
+# Модульные (unit) · 06.10.2026 00:42 Алматы · MacBook-Air-Urij.local
+# коммит 53d355d (codex/mv8-food-branch-contract-20261005), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T19-42-55Z-unit-f392.json' 'apps/api/src/hotel/branches.test.ts' 'apps/api/src/hotel/branch-context.test.ts' 'apps/web/src/app/branches/switch.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-unblock-20261005
+
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (9 tests) 26ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (11 tests) 15ms
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (4 tests) 7ms
+
+ Test Files  3 passed (3)
+      Tests  24 passed (24)
+   Start at  23:42:57
+   Duration  1.19s (transform 61%, import 36%, tests 3%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T19-42-55Z-unit-f392.json
+
+# код выхода 0 · 3 с

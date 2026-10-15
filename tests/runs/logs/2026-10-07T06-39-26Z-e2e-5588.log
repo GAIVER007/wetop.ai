@@ -1,0 +1,238 @@
+# Сквозные (e2e) · 07.10.2026 11:39 Алматы · vm
+# коммит ed03fba (claude/sharp-dirac-6s46fw)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 26 tests using 2 workers
+
+  ✓   1 tests/branches-ui/branches.spec.ts:36:3 › SCOPE-HARDENING: server-chosen branch scope › несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается (2.5s)
+  ✓   2 tests/branches-ui/today.spec.ts:131:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (2.9s)
+  ✓   3 tests/branches-ui/branches.spec.ts:52:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Food: указатель снят, при нескольких филиалах выбор, без 403 на экране (2.3s)
+  ✘   4 tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (2.7s)
+[WebServer] [Nest] 12614  - 10/07/2026, 6:39:42 AM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+[WebServer] Invalid `prisma.organization.findUniqueOrThrow()` invocation:
+[WebServer] 
+[WebServer] 
+[WebServer] An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async BranchesService.list (/home/user/wetop.ai/apps/api/src/hotel/branches.ts:97:26) {
+[WebServer]   code: 'P2025',
+[WebServer]   meta: {
+[WebServer]     modelName: 'Organization',
+[WebServer]     operation: 'a query'
+[WebServer]   },
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] ⨯ Error: API /branches: HTTP 500
+[WebServer]     at getJson (src/lib/api.ts:159:11)
+[WebServer]     at async GET (src/app/scope/resolve/route.ts:22:14)
+[WebServer]   157 |         /* тело не JSON */
+[WebServer]   158 |       }
+[WebServer] > 159 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   160 |   }
+[WebServer]   161 |   return (await res.json()) as T;
+[WebServer]   162 | } {
+[WebServer]   status: 500,
+[WebServer]   digest: 'API_500'
+[WebServer] }
+  ✓   6 tests/branches-ui/today.spec.ts:216:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (2.1s)
+  ✘   5 tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча (6.3s)
+  ✓   8 tests/branches-ui/branches.spec.ts:76:3 › SCOPE-HARDENING: server-chosen branch scope › выход и вход в другую организацию: чужой указатель сброшен, единственный филиал выбран сам (5.5s)
+  ✓   9 tests/branches-ui/branches.spec.ts:104:3 › SCOPE-HARDENING: server-chosen branch scope › переключения: Hospitality → Food → Beauty → Food → Hospitality A → B (9.0s)
+  ✘   7 tests/branches-ui/today.spec.ts:233:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (18.5s)
+[WebServer] [Nest] 12614  - 10/07/2026, 6:40:05 AM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+[WebServer] Invalid `prisma.organization.findUniqueOrThrow()` invocation:
+[WebServer] 
+[WebServer] 
+[WebServer] An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async BranchesService.list (/home/user/wetop.ai/apps/api/src/hotel/branches.ts:97:26) {
+[WebServer]   code: 'P2025',
+[WebServer]   meta: {
+[WebServer]     modelName: 'Organization',
+[WebServer]     operation: 'a query'
+[WebServer]   },
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] [Nest] 12614  - 10/07/2026, 6:40:05 AM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+[WebServer] Invalid `prisma.organization.findUniqueOrThrow()` invocation:
+[WebServer] 
+[WebServer] 
+[WebServer] An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async FixtureController.me (/home/user/wetop.ai/tests/branches-ui/fixture-api.ts:64:23) {
+[WebServer]   code: 'P2025',
+[WebServer]   meta: {
+[WebServer]     modelName: 'Organization',
+[WebServer]     operation: 'a query'
+[WebServer]   },
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  11 tests/branches-ui/today.spec.ts:272:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (3.9s)
+  ✓  12 tests/branches-ui/today.spec.ts:292:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: прежняя Главная, без запросов салона и ресторана (2.1s)
+  ✓  13 tests/branches-ui/today.spec.ts:304:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (4.0s)
+  ✘  10 tests/branches-ui/branches.spec.ts:136:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression (17.1s)
+  ✓  14 tests/branches-ui/today.spec.ts:322:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (8.6s)
+  ✓  15 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (4.2s)
+  ✓  16 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (3.9s)
+  ✓  17 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (3.6s)
+  ✓  18 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (3.6s)
+  ✓  19 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (4.6s)
+  ✓  20 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (4.3s)
+  ✓  21 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (4.1s)
+  ✓  22 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (4.6s)
+  ✓  23 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (5.0s)
+  ✓  24 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (4.8s)
+  ✓  25 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (4.2s)
+  ✓  26 tests/branches-ui/today.spec.ts:352:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (4.2s)
+
+
+  1) tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/branches$/
+    Received string:  "http://127.0.0.1:55863/scope/resolve?next=%2Fcalendar"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:55863/calendar"
+        - waiting for "http://127.0.0.1:55863/scope/resolve?next=%2Fcalendar" navigation to finish...
+        - navigated to "http://127.0.0.1:55863/scope/resolve?next=%2Fcalendar"
+        10 × locator resolved to <html>…</html>
+           - unexpected value "http://127.0.0.1:55863/scope/resolve?next=%2Fcalendar"
+
+
+      70 |     await request.post(`${api}/__test/archive`, { data: { location: f.locations[3] } });
+      71 |     await page.goto('/calendar');
+    > 72 |     await expect(page).toHaveURL(/\/branches$/);
+         |                        ^
+      73 |     expect(await scopeCookie(page)).toBe('');
+      74 |   });
+      75 |
+        at /home/user/wetop.ai/tests/branches-ui/branches.spec.ts:72:24
+
+    Error Context: test-results/branches-SCOPE-HARDENING-s-e8d13-раница-не-открывается-молча/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-SCOPE-HARDENING-s-e8d13-раница-не-открывается-молча/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-SCOPE-HARDENING-s-e8d13-раница-не-открывается-молча/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/branches.spec.ts:136:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'Выбор филиала' }).getByRole('button').filter({ hasText: 'Тестовый филиал Парк' })
+
+
+      31 |     .getByRole('button')
+      32 |     .filter({ hasText: name })
+    > 33 |     .click();
+         |      ^
+      34 | }
+      35 | test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
+      36 |   test('несколько филиалов: вход ведёт на выбор, первый филиал сам не выбирается', async ({
+        at choose (/home/user/wetop.ai/tests/branches-ui/branches.spec.ts:33:6)
+        at /home/user/wetop.ai/tests/branches-ui/branches.spec.ts:162:3
+
+    Error Context: test-results/branches-real-branches---s-b3967--and-Hospitality-regression/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-real-branches---s-b3967--and-Hospitality-regression/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-real-branches---s-b3967--and-Hospitality-regression/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      71 |       headers: { 'x-wetop-scope': scope },
+      72 |     });
+    > 73 |     expect(res.ok()).toBe(true);
+         |                      ^
+      74 |     const page = await res.json();
+      75 |     items.push(...page.items);
+      76 |     cursor = page.nextCursor;
+        at all (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:73:22)
+        at expectedFood (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:86:44)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:184:15
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/branches-ui/today.spec.ts:233:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'Выбор филиала' }).getByRole('button').filter({ hasText: 'Тестовый отель' })
+
+
+      55 |     .getByRole('button')
+      56 |     .filter({ hasText: name })
+    > 57 |     .click();
+         |      ^
+      58 | }
+      59 | const callsSince = async (request: APIRequestContext, from: number) =>
+      60 |   ((await (await request.get(`${api}/__test/calls`)).json()) as string[]).slice(from);
+        at choose (/home/user/wetop.ai/tests/branches-ui/today.spec.ts:57:6)
+        at /home/user/wetop.ai/tests/branches-ui/today.spec.ts:246:5
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/branches-ui/branches.spec.ts:64:3 › SCOPE-HARDENING: server-chosen branch scope › устаревший Beauty: тот же выбор, гостиничная страница не открывается молча 
+    tests/branches-ui/branches.spec.ts:136:1 › real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timezone; Beauty and Hospitality regression 
+    tests/branches-ui/today.spec.ts:175:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+    tests/branches-ui/today.spec.ts:233:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы 
+  22 passed (1.8m)
+
+# код выхода 1 · 1 мин 51 с

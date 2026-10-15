@@ -1,0 +1,107 @@
+# Сквозные (e2e) · 05.10.2026 15:17 Алматы · Noutbuk-Vyacheslav.local
+# коммит b408e25 (codex/calendar-mobile), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/chessboard-mobile.spec.ts' '--grep' 'длинное имя' '--workers=1'
+[WebServer] (node:5409) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5452) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5491) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:5506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-mobile.spec.ts:277:3 › телефон light: длинное имя и бронь на 28 ночей (17.6s)
+(node:5560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/chessboard-mobile.spec.ts:277:3 › телефон dark: длинное имя и бронь на 28 ночей (18.0s)
+
+
+  1) tests/ui/chessboard-mobile.spec.ts:277:3 › телефон light: длинное имя и бронь на 28 ночей ─────
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('stay-preview').getByRole('link', { name: 'Изменить даты', exact: true })
+    Expected: in viewport
+    Received: viewport ratio 0.9936079382896423
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('stay-preview').getByRole('link', { name: 'Изменить даты', exact: true }) with timeout 15000ms
+      - waiting for getByTestId('stay-preview').getByRole('link', { name: 'Изменить даты', exact: true })
+        33 × locator resolved to <a class="btn btn--secondary" href="/reservations/20260913-NEW1#booking-actions">Изменить даты</a>
+           - unexpected value "viewport ratio 0.9936079382896423"
+
+
+      303 |     const actions = preview.getByRole('link', { name: 'Изменить даты', exact: true });
+      304 |     await actions.scrollIntoViewIfNeeded();
+    > 305 |     await expect(actions).toBeInViewport({ ratio: 1 });
+          |                           ^
+      306 |     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-long-name.png` });
+      307 |   });
+      308 | }
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:305:27
+
+    Error Context: test-results/chessboard-mobile-телефон--b3399-ное-имя-и-бронь-на-28-ночей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--b3399-ное-имя-и-бронь-на-28-ночей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--b3399-ное-имя-и-бронь-на-28-ночей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-mobile.spec.ts:277:3 › телефон dark: длинное имя и бронь на 28 ночей ──────
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('stay-preview').getByRole('link', { name: 'Изменить даты', exact: true })
+    Expected: in viewport
+    Received: viewport ratio 0.9936079382896423
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('stay-preview').getByRole('link', { name: 'Изменить даты', exact: true }) with timeout 15000ms
+      - waiting for getByTestId('stay-preview').getByRole('link', { name: 'Изменить даты', exact: true })
+        33 × locator resolved to <a class="btn btn--secondary" href="/reservations/20260913-NEW1#booking-actions">Изменить даты</a>
+           - unexpected value "viewport ratio 0.9936079382896423"
+
+
+      303 |     const actions = preview.getByRole('link', { name: 'Изменить даты', exact: true });
+      304 |     await actions.scrollIntoViewIfNeeded();
+    > 305 |     await expect(actions).toBeInViewport({ ratio: 1 });
+          |                           ^
+      306 |     await page.screenshot({ path: `reports/calendar-mobile-2026-10-05/${theme}-long-name.png` });
+      307 |   });
+      308 | }
+        at /Users/vyacheslav/.codex/worktrees/calendar-mobile/WETOP/tests/ui/chessboard-mobile.spec.ts:305:27
+
+    Error Context: test-results/chessboard-mobile-телефон--fa785-ное-имя-и-бронь-на-28-ночей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-mobile-телефон--fa785-ное-имя-и-бронь-на-28-ночей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-mobile-телефон--fa785-ное-имя-и-бронь-на-28-ночей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-mobile.spec.ts:277:3 › телефон light: длинное имя и бронь на 28 ночей ──────
+    tests/ui/chessboard-mobile.spec.ts:277:3 › телефон dark: длинное имя и бронь на 28 ночей ───────
+
+# код выхода 1 · 43 с

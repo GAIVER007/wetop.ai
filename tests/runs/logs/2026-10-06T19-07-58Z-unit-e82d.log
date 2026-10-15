@@ -1,0 +1,53 @@
+# Модульные (unit) · 07.10.2026 00:07 Алматы · vm
+# коммит 6a6a46b (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 37
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T19-07-58Z-unit-e82d.json' 'apps/sites' 'packages/domain/src/marketing' 'apps/api/src/sites-runtime' 'apps/api/src/auth'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/sites/src/worker.test.ts (13 tests) 85ms
+ ✓ |unit| apps/sites/src/contract.test.ts (14 tests) 78ms
+ ✓ |unit| apps/sites/src/render/sections.test.ts (30 tests) 25ms
+ ✓ |unit| apps/sites/src/render/variants.test.ts (22 tests) 28ms
+ ✓ |unit| apps/sites/src/seo.test.ts (13 tests) 18ms
+ ✓ |unit| apps/sites/src/headers.test.ts (12 tests) 7ms
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (17 tests) 354ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 121ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (9 tests) 3732ms
+   ✓ вход: предел попыток с одного адреса (2)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 1946ms
+     ✓ адреса IPv6 одной сети /64 делят один предел 1755ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 1417ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (3 tests) 237ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (37 tests) 108ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (14 tests) 1326ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (37 tests) 34ms
+ ✓ |unit| apps/api/src/auth/auth.controller.test.ts (7 tests) 28ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (17 tests) 22ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (59 tests) 7189ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 414ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 393ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 327ms
+ ✓ |unit| apps/sites/src/render/theme.test.ts (29 tests) 25ms
+ ✓ |unit| apps/api/src/auth/scope.test.ts (10 tests) 10ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (11 tests) 15ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 9ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 14ms
+ ✓ |unit| apps/api/src/auth/capability-boundary.test.ts (5 tests) 11ms
+ ✓ |unit| apps/api/src/auth/registration-contract.test.ts (4 tests) 9ms
+ ✓ |unit| apps/api/src/auth/role.guard.test.ts (9 tests) 20ms
+ ✓ |unit| apps/api/src/auth/business-vertical.test.ts (8 tests) 24ms
+ ✓ |unit| apps/api/src/auth/registration-context.test.ts (2 tests) 5ms
+
+ Test Files  27 passed (27)
+      Tests  425 passed (425)
+   Start at  19:07:59
+   Duration  12.49s (tests 46%, import 30%, transform 23%)
+
+JSON report written to /tmp/pms-test-2026-10-06T19-07-58Z-unit-e82d.json
+
+# код выхода 0 · 14 с

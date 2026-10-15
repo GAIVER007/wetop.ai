@@ -1,0 +1,434 @@
+# Модульные (unit) · 07.10.2026 13:10 Алматы · vm
+# коммит 012c06d (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-10-41Z-unit-d84a.json' 'tests/unit/design-guards.test.ts' 'tests/unit/design-scale.test.ts' 'tests/unit/ci-runner.test.ts' 'scripts/design/dead-css.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/design-scale.test.ts (6 tests | 6 failed) 93ms
+   ❯ утверждённая шкала (DESIGN.md §3, §5, §6) (4)
+     × отступы: 4, 8, 16, 24, 32, 40, 48, 64 37ms
+     × шрифт: 13, 14, 15, 17, 19, 22, 26, 30 13ms
+     × радиусы: 4, 8, 10, 16, 20 и круг 12ms
+     × шкала записана в DESIGN.md закрытым списком 9ms
+   ❯ точки перелома (DESIGN.md §4.1) (1)
+     × в документе те же шесть литералов, что разрешает сторож, и границы 600 / 960 / 1280 6ms
+   ❯ слои каскада (DESIGN.md §20.6) (1)
+     × договор о слоях в документе совпадает со сторожем 10ms
+ ❯ |unit| tests/unit/design-guards.test.ts (15 tests | 15 failed) 133ms
+   ❯ font-literal: размер шрифта только через --text-* (2)
+     × ловит px, rem, em и число в CSS и TSX 26ms
+     × пропускает токен и inherit 10ms
+   ❯ space-literal-not-var: отступ только через --space-* (2)
+     × ловит литерал даже на шкале 7ms
+     × пропускает 0, auto и токены 7ms
+   ❯ inline-style: style={…} в TSX (2)
+     × ловит каждый style= 10ms
+     × не смотрит в CSS 5ms
+   ❯ breakpoint-literal: только шесть утверждённых литералов (4)
+     × список утверждён владельцем 07.10 6ms
+     × пропускает утверждённые пары, в том числе без пробела, и печать 6ms
+     × ловит новый долг: 599, 768, 1024, 1200, rem, var() и диапазоны 9ms
+     × смотрит и matchMedia в TSX 10ms
+   ❯ layer-name: только слои договора (2)
+     × договор DESIGN.md §20.6 4ms
+     × пропускает слои договора и ловит чужие 5ms
+   ❯ orphan-module: .tsx, который никто не импортирует (1)
+     × находит только настоящую сироту 15ms
+   ❯ slop-allow: исключение только для названного правила и с причиной (2)
+     × убирает строку для своего правила, если есть причина 1ms
+     × без причины или без имени правила не исключает 0ms
+ ❯ |unit| tests/unit/ci-runner.test.ts (21 tests | 1 failed) 312ms
+   ❯ свой раннер CI (12)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 17ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 3ms
+     ✓ ни одна проверка не идёт на боевой сервер и ни одна не запускается на каждый пуш (ADR-139) 1ms
+     ✓ перед выкладкой: lint, typecheck, unit, главная, бот, база и весь UI; по кнопке или пушем в release-candidate 3ms
+     ✓ база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся 1ms
+     × наборы салона, ресторана и филиалов входят в гейт выкладки параллельно, на своей базе (MV8.5 DS0a) 8ms
+     ✓ тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота 1ms
+     ✓ образ раннера без sudo: под no-new-privileges он не работает 1ms
+     ✓ образ раннера ставит всё, что Playwright просит для Chromium на Ubuntu 24.04 55ms
+     ✓ проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория 1ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 0ms
+     ✓ эталоны -linux снимает раннер GitHub по кнопке и кладёт отдельной веткой, не в main и не в release 1ms
+   ✓ свой раннер не выполняет код из чужого форка (ADR-137) (5)
+     ✓ образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh 3ms
+     ✓ запрос на слияние из форка: отказ, задача краснеет, а не пропускается 26ms
+     ✓ форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ 27ms
+     ✓ ветка самого репозитория и пуш в main выполняются 41ms
+     ✓ нет файла события или он битый: отказ, а не молчаливый пропуск проверки 24ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся 15ms
+     ✓ токен с пробелом или в кавычках и адрес не GitHub: тоже отказ 44ms
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 25ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 11ms
+ ❯ |unit| scripts/design/dead-css.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/dead-css.test.ts [ scripts/design/dead-css.test.ts ]
+Error: Cannot find module './dead-css' imported from /home/user/wetop.ai/scripts/design/dead-css.test.ts
+ ❯ scripts/design/dead-css.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { classNames, deadClasses } from './dead-css';
+       | ^
+      3|
+      4| /** Опись мёртвого CSS (MV8.5 DS0a): только разбор и сверка, ничего не…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/23]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > наборы салона, ресторана и филиалов входят в гейт выкладки параллельно, на своей базе (MV8.5 DS0a)
+AssertionError: задача ui-vertical не найдена: expected -1 to be greater than -1
+ ❯ job tests/unit/ci-runner.test.ts:46:46
+     44| function job(name: string, text = RELEASE): string {
+     45|   const start = text.indexOf(`\n  ${name}:\n`);
+     46|   expect(start, `задача ${name} не найдена`).toBeGreaterThan(-1);
+       |                                              ^
+     47|   const rest = text.slice(start + 1);
+     48|   const next = rest.search(/\n {2}[a-z][a-z-]*:\n/);
+ ❯ tests/unit/ci-runner.test.ts:103:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > font-literal: размер шрифта только через --text-* > ловит px, rem, em и число в CSS и TSX
+AssertionError: правило font-literal: expected undefined to be defined
+ ❯ rule tests/unit/design-guards.test.ts:17:30
+     15| const rule = (id: string) => {
+     16|   const r = RULES.find((x) => x.id === id);
+     17|   expect(r, `правило ${id}`).toBeDefined();
+       |                              ^
+     18|   return r!;
+     19| };
+ ❯ hits tests/unit/design-guards.test.ts:20:83
+ ❯ tests/unit/design-guards.test.ts:24:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > font-literal: размер шрифта только через --text-* > пропускает токен и inherit
+AssertionError: правило font-literal: expected undefined to be defined
+ ❯ rule tests/unit/design-guards.test.ts:17:30
+     15| const rule = (id: string) => {
+     16|   const r = RULES.find((x) => x.id === id);
+     17|   expect(r, `правило ${id}`).toBeDefined();
+       |                              ^
+     18|   return r!;
+     19| };
+ ❯ hits tests/unit/design-guards.test.ts:20:83
+ ❯ tests/unit/design-guards.test.ts:31:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > space-literal-not-var: отступ только через --space-* > ловит литерал даже на шкале
+AssertionError: правило space-literal-not-var: expected undefined to be defined
+ ❯ rule tests/unit/design-guards.test.ts:17:30
+     15| const rule = (id: string) => {
+     16|   const r = RULES.find((x) => x.id === id);
+     17|   expect(r, `правило ${id}`).toBeDefined();
+       |                              ^
+     18|   return r!;
+     19| };
+ ❯ hits tests/unit/design-guards.test.ts:20:83
+ ❯ tests/unit/design-guards.test.ts:38:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > space-literal-not-var: отступ только через --space-* > пропускает 0, auto и токены
+AssertionError: правило space-literal-not-var: expected undefined to be defined
+ ❯ rule tests/unit/design-guards.test.ts:17:30
+     15| const rule = (id: string) => {
+     16|   const r = RULES.find((x) => x.id === id);
+     17|   expect(r, `правило ${id}`).toBeDefined();
+       |                              ^
+     18|   return r!;
+     19| };
+ ❯ hits tests/unit/design-guards.test.ts:20:83
+ ❯ tests/unit/design-guards.test.ts:42:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > inline-style: style={…} в TSX > ловит каждый style=
+AssertionError: правило inline-style: expected undefined to be defined
+ ❯ rule tests/unit/design-guards.test.ts:17:30
+     15| const rule = (id: string) => {
+     16|   const r = RULES.find((x) => x.id === id);
+     17|   expect(r, `правило ${id}`).toBeDefined();
+       |                              ^
+     18|   return r!;
+     19| };
+ ❯ hits tests/unit/design-guards.test.ts:20:83
+ ❯ tests/unit/design-guards.test.ts:48:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > inline-style: style={…} в TSX > не смотрит в CSS
+AssertionError: правило inline-style: expected undefined to be defined
+ ❯ rule tests/unit/design-guards.test.ts:17:30
+     15| const rule = (id: string) => {
+     16|   const r = RULES.find((x) => x.id === id);
+     17|   expect(r, `правило ${id}`).toBeDefined();
+       |                              ^
+     18|   return r!;
+     19| };
+ ❯ tests/unit/design-guards.test.ts:51:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > breakpoint-literal: только шесть утверждённых литералов > список утверждён владельцем 07.10
+TypeError: ALLOWED_BREAKPOINTS is not iterable
+ ❯ tests/unit/design-guards.test.ts:57:16
+     55| describe('breakpoint-literal: только шесть утверждённых литералов', ()…
+     56|   it('список утверждён владельцем 07.10', () => {
+     57|     expect([...ALLOWED_BREAKPOINTS]).toEqual([
+       |                ^
+     58|       'max-width: 600px',
+     59|       'min-width: 601px',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > breakpoint-literal: только шесть утверждённых литералов > пропускает утверждённые пары, в том числе без пробела, и печать
+TypeError: Cannot read properties of undefined (reading 'map')
+ ❯ tests/unit/design-guards.test.ts:67:36
+     65|   });
+     66|   it('пропускает утверждённые пары, в том числе без пробела, и печать'…
+     67|     const ok = ALLOWED_BREAKPOINTS.map((b) => `@media (${b}) { .a { co…
+       |                                    ^
+     68|     expect(hits('breakpoint-literal', ok)).toBe(0);
+     69|     expect(hits('breakpoint-literal', '@media (max-width:600px) { .a {…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > breakpoint-literal: только шесть утверждённых литералов > ловит новый долг: 599, 768, 1024, 1200, rem, var() и диапазоны
+AssertionError: правило breakpoint-literal: expected undefined to be defined
+ ❯ rule tests/unit/design-guards.test.ts:17:30
+     15| const rule = (id: string) => {
+     16|   const r = RULES.find((x) => x.id === id);
+     17|   expect(r, `правило ${id}`).toBeDefined();
+       |                              ^
+     18|   return r!;
+     19| };
+ ❯ hits tests/unit/design-guards.test.ts:20:83
+ ❯ tests/unit/design-guards.test.ts:75:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > breakpoint-literal: только шесть утверждённых литералов > смотрит и matchMedia в TSX
+AssertionError: правило breakpoint-literal: expected undefined to be defined
+ ❯ rule tests/unit/design-guards.test.ts:17:30
+     15| const rule = (id: string) => {
+     16|   const r = RULES.find((x) => x.id === id);
+     17|   expect(r, `правило ${id}`).toBeDefined();
+       |                              ^
+     18|   return r!;
+     19| };
+ ❯ hits tests/unit/design-guards.test.ts:20:83
+ ❯ tests/unit/design-guards.test.ts:83:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > layer-name: только слои договора > договор DESIGN.md §20.6
+TypeError: LAYER_CONTRACT is not iterable
+ ❯ tests/unit/design-guards.test.ts:90:16
+     88| describe('layer-name: только слои договора', () => {
+     89|   it('договор DESIGN.md §20.6', () => {
+     90|     expect([...LAYER_CONTRACT]).toEqual(['reset', 'tokens', 'base', 'c…
+       |                ^
+     91|   });
+     92|   it('пропускает слои договора и ловит чужие', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > layer-name: только слои договора > пропускает слои договора и ловит чужие
+AssertionError: правило layer-name: expected undefined to be defined
+ ❯ rule tests/unit/design-guards.test.ts:17:30
+     15| const rule = (id: string) => {
+     16|   const r = RULES.find((x) => x.id === id);
+     17|   expect(r, `правило ${id}`).toBeDefined();
+       |                              ^
+     18|   return r!;
+     19| };
+ ❯ hits tests/unit/design-guards.test.ts:20:83
+ ❯ tests/unit/design-guards.test.ts:93:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > orphan-module: .tsx, который никто не импортирует > находит только настоящую сироту
+TypeError: findOrphans is not a function
+ ❯ tests/unit/design-guards.test.ts:112:12
+    110|   };
+    111|   it('находит только настоящую сироту', () => {
+    112|     expect(findOrphans(files)).toEqual(['app/today/dead.tsx', 'compone…
+       |            ^
+    113|   });
+    114| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > slop-allow: исключение только для названного правила и с причиной > убирает строку для своего правила, если есть причина
+TypeError: withoutAllowed is not a function
+ ❯ tests/unit/design-guards.test.ts:119:12
+    117|   it('убирает строку для своего правила, если есть причина', () => {
+    118|     const line = "<i style={{ left }} /* slop-allow: inline-style пози…
+    119|     expect(withoutAllowed(line, 'inline-style')).toBe('');
+       |            ^
+    120|     expect(withoutAllowed(line, 'font-literal')).toBe(line);
+    121|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/23]⎯
+
+ FAIL  |unit| tests/unit/design-guards.test.ts > slop-allow: исключение только для названного правила и с причиной > без причины или без имени правила не исключает
+TypeError: withoutAllowed is not a function
+ ❯ tests/unit/design-guards.test.ts:124:14
+    122|   it('без причины или без имени правила не исключает', () => {
+    123|     for (const line of ['<i style={{ left }} /* slop-allow */ />', '<i…
+    124|       expect(withoutAllowed(line, 'inline-style')).toBe(line);
+       |              ^
+    125|   });
+    126| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/23]⎯
+
+ FAIL  |unit| tests/unit/design-scale.test.ts > утверждённая шкала (DESIGN.md §3, §5, §6) > отступы: 4, 8, 16, 24, 32, 40, 48, 64
+AssertionError: expected [] to deeply equal [ '4px', '8px', '16px', '24px', …(4) ]
+
+- Expected
++ Received
+
+- [
+-   "4px",
+-   "8px",
+-   "16px",
+-   "24px",
+-   "32px",
+-   "40px",
+-   "48px",
+-   "64px",
+- ]
++ []
+
+ ❯ tests/unit/design-scale.test.ts:37:84
+     35|   it('отступы: 4, 8, 16, 24, 32, 40, 48, 64', () => {
+     36|     const names = Object.keys(t).filter((n) => /^space-\d+$/.test(n));
+     37|     expect(names.map((n) => t[n]).sort((a, b) => parseFloat(a!) - pars…
+       |                                                                                    ^
+     38|       ['4px', '8px', '16px', '24px', '32px', '40px', '48px', '64px'],
+     39|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/23]⎯
+
+ FAIL  |unit| tests/unit/design-scale.test.ts > утверждённая шкала (DESIGN.md §3, §5, §6) > шрифт: 13, 14, 15, 17, 19, 22, 26, 30
+AssertionError: expected [ undefined, undefined, …(6) ] to deeply equal [ Array(8) ]
+
+- Expected
++ Received
+
+  [
+-   "13px",
+-   "14px",
+-   "15px",
+-   "17px",
+-   "19px",
+-   "22px",
+-   "26px",
+-   "30px",
++   undefined,
++   undefined,
++   undefined,
++   undefined,
++   undefined,
++   undefined,
++   undefined,
++   undefined,
+  ]
+
+ ❯ tests/unit/design-scale.test.ts:43:111
+     41|
+     42|   it('шрифт: 13, 14, 15, 17, 19, 22, 26, 30', () => {
+     43|     expect(pick(['text-xs', 'text-sm', 'text-md', 'text-lg', 'text-xl'…
+       |                                                                                                               ^
+     44|       ['13px', '14px', '15px', '17px', '19px', '22px', '26px', '30px'],
+     45|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/23]⎯
+
+ FAIL  |unit| tests/unit/design-scale.test.ts > утверждённая шкала (DESIGN.md §3, §5, §6) > радиусы: 4, 8, 10, 16, 20 и круг
+AssertionError: expected [ undefined, undefined, …(4) ] to deeply equal [ '4px', '8px', '10px', '16px', …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "4px",
+-   "8px",
+-   "10px",
+-   "16px",
+-   "20px",
+-   "999px",
++   undefined,
++   undefined,
++   undefined,
++   undefined,
++   undefined,
++   undefined,
+  ]
+
+ ❯ tests/unit/design-scale.test.ts:51:102
+     49|
+     50|   it('радиусы: 4, 8, 10, 16, 20 и круг', () => {
+     51|     expect(pick(['radius-xs', 'radius-sm', 'radius-control', 'radius',…
+       |                                                                                                      ^
+     52|       ['4px', '8px', '10px', '16px', '20px', '999px'],
+     53|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/23]⎯
+
+ FAIL  |unit| tests/unit/design-scale.test.ts > утверждённая шкала (DESIGN.md §3, §5, §6) > шкала записана в DESIGN.md закрытым списком
+AssertionError: раздел /\n### 4\.1\. Утверждённая шкала/: expected -1 to be greater than -1
+ ❯ section tests/unit/design-scale.test.ts:25:36
+     23| function section(title: RegExp): string {
+     24|   const start = DESIGN.search(title);
+     25|   expect(start, `раздел ${title}`).toBeGreaterThan(-1);
+       |                                    ^
+     26|   const rest = DESIGN.slice(start);
+     27|   const next = rest.slice(1).search(/\n## /);
+ ❯ tests/unit/design-scale.test.ts:57:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/23]⎯
+
+ FAIL  |unit| tests/unit/design-scale.test.ts > точки перелома (DESIGN.md §4.1) > в документе те же шесть литералов, что разрешает сторож, и границы 600 / 960 / 1280
+AssertionError: раздел /\n### 4\.1\. Утверждённая шкала/: expected -1 to be greater than -1
+ ❯ section tests/unit/design-scale.test.ts:25:36
+     23| function section(title: RegExp): string {
+     24|   const start = DESIGN.search(title);
+     25|   expect(start, `раздел ${title}`).toBeGreaterThan(-1);
+       |                                    ^
+     26|   const rest = DESIGN.slice(start);
+     27|   const next = rest.slice(1).search(/\n## /);
+ ❯ tests/unit/design-scale.test.ts:69:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/23]⎯
+
+ FAIL  |unit| tests/unit/design-scale.test.ts > слои каскада (DESIGN.md §20.6) > договор о слоях в документе совпадает со сторожем
+AssertionError: раздел /\n## 20\.6\. Слои каскада/: expected -1 to be greater than -1
+ ❯ section tests/unit/design-scale.test.ts:25:36
+     23| function section(title: RegExp): string {
+     24|   const start = DESIGN.search(title);
+     25|   expect(start, `раздел ${title}`).toBeGreaterThan(-1);
+       |                                    ^
+     26|   const rest = DESIGN.slice(start);
+     27|   const next = rest.slice(1).search(/\n## /);
+ ❯ tests/unit/design-scale.test.ts:78:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/23]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  22 failed | 20 passed (42)
+   Start at  08:10:44
+   Duration  2.13s (transform 46%, tests 34%, import 18%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-10-41Z-unit-d84a.json
+
+# код выхода 1 · 5 с

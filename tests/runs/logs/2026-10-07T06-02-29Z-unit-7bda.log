@@ -1,0 +1,61 @@
+# Модульные (unit) · 07.10.2026 11:02 Алматы · vm
+# коммит c53ee7c (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T06-02-29Z-unit-7bda.json' 'apps/sites/src/render/from-price.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/sites/src/render/from-price.test.ts (22 tests | 1 failed) 110ms
+   ✓ подпись цены: ru, kk, en (11)
+     ✓ ru 44ms
+     ✓ kk 1ms
+     ✓ en 1ms
+     ✓ тиыны показываются, если они есть 1ms
+     ✓ не число abc: цены нет 0ms
+     ✓ не число : цены нет 0ms
+     ✓ не число null: цены нет 0ms
+     ✓ не число -100: цены нет 0ms
+     ✓ не число 1e9: цены нет 1ms
+     ✓ не число 2500000: цены нет 0ms
+     ✓ неверная валюта: цены нет 0ms
+   ✓ карточки номеров (3)
+     ✓ showFromPrice=true: скрытое место под цену, без числа в HTML 6ms
+     ✓ showFromPrice=false: места под цену нет 2ms
+     ✓ цены не могут работать (бронь сайта выключена): места под цену нет 1ms
+   ❯ секция pricing (5)
+     ✓ строки по категориям секции, скрыты до ответа цен; секция скрыта; названия из карточек номеров 2ms
+     ✓ неактивная категория (B-CATEGORY) строки не получает; все неактивны: секции нет 2ms
+     × название строки берётся из карточки размещения на другой странице; код категории как название не выводится 29ms
+     ✓ цены не могут работать: секции нет вовсе 1ms
+     ✓ пункт меню на секцию цен не выводится: до ответа цен она скрыта 4ms
+   ✓ скрипт цен на странице (3)
+     ✓ внешний файл WETOP с ключом, адресом API, языком и подписью; без встроенного скрипта 2ms
+     ✓ на странице без мест под цену скрипта нет 1ms
+     ✓ скрипт ходит только в /w/from-prices, цену не кэширует и подставляет её через ту же функцию формата 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/sites/src/render/from-price.test.ts > секция pricing > название строки берётся из карточки размещения на другой странице; код категории как название не выводится
+AssertionError: expected 'id="sec-pricing" aria-labelledby="sec…' to contain 'data-from-price="pricing-only"'
+
+Expected: "data-from-price="pricing-only""
+Received: "id="sec-pricing" aria-labelledby="sec-pricing-title" class="pricing" data-price-section hidden><div class="wrap"><h2 id="sec-pricing-title">Цены</h2><ul class="list"><li class="row" data-price-row hidden><div><h3>Стандарт для двоих</h3><p class="from-price" data-from-price="standard-double" hidden></p></div><div><a class="btn" href="#sec-booking">Забронировать</a></div></li><li class="row" data-price-row hidden><div><h3>Место в общем номере</h3><p class="from-price" data-from-price="dorm-bed" hidden></p></div><div><a class="btn" href="#sec-booking">Забронировать</a></div></li></ul><p class="muted">Точная цена зависит от дат. Выберите даты в форме бронирования.</p></div></section><section id="sec-booking" aria-labelledby="sec-booking-title"><div class="wrap"><h2 id="sec-booking-title">Забронировать</h2><p class="muted">Заезд с 14:00, выезд до 12:00</p><p class="booking-note">Бронь подтверждается сразу. Оплата при заезде.</p><div id="pms-booking"></div></div></section><section id="sec-faq" aria-labelledby="sec-faq-title" class="faq"><div class="wrap"><h2 id="sec-faq-title">Частые вопросы</h2><details><summary>Можно ли заехать ночью?</summary><p>Да, администратор на месте круглые сутки.</p></details><details><summary>Есть ли парковка?</summary><p>Да, бесплатная, во дворе гостиницы.</p></details></div></section><section id="sec-contacts" aria-labelledby="sec-contacts-title"><div class="wrap"><h2 id="sec-contacts-title">Как нас найти</h2><ul class="contact-list"><li>Телефон: <a href="tel:<телефон>"><телефон></a></li><li>WhatsApp: <a href="https://wa.me/<телефон>" rel="noopener noreferrer"><телефон></a></li><li>Почта: <a href="mailto:<email>"><email></a></li><li>Адрес: Астана, ул. Вымышленная, 10</li><li><a href="https://www.openstreetmap.org/?mlat=51.1694&amp;mlon=71.4491#map=17/51.1694/71.4491" rel="noopener noreferrer">Открыть на карте</a></li></ul><p>От вокзала прямо по улице, второй дом после аптеки.</p></div></section><section id="sec-cta" aria-labelledby="sec-cta-title" class="cta-band"><div class="wrap"><h2 id="sec-cta-title">Приезжайте отдохнуть</h2><p>Бронь напрямую дешевле, чем на сайтах-агрегаторах.</p><div class="actions"><a class="btn" href="#sec-booking">Выбрать даты</a></div></div></section>"
+
+ ❯ apps/sites/src/render/from-price.test.ts:94:21
+     92|     const html = renderSections(ctx({ spec, page: home(spec), facts: f…
+     93|     const pricing = html.slice(html.indexOf('id="sec-pricing"'));
+     94|     expect(pricing).toContain('data-from-price="pricing-only"');
+       |                     ^
+     95|     expect(pricing).toContain('<h3>Семейный номер</h3>');
+     96|     expect(pricing).not.toContain('<h3>pricing-only</h3>');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 21 passed (22)
+   Start at  06:02:30
+   Duration  876ms (transform 74%, tests 16%, import 8%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T06-02-29Z-unit-7bda.json
+
+# код выхода 1 · 2 с

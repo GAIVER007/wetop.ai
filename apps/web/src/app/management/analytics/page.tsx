@@ -1,44 +1,46 @@
-import Link from 'next/link';
-import { Suspense } from 'react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { requireVertical } from '../../../lib/vertical-guard';
+import { SCOPE_COOKIE, scopeHeader } from '../../../lib/scope-pointer';
+import { authRequired } from '../../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
-import { hotelToday } from '../../../lib/hotel-api';
-import { Page } from '../../../components/page';
-import { Alert } from '../../../components/ui';
-import { AnalyticsTabs } from './tabs';
-import { AnalyticsToolbar } from './toolbar';
-import { Overview, OverviewSkeleton } from './overview';
-import { parseAnalyticsQuery } from './params';
-import './analytics.css';
-
-/**
- * «Аналитика → Обзор» (ТЗ владельца «Аналитика v2» от 27.09.2026, срез AN1, ADR-114): как работал объект
- * за период — загрузка, выручка, брони, отмены, категории, источники — и стало ли лучше. Полоса периода
- * открывается сразу, числа приходят своим куском (`Suspense`), как было на Главной (ADR-047, ADR-105).
- */
+import {
+  TODAY_VERTICALS,
+  anonymousHospitalityAllowed,
+  todayScreen,
+  unresolvedTarget,
+} from '../../today/dispatch';
+import { HospitalityAnalytics } from './hospitality-page';
+import { ReportScopeFrame } from './vertical/scope-frame';
+import { VerticalAnalytics } from './vertical/screen';
 export default async function AnalyticsPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const me = await requireVertical(TODAY_VERTICALS);
+  const { screen, key } = todayScreen(me, {
+    allowAnonymousHospitality: anonymousHospitalityAllowed({
+      authRequired: authRequired(),
+      nodeEnv: process.env.NODE_ENV,
+    }),
+  });
+  if (screen === 'UNRESOLVED')
+    redirect(
+      unresolvedTarget(
+        Boolean(scopeHeader((await cookies()).get(SCOPE_COOKIE)?.value)['x-wetop-scope']),
+      ),
+    );
   const sp = normalizeSearchParams(await searchParams);
-  const today = await hotelToday();
-  const query = parseAnalyticsQuery(sp, today);
+  if (screen === 'HOSPITALITY' && sp.scope !== 'organization')
+    return (
+      <ReportScopeFrame key={key}>
+        <HospitalityAnalytics searchParams={searchParams} />
+      </ReportScopeFrame>
+    );
   return (
-    <Page
-      actions={<Link className="btn btn-secondary" href="/branches">Все филиалы</Link>}
-      className="analytics-page"
-      title="Аналитика"
-      subtitle="Как работал объект за период и что изменилось."
-    >
-      <AnalyticsTabs current="overview" fund={query.fund} />
-      <AnalyticsToolbar query={query} today={today} />
-      {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
-      <Suspense
-        key={`${query.period.from}|${query.period.to}|${query.fund}|${query.compare}`}
-        fallback={<OverviewSkeleton />}
-      >
-        <Overview query={query} today={today} />
-      </Suspense>
-    </Page>
+    <ReportScopeFrame key={key}>
+      <VerticalAnalytics sp={sp} />
+    </ReportScopeFrame>
   );
 }

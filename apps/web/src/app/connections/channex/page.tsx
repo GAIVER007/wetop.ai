@@ -1,19 +1,17 @@
-import Link from 'next/link';
-import { Page } from '../../../components/page';
+import { requireVertical } from '../../../lib/vertical-guard';
+import { Page, BackCrumb } from '../../../components/page';
 import { ChannelConnectionSetup } from '../../channels/connection-setup';
-export default function ChannexSettingsPage() {
+import { ChannelTabs } from '../../channels/tabs';
+export default async function ChannexSettingsPage() {
+  // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
+  await requireVertical(['HOSPITALITY']);
   return (
     <Page
       title="Подключение каналов"
       subtitle="Соединение, webhook и настройка обмена."
-      crumbs={<Link href="/connections">Подключения</Link>}
+      crumbs={<BackCrumb href="/connections">Подключения</BackCrumb>}
     >
-      <nav className="settings-tabs" aria-label="Настройка каналов">
-        <Link href="/channels">Статистика продаж</Link>
-        <Link href="/channels/mapping">Сопоставление категорий и тарифов</Link>
-        <Link href="/channels/sync">Очередь обмена</Link>
-        <Link href="/channels/events">События</Link>
-      </nav>
+      <ChannelTabs current="connections" />
       <ChannelConnectionSetup />
     </Page>
   );

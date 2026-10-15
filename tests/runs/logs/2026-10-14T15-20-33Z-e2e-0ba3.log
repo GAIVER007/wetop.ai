@@ -1,0 +1,67 @@
+# Сквозные (e2e) · 14.10.2026 20:20 Алматы · MacBook-Air-Urij.local
+# коммит ecd2127 (claude/food-fix-02-20261014), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 1 worker
+
+  ✓   1 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (5.6s)
+  ✓   2 tests/food-ui/restaurant.spec.ts:152:1 › фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление (4.5s)
+[WebServer] (node:58338) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘   3 tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (7.7s)
+  ✓   4 tests/food-ui/restaurant.spec.ts:267:1 › кухня: колонки KDS и переходы кнопками (3.1s)
+  ✓   5 tests/food-ui/restaurant.spec.ts:291:1 › главная: плитки, последние заказы и выручка после закрытия (2.1s)
+  ✓   6 tests/food-ui/restaurant.spec.ts:312:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол (2.5s)
+  ✓   7 tests/food-ui/restaurant.spec.ts:377:1 › план зала: заказ занимает стол, уборка включается и видна легенда (5.2s)
+  ✓   8 tests/food-ui/restaurant.spec.ts:416:1 › сотрудники: список с продажами, добавление и правка (7.7s)
+  ✓   9 tests/food-ui/restaurant.spec.ts:438:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (8.0s)
+  ✓  10 tests/food-ui/restaurant.spec.ts:503:1 › отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты (2.1s)
+  ✓  11 tests/food-ui/restaurant.spec.ts:566:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (5.4s)
+  ✓  12 tests/food-ui/restaurant.spec.ts:647:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода (3.3s)
+  ✓  13 tests/food-ui/restaurant.spec.ts:680:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API (5.5s)
+  ✓  14 tests/food-ui/restaurant.spec.ts:746:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (5.5s)
+  ✓  15 tests/food-ui/restaurant.spec.ts:811:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (7.9s)
+  ✓  16 tests/food-ui/restaurant.spec.ts:898:1 › навигация ресторана: пункты макета на месте и ведут на экраны (1.0s)
+  ✓  17 tests/food-ui/restaurant.spec.ts:912:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) (8.0s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+
+    Error: locator.click: Error: strict mode violation: getByRole('dialog').filter({ hasText: 'Отменить заказ №' }).getByRole('button', { name: 'Отменить заказ' }) resolved to 2 elements:
+        1) <button type="button" class="btn btn--danger">Отменить заказ</button> aka getByTestId('confirm-dialog').getByRole('button', { name: 'Отменить заказ' })
+        2) <button class="btn btn--danger">Отменить заказ</button> aka getByRole('button', { name: 'Отменить заказ' }).nth(1)
+
+    Call log:
+      - waiting for getByRole('dialog').filter({ hasText: 'Отменить заказ №' }).getByRole('button', { name: 'Отменить заказ' })
+
+
+      253 |     .filter({ hasText: 'Отменить заказ №' })
+      254 |     .getByRole('button', { name: 'Отменить заказ' })
+    > 255 |     .click();
+          |      ^
+      256 |   await expect(second.getByText('Отменён', { exact: true })).toBeVisible();
+      257 |   await page.keyboard.press('Escape');
+      258 |   const axe = await new AxeBuilder({ page }).include('main').analyze();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02/tests/food-ui/restaurant.spec.ts:255:6
+
+    Error Context: test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+  16 passed (1.7m)
+
+# код выхода 1 · 1 мин 47 с

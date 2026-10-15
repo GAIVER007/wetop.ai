@@ -37,15 +37,25 @@ async function expectOccupancyDirection(page: Page, fund: string) {
   );
   expect(response.ok()).toBe(true);
   const { current, previous } = await response.json();
-  const direction =
-    current.occupancy.percent > previous.occupancy.percent
-      ? 'up'
-      : current.occupancy.percent < previous.occupancy.percent
-        ? 'down'
-        : 'flat';
-  await expect(
-    page.getByRole('main').locator(`.kpi--occupancy .kpi-delta--${direction}`),
-  ).toBeVisible();
+  // при «Всех» первая плитка это загрузка номеров (ADR-155, Q-287): сравниваем её, а не общую
+  type Cat = { kind: string; unitNights: number; occupiedNights: number; blockedNights: number };
+  const pct = (p: { occupancy: { percent: number }; categories: Cat[] }) => {
+    if (fund !== 'all') return p.occupancy.percent;
+    const rows = p.categories.filter((c) => c.kind === 'ROOM');
+    const sellable = rows.reduce((n, c) => n + c.unitNights - c.blockedNights, 0);
+    return sellable > 0
+      ? Math.round((rows.reduce((n, c) => n + c.occupiedNights, 0) * 1000) / sellable) / 10
+      : 0;
+  };
+  const difference = Math.round((pct(current) - pct(previous)) * 10) / 10;
+  const direction = difference > 0 ? 'up' : difference < 0 ? 'down' : 'flat';
+  const arrow = direction === 'up' ? '▲' : direction === 'down' ? '▼' : '•';
+  const points = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
+    Math.abs(difference),
+  );
+  const delta = page.getByRole('main').locator(`.kpi--occupancy .kpi-delta--${direction}`);
+  await expect(delta).toBeVisible();
+  await expect(delta).toHaveText(`${arrow} ${points} п.п.`);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -90,9 +100,11 @@ test('обзор за месяц: четыре основных показате
   const kpis = main.getByTestId('pa-kpis');
   for (const label of ['Загрузка', 'Начислено за проживание', 'Брони', 'Отмены'])
     await expect(kpis).toContainText(label);
-  await expect(kpis.locator('.kpi')).toHaveCount(4);
-  // стенд: весь фонд в этом месяце загружен слабее прошлого — падение в п.п.
-  await expect(kpis.locator('.kpi--occupancy .kpi-delta--down')).toContainText('п.п.');
+  // «Загрузка номеров» и «Загрузка коек» вместо одной общей плитки (ADR-155, Q-287)
+  await expect(kpis.locator('.kpi')).toHaveCount(5);
+  // При двух типах фонда первая плитка сравнивает номера, а не суммарную загрузку.
+  // Направление и точные процентные пункты сверяются с API для текущего месяца.
+  await expectOccupancyDirection(page, 'all');
   await expect(main.getByTestId('pa-kpis-detail')).not.toBeVisible();
   await main.locator('.pa-details > summary').click();
   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi')).toHaveCount(2);
@@ -160,7 +172,7 @@ test('база сравнения ноль — «нет данных», а не 
   // позапрошлый месяц — первый с историей: до него данных нет
   await page.goto(`/management/analytics?period=custom&from=${first(-2)}&to=${last(-2)}`);
   const kpis = main.getByTestId('pa-kpis');
-  await expect(kpis.locator('.kpi-delta--none')).toHaveCount(4);
+  await expect(kpis.locator('.kpi-delta--none')).toHaveCount(5);
   await main.locator('.pa-details > summary').click();
   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi-delta--none')).toHaveCount(2);
   await expect(kpis).not.toContainText('100 %');

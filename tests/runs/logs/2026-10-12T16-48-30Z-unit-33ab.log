@@ -1,0 +1,23 @@
+# Модульные (unit) · 12.10.2026 21:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит ff0653c (claude/ui-master-pass3), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T16-48-30Z-unit-33ab.json' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/components'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 4ms
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 8ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 547ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 517ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 4ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 133ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (36 tests) 78ms
+
+ Test Files  6 passed (6)
+      Tests  98 passed (98)
+   Start at  09:48:35
+   Duration  1.26s (transform 45%, import 34%, tests 20%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T16-48-30Z-unit-33ab.json
+
+# код выхода 0 · 7 с

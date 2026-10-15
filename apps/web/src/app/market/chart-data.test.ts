@@ -1,0 +1,132 @@
+import { describe, expect, it } from 'vitest';
+import type { MarketView } from '../../lib/api';
+import { buildChartRows, buildPriceRows, changeSummary, coverageRuns, shortMoney, linePath, type ChartRow } from './chart-data';
+
+type Board = MarketView['board'];
+const cell = (date: string, bp: number | null, deltaBp: number | null = null) => ({ date, bp, deltaBp, source: null });
+
+const board = {
+  dates: ['2026-10-09', '2026-10-10', '2026-10-11'],
+  asOf: '2026-10-09',
+  compareDays: 1,
+  own: [
+    { date: '2026-10-09', bp: 6000 },
+    { date: '2026-10-10', bp: null },
+    { date: '2026-10-11', bp: 7000 },
+  ],
+  competitors: [
+    { id: 'a', name: 'А', distanceM: 100, unitsTotal: 10, url: null, sources: [], lastObservedOn: null,
+      cells: [cell('2026-10-09', 9000, 1000), cell('2026-10-10', 8000, null), cell('2026-10-11', null)] },
+    { id: 'b', name: 'Б', distanceM: 200, unitsTotal: null, url: null, sources: [], lastObservedOn: null,
+      cells: [cell('2026-10-09', 5000, -500), cell('2026-10-10', null), cell('2026-10-11', null)] },
+  ],
+  market: [
+    { date: '2026-10-09', bp: 7000, count: 2 },
+    { date: '2026-10-10', bp: 8000, count: 1 },
+    { date: '2026-10-11', bp: null, count: 0 },
+  ],
+  gap: [],
+  summary: { marketBp: 7500, ownBp: 6500, gapBp: -1000, highDemandNights: 0, competitors: 2, competitorsWithData: 2 },
+  insights: [],
+} as unknown as Board;
+
+describe('графики «Загрузки конкурентов»: данные', () => {
+  it('на каждую ночь: вы, рынок, самый свободный и самый загруженный сосед, число соседей с данными', () => {
+    const rows = buildChartRows(board);
+    expect(rows[0]).toMatchObject({ date: '2026-10-09', own: 6000, market: 7000, min: 5000, max: 9000, withData: 2, total: 2 });
+    expect(rows[1]).toMatchObject({ own: null, market: 8000, min: 8000, max: 8000, withData: 1, total: 2 });
+    expect(rows[2]).toMatchObject({ own: 7000, market: null, min: null, max: null, withData: 0, total: 2 });
+  });
+
+  it('изменение: среднее по соседям, у которых есть сравнение; нет сравнения нет и столбца', () => {
+    const rows = buildChartRows(board);
+    expect(rows[0]?.changeBp).toBe(250); // (1000 + -500) / 2
+    expect(rows[1]?.changeBp).toBeNull();
+    expect(rows[2]?.changeBp).toBeNull();
+  });
+
+  it('линия рвётся там, где данных нет, а не соединяет через пропуск', () => {
+    const d = linePath([0, 10, null, 30, 40], (v) => 100 - v, (i) => i * 10);
+    expect(d).toBe('M0,100L10,90M30,70L40,60');
+  });
+
+  it('одиночная точка между пропусками рисуется точкой, а не пропадает', () => {
+    expect(linePath([null, 5, null], (v) => v, (i) => i)).toBe('M1,5L1,5');
+  });
+});
+
+describe('цены рынка для графика', () => {
+  const rates = {
+    today: '2026-10-09',
+    from: '2026-10-09',
+    days: 2,
+    currency: 'KZT',
+    board: {
+      competitors: [],
+      market: [
+        { date: '2026-10-09', avgMinor: '4200000', minMinor: '2800000', maxMinor: '4400000', count: 2 },
+        { date: '2026-10-10', avgMinor: null, minMinor: null, maxMinor: null, count: 0 },
+      ],
+      summary: { marketAvgMinor: '4200000', minMinor: '2800000', maxMinor: '4400000', competitorsWithData: 2 },
+    },
+  } as const;
+  it('строки: числа и пропуск как null, а не ноль', () => {
+    expect(buildPriceRows(rates as never)).toEqual([
+      { date: '2026-10-09', avg: 4_200_000, min: 2_800_000, max: 4_400_000, count: 2 },
+      { date: '2026-10-10', avg: null, min: null, max: null, count: 0 },
+    ]);
+  });
+  it('подпись оси: тысячи сокращены, малое целым', () => {
+    expect(shortMoney(4_200_000)).toBe('42 тыс.');
+    expect(shortMoney(4_250_000)).toBe('42,5 тыс.');
+    expect(shortMoney(95_000)).toBe('950');
+  });
+});
+
+const row = (date: string, withData: number, total: number, changeBp: number | null = null): ChartRow => ({
+  date,
+  own: null,
+  market: null,
+  min: null,
+  max: null,
+  withData,
+  total,
+  changeBp,
+});
+
+describe('coverageRuns: ночи подряд с одинаковой полнотой данных', () => {
+  it('склеивает соседние ночи с тем же «N из M» и рвёт на смене', () => {
+    const runs = coverageRuns([
+      row('2026-10-09', 2, 2),
+      row('2026-10-10', 2, 2),
+      row('2026-10-11', 1, 2),
+      row('2026-10-12', 0, 2),
+      row('2026-10-13', 1, 2),
+    ]);
+    expect(runs).toEqual([
+      { from: '2026-10-09', to: '2026-10-10', withData: 2, total: 2 },
+      { from: '2026-10-11', to: '2026-10-11', withData: 1, total: 2 },
+      { from: '2026-10-12', to: '2026-10-12', withData: 0, total: 2 },
+      { from: '2026-10-13', to: '2026-10-13', withData: 1, total: 2 },
+    ]);
+  });
+  it('пустой период даёт пустой список', () => {
+    expect(coverageRuns([])).toEqual([]);
+  });
+});
+
+describe('changeSummary: что произошло с загрузкой соседей к прошлому замеру', () => {
+  it('среднее только по ночам со сравнением, отдельно счёт роста и падения', () => {
+    expect(
+      changeSummary([
+        row('2026-10-09', 1, 1, 1200),
+        row('2026-10-10', 1, 1, -300),
+        row('2026-10-11', 1, 1, null),
+        row('2026-10-12', 1, 1, 0),
+      ]),
+    ).toEqual({ avgBp: 300, up: 1, down: 1, nights: 3 });
+  });
+  it('без сравнения сводки нет, а не ноль', () => {
+    expect(changeSummary([row('2026-10-09', 1, 1, null)])).toBeNull();
+  });
+});

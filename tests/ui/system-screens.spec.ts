@@ -50,7 +50,7 @@ test('журнал: выборка словами, разделы чипами, 
   // отказ API: поиск и раздел на месте, повтор возвращает строки с теми же условиями
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/audit' } });
   await page.goto('/journal?q=TEST&type=Reservation');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал действий');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал операций');
   await expect(main.getByLabel('Поиск в журнале')).toHaveValue('TEST');
   const failure = main.getByTestId('journal-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
@@ -259,11 +259,9 @@ test('настройки объекта: сбой с повтором, пуст�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
-  // правила отмены ушли к тарифам (ADR-115, SET4): старый адрес — «Тарифные планы», правило словами, без кода тарифа
+  // правила отмены ушли к тарифам (SET4), а «Тарифы и цены» сняты 06.10.2026: старый адрес ведёт в настройки
   await page.goto('/hotel-settings/penalties');
-  await expect(page).toHaveURL(/\/rates\/plans$/);
-  await expect(main.getByTestId('rate-plans-table')).toContainText('Стоимость первой ночи');
-  await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');
+  await expect(page).toHaveURL(/\/hotel-settings$/);
   // Ошибка чтения настроек оставляет заголовок и вкладки на месте.
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/settings' } });
   await page.goto('/hotel-settings');
@@ -313,6 +311,8 @@ test('вход и профиль: «Вы вошли» без точек, при�
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  // Вход ведёт на Главную /today (ADR-180): ждём конечную страницу,
+  // иначе следующий переход обрывается на середине второго (ERR_ABORTED, гейт 12.10.2026)
   await expect(page).toHaveURL(/\/today/);
   await page.goto('/profile/access');
   await expect(main).toContainText('как Дана Тестова, admin@wetop.test');
@@ -341,9 +341,10 @@ test('вход и профиль: «Вы вошли» без точек, при�
   // профиль: «Доступ» говорит правду о входе, а не «появится после подключения авторизации»
   await page.goto('/profile');
   await main.getByRole('tab', { name: 'Доступ' }).click();
-  // роли есть с ADR-083: на стойке все равны, у владельца — приглашения и настройки продавца
+  // права даёт должность (ADR-107), приглашения в «Сотрудниках и доступе»; прежняя фраза «на стойке все равны»
+  // устарела с ролями и снята мастер-проходом UI 11.10.2026
   await expect(main.getByTestId('profile-access')).toContainText(
-    'владелец организации ещё приглашает сотрудников',
+    'Права зависят от должности',
   );
   await expect(main).not.toContainText('появится после подключения авторизации');
   await expect(main.getByRole('link', { name: 'Управление доступом' })).toHaveAttribute(

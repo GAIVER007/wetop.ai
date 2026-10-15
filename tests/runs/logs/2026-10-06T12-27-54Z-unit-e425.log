@@ -1,0 +1,60 @@
+# Модульные (unit) · 06.10.2026 17:27 Алматы · vm
+# коммит 117bce9 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T12-27-54Z-unit-e425.json' 'apps/api/src/web-booking/widget-cors.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/web-booking/widget-cors.test.ts (2 tests | 2 failed) 10ms
+   ❯ WidgetCorsMiddleware: домены сайтов всех организаций (MKT1B BOOK-1) (2)
+     × разрешает домены действующих сайтов с бронью обеих организаций, но не чужие, паузу и выключенную бронь 7ms
+     × preflight всегда 204, обычный запрос идёт дальше: CORS не авторизует бронь, это делает bookingSite 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/web-booking/widget-cors.test.ts > WidgetCorsMiddleware: домены сайтов всех организаций (MKT1B BOOK-1) > разрешает домены действующих сайтов с бронью обеих организаций, но не чужие, паузу и выключенную бронь
+AssertionError: expected null to be 'https://b.example' // Object.is equality
+
+- Expected:
+"https://b.example"
+
++ Received:
+null
+
+ ❯ apps/api/src/web-booking/widget-cors.test.ts:64:60
+     62|     const mw = middleware();
+     63|     expect((await corsFor(mw, 'https://a.example')).allow).toBe('https…
+     64|     expect((await corsFor(mw, 'https://b.example')).allow).toBe('https…
+       |                                                            ^
+     65|     expect((await corsFor(mw, 'https://www.b.example')).allow).toBe('h…
+     66|     expect((await corsFor(mw, 'https://unknown.example')).allow).toBeN…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/widget-cors.test.ts > WidgetCorsMiddleware: домены сайтов всех организаций (MKT1B BOOK-1) > preflight всегда 204, обычный запрос идёт дальше: CORS не авторизует бронь, это делает bookingSite
+AssertionError: expected null to be 'https://b.example' // Object.is equality
+
+- Expected:
+"https://b.example"
+
++ Received:
+null
+
+ ❯ apps/api/src/web-booking/widget-cors.test.ts:78:23
+     76|     const get = await corsFor(mw, 'https://b.example', 'GET');
+     77|     expect(get.passed).toBe(true);
+     78|     expect(get.allow).toBe('https://b.example');
+       |                       ^
+     79|   });
+     80| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  12:27:55
+   Duration  4.38s (transform 72%, import 27%)
+
+JSON report written to /tmp/pms-test-2026-10-06T12-27-54Z-unit-e425.json
+
+# код выхода 1 · 6 с

@@ -23,7 +23,7 @@ for (const [name, width, height] of [
   test(`деньги за период: колонка «Сумма» видна без прокрутки вбок (${name})`, async ({ page }) => {
     const main = page.getByRole('main');
     await page.setViewportSize({ width, height });
-    await page.goto('/finance');
+    await page.goto('/finance#charges');
     await expect(main.getByTestId('finance-charges')).toBeVisible();
     // «Проживание по категориям» с 01.10.2026 свёрнуто под «По видам начислений»: раскрываем, чтобы
     // проверить и его колонку «Сумма»

@@ -1,3 +1,4 @@
+import { requireVertical } from '../../../lib/vertical-guard';
 import { isIsoDate } from '@pms/domain';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { api, deskApi, type DeskRow } from '../../../lib/api';
@@ -55,15 +56,17 @@ export default async function PrintDaySheet({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['HOSPITALITY']);
   const sp = normalizeSearchParams(await searchParams);
-  const t = sp.lang === 'kz' ? T.kz : T.ru;
+  const language = sp.lang === 'kz' ? 'kz' : 'ru';
+  const t = T[language];
   const form = sp.form === 'inhouse' ? 'inhouse' : 'day';
   const clock = await hotelClock();
   const date = isIsoDate(sp.date) ? sp.date : clock.today();
   const [day, summary] = await Promise.all([deskApi.today(date), api.inventorySummary()]);
   const printedAt = clock.printed().stamp;
-  const qs = (f: string, lang?: string) =>
-    `?form=${f}${date === clock.today() ? '' : `&date=${date}`}${lang ? `&lang=${lang}` : ''}`;
+  const qs = (f: string, lang = language) =>
+    `?form=${f}${sp.date || date !== clock.today() ? `&date=${date}` : ''}&lang=${lang}`;
   return (
     <main
       data-testid={form === 'day' ? 'print-day-sheet' : 'print-inhouse'}

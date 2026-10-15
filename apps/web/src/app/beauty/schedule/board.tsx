@@ -1,9 +1,10 @@
 'use client';
-import { useActionState, useState, useTransition } from 'react';
+import Link from 'next/link';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import { parseTimeOffInput, parseWorkingHoursWeek } from '@pms/domain';
 import { useConfirm } from '../../../components/use-confirm';
 import { Overlay } from '../../../components/overlay';
-import { Alert, Button, EmptyState, Field, Input, Select, Table } from '../../../components/ui';
+import { Alert, Button, Field, Input, Select, Table } from '../../../components/ui';
 import { pluralRu } from '../../../lib/plural';
 import type { BeautySchedule, BeautyWorkingInterval } from '../../../lib/api';
 import {
@@ -11,6 +12,7 @@ import {
   removeBeautyTimeOff,
   saveBeautyEmployeeLocations,
   saveBeautyWorkingHours,
+  loadBeautySchedule,
 } from '../actions';
 
 /**
@@ -39,9 +41,33 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
 
   if (!master)
     return (
-      <EmptyState data-testid="beauty-schedule-empty" title="Мастеров пока нет">
-        Сначала добавьте мастера на странице «Мастера», потом поставьте ему график.
-      </EmptyState>
+      <section className="beauty-section" data-testid="beauty-schedule-empty">
+        <div className="beauty-bar">
+          <h2>Неделя</h2>
+          {canEdit && (
+            <Link className="btn btn--secondary" href="/employees">
+              Добавить мастера
+            </Link>
+          )}
+        </div>
+        <p className="beauty-note">Выберите или добавьте мастера, чтобы настроить рабочие часы.</p>
+        <Table className="beauty-week-table">
+          <thead>
+            <tr>
+              <th>День</th>
+              <th>Работает</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 4, 5, 6, 0].map((weekday) => (
+              <tr key={weekday}>
+                <td>{DAYS[weekday]}</td>
+                <td>Не настроено</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </section>
     );
 
   const hours = data.week.reduce((sum, day) => sum + minutesOf(day.intervals), 0);
@@ -112,8 +138,8 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
           )}
         </div>
         <p className="beauty-note">
-          Отсутствие ставится на всю сеть: мастера нет ни в одном филиале. Уже созданные записи оно не
-          отменяет, их показывает отдельно.
+          Отсутствие ставится на всю сеть: мастера нет ни в одном филиале. Уже созданные записи оно
+          не отменяет, их показывает отдельно.
         </p>
         {data.timeOffs.length === 0 ? (
           <p data-testid="beauty-timeoffs-empty">Отсутствий впереди нет</p>
@@ -147,7 +173,14 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
         title={`График: ${master.name}`}
         drawer
       >
-        {editing === 'week' && <WeekForm employeeId={master.id} week={data.week} />}
+        {editing === 'week' && (
+          <WeekForm
+            employeeId={master.id}
+            week={data.week}
+            expectedRevision={data.weekRevision ?? undefined}
+            scopeKey={data.location?.id ?? ''}
+          />
+        )}
       </Overlay>
       <Overlay
         open={editing === 'timeOff'}
@@ -171,8 +204,36 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
   );
 }
 
-function WeekForm({ employeeId, week }: { employeeId: string; week: BeautySchedule['week'] }) {
-  const [state, action, pending] = useActionState(saveBeautyWorkingHours, null);
+export function WeekForm({
+  employeeId,
+  onSaved,
+  week,
+  save = saveBeautyWorkingHours,
+  expectedRevision,
+  scopeKey = '',
+}: {
+  scopeKey?: string | undefined;
+  employeeId: string;
+  expectedRevision?: string | undefined;
+  onSaved?: () => Promise<void>;
+  week: BeautySchedule['week'];
+  /** Действие сохранения недели: салонное по умолчанию, ресторан передаёт своё (Q-REST-11) */
+  save?: typeof saveBeautyWorkingHours;
+}) {
+  const [state, action, pending] = useActionState(
+    async (prev: Awaited<ReturnType<typeof saveBeautyWorkingHours>> | null, form: FormData) => {
+      const result = await save(prev, form);
+      if (!result.error) await onSaved?.();
+      return result;
+    },
+    null,
+  );
+  const [originalRevision, setOriginalRevision] = useState(expectedRevision);
+  const [comparison, setComparison] = useState<BeautySchedule | null>(null);
+  const [checking, check] = useTransition();
+  useEffect(() => {
+    if (state?.revision) setOriginalRevision(state.revision);
+  }, [state?.revision]);
   const [error, setError] = useState<string | null>(null);
   const [slots, setSlots] = useState<Record<number, Slot[]>>(() =>
     Object.fromEntries(week.map((day) => [day.weekday, day.intervals.map((i) => ({ ...i }))])),
@@ -207,10 +268,19 @@ function WeekForm({ employeeId, week }: { employeeId: string; week: BeautySchedu
     >
       <input type="hidden" name="id" value={employeeId} />
       <input type="hidden" name="intervals" value={JSON.stringify(intervals)} />
+      <input type="hidden" name="scopeKey" value={scopeKey} />
+      {(originalRevision ?? state?.revision) && (
+        <input type="hidden" name="expectedRevision" value={originalRevision ?? state?.revision} />
+      )}
       {week.map((day) => {
         const rows = slots[day.weekday] ?? [];
         return (
-          <div key={day.weekday} role="group" aria-label={DAYS[day.weekday]} className="beauty-week-row">
+          <div
+            key={day.weekday}
+            role="group"
+            aria-label={DAYS[day.weekday]}
+            className="beauty-week-row"
+          >
             <span className="beauty-week-name">{DAYS[day.weekday]}</span>
             <div className="beauty-week-slots">
               {rows.length === 0 && <span className="beauty-note">Выходной</span>}
@@ -268,6 +338,52 @@ function WeekForm({ employeeId, week }: { employeeId: string; week: BeautySchedu
       })}
       {(error ?? state?.error) && <Alert>{error ?? state?.error}</Alert>}
       {!error && state?.message && <p role="status">{state.message}</p>}
+      {state?.error && scopeKey && (
+        <Button
+          type="button"
+          tone="secondary"
+          disabled={checking}
+          onClick={() =>
+            check(async () => {
+              const result = await loadBeautySchedule(employeeId);
+              if (result.data?.location?.id !== scopeKey) return;
+              setComparison(result.data);
+            })
+          }
+        >
+          Сравнить с актуальным графиком
+        </Button>
+      )}
+      {comparison && (
+        <section className="panel">
+          <h3>Сохранено на сервере</h3>
+          <ul>
+            {comparison.week.map((day) => (
+              <li key={day.weekday}>
+                {DAYS[day.weekday]}:{' '}
+                {day.intervals.map((i) => `${i.timeFrom} до ${i.timeTo}`).join(', ') || 'Выходной'}
+              </li>
+            ))}
+          </ul>
+          <p>Ваш ввод остаётся в форме; он не отправлен поверх чужих изменений.</p>
+          <Button
+            type="button"
+            tone="secondary"
+            onClick={() => {
+              setSlots(
+                Object.fromEntries(
+                  comparison.week.map((d) => [d.weekday, d.intervals.map((i) => ({ ...i }))]),
+                ),
+              );
+              setOriginalRevision(comparison.weekRevision ?? undefined);
+              setComparison(null);
+            }}
+          >
+            Принять сохранённый график
+          </Button>
+        </section>
+      )}
+
       <Button type="submit" disabled={pending}>
         {pending ? 'Сохраняем…' : 'Сохранить график'}
       </Button>
@@ -275,8 +391,21 @@ function WeekForm({ employeeId, week }: { employeeId: string; week: BeautySchedu
   );
 }
 
-function TimeOffForm({ employeeId }: { employeeId: string }) {
-  const [state, action, pending] = useActionState(addBeautyTimeOff, null);
+export function TimeOffForm({
+  employeeId,
+  onSaved,
+}: {
+  employeeId: string;
+  onSaved?: () => Promise<void>;
+}) {
+  const [state, action, pending] = useActionState(
+    async (prev: Awaited<ReturnType<typeof addBeautyTimeOff>> | null, form: FormData) => {
+      const result = await addBeautyTimeOff(prev, form);
+      if (!result.error) await onSaved?.();
+      return result;
+    },
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   return (
     <form
@@ -304,7 +433,13 @@ function TimeOffForm({ employeeId }: { employeeId: string }) {
       <Field label="По какой день включительно">
         <Input name="dateTo" type="date" required />
       </Field>
-      <Field label={<span>Причина <small className="beauty-note">необязательно</small></span>}>
+      <Field
+        label={
+          <span>
+            Причина <small className="beauty-note">необязательно</small>
+          </span>
+        }
+      >
         <Input name="reason" maxLength={200} placeholder="отпуск, учёба, больничный" />
       </Field>
       {(error ?? state?.error) && <Alert>{error ?? state?.error}</Alert>}
@@ -316,14 +451,16 @@ function TimeOffForm({ employeeId }: { employeeId: string }) {
   );
 }
 
-function TimeOffTable({
+export function TimeOffTable({
   employeeId,
   rows,
   canEdit,
+  onSaved,
 }: {
   employeeId: string;
   rows: BeautySchedule['timeOffs'];
   canEdit: boolean;
+  onSaved?: () => Promise<void>;
 }) {
   const { ask, dialog } = useConfirm();
   const [pending, startTransition] = useTransition();
@@ -340,6 +477,7 @@ function TimeOffTable({
     startTransition(async () => {
       const result = await removeBeautyTimeOff(employeeId, id);
       setError(result.error ?? null);
+      if (!result.error) await onSaved?.();
     });
   };
 
@@ -398,14 +536,26 @@ function TimeOffTable({
   );
 }
 
-function LocationsForm({
+export function LocationsForm({
   employeeId,
+  onSaved,
   locations,
 }: {
   employeeId: string;
+  onSaved?: () => Promise<void>;
   locations: BeautySchedule['locations'];
 }) {
-  const [state, action, pending] = useActionState(saveBeautyEmployeeLocations, null);
+  const [state, action, pending] = useActionState(
+    async (
+      prev: Awaited<ReturnType<typeof saveBeautyEmployeeLocations>> | null,
+      form: FormData,
+    ) => {
+      const result = await saveBeautyEmployeeLocations(prev, form);
+      if (!result.error) await onSaved?.();
+      return result;
+    },
+    null,
+  );
   return (
     <form action={action} className="beauty-form">
       <input type="hidden" name="id" value={employeeId} />

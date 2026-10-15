@@ -1,0 +1,11 @@
+# Линтер (lint) · 06.10.2026 17:46 Алматы · vm
+# коммит 550e572 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 13
+# npx eslint .
+
+/home/user/wetop.ai/apps/api/src/web-booking/web-booking.service.ts
+  3:10  error  'randomUUID' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 35 с

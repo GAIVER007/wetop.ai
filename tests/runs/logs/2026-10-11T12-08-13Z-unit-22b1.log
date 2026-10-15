@@ -1,0 +1,72 @@
+# Модульные (unit) · 11.10.2026 17:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит d611be5 (claude/restaurant-payments-plan), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T12-08-13Z-unit-22b1.json' 'apps/web/src/lib/navigation-food.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/mergewk
+
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 2 failed) 6ms
+   ❯ Food workspace isolation (4)
+     × exposes exactly accepted Food menu 4ms
+     ✓ does not expose Food to existing verticals 1ms
+     ✓ uses canonical landings and verified scope 0ms
+     × identifies isolated routes before API access 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > exposes exactly accepted Food menu
+AssertionError: expected [ '/today', '/floor-plan', …(13) ] to deeply equal [ '/today', '/floor-plan', …(14) ]
+
+- Expected
++ Received
+
+@@ -4,11 +4,10 @@
+    "/table-reservations",
+    "/dining-areas",
+    "/orders",
+    "/kitchen",
+    "/menu",
+-   "/cashbox",
+    "/customers",
+    "/employees",
+    "/payroll",
+    "/staff",
+    "/management/analytics",
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:10:7
+      8|     expect(
+      9|       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.ma…
+     10|     ).toEqual([
+       |       ^
+     11|       // группы по выбору владельца 11.10.2026: Зал, Заказы, Команда (…
+     12|       '/today',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > identifies isolated routes before API access
+AssertionError: expected null to be 'FOOD_SERVICE' // Object.is equality
+
+- Expected:
+"FOOD_SERVICE"
+
++ Received:
+null
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:91:39
+     89|     expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
+     90|     expect(routeVertical('/payroll')).toBe('FOOD_SERVICE');
+     91|     expect(routeVertical('/cashbox')).toBe('FOOD_SERVICE');
+       |                                       ^
+     92|     // `/employees` общий у салона и ресторана (ADR-159): принадлежнос…
+     93|     expect(routeVertical('/employees')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  05:08:14
+   Duration  405ms (transform 82%, import 16%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-11T12-08-13Z-unit-22b1.json
+
+# код выхода 1 · 1 с

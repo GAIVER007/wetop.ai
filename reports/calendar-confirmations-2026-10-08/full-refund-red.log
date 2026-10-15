@@ -1,0 +1,63 @@
+[WebServer] (node:91845) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92586) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:94090) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/preview-money-confirmation.spec.ts:151:1 › полный возврат убирает платёж из выбора и освобождает окно после отправки (23.2s)
+
+
+  1) tests/ui/preview-money-confirmation.spec.ts:151:1 › полный возврат убирает платёж из выбора и освобождает окно после отправки 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByTestId('stay-preview').getByRole('button', { name: 'Закрыть предпросмотр' })
+    Expected: enabled
+    Received: disabled
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeEnabled" getByTestId('stay-preview').getByRole('button', { name: 'Закрыть предпросмотр' }) with timeout 15000ms
+      - waiting for getByTestId('stay-preview').getByRole('button', { name: 'Закрыть предпросмотр' })
+        34 × locator resolved to <button disabled type="button" aria-label="Закрыть предпросмотр" class="icon-button stay-preview__close">…</button>
+           - unexpected value "disabled"
+
+
+      162 |   await expect(preview.getByTestId('preview-finance-result')).toContainText('Возврат проведён');
+      163 |   await expect(preview.getByText('Нет платежей с доступной суммой возврата.')).toBeVisible();
+    > 164 |   await expect(preview.getByRole('button', { name: 'Закрыть предпросмотр' })).toBeEnabled();
+          |                                                                               ^
+      165 |   await expect(preview.getByRole('button', { name: 'Оплата', exact: true })).toBeEnabled();
+      166 |   await preview.getByRole('button', { name: 'Закрыть предпросмотр' }).click();
+      167 |   await expect(preview).toBeHidden();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/preview-money-confirmation.spec.ts:164:79
+
+    Error Context: test-results/preview-money-confirmation-407ad-бождает-окно-после-отправки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/preview-money-confirmation-407ad-бождает-окно-после-отправки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/preview-money-confirmation-407ad-бождает-окно-после-отправки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/preview-money-confirmation.spec.ts:151:1 › полный возврат убирает платёж из выбора и освобождает окно после отправки 

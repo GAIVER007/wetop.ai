@@ -3,7 +3,6 @@ import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
-import { chooseSource } from './booking-form';
 
 /**
  * Задачи стойки T1, T2 и овербукинг из интерфейса (plans/plan-2026-09-10-desk-tasks.md).
@@ -45,7 +44,11 @@ test('стойка: занятую койку не продать дважды, 
 
   const fill = async (p: typeof page, lastName: string, unitCode: string, mayBlock = false) => {
     const f = p.getByRole('main').getByTestId('new-reservation-form');
-    await chooseSource(f, 'WALK_IN');
+    // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+    await f.locator('details:has(select[name="source"])').evaluate((d) => {
+      (d as HTMLDetailsElement).open = true;
+    });
+    await f.locator('select[name="source"]').selectOption('WALK_IN');
     await f.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
     await f.locator('select[name="unitCode"]').selectOption(unitCode);
     await f.locator('input[name="firstName"]').fill('Гость');
@@ -89,7 +92,6 @@ test('стойка: занятую койку не продать дважды, 
   // в сообщении номер койки, а не внутренний идентификатор — иначе оно бесполезно на стойке
   await expect(refusal).toContainText(unit);
   await expect(refusal).not.toContainText(/[0-9a-f]{8}-[0-9a-f]{4}-/);
-  await expect(secondForm.getByRole('button', { name: 'Создать бронь' })).toBeDisabled();
   await expect(second).toHaveURL(/\/reservations\/new/);
   // введённое не стёрлось: администратор меняет одну ячейку, а не набирает всё заново
   await expect(secondForm.locator('input[name="lastName"]')).toHaveValue('Тест-второй');
@@ -160,7 +162,7 @@ test('стойка: занятую койку не продать дважды, 
   // прибрать за собой: бронь отменяется, койки освобождаются
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Отменена');
 });

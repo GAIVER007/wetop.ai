@@ -20,7 +20,7 @@ test('3 койки: поле «Гостей на место», подсказк�
   await form.locator('select[name="accommodationTypeCode"]').selectOption('MALE');
   const guests = form.locator('input[name="adults"]');
   await expect(guests).toHaveValue('1');
-  await expect(form.getByText('Гостей', { exact: true })).toBeVisible();
+  await expect(form.getByText('Гостей на место', { exact: true })).toBeVisible();
   await form.locator('input[name="quantity"]').fill('3');
 
   await expect(form.getByText('Гостей на место', { exact: true })).toBeVisible();
@@ -37,9 +37,9 @@ test('3 койки: поле «Гостей на место», подсказк�
     'Мужской общий номер, 3 места, ячейки назначит система, 3 гостя',
   );
 
-  // обратно к одному месту: подпись и сводка возвращаются к одному гостю
+  // обратно к одному месту: подсказки группы нет, сводка возвращается к одному гостю
   await form.locator('input[name="quantity"]').fill('1');
-  await expect(form.getByText('Гостей', { exact: true })).toBeVisible();
+  await expect(form.getByTestId('group-hint')).toHaveCount(0);
   await expect(digest).toContainText('1 гость');
 });
 

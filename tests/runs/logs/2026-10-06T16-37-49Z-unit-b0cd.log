@@ -1,0 +1,16 @@
+# Модульные (unit) · 06.10.2026 21:37 Алматы · vm
+# коммит 971d4c1 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-06T16-37-49Z-unit-b0cd.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 54ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  16:37:50
+   Duration  4.28s (transform 76%, import 22%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-06T16-37-49Z-unit-b0cd.json
+
+# код выхода 0 · 5 с

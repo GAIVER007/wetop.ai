@@ -2,13 +2,12 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
-import { chooseSource } from './booking-form';
 
 /**
  * Групповая бронь из формы и правка готовой брони (plans/plan-2026-09-09-closing.md, ADR-020).
  * Гости вымышленные (ADR-010). Проверяется то, что видит администратор:
  *  — «Количество мест» = 2 даёт два проживания на двух разных койках, и в календаре две клетки с номером брони;
- *  — заметки, источник и число гостей правятся с карточки, вместимость категории не обойти;
+ *  - заметки и источник правятся с карточки, число гостей в действиях неизменно;
  *  — «Закрыть счёт» появляется только при нулевом балансе и закрывает счёт.
  * Ограничения продаж (ADR-020) здесь не ставятся: стоп-продажа на живой категории ушла бы в каналы —
  * они проверены контрактным тестом apps/api/src/reservations/reservations.controller.test.ts.
@@ -26,7 +25,7 @@ const plus = (n: number) => {
   return x.toISOString().slice(0, 10);
 };
 
-test('групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта', async ({
+test('групповая бронь на 2 койки → две клетки шахматки; правка заметок и источника, неизменное число гостей; ручное закрытие счёта', async ({
   page,
   request,
 }) => {
@@ -39,7 +38,11 @@ test('групповая бронь на 2 койки → две клетки ш
   // ── Форма: «Количество мест» = 2, конкретная ячейка не выбирается ─────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await chooseSource(form, 'PHONE');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
+  await form.locator('select[name="source"]').selectOption('PHONE');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   await expect(form.locator('select[name="unitCode"]')).toHaveCount(1);
   await form.locator('input[name="quantity"]').fill('2');
@@ -73,7 +76,7 @@ test('групповая бронь на 2 койки → две клетки ш
   await page.goto(`/reservations/${number}`);
   const edit = page.getByRole('main').getByTestId('edit-reservation-form');
   await cardTab(page, 'Действия');
-  await chooseSource(edit, 'WHATSAPP');
+  await edit.locator('select[name="source"]').selectOption('WHATSAPP');
   await edit.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ · поздний заезд, ключ у соседа');
   await edit.getByRole('button', { name: 'Сохранить' }).click();
   // текст есть и в подписи, и в поле ввода — проверяем именно подпись на карточке
@@ -83,12 +86,10 @@ test('групповая бронь на 2 койки → две клетки ш
   );
   await expect(page.locator('main')).toContainText('WhatsApp');
 
-  // ── Правка: гостей на проживании — койка вмещает одного, двоих не записать ───────────────
-  const guests = page.locator('[data-testid^="guests-form-"]').first();
+  // Число гостей задано при создании, в действиях оно недоступно для изменения.
   await cardTab(page, 'Действия');
-  await guests.locator('input[name="adults"]').fill('2');
-  await guests.getByRole('button', { name: 'Сохранить' }).click();
-  await expect(guests.getByRole('alert')).toContainText(/вместимость 1/);
+  await expect(page.locator('[data-testid^="guests-form-"]')).toHaveCount(0);
+  await expect(page.getByRole('main').locator('input[name="adults"]')).toHaveCount(0);
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-guests-count').first()).toContainText(
     '· 1',
@@ -98,7 +99,11 @@ test('групповая бронь на 2 койки → две клетки ш
   const panel = page.getByRole('main').getByTestId('folio-panel').first();
   await cardTab(page, 'Счета');
   await expect(panel.locator('[data-testid^="close-folio-"]')).toHaveCount(0);
-  await panel.getByTestId('payment-form').getByRole('button', { name: 'Принять оплату' }).click();
+  await panel.getByTestId('payment-form').getByRole('button', { name: 'Проверить оплату' }).click();
+  await panel
+    .getByTestId('payment-form')
+    .getByRole('button', { name: 'Подтвердить оплату' })
+    .click();
   await expect(panel.getByTestId('folio-balance')).toContainText('оплачено');
   await panel.locator('[data-testid^="close-folio-"]').click();
   await confirmAction(page, 'Закрыть счёт');
@@ -109,7 +114,7 @@ test('групповая бронь на 2 койки → две клетки ш
   // прибрать за собой: бронь отменяется, койки освобождаются
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await confirmDialog(page, 'Подтвердить отмену');
   await cardTab(page, 'Обзор');
-  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('Отменена');
 });

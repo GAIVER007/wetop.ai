@@ -1,0 +1,48 @@
+# Интеграционные (integration) · 07.10.2026 22:54 Алматы · vm
+# коммит 0c2e0d8 (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T17-54-13Z-integration-0b3e.json' 'tests/integration/site-editor.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:3912) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/site-editor.test.ts (13 tests) 3018ms
+   ❯ MKT9 site editor (13)
+     ✓ история версий: до 100, новые сверху, без документа; чтение с документом; смысловая разница 540ms
+     ✓ чужой филиал: версия, разница и восстановление неотличимы от несуществующих (404); чужая картинка не сохраняется 296ms
+     ✓ восстановление как новый черновик: r1 → новая r4 от r3, источник MANUAL, опубликованная не меняется; устаревшая база 409 221ms
+     ✓ откат MKT7 меняет только опубликованную, восстановление MKT9 только голову 275ms
+     ✓ восстановление версии с картинкой, удалённой из библиотеки: 409 ASSET_UNAVAILABLE, головы нет 109ms
+     ✓ PATCH: постановка, повтор того же ключа, неверная база, пустая и длинная команда, параллельная задача; журнал без текста 224ms
+     ✓ PATCH, воркер: бот получает базу и команду без организации; новая версия AI base+1 с родителем; опубликованная не тронута 220ms
+     ✓ PATCH: ИИ меняет телефон → SCHEMA_INVALID и повтор с путями ошибок; голова сменилась до повтора → BASE_VERSION_CHANGED без модели 187ms
+     ✓ гонка: ИИ работает с r1, человек сохраняет r2 → результат ИИ не применён, версии r3 от ИИ нет 195ms
+     ✓ SECTION: цель проверяется при постановке; бот получает цель; меняется только цель; другая секция → отказ 224ms
+     ✓ бюджет общий для всех видов задач: исчерпан → BUDGET_EXCEEDED без вызова бота 153ms
+     ✓ предел постановок в час считает и правки: 10 задач за час → 429 107ms
+     ✓ архивный сайт: правка, восстановление и сохранение отклоняются 113ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/site-editor.test.ts > MKT9 site editor
+error: new row for relation "marketing_sites" violates check constraint "marketing_sites_published_version"
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/site-editor.test.ts:205:7
+    203|       await sql.query(`DELETE FROM marketing_site_publications WHERE s…
+    204|       await sql.query(`DELETE FROM site_domains WHERE site_id IN (${si…
+    205|       await sql.query(`UPDATE marketing_sites SET latest_version_id = …
+       |       ^
+    206|       await sql.query(`UPDATE generation_runs SET output_version_id = …
+    207|       await sql.query(`UPDATE marketing_site_versions SET parent_versi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  13 passed (13)
+   Start at  17:54:14
+   Duration  9.31s (tests 44%, transform 39%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-07T17-54-13Z-integration-0b3e.json
+
+# код выхода 1 · 11 с

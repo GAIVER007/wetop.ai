@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { requireVertical } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
@@ -20,6 +22,7 @@ export default async function BeautySchedulePage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireVertical(['BEAUTY']);
   const { employee } = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
   const loaded = await beautyApi.schedule(employee).then(
@@ -48,7 +51,14 @@ export default async function BeautySchedulePage({
           : 'Недельный график мастера. Филиал пока не выбран.'
       }
     >
-      <ScheduleBoard data={loaded.value} canEdit={canEdit} />
+      <p>
+        <Link href="/register/setup">Вернуться к настройке салона</Link>
+      </p>
+      <ScheduleBoard
+        key={loaded.value.location?.id ?? 'none'}
+        data={loaded.value}
+        canEdit={canEdit}
+      />
     </Page>
   );
 }

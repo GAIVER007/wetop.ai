@@ -1,0 +1,63 @@
+[WebServer] (node:21319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:21414) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/preview-money-confirmation.spec.ts:9:1 › календарь: оплата без перехода и отказ от незавершённого ввода (19.5s)
+
+
+  1) tests/ui/preview-money-confirmation.spec.ts:9:1 › календарь: оплата без перехода и отказ от незавершённого ввода 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('stay-preview').getByTestId('payment-form').getByRole('button', { name: 'Подтвердить оплату', exact: true })
+    Expected: in viewport
+    Received: viewport ratio 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('stay-preview').getByTestId('payment-form').getByRole('button', { name: 'Подтвердить оплату', exact: true }) with timeout 15000ms
+      - waiting for getByTestId('stay-preview').getByTestId('payment-form').getByRole('button', { name: 'Подтвердить оплату', exact: true })
+        33 × locator resolved to <button type="submit" class="btn btn--success">Подтвердить оплату</button>
+           - unexpected value "viewport ratio 0"
+
+
+      34 |   ).json();
+      35 |   expect(untouched.paidMinor).toBe(before.paidMinor);
+    > 36 |   await expect(form.getByRole('button', { name: 'Подтвердить оплату', exact: true })).toBeInViewport({ ratio: 0.95 });
+         |                                                                                       ^
+      37 |   await form.getByRole('button', { name: 'Подтвердить оплату', exact: true }).click();
+      38 |   await expect(preview.getByTestId('preview-finance-result')).toContainText('Оплата принята');
+      39 |   await expect(page).toHaveURL(/\/chessboard\?/);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-calendar-ui-20261008/tests/ui/preview-money-confirmation.spec.ts:36:87
+
+    Error Context: test-results/preview-money-confirmation-0b66a-каз-от-незавершённого-ввода/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/preview-money-confirmation-0b66a-каз-от-незавершённого-ввода/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/preview-money-confirmation-0b66a-каз-от-незавершённого-ввода/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/preview-money-confirmation.spec.ts:9:1 › календарь: оплата без перехода и отказ от незавершённого ввода 

@@ -1,0 +1,232 @@
+# Интеграционные (integration) · 05.10.2026 11:10 Алматы · MacBook-Air-Urij.local
+# коммит abe59d8 (codex/bar-repair-2), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-10-04Z-integration-c825.json' 'tests/integration/bar-property-guard.test.ts'
+
+ RUN  v5.0.0 /private/tmp/wetop-bar-repair-2
+
+[pms_test] роли wetop_app включён вход (локальная база)
+ ❯ |integration| tests/integration/bar-property-guard.test.ts (12 tests | 11 failed) 51ms
+   ❯ BAR property guard: table-specific trigger dispatch (12)
+     × product with own category succeeds without reading supplier_id 11ms
+     × product with null category succeeds 2ms
+     × product rejects foreign category 4ms
+     × product rejects nonexistent category 2ms
+     × product property update rejects previously own category 2ms
+     × receipt with own supplier succeeds without reading category_id 2ms
+     × receipt rejects foreign supplier 2ms
+     × receipt rejects nonexistent supplier 2ms
+     × receipt rejects null supplier 10ms
+     × receipt property update rejects previously own supplier 2ms
+     × unknown table fails closed even with neither row-specific field 4ms
+     ✓ search_path is pinned to owning schema, public, pg_temp 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > product with own category succeeds without reading supplier_id
+AssertionError: promise rejected "error: inconsistent types deduced for par… { …(15) }" instead of resolving
+ ❯ tests/integration/bar-property-guard.test.ts:45:58
+     43|   }
+     44|   it('product with own category succeeds without reading supplier_id',…
+     45|     await fixture(async (a) => { await expect(product(a)).resolves.toB…
+       |                                                          ^
+     46|   });
+     47|   it('product with null category succeeds', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:45:5
+
+Caused by: error: inconsistent types deduced for parameter $1
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ product tests/integration/bar-property-guard.test.ts:36:5
+ ❯ tests/integration/bar-property-guard.test.ts:45:34
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:45:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 141, severity: 'ERROR', code: '42P08', detail: 'text versus uuid', hint: undefined, position: '95', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'parse_param.c', routine: 'variable_coerce_param_hook' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > product with null category succeeds
+AssertionError: promise rejected "error: inconsistent types deduced for par… { …(15) }" instead of resolving
+ ❯ tests/integration/bar-property-guard.test.ts:48:64
+     46|   });
+     47|   it('product with null category succeeds', async () => {
+     48|     await fixture(async (a) => { await expect(product(a, null)).resolv…
+       |                                                                ^
+     49|   });
+     50|   it('product rejects foreign category', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:48:5
+
+Caused by: error: inconsistent types deduced for parameter $1
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ product tests/integration/bar-property-guard.test.ts:36:5
+ ❯ tests/integration/bar-property-guard.test.ts:48:34
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:48:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 141, severity: 'ERROR', code: '42P08', detail: 'text versus uuid', hint: undefined, position: '95', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'parse_param.c', routine: 'variable_coerce_param_hook' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > product rejects foreign category
+AssertionError: expected [Function] to throw error including 'Category belongs to another property' but got 'inconsistent types deduced for parame…'
+
+Expected: "Category belongs to another property"
+Received: "inconsistent types deduced for parameter $1"
+
+ ❯ tests/integration/bar-property-guard.test.ts:51:71
+     49|   });
+     50|   it('product rejects foreign category', async () => {
+     51|     await fixture(async (a,b) => { await expect(product(a,b.category))…
+       |                                                                       ^
+     52|   });
+     53|   it('product rejects nonexistent category', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:51:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > product rejects nonexistent category
+AssertionError: expected [Function] to throw error including 'Category belongs to another property' but got 'inconsistent types deduced for parame…'
+
+Expected: "Category belongs to another property"
+Received: "inconsistent types deduced for parameter $1"
+
+ ❯ tests/integration/bar-property-guard.test.ts:54:71
+     52|   });
+     53|   it('product rejects nonexistent category', async () => {
+     54|     await fixture(async (a) => { await expect(product(a,randomUUID()))…
+       |                                                                       ^
+     55|   });
+     56|   it('product property update rejects previously own category', async …
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:54:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > product property update rejects previously own category
+error: inconsistent types deduced for parameter $1
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ product tests/integration/bar-property-guard.test.ts:36:5
+     34|   async function product(a: Side, category: string | null = a.category…
+     35|     const id = randomUUID();
+     36|     await client.query(`INSERT INTO bar_products (id,property_id,categ…
+       |     ^
+     37|     return id;
+     38|   }
+ ❯ tests/integration/bar-property-guard.test.ts:58:18
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:57:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt with own supplier succeeds without reading category_id
+AssertionError: promise rejected "error: inconsistent types deduced for par… { …(15) }" instead of resolving
+ ❯ tests/integration/bar-property-guard.test.ts:63:58
+     61|   });
+     62|   it('receipt with own supplier succeeds without reading category_id',…
+     63|     await fixture(async (a) => { await expect(receipt(a)).resolves.toB…
+       |                                                          ^
+     64|   });
+     65|   it('receipt rejects foreign supplier', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:63:5
+
+Caused by: error: inconsistent types deduced for parameter $1
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ receipt tests/integration/bar-property-guard.test.ts:41:5
+ ❯ tests/integration/bar-property-guard.test.ts:63:34
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:63:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 142, severity: 'ERROR', code: '42P08', detail: 'text versus uuid', hint: undefined, position: '140', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'parse_param.c', routine: 'variable_coerce_param_hook' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt rejects foreign supplier
+AssertionError: expected [Function] to throw error including 'Supplier belongs to another property' but got 'inconsistent types deduced for parame…'
+
+Expected: "Supplier belongs to another property"
+Received: "inconsistent types deduced for parameter $1"
+
+ ❯ tests/integration/bar-property-guard.test.ts:66:71
+     64|   });
+     65|   it('receipt rejects foreign supplier', async () => {
+     66|     await fixture(async (a,b) => { await expect(receipt(a,b.supplier))…
+       |                                                                       ^
+     67|   });
+     68|   it('receipt rejects nonexistent supplier', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:66:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt rejects nonexistent supplier
+AssertionError: expected [Function] to throw error including 'Supplier belongs to another property' but got 'inconsistent types deduced for parame…'
+
+Expected: "Supplier belongs to another property"
+Received: "inconsistent types deduced for parameter $1"
+
+ ❯ tests/integration/bar-property-guard.test.ts:69:71
+     67|   });
+     68|   it('receipt rejects nonexistent supplier', async () => {
+     69|     await fixture(async (a) => { await expect(receipt(a,randomUUID()))…
+       |                                                                       ^
+     70|   });
+     71|   it('receipt rejects null supplier', async () => {
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:69:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt rejects null supplier
+AssertionError: expected [Function] to throw error including 'Supplier belongs to another property' but got 'record "new" has no field "category_i…'
+
+Expected: "Supplier belongs to another property"
+Received: "record "new" has no field "category_id""
+
+ ❯ tests/integration/bar-property-guard.test.ts:73:268
+
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:17
+ ❯ tests/integration/bar-property-guard.test.ts:72:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > receipt property update rejects previously own supplier
+error: inconsistent types deduced for parameter $1
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ receipt tests/integration/bar-property-guard.test.ts:41:5
+
+ ❯ tests/integration/bar-property-guard.test.ts:78:18
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:77:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  |integration| tests/integration/bar-property-guard.test.ts > BAR property guard: table-specific trigger dispatch > unknown table fails closed even with neither row-specific field
+AssertionError: expected [Function] to throw error including 'Unsupported table for bar_property_gu…' but got 'record "new" has no field "category_i…'
+
+Expected: "Unsupported table for bar_property_guard"
+Received: "record "new" has no field "category_id""
+
+ ❯ tests/integration/bar-property-guard.test.ts:86:94
+     84|       await client.query('CREATE TEMP TABLE bar_unknown_probe (id uuid…
+     85|       await client.query('CREATE TRIGGER probe BEFORE INSERT ON bar_un…
+     86|       await expect(client.query('INSERT INTO bar_unknown_probe VALUES …
+       |                                                                                              ^
+     87|     });
+     88|   });
+ ❯ fixture tests/integration/bar-property-guard.test.ts:20:11
+ ❯ tests/integration/bar-property-guard.test.ts:83:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed | 1 passed (12)
+   Start at  10:10:07
+   Duration  840ms (transform 67%, import 20%, tests 13%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T06-10-04Z-integration-c825.json
+
+# код выхода 1 · 4 с

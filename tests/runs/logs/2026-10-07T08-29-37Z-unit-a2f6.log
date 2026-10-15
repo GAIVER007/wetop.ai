@@ -1,0 +1,46 @@
+# Модульные (unit) · 07.10.2026 13:29 Алматы · vm
+# коммит 012c06d (claude/sharp-dirac-6s46fw), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-07T08-29-37Z-unit-a2f6.json' 'apps/sites' 'packages/domain/src/marketing' 'packages/domain/src/web-booking' 'apps/api/src/sites-runtime' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (17 tests) 513ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (19 tests) 679ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 355ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 307ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 904ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (39 tests) 142ms
+ ✓ |unit| apps/sites/src/contract.test.ts (14 tests) 82ms
+ ✓ |unit| apps/sites/src/worker.test.ts (16 tests) 126ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 98ms
+ ✓ |unit| apps/sites/src/render/from-price.test.ts (22 tests) 43ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 63ms
+ ✓ |unit| apps/sites/src/render/sections.test.ts (30 tests) 44ms
+ ✓ |unit| apps/sites/src/render/variants.test.ts (23 tests) 32ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (38 tests) 27ms
+ ✓ |unit| apps/sites/src/render/theme.test.ts (29 tests) 21ms
+ ✓ |unit| packages/domain/src/web-booking/from-price.test.ts (8 tests) 14ms
+ ✓ |unit| apps/sites/src/seo.test.ts (13 tests) 39ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 17ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 12ms
+ ✓ |unit| apps/sites/src/headers.test.ts (14 tests) 10ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (2 tests) 6ms
+
+ Test Files  20 passed (20)
+      Tests  414 passed (414)
+   Start at  08:29:38
+   Duration  8.26s (transform 47%, import 35%, tests 17%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-07T08-29-37Z-unit-a2f6.json
+
+# код выхода 0 · 10 с

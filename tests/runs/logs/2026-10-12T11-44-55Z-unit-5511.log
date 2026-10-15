@@ -1,0 +1,21 @@
+# Модульные (unit) · 12.10.2026 16:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит 00ccd09 (claude/restaurant-design-mockup), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T11-44-55Z-unit-5511.json' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts' 'tests/unit/design-tokens.test.ts' 'apps/web/src/app/today'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design
+
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (10 tests) 8ms
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (16 tests) 56ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 61ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 185ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 6ms
+
+ Test Files  6 passed (6)
+      Tests  67 passed (67)
+   Start at  04:44:58
+   Duration  1.05s (transform 42%, import 38%, tests 15%, worker 4%, environment 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-12T11-44-55Z-unit-5511.json
+
+# код выхода 0 · 3 с

@@ -195,3 +195,35 @@ export function channelPrepaymentToKeep(input: {
   const penalty = input.penaltyMinor < 0n ? 0n : input.penaltyMinor;
   return penalty < input.prepaidMinor ? penalty : input.prepaidMinor;
 }
+
+/**
+ * Аннулировать или заменить платёж (план `plans/finance-payments-direct-2026-10-07.md`, У3) можно, пока он
+ * проведён, по нему нет возвратов и не выдан чек: возврат ссылается на платёж, а чек пробит на его сумму.
+ * Прошлое не правится: ошибка аннулируется, нужная запись делается заново.
+ */
+export function assertPaymentReversible(input: {
+  status: 'COMPLETED' | 'VOIDED';
+  refundedMinor: bigint;
+  receiptNumber: string | null;
+}): void {
+  if (input.status !== 'COMPLETED') throw new FinanceRuleError('Платёж уже аннулирован');
+  if (input.refundedMinor > 0n)
+    throw new FinanceRuleError(
+      'По платежу есть возврат: аннулировать и менять его нельзя. Остаток верните возвратом',
+    );
+  if (input.receiptNumber)
+    throw new FinanceRuleError(
+      `По платежу выдан чек № ${input.receiptNumber}: аннулировать и менять его нельзя, оформите возврат`,
+    );
+}
+
+/**
+ * Скидка процентом (У7): доля базы целыми тиынами, остаток отбрасывается. База не положительная — 0:
+ * скидка со знаком минус ни при каких данных не станет доплатой.
+ */
+export function discountMinor(baseMinor: bigint, percent: number): bigint {
+  if (!Number.isInteger(percent) || percent < 0 || percent > 100)
+    throw new FinanceRuleError('Процент скидки — целое число от 0 до 100');
+  if (baseMinor <= 0n) return 0n;
+  return (baseMinor * BigInt(percent)) / 100n;
+}

@@ -1,0 +1,120 @@
+{
+  "generated_at": "2026-10-10T07:30:00Z",
+  "session": "local Mac, branch claude/market-redesign-comp32, master-TZ 2026-10-09",
+  "requirements": [
+    {
+      "id": "R-COMP32",
+      "origin": "COMP3.2 (owner mockup, Competitor Intelligence 3.0)",
+      "implementation": "IMPLEMENTED",
+      "evidence": "PASS_AT_SOURCE",
+      "delivery": {"sha": "9e12ccfb45c44735b09679cf8afd6686d81ee980", "state": "REMOTE_BRANCH", "pr": 347, "mergeable": "clean"},
+      "owner_decision": "APPROVED_CONTRACT",
+      "author": "this session",
+      "remaining": "owner merge decision"
+    },
+    {
+      "id": "R-MENU-0001",
+      "origin": "audit chain 2.x, patch 0001 (openProfileMenu helper, 6 specs, guard)",
+      "implementation": "IMPLEMENTED",
+      "evidence": "PASS_AT_SOURCE (guard 4/4 on merged tree; full UI pending gate)",
+      "delivery": {"sha": "b99ec05f98dc9463d2fc2352b2b0c792d05f040a", "state": "REMOTE_BRANCH", "pr": 332, "draft": true},
+      "owner_decision": "APPROVED_CONTRACT",
+      "author": "chain executor; merged to fresh main by this session",
+      "remaining": "REM-2: dispatch gate after green main"
+    },
+    {
+      "id": "R-MENU-0005",
+      "origin": "audit chain 2.x, patch 0005 (button disabled/aria-busy until hydration)",
+      "implementation": "IMPLEMENTED",
+      "evidence": "PASS_AT_SOURCE (design guards 37/37, typecheck/lint clean on merged tree)",
+      "delivery": {"sha": "b99ec05f98dc9463d2fc2352b2b0c792d05f040a", "state": "REMOTE_BRANCH", "pr": 332},
+      "owner_decision": "APPROVED_CONTRACT",
+      "author": "chain executor; merged by this session",
+      "remaining": "REM-2"
+    },
+    {
+      "id": "R-MENU-GATE",
+      "origin": "master-TZ §10 (verify exact SHA via release-checks)",
+      "implementation": "IN_PROGRESS",
+      "evidence": "FAIL_REPRODUCED (run 37943644039 triaged: 4 tests, all stale-base legacy, none in menu files)",
+      "delivery": {"state": "REMOTE_BRANCH"},
+      "owner_decision": "APPROVED_CONTRACT",
+      "author": "this session (triage)",
+      "remaining": "REM-2"
+    },
+    {
+      "id": "R-MONEY-A3",
+      "origin": "audit A3 / reports 2.2-2.5 (currency compatibility, void debt, replay, REVERSED, BigInt, FIFO, folio)",
+      "implementation": "BLOCKED",
+      "evidence": "REPORTED_ONLY",
+      "delivery": {"sha": "7fa893430604de993696fd7b06bdb33cfe5e79be", "state": "UNKNOWN", "note": "NOT_AVAILABLE_HERE: not in this clone, not on GitHub, not in handover archives"},
+      "owner_decision": "APPROVED_CONTRACT",
+      "author": "chain executor (local session)",
+      "remaining": "REM-1: export bundle from authoring session"
+    },
+    {
+      "id": "R-UTC-SCHEMA",
+      "origin": "reports 2.6 (TIMESTAMPTZ epoch, sessions, TimeZone/search_path)",
+      "implementation": "BLOCKED",
+      "evidence": "REPORTED_ONLY",
+      "delivery": {"state": "UNKNOWN", "note": "same candidate as R-MONEY-A3"},
+      "owner_decision": "APPROVED_CONTRACT",
+      "remaining": "REM-1"
+    },
+    {
+      "id": "R-WEBAUTH",
+      "origin": "reports 2.7 (anonymous today/chessboard/reservations, logout, 401/403/5xx)",
+      "implementation": "BLOCKED",
+      "evidence": "REPORTED_ONLY",
+      "delivery": {"state": "UNKNOWN", "note": "same candidate"},
+      "owner_decision": "APPROVED_CONTRACT",
+      "remaining": "REM-1"
+    },
+    {
+      "id": "R-DS1C-SNAP",
+      "origin": "DS1c package (linux snapshot references)",
+      "implementation": "ALREADY_PRESENT",
+      "evidence": "PASS_AT_SOURCE (green gate run #185 on ecb0d629 includes design-system)",
+      "delivery": {"state": "IN_RELEASE", "note": "runner re-shot references itself, PR #309; package is history"},
+      "owner_decision": "APPROVED_CONTRACT",
+      "author": "runner + neighbour session",
+      "remaining": "none"
+    },
+    {
+      "id": "R-LOAD-0004",
+      "origin": "load-test stand patch",
+      "implementation": "NOT_STARTED",
+      "evidence": "NOT_RUN",
+      "delivery": {"state": "LOCAL_ONLY", "note": "stored in candidate archive; launch explicitly not authorized"},
+      "owner_decision": "DEFERRED",
+      "remaining": "separate owner decision"
+    },
+    {
+      "id": "R-SRVBOOT",
+      "origin": "CANDIDATE-2.9.md server-bootstrap analysis",
+      "implementation": "NOT_STARTED",
+      "evidence": "FAIL_REPRODUCED (two reproductions outside vitest, documented)",
+      "delivery": {"state": "UNKNOWN"},
+      "owner_decision": "NEEDS_DECISION",
+      "remaining": "REM-5"
+    },
+    {
+      "id": "R-MAIN-RED",
+      "origin": "release-checks on main red since ecb0d629",
+      "implementation": "NOT_STARTED (foreign active areas, no competing fix by design)",
+      "evidence": "FAIL_REPRODUCED (runs 37970183693, 37980147983 triaged to test names)",
+      "delivery": {"state": "IN_MAIN"},
+      "owner_decision": "NEEDS_DECISION",
+      "remaining": "REM-3"
+    },
+    {
+      "id": "R-BIZ-OPEN",
+      "origin": "M6, M9, N6, Q-BAR-9, D-CUR/D-KEY registry transfer",
+      "implementation": "NOT_STARTED",
+      "evidence": "STATIC_VERIFIED (grep: Q-BAR-9 OPEN in QUESTIONS.md; M6/M9/N6/D-CUR/D-KEY absent from canonical registries)",
+      "delivery": {"state": "UNKNOWN"},
+      "owner_decision": "NEEDS_DECISION",
+      "remaining": "REM-4"
+    }
+  ]
+}

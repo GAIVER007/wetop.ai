@@ -1,0 +1,59 @@
+# Модульные (unit) · 13.10.2026 11:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит db0cde7 (claude/ui-master-pass4), незакоммиченных файлов набора: 43
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T06-56-27Z-unit-a724.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/db-restore-prod.test.ts' 'apps/api/src/auth/auth.service.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f95331a4-038f-4fd5-94e9-06cd48e36a5a/scratchpad/ui-master
+
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (63 tests) 5071ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 1 failed) 20777ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ без --yes-replace-production ничего не делает 32ms
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 4928ms
+     × смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 9180ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 2269ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 1218ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 1877ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 1267ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (16 tests) 44620ms
+   ✓ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 4727ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 6123ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 4582ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 1431ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 2933ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 1780ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 1334ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 1987ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2811ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 2605ms
+     ✓ локальные правки в клоне — не затирает их 1233ms
+     ✓ историю ветки переписали — не выкладывает поверх 2390ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 4148ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 2665ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 2019ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1850ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > смешанная schema-миграция с GRANT не выполняется второй раз после восстановления
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:117:3
+    115|   });
+    116|
+    117|   it('смешанная schema-миграция с GRANT не выполняется второй раз посл…
+       |   ^
+    118|     const s = sandbox();
+    119|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 85 passed (86)
+   Start at  23:56:32
+   Duration  45.06s (tests 94%, transform 4%, import 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T06-56-27Z-unit-a724.json
+
+# код выхода 1 · 52 с

@@ -1,0 +1,20 @@
+# Модульные (unit) · 04.10.2026 22:24 Алматы · MacBook-Air-Urij.local
+# коммит 252dbe4 (codex/mv5-beauty-ui-20261004), незакоммиченных файлов набора: 31
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T17-24-37Z-unit-069f.json' 'tests/unit/ci-runner.test.ts' 'tests/unit/deploy-server.test.ts' '--maxWorkers=1' '--testTimeout=30000'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv1-20261004
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (20 tests) 4833ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 3348ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 695ms
+ ✓ |unit| tests/unit/deploy-server.test.ts (39 tests) 264ms
+
+ Test Files  2 passed (2)
+      Tests  59 passed (59)
+   Start at  21:24:41
+   Duration  8.80s (tests 87%, transform 9%, import 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-04T17-24-37Z-unit-069f.json
+
+# код выхода 0 · 13 с

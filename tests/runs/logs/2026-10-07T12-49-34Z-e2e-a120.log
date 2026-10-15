@@ -1,0 +1,5 @@
+# Сквозные (e2e) · 07.10.2026 17:49 Алматы · vm
+# коммит 4cb3746 (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' '--workers=1'
+
+# код выхода —, сигнал SIGTERM · 2 с

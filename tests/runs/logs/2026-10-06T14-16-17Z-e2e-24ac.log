@@ -1,0 +1,83 @@
+# Сквозные (e2e) · 06.10.2026 19:16 Алматы · vm
+# коммит 4ce9e90 (claude/blissful-newton-6pa4ky)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.widget.config.ts' '--workers=1'
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/widget-design.spec.ts:31:1 › welcome, draft suggestions, close and focus return (3ms)
+  ✘  2 tests/ui/widget-design.spec.ts:40:1 › multiline, failure retains draft and attachment, no duplicate sends (3ms)
+  ✘  3 tests/ui/widget-design.spec.ts:57:1 › themes and mobile layout (6ms)
+  ✘  4 tests/ui/widget-design.spec.ts:68:1 › successful send, deduplication, safe message rendering and Escape (3ms)
+  ✘  5 tests/ui/widget-design.spec.ts:103:1 › regression: failed request preserves original draft (3ms)
+  ✘  6 tests/ui/widget-design.spec.ts:110:1 › support distinguishes queue, operator and unknown state (5ms)
+  ✘  7 tests/ui/widget-design.spec.ts:120:1 › human request preserves draft and messages identify their author (4ms)
+  ✘  8 tests/ui/widget-design.spec.ts:135:1 › support accessibility and visual evidence (3ms)
+
+
+  1) tests/ui/widget-design.spec.ts:31:1 › welcome, draft suggestions, close and focus return ──────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/widget-design-welcome-draf-5e382-ions-close-and-focus-return/error-context.md
+
+  2) tests/ui/widget-design.spec.ts:40:1 › multiline, failure retains draft and attachment, no duplicate sends 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/widget-design-multiline-fa-6e996-tachment-no-duplicate-sends/error-context.md
+
+  3) tests/ui/widget-design.spec.ts:57:1 › themes and mobile layout ────────────────────────────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/widget-design-themes-and-mobile-layout/error-context.md
+
+  4) tests/ui/widget-design.spec.ts:68:1 › successful send, deduplication, safe message rendering and Escape 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/widget-design-successful-s-c4313-essage-rendering-and-Escape/error-context.md
+
+  5) tests/ui/widget-design.spec.ts:103:1 › regression: failed request preserves original draft ────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/widget-design-regression-f-af892-st-preserves-original-draft/error-context.md
+
+  6) tests/ui/widget-design.spec.ts:110:1 › support distinguishes queue, operator and unknown state 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/widget-design-support-dist-63900--operator-and-unknown-state/error-context.md
+
+  7) tests/ui/widget-design.spec.ts:120:1 › human request preserves draft and messages identify their author 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/widget-design-human-reques-8a4fc-sages-identify-their-author/error-context.md
+
+  8) tests/ui/widget-design.spec.ts:135:1 › support accessibility and visual evidence ──────────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/widget-design-support-accessibility-and-visual-evidence/error-context.md
+
+  8 failed
+    tests/ui/widget-design.spec.ts:31:1 › welcome, draft suggestions, close and focus return ───────
+    tests/ui/widget-design.spec.ts:40:1 › multiline, failure retains draft and attachment, no duplicate sends 
+    tests/ui/widget-design.spec.ts:57:1 › themes and mobile layout ─────────────────────────────────
+    tests/ui/widget-design.spec.ts:68:1 › successful send, deduplication, safe message rendering and Escape 
+    tests/ui/widget-design.spec.ts:103:1 › regression: failed request preserves original draft ─────
+    tests/ui/widget-design.spec.ts:110:1 › support distinguishes queue, operator and unknown state ─
+    tests/ui/widget-design.spec.ts:120:1 › human request preserves draft and messages identify their author 
+    tests/ui/widget-design.spec.ts:135:1 › support accessibility and visual evidence ───────────────
+
+# код выхода 1 · 8 с

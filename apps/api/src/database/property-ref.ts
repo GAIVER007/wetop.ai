@@ -61,7 +61,10 @@ export function assertPropertyVisible(property: PropertyRef): void {
 const cache = new Map<string, PropertyRef>();
 const schema = (): string => process.env.DATABASE_SCHEMA?.trim() || 'public';
 
-export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
+/** Объекту нужен только делегат `property`: годится и корневой клиент, и транзакция (`DbTx`). */
+export type PropertyDb = Pick<Db, 'property'>;
+
+export async function propertyRef(db: PropertyDb, name: string): Promise<PropertyRef> {
   const integrationPropertyId = currentIntegrationPropertyId();
   if (integrationPropertyId) {
     const byId = await db.property.findUnique({
@@ -121,7 +124,7 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
  * был миграционным окном и снят после production backfill (broken_chain = 0, 28.09.2026): объект без
  * цепочки база больше не принимает (`location_id` NOT NULL). Кэш — по организации плюс схема базы (ADR-042).
  */
-async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
+async function organizationPropertyRef(db: PropertyDb): Promise<PropertyRef> {
   const organizationId = currentOrganizationId();
   // Вошедший без организации (членства нет) не видит ни одного объекта — как и должен.
   if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
@@ -135,12 +138,14 @@ async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   const known = cache.get(key);
   if (known) return known;
   const chain = { business: { organizationId } };
+  // «ранний» объект выбираем только среди живых: архивный филиал или бизнес больше не подставляется (ADR-183)
+  const liveChain = { status: 'ACTIVE' as const, business: { organizationId, status: 'ACTIVE' as const } };
   const where =
     scope === 'LOCATION' && locationId
       ? { locationId, location: chain }
       : scope === 'BUSINESS' && businessId
-        ? { location: { businessId, ...chain } }
-        : { location: chain };
+        ? { location: { businessId, ...liveChain } }
+        : { location: liveChain };
   const found = await db.property.findFirst({
     where,
     orderBy: { createdAt: 'asc' },

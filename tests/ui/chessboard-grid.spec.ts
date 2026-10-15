@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, chooseBoardPeriod, expect, test } from './fixtures';
 
 /**
  * Шахматка v2, PR 2 (ТЗ — plans/tz-chessboard-v2-2026-09-27.md): сетка.
@@ -57,7 +57,8 @@ test('строка категории прилипает под шапкой д�
 
 test('30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается', async ({ page }) => {
   await page.goto('/chessboard');
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  // 30 дней выбираются в едином контроле периода.
+  await chooseBoardPeriod(page, '30 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   const width = await page
     .getByTestId('date-col')

@@ -1,0 +1,104 @@
+# Интеграционные (integration) · 14.10.2026 20:05 Алматы · MacBook-Air-Urij.local
+# коммит ecd2127 (claude/food-fix-02-20261014), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T15-05-16Z-integration-5a5b.json' 'tests/integration/food-fix-02-revenue.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP/.claude/worktrees/food-fix-02
+
+ ❯ |integration| tests/integration/food-fix-02-revenue.test.ts (4 tests | 4 failed) 441ms
+   ❯ выручка бара в отчётах (ADR-182), настоящая PostgreSQL (4)
+     × отчёт периода: выручка заказов и бара раздельно, каждый филиал видит своё 77ms
+     × границы дня по поясу филиала: 23:59 в день 13, 00:01 в день 14 19ms
+     × сторно исключает продажу бара из выручки задним числом 9ms
+     × сводка организации: поступления ресторана = оплаты заказов + бар, без ручных приходов и сторно 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/food-fix-02-revenue.test.ts > выручка бара в отчётах (ADR-182), настоящая PostgreSQL > отчёт периода: выручка заказов и бара раздельно, каждый филиал видит своё
+PrismaClientKnownRequestError: 
+Invalid `prisma.barSale.create()` invocation:
+
+
+Database error. Code: `23514`. Message: `new row for relation "bar_sales" violates check constraint "bar_sales_values_valid"`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/food-fix-02-revenue.test.ts:132:5
+    130|     await closedOrder(location1, 100_000n, '2026-09-05T15:00:00+05:00'…
+    131|     await closedOrder(location2, 50_000n, '2026-09-05T16:00:00+05:00');
+    132|     await barSale(location1, 20_000n, '2026-09-05T18:00:00+05:00');
+       |     ^
+    133|     await barSale(location2, 30_000n, '2026-09-06T18:00:00+05:00');
+    134|     const a = await period(location1, '2026-09-01', '2026-09-30');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/food-fix-02-revenue.test.ts > выручка бара в отчётах (ADR-182), настоящая PostgreSQL > границы дня по поясу филиала: 23:59 в день 13, 00:01 в день 14
+PrismaClientKnownRequestError: 
+Invalid `prisma.barSale.create()` invocation:
+
+
+Database error. Code: `23514`. Message: `new row for relation "bar_sales" violates check constraint "bar_sales_values_valid"`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/food-fix-02-revenue.test.ts:141:5
+    139|
+    140|   it('границы дня по поясу филиала: 23:59 в день 13, 00:01 в день 14',…
+    141|     await barSale(location1, 1_000n, '2026-09-13T23:59:00+05:00');
+       |     ^
+    142|     await barSale(location1, 2_000n, '2026-09-14T00:01:00+05:00');
+    143|     const day13 = await period(location1, '2026-09-13', '2026-09-13');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| tests/integration/food-fix-02-revenue.test.ts > выручка бара в отчётах (ADR-182), настоящая PostgreSQL > сторно исключает продажу бара из выручки задним числом
+PrismaClientKnownRequestError: 
+Invalid `prisma.barSale.create()` invocation:
+
+
+Database error. Code: `23514`. Message: `new row for relation "bar_sales" violates check constraint "bar_sales_values_valid"`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/food-fix-02-revenue.test.ts:150:5
+    148|
+    149|   it('сторно исключает продажу бара из выручки задним числом', async (…
+    150|     await barSale(location1, 5_000n, '2026-09-10T12:00:00+05:00');
+       |     ^
+    151|     expect((await period(location1, '2026-09-10', '2026-09-10')).barRe…
+    152|     await db.barSale.updateMany({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| tests/integration/food-fix-02-revenue.test.ts > выручка бара в отчётах (ADR-182), настоящая PostgreSQL > сводка организации: поступления ресторана = оплаты заказов + бар, без ручных приходов и сторно
+PrismaClientKnownRequestError: 
+Invalid `prisma.barSale.create()` invocation:
+
+
+Database error. Code: `23514`. Message: `new row for relation "bar_sales" violates check constraint "bar_sales_values_valid"`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/food-fix-02-revenue.test.ts:162:5
+    160|     const o1 = await closedOrder(location1, 100_000n, '2026-09-05T15:0…
+    161|     await paymentFor(location1, o1.id, 100_000n, '2026-09-05T15:00:00+…
+    162|     await barSale(location1, 20_000n, '2026-09-05T18:00:00+05:00');
+       |     ^
+    163|     const o2 = await closedOrder(location2, 50_000n, '2026-09-05T16:00…
+    164|     await paymentFor(location2, o2.id, 50_000n, '2026-09-05T16:00:00+0…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  19:05:17
+   Duration  2.72s (import 38%, transform 36%, tests 26%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-14T15-05-16Z-integration-5a5b.json
+
+# код выхода 1 · 5 с

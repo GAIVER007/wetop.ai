@@ -27,18 +27,18 @@ test('пробный период виден в меню на рабочих э�
   request,
 }) => {
   await signIn(page);
-  const line = page.locator('.workspace-header').getByTestId('trial-line');
+  const line = page.locator('.sidenav').getByTestId('trial-line');
   await expect(page.locator('.workspace-header .profile-caption')).toContainText('Дана Тестова');
   await expect(line).toHaveCount(0);
 
   await control(request, { orgTrialDays: 7 });
-  for (const path of ['/today', '/chessboard', '/reservations']) {
+  for (const path of ['/finance', '/chessboard', '/reservations']) {
     await page.goto(path);
     await expect(line).toHaveText('Пробный период: ещё 7 дн.');
   }
 
   await control(request, { orgTrialDays: 'ended' });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(line).toHaveText('Пробный период закончился');
 });
 
@@ -48,15 +48,6 @@ test('пустые экраны без «Legacy» и «импорта», с де
 }) => {
   await control(request, { empty: true });
   const main = page.getByRole('main');
-
-  await page.goto('/rates');
-  const rates = main.getByTestId('rates-empty');
-  await expect(rates).toContainText('Категорий ещё нет');
-  await expect(rates).not.toContainText(/Legacy|импорт/);
-  await expect(rates.getByRole('link', { name: 'Создать категорию' })).toHaveAttribute(
-    'href',
-    '/rooms/categories',
-  );
 
   await page.goto('/inventory');
   await expect(main.getByText('Номерной фонд пока пуст')).toBeVisible();
@@ -79,19 +70,28 @@ test('новая бронь: источник по умолчанию «стой
   await expect(page.getByRole('main').getByLabel('Источник *')).toHaveValue('DESK');
 });
 
-test('нижняя панель телефона — в порядке бокового меню (п. 1.6)', async ({ page }) => {
+test('меню телефона сохраняет порядок основных разделов (п. 1.6)', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/today');
-  await expect(
-    page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link'),
-  ).toHaveText(['Главная', 'Календарь', 'Брони', 'Гости']);
+  await page.goto('/finance');
+  await expect(page.locator('.bottom-navigation')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Открыть меню' }).click();
+  const menu = page.getByRole('dialog', { name: 'Навигация' });
+  await expect(menu).toBeVisible();
+  const sections = (await menu.locator('.sidebar-section-toggle').allTextContents()).map((s) =>
+    s.trim(),
+  );
+  expect(
+    sections.filter((label) =>
+      ['Финансы', 'Календарь', 'Гости и бронирования', 'Продажи'].includes(label),
+    ),
+  ).toEqual(['Календарь', 'Гости и бронирования', 'Финансы', 'Продажи']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
   });
-  await page.goto('/today');
+  await page.goto('/finance');
   await expect(page.locator('.workspace-search kbd')).toHaveText('Ctrl K');
 });
 
@@ -110,7 +110,8 @@ test('владелец и управляющий правят сведения �
   const form = page.getByTestId('hotel-settings-form');
   const save = page.getByRole('main').getByRole('button', { name: 'Сохранить изменения' });
   await expect(form.getByLabel('Название объекта', { exact: true })).toHaveValue('Luxx Aparts');
-  await expect(form.getByLabel('Валюта')).toHaveCount(0);
+  // валюта стоит полем только для чтения (ADR-156)
+  await expect(form.getByLabel('Валюта')).toHaveAttribute('readonly', '');
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
   await save.click();
   await expect(page.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');

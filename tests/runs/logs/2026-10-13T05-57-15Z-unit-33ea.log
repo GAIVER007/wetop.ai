@@ -1,0 +1,49 @@
+# Модульные (unit) · 13.10.2026 10:57 Алматы · vm
+# коммит d96217c (claude/blissful-newton-6pa4ky), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-13T05-57-15Z-unit-33ea.json' 'apps/web/src/lib/navigation-registry.test.ts' 'apps/web/src/lib/navigation-rights.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/navigation-registry.test.ts (6 tests | 1 failed) 37ms
+   ❯ реестр меню (4)
+     × ни одна ссылка меню не ведёт на перенаправление: «Сотрудники и доступ» сразу на /team 15ms
+     ✓ каждая ссылка меню ведёт на настоящую страницу приложения 6ms
+     ✓ у каждого пункта есть право: закрытую страницу меню не обещает 4ms
+     ✓ внутри направления адреса пунктов не повторяются, внутри раздела подписи тоже 5ms
+   ✓ подсветка раздела у салона и ресторана (2)
+     ✓ «Сотрудники и доступ» горят и на /team, и на старой закладке /staff 2ms
+     ✓ прежние адреса салона подсвечивают свой раздел 1ms
+ ✓ |unit| apps/web/src/lib/navigation-rights.test.ts (2 tests) 105ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-registry.test.ts > реестр меню > ни одна ссылка меню не ведёт на перенаправление: «Сотрудники и доступ» сразу на /team
+AssertionError: BEAUTY: expected [ '/staff' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "/staff",
++ ]
+
+ ❯ apps/web/src/lib/navigation-registry.test.ts:40:9
+     38|           .filter((href) => REDIRECT_SOURCES.includes(href)),
+     39|         vertical,
+     40|       ).toEqual([]);
+       |         ^
+     41|   });
+     42|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 7 passed (8)
+   Start at  05:57:16
+   Duration  2.65s (transform 85%, import 12%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-13T05-57-15Z-unit-33ea.json
+
+# код выхода 1 · 4 с

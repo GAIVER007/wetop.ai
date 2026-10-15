@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, financeApi } from '../../../lib/api';
+import { FinanceRuleError, discountMinor, parseMoney } from '@pms/domain';
+import { ApiError, financeApi, reservationsApi } from '../../../lib/api';
 
 export interface FinanceActionResult {
   error: string | null;
@@ -25,6 +26,8 @@ const FIELD_LABELS: Record<string, string> = {
   reason: 'Причина',
   allocations: 'Распределение по счетам',
   extra: 'Доплата',
+  price: 'Цена проживания',
+  percent: 'Процент скидки',
 };
 const humanize = (message: string) => {
   const m = /^([A-Za-z]+) — (.+)$/s.exec(message);
@@ -32,7 +35,11 @@ const humanize = (message: string) => {
   return label ? `Поле «${label}»: ${m![2]}` : message;
 };
 const describe = (e: unknown) =>
-  e instanceof ApiError ? humanize(e.message) : e instanceof Error ? e.message : String(e);
+  e instanceof ApiError || e instanceof FinanceRuleError
+    ? humanize(e.message)
+    : e instanceof Error
+      ? e.message
+      : String(e);
 const s = (fd: FormData, k: string) => {
   const v = fd.get(k);
   return typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined;
@@ -62,15 +69,72 @@ const money = (amount: string | undefined): string => {
   return `${new Intl.NumberFormat('ru-RU').format(n)} ₸`;
 };
 
+/** Тиыны → строка денег для API («-123450» → «-1234.50») */
+const minorToDecimal = (minor: bigint): string => {
+  const neg = minor < 0n;
+  const d = (neg ? -minor : minor).toString().padStart(3, '0');
+  return `${neg ? '-' : ''}${d.slice(0, -2)}.${d.slice(-2)}`;
+};
+
+/**
+ * Скидка (план finance-payments-direct 07.10.2026, У7): отрицательная корректировка с понятной подписью. Процент
+ * считается от действующего начисления за проживание (`baseMinor` из формы) правилом домена, целыми тиынами.
+ */
+function discountCharge(fd: FormData): {
+  description: string;
+  unitPrice: string;
+} {
+  const percentRaw = s(fd, 'percent');
+  const amountRaw = s(fd, 'amount');
+  const reason = s(fd, 'description');
+  let minor: bigint;
+  let description: string;
+  if (percentRaw) {
+    const percent = Number(percentRaw.replace(',', '.'));
+    if (!Number.isInteger(percent)) throw new FinanceRuleError('percent — целое число от 1 до 100');
+    minor = discountMinor(BigInt(s(fd, 'baseMinor') ?? '0'), percent);
+    description = `Скидка ${percent}% на проживание${reason ? `: ${reason}` : ''}`;
+  } else if (amountRaw) {
+    minor = parseMoney(amountRaw);
+    description = `Скидка${reason ? `: ${reason}` : ''}`;
+  } else {
+    throw new FinanceRuleError('percent — процент скидки или amount — её сумма');
+  }
+  if (minor <= 0n) throw new FinanceRuleError('amount — скидка должна быть больше нуля');
+  return { description, unitPrice: minorToDecimal(-minor) };
+}
+
 export async function addChargeAction(
   number: string,
   folioId: string,
   _prev: FinanceActionResult,
   fd: FormData,
 ): Promise<FinanceActionResult> {
+  const kind = s(fd, 'kind');
+  const keys = [
+    'kind',
+    'serviceCode',
+    'description',
+    'quantity',
+    'unitPrice',
+    'serviceDate',
+    'percent',
+    'amount',
+  ];
   try {
+    if (kind === 'DISCOUNT') {
+      const discount = discountCharge(fd);
+      await financeApi.addCharge(folioId, {
+        kind: 'ADJUSTMENT',
+        description: discount.description,
+        quantity: '1',
+        unitPrice: discount.unitPrice,
+        serviceDate: s(fd, 'serviceDate'),
+      });
+      return done(number, 'Скидка записана в счёт.');
+    }
     await financeApi.addCharge(folioId, {
-      kind: s(fd, 'kind'),
+      kind,
       serviceCode: s(fd, 'serviceCode'),
       description: s(fd, 'description'),
       quantity: s(fd, 'quantity'),
@@ -78,16 +142,60 @@ export async function addChargeAction(
       serviceDate: s(fd, 'serviceDate'),
     });
   } catch (e) {
-    return rejected(e, _prev, fd, [
-      'kind',
-      'serviceCode',
-      'description',
-      'quantity',
-      'unitPrice',
-      'serviceDate',
-    ]);
+    return rejected(e, _prev, fd, keys);
   }
   return done(number, 'Начисление добавлено в счёт.');
+}
+
+/** Цена проживания целиком (У6): начисление переписывает система, при смене дат цена снова по тарифу */
+export async function stayPriceAction(
+  number: string,
+  itemId: string,
+  _prev: FinanceActionResult,
+  fd: FormData,
+): Promise<FinanceActionResult> {
+  try {
+    await reservationsApi.updateItem(number, itemId, { price: s(fd, 'price') ?? '' });
+  } catch (e) {
+    return rejected(e, _prev, fd, ['price']);
+  }
+  revalidatePath('/chessboard');
+  return done(number, `Цена проживания изменена: ${money(s(fd, 'price'))}. Счёт ниже пересчитан.`);
+}
+
+/** Аннулировать платёж (У1–У4): деньги уходят из оплаченного, строка остаётся со статусом «аннулирован» */
+export async function voidPaymentAction(
+  number: string,
+  paymentId: string,
+  reason: string | null,
+): Promise<FinanceActionResult> {
+  try {
+    await financeApi.voidPayment(paymentId, reason);
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  revalidatePath('/finance');
+  return done(number, 'Платёж аннулирован. Баланс счёта ниже пересчитан.');
+}
+
+/** Заменить платёж: поправили способ, сумму или примечание; дата платежа остаётся прежней */
+export async function replacePaymentAction(
+  number: string,
+  paymentId: string,
+  _prev: FinanceActionResult,
+  fd: FormData,
+): Promise<FinanceActionResult> {
+  try {
+    await financeApi.replacePayment(paymentId, {
+      method: s(fd, 'method'),
+      amount: s(fd, 'amount'),
+      note: s(fd, 'note') ?? null,
+    });
+  } catch (e) {
+    return rejected(e, _prev, fd, ['method', 'amount', 'note']);
+  }
+  revalidatePath('/finance');
+  return done(number, `Платёж изменён: ${money(s(fd, 'amount'))}. Прежний остался в списке аннулированным.`);
 }
 export async function voidChargeAction(
   number: string,

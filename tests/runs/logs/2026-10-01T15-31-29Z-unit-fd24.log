@@ -1,0 +1,39 @@
+# Модульные (unit) · 01.10.2026 20:31 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-31-29Z-unit-fd24.json' 'apps/web/src/app/reservations/new/summary.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/reservations/new/summary.test.ts (3 tests | 1 failed) 17ms
+   ❯ сводка новой брони: гости в групповом размещении (3)
+     × 3 койки по одному гостю: 3 места и 3 гостя 13ms
+     ✓ 2 номера по два гостя: 2 места и 4 гостя; второе размещение считается своими полями 1ms
+     ✓ одно место: гостей столько, сколько в поле 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/new/summary.test.ts > сводка новой брони: гости в групповом размещении > 3 койки по одному гостю: 3 места и 3 гостя
+AssertionError: expected '10 нояб. → 13 нояб., 3 ночи' to be '10.11.2026 → 13.11.2026, 3 ночи' // Object.is equality
+
+Expected: "10.11.2026 → 13.11.2026, 3 ночи"
+Received: "10 нояб. → 13 нояб., 3 ночи"
+
+ ❯ apps/web/src/app/reservations/new/summary.test.ts:30:29
+     28|       'Мужской общий номер, 3 места, ячейки назначит система, 3 гостя',
+     29|     ]);
+     30|     expect(facts.datesText).toBe('10.11.2026 → 13.11.2026, 3 ночи');
+       |                             ^
+     31|   });
+     32|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  15:31:30
+   Duration  396ms (transform 66%, import 24%, tests 8%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-31-29Z-unit-fd24.json
+
+# код выхода 1 · 2 с

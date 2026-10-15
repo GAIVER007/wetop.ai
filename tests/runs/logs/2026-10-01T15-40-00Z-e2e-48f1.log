@@ -1,0 +1,122 @@
+# Сквозные (e2e) · 01.10.2026 20:40 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/booking-group-guests.spec.ts' 'tests/ui/rate-plans.spec.ts' '--grep' 'гост|выключить'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 2 workers
+
+  ✘  1 tests/ui/booking-group-guests.spec.ts:14:1 › 3 койки: поле «Гостей на место», подсказка и сводка считают 3 гостей (18.1s)
+  ✘  2 tests/ui/rate-plans.spec.ts:120:1 › выключить и включить тариф: причина у тарифа с бронями, тариф без броней уходит из формы брони (22.1s)
+  ✘  3 tests/ui/booking-group-guests.spec.ts:46:1 › 2 номера по 2 гостя: сводка считает 4 гостей; телефон без горизонтальной прокрутки (17.0s)
+
+
+  1) tests/ui/booking-group-guests.spec.ts:14:1 › 3 койки: поле «Гостей на место», подсказка и сводка считают 3 гостей 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('new-reservation-form').getByText('Гостей на место', { exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('new-reservation-form').getByText('Гостей на место', { exact: true }) with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form').getByText('Гостей на место', { exact: true })
+
+
+      24 |   await form.locator('input[name="quantity"]').fill('3');
+      25 |
+    > 26 |   await expect(form.getByText('Гостей на место', { exact: true })).toBeVisible();
+         |                                                                    ^
+      27 |   await expect(guests).toHaveValue('1');
+      28 |   await expect(guests).toHaveAttribute('max', '1');
+      29 |   await expect(form.getByTestId('group-hint')).toContainText('3 проживания');
+        at /home/user/wetop.ai/tests/ui/booking-group-guests.spec.ts:26:68
+
+    Error Context: test-results/booking-group-guests-3-кой-96348-а-и-сводка-считают-3-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-group-guests-3-кой-96348-а-и-сводка-считают-3-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-group-guests-3-кой-96348-а-и-сводка-считают-3-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/booking-group-guests.spec.ts:46:1 › 2 номера по 2 гостя: сводка считает 4 гостей; телефон без горизонтальной прокрутки 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('new-reservation-form').getByText('Гостей на место', { exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('new-reservation-form').getByText('Гостей на место', { exact: true }) with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form').getByText('Гостей на место', { exact: true })
+
+
+      54 |   await form.locator('input[name="adults"]').fill('2');
+      55 |   await form.locator('input[name="quantity"]').fill('2');
+    > 56 |   await expect(form.getByText('Гостей на место', { exact: true })).toBeVisible();
+         |                                                                    ^
+      57 |   await expect(form.locator('input[name="adults"]')).toHaveValue('2');
+      58 |   await expect(form.getByTestId('group-hint')).toContainText('всего 4 гостя');
+      59 |   await expect(form.getByTestId('booking-digest')).toContainText('2 места, ячейки назначит система, 4 гостя');
+        at /home/user/wetop.ai/tests/ui/booking-group-guests.spec.ts:56:68
+
+    Error Context: test-results/booking-group-guests-2-ном-8152f-ез-горизонтальной-прокрутки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-group-guests-2-ном-8152f-ез-горизонтальной-прокрутки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-group-guests-2-ном-8152f-ез-горизонтальной-прокрутки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/rate-plans.spec.ts:120:1 › выключить и включить тариф: причина у тарифа с бронями, тариф без броней уходит из формы брони 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Стандартный' }).getByTestId('rate-plan-status')
+    Expected substring: "Тариф действует"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Стандартный' }).getByTestId('rate-plan-status') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Стандартный' }).getByTestId('rate-plan-status')
+
+
+      130 |   await table.getByRole('button', { name: 'Стандартный' }).click();
+      131 |   const held = page.getByRole('dialog', { name: 'Стандартный' });
+    > 132 |   await expect(held.getByTestId('rate-plan-status')).toContainText('Тариф действует');
+          |                                                      ^
+      133 |   await expect(held.getByTestId('rate-plan-off-blockers')).toContainText('Броней впереди по тарифу');
+      134 |   await expect(held.getByRole('button', { name: 'Выключить тариф' })).toBeDisabled();
+      135 |   await page.keyboard.press('Escape');
+        at /home/user/wetop.ai/tests/ui/rate-plans.spec.ts:132:54
+
+    Error Context: test-results/rate-plans-выключить-и-вкл-602de-роней-уходит-из-формы-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rate-plans-выключить-и-вкл-602de-роней-уходит-из-формы-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rate-plans-выключить-и-вкл-602de-роней-уходит-из-формы-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/booking-group-guests.spec.ts:14:1 › 3 койки: поле «Гостей на место», подсказка и сводка считают 3 гостей 
+    tests/ui/booking-group-guests.spec.ts:46:1 › 2 номера по 2 гостя: сводка считает 4 гостей; телефон без горизонтальной прокрутки 
+    tests/ui/rate-plans.spec.ts:120:1 › выключить и включить тариф: причина у тарифа с бронями, тариф без броней уходит из формы брони 
+
+# код выхода 1 · 47 с

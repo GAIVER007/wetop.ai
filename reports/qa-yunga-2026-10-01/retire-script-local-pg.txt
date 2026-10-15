@@ -1,0 +1,17 @@
+--- dry run: unit + rate plan
+{"dryRun":true,"unit":{"id":"85846e6a-d3be-4830-a36c-8c7afbf5dd17","code":"QA-UNIT-1","retired":true},"category":null,"ratePlan":{"id":"a9edc24b-8b2f-4dc1-94bd-7461eb9ac2c6","code":"qa-plan","name":"QA тариф","retired":true}}
+--- state after dry run (must be unchanged)
+[{"unit_active":true,"plan_active":true,"audit":0}]
+--- category while its unit is active (must refuse)
+категорию QA категория держат действующие места: 1 (сначала --unit); ничего не меняем
+--- apply: unit + category + rate plan
+{"dryRun":false,"unit":{"id":"85846e6a-d3be-4830-a36c-8c7afbf5dd17","code":"QA-UNIT-1","retired":true},"category":{"id":"f4211a16-f1bd-4343-a474-f23d1b9a77a3","name":"QA категория","retired":true},"ratePlan":{"id":"a9edc24b-8b2f-4dc1-94bd-7461eb9ac2c6","code":"qa-plan","name":"QA тариф","retired":true}}
+--- state after apply
+[{"unit_active":false,"cat_active":false,"plan_active":false,"audit":3,"active_units":88}]
+--- repeat (must refuse: already off)
+место QA-UNIT-1 уже выключено
+тариф QA тариф уже выключен
+--- seeded plan with bookings and mappings (must refuse): L-BASE
+тариф Базовый тариф (стенд) держат брони: 10; ничего не меняем
+--- unknown code (must refuse)
+место NO-SUCH-UNIT: найдено 0, нужна ровно одна запись; ничего не меняем
